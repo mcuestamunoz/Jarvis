@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jarvis"
+version = "0.1.0"
+description = "Deterministic engineering engine for designing physical systems with AI-assisted natural language."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary" }
+authors = [{ name = "Marc Cuesta Muñoz" }]
+dependencies = [
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+mcp = ["mcp>=1.0"]
+
+[project.scripts]
+jarvis = "jarvis.adapters.cli.main:main"
+
+[project.urls]
+Repository = "https://github.com/mcuestamunoz/Jarvis"
+Vision = "https://github.com/mcuestamunoz/Jarvis/blob/main/VISION.md"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
