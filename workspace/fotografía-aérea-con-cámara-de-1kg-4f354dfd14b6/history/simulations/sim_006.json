@@ -1,0 +1,20 @@
+{
+  "physics_status": "valid",
+  "energy_status": "missing_energy_parameters",
+  "propeller_status": "valid",
+  "status": "pass",
+  "can_fly": true,
+  "quality": "good",
+  "safety_margin_ratio": 4.6721,
+  "thrust_to_weight_ratio": 5.6065,
+  "autonomy_min": null,
+  "propeller_thrust_inferred": false,
+  "warnings": [],
+  "analysis": {
+    "available_thrust_n": 88.0,
+    "required_thrust_n": 18.8352,
+    "weight_n": 15.696,
+    "per_motor_load_ratio": 0.214
+  },
+  "summary": "Estado pass. Calidad good. Margen de seguridad 4.67."
+}

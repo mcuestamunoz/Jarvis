@@ -1,0 +1,44 @@
+{
+  "sunnysky_x2216_11": {
+    "thrust_n": 12.5,
+    "kv_rating": 1100,
+    "weight_g": 62,
+    "max_watts": 280,
+    "compatible_prop_inch": [10, 11]
+  },
+  "t-motor_mn3110_700": {
+    "thrust_n": 14.0,
+    "kv_rating": 700,
+    "weight_g": 102,
+    "max_watts": 350,
+    "compatible_prop_inch": [12, 13]
+  },
+  "emax_rs2205_2300": {
+    "thrust_n": 8.0,
+    "kv_rating": 2300,
+    "weight_g": 30,
+    "max_watts": 250,
+    "compatible_prop_inch": [5]
+  },
+  "sunnysky_x2212_980": {
+    "thrust_n": 11.0,
+    "kv_rating": 980,
+    "weight_g": 58,
+    "max_watts": 260,
+    "compatible_prop_inch": [10, 11]
+  },
+  "t-motor_mn4014_400": {
+    "thrust_n": 22.0,
+    "kv_rating": 400,
+    "weight_g": 175,
+    "max_watts": 550,
+    "compatible_prop_inch": [15, 16]
+  },
+  "generic_920kv": {
+    "thrust_n": 10.0,
+    "kv_rating": 920,
+    "weight_g": 65,
+    "max_watts": 220,
+    "compatible_prop_inch": [10]
+  }
+}

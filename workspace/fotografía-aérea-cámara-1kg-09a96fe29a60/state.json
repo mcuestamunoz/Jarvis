@@ -1,0 +1,284 @@
+{
+  "project_id": "09a96fe29a60",
+  "project_slug": "fotografía-aérea-cámara-1kg",
+  "objective": "fotografía aérea cámara 1kg",
+  "workspace_path": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/fotografía-aérea-cámara-1kg-09a96fe29a60",
+  "active_iteration": 3,
+  "current_parameters": {
+    "objective": "fotografía aérea cámara 1kg",
+    "payload_kg": 1.0,
+    "vehicle_type": "dron",
+    "restrictions": "autonomía mínima 20 minutos, peso máximo 4kg",
+    "detail_level": "conceptual",
+    "per_motor_max_thrust_n": 470.0,
+    "structure_mass_factor": 0.6,
+    "safety_factor": 1.2,
+    "propeller_diameter_in": null,
+    "propeller_rpm": null,
+    "motor_count": 4.0,
+    "battery_capacity_wh": 118.4,
+    "battery_mass_kg": 0.789,
+    "wheel_radius_m": 0.15,
+    "gear_ratio": 10.0
+  },
+  "parsed_constraints": {
+    "autonomy_min": 20.0
+  },
+  "design_properties": {
+    "structure": {
+      "material": "aluminio",
+      "density": 2700.0,
+      "volume": 1.0,
+      "structural_fraction": 0.25,
+      "notes": null
+    },
+    "components": {
+      "motors": {
+        "name": "",
+        "component_type": null,
+        "suggested_key": null,
+        "inference_confidence": 0.0,
+        "properties": {},
+        "completeness": "low",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "propellers": {
+        "name": "",
+        "component_type": null,
+        "suggested_key": null,
+        "inference_confidence": 0.0,
+        "properties": {},
+        "completeness": "low",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "battery": {
+        "name": "batería LiPo 4S 8000mAh 14.8V",
+        "component_type": "energy_storage",
+        "suggested_key": "battery",
+        "inference_confidence": 0.8,
+        "properties": {
+          "cell_count": {
+            "value": 4,
+            "unit": "S",
+            "confidence": 0.9,
+            "source": "declared"
+          },
+          "battery_capacity_wh": {
+            "value": 118.4,
+            "unit": "Wh",
+            "confidence": 0.9,
+            "source": "inferred"
+          }
+        },
+        "completeness": "medium",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "frame": {
+        "name": "",
+        "component_type": null,
+        "suggested_key": null,
+        "inference_confidence": 0.0,
+        "properties": {},
+        "completeness": "low",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "flight_controller": {
+        "name": "",
+        "component_type": null,
+        "suggested_key": null,
+        "inference_confidence": 0.0,
+        "properties": {},
+        "completeness": "low",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "sensors": {
+        "name": "",
+        "component_type": null,
+        "suggested_key": null,
+        "inference_confidence": 0.0,
+        "properties": {},
+        "completeness": "low",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      }
+    },
+    "system_defined": true,
+    "system_blocks": [
+      "propulsion",
+      "energy",
+      "structure",
+      "control"
+    ],
+    "system_priority": [
+      "propulsion",
+      "energy",
+      "structure",
+      "control"
+    ]
+  },
+  "latest_results": {
+    "mutation": {
+      "state_patch": {
+        "wheel_radius_m": 0.15,
+        "gear_ratio": 10.0
+      },
+      "mode": "physical"
+    },
+    "calculations": {
+      "vehicle_type": "dron",
+      "payload_kg": 1.0,
+      "structure_mass_kg": 0.6,
+      "total_mass_kg": 2.389,
+      "weight_n": 23.4361,
+      "required_thrust_n": 28.1233,
+      "motors": 4,
+      "thrust_per_motor_required_n": 7.0308,
+      "available_total_thrust_n": 1880.0,
+      "autonomy_min": null,
+      "tool_results": [
+        {
+          "tool_name": "estimate_structure_mass",
+          "inputs": {
+            "payload_kg": 1.0,
+            "structure_mass_factor": 0.6
+          },
+          "outputs": {
+            "structure_mass_kg": 0.6
+          }
+        },
+        {
+          "tool_name": "calculate_total_mass",
+          "inputs": {
+            "payload_kg": 1.0,
+            "structure_mass_kg": 1.389
+          },
+          "outputs": {
+            "total_mass_kg": 2.389
+          }
+        },
+        {
+          "tool_name": "calculate_weight",
+          "inputs": {
+            "total_mass_kg": 2.389
+          },
+          "outputs": {
+            "weight_n": 23.4361
+          }
+        },
+        {
+          "tool_name": "calculate_required_thrust",
+          "inputs": {
+            "weight_n": 23.4361,
+            "safety_factor": 1.2
+          },
+          "outputs": {
+            "required_thrust_n": 28.1233
+          }
+        },
+        {
+          "tool_name": "calculate_thrust_per_motor",
+          "inputs": {
+            "required_thrust_n": 28.1233,
+            "motors": 4
+          },
+          "outputs": {
+            "thrust_per_motor_required_n": 7.0308
+          }
+        },
+        {
+          "tool_name": "missing_energy_parameters",
+          "inputs": {
+            "battery_capacity_wh": 118.4,
+            "motor_power_w": null
+          },
+          "outputs": {
+            "reason": "battery_capacity_wh and/or motor_power_w not in parameters"
+          }
+        }
+      ]
+    },
+    "simulation": {
+      "physics_status": "valid",
+      "energy_status": "missing_energy_parameters",
+      "propeller_status": "valid",
+      "status": "pass",
+      "can_fly": true,
+      "quality": "good",
+      "safety_margin_ratio": 66.8485,
+      "thrust_to_weight_ratio": 80.2181,
+      "autonomy_min": null,
+      "propeller_thrust_inferred": false,
+      "warnings": [],
+      "analysis": {
+        "available_thrust_n": 1880.0,
+        "required_thrust_n": 28.1233,
+        "weight_n": 23.4361,
+        "per_motor_load_ratio": 0.015
+      },
+      "summary": "Estado pass. Calidad good. Margen de seguridad 66.85."
+    }
+  },
+  "last_total_mass_kg": 2.389,
+  "history": [
+    {
+      "timestamp": "2026-06-03T10:25:47.441675+00:00",
+      "action": "create_project",
+      "summary": "Proyecto creado con cálculo base y simulación inicial.",
+      "artifacts": {
+        "simulation": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/fotografía-aérea-cámara-1kg-09a96fe29a60/history/simulations/sim_000.json",
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/fotografía-aérea-cámara-1kg-09a96fe29a60/history/iterations/iter_000.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T10:25:52.220140+00:00",
+      "action": "iterate",
+      "summary": "Parámetros definidos: motor_count=4.0, per_motor_max_thrust_n=470.0.",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/fotografía-aérea-cámara-1kg-09a96fe29a60/history/iterations/iter_001.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T10:25:56.347910+00:00",
+      "action": "iterate",
+      "summary": "Batería definida: 118.4Wh",
+      "artifacts": {}
+    },
+    {
+      "timestamp": "2026-06-03T10:25:59.823933+00:00",
+      "action": "simulate",
+      "summary": "Simulación ejecutada sobre el proyecto actual.",
+      "artifacts": {
+        "simulation": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/fotografía-aérea-cámara-1kg-09a96fe29a60/history/simulations/sim_003.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-05T09:29:36.857142+00:00",
+      "action": "iterate",
+      "summary": "Parámetros definidos: wheel_radius_m=0.15, gear_ratio=10.0.",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/fotografía-aérea-cámara-1kg-09a96fe29a60/history/iterations/iter_002.json"
+      }
+    }
+  ],
+  "memory": {
+    "preferences": {},
+    "conflict_history": []
+  }
+}

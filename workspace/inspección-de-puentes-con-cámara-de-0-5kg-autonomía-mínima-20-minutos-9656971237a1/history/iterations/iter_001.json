@@ -1,0 +1,113 @@
+{
+  "iteration_id": 1,
+  "event": "params_defined",
+  "params": {
+    "propeller_diameter_in": 10.0,
+    "propeller_rpm": 7500.0
+  },
+  "calculations": {
+    "vehicle_type": "dron",
+    "payload_kg": 0.5,
+    "structure_mass_kg": 0.3,
+    "total_mass_kg": 0.8,
+    "weight_n": 7.848,
+    "required_thrust_n": 9.4176,
+    "motors": 4,
+    "thrust_per_motor_required_n": 2.3544,
+    "available_total_thrust_n": 38.2413,
+    "autonomy_min": null,
+    "tool_results": [
+      {
+        "tool_name": "estimate_structure_mass",
+        "inputs": {
+          "payload_kg": 0.5,
+          "structure_mass_factor": 0.6
+        },
+        "outputs": {
+          "structure_mass_kg": 0.3
+        }
+      },
+      {
+        "tool_name": "calculate_total_mass",
+        "inputs": {
+          "payload_kg": 0.5,
+          "structure_mass_kg": 0.3
+        },
+        "outputs": {
+          "total_mass_kg": 0.8
+        }
+      },
+      {
+        "tool_name": "calculate_weight",
+        "inputs": {
+          "total_mass_kg": 0.8
+        },
+        "outputs": {
+          "weight_n": 7.848
+        }
+      },
+      {
+        "tool_name": "calculate_required_thrust",
+        "inputs": {
+          "weight_n": 7.848,
+          "safety_factor": 1.2
+        },
+        "outputs": {
+          "required_thrust_n": 9.4176
+        }
+      },
+      {
+        "tool_name": "calculate_thrust_from_propeller",
+        "inputs": {
+          "diameter_m": 0.254,
+          "rpm": 7500.0,
+          "ct": 0.12,
+          "air_density": 1.225
+        },
+        "outputs": {
+          "thrust_n": 9.560316
+        }
+      },
+      {
+        "tool_name": "calculate_thrust_per_motor",
+        "inputs": {
+          "required_thrust_n": 9.4176,
+          "motors": 4
+        },
+        "outputs": {
+          "thrust_per_motor_required_n": 2.3544
+        }
+      },
+      {
+        "tool_name": "missing_energy_parameters",
+        "inputs": {
+          "battery_capacity_wh": null,
+          "motor_power_w": null
+        },
+        "outputs": {
+          "reason": "battery_capacity_wh and/or motor_power_w not in parameters"
+        }
+      }
+    ]
+  },
+  "simulation": {
+    "physics_status": "valid",
+    "energy_status": "missing_energy_parameters",
+    "propeller_status": "valid",
+    "status": "pass",
+    "can_fly": true,
+    "quality": "good",
+    "safety_margin_ratio": 4.0606,
+    "thrust_to_weight_ratio": 4.8727,
+    "autonomy_min": null,
+    "propeller_thrust_inferred": true,
+    "warnings": [],
+    "analysis": {
+      "available_thrust_n": 38.2413,
+      "required_thrust_n": 9.4176,
+      "weight_n": 7.848,
+      "per_motor_load_ratio": 0.2463
+    },
+    "summary": "Estado pass. Calidad good. Margen de seguridad 4.06."
+  }
+}

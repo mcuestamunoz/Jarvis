@@ -1,0 +1,10 @@
+{
+  "aluminio":         { "density_kg_m3": 2700 },
+  "fibra de carbono": { "density_kg_m3": 1600 },
+  "titanio":          { "density_kg_m3": 4500 },
+  "acero":            { "density_kg_m3": 7850 },
+  "kevlar":           { "density_kg_m3": 1440 },
+  "magnesio":         { "density_kg_m3": 1740 },
+  "pl\u00e1stico":         { "density_kg_m3": 1200 },
+  "pvc":              { "density_kg_m3": 1380 }
+}

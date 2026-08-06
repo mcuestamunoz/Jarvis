@@ -1,0 +1,20 @@
+{"timestamp": "2026-07-18T12:42:43.059987+00:00", "type": "params_defined", "iteration_id": 7, "params": ["wheel_radius_m", "gear_ratio"]}
+{"timestamp": "2026-07-18T12:44:22.291232+00:00", "type": "params_defined", "iteration_id": 7, "params": ["wheel_radius_m", "gear_ratio"]}
+{"timestamp": "2026-08-05T18:32:10.917623+00:00", "type": "close_real_project", "project_id": "9656971237a1", "motor_count": 4, "battery_capacity_wh": 90.0, "simulation_status": "pass", "total_mass_kg": 1.45, "autonomy_min": 22.5}
+{"timestamp": "2026-08-05T18:37:33.736359+00:00", "type": "params_defined", "iteration_id": 9, "params": ["wheel_radius_m", "gear_ratio"]}
+{"timestamp": "2026-08-05T18:37:37.900601+00:00", "type": "params_defined", "iteration_id": 10, "params": ["wheel_radius_m", "gear_ratio"]}
+{"timestamp": "2026-08-05T18:42:44.311796+00:00", "type": "simulation", "sim_id": 17, "status": "pass"}
+{"timestamp": "2026-08-05T18:43:43.959785+00:00", "type": "params_defined", "iteration_id": 11, "params": ["battery_capacity_wh"]}
+{"timestamp": "2026-08-05T18:43:43.962514+00:00", "type": "calculate", "calc_id": 19}
+{"timestamp": "2026-08-05T18:46:43.612509+00:00", "type": "calculate", "calc_id": 20}
+{"timestamp": "2026-08-05T18:50:23.267959+00:00", "type": "dse_apply", "iteration_id": 12, "goal_key": "mejorar_autonomia", "label": "batería (Wh)=240, potencia/motor (W)=45"}
+{"timestamp": "2026-08-05T18:51:15.527866+00:00", "type": "calculate", "calc_id": 24}
+{"timestamp": "2026-08-05T18:51:15.531559+00:00", "type": "simulation", "sim_id": 25, "status": "pass"}
+{"timestamp": "2026-08-05T18:52:09.728553+00:00", "type": "params_defined", "iteration_id": 13, "params": ["safety_factor"]}
+{"timestamp": "2026-08-05T19:00:23.364199+00:00", "type": "params_defined", "iteration_id": 14, "params": ["wheel_radius_m", "gear_ratio"]}
+{"timestamp": "2026-08-05T19:04:09.406329+00:00", "type": "params_defined", "iteration_id": 15, "params": ["wheel_radius_m", "gear_ratio"]}
+{"timestamp": "2026-08-05T19:09:35.631404+00:00", "type": "params_defined", "iteration_id": 16, "params": ["wheel_radius_m", "gear_ratio"]}
+{"timestamp": "2026-08-05T19:14:08.045894+00:00", "type": "params_defined", "iteration_id": 17, "params": ["wheel_radius_m", "gear_ratio"]}
+{"timestamp": "2026-08-05T19:14:42.529677+00:00", "type": "params_defined", "iteration_id": 18, "params": ["wheel_radius_m", "gear_ratio"]}
+{"timestamp": "2026-08-06T14:54:17.577374+00:00", "type": "params_defined", "iteration_id": 19, "params": ["wheel_radius_m", "gear_ratio"]}
+{"timestamp": "2026-08-06T14:54:27.761884+00:00", "type": "params_defined", "iteration_id": 20, "params": ["wheel_radius_m", "gear_ratio"]}

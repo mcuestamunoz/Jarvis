@@ -1,0 +1,337 @@
+{
+  "project_id": "72f50b29cead",
+  "project_slug": "transportar-una-cámara-de-inspección-de-800g-con-autonomía-mínima-de-25-minutos",
+  "objective": "transportar una cámara de inspección de 800g con autonomía mínima de 25 minutos",
+  "workspace_path": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/transportar-una-cámara-de-inspección-de-800g-con-autonomía-mínima-de-25-minutos-72f50b29cead",
+  "active_iteration": 3,
+  "current_parameters": {
+    "objective": "transportar una cámara de inspección de 800g con autonomía mínima de 25 minutos",
+    "payload_kg": 0.8,
+    "vehicle_type": "dron de inspección industrial",
+    "restrictions": "autonomía mínima de 25 minutos, peso máximo total de 3kg",
+    "detail_level": "detallado",
+    "per_motor_max_thrust_n": 18.0,
+    "structure_mass_factor": 0.6,
+    "safety_factor": 1.2,
+    "propeller_diameter_in": 13.0,
+    "propeller_rpm": null,
+    "motor_count": 6.0,
+    "motor_power_w": 180.0,
+    "battery_capacity_wh": 1200.0
+  },
+  "parsed_constraints": {
+    "autonomy_min": 25.0
+  },
+  "design_properties": {
+    "structure": {
+      "material": "aluminio",
+      "density": 2700.0,
+      "volume": 1.0,
+      "structural_fraction": 0.25,
+      "notes": null
+    },
+    "components": {
+      "motors": {
+        "name": "batería LiPo 6S 10000mAh 22.2V, potencia motor 180W por motor",
+        "component_type": "propulsion_active",
+        "suggested_key": "motors",
+        "inference_confidence": 0.75,
+        "properties": {
+          "watts": {
+            "value": 180.0,
+            "unit": "W",
+            "confidence": 0.85,
+            "source": "declared"
+          },
+          "power_w": {
+            "value": 180.0,
+            "unit": "W",
+            "confidence": 0.85,
+            "source": "declared"
+          }
+        },
+        "completeness": "medium",
+        "missing_fields": [
+          "número de motores"
+        ],
+        "hints": [
+          "Incluye cantidad y especificación (ej: 4x 920KV)"
+        ],
+        "source": "declared",
+        "output_magnitude": "thrust_n"
+      },
+      "propellers": {
+        "name": "4 hélices de 13x4.5 pulgadas de fibra de carbono",
+        "component_type": "propulsion_passive",
+        "suggested_key": "propellers",
+        "inference_confidence": 0.6,
+        "properties": {
+          "diameter_in": {
+            "value": 13.0,
+            "unit": "in",
+            "confidence": 0.9,
+            "source": "declared"
+          },
+          "pitch_in": {
+            "value": 4.5,
+            "unit": "in",
+            "confidence": 0.9,
+            "source": "declared"
+          },
+          "count": {
+            "value": 4,
+            "unit": null,
+            "confidence": 0.8,
+            "source": "declared"
+          }
+        },
+        "completeness": "high",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "battery": {
+        "name": "battery_battery_capacity_wh_1200.0",
+        "component_type": "energy_storage",
+        "suggested_key": "battery",
+        "inference_confidence": 0.9,
+        "properties": {
+          "battery_capacity_wh": {
+            "value": 1200.0,
+            "unit": "Wh",
+            "confidence": 0.95,
+            "source": "declared"
+          }
+        },
+        "completeness": "medium",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "flight_controller": {
+        "name": "Pixhawk 6C con GPS Here3",
+        "component_type": "flight_controller",
+        "suggested_key": "flight_controller",
+        "inference_confidence": 0.85,
+        "properties": {
+          "model": {
+            "value": "pixhawk_6c",
+            "unit": null,
+            "confidence": 0.9,
+            "source": "declared"
+          }
+        },
+        "completeness": "high",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "sensors": {
+        "name": "simula",
+        "component_type": "sensors",
+        "suggested_key": "sensors",
+        "inference_confidence": 0.8,
+        "properties": {
+          "sensor_type": {
+            "value": "imu",
+            "unit": null,
+            "confidence": 0.8,
+            "source": "declared"
+          }
+        },
+        "completeness": "medium",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      }
+    },
+    "system_defined": true,
+    "system_blocks": [
+      "propulsion",
+      "energy",
+      "control"
+    ],
+    "system_priority": [
+      "propulsion",
+      "energy",
+      "control"
+    ]
+  },
+  "latest_results": {
+    "calculations": {
+      "vehicle_type": "dron de inspección industrial",
+      "payload_kg": 0.8,
+      "structure_mass_kg": 0.48,
+      "total_mass_kg": 1.28,
+      "weight_n": 12.5568,
+      "required_thrust_n": 15.0682,
+      "motors": 6,
+      "thrust_per_motor_required_n": 2.5114,
+      "available_total_thrust_n": 108.0,
+      "autonomy_min": 66.6667,
+      "tool_results": [
+        {
+          "tool_name": "estimate_structure_mass",
+          "inputs": {
+            "payload_kg": 0.8,
+            "structure_mass_factor": 0.6
+          },
+          "outputs": {
+            "structure_mass_kg": 0.48
+          }
+        },
+        {
+          "tool_name": "calculate_total_mass",
+          "inputs": {
+            "payload_kg": 0.8,
+            "structure_mass_kg": 0.48
+          },
+          "outputs": {
+            "total_mass_kg": 1.28
+          }
+        },
+        {
+          "tool_name": "calculate_weight",
+          "inputs": {
+            "total_mass_kg": 1.28
+          },
+          "outputs": {
+            "weight_n": 12.5568
+          }
+        },
+        {
+          "tool_name": "calculate_required_thrust",
+          "inputs": {
+            "weight_n": 12.5568,
+            "safety_factor": 1.2
+          },
+          "outputs": {
+            "required_thrust_n": 15.0682
+          }
+        },
+        {
+          "tool_name": "calculate_thrust_per_motor",
+          "inputs": {
+            "required_thrust_n": 15.0682,
+            "motors": 6
+          },
+          "outputs": {
+            "thrust_per_motor_required_n": 2.5114
+          }
+        },
+        {
+          "tool_name": "calculate_autonomy_min",
+          "inputs": {
+            "battery_capacity_wh": 1200.0,
+            "total_power_w": 1080.0
+          },
+          "outputs": {
+            "autonomy_min": 66.6667
+          }
+        }
+      ]
+    },
+    "simulation": {
+      "physics_status": "valid",
+      "energy_status": "valid",
+      "propeller_status": "valid",
+      "status": "pass",
+      "can_fly": true,
+      "quality": "good",
+      "safety_margin_ratio": 7.1674,
+      "thrust_to_weight_ratio": 8.6009,
+      "autonomy_min": 66.6667,
+      "propeller_thrust_inferred": false,
+      "warnings": [],
+      "analysis": {
+        "available_thrust_n": 108.0,
+        "required_thrust_n": 15.0682,
+        "weight_n": 12.5568,
+        "per_motor_load_ratio": 0.1395
+      },
+      "summary": "Estado pass. Calidad good. Margen de seguridad 7.17."
+    },
+    "mutation": {
+      "mode": "dse_apply",
+      "params_delta": {},
+      "label": "battery: battery_capacity_wh=1200.0",
+      "goal_key": "mejorar_autonomia"
+    }
+  },
+  "last_total_mass_kg": 1.28,
+  "history": [
+    {
+      "timestamp": "2026-06-03T09:52:34.603607+00:00",
+      "action": "create_project",
+      "summary": "Proyecto creado con cálculo base y simulación inicial.",
+      "artifacts": {
+        "simulation": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/transportar-una-cámara-de-inspección-de-800g-con-autonomía-mínima-de-25-minutos-72f50b29cead/history/simulations/sim_000.json",
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/transportar-una-cámara-de-inspección-de-800g-con-autonomía-mínima-de-25-minutos-72f50b29cead/history/iterations/iter_000.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T09:52:55.229988+00:00",
+      "action": "iterate",
+      "summary": "Parámetros definidos: motor_count=6.0, per_motor_max_thrust_n=18.0.",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/transportar-una-cámara-de-inspección-de-800g-con-autonomía-mínima-de-25-minutos-72f50b29cead/history/iterations/iter_001.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T09:53:03.937276+00:00",
+      "action": "iterate",
+      "summary": "Hélices definidas",
+      "artifacts": {}
+    },
+    {
+      "timestamp": "2026-06-03T09:53:06.769753+00:00",
+      "action": "iterate",
+      "summary": "Motores definidos",
+      "artifacts": {}
+    },
+    {
+      "timestamp": "2026-06-03T09:53:11.103760+00:00",
+      "action": "iterate",
+      "summary": "Motores definidos: 180.0W",
+      "artifacts": {}
+    },
+    {
+      "timestamp": "2026-06-03T09:53:14.471114+00:00",
+      "action": "iterate",
+      "summary": "Batería definida: 222.0Wh",
+      "artifacts": {}
+    },
+    {
+      "timestamp": "2026-06-03T09:53:32.608531+00:00",
+      "action": "calculate",
+      "summary": "Recalculo ejecutado sobre el proyecto actual.",
+      "artifacts": {
+        "calculations": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/transportar-una-cámara-de-inspección-de-800g-con-autonomía-mínima-de-25-minutos-72f50b29cead/history/calculations/calc_006.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T09:54:43.523896+00:00",
+      "action": "simulate",
+      "summary": "Simulación ejecutada sobre el proyecto actual.",
+      "artifacts": {
+        "simulation": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/transportar-una-cámara-de-inspección-de-800g-con-autonomía-mínima-de-25-minutos-72f50b29cead/history/simulations/sim_007.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T09:55:00.370553+00:00",
+      "action": "iterate",
+      "summary": "DSE apply: battery: battery_capacity_wh=1200.0 (goal=mejorar_autonomia)",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/transportar-una-cámara-de-inspección-de-800g-con-autonomía-mínima-de-25-minutos-72f50b29cead/history/iterations/iter_002.json"
+      }
+    }
+  ],
+  "memory": {
+    "preferences": {},
+    "conflict_history": []
+  }
+}

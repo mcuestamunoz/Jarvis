@@ -1,0 +1,103 @@
+{
+  "iteration_id": 0,
+  "event": "create_project",
+  "objective": "transportar una cámara de inspección de 800g con autonomía mínima de 25 minutos",
+  "vehicle_type": "dron de inspección industrial",
+  "restrictions": "autonomía mínima de 25 minutos, peso máximo total de 3kg",
+  "detail_level": "detallado",
+  "calculations": {
+    "vehicle_type": "dron de inspección industrial",
+    "payload_kg": 0.8,
+    "structure_mass_kg": 0.48,
+    "total_mass_kg": 1.28,
+    "weight_n": 12.5568,
+    "required_thrust_n": 15.0682,
+    "motors": null,
+    "thrust_per_motor_required_n": null,
+    "available_total_thrust_n": null,
+    "autonomy_min": null,
+    "tool_results": [
+      {
+        "tool_name": "estimate_structure_mass",
+        "inputs": {
+          "payload_kg": 0.8,
+          "structure_mass_factor": 0.6
+        },
+        "outputs": {
+          "structure_mass_kg": 0.48
+        }
+      },
+      {
+        "tool_name": "calculate_total_mass",
+        "inputs": {
+          "payload_kg": 0.8,
+          "structure_mass_kg": 0.48
+        },
+        "outputs": {
+          "total_mass_kg": 1.28
+        }
+      },
+      {
+        "tool_name": "calculate_weight",
+        "inputs": {
+          "total_mass_kg": 1.28
+        },
+        "outputs": {
+          "weight_n": 12.5568
+        }
+      },
+      {
+        "tool_name": "calculate_required_thrust",
+        "inputs": {
+          "weight_n": 12.5568,
+          "safety_factor": 1.2
+        },
+        "outputs": {
+          "required_thrust_n": 15.0682
+        }
+      },
+      {
+        "tool_name": "missing_transmission_parameters",
+        "inputs": {
+          "vehicle_type": "dron de inspección industrial",
+          "motors": null
+        },
+        "outputs": {
+          "reason": "no force resolution path: no thrust, no torque, no propeller geometry"
+        }
+      },
+      {
+        "tool_name": "missing_energy_parameters",
+        "inputs": {
+          "battery_capacity_wh": null,
+          "motor_power_w": null
+        },
+        "outputs": {
+          "reason": "battery_capacity_wh and/or motor_power_w not in parameters"
+        }
+      }
+    ]
+  },
+  "simulation": {
+    "physics_status": "missing_parameters",
+    "energy_status": "missing_energy_parameters",
+    "propeller_status": "valid",
+    "status": "fail",
+    "can_fly": false,
+    "quality": "fail",
+    "safety_margin_ratio": 0.0,
+    "thrust_to_weight_ratio": 0.0,
+    "autonomy_min": null,
+    "propeller_thrust_inferred": false,
+    "warnings": [
+      "missing_transmission_parameters"
+    ],
+    "analysis": {
+      "available_thrust_n": null,
+      "required_thrust_n": 15.0682,
+      "weight_n": 12.5568,
+      "per_motor_load_ratio": 0.0
+    },
+    "summary": "Estado fail. Calidad fail. Parámetros de transmisión ausentes: no es posible calcular fuerza de tracción."
+  }
+}

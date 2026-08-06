@@ -1,0 +1,38 @@
+{
+  "conversation_history": [
+    {
+      "role": "user",
+      "content": "0.5"
+    },
+    {
+      "role": "assistant",
+      "content": "Vamos a definir el proyecto paso a paso."
+    },
+    {
+      "role": "user",
+      "content": "autonomía mínima de 20 minutos, peso máximo 2kg"
+    },
+    {
+      "role": "assistant",
+      "content": "Vamos a definir el proyecto paso a paso."
+    },
+    {
+      "role": "user",
+      "content": "detallado"
+    },
+    {
+      "role": "assistant",
+      "content": "Resumen del proyecto:\n- Tipo: dron de inspección de infraestructuras\n- Objetivo: inspección de puentes con cámara de 0.5kg, autonomía mínima 20 minutos\n- Payload: 0.5 kg\n- Restricciones: autonomía mínima de 20 minutos, peso máximo 2kg\n- Nivel de detalle: detallado\n- Parámetros técnicos:\n  motores=sin definir (se determinará por hélice o iteración), empuje_max_por_motor=sin definir (se estimará desde hélice o se recogerá después), factor_estructura=0.6, factor_seguridad=1.2"
+    }
+  ],
+  "session": {
+    "mode": "create_project_interactive",
+    "step": 5,
+    "pending_param_definitions": [],
+    "collected_params": {},
+    "param_definition_reason": "",
+    "pending_define_missing": false,
+    "pending_missing_params": [],
+    "pending_missing_reason": ""
+  }
+}

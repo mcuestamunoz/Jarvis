@@ -1,0 +1,537 @@
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+from jarvis.config import DEFAULT_LLM_LOG_ROOT, OLLAMA_BASE_URL, OLLAMA_MODEL
+from jarvis.core.orchestrator import JarvisOrchestrator
+from jarvis.core.parameter_requirements import DEFAULT_MISSING_FORCE_REASON, param_hint
+from jarvis.llm.llm_client import JarvisLLMInterface
+from jarvis.llm.ollama_client import OllamaClient
+
+
+class DemoLLMClient:
+    def __init__(self, responses: list[str]) -> None:
+        self.responses = responses
+
+    def complete(self, messages: list[dict[str, str]], json_mode: bool = True) -> str:
+        if not self.responses:
+            raise RuntimeError("No quedan respuestas demo del LLM.")
+        return self.responses.pop(0)
+
+
+SUGGESTION_LABELS = {
+    "reduce_weight": "reducir peso",
+    "increase_payload": "aumentar la carga útil",
+    "improve_efficiency": "mejorar la eficiencia",
+    "increase_thrust": "aumentar el empuje disponible",
+    "improve_autonomy": "mejorar la autonomía",
+}
+
+# ── Warning translations ──────────────────────────────────────────────────────
+# Full human-readable descriptions for simulation warning codes.
+WARNING_MESSAGES: dict[str, str] = {
+    "low_margin": (
+        "Margen de seguridad ajustado — el sistema opera cerca del límite. "
+        "Riesgo ante variaciones de carga o viento."
+    ),
+    "high_actuator_load": (
+        "Los motores trabajan cerca de su capacidad máxima. "
+        "Un pico de carga puede comprometer el vuelo."
+    ),
+    "low_force_to_weight_ratio": (
+        "La relación empuje/peso es baja. "
+        "El sistema tiene poca reserva para maniobras o peso extra."
+    ),
+    "autonomy_below_restriction": "Autonomía por debajo de la restricción definida.",
+}
+# Short labels for compact displays (startup context header).
+WARNING_SHORT: dict[str, str] = {
+    "low_margin": "margen ajustado",
+    "high_actuator_load": "carga en motores elevada",
+    "low_force_to_weight_ratio": "relación empuje/peso baja",
+    "autonomy_below_restriction": "autonomía por debajo de restricción",
+}
+
+
+def _human_warning(code: str) -> str:
+    """Return full human-readable description for a simulator warning code."""
+    return WARNING_MESSAGES.get(code, code)
+
+_STATUS_ICON = {
+    "blocking": "⚠ ",
+    "warning": "⚠ ",
+    "nominal": "✓ ",
+    "no_data": "○ ",
+}
+
+_PHASE_LABELS = {
+    "definition": "Fase: definición del sistema",
+    "physical_validation": "Fase: validación física",
+    "optimization": "Fase: optimización",
+    "complete": "Fase: completado",
+}
+
+
+def render_startup_context(ctx: dict) -> str:
+    """Render a build_startup_context dict as a concise CLI block."""
+    if not ctx.get("has_project"):
+        return ""
+
+    lines: list[str] = []
+    lines.append(f"Proyecto: {ctx['project_slug']}")
+    if ctx.get("objective"):
+        lines.append(f"Objetivo: {ctx['objective']}")
+    phase = ctx.get("phase")
+    if phase:
+        lines.append(_PHASE_LABELS.get(phase, f"Fase: {phase}"))
+    lines.append("─" * 44)
+
+    status_type = ctx.get("status_type", "no_data")
+    icon = _STATUS_ICON.get(status_type, "  ")
+
+    if status_type == "blocking":
+        lines.append(f"{icon}Simulación incompleta")
+        missing = ctx.get("missing_params") or []
+        if missing:
+            lines.append("   Faltan parámetros:")
+            for p in missing:
+                hint_text = param_hint(p)
+                lines.append(f"   • {p}  {hint_text}".rstrip())
+    elif status_type == "warning":
+        reason = ctx.get("status_reason") or ""
+        short = WARNING_SHORT.get(reason, reason) if reason else "warning activo"
+        lines.append(f"{icon}Última simulación: WARNING ({short})") 
+    elif status_type == "nominal":
+        lines.append(f"{icon}Última simulación: OK")
+    else:
+        lines.append(f"{icon}Sin simulación previa")
+
+    active_vars = ctx.get("active_variables") or {}
+    if active_vars:
+        var_str = "  ·  ".join(f"{k}={v}" for k, v in active_vars.items())
+        lines.append(f"   {var_str}")
+
+    suggested = ctx.get("suggested_action")
+    if suggested:
+        lines.append("")
+        lines.append(f"→  {suggested['label']}")
+        if suggested.get("hint"):
+            lines.append(f"   {suggested['hint']}")
+
+    proactive = ctx.get("proactive_question")
+    if proactive:
+        lines.append("")
+        lines.append(f"?  {proactive}")
+
+    # Architecture progress — shown when the system has a defined architecture.
+    arch_progress = ctx.get("architecture_progress")
+    arch_label = ctx.get("next_architecture_label")
+    arch_block_status = ctx.get("next_block_status")
+    if arch_progress:
+        lines.append("")
+        if arch_label:
+            status_tag = " (en progreso)" if arch_block_status == "in_progress" else ""
+            lines.append(f"   Arquitectura {arch_progress} — Siguiente: {arch_label}{status_tag}")
+        else:
+            lines.append(f"   Arquitectura {arch_progress} — completa ✓")
+
+    return "\n".join(lines)
+
+
+def render_response(result: dict) -> str:
+    if result.get("status") == "error":
+        return result.get("message") or "No he entendido la instrucción."
+
+    if result.get("status") == "interactive":
+        parts = []
+        if result.get("error"):
+            parts.append(f"Error: {result['error']}")
+        if result.get("message"):
+            parts.append(result["message"])
+        if result.get("question"):
+            parts.append("Siguiente paso:")
+            parts.append(result["question"])
+        return "\n".join(parts)
+
+    if result.get("status") == "cancelled":
+        return result.get("message", "Operación cancelada.")
+
+    if result.get("action") == "project_status":
+        ctx = result.get("startup_context") or {}
+        rendered = render_startup_context(ctx)
+        base = rendered if rendered else "No hay proyecto activo."
+        # Edge case 1: dismiss with no active suggestion (no-op).
+        if result.get("dismiss_noop"):
+            return base + "\n\n(No había sugerencia activa que descartar.)"
+        # Edge case 2: all non-blocked suggestions dismissed.
+        if result.get("all_suggestions_dismissed"):
+            return base + "\n\n(No hay más sugerencias relevantes en el estado actual.)"
+        # Bug 51: if interrupted during iterate wizard, remind the user the wizard is waiting.
+        reprompt = result.get("wizard_reprompt")
+        if reprompt:
+            return base + f"\n\n[Wizard activo] {reprompt}"
+        return base
+
+    if result.get("action") == "define_missing_params":
+        if result.get("status") == "interactive":
+            parts = []
+            if result.get("error"):
+                parts.append(result["error"])
+            if result.get("question"):
+                parts.append(result["question"])
+            return "\n".join(parts)
+        # completed — falls through to the generic "ok" handler below
+
+    # global_command responses carry their own message; no "Acción ejecutada:" prefix.
+    if result.get("action") == "global_command":
+        return result.get("message") or ""
+
+    if result.get("status") == "ok":
+        if result.get("action") == "analyze":
+            parts = []
+        else:
+            parts = [f"Acción ejecutada: {result.get('action')}"]
+        if result.get("project_id"):
+            parts.append(f"Proyecto: {result['project_id']}")
+        if result.get("message"):
+            parts.append(result["message"])
+
+        calculations = result.get("calculations")
+        if calculations:
+            thrust_available = calculations.get("available_total_thrust_n")
+            thrust_str = f"{thrust_available} N" if thrust_available is not None else "sin definir"
+            autonomy_min = calculations.get("autonomy_min")
+            autonomy_str = f", autonomía={round(autonomy_min, 1)} min" if autonomy_min is not None else ""
+            parts.append(
+                "Cálculos: "
+                f"masa_total={calculations['total_mass_kg']} kg, "
+                f"peso={calculations['weight_n']} N, "
+                f"empuje_requerido={calculations['required_thrust_n']} N, "
+                f"empuje_disponible={thrust_str}"
+                f"{autonomy_str}"
+            )
+
+        simulation = result.get("simulation")
+        if simulation:
+            if simulation.get("physics_status") == "missing_parameters":
+                missing_reason = (simulation.get("warnings") or ["parámetros ausentes"])[0]
+                parts.append(f"Simulación: incompleta — {missing_reason}")
+            else:
+                raw_warnings = simulation.get("warnings", [])
+                autonomy_min = simulation.get("autonomy_min")
+                autonomy_str = f", autonomía={round(autonomy_min, 1)} min" if autonomy_min is not None else ""
+                parts.append(
+                    "Simulación: "
+                    f"status={simulation['status']}, "
+                    f"quality={simulation['quality']}, "
+                    f"safety_margin_ratio={simulation['safety_margin_ratio']}"
+                    f"{autonomy_str}"
+                )
+                for w in raw_warnings:
+                    if w == "autonomy_below_restriction":
+                        auto_label = f" ({round(autonomy_min, 1)} min)" if autonomy_min is not None else ""
+                        parts.append(
+                            f"⚠ RESTRICCIÓN INCUMPLIDA: autonomía calculada{auto_label} "
+                            f"está por debajo de la restricción definida."
+                        )
+                    else:
+                        parts.append(f"⚠ {_human_warning(w)}")
+
+        suggestions = result.get("suggestions", [])
+        if suggestions:
+            if result.get("suggestion_context_note"):
+                parts.append(result["suggestion_context_note"])
+            parts.append("Sugerencias:")
+            for suggestion in suggestions:
+                label = SUGGESTION_LABELS.get(suggestion["type"], suggestion["type"])
+                parts.append(f"- Podrías {label} ({suggestion['reason']})")
+
+        next_step_hint = result.get("next_step_hint")
+        if next_step_hint:
+            parts.append("")
+            parts.append(next_step_hint)
+
+        reasoning = result.get("reasoning")
+        if reasoning:
+            if reasoning.get("explanation"):
+                parts.append("Reasoning:")
+                parts.append(reasoning["explanation"])
+            insights = reasoning.get("insights") or []
+            if insights:
+                parts.append("Insights:")
+                for insight in insights:
+                    parts.append(f"- {insight}")
+            tradeoffs = reasoning.get("tradeoffs") or []
+            if tradeoffs:
+                parts.append("Trade-offs:")
+                for tradeoff in tradeoffs:
+                    parts.append(f"- {tradeoff}")
+            reasoning_actions = reasoning.get("suggested_actions") or []
+            if reasoning_actions:
+                critical = [a for a in reasoning_actions if a.get("is_critical") and not a.get("blocked")]
+                secondary = [a for a in reasoning_actions if not a.get("is_critical") and not a.get("blocked")]
+                blocked = [a for a in reasoning_actions if a.get("blocked")]
+                if critical:
+                    parts.append("PRIORIDAD CRÍTICA:")
+                    for action in critical:
+                        parts.append(f"→ {action['label']} ({action['reason']})")
+                if secondary:
+                    parts.append("Siguientes pasos:")
+                    for action in secondary:
+                        parts.append(f"- {action['label']} ({action['reason']})")
+                if not critical and not secondary and blocked:
+                    parts.append("No hay acciones recomendadas en el estado actual.")
+                    parts.append("Revisa los parámetros base o ajusta los límites del diseño.")
+                if blocked:
+                    parts.append("Evitar:")
+                    for action in blocked:
+                        if action.get("block_reason"):
+                            parts.append(f"✗ {action['label']} (bloqueado: {action['block_reason']})")
+                        else:
+                            parts.append(f"✗ {action['label']} ({action['reason']})")
+
+        # Bug 51: if this response was an inline interruption of the iterate wizard,
+        # remind the user the wizard is still active and what it is waiting for.
+        reprompt = result.get("wizard_reprompt")
+        if reprompt:
+            parts.append(f"\n[Wizard activo] {reprompt}")
+
+        return "\n".join(parts)
+
+    return json.dumps(result, indent=2, ensure_ascii=False)
+
+
+def run_demo() -> None:
+    orchestrator = JarvisOrchestrator()
+    llm_interface = JarvisLLMInterface(
+        client=DemoLLMClient(
+            [
+                '{"action":"create_project","project_id":null,"parameters":{},"mode":null,"raw_user_input":null}',
+                '{"action":"create_project","project_id":null,"parameters":{},"mode":"interactive","raw_user_input":"dron"}',
+                '{"action":"create_project","project_id":null,"parameters":{},"mode":"interactive","raw_user_input":"levantar 2kg"}',
+                '{"action":"create_project","project_id":null,"parameters":{},"mode":"interactive","raw_user_input":"2"}',
+                '{"action":"create_project","project_id":null,"parameters":{},"mode":"interactive","raw_user_input":"sin restricciones críticas"}',
+                '{"action":"create_project","project_id":null,"parameters":{},"mode":"interactive","raw_user_input":"conceptual"}',
+                '{"action":"create_project","project_id":null,"parameters":{},"mode":"interactive","raw_user_input":"sí"}',
+            ]
+        )
+    )
+    transcript = [
+        "quiero diseñar un dron",
+        "dron",
+        "levantar 2kg",
+        "2",
+        "sin restricciones críticas",
+        "conceptual",
+        "sí",
+    ]
+    for user_text in transcript:
+        result = orchestrator.handle_user_text(user_text, llm_interface)
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+def _list_existing_projects(orchestrator: JarvisOrchestrator) -> list[dict]:
+    """Devuelve lista de proyectos existentes con id, slug y timestamp de modificación."""
+    state_paths = orchestrator.workspace_manager._list_state_paths()
+    projects = []
+    for path in sorted(state_paths, key=lambda p: p.stat().st_mtime, reverse=True):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            projects.append({
+                "project_id": data.get("project_id", "?"),
+                "project_slug": data.get("project_slug", "?"),
+                "objective": data.get("objective", ""),
+                "workspace_path": str(path.parent),
+            })
+        except Exception:
+            continue
+    return projects
+
+
+def _print_welcome(projects: list[dict]) -> None:
+    print("\nJarvis CLI")
+    print("Escribe 'exit' o 'quit' para salir. Escribe 'help' para ejemplos.\n")
+    if projects:
+        print("Proyectos existentes:")
+        for i, p in enumerate(projects, 1):
+            label = p["project_slug"]
+            if p["objective"]:
+                label += f" — {p['objective']}"
+            print(f"  {i}. {label}")
+        print()
+        print("Jarvis > ¿Qué quieres hacer?")
+        print("  n  → crear nuevo proyecto")
+        print("  1  → continuar con el proyecto más reciente")
+        if len(projects) > 1:
+            print(f"  2–{len(projects)} → continuar con otro proyecto de la lista")
+    else:
+        print("Jarvis > No hay proyectos todavía. Cuéntame qué quieres diseñar.")
+
+
+def _handle_startup_selection(
+    user_input: str,
+    projects: list[dict],
+) -> dict | None:
+    """
+    Gestiona la selección inicial.
+    Retorna un resultado a mostrar si el input fue una selección de proyecto.
+    Retorna None si el input debe procesarse normalmente como instrucción.
+    """
+    normalized = user_input.strip().lower()
+
+    # Selección explícita de nuevo proyecto
+    if normalized in {"n", "nuevo", "nuevo proyecto", "crear"}:
+        return None  # caer al loop normal
+
+    # Selección por texto: referencias a "el más reciente", "el primero", ordinal textual
+    _TEXT_ORDINAL_MAP: dict[int, tuple[str, ...]] = {
+        1: ("primero", "uno", "1ro", "first", "one", "reciente", "ultimo", "último",
+            "mas reciente", "más reciente", "el ultimo", "el último", "el reciente",
+            "el mas reciente", "el más reciente", "continuar", "el primero"),
+        2: ("segundo", "dos", "second", "two", "el segundo"),
+        3: ("tercero", "tres", "third", "three", "el tercero"),
+        4: ("cuarto", "cuatro", "fourth", "four", "el cuarto"),
+        5: ("quinto", "cinco", "fifth", "five", "el quinto"),
+    }
+    for rank, tokens in _TEXT_ORDINAL_MAP.items():
+        if any(tok in normalized for tok in tokens):
+            idx = rank - 1
+            if 0 <= idx < len(projects):
+                selected = projects[idx]
+                state_path = Path(selected["workspace_path"]) / "state.json"
+                state_path.touch()
+                try:
+                    data = json.loads(state_path.read_text(encoding="utf-8"))
+                    iterations = data.get("active_iteration", 1)
+                    objective = data.get("objective", "")
+                    return {
+                        "status": "ok",
+                        "action": "load_project",
+                        "project_id": data.get("project_id"),
+                        "message": (
+                            f"Proyecto cargado: {selected['project_slug']}\n"
+                            f"Objetivo: {objective}\n"
+                            f"Iteraciones: {iterations}\n"
+                            "Puedes escribir 'itera', 'calcula', 'simula' o describir tu próximo cambio."
+                        ),
+                    }
+                except Exception:
+                    return {
+                        "status": "error",
+                        "message": f"No se pudo leer el proyecto {selected['project_slug']}.",
+                    }
+            break  # rank matched but index out of range → fall through to normal flow
+
+    # Selección numérica de proyecto existente
+    if normalized.isdigit():
+        idx = int(normalized) - 1
+        if 0 <= idx < len(projects):
+            selected = projects[idx]
+            state_path = Path(selected["workspace_path"]) / "state.json"
+            # Touch: lo convierte en el proyecto más reciente para load_active_project
+            state_path.touch()
+            try:
+                data = json.loads(state_path.read_text(encoding="utf-8"))
+                iterations = data.get("active_iteration", 1)
+                objective = data.get("objective", "")
+                return {
+                    "status": "ok",
+                    "action": "load_project",
+                    "project_id": data.get("project_id"),
+                    "message": (
+                        f"Proyecto cargado: {selected['project_slug']}\n"
+                        f"Objetivo: {objective}\n"
+                        f"Iteraciones: {iterations}\n"
+                        "Puedes escribir 'itera', 'calcula', 'simula' o describir tu próximo cambio."
+                    ),
+                }
+            except Exception:
+                return {
+                    "status": "error",
+                    "message": f"No se pudo leer el proyecto {selected['project_slug']}.",
+                }
+
+    # Cualquier otra cosa → instrucción normal
+    return None
+
+
+def run_chat() -> None:
+    orchestrator = JarvisOrchestrator()
+    llm_interface = JarvisLLMInterface(client=OllamaClient())
+
+    print(f"Modelo: {OLLAMA_MODEL}")
+    print(f"Ollama: {OLLAMA_BASE_URL}")
+    print(f"Logs LLM: {DEFAULT_LLM_LOG_ROOT}")
+
+    existing_projects = _list_existing_projects(orchestrator)
+    _print_welcome(existing_projects)
+
+    startup_done = len(existing_projects) == 0  # si no hay proyectos, no hay selección inicial
+
+    while True:
+        try:
+            user_input = " ".join(input("User > ").split())
+        except (EOFError, KeyboardInterrupt):
+            print("\nJarvis > Sesión cerrada.")
+            break
+
+        if not user_input:
+            continue
+        if user_input.lower() in {"exit", "quit"}:
+            print("Jarvis > Sesión cerrada.")
+            break
+        if user_input.lower() == "help":
+            print("Jarvis > Prueba con frases como 'quiero diseñar un dron', 'reduce peso', 'calcula' o 'simula'.")
+            continue
+
+        # Gestionar selección inicial solo en el primer input cuando había proyectos
+        if not startup_done:
+            startup_done = True
+            startup_result = _handle_startup_selection(user_input, existing_projects)
+            if startup_result is not None:
+                if startup_result.get("status") == "error":
+                    print(f"Jarvis > {startup_result.get('message') or 'No he entendido la instrucción.'}")
+                else:
+                    orchestrator.state_manager.clear_conversation_history()
+                    startup_ctx = orchestrator.build_startup_context()
+                    if startup_ctx.get("has_project"):
+                        print(f"Jarvis >\n{render_startup_context(startup_ctx)}\n")
+                        if startup_ctx.get("proactive_question"):
+                            missing = startup_ctx.get("missing_params") or []
+                            reason = startup_ctx.get("param_definition_reason", DEFAULT_MISSING_FORCE_REASON)
+                            proactive = orchestrator.start_define_missing_params(missing, reason=reason)
+                            print(f"Jarvis > {render_response(proactive)}")
+                    else:
+                        print(f"Jarvis > {render_response(startup_result)}")
+                continue
+            # Input not recognised as project selection (e.g. "n", "nuevo", free text)
+            # → fall through to handle_user_text so the orchestrator processes it
+
+        try:
+            result = orchestrator.handle_user_text(user_input, llm_interface)
+        except Exception as error:
+            print(f"Jarvis > Error interno: {error}")
+            continue
+
+        if result.get("status") == "error":
+            print(f"Jarvis > {result.get('message') or 'No he entendido la instrucción.'}")
+        else:
+            print(f"Jarvis > {render_response(result)}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Jarvis engineering assistant")
+    parser.add_argument("--chat", action="store_true", help="Run minimal interactive CLI chat")
+    args = parser.parse_args()
+
+    if args.chat:
+        run_chat()
+        return
+
+    run_demo()
+
+
+if __name__ == "__main__":
+    main()

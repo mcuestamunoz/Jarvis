@@ -1,0 +1,2044 @@
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+from jarvis.actions.calculate import CalculateAction
+from jarvis.actions.create_project import CreateProjectAction
+from jarvis.actions.iterate import IterateAction
+from jarvis.actions.simulate import SimulateAction
+from jarvis.core.action_router import ActionRouter
+from jarvis.core.calculation_engine import CalculationEngine
+from jarvis.core.interactive_session import CreateProjectInteractiveSession
+from jarvis.core.intent_resolver import IntentResolver
+from jarvis.core.iterate_interactive_session import IterateInteractiveSession
+from jarvis.core.param_definition_session import ParamDefinitionSession
+from jarvis.core.system_definition_session import SystemDefinitionSession
+from jarvis.core.parameter_requirements import (
+    DEFAULT_MISSING_FORCE_REASON,
+    MISSING_COMPONENT_DEFINITION,
+    MISSING_ENERGY_PARAMETERS,
+    MISSING_PROPELLER_PARAMETERS,
+    missing_force_reason_from_warnings,
+    missing_params_for_reason,
+    params_for_reason,
+    reason_hint,
+)
+from jarvis.core.phase_layer import PhaseLayer
+from jarvis.core.reasoning_layer import ReasoningLayer
+from jarvis.core.goal_planner import detect_goal, format_goal_plan, get_goal_context_for_llm
+from jarvis.core.component_writers import (
+    set_battery_component,
+    set_control_component,
+    set_frame_material,
+    set_motor_component,
+    set_propeller_component,
+)
+from jarvis.core.design_explorer import DesignExplorer, _apply_delta
+from jarvis.core.system_architecture_catalog import (
+    BLOCK_TO_COMPONENTS,
+    SYSTEM_ARCHITECTURES,
+    VEHICLE_TYPE_ALIASES,
+    get_block_type,
+    get_param_reason_for_block,
+)
+from jarvis.schemas.state_schema import HistoryEntry
+from jarvis.memory.memory_manager import MemoryManager
+from jarvis.core.mutation_engine import MutationEngine
+from jarvis.core.planner import Planner, requires_planning
+from jarvis.core.state_manager import StateManager
+from jarvis.schemas.action_schema import (
+    ActionName,
+    ActionRequest,
+    ComponentSpec,
+    InteractiveSessionState,
+    IterationDraft,
+    IterationOperation,
+    OrchestratorMode,
+    ProjectDraft,
+)
+from jarvis.schemas.semantic_schema import SemanticState
+from jarvis.config import ESCAPE_WORDS, NEW_PROJECT_WORDS
+from jarvis.llm.semantic_intent_adapter import AdaptRejection, SemanticIntentAdapter, SemanticInterpretation
+from jarvis.simulation.simulator import FlightSimulator
+from jarvis.suggestions.suggestion_engine import SuggestionEngine
+from jarvis.workspace.workspace_manager import WorkspaceManager
+from jarvis.utils.design_utils import get_frame_material
+
+
+# ── Display helpers ────────────────────────────────────────────────────────────
+
+def _get_frame_material_display(design_properties) -> str:
+    """Lectura canónica del material para display / contexto LLM.
+    Usa el Single Read Point de Fase 3 en lugar del mirror legacy structure.material.
+    """
+    return get_frame_material(design_properties)
+
+
+# ── Component description prompts (keyed by component suggested_key) ──────────
+# Used by _handle_component_description affirmative path and follow-up messages.
+_COMPONENT_PROMPTS: dict[str, str] = {
+    "frame":             "Describe el frame del dron (material y masa). Ej: 'fibra de carbono 450g'",
+    "flight_controller": "Describe la controladora de vuelo. Ej: 'Pixhawk 4' o 'Betaflight F7'",
+    "sensors":           "Describe el GPS/sensores. Ej: 'GPS M9N' o 'Here3'",
+    "battery":           "Describe la batería. Ej: 'LiPo 6S 5000mAh' o '100Wh'",
+    "motors":            "Describe los motores. Ej: '4x 2306 2400KV 50W'",
+    "propellers":        "Describe las hélices. Ej: '10x4.5' o 'hélices de carbono'",
+}
+
+# ── Proactive question hints for component-driven blocks in build_startup_context ─
+_BLOCK_COMPONENT_HINTS: dict[str, str] = {
+    "structure":  "describe el frame (material y masa). Ej: 'carbono 450g'",
+    "control":    "describe la controladora y GPS. Ej: 'Pixhawk 4'",
+    "energy":     "describe la batería y motores. Ej: 'batería LiPo 6S 5000mAh, motores 2306 2400KV'",
+    "propulsion": "describe motores y hélices. Ej: '4x 2306 2400KV, hélices 10x4.5'",
+}
+
+
+class JarvisOrchestrator:
+    def __init__(self, workspace_root: Path | None = None) -> None:
+        workspace_manager = WorkspaceManager(root=workspace_root)
+        state_manager = StateManager()
+        simulator = FlightSimulator()
+        calculation_engine = CalculationEngine()
+        mutation_engine = MutationEngine()
+        memory_manager = MemoryManager()
+        suggestion_engine = SuggestionEngine()
+        reasoning_layer = ReasoningLayer()
+        phase_layer = PhaseLayer()
+        planner = Planner()
+        create_project_action = CreateProjectAction(
+            workspace_manager=workspace_manager,
+            state_manager=state_manager,
+            simulator=simulator,
+            calculation_engine=calculation_engine,
+            suggestion_engine=suggestion_engine,
+        )
+        calculate_action = CalculateAction(
+            workspace_manager=workspace_manager,
+            state_manager=state_manager,
+            calculation_engine=calculation_engine,
+        )
+        simulate_action = SimulateAction(
+            workspace_manager=workspace_manager,
+            state_manager=state_manager,
+            simulator=simulator,
+            calculation_engine=calculation_engine,
+            suggestion_engine=suggestion_engine,
+            reasoning_layer=reasoning_layer,
+        )
+        iterate_action = IterateAction(
+            workspace_manager=workspace_manager,
+            state_manager=state_manager,
+            simulator=simulator,
+            calculation_engine=calculation_engine,
+            mutation_engine=mutation_engine,
+            suggestion_engine=suggestion_engine,
+            reasoning_layer=reasoning_layer,
+        )
+        self.workspace_manager = workspace_manager
+        self.state_manager = state_manager
+        self.calculation_engine = calculation_engine
+        self.simulator = simulator
+        self.design_explorer = DesignExplorer(
+            calculation_engine=calculation_engine,
+            simulator=simulator,
+        )
+        self.interactive_session = CreateProjectInteractiveSession()
+        self.intent_resolver = IntentResolver()
+        self.iterate_interactive_session = IterateInteractiveSession()
+        self._semantic_adapter = SemanticIntentAdapter()
+        self.param_definition_session = ParamDefinitionSession(
+            workspace_manager=workspace_manager,
+            state_manager=state_manager,
+            calculation_engine=calculation_engine,
+            simulator=simulator,
+        )
+        self.system_definition_session = SystemDefinitionSession(
+            workspace_manager=workspace_manager,
+            state_manager=state_manager,
+        )
+        self.memory_manager = memory_manager
+        self.reasoning_layer = reasoning_layer
+        self.phase_layer = phase_layer
+        self.planner = planner
+        self.router = ActionRouter(
+            create_project_action=create_project_action,
+            calculate_action=calculate_action,
+            simulate_action=simulate_action,
+            iterate_action=iterate_action,
+        )
+        # U4: restaurar snapshot del proyecto más reciente si existe.
+        # No-op si no hay proyectos en el workspace o el snapshot está ausente/corrupto.
+        try:
+            _latest = state_manager.load_active_project(workspace_manager)
+            _snapshot = workspace_manager.load_runtime_snapshot(Path(_latest.workspace_path))
+            if _snapshot:
+                state_manager.restore_from_snapshot(_snapshot)
+        except FileNotFoundError:
+            pass
+
+    def requires_planning(self, goal: str | ActionName) -> bool:
+        return requires_planning(goal)
+
+    def build_plan(self, goal: str | ActionName, context: dict | None = None) -> dict:
+        plan = self.planner.generate(goal, context or {})
+        return plan.model_dump()
+
+    def handle(self, request: ActionRequest | dict) -> dict:
+        normalized_request = (
+            request if isinstance(request, ActionRequest) else ActionRequest.model_validate(request)
+        )
+        runtime_session = self.state_manager.get_runtime_session()
+
+        if runtime_session.mode in {
+            OrchestratorMode.CREATE_PROJECT_INTERACTIVE,
+            OrchestratorMode.ITERATE_INTERACTIVE,
+        }:
+            return self._handle_interactive_request(normalized_request)
+
+        if normalized_request.action == ActionName.CREATE_PROJECT and self._should_start_create_project_interactive(
+            normalized_request
+        ):
+            interactive_response = self.interactive_session.start(normalized_request.parameters)
+            self.state_manager.set_runtime_session(
+                self._session_from_response(interactive_response)
+            )
+            return interactive_response
+
+        if normalized_request.action == ActionName.ITERATE:
+            try:
+                project_state = self.state_manager.load_active_project(
+                    self.workspace_manager,
+                    project_id=normalized_request.parameters.get("project_id"),
+                    workspace_path=normalized_request.parameters.get("workspace_path"),
+                    project_slug=normalized_request.parameters.get("project_slug"),
+                )
+            except FileNotFoundError as error:
+                return {
+                    "status": "error",
+                    "action": ActionName.ITERATE.value,
+                    "message": str(error),
+                }
+
+            interactive_response = self.iterate_interactive_session.start(
+                {
+                    **normalized_request.parameters,
+                    "project_id": project_state.project_id,
+                    "project_slug": project_state.project_slug,
+                    "workspace_path": project_state.workspace_path,
+                    "memory_context": {
+                        **project_state.memory.model_dump(),
+                        "vehicle_type": project_state.current_parameters.get("vehicle_type"),
+                        "current_parameters": project_state.current_parameters,
+                        # Fase 3: leer material del Single Read Point (getter canónico)
+                        "current_material": _get_frame_material_display(project_state.design_properties),
+                    },
+                    "known_components": project_state.design_properties.components,
+                    **self._semantic_preseed(normalized_request.model_dump()),
+                }
+            )
+            self.state_manager.set_runtime_session(
+                self._session_from_response(interactive_response)
+            )
+            return interactive_response
+
+        handler = self.router.resolve(normalized_request.action)
+        return handler.run(normalized_request.parameters)
+
+    def _handle_global_commands(self, user_input: str) -> dict | None:
+        """Single intercept point for universal commands — runs before ANY session or intent logic.
+
+        Must be called as the very first check in handle_user_text.
+        Returns a result dict if the input is a global command, None otherwise (caller continues).
+
+        Handles:
+            - Escape words: cancel the active session and return to idle
+            - Creation shortcut: "n"/"nuevo" → start create_project wizard immediately
+        Sessions (ITERATE_INTERACTIVE, DEFINE_MISSING_PARAMETERS) keep their own internal
+        escape as a safety fallback for direct callers — this layer coordinates, not replaces.
+        """
+        normalized = user_input.strip().lower()
+
+        # ── Escape: cancel any active session ────────────────────────────────
+        if normalized in ESCAPE_WORDS:
+            active_mode = self.state_manager.runtime_state.session.mode
+            if active_mode != OrchestratorMode.IDLE:
+                self.state_manager.clear_runtime_session()
+                return {
+                    "status": "cancelled",
+                    "action": "global_command",
+                    "message": "Operación cancelada. Puedes escribir 'calcula', 'simula' o describir un nuevo cambio.",
+                }
+            # No active session → inform user instead of falling through to LLM
+            return {
+                "status": "ok",
+                "action": "global_command",
+                "message": "No hay ninguna operación activa que cancelar.",
+            }
+
+        # ── Creation shortcut: "n"/"nuevo" → wizard without LLM ──────────────
+        if normalized in NEW_PROJECT_WORDS:
+            return self.handle({"action": ActionName.CREATE_PROJECT.value, "parameters": {}})
+
+        return None
+
+    _AFFIRMATIVE_WORDS: frozenset[str] = frozenset({
+        "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante", "perfecto",
+        "de acuerdo", "por supuesto", "afirmativo", "vamos", "yes",
+    })
+
+    @classmethod
+    def _is_affirmative(cls, user_input: str) -> bool:
+        return user_input.strip().lower() in cls._AFFIRMATIVE_WORDS
+
+    @staticmethod
+    def _is_pure_numeric(text: str) -> bool:
+        """Return True if text is a bare number (int or float, with optional comma decimal).
+
+        Guards the global component intercept so that '500', '1.2', '5000' are never
+        treated as component descriptions and always reach the numeric param wizard.
+        """
+        try:
+            float(text.strip().replace(",", "."))
+            return True
+        except ValueError:
+            return False
+
+    def _should_intercept_component(self, text: str, session: Any) -> "Any | None":
+        """Return ComponentSpec if input should be routed to component flow, else None.
+
+        Routing is based on the *type of input*, not the orchestrator mode.
+        Rule: if the user describes a real physical component → always intercept,
+        regardless of mode — with two exceptions:
+          - CREATE_PROJECT_INTERACTIVE: would break the structured creation wizard
+          - DEFINE_MISSING_PARAMETERS: already has its own per-reason intercept
+
+        Guards (all must pass to intercept):
+          (0) not a strong action intent  — 'simula', 'calcula', 'itera'… are never
+              component descriptions (Bug 68: 'simula' contains 'imu' as substring)
+          (1) matched a real domain rule  — suggested_key != 'generic_component'
+          (2) properties extracted        — at least one property with a value present
+              (separates "calidad" from "utilidad": completeness measures definition
+               quality; properties measure whether there is useful signal to act on)
+          (3) not an interrogative phrase — "que material es mejor..." must reach LLM
+          (4) not pure-numeric input      — '500' must still reach the param wizard
+          (5) mode allows interception    — not CREATE_PROJECT or DEFINE_MISSING
+          (6) battery-specific units guard — 'bateria 5000' (no units) must NOT intercept
+        """
+        # Bug 68: action commands (simulate, calculate, iterate…) are never component
+        # descriptions. Guard BEFORE calling infer_component to avoid the substring
+        # collision between 'simula' and 'imu' inside SENSOR_TYPE_MAP.
+        _norm_for_guard = self.intent_resolver._normalize_text(text)
+        if self.intent_resolver._resolve_strong_action_intent(_norm_for_guard) is not None:
+            return None
+
+        from jarvis.core.component_inference import infer_component as _si_infer
+        from jarvis.domains.aerial import aerial_registry as _si_reg
+
+        spec = _si_infer(text, registry=_si_reg)
+
+        if spec.suggested_key == "generic_component":
+            return None
+        if not spec.properties:
+            return None
+        # Guard: interrogative phrases are questions, not component declarations.
+        # "que/qué/cuál/cual/¿" at start → comparison/question → let LLM handle it.
+        _lower = text.lower().lstrip()
+        if _lower.startswith(("que ", "qué ", "cual ", "cuál ", "¿")):
+            return None
+        if self._is_pure_numeric(text):
+            return None
+        if session.mode == OrchestratorMode.CREATE_PROJECT_INTERACTIVE:
+            return None
+        if session.mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS:
+            return None
+        # Bug 64: component intercept must not fire inside the iterate wizard.
+        # The iterate wizard owns the input when ITERATE_INTERACTIVE is active;
+        # intercepting here would apply the component but leave the wizard open (zombie state).
+        if session.mode == OrchestratorMode.ITERATE_INTERACTIVE:
+            return None
+
+        # Battery-specific guard: 'bateria 5000' has no units and could mis-route.
+        # Require at least one energy unit keyword (mAh, Wh, V, S) to confirm intent.
+        if spec.suggested_key == "battery":
+            if not any(u in text.lower() for u in ("mah", "wh", "v", "s")):
+                return None
+
+        return spec
+
+    # Intents that abort ITERATE_INTERACTIVE and take over the turn (calibration 2026-08-05).
+    # project_status / analyze stay as soft interrupts (Bug 7) and are handled earlier.
+    _ITERATE_PREEMPT_INTENTS: frozenset[str] = frozenset({
+        "explore_design_space",
+        "apply_exploration_result",
+        "calculate",
+        "simulate",
+        "create_project",
+        "define_params",
+        "iterate",
+        "dismiss_suggestion",
+    })
+
+    def _should_preempt_iterate_wizard(self, user_input: str) -> bool:
+        """True when input should close the iterate wizard and be handled as idle.
+
+        Wizard step answers ("sí", "material", "fibra"…) do not match strong-action
+        patterns or component inference, so they continue through the wizard.
+
+        Component descriptions preempt only when the wizard is *not* actively
+        collecting a component spec (DEFINE @ step 2) or awaiting a motor-catalog
+        pick — otherwise motor suggestions / define-component flows are aborted.
+        """
+        normalized = self.intent_resolver._normalize_text(user_input)
+        strong = self.intent_resolver._resolve_strong_action_intent(normalized)
+        if strong in self._ITERATE_PREEMPT_INTENTS:
+            return True
+
+        session = self.state_manager.runtime_state.session
+        if self._iterate_owns_component_input(session):
+            return False
+
+        # Component descriptions: Bug 64 blocks _should_intercept during ITERATE;
+        # detect the same signal against an idle-like session so we can clear first.
+        idle_probe = session.model_copy(update={"mode": OrchestratorMode.IDLE})
+        return self._should_intercept_component(user_input, idle_probe) is not None
+
+    @staticmethod
+    def _iterate_owns_component_input(session) -> bool:
+        """True when iterate is collecting a component description or motor pick."""
+        if session.motor_suggestions:
+            return True
+        draft = session.iteration_draft
+        if draft is None:
+            return False
+        operation = draft.operation
+        op_value = operation.value if hasattr(operation, "value") else operation
+        if op_value != IterationOperation.DEFINE.value:
+            return False
+        # Step 2 is the component-spec / motor-suggestion prompt in DEFINE flows.
+        return session.step == 2
+
+    @staticmethod
+    def _preempt_iterate_message(result: dict) -> str:
+        """Prefix a short notice when an iterate wizard was aborted for a stronger intent."""
+        notice = "He cerrado la iteración en curso para atender esta instrucción."
+        existing = (result.get("message") or "").strip()
+        if not existing:
+            return notice
+        if existing.startswith(notice):
+            return existing
+        return f"{notice}\n\n{existing}"
+
+    def handle_user_text(self, user_input: str, llm_interface) -> dict:
+        """U4: wrapper público — delega al procesador interno y persiste el snapshot."""
+        result = self._handle_user_text_inner(user_input, llm_interface)
+        self._persist_runtime_snapshot()
+        return result
+
+    def _persist_runtime_snapshot(self) -> None:
+        """U4: guarda historial + sesión en disco tras cada turno. No-op si no hay proyecto activo."""
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+            self.workspace_manager.save_runtime_snapshot(
+                Path(project_state.workspace_path),
+                [t.model_dump() for t in self.state_manager.runtime_state.conversation_history],
+                self.state_manager.session_to_snapshot(),
+            )
+        except FileNotFoundError:
+            pass
+
+    def _handle_user_text_inner(self, user_input: str, llm_interface) -> dict:
+        # ── Global command router — must be first ─────────────────────────────
+        global_result = self._handle_global_commands(user_input)
+        if global_result is not None:
+            return global_result
+
+        runtime_state = self.state_manager.runtime_state
+        current_session = runtime_state.session
+
+        # ── Bug 54: consume pending_define_missing confirmation ───────────────
+        # If the previous turn showed a proactive "¿Definimos X ahora?" and the
+        # user replies affirmatively, open the define_missing wizard immediately.
+        # Any non-affirmative input clears the flag and falls through normally.
+        if current_session.pending_define_missing:
+            # Always clear the flag first — consumed regardless of answer.
+            cleared_session = current_session.model_copy(
+                update={"pending_define_missing": False}
+            )
+            self.state_manager.set_runtime_session(cleared_session)
+            if self._is_affirmative(user_input):
+                result = self.start_define_missing_params(
+                    current_session.pending_missing_params,
+                    reason=current_session.pending_missing_reason,
+                )
+                self._track_turn(user_input, result)
+                return result
+            # Non-affirmative → fall through to process input normally
+            runtime_state = self.state_manager.runtime_state
+            current_session = runtime_state.session
+        # ─────────────────────────────────────────────────────────────────────
+        # ── Global component intercept ────────────────────────────────────────
+        # Fires in any mode where the user might describe a physical component.
+        # Input type determines routing, not orchestrator mode.
+        # See _should_intercept_component for full guard logic.
+        _gi_spec = self._should_intercept_component(user_input, current_session)
+        if _gi_spec is not None:
+            _gi_session = current_session.model_copy(update={
+                "pending_missing_params": [_gi_spec.suggested_key],
+                "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
+            })
+            result = self._handle_component_description(user_input, _gi_session)
+            self._track_turn(user_input, result)
+            return result
+        # ─────────────────────────────────────────────────────────────────────
+        if current_session.mode == OrchestratorMode.CREATE_PROJECT_INTERACTIVE:
+            result = self.handle(
+                {
+                    "action": ActionName.CREATE_PROJECT.value,
+                    "raw_user_input": user_input,
+                }
+            )
+            self._track_turn(user_input, result)
+            return result
+        if current_session.mode == OrchestratorMode.ITERATE_INTERACTIVE:
+            # ── Bug 7: soft interrupt — read-only queries keep the wizard open ──
+            # project_status and analyze are answered inline; wizard resumes same step.
+            _interim_intent = self.intent_resolver.resolve_intent(user_input)
+            if _interim_intent == "project_status":
+                result = self._handle_project_status()
+                # Bug 51: wizard is still active — append current prompt so the user
+                # knows what the wizard expects next.
+                result["wizard_reprompt"] = self.iterate_interactive_session.get_current_prompt(current_session)
+                self._track_turn(user_input, result)
+                return result
+            if _interim_intent == "analyze":
+                result = self._handle_analyze(user_input, llm_interface)
+                # Bug 51: same reprompt for analyze interruption.
+                result["wizard_reprompt"] = self.iterate_interactive_session.get_current_prompt(current_session)
+                self._track_turn(user_input, result)
+                return result
+            # ── Fix 1: semantic class guard — information/hybrid inputs never enter wizard ──
+            _input_class = self.intent_resolver.classify_input_intent(user_input)
+            if _input_class in ("information", "hybrid"):
+                result = self._handle_analyze(user_input, llm_interface)
+                result["wizard_reprompt"] = self.iterate_interactive_session.get_current_prompt(current_session)
+                self._track_turn(user_input, result)
+                return result
+            # ── Calibration 2026-08-05: hard preempt strong intents / components ──
+            # Sticky ITERATE_INTERACTIVE was eating explore, calculate, simulate,
+            # new iterate requests, and component descriptions as wizard answers.
+            # Clear the wizard and re-dispatch as idle so the intent owns the turn.
+            if self._should_preempt_iterate_wizard(user_input):
+                self.state_manager.clear_runtime_session()
+                # Re-dispatch as idle. Inner paths already _track_turn.
+                result = self._handle_user_text_inner(user_input, llm_interface)
+                if isinstance(result, dict):
+                    result = {
+                        **result,
+                        "preempted_iterate": True,
+                        "message": self._preempt_iterate_message(result),
+                    }
+                return result
+            # ─────────────────────────────────────────────────────────────────
+            result = self.handle(
+                {
+                    "action": ActionName.ITERATE.value,
+                    "raw_user_input": user_input,
+                }
+            )
+            if result.get("status") == "cancelled":
+                # Internal cancels (e.g. final confirmation "no") — global escape words
+                # are already handled by _handle_global_commands before reaching this branch.
+                self.state_manager.clear_runtime_session()
+            else:
+                self._track_turn(user_input, result)
+            return result
+        if current_session.mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS:
+            # Bug 56: intercept read-only and action globals during DEFINE_MISSING so
+            # valid commands don't fail as numeric-parse errors.
+            _dm_intent = self.intent_resolver.resolve_intent(user_input)
+            if _dm_intent == "project_status":
+                result = self._handle_project_status()
+                self._track_turn(user_input, result)
+                return result
+            if _dm_intent == "analyze":
+                result = self._handle_analyze(user_input, llm_interface)
+                self._track_turn(user_input, result)
+                return result
+            if _dm_intent == "calculate":
+                result = self.handle({"action": ActionName.CALCULATE.value, "parameters": {}})
+                self._track_turn(user_input, result)
+                return result
+            if _dm_intent == "simulate":
+                result = self.handle({"action": ActionName.SIMULATE.value, "parameters": {}})
+                self._track_turn(user_input, result)
+                return result
+            # UX-C: intercept component-driven blocks before numeric wizard
+            if current_session.pending_missing_reason == MISSING_COMPONENT_DEFINITION:
+                result = self._handle_component_description(user_input, current_session)
+                self._track_turn(user_input, result)
+                return result
+            # Component-intent intercept: user describes a component (e.g. "bateria 5000mAh")
+            # while inside a param wizard. Component intent wins over numeric parsing.
+            # Only fires when the spec is non-low (actual component data detected).
+            from jarvis.core.component_inference import infer_component as _infer
+            from jarvis.domains.aerial import aerial_registry as _aerial_reg
+            _cspec = _infer(user_input, registry=_aerial_reg)
+            if _cspec.suggested_key == "battery" and _cspec.completeness != "low":
+                # Synthesize session so _handle_component_description sees expected_keys=["battery"]
+                _battery_session = current_session.model_copy(update={
+                    "pending_missing_params": ["battery"],
+                    "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
+                })
+                result = self._handle_component_description(user_input, _battery_session)
+                self._track_turn(user_input, result)
+                return result
+            result = self.param_definition_session.answer(user_input)
+            # Architecture progress hint: after params are applied, guide the user
+            # to the next pending architecture block (only when system is defined).
+            if result.get("status") == "ok" and result.get("action") == "define_missing_params":
+                result = self._append_arch_progress_hint(result)
+                self._set_pending_next_block()
+            self._track_turn(user_input, result)
+            return result
+        if current_session.mode == OrchestratorMode.SYSTEM_DEFINITION:
+            result = self.system_definition_session.answer(user_input)
+            self._track_turn(user_input, result)
+            # Bridge: arquitectura definida + parámetros recomendados pendientes
+            # → lanzar ParamDefinitionSession automáticamente
+            if result.get("status") == "ok":
+                missing = result.get("recommended_missing_params", [])
+                reason = result.get("recommended_reason")
+                if missing and reason:
+                    param_result = self.start_define_missing_params(missing, reason=reason)
+                    param_result["message"] = result.get("message", "")
+                    return param_result
+            return result
+
+        # ── Parameter ingestion layer ──────────────────────────────────────────
+        # Intercept direct param inputs (e.g. "4 motores") when physics are incomplete.
+        # Must come BEFORE the intent resolver so these never fall into iterate_interactive.
+        ingestion = self.param_definition_session.try_ingest(user_input)
+        if ingestion is not None:
+            self._track_turn(user_input, ingestion)
+            return ingestion
+
+        intent = self.intent_resolver.resolve_intent(user_input)
+        if intent == "project_status":
+            result = self._handle_project_status()
+            self._track_turn(user_input, result)
+            return result
+        if intent == "analyze":
+            result = self._handle_analyze(user_input, llm_interface)
+            self._track_turn(user_input, result)
+            return result
+        if intent == "ambiguous":
+            if self._has_active_project():
+                result = self._handle_analyze(user_input, llm_interface)
+                self._track_turn(user_input, result)
+                return result
+            result = self.handle({"action": ActionName.CREATE_PROJECT.value, "parameters": {}})
+            self._track_turn(user_input, result)
+            return result
+        # Bug 41: bridge "definir bater\u00eda" / "configurar h\u00e9lices" directly to
+        # start_define_missing_params WITHOUT going through handle(), per spec.
+        if intent == "define_params":
+            local_action_request = self.intent_resolver.resolve_action_request(
+                user_input, intent=intent
+            )
+            if local_action_request is not None:
+                reason = local_action_request["parameters"].get("reason", "")
+                try:
+                    project_state = self.state_manager.load_active_project(
+                        self.workspace_manager
+                    )
+                    params = project_state.current_parameters or {}
+                except FileNotFoundError:
+                    params = {}
+                missing = missing_params_for_reason(reason, params)
+                result = self.start_define_missing_params(missing, reason=reason)
+                self._track_turn(user_input, result)
+                return result
+
+        if intent in {"create_project", "iterate", "calculate", "simulate"}:
+            local_action_request = self.intent_resolver.resolve_action_request(user_input, intent=intent)
+            if local_action_request is not None:
+                return self.handle(local_action_request)
+
+        # Bug 49: dismiss the current top suggestion and show the next one.
+        if intent == "dismiss_suggestion":
+            result = self._handle_dismiss_suggestion()
+            self._track_turn(user_input, result)
+            return result
+
+        # DSE: explore_design_space — pure in-memory exploration, no state mutation.
+        if intent == "explore_design_space":
+            goal_key = self.intent_resolver.resolve_explore_goal(user_input)
+            result = self._handle_explore(goal_key=goal_key, user_input=user_input, llm_interface=llm_interface)
+            self._track_turn(user_input, result)
+            return result
+
+        # DSE v1.1: apply the best candidate from the last exploration.
+        if intent == "apply_exploration_result":
+            result = self._handle_apply_exploration()
+            self._track_turn(user_input, result)
+            return result
+
+        action_request = llm_interface.interpret(user_input, runtime_state)
+        if action_request.get("parameters", {}).get("error") == "invalid_llm_output":
+            return {
+                "status": "error",
+                "error": "invalid_llm_output",
+                "message": action_request["parameters"]["message"],
+            }
+        # Bug 52: LLM fallback must not open the iterate wizard for inputs the
+        # deterministic resolver could not classify (unknown intent). The LLM
+        # hallucinates iterate actions for nonsense input, which is wrong.
+        if intent == "unknown" and action_request.get("action") == "iterate":
+            result = self._handle_analyze(user_input, llm_interface)
+            self._track_turn(user_input, result)
+            return result
+        result = self.handle(action_request)
+        self._track_turn(user_input, result)
+        return result
+
+    def start_define_missing_params(
+        self, missing_params: list[str], reason: str = DEFAULT_MISSING_FORCE_REASON
+    ) -> dict:
+        return self.param_definition_session.start(missing_params, reason=reason)
+
+    def _track_turn(self, user_input: str, result: dict) -> None:
+        """Append user + assistant turns to conversation history (idle mode only)."""
+        self.state_manager.append_conversation_turn("user", user_input)
+        assistant_msg = result.get("message", "")
+        if assistant_msg:
+            self.state_manager.append_conversation_turn("assistant", str(assistant_msg))
+
+    def _handle_dismiss_suggestion(self) -> dict[str, Any]:
+        """Bug 49: dismiss the currently shown suggestion and return project_status
+        with the next non-dismissed suggestion as the new top.
+
+        Uses session.last_suggested_action as the label to dismiss — this is the
+        exact label the user saw, so it is never out of sync with what was rendered.
+        Clears pending_define_missing to avoid 'sí a qué?' ambiguity.
+
+        Edge cases handled:
+        - No active suggestion (last_suggested_action is None): no-op, returns status
+          with a dismiss_noop flag so the renderer can inform the user.
+        - All suggestions exhausted after dismiss: returns all_suggestions_dismissed flag.
+        """
+        session = self.state_manager.runtime_state.session
+
+        # Edge case 1: dismiss fired with no active suggestion (e.g. user typed
+        # a dismiss phrase before any suggestion was shown this session).
+        if not session.last_suggested_action:
+            return {
+                "status": "ok",
+                "action": "project_status",
+                "startup_context": self.build_startup_context(),
+                "dismiss_noop": True,
+            }
+
+        dismissed = list(session.dismissed_suggestions)
+        if session.last_suggested_action not in dismissed:
+            dismissed.append(session.last_suggested_action)
+        updated_session = session.model_copy(update={
+            "dismissed_suggestions": dismissed,
+            "pending_define_missing": False,  # clear any pending proactive question
+        })
+        self.state_manager.set_runtime_session(updated_session)
+        # Rebuild project_status with updated dismissed list already in session.
+        result = self._handle_project_status()
+        # Edge case 2: all non-blocked suggestions are now dismissed — inform the user.
+        ctx = result.get("startup_context") or {}
+        if not ctx.get("suggested_action") and dismissed:
+            result["all_suggestions_dismissed"] = True
+        return result
+
+    # ── Architecture progress engine ──────────────────────────────────────────
+    # Centralised here so both project_status and define_missing_params share
+    # the exact same logic.  No new schema fields are added — completion is
+    # derived at runtime from current_parameters and component completeness.
+
+    @staticmethod
+    def _block_progress_status(
+        block: str,
+        design_properties: Any,
+        params: dict[str, Any],
+    ) -> str:
+        """Return 'complete', 'in_progress', or 'not_started' for one architecture block.
+
+        - Param-driven blocks (actuation, transmission): driven by whether
+          their required parameters are present in current_parameters.
+        - Component-driven blocks (structure, control, …): driven by whether any
+          component has been explicitly defined (completeness != 'low').
+        - Composite blocks (energy, propulsion): require BOTH params OK and all
+          component keys defined. AND-strict semantics (Fase 4/6).
+        """
+        block_type = get_block_type(block)
+
+        if block_type == "param":
+            param_reason = get_param_reason_for_block(block)
+            if not param_reason:
+                return "not_started"
+            required = params_for_reason(param_reason)
+            if not required:
+                return "not_started"
+            defined = [p for p in required if params.get(p) is not None]
+            if not defined:
+                return "not_started"
+            return "complete" if len(defined) == len(required) else "in_progress"
+
+        if block_type == "composite":
+            # Composite: requires BOTH params OK and all component keys defined.
+            # Guard: param_reason may be None if composite block has no param side yet.
+            param_reason = get_param_reason_for_block(block)
+            if param_reason:
+                required = params_for_reason(param_reason)
+                defined = [p for p in required if params.get(p) is not None] if required else []
+                params_ok = bool(required) and len(defined) == len(required)
+            else:
+                # No param side → params criterion is satisfied trivially.
+                params_ok = True
+
+            component_keys = BLOCK_TO_COMPONENTS.get(block, [])
+            components = design_properties.components
+            non_low = [
+                k for k in component_keys
+                if k in components and not JarvisOrchestrator._component_is_low(components[k])
+            ]
+            components_ok = bool(component_keys) and len(non_low) == len(component_keys)
+
+            if not params_ok and not components_ok:
+                return "not_started"
+            if params_ok and components_ok:
+                return "complete"
+            return "in_progress"
+
+        # block_type == "component" (default / fallback)
+        component_keys = BLOCK_TO_COMPONENTS.get(block, [])
+        if not component_keys:
+            return "not_started"
+        components = design_properties.components
+        # "not_started" if all components are still at the auto-stub completeness level.
+        non_low = [
+            k for k in component_keys
+            if k in components and not JarvisOrchestrator._component_is_low(components[k])
+        ]
+        if not non_low:
+            return "not_started"
+        if len(non_low) == len(component_keys):
+            return "complete"
+        return "in_progress"
+
+    @staticmethod
+    def _component_is_low(component: Any) -> bool:
+        """True if a component is absent/default (completeness is None or 'low').
+
+        Single source of truth for the 'completeness' threshold used by both
+        _block_progress_status and get_block_in_progress_reason. If the
+        completeness representation ever changes (e.g. a new sentinel value),
+        update only this function.
+        """
+        return (component.completeness or "low") == "low"
+
+    @staticmethod
+    def get_block_in_progress_reason(state: Any, block: str) -> str:
+        """Return the reason a block is in_progress.
+
+        Returns:
+            "missing_components" — at least one component key is absent or has
+                                   completeness='low'. Applies to composite AND component
+                                   blocks that have component keys defined (Bug 67).
+            "missing_params"     — all components are present but required params are
+                                   missing. Also the default for param blocks.
+
+        This function is the single source of truth for the in_progress cause.
+        build_startup_context uses this value to pick the right user-facing message
+        without duplicating component-completeness logic.
+        """
+        block_type = get_block_type(block)
+        # Bug 67: "component" blocks (e.g. "control") also have component keys
+        # and must show "missing_components" when those keys are absent/low.
+        if block_type not in ("composite", "component"):
+            return "missing_params"
+        component_keys = BLOCK_TO_COMPONENTS.get(block, [])
+        if not component_keys:
+            return "missing_params"
+        components = state.design_properties.components
+        missing = [
+            k for k in component_keys
+            if k not in components or JarvisOrchestrator._component_is_low(components[k])
+        ]
+        if missing:
+            return "missing_components"
+        return "missing_params"
+
+    def _set_pending_next_block(self) -> None:
+        """After completing a param block, pre-load the next pending block into session state.
+
+        Called at the end of the DEFINE_MISSING_PARAMETERS handler so that the next
+        affirmative input from the user immediately opens the correct wizard — either
+        the numeric param wizard (param-driven blocks) or the component description
+        prompt (component-driven blocks).
+
+        Does nothing when:
+        - no active project exists
+        - system is not defined (no priority order)
+        - all blocks are already complete
+        """
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return
+        if not project_state.design_properties.system_defined:
+            return
+        pending = self._next_pending_block(project_state)
+        if pending is None:
+            return
+        block_key, _status = pending
+        block_type = get_block_type(block_key)
+        if block_type == "param":
+            # Param-driven block: load the missing params for the numeric wizard.
+            param_reason = get_param_reason_for_block(block_key)
+            missing = missing_params_for_reason(param_reason, project_state.current_parameters or {})
+            if not missing:
+                return
+            updated_session = self.state_manager.runtime_state.session.model_copy(update={
+                "pending_define_missing": True,
+                "pending_missing_params": missing,
+                "pending_missing_reason": param_reason,
+            })
+        elif block_type == "composite":
+            # Composite block: Phase A (components) before Phase B (params).
+            component_keys = BLOCK_TO_COMPONENTS.get(block_key, [])
+            components = project_state.design_properties.components
+            missing_component_keys = [
+                k for k in component_keys
+                if components.get(k) is None or components[k].completeness == "low"
+            ]
+            if missing_component_keys:
+                # Phase A: components missing → component description wizard.
+                updated_session = self.state_manager.runtime_state.session.model_copy(update={
+                    "pending_define_missing": True,
+                    "pending_missing_params": missing_component_keys,
+                    "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
+                })
+            else:
+                # Phase B: components OK → numeric param wizard.
+                param_reason = get_param_reason_for_block(block_key)
+                missing = missing_params_for_reason(param_reason, project_state.current_parameters or {})
+                if not missing:
+                    return
+                updated_session = self.state_manager.runtime_state.session.model_copy(update={
+                    "pending_define_missing": True,
+                    "pending_missing_params": missing,
+                    "pending_missing_reason": param_reason,
+                })
+        else:
+            # Component-driven block: set MISSING_COMPONENT_DEFINITION so the intercept
+            # in handle_user_text routes the next input to _handle_component_description.
+            component_keys = BLOCK_TO_COMPONENTS.get(block_key, [])
+            updated_session = self.state_manager.runtime_state.session.model_copy(update={
+                "pending_define_missing": True,
+                "pending_missing_params": component_keys,
+                "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
+            })
+        self.state_manager.set_runtime_session(updated_session)
+
+    def _next_pending_block(self, project_state: Any) -> tuple[str, str] | None:
+        """Return (block_key, status) for the first incomplete block in system_priority.
+
+        Status is 'not_started' or 'in_progress'.
+        Returns None when all blocks are complete or system_priority is empty.
+        """
+        priority = project_state.design_properties.system_priority
+        if not priority:
+            return None
+        params = project_state.current_parameters or {}
+        dp = project_state.design_properties
+        for block in priority:
+            status = self._block_progress_status(block, dp, params)
+            if status != "complete":
+                return (block, status)
+        return None
+
+    def _architecture_progress_str(self, project_state: Any) -> str:
+        """Return a compact fraction string, e.g. '1/4', for UI display."""
+        priority = project_state.design_properties.system_priority
+        if not priority:
+            return ""
+        params = project_state.current_parameters or {}
+        dp = project_state.design_properties
+        completed = sum(
+            1 for b in priority
+            if self._block_progress_status(b, dp, params) == "complete"
+        )
+        return f"{completed}/{len(priority)}"
+
+    def _block_label_for(self, project_state: Any, block_key: str) -> str:
+        """Return the human-readable label for a block, falling back to generic labels."""
+        vehicle_type = (project_state.current_parameters or {}).get("vehicle_type", "")
+        catalog_key = VEHICLE_TYPE_ALIASES.get((vehicle_type or "").lower(), "")
+        arch = SYSTEM_ARCHITECTURES.get(catalog_key)
+        if arch:
+            label = arch.get("block_labels", {}).get(block_key)
+            if label:
+                return label
+        fallback: dict[str, str] = {
+            "propulsion":   "Propulsión",
+            "energy":       "Energía (batería)",
+            "structure":    "Estructura",
+            "control":      "Control",
+            "actuation":    "Actuación",
+            "transmission": "Transmisión",
+        }
+        return fallback.get(block_key, block_key)
+
+    def _component_prompt_for_first_missing(self, keys: list[str]) -> str:
+        """Return a context-specific description prompt for the first key in ``keys``."""
+        if not keys:
+            return "Describe el componente."
+        return _COMPONENT_PROMPTS.get(keys[0], f"Describe el componente: {keys[0]}")
+
+    def _handle_component_description(self, user_input: str, session: Any) -> dict[str, Any]:
+        """Handle user input when mode is DEFINE_MISSING_PARAMETERS and reason is MISSING_COMPONENT_DEFINITION.
+
+        Expected component keys for the active block are read from session.pending_missing_params.
+        Routing is based on spec.suggested_key:
+          - matches expected key → dispatch to appropriate writer (_set_frame_material or _set_control_component)
+          - does not match       → contextual redirect (no write)
+        Affirmative inputs → context-aware prompt based on which components still need defining.
+        """
+        from jarvis.core.component_inference import infer_component
+        from jarvis.domains.aerial import aerial_registry
+
+        expected_keys: list[str] = list(session.pending_missing_params or [])
+
+        # ── Affirmative: user confirmed — emit context-specific prompt ────────
+        if self._is_affirmative(user_input):
+            try:
+                project_state = self.state_manager.load_active_project(self.workspace_manager)
+                components = project_state.design_properties.components
+                missing_keys = [
+                    k for k in expected_keys
+                    if components.get(k) is None or components[k].completeness == "low"
+                ]
+            except FileNotFoundError:
+                missing_keys = expected_keys
+            keys_to_prompt = missing_keys if missing_keys else expected_keys
+            msg = self._component_prompt_for_first_missing(keys_to_prompt)
+            return {"status": "interactive", "action": "component_description_prompt", "message": msg}
+
+        # ── Try to infer component from freeform description ──────────────────
+        spec = infer_component(user_input, registry=aerial_registry)
+
+        if spec.completeness in ("medium", "high"):
+            # ── Validate component belongs to the active block ────────────────
+            if expected_keys and spec.suggested_key not in expected_keys:
+                keys_to_prompt = expected_keys
+                try:
+                    project_state = self.state_manager.load_active_project(self.workspace_manager)
+                    components = project_state.design_properties.components
+                    missing_keys = [
+                        k for k in expected_keys
+                        if components.get(k) is None or components[k].completeness == "low"
+                    ]
+                    if missing_keys:
+                        keys_to_prompt = missing_keys
+                except FileNotFoundError:
+                    pass
+                return {
+                    "status": "interactive",
+                    "action": "component_description_prompt",
+                    "message": self._component_prompt_for_first_missing(keys_to_prompt),
+                }
+
+            # ── Load project ──────────────────────────────────────────────────
+            try:
+                project_state = self.state_manager.load_active_project(self.workspace_manager)
+            except FileNotFoundError:
+                return {
+                    "status": "error",
+                    "action": "component_description_prompt",
+                    "message": "No hay proyecto activo. Crea uno primero.",
+                }
+
+            # ── Dispatch to the correct writer ────────────────────────────────
+            if spec.suggested_key == "frame":
+                mass_prop = spec.properties.get("mass_kg")
+                mat_prop = spec.properties.get("material")
+                mass_val: float | None = mass_prop.value if mass_prop else None
+                material_val: str | None = mat_prop.value if mat_prop else None
+
+                updated_state = set_frame_material(project_state, mass_val, material_val)
+
+                # Recalculate physics with the updated parameters
+                try:
+                    params = updated_state.current_parameters or {}
+                    calculations = self.calculation_engine.build(params)
+                    autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
+                    simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
+                    updated_state = self.state_manager.record_action(
+                        state=updated_state,
+                        action=HistoryEntry(
+                            action=ActionName.ITERATE,
+                            summary=f"Frame definido: {material_val or '?'} {mass_val or '?'}kg",
+                        ),
+                        latest_results={
+                            "calculations": calculations.model_dump(),
+                            "simulation": simulation.model_dump(),
+                        },
+                    )
+                except Exception:  # noqa: BLE001 — recalculation failure must not lose the frame data
+                    pass
+
+                parts = []
+                if material_val:
+                    parts.append(material_val.replace("_", " "))
+                if mass_val is not None:
+                    parts.append(f"{mass_val}kg")
+                desc = " ".join(parts) if parts else "frame"
+                saved_msg = f"Frame registrado: {desc}."
+
+            elif spec.suggested_key == "battery":
+                cap_prop = spec.properties.get("battery_capacity_wh")
+                capacity_val: float | None = cap_prop.value if cap_prop else None
+                updated_state = set_battery_component(project_state, spec, capacity_val)
+
+                # Recalculate physics with the updated parameters
+                try:
+                    params = updated_state.current_parameters or {}
+                    calculations = self.calculation_engine.build(params)
+                    autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
+                    simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
+                    updated_state = self.state_manager.record_action(
+                        state=updated_state,
+                        action=HistoryEntry(
+                            action=ActionName.ITERATE,
+                            summary=f"Batería definida: {capacity_val}Wh",
+                        ),
+                        latest_results={
+                            "calculations": calculations.model_dump(),
+                            "simulation": simulation.model_dump(),
+                        },
+                    )
+                except Exception:  # noqa: BLE001 — recalculation failure must not lose the battery data
+                    pass
+
+                saved_msg = (
+                    f"Batería registrada: {capacity_val}Wh." if capacity_val else "Batería registrada."
+                )
+
+            elif spec.suggested_key == "motors":
+                power_prop = spec.properties.get("power_w")
+                power_val: float | None = power_prop.value if power_prop else None
+                updated_state = set_motor_component(project_state, spec, power_val)
+
+                # Recalculate physics with the updated parameters
+                try:
+                    params = updated_state.current_parameters or {}
+                    calculations = self.calculation_engine.build(params)
+                    autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
+                    simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
+                    updated_state = self.state_manager.record_action(
+                        state=updated_state,
+                        action=HistoryEntry(
+                            action=ActionName.ITERATE,
+                            summary=f"Motores definidos: {power_val}W" if power_val else "Motores definidos",
+                        ),
+                        latest_results={
+                            "calculations": calculations.model_dump(),
+                            "simulation": simulation.model_dump(),
+                        },
+                    )
+                except Exception:  # noqa: BLE001 — recalculation failure must not lose the motor data
+                    pass
+
+                saved_msg = (
+                    f"Motores registrados: {power_val}W." if power_val else "Motores registrados."
+                )
+
+            elif spec.suggested_key == "propellers":
+                updated_state = set_propeller_component(project_state, spec)
+
+                # Recalculate physics with the updated parameters
+                try:
+                    params = updated_state.current_parameters or {}
+                    calculations = self.calculation_engine.build(params)
+                    autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
+                    simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
+                    updated_state = self.state_manager.record_action(
+                        state=updated_state,
+                        action=HistoryEntry(
+                            action=ActionName.ITERATE,
+                            summary="Hélices definidas",
+                        ),
+                        latest_results={
+                            "calculations": calculations.model_dump(),
+                            "simulation": simulation.model_dump(),
+                        },
+                    )
+                except Exception:  # noqa: BLE001 — recalculation failure must not lose the propeller data
+                    pass
+
+                saved_msg = "Hélices registradas."
+
+            else:
+                # Control components (flight_controller, sensors) and future component types
+                updated_state = set_control_component(project_state, spec)
+                saved_msg = f"{spec.suggested_key.replace('_', ' ').capitalize()} registrado."
+
+            self.workspace_manager.save_state(updated_state)
+
+            # U5: validación inline de restricciones — informativo, nunca bloquea
+            _violations = self._check_constraint_violations(updated_state)
+            if _violations:
+                saved_msg += f" ⚠ {'; '.join(_violations)}"
+
+            # ── Check if all expected components for this block are now complete ─
+            components = updated_state.design_properties.components
+            still_missing = [
+                k for k in expected_keys
+                if components.get(k) is None or components[k].completeness == "low"
+            ]
+
+            if not still_missing:
+                # Block complete → advance to next block
+                self._set_pending_next_block()
+                result: dict[str, Any] = {
+                    "status": "ok",
+                    "action": "component_description_saved",
+                    "message": saved_msg,
+                }
+                return self._append_arch_progress_hint(result)
+
+            # Block in progress → ask for the next missing component
+            follow_up = self._component_prompt_for_first_missing(still_missing)
+            return {
+                "status": "ok",
+                "action": "component_description_saved",
+                "message": f"{saved_msg} {follow_up}",
+            }
+
+        # ── completeness == "low" → ask targeted follow-up ────────────────────
+        if spec.suggested_key == "flight_controller" and spec.hints:
+            msg = spec.hints[0]
+        elif spec.suggested_key == "sensors" and spec.hints:
+            msg = spec.hints[0]
+        else:
+            has_mass = "mass_kg" in spec.properties
+            has_material = "material" in spec.properties
+            if has_material and not has_mass:
+                msg = "¿Cuánto pesa el frame? Ej: '450g' o '0.45kg'"
+            elif has_mass and not has_material:
+                msg = "¿De qué material es? Ej: 'fibra de carbono' o 'aluminio'"
+            else:
+                msg = "Indica material y masa. Ej: 'fibra de carbono 450g'"
+
+        return {
+            "status": "interactive",
+            "action": "component_description_prompt",
+            "message": msg,
+        }
+
+    def _check_constraint_violations(self, updated_state: ProjectState) -> list[str]:
+        """U5: verifica restricciones numéricas activas contra el último cálculo registrado.
+
+        Retorna lista de strings de warning (vacía si no hay violaciones o sin datos).
+        Lee total_mass_kg de updated_state.latest_results — valor ya calculado por
+        record_action, sin segunda llamada al motor de cálculo.
+        """
+        violations: list[str] = []
+        try:
+            constraints = updated_state.parsed_constraints
+            if not isinstance(constraints, dict) or not constraints:
+                return violations
+            calc = (updated_state.latest_results or {})
+            if not isinstance(calc, dict):
+                return violations
+            calc = calc.get("calculations") or {}
+            if not isinstance(calc, dict):
+                return violations
+            total_mass = calc.get("total_mass_kg")
+            if not isinstance(total_mass, (int, float)):
+                return violations
+            max_weight = constraints.get("max_weight_kg")
+            if isinstance(max_weight, (int, float)) and total_mass > max_weight:
+                violations.append(
+                    f"peso {total_mass:.2f} kg supera máximo {max_weight:.1f} kg"
+                )
+        except (TypeError, AttributeError):
+            return violations
+        return violations
+
+    def _append_arch_progress_hint(self, result: dict) -> dict:
+        """Append an architecture progress hint to the message of a completed define_missing_params."""
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return result
+        if not project_state.design_properties.system_defined:
+            return result
+        progress = self._architecture_progress_str(project_state)
+        pending = self._next_pending_block(project_state)
+        if pending is None:
+            hint = f"\n\n✓ Arquitectura completa ({progress}) — puedes optimizar o simular."
+        else:
+            block_key, block_status = pending
+            label = self._block_label_for(project_state, block_key)
+            if block_status == "in_progress":
+                hint = (
+                    f"\n\nSiguiente bloque: {label} — en progreso, "
+                    f"define los parámetros que faltan. ({progress})"
+                )
+            else:
+                hint = f"\n\nSiguiente bloque: {label} ({progress})"
+        return {**result, "message": (result.get("message") or "") + hint}
+
+    def _handle_project_status(self) -> dict[str, Any]:
+        """Return a project_status result using build_startup_context (no LLM).
+
+        Reuses the same builder as the startup display so there is a single
+        source of truth for the project state snapshot.
+        """
+        ctx = self.build_startup_context()
+        # Bug 54: when the status shows a proactive_question (¿Definimos X ahora?),
+        # persist the pending confirmation in session so the next affirmative input
+        # can trigger start_define_missing_params without re-reading startup context.
+        # Only set in IDLE mode — inside an active wizard the flag would conflict.
+        current_mode = self.state_manager.runtime_state.session.mode
+        if (
+            ctx.get("proactive_question")
+            and current_mode == OrchestratorMode.IDLE
+        ):
+            current_session = self.state_manager.runtime_state.session
+            updated_session = current_session.model_copy(update={
+                "pending_define_missing": True,
+                "pending_missing_params": ctx.get("missing_params") or [],
+                "pending_missing_reason": ctx.get("param_definition_reason") or "",
+            })
+            self.state_manager.set_runtime_session(updated_session)
+        return {
+            "status": "ok",
+            "action": "project_status",
+            "startup_context": ctx,
+        }
+
+    def _handle_explore(self, goal_key: str | None, user_input: str, llm_interface: Any) -> dict:
+        """DSE: explora el espacio de diseño para el goal dado.
+
+        Operación de solo lectura: no muta state, no escribe en disco.
+        Si no hay proyecto activo o no se reconoce el goal, cae a analyze.
+        """
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return self._handle_analyze(user_input, llm_interface)
+
+        if goal_key is None:
+            # No se detectó goal → pide clarificación vía analyze
+            return self._handle_analyze(user_input, llm_interface)
+
+        from jarvis.core.design_explorer import GOAL_LABELS, EXPLORATION_GRIDS
+        if goal_key not in EXPLORATION_GRIDS:
+            return self._handle_analyze(user_input, llm_interface)
+
+        exploration = self.design_explorer.explore(project_state, goal_key)
+
+        goal_label = GOAL_LABELS.get(goal_key, goal_key)
+        viable_count = len(exploration.viable)
+
+        if viable_count == 0:
+            message = (
+                f"He explorado {len(exploration.candidates)} variaciones para «{goal_label}» "
+                f"pero ninguna produce un diseño viable (can_fly=True) con los parámetros actuales. "
+                f"Considera aumentar el empuje por motor o revisar la masa estructural antes de explorar."
+            )
+        else:
+            lines = [
+                f"Exploración completada para «{goal_label}» — {viable_count} configuración(es) viable(s) encontrada(s):\n"
+            ]
+            baseline_sim = exploration.baseline_simulation
+            lines.append(
+                f"  Línea base → autonomía={baseline_sim.autonomy_min or '—'} min, "
+                f"margen={round(baseline_sim.safety_margin_ratio, 3)}, "
+                f"vuelo={'✓' if baseline_sim.can_fly else '✗'}"
+            )
+            lines.append("")
+            for i, c in enumerate(exploration.viable, start=1):
+                sign = "+" if c.improvement >= 0 else ""
+                lines.append(
+                    f"  {i}. {c.label} → score={round(c.score, 3)} ({sign}{round(c.improvement, 3)})"
+                )
+            lines.append("")
+            lines.append("  Di «aplica la mejor» para aplicar la configuración #1 al proyecto.")
+            message = "\n".join(lines)
+
+        # DSE v1.1: persist exploration result in session so _handle_apply_exploration can use it.
+        current_session = self.state_manager.runtime_state.session
+        updated_session = current_session.model_copy(update={"last_exploration_result": exploration})
+        self.state_manager.set_runtime_session(updated_session)
+
+        return {
+            "status": "ok",
+            "action": "explore_design_space",
+            "goal_key": goal_key,
+            "goal_label": goal_label,
+            "message": message,
+            "exploration": exploration.model_dump(),
+            "project_id": project_state.project_id,
+            "workspace_path": project_state.workspace_path,
+        }
+
+    def _handle_apply_exploration(self) -> dict:
+        """DSE v1.1: aplica el mejor candidato de la última exploración al proyecto.
+
+        Usa viable[0] (mayor score) de last_exploration_result en session.
+        Escribe directamente en state (equivalente al physical iterate path):
+          current_parameters ← merged, corre calculate + simulate, guarda.
+
+        Edge cases:
+          - Sin exploración previa → mensaje informativo
+          - viable vacío → mensaje informativo
+          - best.score <= baseline_score → avisa pero aplica de todas formas
+          - _apply_delta falla (param ausente) → fallback manual
+        """
+        session = self.state_manager.runtime_state.session
+        exploration = session.last_exploration_result
+
+        if exploration is None:
+            return {
+                "status": "error",
+                "action": "apply_exploration_result",
+                "message": "No hay resultados de exploración recientes. Primero di «optimiza para [objetivo]».",
+            }
+
+        if not exploration.viable:
+            return {
+                "status": "error",
+                "action": "apply_exploration_result",
+                "message": (
+                    f"La última exploración para «{exploration.goal_label}» no encontró "
+                    "ninguna configuración viable. No hay nada que aplicar."
+                ),
+            }
+
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "action": "apply_exploration_result",
+                "message": "No hay proyecto activo. Crea un proyecto antes de aplicar una configuración.",
+            }
+
+        best = exploration.viable[0]
+
+        # Resolve delta → canonical param dict + updated state
+        base_params = dict(project_state.current_parameters or {})
+
+        if best.components_delta:
+            # DA2: component-driven candidate — apply writers to derive params
+            from jarvis.core.component_writers import apply_components_delta
+            updated_project = apply_components_delta(project_state, best.components_delta)
+            canonical_params = dict(updated_project.current_parameters or {})
+        else:
+            # Params-only candidate (original path)
+            updated_project = None
+            canonical_params = _apply_delta(base_params, best.params_delta)
+
+        if canonical_params is None:
+            return {
+                "status": "error",
+                "action": "apply_exploration_result",
+                "message": (
+                    "No se pudo resolver automáticamente los parámetros del candidato. "
+                    f"Inténtalo manualmente: {best.label}"
+                ),
+            }
+
+        # ── Apply, calculate, simulate, save ─────────────────────────────────
+        from pathlib import Path
+        workspace_path = Path(project_state.workspace_path)
+        iteration_index = project_state.active_iteration  # capturar ANTES de incrementar
+
+        autonomy_threshold = project_state.parsed_constraints.get("autonomy_min")
+        calculations = self.calculation_engine.build(canonical_params)
+        simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
+
+        iteration_path = self.workspace_manager.save_iteration_snapshot(
+            workspace_path,
+            iteration_index,
+            {
+                "iteration_id": iteration_index,
+                "event": "dse_apply",
+                "goal_key": exploration.goal_key,
+                "goal_label": exploration.goal_label,
+                "label": best.label,
+                "params_delta": best.params_delta,
+                "calculations": calculations.model_dump(),
+                "simulation": simulation.model_dump(),
+            },
+        )
+
+        history_entry = HistoryEntry(
+            action=ActionName.ITERATE,
+            summary=f"DSE apply: {best.label} (goal={exploration.goal_key})",
+            artifacts={"iteration": str(iteration_path)},
+        )
+        # DA2: when components_delta was used, start from updated_project (has
+        # both the new components and derived params); otherwise start from base.
+        base_state_for_save = updated_project if updated_project is not None else project_state
+        updated_state = self.state_manager.record_action(
+            state=base_state_for_save.model_copy(update={"current_parameters": canonical_params}),
+            action=history_entry,
+            latest_results={
+                "calculations": calculations.model_dump(),
+                "simulation": simulation.model_dump(),
+                "mutation": {
+                    "mode": "dse_apply",
+                    "params_delta": best.params_delta,
+                    "label": best.label,
+                    "goal_key": exploration.goal_key,
+                },
+            },
+            increment_iteration=True,
+        )
+        self.workspace_manager.save_state(updated_state)
+        self.workspace_manager.append_event(
+            workspace_path,
+            "dse_apply",
+            {
+                "iteration_id": iteration_index,
+                "goal_key": exploration.goal_key,
+                "label": best.label,
+            },
+        )
+        self.workspace_manager.render_views(workspace_path, updated_state)
+
+        # ── Build confirmation message ────────────────────────────────────────
+        no_improvement = best.score <= exploration.baseline_score
+        sim = simulation  # real result, not the predicted one
+
+        changed = {k: v for k, v in canonical_params.items() if base_params.get(k) != v}
+        change_lines = [f"  - {k}: {base_params.get(k)} → {v}" for k, v in changed.items()]
+        change_desc = "\n".join(change_lines) if change_lines else "  (sin cambios detectados)"
+
+        message_parts = [
+            f"Aplicando mejor configuración de «{exploration.goal_label}»:",
+            "",
+            change_desc,
+            "",
+            "Resultado:",
+            f"  - autonomía: {round(sim.autonomy_min, 1) if sim.autonomy_min is not None else '—'} min",
+            f"  - margen de seguridad: {round(sim.safety_margin_ratio, 3)}",
+            f"  - vuelo: {'✓ viable' if sim.can_fly else '✗ no viable'}",
+            f"  - calidad: {sim.quality}",
+        ]
+        if no_improvement:
+            message_parts.append(
+                "\n⚠️  Nota: este candidato no mejora la línea base del objetivo "
+                f"«{exploration.goal_label}». Configuración aplicada por solicitud explícita."
+            )
+
+        # Bug 79: check constraint violations after applying the candidate.
+        # Uses the same _check_constraint_violations helper as U5 (informative, never blocks).
+        _dse_violations = self._check_constraint_violations(updated_state)
+        if _dse_violations:
+            message_parts.append(f"\n⚠ {'; '.join(_dse_violations)}")
+
+        return {
+            "status": "ok",
+            "action": "apply_exploration_result",
+            "goal_key": exploration.goal_key,
+            "goal_label": exploration.goal_label,
+            "applied_candidate": best.model_dump(),
+            "calculations": calculations.model_dump(),
+            "simulation": simulation.model_dump(),
+            "message": "\n".join(message_parts),
+        }
+
+    def _handle_analyze(self, user_input: str, llm_interface: Any) -> dict:
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            project_state = None
+
+        context = self._build_analyze_context(project_state)
+        analyze_type = self._resolve_analyze_type(user_input)
+        goal_key = detect_goal(user_input)
+        sim_context = context.get("last_simulation")
+        goal_context = get_goal_context_for_llm(goal_key) if goal_key else None
+        reasoning_output = self.reasoning_layer.build(context)
+        message = llm_interface.analyze(
+            user_input=user_input,
+            context=context,
+            analyze_type=analyze_type,
+            reasoning_output=reasoning_output.model_dump(),
+            conversation_history=self.state_manager.runtime_state.conversation_history,
+            goal_context=goal_context,
+        )
+        if goal_key:
+            deterministic_plan = format_goal_plan(goal_key, sim_context=sim_context)
+            message = deterministic_plan + "\n\n─── Evaluación contextual ───\n" + message
+
+        payload: dict[str, Any] = {
+            "status": "ok",
+            "action": "analyze",
+            "message": message,
+            "analyze_type": analyze_type,
+            "analysis_context": context,
+            "reasoning": reasoning_output.model_dump(),
+        }
+        if project_state is not None:
+            payload["project_id"] = project_state.project_id
+            payload["workspace_path"] = project_state.workspace_path
+        return payload
+
+    # ── Startup context ───────────────────────────────────────────────────────
+
+    def build_startup_context(self, workspace_path: "Path | str | None" = None) -> dict[str, Any]:
+        """Return a structured dict describing the current project state for startup display.
+
+        Loads the most recently touched project (or the project at *workspace_path*).
+        Returns ``{"has_project": False}`` when no project exists.
+
+        Structure:
+        ```
+        {
+            "has_project": True,
+            "project_slug": str,
+            "objective": str,
+            "status_type": "blocking" | "warning" | "nominal" | "no_data",
+            "status_reason": str | None,       # e.g. "missing_transmission_parameters"
+            "active_variables": dict[str, Any], # max 3, chosen by status
+            "suggested_action": {              # top ReasoningSuggestion, may be None
+                "label": str,
+                "reason": str,
+                "hint": str | None,            # e.g. 'Puedes responder: "0.15 y 10"'
+            } | None,
+        }
+        ```
+        """
+        try:
+            project_state = self.state_manager.load_active_project(
+                self.workspace_manager,
+                workspace_path=str(workspace_path) if workspace_path else None,
+            )
+        except FileNotFoundError:
+            return {"has_project": False}
+
+        context = self._build_analyze_context(project_state)
+        reasoning = self.reasoning_layer.build(context)
+        signals = reasoning.signals
+        params = project_state.current_parameters or {}
+        simulation = project_state.latest_results.get("simulation") or {}
+
+        # ── status_type: strict priority hierarchy ────────────────────────────
+        if signals.get("missing_physics_parameters"):
+            status_type = "blocking"
+            # Read the reason code from the simulation rather than hardcoding the domain.
+            status_reason = missing_force_reason_from_warnings(simulation.get("warnings") or [])
+        elif signals.get("has_warnings"):
+            status_type = "warning"
+            status_reason = (simulation.get("warnings") or [None])[0]
+        elif signals.get("has_simulation"):
+            status_type = "nominal"
+            status_reason = None
+        else:
+            status_type = "no_data"
+            status_reason = None
+
+        # ── active_variables: max 3, relevant to current status ──────────────
+        def _fmt(v: Any) -> Any:
+            if isinstance(v, float) and v == int(v):
+                return int(v)
+            return v
+
+        if status_type == "blocking":
+            keys = ["motor_count", "per_actuator_torque_nm", "payload_kg"]
+        elif status_type in ("warning", "nominal"):
+            keys = ["payload_kg", "motor_count", "safety_margin_ratio"]
+        else:
+            keys = ["payload_kg", "motor_count", "safety_factor"]
+
+        active_variables: dict[str, Any] = {}
+        for key in keys:
+            if key == "safety_margin_ratio":
+                value = simulation.get("safety_margin_ratio")
+            else:
+                value = params.get(key)
+            if value is not None:
+                active_variables[key] = _fmt(value)
+
+        # ── suggested_action: top action + actionable hint ────────────────────
+        # Bug 49: filter out suggestions the user has dismissed this session.
+        _dismissed = set(self.state_manager.runtime_state.session.dismissed_suggestions)
+        suggested_action: dict[str, Any] | None = None
+        if reasoning.suggested_actions:
+            top = next(
+                (a for a in reasoning.suggested_actions if not a.blocked and a.label not in _dismissed),
+                None,
+            )
+            if top:
+                hint: str | None = None
+                if status_type == "blocking":
+                    hint = reason_hint(status_reason)
+                suggested_action = {
+                    "label": top.label,
+                    "reason": top.reason,
+                    "hint": hint,
+                }
+                # Bug 49: record exactly what the user will see so dismiss_suggestion
+                # always operates on the label that was rendered.
+                _session = self.state_manager.runtime_state.session
+                _updated = _session.model_copy(update={"last_suggested_action": top.label})
+                self.state_manager.set_runtime_session(_updated)
+            else:
+                # All non-blocked suggestions have been dismissed this session.
+                # Clear stale last_suggested_action so the next dismiss is a clean no-op
+                # instead of operating on a label the user is no longer seeing.
+                _session = self.state_manager.runtime_state.session
+                if _session.last_suggested_action is not None:
+                    self.state_manager.set_runtime_session(
+                        _session.model_copy(update={"last_suggested_action": None})
+                    )
+
+        # ── project phase ─────────────────────────────────────────────────────
+        phase_info = self.phase_layer.infer(signals=reasoning.signals, simulation=simulation)
+
+        # ── proactive question ───────────────────────────────────────────────────
+        proactive_question: str | None = None
+        missing_params: list[str] = []
+        param_definition_reason: str = ""
+        if status_type == "blocking":
+            # Always compute missing_params for any blocking state so the UI can render them.
+            missing_params = missing_params_for_reason(status_reason, params)
+            param_definition_reason = status_reason or ""
+            if phase_info["phase"] == "definition" and missing_params:
+                param_list = " y ".join(missing_params)
+                proactive_question = f"¿Definimos {param_list} ahora?"
+        elif signals.get("missing_energy_parameters"):
+            # Energy params needed — force physics OK but autonomy incomplete.
+            # Exception: when energy is composite and components are missing (Phase A),
+            # defer to the architecture block section which will emit the component hint.
+            _dp = project_state.design_properties
+            _energy_missing_comps: list[str] = []
+            if get_block_type("energy") == "composite" and _dp.system_defined:
+                _energy_missing_comps = [
+                    k for k in BLOCK_TO_COMPONENTS.get("energy", [])
+                    if _dp.components.get(k) is None or _dp.components[k].completeness == "low"
+                ]
+            if not _energy_missing_comps:
+                missing_params = missing_params_for_reason(MISSING_ENERGY_PARAMETERS, params)
+                if missing_params:
+                    param_list = " y ".join(missing_params)
+                    proactive_question = f"¿Definimos {param_list} (energía) ahora?"
+                    param_definition_reason = MISSING_ENERGY_PARAMETERS
+        elif signals.get("missing_propeller_parameters"):
+            # Propeller params needed — aerial vehicle, propeller path started but incomplete
+            missing_params = missing_params_for_reason(MISSING_PROPELLER_PARAMETERS, params)
+            if missing_params:
+                param_list = " y ".join(missing_params)
+                proactive_question = f"¿Definimos {param_list} (hélice) ahora?"
+                param_definition_reason = MISSING_PROPELLER_PARAMETERS
+
+        # ── architecture progress ──────────────────────────────────────────────
+        # Computed after all param-based proactive_questions so architecture guidance
+        # only fills in when no higher-priority prompt is already active.
+        arch_next_block: str | None = None
+        arch_next_label: str | None = None
+        arch_block_status: str | None = None
+        arch_progress: str | None = None
+        if project_state.design_properties.system_defined:
+            arch_progress = self._architecture_progress_str(project_state)
+            pending = self._next_pending_block(project_state)
+            if pending is not None:
+                arch_next_block, arch_block_status = pending
+                arch_next_label = self._block_label_for(project_state, arch_next_block)
+                if not proactive_question:
+                    if arch_block_status == "in_progress":
+                        # K3 (Bug 61): differentiate the in_progress message for composite blocks.
+                        # A composite block can be in_progress because components are missing
+                        # (user must describe them) OR because params are missing (user must give
+                        # numbers). The message must reflect which case we are in.
+                        # get_block_in_progress_reason is the single source of truth — it owns
+                        # the component-completeness check so this branch stays logic-free.
+                        if get_block_type(arch_next_block) == "composite":
+                            _ip_reason = self.get_block_in_progress_reason(
+                                project_state, arch_next_block
+                            )
+                            if _ip_reason == "missing_components":
+                                proactive_question = (
+                                    f"{arch_next_label} en progreso — declara los componentes necesarios."
+                                )
+                            else:
+                                proactive_question = (
+                                    f"{arch_next_label} en progreso — define los parámetros que faltan."
+                                )
+                        else:
+                            proactive_question = (
+                                f"{arch_next_label} en progreso — define los parámetros que faltan."
+                            )
+                    else:
+                        # Route by block type: component/composite get a hint, param gets generic.
+                        arch_block_type = get_block_type(arch_next_block)
+                        if arch_block_type == "component":
+                            component_keys = BLOCK_TO_COMPONENTS.get(arch_next_block, [])
+                            missing_params = component_keys
+                            param_definition_reason = MISSING_COMPONENT_DEFINITION
+                            hint = _BLOCK_COMPONENT_HINTS.get(
+                                arch_next_block,
+                                "describe los componentes",
+                            )
+                            proactive_question = f"Siguiente bloque: {arch_next_label} — {hint}"
+                        elif arch_block_type == "composite":
+                            component_keys = BLOCK_TO_COMPONENTS.get(arch_next_block, [])
+                            _components = project_state.design_properties.components
+                            missing_component_keys = [
+                                k for k in component_keys
+                                if _components.get(k) is None or _components[k].completeness == "low"
+                            ]
+                            if missing_component_keys:
+                                missing_params = missing_component_keys
+                                param_definition_reason = MISSING_COMPONENT_DEFINITION
+                                hint = _BLOCK_COMPONENT_HINTS.get(
+                                    arch_next_block,
+                                    "describe los componentes",
+                                )
+                                proactive_question = f"Siguiente bloque: {arch_next_label} — {hint}"
+                            else:
+                                _param_reason = get_param_reason_for_block(arch_next_block)
+                                if _param_reason:
+                                    missing_params = missing_params_for_reason(
+                                        _param_reason, project_state.current_parameters or {}
+                                    )
+                                    param_definition_reason = _param_reason
+                                proactive_question = f"Siguiente bloque: {arch_next_label}"
+                        else:
+                            proactive_question = f"Siguiente bloque: {arch_next_label}"
+            else:
+                if not proactive_question:
+                    proactive_question = (
+                        f"Arquitectura completa ({arch_progress}) — "
+                        f"puedes optimizar o simular."
+                    )
+
+        return {
+            "has_project": True,
+            "project_slug": project_state.project_slug,
+            "objective": project_state.objective,
+            "phase": phase_info["phase"],
+            "phase_description": phase_info["description"],
+            "phase_confidence": phase_info["confidence"],
+            "status_type": status_type,
+            "status_reason": status_reason,
+            "active_variables": active_variables,
+            "suggested_action": suggested_action,
+            "proactive_question": proactive_question,
+            "missing_params": missing_params,
+            "param_definition_reason": param_definition_reason,
+            # Architecture progress fields (None when system not yet defined)
+            "architecture_progress": arch_progress,
+            "next_architecture_block": arch_next_block,
+            "next_architecture_label": arch_next_label,
+            "next_block_status": arch_block_status,
+        }
+
+    def _build_analyze_context(self, project_state) -> dict[str, Any]:
+        if project_state is None:
+            return {
+                "objective": None,
+                "current_parameters": None,
+                "design_properties": None,
+                "last_calculation": None,
+                "material": None,
+                "last_simulation": None,
+                "memory": None,
+                "last_mutation": None,
+                "mutation_mode": None,
+            }
+
+        return {
+            "objective": project_state.objective,
+            "current_parameters": project_state.current_parameters,
+            "design_properties": project_state.design_properties.model_dump(),
+            "last_calculation": project_state.latest_results.get("calculations"),
+            "material": _get_frame_material_display(project_state.design_properties),
+            "last_simulation": project_state.latest_results.get("simulation"),
+            "memory": project_state.memory.model_dump(),
+            "last_mutation": project_state.latest_results.get("mutation"),
+            "mutation_mode": (project_state.latest_results.get("mutation") or {}).get("mode"),
+        }
+
+    def _resolve_analyze_type(self, user_input: str) -> str:
+        normalized = user_input.lower()
+        if any(pattern in normalized for pattern in ("que pasa si", "qué pasa si", "si aumento", "si reduzco")):
+            return "what_if"
+        if any(pattern in normalized for pattern in ("mejor", "compar", "vs", "versus")):
+            return "comparison"
+        return "explanation"
+
+    def _handle_interactive_request(self, request: ActionRequest) -> dict:
+        current_session = self.state_manager.get_runtime_session()
+        user_input = request.raw_user_input or str(request.parameters.get("answer", "")).strip()
+        if not user_input:
+            return self._interactive_handler_for(current_session.mode).answer(current_session, "")
+
+        try:
+            response = self._interactive_handler_for(current_session.mode).answer(current_session, user_input)
+        except ValueError as error:
+            current_response = self._error_response_for_session(current_session, str(error))
+            if "question" not in current_response:
+                retry_response = self._interactive_handler_for(current_session.mode).answer(current_session, "")
+                current_response["question"] = retry_response["question"]
+            return current_response
+
+        response = self._apply_memory_update_if_present(current_session, response)
+
+        if response["status"] == "confirmed":
+            if current_session.mode == OrchestratorMode.CREATE_PROJECT_INTERACTIVE:
+                execution_payload = self.interactive_session.build_execution_payload(
+                    current_session.project_draft
+                )
+                self.state_manager.clear_runtime_session()
+                handler = self.router.resolve(ActionName.CREATE_PROJECT)
+                result = handler.run(execution_payload)
+                # Launch system definition session after successful create_project.
+                # Always offered — message adapts based on detail_level inside start().
+                if result.get("status") == "ok":
+                    try:
+                        project_state = self.state_manager.load_active_project(self.workspace_manager)
+                        vehicle_type = execution_payload.get("vehicle_type", "")
+                        return self.system_definition_session.start(vehicle_type, project_state)
+                    except FileNotFoundError:
+                        pass
+                return result
+
+            execution_payload = {
+                "iteration_draft": response["iteration_draft"],
+            }
+            self.state_manager.clear_runtime_session()
+            handler = self.router.resolve(ActionName.ITERATE)
+            return handler.run(execution_payload)
+
+        if response["status"] == "cancelled":
+            self.state_manager.clear_runtime_session()
+            return response
+
+        self.state_manager.set_runtime_session(
+            self._session_from_response(response)
+        )
+        return response
+
+    def _semantic_preseed(self, llm_action_dict: dict) -> dict:
+        """Return extra seed keys when the LLM provides a high-confidence iterate proposal.
+
+        * :class:`SemanticInterpretation` with high confidence → adds ``operacion``,
+          ``variable``, optionally ``valor`` and ``seed_step=2`` so the wizard opens
+          directly at step 2 (value question), skipping steps 0 and 1.
+        * :class:`AdaptRejection` with ``reason="derived_variable"`` → adds
+          ``derived_redirect_message`` so the wizard shows it at step 0 before prompting.
+        * Any other case (``None``, low confidence, unknown variable) → empty dict,
+          wizard starts normally from step 0.
+        """
+        result = self._semantic_adapter.adapt(llm_action_dict)
+
+        if isinstance(result, AdaptRejection):
+            if result.reason == "derived_variable":
+                return {"derived_redirect_message": result.redirect_message}
+            return {}
+
+        if not isinstance(result, SemanticInterpretation) or not result.is_high_confidence:
+            return {}
+
+        preseed: dict = {
+            "operacion": result.operation,
+            "variable": result.variable,
+            "seed_step": 2,
+        }
+        if result.value is not None:
+            preseed["valor"] = result.value
+        return preseed
+
+    def _session_from_response(self, response: dict) -> InteractiveSessionState:
+        return InteractiveSessionState(
+            mode=OrchestratorMode(response["mode"]),
+            step=response["step"],
+            project_draft=(
+                ProjectDraft.model_validate(response["project_draft"])
+                if "project_draft" in response
+                else None
+            ),
+            iteration_draft=(
+                IterationDraft.model_validate(response["iteration_draft"])
+                if "iteration_draft" in response
+                else None
+            ),
+            memory_context=response.get("memory_context"),
+            pending_entities=response.get("pending_entities", []),
+            motor_suggestions=response.get("motor_suggestions", []),
+            semantic_state=(
+                SemanticState.model_validate(response["semantic_state"])
+                if "semantic_state" in response
+                else None
+            ),
+        )
+
+    def _interactive_handler_for(self, mode: OrchestratorMode):
+        if mode == OrchestratorMode.CREATE_PROJECT_INTERACTIVE:
+            return self.interactive_session
+        if mode == OrchestratorMode.ITERATE_INTERACTIVE:
+            return self.iterate_interactive_session
+        raise ValueError(f"Modo interactivo no soportado: {mode}")
+
+    def _error_response_for_session(self, session: InteractiveSessionState, error: str) -> dict:
+        response = {
+            "status": "interactive",
+            "mode": session.mode.value,
+            "step": session.step,
+            "error": error,
+        }
+        if session.project_draft is not None:
+            response["project_draft"] = session.project_draft.model_dump()
+        if session.iteration_draft is not None:
+            response["iteration_draft"] = session.iteration_draft.model_dump()
+        if session.memory_context is not None:
+            response["memory_context"] = session.memory_context
+        return response
+
+    def _should_start_create_project_interactive(self, request: ActionRequest) -> bool:
+        return not self.interactive_session.is_executable(request.parameters)
+
+    def _has_active_project(self) -> bool:
+        """Return True if there is at least one project in the workspace."""
+        try:
+            self.state_manager.load_active_project(self.workspace_manager)
+            return True
+        except FileNotFoundError:
+            return False
+
+    def _apply_memory_update_if_present(self, session: InteractiveSessionState, response: dict) -> dict:
+        memory_update = response.get("memory_update")
+        if not memory_update or session.iteration_draft is None or not session.iteration_draft.project_id:
+            return response
+
+        project_state = self.state_manager.load_active_project(
+            self.workspace_manager,
+            project_id=session.iteration_draft.project_id,
+            workspace_path=session.iteration_draft.workspace_path,
+            project_slug=session.iteration_draft.project_slug,
+        )
+        updated_state = self.memory_manager.apply_conflict_resolution(
+            project_state,
+            initial_objective=memory_update.get("initial_objective"),
+            initial_operation=memory_update.get("initial_operation"),
+            conflicting_operation=memory_update.get("conflicting_operation"),
+            resolution=memory_update.get("resolution"),
+        )
+        self.workspace_manager.save_state(updated_state)
+        updated_response = dict(response)
+        updated_response["memory_context"] = updated_state.memory.model_dump()
+        return updated_response

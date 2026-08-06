@@ -1,0 +1,73 @@
+{
+  "vehicle_type": "dron de inspección industrial",
+  "payload_kg": 0.8,
+  "structure_mass_kg": 0.48,
+  "total_mass_kg": 1.28,
+  "weight_n": 12.5568,
+  "required_thrust_n": 15.0682,
+  "motors": 6,
+  "thrust_per_motor_required_n": 2.5114,
+  "available_total_thrust_n": 108.0,
+  "autonomy_min": 12.3333,
+  "tool_results": [
+    {
+      "tool_name": "estimate_structure_mass",
+      "inputs": {
+        "payload_kg": 0.8,
+        "structure_mass_factor": 0.6
+      },
+      "outputs": {
+        "structure_mass_kg": 0.48
+      }
+    },
+    {
+      "tool_name": "calculate_total_mass",
+      "inputs": {
+        "payload_kg": 0.8,
+        "structure_mass_kg": 0.48
+      },
+      "outputs": {
+        "total_mass_kg": 1.28
+      }
+    },
+    {
+      "tool_name": "calculate_weight",
+      "inputs": {
+        "total_mass_kg": 1.28
+      },
+      "outputs": {
+        "weight_n": 12.5568
+      }
+    },
+    {
+      "tool_name": "calculate_required_thrust",
+      "inputs": {
+        "weight_n": 12.5568,
+        "safety_factor": 1.2
+      },
+      "outputs": {
+        "required_thrust_n": 15.0682
+      }
+    },
+    {
+      "tool_name": "calculate_thrust_per_motor",
+      "inputs": {
+        "required_thrust_n": 15.0682,
+        "motors": 6
+      },
+      "outputs": {
+        "thrust_per_motor_required_n": 2.5114
+      }
+    },
+    {
+      "tool_name": "calculate_autonomy_min",
+      "inputs": {
+        "battery_capacity_wh": 222.0,
+        "total_power_w": 1080.0
+      },
+      "outputs": {
+        "autonomy_min": 12.3333
+      }
+    }
+  ]
+}

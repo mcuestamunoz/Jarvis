@@ -1,0 +1,4 @@
+{"timestamp": "2026-06-03T10:25:47.442072+00:00", "type": "create_project", "project_id": "09a96fe29a60", "objective": "fotografía aérea cámara 1kg"}
+{"timestamp": "2026-06-03T10:25:52.220516+00:00", "type": "params_defined", "iteration_id": 1, "params": ["motor_count", "per_motor_max_thrust_n"]}
+{"timestamp": "2026-06-03T10:25:59.824282+00:00", "type": "simulation", "sim_id": 3, "status": "pass"}
+{"timestamp": "2026-06-05T09:29:36.857468+00:00", "type": "params_defined", "iteration_id": 2, "params": ["wheel_radius_m", "gear_ratio"]}

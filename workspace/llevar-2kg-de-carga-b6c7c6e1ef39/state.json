@@ -1,0 +1,424 @@
+{
+  "project_id": "b6c7c6e1ef39",
+  "project_slug": "llevar-2kg-de-carga",
+  "objective": "llevar 2kg de carga",
+  "workspace_path": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39",
+  "active_iteration": 10,
+  "current_parameters": {
+    "objective": "llevar 2kg de carga",
+    "payload_kg": 2.0,
+    "vehicle_type": "dron",
+    "restrictions": "Ninguna",
+    "detail_level": "detallado",
+    "per_motor_max_thrust_n": 19.0,
+    "structure_mass_factor": 0.6,
+    "safety_factor": 1.2,
+    "propeller_diameter_in": 10.0,
+    "propeller_rpm": null,
+    "motor_count": 1,
+    "motor_power_w": 200.0,
+    "battery_capacity_wh": 1200.0,
+    "structure_mass_override_kg": 0.3,
+    "wheel_radius_m": 0.15,
+    "gear_ratio": 10.0,
+    "autonomia": 800.0
+  },
+  "parsed_constraints": {},
+  "design_properties": {
+    "structure": {
+      "material": "aluminio",
+      "density": 2700.0,
+      "volume": 1.0,
+      "structural_fraction": 0.25,
+      "notes": null
+    },
+    "components": {
+      "motors": {
+        "name": "motores brushless 2306 2400KV 200W",
+        "component_type": "propulsion_active",
+        "suggested_key": "motors",
+        "inference_confidence": 0.75,
+        "properties": {
+          "kv_rating": {
+            "value": 2400.0,
+            "unit": "KV",
+            "confidence": 0.9,
+            "source": "declared"
+          },
+          "watts": {
+            "value": 200.0,
+            "unit": "W",
+            "confidence": 0.85,
+            "source": "declared"
+          },
+          "power_w": {
+            "value": 200.0,
+            "unit": "W",
+            "confidence": 0.85,
+            "source": "declared"
+          }
+        },
+        "completeness": "high",
+        "missing_fields": [
+          "número de motores"
+        ],
+        "hints": [
+          "Incluye cantidad y especificación (ej: 4x 920KV)"
+        ],
+        "source": "declared",
+        "output_magnitude": "thrust_n"
+      },
+      "propellers": {
+        "name": "hélices 10x4.5",
+        "component_type": "propulsion_passive",
+        "suggested_key": "propellers",
+        "inference_confidence": 0.6,
+        "properties": {
+          "diameter_in": {
+            "value": 10.0,
+            "unit": "in",
+            "confidence": 0.9,
+            "source": "declared"
+          },
+          "pitch_in": {
+            "value": 4.5,
+            "unit": "in",
+            "confidence": 0.9,
+            "source": "declared"
+          },
+          "count": {
+            "value": 5,
+            "unit": null,
+            "confidence": 0.8,
+            "source": "declared"
+          }
+        },
+        "completeness": "high",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "battery": {
+        "name": "battery_battery_capacity_wh_1200.0",
+        "component_type": "energy_storage",
+        "suggested_key": "battery",
+        "inference_confidence": 0.9,
+        "properties": {
+          "battery_capacity_wh": {
+            "value": 1200.0,
+            "unit": "Wh",
+            "confidence": 0.95,
+            "source": "declared"
+          }
+        },
+        "completeness": "medium",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "frame": {
+        "name": "frame",
+        "component_type": "structure",
+        "suggested_key": "frame",
+        "inference_confidence": 0.9,
+        "properties": {
+          "mass_kg": {
+            "value": 0.3,
+            "unit": "kg",
+            "confidence": 0.95,
+            "source": "declared"
+          },
+          "material": {
+            "value": "carbon_fiber",
+            "unit": null,
+            "confidence": 0.9,
+            "source": "declared"
+          }
+        },
+        "completeness": "high",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "flight_controller": {
+        "name": "controladora de vuelo Pixhawk con GPS",
+        "component_type": "flight_controller",
+        "suggested_key": "flight_controller",
+        "inference_confidence": 0.85,
+        "properties": {
+          "model": {
+            "value": "pixhawk",
+            "unit": null,
+            "confidence": 0.7,
+            "source": "declared"
+          }
+        },
+        "completeness": "medium",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      },
+      "sensors": {
+        "name": "simula",
+        "component_type": "sensors",
+        "suggested_key": "sensors",
+        "inference_confidence": 0.8,
+        "properties": {
+          "sensor_type": {
+            "value": "imu",
+            "unit": null,
+            "confidence": 0.8,
+            "source": "declared"
+          }
+        },
+        "completeness": "medium",
+        "missing_fields": [],
+        "hints": [],
+        "source": "declared",
+        "output_magnitude": null
+      }
+    },
+    "system_defined": true,
+    "system_blocks": [
+      "propulsion",
+      "energy",
+      "structure",
+      "control"
+    ],
+    "system_priority": [
+      "propulsion",
+      "energy",
+      "structure",
+      "control"
+    ]
+  },
+  "latest_results": {
+    "mutation": {
+      "state_patch": {
+        "autonomia": 800.0
+      },
+      "mode": "physical"
+    },
+    "calculations": {
+      "vehicle_type": "dron",
+      "payload_kg": 2.0,
+      "structure_mass_kg": 0.3,
+      "total_mass_kg": 2.3,
+      "weight_n": 22.563,
+      "required_thrust_n": 27.0756,
+      "motors": 1,
+      "thrust_per_motor_required_n": 27.0756,
+      "available_total_thrust_n": 19.0,
+      "autonomy_min": 360.0,
+      "tool_results": [
+        {
+          "tool_name": "calculate_total_mass",
+          "inputs": {
+            "payload_kg": 2.0,
+            "structure_mass_kg": 0.3
+          },
+          "outputs": {
+            "total_mass_kg": 2.3
+          }
+        },
+        {
+          "tool_name": "calculate_weight",
+          "inputs": {
+            "total_mass_kg": 2.3
+          },
+          "outputs": {
+            "weight_n": 22.563
+          }
+        },
+        {
+          "tool_name": "calculate_required_thrust",
+          "inputs": {
+            "weight_n": 22.563,
+            "safety_factor": 1.2
+          },
+          "outputs": {
+            "required_thrust_n": 27.0756
+          }
+        },
+        {
+          "tool_name": "calculate_thrust_per_motor",
+          "inputs": {
+            "required_thrust_n": 27.0756,
+            "motors": 1
+          },
+          "outputs": {
+            "thrust_per_motor_required_n": 27.0756
+          }
+        },
+        {
+          "tool_name": "calculate_autonomy_min",
+          "inputs": {
+            "battery_capacity_wh": 1200.0,
+            "total_power_w": 200.0
+          },
+          "outputs": {
+            "autonomy_min": 360.0
+          }
+        }
+      ]
+    },
+    "simulation": {
+      "physics_status": "valid",
+      "energy_status": "valid",
+      "propeller_status": "valid",
+      "status": "fail",
+      "can_fly": false,
+      "quality": "fail",
+      "safety_margin_ratio": 0.7017,
+      "thrust_to_weight_ratio": 0.8421,
+      "autonomy_min": 360.0,
+      "propeller_thrust_inferred": false,
+      "warnings": [],
+      "analysis": {
+        "available_thrust_n": 19.0,
+        "required_thrust_n": 27.0756,
+        "weight_n": 22.563,
+        "per_motor_load_ratio": 1.425
+      },
+      "summary": "Estado fail. Calidad fail. Margen de seguridad 0.70."
+    }
+  },
+  "last_total_mass_kg": 2.3,
+  "history": [
+    {
+      "timestamp": "2026-06-03T06:59:57.049322+00:00",
+      "action": "create_project",
+      "summary": "Proyecto creado con cálculo base y simulación inicial.",
+      "artifacts": {
+        "simulation": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/simulations/sim_000.json",
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/iterations/iter_000.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T07:00:24.227944+00:00",
+      "action": "iterate",
+      "summary": "Parámetros definidos: motor_count=4.0, per_motor_max_thrust_n=19.0.",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/iterations/iter_001.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T07:00:51.005439+00:00",
+      "action": "iterate",
+      "summary": "Motores definidos: 200.0W",
+      "artifacts": {}
+    },
+    {
+      "timestamp": "2026-06-03T07:01:43.220842+00:00",
+      "action": "iterate",
+      "summary": "Hélices definidas",
+      "artifacts": {}
+    },
+    {
+      "timestamp": "2026-06-03T07:02:01.365813+00:00",
+      "action": "iterate",
+      "summary": "Batería definida: 111.0Wh",
+      "artifacts": {}
+    },
+    {
+      "timestamp": "2026-06-03T07:02:19.536443+00:00",
+      "action": "iterate",
+      "summary": "Frame definido: carbon_fiber 0.45kg",
+      "artifacts": {}
+    },
+    {
+      "timestamp": "2026-06-03T07:08:11.708952+00:00",
+      "action": "iterate",
+      "summary": "DSE apply: battery: battery_capacity_wh=1200.0 (goal=mejorar_autonomia)",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/iterations/iter_002.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T07:09:43.863985+00:00",
+      "action": "iterate",
+      "summary": "Frame definido: carbon_fiber 0.3kg",
+      "artifacts": {}
+    },
+    {
+      "timestamp": "2026-06-03T08:04:36.547705+00:00",
+      "action": "iterate",
+      "summary": "Parámetros definidos: wheel_radius_m=0.15, gear_ratio=10.0.",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/iterations/iter_003.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T08:04:52.508787+00:00",
+      "action": "iterate",
+      "summary": "Parámetros definidos: wheel_radius_m=0.15, gear_ratio=10.0.",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/iterations/iter_004.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T08:13:53.320817+00:00",
+      "action": "iterate",
+      "summary": "Parámetros definidos: wheel_radius_m=0.15, gear_ratio=10.0.",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/iterations/iter_005.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T08:16:54.937098+00:00",
+      "action": "iterate",
+      "summary": "Parámetros definidos: wheel_radius_m=0.15, gear_ratio=10.0.",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/iterations/iter_006.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T09:33:23.070807+00:00",
+      "action": "calculate",
+      "summary": "Recalculo ejecutado sobre el proyecto actual.",
+      "artifacts": {
+        "calculations": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/calculations/calc_012.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T09:35:20.102305+00:00",
+      "action": "calculate",
+      "summary": "Recalculo ejecutado sobre el proyecto actual.",
+      "artifacts": {
+        "calculations": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/calculations/calc_013.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T09:49:17.311698+00:00",
+      "action": "iterate",
+      "summary": "Parámetros definidos: wheel_radius_m=0.15, gear_ratio=10.0.",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/iterations/iter_007.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T09:51:54.198932+00:00",
+      "action": "iterate",
+      "summary": "Parámetros definidos: autonomia=25.0.",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/iterations/iter_008.json"
+      }
+    },
+    {
+      "timestamp": "2026-06-03T09:51:59.335859+00:00",
+      "action": "iterate",
+      "summary": "Parámetros definidos: autonomia=800.0.",
+      "artifacts": {
+        "iteration": "/Users/marccuestamunoz/Desktop/Ingenieria/Ingenieria/06_Proyectos/llevar-2kg-de-carga-b6c7c6e1ef39/history/iterations/iter_009.json"
+      }
+    }
+  ],
+  "memory": {
+    "preferences": {},
+    "conflict_history": []
+  }
+}

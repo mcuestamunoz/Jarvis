@@ -1,0 +1,102 @@
+{
+  "iteration_id": 11,
+  "event": "params_defined",
+  "params": {
+    "battery_capacity_wh": 120.0
+  },
+  "calculations": {
+    "vehicle_type": "dron",
+    "payload_kg": 0.5,
+    "structure_mass_kg": 0.35,
+    "total_mass_kg": 1.65,
+    "weight_n": 16.1865,
+    "required_thrust_n": 19.4238,
+    "motors": 4,
+    "thrust_per_motor_required_n": 4.8559,
+    "available_total_thrust_n": 38.2413,
+    "autonomy_min": 30.0,
+    "tool_results": [
+      {
+        "tool_name": "calculate_total_mass",
+        "inputs": {
+          "payload_kg": 0.5,
+          "structure_mass_kg": 1.15
+        },
+        "outputs": {
+          "total_mass_kg": 1.65
+        }
+      },
+      {
+        "tool_name": "calculate_weight",
+        "inputs": {
+          "total_mass_kg": 1.65
+        },
+        "outputs": {
+          "weight_n": 16.1865
+        }
+      },
+      {
+        "tool_name": "calculate_required_thrust",
+        "inputs": {
+          "weight_n": 16.1865,
+          "safety_factor": 1.2
+        },
+        "outputs": {
+          "required_thrust_n": 19.4238
+        }
+      },
+      {
+        "tool_name": "calculate_thrust_from_propeller",
+        "inputs": {
+          "diameter_m": 0.254,
+          "rpm": 7500.0,
+          "ct": 0.12,
+          "air_density": 1.225
+        },
+        "outputs": {
+          "thrust_n": 9.560316
+        }
+      },
+      {
+        "tool_name": "calculate_thrust_per_motor",
+        "inputs": {
+          "required_thrust_n": 19.4238,
+          "motors": 4
+        },
+        "outputs": {
+          "thrust_per_motor_required_n": 4.8559
+        }
+      },
+      {
+        "tool_name": "calculate_autonomy_min",
+        "inputs": {
+          "battery_capacity_wh": 120.0,
+          "total_power_w": 240.0
+        },
+        "outputs": {
+          "autonomy_min": 30.0
+        }
+      }
+    ]
+  },
+  "simulation": {
+    "physics_status": "valid",
+    "energy_status": "valid",
+    "propeller_status": "valid",
+    "status": "pass",
+    "can_fly": true,
+    "quality": "good",
+    "safety_margin_ratio": 1.9688,
+    "thrust_to_weight_ratio": 2.3625,
+    "autonomy_min": 30.0,
+    "propeller_thrust_inferred": true,
+    "warnings": [],
+    "analysis": {
+      "available_thrust_n": 38.2413,
+      "required_thrust_n": 19.4238,
+      "weight_n": 16.1865,
+      "per_motor_load_ratio": 0.5079
+    },
+    "summary": "Estado pass. Calidad good. Margen de seguridad 1.97."
+  }
+}

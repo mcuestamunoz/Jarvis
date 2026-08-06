@@ -1,0 +1,103 @@
+{
+  "iteration_id": 0,
+  "event": "create_project",
+  "objective": "entregar paquetes de hasta 1.5kg en zonas urbanas",
+  "vehicle_type": "dron",
+  "restrictions": "autonomía mínima 30 minutos, peso total máximo 5kg",
+  "detail_level": "detallado",
+  "calculations": {
+    "vehicle_type": "dron",
+    "payload_kg": 1.5,
+    "structure_mass_kg": 0.9,
+    "total_mass_kg": 2.4,
+    "weight_n": 23.544,
+    "required_thrust_n": 28.2528,
+    "motors": null,
+    "thrust_per_motor_required_n": null,
+    "available_total_thrust_n": null,
+    "autonomy_min": null,
+    "tool_results": [
+      {
+        "tool_name": "estimate_structure_mass",
+        "inputs": {
+          "payload_kg": 1.5,
+          "structure_mass_factor": 0.6
+        },
+        "outputs": {
+          "structure_mass_kg": 0.9
+        }
+      },
+      {
+        "tool_name": "calculate_total_mass",
+        "inputs": {
+          "payload_kg": 1.5,
+          "structure_mass_kg": 0.9
+        },
+        "outputs": {
+          "total_mass_kg": 2.4
+        }
+      },
+      {
+        "tool_name": "calculate_weight",
+        "inputs": {
+          "total_mass_kg": 2.4
+        },
+        "outputs": {
+          "weight_n": 23.544
+        }
+      },
+      {
+        "tool_name": "calculate_required_thrust",
+        "inputs": {
+          "weight_n": 23.544,
+          "safety_factor": 1.2
+        },
+        "outputs": {
+          "required_thrust_n": 28.2528
+        }
+      },
+      {
+        "tool_name": "missing_propulsion_parameters",
+        "inputs": {
+          "vehicle_type": "dron",
+          "motors": null
+        },
+        "outputs": {
+          "reason": "no force resolution path: no thrust, no torque, no propeller geometry"
+        }
+      },
+      {
+        "tool_name": "missing_energy_parameters",
+        "inputs": {
+          "battery_capacity_wh": null,
+          "motor_power_w": null
+        },
+        "outputs": {
+          "reason": "battery_capacity_wh and/or motor_power_w not in parameters"
+        }
+      }
+    ]
+  },
+  "simulation": {
+    "physics_status": "missing_parameters",
+    "energy_status": "missing_energy_parameters",
+    "propeller_status": "valid",
+    "status": "fail",
+    "can_fly": false,
+    "quality": "fail",
+    "safety_margin_ratio": 0.0,
+    "thrust_to_weight_ratio": 0.0,
+    "autonomy_min": null,
+    "propeller_thrust_inferred": false,
+    "warnings": [
+      "missing_propulsion_parameters"
+    ],
+    "analysis": {
+      "available_thrust_n": null,
+      "required_thrust_n": 28.2528,
+      "weight_n": 23.544,
+      "per_motor_load_ratio": 0.0
+    },
+    "summary": "Estado fail. Calidad fail. Parámetros de propulsión ausentes: no es posible calcular fuerza de tracción."
+  }
+}

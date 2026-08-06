@@ -1,0 +1,63 @@
+{
+  "vehicle_type": "dron",
+  "payload_kg": 2.0,
+  "structure_mass_kg": 0.3,
+  "total_mass_kg": 2.3,
+  "weight_n": 22.563,
+  "required_thrust_n": 27.0756,
+  "motors": 1,
+  "thrust_per_motor_required_n": 27.0756,
+  "available_total_thrust_n": 19.0,
+  "autonomy_min": 360.0,
+  "tool_results": [
+    {
+      "tool_name": "calculate_total_mass",
+      "inputs": {
+        "payload_kg": 2.0,
+        "structure_mass_kg": 0.3
+      },
+      "outputs": {
+        "total_mass_kg": 2.3
+      }
+    },
+    {
+      "tool_name": "calculate_weight",
+      "inputs": {
+        "total_mass_kg": 2.3
+      },
+      "outputs": {
+        "weight_n": 22.563
+      }
+    },
+    {
+      "tool_name": "calculate_required_thrust",
+      "inputs": {
+        "weight_n": 22.563,
+        "safety_factor": 1.2
+      },
+      "outputs": {
+        "required_thrust_n": 27.0756
+      }
+    },
+    {
+      "tool_name": "calculate_thrust_per_motor",
+      "inputs": {
+        "required_thrust_n": 27.0756,
+        "motors": 1
+      },
+      "outputs": {
+        "thrust_per_motor_required_n": 27.0756
+      }
+    },
+    {
+      "tool_name": "calculate_autonomy_min",
+      "inputs": {
+        "battery_capacity_wh": 1200.0,
+        "total_power_w": 200.0
+      },
+      "outputs": {
+        "autonomy_min": 360.0
+      }
+    }
+  ]
+}
