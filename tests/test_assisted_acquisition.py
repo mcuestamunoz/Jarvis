@@ -199,6 +199,48 @@ def test_format_candidate_line_detailed_and_quick_forms():
     assert "900KV" not in quick
 
 
+def test_fn007_catalog_pick_applies_coherent_bundle_no_false_gap(tmp_path: Path):
+    """FN-007 acceptance scenario: before=count 4 / stale thrust 470N, pick sunnysky_x2212_980
+    (11N, 260W, 980KV, 58g — real catalog entry). After the pick: motor_count stays 4
+    (not collapsed to 1), stale thrust is replaced (not left at 470), available total
+    thrust = 4 x 11 = 44N, and continuity does not flag the picked candidate as
+    insufficient (no false catalog gap)."""
+    orch = _energy_project(tmp_path)
+    before = orch.state_manager.load_active_project(orch.workspace_manager)
+    assert before.current_parameters.get("motor_count") == 4
+    assert "motors" not in before.design_properties.components
+
+    # Simulate a stale thrust value already on disk before the new pick.
+    stale_params = {**before.current_parameters, "per_motor_max_thrust_n": 470.0}
+    orch.workspace_manager.save_state(before.model_copy(update={"current_parameters": stale_params}))
+
+    orch.start_define_missing_params(["motor_power_w"], reason=MISSING_ENERGY_PARAMETERS)
+    result = orch.param_definition_session.answer("sunnysky_x2212_980")
+    assert result["status"] == "ok"
+
+    after = orch.state_manager.load_active_project(orch.workspace_manager)
+
+    # count 4 does not change to 1
+    assert after.current_parameters["motor_count"] == 4
+    assert after.design_properties.components["motors"].properties["motor_count"].value == 4
+
+    # stale thrust is replaced by the picked motor's, not left at 470
+    assert after.current_parameters["per_motor_max_thrust_n"] == pytest.approx(11.0)
+    assert after.current_parameters["motor_power_w"] == pytest.approx(260.0)
+
+    # coherent bundle: KV + weight land on the component too
+    motors_props = after.design_properties.components["motors"].properties
+    assert motors_props["kv_rating"].value == 980
+    assert motors_props["weight_g"].value == pytest.approx(58.0)
+
+    # total disponible = 4 x 11
+    assert result["calculations"]["available_total_thrust_n"] == pytest.approx(44.0)
+
+    # continuity must not declare the just-selected candidate insufficient
+    ctx = orch.build_startup_context()
+    assert ctx.get("motor_catalog_gap") is None
+
+
 def test_model_with_digits_does_not_apply_garbage_watts(tmp_path: Path):
     orch = _energy_project(tmp_path)
     orch.start_define_missing_params(["motor_power_w"], reason=MISSING_ENERGY_PARAMETERS)

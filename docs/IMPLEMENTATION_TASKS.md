@@ -6,7 +6,7 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-### ✅ COMPLETADO — Assisted Acquisition + hygiene (FN-005/FN-006)
+### ✅ COMPLETADO — Assisted Acquisition + hygiene (FN-005/FN-006/FN-007)
 
 > Cuando falta potencia/motor, no exigir `motor_power_w` crudo ni caer en analyze. Contrato Continuity: [PROJECT_CONTINUITY.md](PROJECT_CONTINUITY.md).
 
@@ -21,8 +21,10 @@
 5. [x] P4 — Continuity next alineado con adquisición asistida
 6. [x] P5 — docs FN-005 + tests
 7. [x] FN-006 — higiene localizada: `_answer_assisted_motor`, `offer_catalog_help`, `MotorSuggestion` y formatter compartido
+8. [x] FN-007 — pick de catálogo preserva `motor_count` y sustituye thrust obsoleto mediante el resolver existente
 
 **Review FN-006:** PASS WITH NOTES; sin cambios funcionales ni scope creep.
+**Review FN-007:** PASS WITH NOTES; corrección física validada con 49 tests focalizados y 1431 tests de suite.
 
 **MINOR registrados (no bloqueantes):**
 1. [ ] Propagar `MotorSuggestion` a `_question_for_param(..., suggestions=...)`.

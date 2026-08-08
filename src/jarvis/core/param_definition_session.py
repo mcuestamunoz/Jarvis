@@ -185,6 +185,11 @@ def _make_motor_spec_from_catalog(suggestion: dict) -> ComponentSpec:
         completeness="high",
         source="declared",
         properties=props,
+        # FN-007: marks thrust_n as the resolvable physical magnitude for this
+        # component so component_resolver.resolve_propulsion_parameters extracts
+        # per_motor_max_thrust_n from it on every recalculation (replacing any
+        # stale value), instead of silently falling back to count_only.
+        output_magnitude="thrust_n",
     )
 
 
@@ -318,16 +323,16 @@ class ParamDefinitionSession:
         collected = {**session.collected_params, "motor_power_w": watts}
         remaining = [p for p in pending if p != "motor_power_w"]
 
-        # Persist rich motor component before/with recalc
+        # Persist rich motor component (power/thrust/kv/weight + preserved
+        # motor_count) before recalc. output_magnitude="thrust_n" on the spec
+        # (set in _make_motor_spec_from_catalog) lets resolve_propulsion_parameters
+        # derive per_motor_max_thrust_n from the component on every recalculation
+        # below — no separate manual current_parameters patch needed here, so
+        # there is a single coherent write followed by a single recalculation.
         try:
             project_state = self.state_manager.load_active_project(self.workspace_manager)
             spec = _make_motor_spec_from_catalog(suggestion)
             project_state = set_motor_component(project_state, spec, watts)
-            # Keep thrust available for physics when possible
-            params = dict(project_state.current_parameters or {})
-            if params.get("per_motor_max_thrust_n") is None:
-                params["per_motor_max_thrust_n"] = float(suggestion["thrust_n"])
-                project_state = project_state.model_copy(update={"current_parameters": params})
             self.workspace_manager.save_state(project_state)
         except FileNotFoundError:
             pass

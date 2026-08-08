@@ -171,12 +171,23 @@ def set_motor_component(
     The physics (current_parameters["motor_count"]) is always preserved regardless,
     but the component property must also be consistent for reasoning display.
 
+    FN-007: when there is no existing "motors" component at all (e.g. the project
+    declared motor_count only via the numeric current_parameters path and never
+    had a components["motors"] entry), fall back to current_parameters["motor_count"]
+    so a fresh catalog pick doesn't drop the fleet size to the resolver's
+    "count of eligible entries" default (1).
+
     Returns updated ProjectState (not persisted — caller must save).
     """
-    # Bug 78: merge motor_count from existing component if missing from new spec.
+    # Bug 78 / FN-007: preserve motor_count — from the existing component's
+    # property if present, else fall back to current_parameters["motor_count"].
     existing_motors = getattr(project_state.design_properties, "components", {}).get("motors")
-    if existing_motors is not None and "motor_count" not in (spec.properties or {}):
-        old_count = existing_motors.properties.get("motor_count")
+    if "motor_count" not in (spec.properties or {}):
+        old_count = existing_motors.properties.get("motor_count") if existing_motors is not None else None
+        if old_count is None:
+            fallback_count = (project_state.current_parameters or {}).get("motor_count")
+            if fallback_count is not None:
+                old_count = PropertyValue(value=fallback_count, confidence=0.9, source="declared")
         if old_count is not None:
             spec = spec.model_copy(update={"properties": {**spec.properties, "motor_count": old_count}})
 

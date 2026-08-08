@@ -97,6 +97,17 @@ Localized, behavior-preserving cleanup after FN-005:
 
 These notes are non-blocking and do not reopen FN-006.
 
+## Field note FN-007 — Catalog pick physical coherence (closed)
+
+A catalog motor selection now preserves the declared `motor_count` and replaces
+stale thrust with the selected motor's declared `thrust_n` through the existing
+propulsion resolver. The catalog component exposes `output_magnitude="thrust_n"`,
+so power, thrust, KV, weight, and actuator count remain coherent after recalculation.
+
+Review verdict: **PASS WITH NOTES** — 49 focused tests and 1431 full-suite tests
+reported green. The non-blocking note is that the end-to-end fixture reproduces
+the corruption mechanism but not the field note's exact ≈7.03 N/motor value.
+
 ## Success criterion
 
 > Can Jarvis look at a two-week-old project *and* survive a multi-turn session without the project vanishing behind operations?

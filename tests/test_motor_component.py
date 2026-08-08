@@ -19,7 +19,7 @@ from jarvis.domains.aerial import (
     _motor_completeness,
 )
 from jarvis.core.component_inference import infer_component
-from jarvis.schemas.action_schema import PropertyValue
+from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
 from jarvis.utils.design_utils import get_motor_power_w
 
 
@@ -180,6 +180,62 @@ class TestSetMotorComponent:
         assert set(ps.design_properties.components.keys()) == original_components
         assert "motors" not in ps.design_properties.components
         assert ps.current_parameters.get("motor_power_w") is None
+
+    def test_preserves_motor_count_from_current_parameters_fallback(self, tmp_path):
+        """FN-007: no existing components['motors'] entry, but current_parameters
+        already has motor_count declared (e.g. from create_project's motors=4).
+        A new spec without a motor_count property (like a catalog pick) must not
+        drop the fleet size — the resolver's count-of-entries fallback would
+        otherwise collapse it to 1."""
+        orch = JarvisOrchestrator(workspace_root=tmp_path)
+        _create_drone_project(orch, tmp_path)  # motors=4, no components["motors"] entry
+        ps = orch.state_manager.load_active_project(orch.workspace_manager)
+        assert "motors" not in ps.design_properties.components
+        assert ps.current_parameters.get("motor_count") == 4
+
+        spec = ComponentSpec(
+            name="sunnysky_x2212_980",
+            component_type="propulsion_active",
+            suggested_key="motors",
+            completeness="high",
+            source="declared",
+            properties={"power_w": PropertyValue(value=260.0, unit="W", source="declared")},
+        )
+        updated = set_motor_component(ps, spec, power_w=260.0)
+
+        motor_count_prop = updated.design_properties.components["motors"].properties.get("motor_count")
+        assert motor_count_prop is not None
+        assert motor_count_prop.value == 4
+        assert updated.current_parameters.get("motor_count") == 4
+
+    def test_existing_component_motor_count_still_wins_over_fallback(self, tmp_path):
+        """FN-007 must not regress Bug 78: an existing components['motors'].motor_count
+        still takes precedence over the current_parameters fallback."""
+        orch = JarvisOrchestrator(workspace_root=tmp_path)
+        _create_drone_project(orch, tmp_path)
+        ps = orch.state_manager.load_active_project(orch.workspace_manager)
+        existing_spec = ComponentSpec(
+            name="prev_motor",
+            component_type="propulsion_active",
+            suggested_key="motors",
+            completeness="high",
+            source="declared",
+            properties={"motor_count": PropertyValue(value=6, source="declared")},
+        )
+        dp = ps.design_properties.model_copy(update={"components": {"motors": existing_spec}})
+        ps = ps.model_copy(update={"design_properties": dp})
+        assert ps.current_parameters.get("motor_count") == 4  # differs from component (6)
+
+        new_spec = ComponentSpec(
+            name="new_motor",
+            component_type="propulsion_active",
+            suggested_key="motors",
+            completeness="high",
+            source="declared",
+            properties={"power_w": PropertyValue(value=260.0, unit="W", source="declared")},
+        )
+        updated = set_motor_component(ps, new_spec, power_w=260.0)
+        assert updated.design_properties.components["motors"].properties["motor_count"].value == 6
 
 
 # ── End-to-end dispatch: _handle_component_description → motors ───────────────
