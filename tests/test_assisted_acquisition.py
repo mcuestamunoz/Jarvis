@@ -16,7 +16,11 @@ from jarvis.core.motor_catalog_assist import (
     resolve_motor_from_text,
 )
 from jarvis.core.orchestrator import JarvisOrchestrator
-from jarvis.core.parameter_requirements import MISSING_ENERGY_PARAMETERS, param_question
+from jarvis.core.parameter_requirements import (
+    MISSING_ENERGY_PARAMETERS,
+    MISSING_PROPULSION_PARAMETERS,
+    param_question,
+)
 from jarvis.core.project_continuity import build_project_continuity
 from jarvis.knowledge.library import default_library
 
@@ -99,6 +103,31 @@ def _energy_project(tmp_path: Path) -> JarvisOrchestrator:
             "structure_mass_factor": 0.5,
             "safety_factor": 1.2,
             # motor_power_w / battery intentionally absent
+        },
+    })
+    return orch
+
+
+def _propulsion_missing_project(
+    tmp_path: Path, *, payload_kg: float = 3.5, motors: int = 4
+) -> JarvisOrchestrator:
+    """FN-009: aerial project with motor_count declared but no thrust route at
+    all (mirrors the 'detallado' create flow choosing 'no sé aún' for
+    propulsion) — physics_status ends up missing_parameters /
+    missing_propulsion_parameters."""
+    orch = JarvisOrchestrator(workspace_root=tmp_path)
+    orch.handle({
+        "action": "create_project",
+        "parameters": {
+            "vehicle_type": "dron",
+            "objective": "transporte de carga",
+            "payload_kg": payload_kg,
+            "restrictions": "ninguna",
+            "detail_level": "detallado",
+            "motors": motors,
+            "structure_mass_factor": 0.6,
+            "safety_factor": 1.2,
+            # per_motor_max_thrust_n intentionally absent — no force route at all
         },
     })
     return orch
@@ -337,3 +366,206 @@ def test_continuity_prefers_motor_assist_when_power_missing():
         or "potencia" in cont["next_useful_step"].lower()
     )
     assert "completa la especificación de motors" not in cont["next_useful_step"].lower()
+
+
+# ── FN-009: guided propulsion acquisition ──────────────────────────────────────
+
+def test_fn009_offer_catalog_help_thrust_pending_uses_n_copy_not_watts(tmp_path: Path):
+    """PASS WITH NOTES follow-up: cuando lo pendiente es per_motor_max_thrust_n,
+    _offer_catalog_help debe hablar de empuje en N / combo motor-hélice, nunca
+    de potencia en W — ni en 'question' ni en la línea final de 'message'."""
+    orch = _propulsion_missing_project(tmp_path)
+    orch.start_define_missing_params(
+        ["per_motor_max_thrust_n"], reason=MISSING_PROPULSION_PARAMETERS
+    )
+    result = orch.param_definition_session.offer_catalog_help()
+    assert result.get("motor_suggestions"), "se esperaba cobertura real de catálogo"
+
+    question = result["question"]
+    message = result["message"]
+    assert "empuje en n" in question.lower()
+    assert "combinación motor-hélice" in question.lower()
+    assert " w " not in f" {question.lower()} "
+    assert "indica w a mano" not in message.lower()
+
+
+def test_fn009_offer_catalog_help_power_pending_keeps_watts_copy(tmp_path: Path):
+    """Cuando lo pendiente es motor_power_w, el copy en W se conserva exactamente
+    como antes (sin regresión sobre el flujo existente)."""
+    orch = _energy_project(tmp_path)  # thrust ya declarado; motor_power_w pendiente
+    orch.start_define_missing_params(["motor_power_w"], reason=MISSING_ENERGY_PARAMETERS)
+    result = orch.param_definition_session.offer_catalog_help()
+    assert result.get("motor_suggestions"), "se esperaba cobertura real de catálogo"
+
+    assert result["question"] == "Elige un número de la lista, o indica W a mano."
+    assert "indica w a mano" in result["message"].lower()
+    assert "empuje en n" not in result["question"].lower()
+
+
+def test_fn009_thrust_wizard_shows_provisional_minimum(tmp_path: Path):
+    """Acceptance case: payload 3.5kg, factor 0.6, safety 1.2, 4 motores →
+    mínimo provisional ≈16.5 N/motor, explícitamente marcado como provisional
+    y acoplado a la batería."""
+    orch = _propulsion_missing_project(tmp_path)
+    start = orch.start_define_missing_params(
+        ["per_motor_max_thrust_n"], reason=MISSING_PROPULSION_PARAMETERS
+    )
+    assert start["status"] == "interactive"
+    assert "16.5" in start["question"]
+    assert "provisional" in start["question"].lower()
+    assert "bater" in start["question"].lower()
+
+
+def test_fn009_idle_thrust_help_never_says_no_reconozco(tmp_path: Path):
+    """'ayúdame a elegir el motor' nunca debe caer en el error genérico
+    'No reconozco ... como valor', aunque lo pendiente sea empuje y no potencia."""
+    orch = _propulsion_missing_project(tmp_path)
+    result = orch.handle_user_text("ayúdame a elegir el motor", llm_interface=None)
+    assert result.get("status") == "interactive"
+    assert result.get("action") == "define_missing_params"
+    assert "no reconozco" not in (result.get("error") or "").lower()
+    assert "no reconozco" not in (result.get("message") or "").lower()
+    assert result.get("motor_suggestions")  # el catálogo real cubre ~16.5 N/motor
+
+
+def test_fn009_idle_help_prioritizes_propulsion_over_energy(tmp_path: Path):
+    """Cuando faltan tanto empuje como energía, la ayuda IDLE debe abrir primero
+    el asistente de propulsión, no saltar directo a energía."""
+    orch = _propulsion_missing_project(tmp_path)
+    result = orch.handle_user_text("ayúdame a elegir el motor", llm_interface=None)
+    assert result.get("status") == "interactive"
+    session = orch.state_manager.get_runtime_session()
+    assert session.param_definition_reason == MISSING_PROPULSION_PARAMETERS
+    assert session.pending_param_definitions == ["per_motor_max_thrust_n"]
+
+
+def test_fn009_idle_help_falls_back_to_energy_once_propulsion_resolved(tmp_path: Path):
+    """Con el empuje ya resuelto (physics válida), la ayuda IDLE conserva la
+    ruta energética existente sin cambios."""
+    orch = _energy_project(tmp_path)  # thrust=12.0 declarado, potencia/batería ausentes
+    result = orch.handle_user_text("ayúdame a elegir el motor", llm_interface=None)
+    assert result.get("status") == "interactive"
+    session = orch.state_manager.get_runtime_session()
+    assert session.param_definition_reason == MISSING_ENERGY_PARAMETERS
+
+
+def test_fn009_no_thrust_candidate_gives_honest_deterministic_gap(tmp_path: Path):
+    """Cuando ningún motor del catálogo cubre el requisito, la respuesta debe ser
+    determinista: requisito, cobertura máxima del catálogo y opciones concretas
+    — sin inventar SKU ni mutar motor_count."""
+    orch = _propulsion_missing_project(tmp_path, payload_kg=20.0, motors=4)
+    orch.start_define_missing_params(
+        ["per_motor_max_thrust_n"], reason=MISSING_PROPULSION_PARAMETERS
+    )
+    result = orch.param_definition_session.offer_catalog_help()
+    assert result["status"] == "interactive"
+    assert result.get("motor_suggestions") == []
+    message = (result.get("message") or "").lower()
+    assert "no tengo un motor en el catálogo" in message
+    assert "opciones" in message
+    assert "más motores" in message
+    assert "fuera de catálogo" in message or "combinación" in message
+    assert "no voy a inventar" in message
+
+    saved = orch.state_manager.load_active_project(orch.workspace_manager)
+    assert saved.current_parameters.get("motor_count") == 4  # sin mutar
+    assert saved.current_parameters.get("per_motor_max_thrust_n") is None  # nada inventado
+
+
+def test_fn009_catalog_pick_resolves_thrust_only_pending_without_looping(tmp_path: Path):
+    """Wizard con pending=['per_motor_max_thrust_n'] únicamente: un pick de
+    catálogo debe resolverlo (sin bucle infinito), recalcular una sola vez y
+    preservar motor_count."""
+    orch = _propulsion_missing_project(tmp_path)
+    orch.start_define_missing_params(
+        ["per_motor_max_thrust_n"], reason=MISSING_PROPULSION_PARAMETERS
+    )
+    help_result = orch.param_definition_session.answer("ayúdame a elegir")
+    suggestions = help_result.get("motor_suggestions") or []
+    assert suggestions, "se esperaba cobertura real de catálogo para ~16.5 N/motor"
+
+    pick = orch.param_definition_session.answer("1")
+    assert pick["status"] == "ok"  # resuelto en un solo turno, no se queda pidiendo de nuevo
+
+    saved = orch.state_manager.load_active_project(orch.workspace_manager)
+    assert saved.current_parameters.get("motor_count") == 4
+    assert saved.current_parameters.get("per_motor_max_thrust_n") == pytest.approx(
+        float(suggestions[0]["thrust_n"])
+    )
+    assert saved.current_parameters.get("motor_power_w") == pytest.approx(
+        float(suggestions[0]["max_watts"])
+    )
+    assert pick["calculations"]["available_total_thrust_n"] == pytest.approx(
+        4 * float(suggestions[0]["thrust_n"])
+    )
+
+    ctx = orch.build_startup_context()
+    assert ctx.get("motor_catalog_gap") is None
+
+
+def test_fn009_continuity_marks_thrust_requirement_as_provisional_without_battery():
+    """La línea de evidencia de requisito debe marcar honestamente que es un
+    mínimo provisional mientras la batería no esté declarada."""
+    state = SimpleNamespace(
+        latest_results={
+            "simulation": {
+                "status": "pass", "quality": "good", "safety_margin_ratio": 2.0,
+                "can_fly": True, "warnings": [],
+            },
+            "calculations": {},
+        },
+        current_parameters={"motor_count": 4},  # sin battery_capacity_wh
+        design_properties=SimpleNamespace(components={}),
+    )
+    cont = build_project_continuity(
+        project_state=state,
+        status_type="nominal",
+        status_reason=None,
+        phase="definition",
+        architecture_progress=None,
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={"thrust_per_motor_needed_n": 16.48},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+    )
+    evidence_text = " ".join(cont["evidence"])
+    assert "16.48" in evidence_text
+    assert "provisional" in evidence_text.lower()
+
+
+def test_fn009_continuity_no_provisional_note_once_battery_declared():
+    """Una vez declarada la batería, la línea de requisito ya no se marca como
+    provisional."""
+    state = SimpleNamespace(
+        latest_results={
+            "simulation": {
+                "status": "pass", "quality": "good", "safety_margin_ratio": 2.0,
+                "can_fly": True, "warnings": [],
+            },
+            "calculations": {},
+        },
+        current_parameters={"motor_count": 4, "battery_capacity_wh": 500.0},
+        design_properties=SimpleNamespace(components={}),
+    )
+    cont = build_project_continuity(
+        project_state=state,
+        status_type="nominal",
+        status_reason=None,
+        phase="definition",
+        architecture_progress=None,
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={"thrust_per_motor_needed_n": 16.48},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+    )
+    evidence_text = " ".join(cont["evidence"])
+    assert "16.48" in evidence_text
+    assert "provisional" not in evidence_text.lower()

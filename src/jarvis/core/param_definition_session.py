@@ -14,6 +14,7 @@ from jarvis.core.motor_catalog_assist import (
     MotorSuggestion,
     build_motor_catalog_suggestions,
     format_motor_catalog_suggestions,
+    format_no_thrust_candidate_message,
     is_bare_watts_input,
     is_help_choose_phrase,
     looks_like_motor_model_text,
@@ -269,16 +270,19 @@ class ParamDefinitionSession:
             return []
         return build_motor_catalog_suggestions(project_state)
 
-    def _question_for_param(self, param: str, suggestions: list[dict] | None = None) -> str:
-        from jarvis.core.parameter_requirements import param_question_with_context
+    def _thrust_hint_for_active_project(self) -> float | None:
         from jarvis.core.project_closure import derive_physical_requirements
 
-        thrust_hint = None
         try:
             state = self.state_manager.load_active_project(self.workspace_manager)
-            thrust_hint = derive_physical_requirements(state).get("thrust_per_motor_needed_n")
         except FileNotFoundError:
-            pass
+            return None
+        return derive_physical_requirements(state).get("thrust_per_motor_needed_n")
+
+    def _question_for_param(self, param: str, suggestions: list[dict] | None = None) -> str:
+        from jarvis.core.parameter_requirements import param_question_with_context
+
+        thrust_hint = self._thrust_hint_for_active_project()
         return param_question_with_context(
             param, suggestions=suggestions, thrust_hint_n=thrust_hint
         )
@@ -288,19 +292,32 @@ class ParamDefinitionSession:
         updated = session.model_copy(update={"motor_suggestions": suggestions})
         self.state_manager.set_runtime_session(updated)
         if not suggestions:
+            # FN-009: honest deterministic gap — requirement, catalog coverage,
+            # concrete options. Never invents a SKU or mutates motor_count.
+            thrust_hint = self._thrust_hint_for_active_project()
             return {
                 "status": "interactive",
                 "action": "define_missing_params",
-                "message": format_motor_catalog_suggestions([]),
+                "message": format_no_thrust_candidate_message(required_n=thrust_hint),
                 "question": self._question_for_param(pending[0], []),
                 "pending": list(pending),
                 "motor_suggestions": [],
             }
+        # FN-009 copy fix: pending param decides N (thrust) vs W (power) copy —
+        # the catalog matching/pick flow itself is unchanged either way.
+        current = pending[0]
+        if current == "per_motor_max_thrust_n":
+            question = (
+                "Elige un número, indica empuje en N (de una combinación motor-hélice) "
+                "o di 'no' para omitir."
+            )
+        else:
+            question = "Elige un número de la lista, o indica W a mano."
         return {
             "status": "interactive",
             "action": "define_missing_params",
-            "message": format_motor_catalog_suggestions(suggestions),
-            "question": "Elige un número de la lista, o indica W a mano.",
+            "message": format_motor_catalog_suggestions(suggestions, param=current),
+            "question": question,
             "pending": list(pending),
             "motor_suggestions": suggestions,
         }
@@ -318,10 +335,16 @@ class ParamDefinitionSession:
     def _apply_catalog_motor_pick(
         self, suggestion: MotorSuggestion, session: InteractiveSessionState, pending: list[str]
     ) -> dict:
-        """Apply a catalog pick: power bridge + rich motors component, then continue wizard."""
+        """Apply a catalog pick: power bridge + rich motors component, then continue wizard.
+
+        FN-009: a catalog pick always resolves motor_power_w AND
+        per_motor_max_thrust_n coherently (same physical motor produces both).
+        Only params actually pending are removed from the wizard queue —
+        ASSISTED_MOTOR_PARAMS is exactly the set a single pick can satisfy.
+        """
         watts = float(suggestion["max_watts"])
         collected = {**session.collected_params, "motor_power_w": watts}
-        remaining = [p for p in pending if p != "motor_power_w"]
+        remaining = [p for p in pending if p not in ASSISTED_MOTOR_PARAMS]
 
         # Persist rich motor component (power/thrust/kv/weight + preserved
         # motor_count) before recalc. output_magnitude="thrust_n" on the spec
@@ -364,9 +387,10 @@ class ParamDefinitionSession:
             }
 
         self.state_manager.clear_runtime_session()
-        # Rich motors component already saved — do not re-bridge motor_power_w via
-        # the minimal _make_motor_spec writer (would wipe thrust/kv/weight).
-        other_updates = {k: v for k, v in collected.items() if k != "motor_power_w"}
+        # Rich motors component already saved — do not re-bridge motor_power_w/
+        # per_motor_max_thrust_n via param_updates (would fight the resolver's
+        # output_magnitude-driven derivation and risk stale/duplicate writes).
+        other_updates = {k: v for k, v in collected.items() if k not in ASSISTED_MOTOR_PARAMS}
         result = self.apply_and_recalculate(other_updates, confirmed=True)
         result["project_change_summary"] = (
             f"motor → {suggestion['name']} (~{int(watts)}W)"

@@ -1,39 +1,40 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Validar con uso real si las sugerencias de motor (KV sin thrust → catálogo) aportan valor o generan ruido.",
-  "scope": "iterate motor_suggestions UX; preempt exception for DEFINE; empty-catalog note",
+  "cycle_intent": "FN-012 — Runtime snapshot must not restore create/iterate wizard mode without draft (reopen → \"No hay una sesión interactiva activa\").",
+  "scope": "state_manager restore/persist sanitization; U4 regression tests. No acquisition/router changes.",
   "execution_status": "closed",
   "current_mode": "Idle",
   "movement_trigger": {
-    "type": "objective",
-    "note": "Engineer closed LLM calibration cycle; next = motor suggestions validation"
+    "type": "evidence",
+    "note": "CLI reopen of f565ad40 trapped all turns in create_project_interactive without project_draft"
   },
   "relevant_workflow_phases": [
     "Intent",
-    "Understand",
+    "Implementation",
     "Validation",
-    "Implementation"
+    "Completion"
   ],
   "applicable_rules": [],
   "required_artifacts": [
-    "Understanding",
-    "Field note / validation checklist"
+    "Change",
+    "Regression tests",
+    "Docs"
   ],
   "open_questions": [],
   "active_operation": null,
   "authority_gates": [],
   "coherence_checklist": [
-    "ux",
     "tests",
     "docs"
   ],
   "outcome": {
     "status": "done",
-    "summary": "Motor suggestions provide value on catalog hits. Fixed preempt regression killing DEFINE motor path; empty-catalog now explains gap. 1371 tests green.",
+    "summary": "Draftless CREATE/ITERATE interactive modes demoted to IDLE on session_to_snapshot and restore_from_snapshot. 4 new tests; U4 suite green. Existing poisoned snapshots heal on next orchestrator init.",
     "next_candidates": [
-      "Expand motor catalog if coverage gaps hurt users",
-      "Optional: demote/hide generic_* in suggestion ranking"
+      "CLI re-validate: reopen f565ad40 → definir propulsion / siguiente paso",
+      "FN-011 deferred: declare-block help inside active DEFINE_MISSING",
+      "Copy debt: _answer_assisted_motor W-vs-N error paths"
     ]
   },
-  "updated_at": "2026-08-05T19:25:00Z"
+  "updated_at": "2026-08-08T12:32:00Z"
 }

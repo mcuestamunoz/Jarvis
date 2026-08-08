@@ -14,8 +14,6 @@ from jarvis.core.interactive_session import (
     STEP_GROUND_FORCE,
     STEP_GROUND_PATH,
     STEP_GROUND_TORQUE,
-    STEP_SAFETY_FACTOR,
-    STEP_STRUCTURE_FACTOR,
     CreateProjectInteractiveSession,
 )
 from jarvis.core.orchestrator import JarvisOrchestrator
@@ -133,7 +131,9 @@ def test_ground_unknown_path():
     assert r["project_draft"]["max_force_per_actuator_n"] is None
 
 
-def test_detallado_asks_structure_and_safety_factors():
+def test_detallado_applies_defaults_then_aerial_branch():
+    """FN-008: 'detallado' no pregunta por factores — salta directo a la rama de
+    dominio con las mismas hipótesis por defecto que 'conceptual' (0.6 / 1.2)."""
     s = CreateProjectInteractiveSession()
     draft = ProjectDraft.model_validate(
         {
@@ -144,18 +144,55 @@ def test_detallado_asks_structure_and_safety_factors():
         }
     )
     session = _session(draft, 4)  # STEP_DETAIL
-    r1 = s.answer(session, "detallado")
-    assert r1["step"] == STEP_STRUCTURE_FACTOR
-    assert r1["project_draft"]["detail_level"] == "detallado"
-    assert r1["project_draft"]["structure_mass_factor"] is None
+    r = s.answer(session, "detallado")
+    assert r["step"] == STEP_AERIAL_MOTORS
+    assert r["project_draft"]["detail_level"] == "detallado"
+    assert r["project_draft"]["structure_mass_factor"] == 0.6
+    assert r["project_draft"]["safety_factor"] == 1.2
 
-    r2 = s.answer(_session(ProjectDraft.model_validate(r1["project_draft"]), r1["step"]), "0.5")
-    assert r2["step"] == STEP_SAFETY_FACTOR
-    assert r2["project_draft"]["structure_mass_factor"] == 0.5
 
-    r3 = s.answer(_session(ProjectDraft.model_validate(r2["project_draft"]), r2["step"]), "1.5")
-    assert r3["step"] == STEP_AERIAL_MOTORS
-    assert r3["project_draft"]["safety_factor"] == 1.5
+def test_detallado_ground_branch_also_gets_defaults():
+    """Mismo comportamiento en la rama terrestre."""
+    s = CreateProjectInteractiveSession()
+    draft = ProjectDraft.model_validate(
+        {
+            "vehicle_type": "rover",
+            "objective": "test",
+            "payload_kg": 1.0,
+            "restrictions": "ninguna",
+        }
+    )
+    r = s.answer(_session(draft, 4), "detallado")
+    assert r["step"] == STEP_GROUND_ACTUATORS
+    assert r["project_draft"]["structure_mass_factor"] == 0.6
+    assert r["project_draft"]["safety_factor"] == 1.2
+
+
+def test_confirmation_message_explains_hypotheses_not_internal_keys():
+    """FN-008: el resumen explica el efecto de las hipótesis en lenguaje llano,
+    sin exponer factor_estructura/factor_seguridad como protagonistas, y sin
+    prometer un 'Enter' que ya no existe como pregunta."""
+    s = CreateProjectInteractiveSession()
+    draft = ProjectDraft.model_validate(
+        {
+            "vehicle_type": "dron",
+            "objective": "test",
+            "payload_kg": 1.0,
+            "restrictions": "ninguna",
+        }
+    )
+    r = s.answer(_session(draft, 4), "detallado")
+    r = s.answer(_session(ProjectDraft.model_validate(r["project_draft"]), r["step"]), "4")
+    r = s.answer(_session(ProjectDraft.model_validate(r["project_draft"]), r["step"]), "no sé aún")
+    assert r["step"] == STEP_CONFIRM
+
+    message = s._build_confirmation_message(ProjectDraft.model_validate(r["project_draft"]))
+    assert "factor_estructura" not in message
+    assert "factor_seguridad" not in message
+    assert "Enter para default" not in message
+    assert "60%" in message  # 0.6 estructura
+    assert "20%" in message  # margen de seguridad (1.2 - 1)
+    assert "editable" in message.lower()
 
 
 def test_conceptual_applies_defaults_then_aerial_branch():

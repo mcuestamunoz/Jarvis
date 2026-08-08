@@ -199,6 +199,14 @@ class IntentResolver:
         re.compile(p) for p in GUIDANCE_PATTERNS
     )
 
+    # FN-011: verbs that request declaring/completing a system architecture block.
+    # Checked together with a block-name match (system_architecture_catalog) so a
+    # bare "ayúdame a completar" (no block named) is NOT captured here — it keeps
+    # falling to GUIDANCE_PATTERNS / project_status as before.
+    DECLARE_BLOCK_VERB_PATTERNS = (
+        r"\b(?:declarar?|completar|definir?|configurar|especificar)\b",
+    )
+
     CREATE_PATTERNS = (
         r"\b(?:quiero|deseo|necesito)\s+(?:disenar|crear|hacer)\b",
         r"\b(?:crear|nuevo)\s+proyecto\b",
@@ -288,6 +296,23 @@ class IntentResolver:
             return "ambiguous"
 
         return "unknown"
+
+    def resolve_declare_block_request(self, user_input: str) -> str | None:
+        """FN-011: detect an explicit 'ayúdame a declarar/completar <bloque>' request
+        and resolve it to a canonical block key via the existing block-alias
+        catalog (system_architecture_catalog.normalize_block_alias) — no new
+        matching logic, just reuses the same alias table SystemDefinitionSession
+        already uses.
+
+        Returns None when no declare/complete-style verb is present, or when the
+        text doesn't name a recognizable block. A bare "ayúdame a completar"
+        (no block named) returns None and keeps its existing routing.
+        """
+        normalized = self._normalize_text(user_input)
+        if not self._matches_any(normalized, self.DECLARE_BLOCK_VERB_PATTERNS):
+            return None
+        from jarvis.core.system_architecture_catalog import normalize_block_alias
+        return normalize_block_alias(user_input)
 
     def resolve_explore_goal(self, user_input: str) -> str | None:
         """Extrae el goal_key de un input de tipo explore_design_space.

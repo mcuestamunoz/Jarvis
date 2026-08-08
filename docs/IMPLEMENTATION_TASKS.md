@@ -6,6 +6,49 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
+### ✅ COMPLETADO — FN-012: snapshot wizard sin draft → IDLE
+
+> Reabrir proyecto no debe restaurar `create_project_interactive` / `iterate_interactive` sin draft (error “No hay una sesión interactiva activa”).
+
+**Plan:**
+1. [x] `restore_from_snapshot` demota draftless wizards a IDLE
+2. [x] `session_to_snapshot` no re-persiste esos modos
+3. [x] Tests U4 + reopen orchestrator
+
+**Siguiente:** field notes CLI; diferidos FN-011 solo si duelen.
+
+### ✅ COMPLETADO — FN-011: declare active block sin LLM
+
+> `"ayúdame a declarar propulsión"` en IDLE no debe despertar al LLM si el bloque nombrado es el próximo pendiente. Contrato Continuity: [PROJECT_CONTINUITY.md](PROJECT_CONTINUITY.md).
+
+**Plan:**
+1. [x] Detectar verbo declarar/completar/definir/configurar/especificar + bloque vía `normalize_block_alias`
+2. [x] Solo actuar si `_next_pending_block` == bloque nombrado
+3. [x] Reutilizar bridge Bug 54 (`_set_pending_next_block` + `start_define_missing_params`)
+4. [x] Tests A–D + smoke CLI 0 LLM; suite 1456
+
+**Diferido (no bloqueante):**
+1. [ ] Mismo leak dentro de `DEFINE_MISSING_PARAMETERS` activo (re-prompt sin reset de `collected_params`)
+2. [ ] Copy genérico preexistente: primera pregunta component-driven (`¿Cuál es el valor de motors?`)
+
+**Siguiente:** field notes CLI; diferidos arriba solo si duelen.
+
+### ✅ COMPLETADO — Guided Propulsion Acquisition (FN-010 / FN-008 / FN-009)
+
+> Conservar constraints de misión, crear con hipótesis 0.6/1.2 sin preguntas internas, y conectar thrust pendiente al catálogo asistido. Contrato Continuity: [PROJECT_CONTINUITY.md](PROJECT_CONTINUITY.md).
+
+**Plan:**
+1. [x] FN-010 — fallback determinista `objective` → `parsed_constraints` (per-key; restrictions prevalece)
+2. [x] FN-008 — `detallado` aplica hipótesis 0.6/1.2 automáticamente; resumen humanizado
+3. [x] FN-009 — `per_motor_max_thrust_n` en assisted acquisition; IDLE prioriza propulsión; gap honesto
+4. [x] Follow-up copy — `_offer_catalog_help` / `format_motor_catalog_suggestions` hablan de N vs W según pending
+
+**Deuda pendiente (copy, no bloqueante — `_answer_assisted_motor`):**
+1. [ ] Error “modelo no encontrado”: sigue diciendo *“indica W (ej: 350)”* aunque el pendiente sea `per_motor_max_thrust_n`.
+2. [ ] Error “valor no reconocido”: sigue diciendo *“como potencia en W”* aunque el pendiente sea empuje.
+
+**Siguiente:** seguir field notes en CLI; cortar la deuda de copy arriba si duele; extender el patrón a batería/hélices solo si duele.
+
 ### ✅ COMPLETADO — Assisted Acquisition + hygiene (FN-005/FN-006/FN-007)
 
 > Cuando falta potencia/motor, no exigir `motor_power_w` crudo ni caer en analyze. Contrato Continuity: [PROJECT_CONTINUITY.md](PROJECT_CONTINUITY.md).
@@ -29,8 +72,6 @@
 **MINOR registrados (no bloqueantes):**
 1. [ ] Propagar `MotorSuggestion` a `_question_for_param(..., suggestions=...)`.
 2. [ ] Desacoplar el test público de la existencia de `_offer_catalog_help`.
-
-**Siguiente:** seguir field notes en CLI; extender el mismo patrón a batería/hélices solo si duele.
 
 ### ✅ COMPLETADO — Project Coherence (después de A')
 

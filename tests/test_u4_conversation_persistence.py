@@ -175,3 +175,108 @@ def test_restore_ignores_non_persisted_fields() -> None:
     sm.restore_from_snapshot(snapshot)
     # dismissed_suggestions debe quedar en su valor por defecto (lista vacía)
     assert sm.runtime_state.session.dismissed_suggestions == []
+
+
+# ── FN-012: draftless wizard modes must not stick on reopen ───────────────────
+
+def test_fn012_restore_create_wizard_without_draft_becomes_idle() -> None:
+    """Corrupt/legacy snapshot: create_project_interactive + no draft → IDLE."""
+    sm = StateManager()
+    sm.restore_from_snapshot(
+        {
+            "conversation_history": [
+                {"role": "user", "content": "definir propulsion"},
+            ],
+            "session": {
+                "mode": "create_project_interactive",
+                "step": 0,
+            },
+        }
+    )
+    session = sm.runtime_state.session
+    assert session.mode == OrchestratorMode.IDLE
+    assert session.step == 0
+    assert session.project_draft is None
+    assert len(sm.runtime_state.conversation_history) == 1
+
+
+def test_fn012_restore_iterate_wizard_without_draft_becomes_idle() -> None:
+    sm = StateManager()
+    sm.restore_from_snapshot(
+        {"session": {"mode": OrchestratorMode.ITERATE_INTERACTIVE.value, "step": 3}}
+    )
+    assert sm.runtime_state.session.mode == OrchestratorMode.IDLE
+    assert sm.runtime_state.session.step == 0
+
+
+def test_fn012_session_to_snapshot_does_not_persist_create_wizard_mode() -> None:
+    """While create wizard is live, disk snapshot must not re-poison reopen."""
+    sm = StateManager()
+    sm.set_runtime_session(
+        InteractiveSessionState(
+            mode=OrchestratorMode.CREATE_PROJECT_INTERACTIVE,
+            step=90,
+            project_draft=None,
+        )
+    )
+    snap = sm.session_to_snapshot()
+    assert snap["mode"] == OrchestratorMode.IDLE.value
+    assert snap["step"] == 0
+
+
+def test_fn012_reopen_with_poisoned_snapshot_allows_status(
+    tmp_path: Path,
+) -> None:
+    """Orchestrator init restores snapshot; poisoned create mode must not trap turns."""
+    from jarvis.core.orchestrator import JarvisOrchestrator
+
+    orch = JarvisOrchestrator(workspace_root=tmp_path)
+    created = orch.handle(
+        {
+            "action": "create_project",
+            "parameters": {
+                "vehicle_type": "dron",
+                "objective": "levantar 2kg",
+                "payload_kg": 2.0,
+                "restrictions": "ninguna",
+                "detail_level": "conceptual",
+                "structure_mass_factor": 0.6,
+                "safety_factor": 1.2,
+            },
+        }
+    )
+    assert created.get("status") == "ok"
+    project = orch.state_manager.load_active_project(orch.workspace_manager)
+    workspace = Path(project.workspace_path)
+    (workspace / "history").mkdir(parents=True, exist_ok=True)
+    (workspace / "history" / "runtime_snapshot.json").write_text(
+        json.dumps(
+            {
+                "conversation_history": [],
+                "session": {"mode": "create_project_interactive", "step": 0},
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    reopened = JarvisOrchestrator(workspace_root=tmp_path)
+    assert reopened.state_manager.get_runtime_session().mode == OrchestratorMode.IDLE
+
+    class _RefuseLLM:
+        def interpret(self, *args, **kwargs):
+            raise AssertionError("LLM.interpret must not be called")
+
+        def analyze(self, *args, **kwargs):
+            raise AssertionError("LLM.analyze must not be called")
+
+        def generate(self, *args, **kwargs):
+            raise AssertionError("LLM.generate must not be called")
+
+    result = reopened.handle_user_text("siguiente paso", _RefuseLLM())
+    assert result.get("status") != "error"
+    message = str(result.get("message") or "")
+    assert "No hay una sesión interactiva activa" not in message
+    assert result.get("action") in {"project_status", "startup_context", None} or (
+        "Situación" in message or "Proyecto" in message or result.get("startup_context")
+    )

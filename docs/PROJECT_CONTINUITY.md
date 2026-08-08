@@ -108,6 +108,47 @@ Review verdict: **PASS WITH NOTES** — 49 focused tests and 1431 full-suite tes
 reported green. The non-blocking note is that the end-to-end fixture reproduces
 the corruption mechanism but not the field note's exact ≈7.03 N/motor value.
 
+## Field note FN-012 — Runtime snapshot draftless wizard (closed)
+
+| ID | Symptom | Fix | Status |
+|----|---------|-----|--------|
+| FN-012 | Reopen restores `create_project_interactive` without `project_draft` → every turn errors | Sanitize draftless wizard modes to IDLE on persist + restore | ✅ |
+
+## Field note FN-011 — Declare active block without LLM (closed)
+
+| ID | Symptom | Fix | Status |
+|----|---------|-----|--------|
+| FN-011 | `"ayúdame a declarar propulsión"` → analyze/LLM | IDLE: verb+block alias → only if block == `_next_pending_block` → Bug 54 bridge | ✅ |
+
+Review: **PASS WITH NOTES**. Suite **1456**. Field-note IDLE path: **0 LLM**.
+
+### Deferred notes
+
+1. Same `ayudame`→analyze leak while already in `DEFINE_MISSING_PARAMETERS` — needs re-prompt of current pending, not session rebuild.
+2. Pre-existing generic first question for component keys (`¿Cuál es el valor de motors?`) — copy, not routing; shared with Bug 54 bridge.
+
+## Field notes FN-008 / FN-009 / FN-010 — Guided Propulsion Acquisition (closed)
+
+| ID | Scope | Status |
+|----|-------|--------|
+| FN-010 | Fallback `objective` → `parsed_constraints` when restrictions are empty placeholders | ✅ |
+| FN-008 | `detallado` applies 0.6/1.2 hypotheses automatically; humanized confirmation | ✅ |
+| FN-009 | Assisted thrust acquisition + IDLE propulsion-before-energy + honest catalog gap | ✅ |
+
+`_offer_catalog_help` copy is pending-aware (N for thrust, W for power). Closed with review **PASS**.
+
+### Pending debt (copy only — `_answer_assisted_motor`)
+
+Non-blocking. Same W-vs-N mismatch still reachable on **error paths** when
+`pending[0] == "per_motor_max_thrust_n"`:
+
+1. **Catalog miss** — `"No encuentro el motor… indica W (ej: 350)…"`.
+2. **Unrecognized value** — `"No reconozco ese valor como potencia en W…"`.
+
+Do **not** invent SKUs or change matching to clear these; only condition the copy
+on the pending assisted param (same pattern as `_offer_catalog_help`). Tracked in
+[IMPLEMENTATION_TASKS.md](IMPLEMENTATION_TASKS.md) under Guided Propulsion Acquisition.
+
 ## Success criterion
 
 > Can Jarvis look at a two-week-old project *and* survive a multi-turn session without the project vanishing behind operations?

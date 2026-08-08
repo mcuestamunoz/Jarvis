@@ -80,9 +80,16 @@ def build_project_continuity(
             bits.append(f"margen {float(margin):.2f}")
         evidence.append(" — ".join(bits))
     if req.get("thrust_per_motor_needed_n") is not None:
-        evidence.append(
-            f"Requisito: ≥ {float(req['thrust_per_motor_needed_n']):.2f} N/motor"
+        _thrust_line = f"Requisito: ≥ {float(req['thrust_per_motor_needed_n']):.2f} N/motor"
+        # FN-009: honest coupling — required thrust grows once battery mass enters
+        # total_mass_kg, so this is a provisional floor until battery is declared.
+        _battery_declared = (
+            (getattr(project_state, "current_parameters", None) or {}).get("battery_capacity_wh")
+            is not None
         )
+        if not _battery_declared:
+            _thrust_line += " (mínimo provisional — sube al declarar la batería)"
+        evidence.append(_thrust_line)
     if req.get("autonomy_target_min") is not None:
         cur = req.get("current_autonomy_min")
         line = f"Autonomía objetivo: {float(req['autonomy_target_min']):.0f} min"

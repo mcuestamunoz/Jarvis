@@ -13,14 +13,13 @@ from jarvis.config import (
 from jarvis.schemas.action_schema import CreateProjectParams, InteractiveSessionState, OrchestratorMode, ProjectDraft
 from jarvis.core.system_architecture_catalog import VEHICLE_TYPE_ALIASES
 
-# Step ids — trunk 0–4, detallado factors 5–6, aerial 10–14, ground 20–23, confirm 90
+# Step ids — trunk 0–4 (detail_level hypotheses applied automatically, no
+# dedicated steps — FN-008), aerial 10–14, ground 20–23, confirm 90
 STEP_VEHICLE = 0
 STEP_OBJECTIVE = 1
 STEP_PAYLOAD = 2
 STEP_RESTRICTIONS = 3
 STEP_DETAIL = 4
-STEP_STRUCTURE_FACTOR = 5
-STEP_SAFETY_FACTOR = 6
 STEP_AERIAL_MOTORS = 10
 STEP_AERIAL_PATH = 11
 STEP_AERIAL_THRUST = 12
@@ -65,16 +64,6 @@ class CreateProjectInteractiveSession:
         ),
         STEP_DETAIL: InteractivePrompt(
             STEP_DETAIL, "detail_level", "Nivel de diseño: conceptual o detallado"
-        ),
-        STEP_STRUCTURE_FACTOR: InteractivePrompt(
-            STEP_STRUCTURE_FACTOR,
-            "structure_mass_factor",
-            "Factor de masa estructural (ej: 0.6). Enter para default 0.6.",
-        ),
-        STEP_SAFETY_FACTOR: InteractivePrompt(
-            STEP_SAFETY_FACTOR,
-            "safety_factor",
-            "Factor de seguridad / margen de empuje (ej: 1.2). Enter para default 1.2.",
         ),
         STEP_AERIAL_MOTORS: InteractivePrompt(
             STEP_AERIAL_MOTORS, "motors", "¿Cuántos motores tiene el sistema?"
@@ -124,7 +113,7 @@ class CreateProjectInteractiveSession:
             raise ValueError("No hay una sesión interactiva activa.")
 
         normalized = user_input.strip()
-        if not normalized and session.step not in {STEP_STRUCTURE_FACTOR, STEP_SAFETY_FACTOR}:
+        if not normalized:
             return self._build_question_response(session, error="Necesito una respuesta para continuar.")
 
         if session.step == STEP_CONFIRM:
@@ -168,7 +157,7 @@ class CreateProjectInteractiveSession:
         normalized = dict(seed_parameters)
         if "type" in normalized and "vehicle_type" not in normalized:
             normalized["vehicle_type"] = normalized["type"]
-        return ProjectDraft.model_validate(
+        draft = ProjectDraft.model_validate(
             {
                 "vehicle_type": normalized.get("vehicle_type"),
                 "objective": normalized.get("objective"),
@@ -185,6 +174,24 @@ class CreateProjectInteractiveSession:
                 "max_force_per_actuator_n": normalized.get("max_force_per_actuator_n"),
             }
         )
+        return self._apply_detail_level_defaults(draft)
+
+    @staticmethod
+    def _apply_detail_level_defaults(draft: ProjectDraft) -> ProjectDraft:
+        """FN-008: structure_mass_factor/safety_factor are applied automatically as
+        editable hypotheses whenever detail_level is known — for both 'conceptual'
+        and 'detallado' there is no dedicated wizard step asking for them. They can
+        be changed later via a deterministic iteration (mutation_engine), not a new
+        conversational editor.
+        """
+        if draft.detail_level not in {"conceptual", "detallado"}:
+            return draft
+        updates: dict[str, float] = {}
+        if draft.structure_mass_factor is None:
+            updates["structure_mass_factor"] = DEFAULT_STRUCTURE_MASS_FACTOR
+        if draft.safety_factor is None:
+            updates["safety_factor"] = DEFAULT_SIMULATION_MARGIN
+        return draft.model_copy(update=updates) if updates else draft
 
     def _resolve_next_step(self, draft: ProjectDraft) -> int:
         """Resume wizard at first incomplete trunk/branch step (seed-aware)."""
@@ -198,13 +205,11 @@ class CreateProjectInteractiveSession:
             return STEP_RESTRICTIONS
         if not draft.detail_level:
             return STEP_DETAIL
-        if draft.detail_level == "detallado":
-            if draft.structure_mass_factor is None:
-                return STEP_STRUCTURE_FACTOR
-            if draft.safety_factor is None:
-                return STEP_SAFETY_FACTOR
-        # conceptual (or factors already present): branch entry does not require factors
-        # to be set here — build_execution_payload applies defaults if missing.
+        # FN-008: both conceptual and detallado get structure_mass_factor/safety_factor
+        # applied automatically as editable hypotheses (_apply_detail_level_defaults) —
+        # no dedicated step asks for them, so branch entry never waits on them here.
+        # build_execution_payload still applies defaults defensively if a caller seeds
+        # a draft bypassing _build_initial_draft/_apply_answer.
 
         domain = self._domain_kind(draft.vehicle_type)
         if domain == "aerial":
@@ -288,29 +293,9 @@ class CreateProjectInteractiveSession:
             normalized = user_input.lower()
             if normalized not in {"conceptual", "detallado"}:
                 raise ValueError("El nivel de diseño debe ser 'conceptual' o 'detallado'.")
-            if normalized == "conceptual":
-                updated = draft.model_copy(
-                    update={
-                        "detail_level": normalized,
-                        "structure_mass_factor": DEFAULT_STRUCTURE_MASS_FACTOR,
-                        "safety_factor": DEFAULT_SIMULATION_MARGIN,
-                    }
-                )
-                return updated, self._first_branch_step(updated)
-            updated = draft.model_copy(update={"detail_level": normalized})
-            return updated, STEP_STRUCTURE_FACTOR
-
-        if step == STEP_STRUCTURE_FACTOR:
-            factor = self._parse_optional_float(user_input, DEFAULT_STRUCTURE_MASS_FACTOR)
-            if factor < 0:
-                raise ValueError("El factor de masa estructural debe ser ≥ 0.")
-            return draft.model_copy(update={"structure_mass_factor": factor}), STEP_SAFETY_FACTOR
-
-        if step == STEP_SAFETY_FACTOR:
-            factor = self._parse_optional_float(user_input, DEFAULT_SIMULATION_MARGIN)
-            if factor <= 1:
-                raise ValueError("El factor de seguridad debe ser > 1.")
-            updated = draft.model_copy(update={"safety_factor": factor})
+            updated = self._apply_detail_level_defaults(
+                draft.model_copy(update={"detail_level": normalized})
+            )
             return updated, self._first_branch_step(updated)
 
         if step == STEP_AERIAL_MOTORS:
@@ -396,11 +381,6 @@ class CreateProjectInteractiveSession:
             raise ValueError("No se encontró un valor numérico.")
         return float(match.group(1))
 
-    def _parse_optional_float(self, user_input: str, default: float) -> float:
-        if not user_input.strip():
-            return default
-        return self._parse_float(user_input)
-
     def _parse_payload_kg(self, user_input: str) -> float:
         return self._parse_float(user_input)
 
@@ -463,6 +443,30 @@ class CreateProjectInteractiveSession:
             response["question"] = prompt.question if prompt else "Continúa."
         return response
 
+    # FN-008: noun used for the safety-margin hypothesis line, per domain.
+    _FORCE_NOUN_BY_DOMAIN = {"aerial": "empuje", "ground": "fuerza de tracción"}
+
+    @classmethod
+    def _describe_design_hypotheses(cls, draft: ProjectDraft, domain: str) -> list[str]:
+        """FN-008: explain structure_mass_factor/safety_factor in plain language —
+        their effect, not their internal parameter names. Both are editable later
+        via a deterministic iteration."""
+        lines: list[str] = []
+        if draft.structure_mass_factor is not None:
+            pct = round(draft.structure_mass_factor * 100)
+            lines.append(
+                f"  - Estructura estimada ≈ {pct}% del payload "
+                f"(hipótesis editable después)"
+            )
+        if draft.safety_factor is not None:
+            margin_pct = round((draft.safety_factor - 1) * 100)
+            force_noun = cls._FORCE_NOUN_BY_DOMAIN.get(domain, "fuerza")
+            lines.append(
+                f"  - {force_noun.capitalize()} requerido = peso × {draft.safety_factor} "
+                f"(margen de seguridad {margin_pct}%, editable después)"
+            )
+        return lines
+
     def _build_confirmation_message(self, draft: ProjectDraft) -> str:
         domain = self._domain_kind(draft.vehicle_type)
         motors_str = str(draft.motors) if draft.motors is not None else "sin definir"
@@ -473,10 +477,9 @@ class CreateProjectInteractiveSession:
             f"- Payload: {draft.payload_kg} kg",
             f"- Restricciones: {draft.restrictions}",
             f"- Nivel de detalle: {draft.detail_level}",
-            "- Parámetros técnicos:",
-            f"  factor_estructura={draft.structure_mass_factor}, "
-            f"factor_seguridad={draft.safety_factor}",
+            "- Hipótesis de diseño (puedes cambiarlas después con una iteración):",
         ]
+        lines.extend(self._describe_design_hypotheses(draft, domain))
         if domain == "aerial":
             thrust_str = (
                 f"{draft.per_motor_max_thrust_n} N"

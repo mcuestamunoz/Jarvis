@@ -276,14 +276,18 @@ def all_parameter_names() -> list[str]:
 def param_question(param: str) -> str:
     """Human-facing prompt for a pending parameter.
 
-    Assisted motor/energy params get a three-path prompt (model / W / catalog help)
-    instead of exposing the internal key as the hero of the question.
+    Assisted motor params (motor_power_w, per_motor_max_thrust_n) get a
+    three-path prompt (model / value / catalog help) instead of exposing the
+    internal key as the hero of the question.
     """
     from jarvis.core.motor_catalog_assist import (
         ASSISTED_MOTOR_PARAMS,
         assisted_motor_power_question,
+        assisted_motor_thrust_question,
     )
 
+    if param == "per_motor_max_thrust_n":
+        return assisted_motor_thrust_question()
     if param in ASSISTED_MOTOR_PARAMS:
         return assisted_motor_power_question()
 
@@ -304,12 +308,16 @@ def param_question_with_context(
     suggestions: list[dict] | None = None,
     thrust_hint_n: float | None = None,
 ) -> str:
-    """Like ``param_question`` but can inline catalog candidates for motor power."""
+    """Like ``param_question`` but can inline catalog candidates for motor
+    power/thrust."""
     from jarvis.core.motor_catalog_assist import (
         ASSISTED_MOTOR_PARAMS,
         assisted_motor_power_question,
+        assisted_motor_thrust_question,
     )
 
+    if param == "per_motor_max_thrust_n":
+        return assisted_motor_thrust_question(suggestions, thrust_hint_n=thrust_hint_n)
     if param in ASSISTED_MOTOR_PARAMS:
         return assisted_motor_power_question(
             suggestions, thrust_hint_n=thrust_hint_n

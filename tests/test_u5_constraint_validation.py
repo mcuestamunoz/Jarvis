@@ -54,6 +54,86 @@ def test_parse_constraints_empty_restrictions() -> None:
     assert _parse_constraints({"restrictions": None}) == {}
 
 
+# ── FN-010: fallback determinista objective → parsed_constraints ──────────────
+
+def test_parse_constraints_falls_back_to_objective_when_restrictions_absent() -> None:
+    """Objetivo 'levantar 3,5kg con autonomía de 40min' + restrictions 'ninguno'
+    → autonomy_min se deriva del objetivo (fallback per-key)."""
+    result = _parse_constraints(
+        {"restrictions": "ninguno"},
+        objective="levantar 3,5kg con autonomía de 40min",
+    )
+    assert result.get("autonomy_min") == 40.0
+
+
+def test_parse_constraints_restrictions_autonomy_wins_over_objective() -> None:
+    """Una autonomía explícita en restrictions prevalece sobre la del objetivo."""
+    result = _parse_constraints(
+        {"restrictions": "vuelo mínimo 20 min"},
+        objective="dron con autonomía de 40min",
+    )
+    assert result.get("autonomy_min") == 20.0
+
+
+def test_parse_constraints_max_weight_falls_back_to_objective_independently() -> None:
+    """El fallback es por clave: restrictions declara autonomía, max_weight_kg
+    (ausente en restrictions) cae al objetivo sin pisar la autonomía explícita."""
+    result = _parse_constraints(
+        {"restrictions": "vuelo mínimo 20 min"},
+        objective="dron con peso máximo 5kg",
+    )
+    assert result.get("autonomy_min") == 20.0
+    assert result.get("max_weight_kg") == 5.0
+
+
+def test_parse_constraints_no_constraints_anywhere_still_empty() -> None:
+    """Sin patrones reconocibles en restrictions ni en objective → {} (sin falsos positivos)."""
+    result = _parse_constraints(
+        {"restrictions": "ninguna"},
+        objective="dron de fotografía aérea urbana",
+    )
+    assert result == {}
+
+
+def test_parse_constraints_none_objective_behaves_like_before() -> None:
+    """objective=None (valor por defecto) no rompe el comportamiento previo."""
+    assert _parse_constraints({"restrictions": "vuelo mínimo 30 min"}) == {"autonomy_min": 30.0}
+
+
+def test_project_creation_derives_autonomy_from_objective_fallback(tmp_path) -> None:
+    """FN-010 criterio de aceptación: create_project con restrictions='ninguno' y un
+    objetivo que menciona autonomía guarda parsed_constraints.autonomy_min == 40.0,
+    y el valor sobrevive un save/reload de state.json."""
+    orc = JarvisOrchestrator(workspace_root=tmp_path)
+    orc.handle({
+        "action": "create_project",
+        "parameters": {
+            "vehicle_type": "dron",
+            "objective": "levantar 3,5kg con autonomía de 40min",
+            "payload_kg": 3.5,
+            "restrictions": "ninguno",
+            "detail_level": "conceptual",
+            "motors": 4,
+            "per_motor_max_thrust_n": 15.0,
+            "structure_mass_factor": 0.5,
+            "safety_factor": 1.2,
+        },
+    })
+    state = orc.state_manager.load_active_project(orc.workspace_manager)
+    assert state.parsed_constraints.get("autonomy_min") == 40.0
+
+    # Reload from disk (fresh StateManager) — the value must not depend on
+    # in-memory state surviving the process.
+    from pathlib import Path
+
+    from jarvis.core.state_manager import StateManager
+    reloaded = StateManager().load(Path(state.workspace_path) / "state.json")
+    assert reloaded.parsed_constraints.get("autonomy_min") == 40.0
+
+    # Existing consumers (simulator threshold) receive the value unchanged.
+    assert state.parsed_constraints.get("autonomy_min") == reloaded.parsed_constraints.get("autonomy_min")
+
+
 # ── _check_constraint_violations ──────────────────────────────────────────────
 
 def _make_state_with_calc(*, max_weight_kg: float | None, total_mass_kg: float) -> ProjectState:

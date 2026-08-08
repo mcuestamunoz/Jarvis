@@ -42,7 +42,9 @@ HELP_CHOOSE_PHRASES: frozenset[str] = frozenset({
 })
 
 # Params that open the assisted motor menu instead of a bare number prompt.
-ASSISTED_MOTOR_PARAMS: frozenset[str] = frozenset({"motor_power_w"})
+# FN-009: per_motor_max_thrust_n joins motor_power_w — a single catalog pick
+# resolves both coherently (same physical motor), so both are "assisted".
+ASSISTED_MOTOR_PARAMS: frozenset[str] = frozenset({"motor_power_w", "per_motor_max_thrust_n"})
 
 # Bare watts: "350", "350W", "350 w", "350.5"
 _BARE_WATTS_RE = re.compile(
@@ -227,7 +229,12 @@ def _format_candidate_line(s: MotorSuggestion, *, detailed: bool) -> str:
     return f"  {s['idx']}. {s['name']}{tag}  →  {body}"
 
 
-def format_motor_catalog_suggestions(suggestions: list[MotorSuggestion]) -> str:
+def format_motor_catalog_suggestions(
+    suggestions: list[MotorSuggestion], *, param: str = "motor_power_w"
+) -> str:
+    """``param`` selects the trailing instruction's unit/copy: W for
+    motor_power_w (default, unchanged), N/combo for per_motor_max_thrust_n.
+    Callers that don't pass ``param`` keep the original W-copy verbatim."""
     if not suggestions:
         return (
             "No tengo un motor en el catálogo que cubra este espacio de diseño. "
@@ -238,7 +245,13 @@ def format_motor_catalog_suggestions(suggestions: list[MotorSuggestion]) -> str:
     ]
     for s in suggestions:
         lines.append(_format_candidate_line(s, detailed=True))
-    lines.append("Elige un número, indica W a mano, o di 'no' para omitir.")
+    if param == "per_motor_max_thrust_n":
+        lines.append(
+            "Elige un número, indica empuje en N (de una combinación motor-hélice), "
+            "o di 'no' para omitir."
+        )
+    else:
+        lines.append("Elige un número, indica W a mano, o di 'no' para omitir.")
     return "\n".join(lines)
 
 
@@ -269,6 +282,75 @@ def assisted_motor_power_question(
         for s in suggestions[:3]:
             lines.append(_format_candidate_line(s, detailed=False))
     return "\n".join(lines)
+
+
+def assisted_motor_thrust_question(
+    suggestions: list[MotorSuggestion] | None = None,
+    *,
+    thrust_hint_n: float | None = None,
+) -> str:
+    """FN-009: prompt for per-motor thrust — three paths, optional inline candidates.
+
+    The computed requirement is framed as a provisional minimum: total mass
+    (and therefore required thrust) still grows once the battery and other
+    components are declared, so this is a floor, not a target. Manual N entry
+    is described as the measured/declared thrust of a real motor-propeller
+    combo — never presented as a value Jarvis expects the user to invent.
+    """
+    lines: list[str] = []
+    if thrust_hint_n is not None:
+        lines.append(
+            f"Necesito el empuje máximo por motor. Mínimo provisional para este "
+            f"diseño: ≥ {thrust_hint_n:.1f} N/motor (puede subir al declarar la "
+            f"batería y otros componentes)."
+        )
+    else:
+        lines.append("Necesito el empuje máximo que puede dar cada motor.")
+    lines.append("")
+    lines.append("Puedes:")
+    lines.append("  • Indicar un motor del catálogo (nombre exacto)")
+    lines.append("  • Indicar el empuje medido/declarado en N de tu combo motor-hélice (ej: 15)")
+    lines.append("  • Escribir 'ayúdame a elegir' para ver candidatos numerados")
+    if suggestions:
+        lines.append("")
+        lines.append("Candidatos rápidos (responde con el número):")
+        for s in suggestions[:3]:
+            lines.append(_format_candidate_line(s, detailed=False))
+    return "\n".join(lines)
+
+
+def format_no_thrust_candidate_message(
+    *,
+    required_n: float | None = None,
+    library: ComponentLibrary | None = None,
+) -> str:
+    """FN-009: deterministic, honest response when no catalog motor covers the
+    computed thrust requirement.
+
+    Names the requirement, what the catalog actually covers, and concrete
+    options the user can act on. Never invents a SKU and never mutates
+    motor_count automatically.
+    """
+    lib = library or default_library
+    motors = lib.list_motors()
+    max_available_n = max((m.max_thrust_n for m in motors), default=0.0)
+    if required_n is not None:
+        line = f"No tengo un motor en el catálogo que cubra ≥ {required_n:.1f} N/motor"
+    else:
+        line = "No tengo un motor en el catálogo que cubra este requisito de empuje"
+    line += (
+        f" (máximo cubierto por el catálogo: ~{max_available_n:.1f} N/motor)."
+        if max_available_n > 0
+        else "."
+    )
+    return "\n".join([
+        line,
+        "Opciones:",
+        "  • Añadir más motores para repartir la carga entre más unidades.",
+        "  • Usar un motor-hélice fuera de catálogo con datos medidos (empuje real declarado).",
+        "  • Revisar el objetivo o la masa del sistema si el requisito es muy alto.",
+        "No voy a inventar un modelo de catálogo que no cubra este requisito.",
+    ])
 
 
 def match_suggestion_by_input(

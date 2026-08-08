@@ -17,12 +17,19 @@ _WEIGHT_CONSTRAINT_RE = _re.compile(
 )
 
 
-def _parse_constraints(current_parameters: dict) -> dict[str, float]:
-    """Derive parsed_constraints from current_parameters["restrictions"].
+def _parse_constraints(current_parameters: dict, objective: str | None = None) -> dict[str, float]:
+    """Derive parsed_constraints from current_parameters["restrictions"], falling
+    back to `objective` (FN-010) for any key not found in restrictions.
 
     Returns a dict with any subset of {"autonomy_min", "max_weight_kg"}.
     Extracted here as a module-level helper so both the @model_validator and
     the model_copy override can call the same logic without duplication.
+
+    Precedence is per-key, not per-string: a key explicitly present in
+    restrictions always wins over the same key found in objective. Placeholder
+    phrases in restrictions ("ninguno", "n/a"...) never match either regex on
+    their own, so they fall through to the objective fallback for free —
+    no separate token check or parallel parser needed.
     """
     restrictions = current_parameters.get("restrictions")
     result: dict[str, float] = {}
@@ -33,6 +40,17 @@ def _parse_constraints(current_parameters: dict) -> dict[str, float]:
         w = _WEIGHT_CONSTRAINT_RE.search(restrictions)
         if w:
             result["max_weight_kg"] = float(w.group(1))
+
+    if objective:
+        if "autonomy_min" not in result:
+            m = _AUTONOMY_CONSTRAINT_RE.search(objective)
+            if m:
+                result["autonomy_min"] = float(m.group(1))
+        if "max_weight_kg" not in result:
+            w = _WEIGHT_CONSTRAINT_RE.search(objective)
+            if w:
+                result["max_weight_kg"] = float(w.group(1))
+
     return result
 
 
@@ -133,20 +151,25 @@ class ProjectState(BaseModel):
         Design note: current_parameters["restrictions"] is the user-facing string
         and is the single source of truth.  parsed_constraints is the canonical
         machine-readable form and must be derived, never manually mutated.
+        FN-010: objective is the secondary source — used per-key only when
+        restrictions doesn't declare that key (see _parse_constraints).
         """
-        self.parsed_constraints = _parse_constraints(self.current_parameters)
+        self.parsed_constraints = _parse_constraints(self.current_parameters, self.objective)
         return self
 
     def model_copy(self, *, update: dict | None = None, deep: bool = False, **kwargs) -> "ProjectState":
-        """Override to re-derive parsed_constraints when current_parameters changes.
+        """Override to re-derive parsed_constraints when current_parameters or
+        objective changes.
 
         Pydantic v2 model_copy() bypasses @model_validator, so we re-derive
-        parsed_constraints here explicitly whenever current_parameters is part of
-        the update dict.  For all other copies the value is carried over unchanged.
+        parsed_constraints here explicitly whenever either field is part of the
+        update dict. For all other copies the value is carried over unchanged.
+        `new.current_parameters` / `new.objective` already reflect the post-update
+        state regardless of which of the two fields triggered re-derivation.
         """
         new = super().model_copy(update=update, deep=deep, **kwargs)
-        if update and "current_parameters" in update:
-            new.parsed_constraints = _parse_constraints(update["current_parameters"] or {})
+        if update and ("current_parameters" in update or "objective" in update):
+            new.parsed_constraints = _parse_constraints(new.current_parameters or {}, new.objective)
         return new
 
 

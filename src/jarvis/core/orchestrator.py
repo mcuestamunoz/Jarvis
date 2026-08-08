@@ -19,6 +19,7 @@ from jarvis.core.parameter_requirements import (
     MISSING_COMPONENT_DEFINITION,
     MISSING_ENERGY_PARAMETERS,
     MISSING_PROPELLER_PARAMETERS,
+    MISSING_PROPULSION_PARAMETERS,
     missing_force_reason_from_warnings,
     missing_params_for_reason,
     params_for_reason,
@@ -611,6 +612,15 @@ class JarvisOrchestrator:
                 self._track_turn(user_input, assist)
                 return assist
         # ─────────────────────────────────────────────────────────────────────
+        # ── FN-011: "ayúdame a declarar/completar <bloque activo>" while IDLE ──
+        # e.g. "ayúdame a declarar propulsión" — must not leak to the LLM when
+        # the state already knows the real next gap for that block.
+        if current_session.mode == OrchestratorMode.IDLE:
+            block_help = self._try_declare_active_block_help(user_input)
+            if block_help is not None:
+                self._track_turn(user_input, block_help)
+                return block_help
+        # ─────────────────────────────────────────────────────────────────────
         # ── Global component intercept ────────────────────────────────────────
         # Fires in any mode where the user might describe a physical component.
         # Input type determines routing, not orchestrator mode.
@@ -846,15 +856,29 @@ class JarvisOrchestrator:
         return self.param_definition_session.start(missing_params, reason=reason)
 
     def _try_start_assisted_motor_help(self) -> dict | None:
-        """FN-005: IDLE help-choose → DEFINE motor_power_w + catalog list.
+        """FN-005/FN-009: IDLE help-choose → assisted motor acquisition.
 
-        Returns None when there is no active project or power is already set.
+        Prioritizes an unresolved propulsion route (missing thrust) over energy
+        (motor_power_w/battery): sizing power before the system has a force
+        path at all is premature. Falls back to the existing energy route once
+        propulsion is resolved. Returns None when there is no active project or
+        nothing is missing on either surface.
         """
         try:
             project_state = self.state_manager.load_active_project(self.workspace_manager)
         except FileNotFoundError:
             return None
         params = project_state.current_parameters or {}
+        simulation = project_state.latest_results.get("simulation") or {}
+
+        if simulation.get("physics_status") == "missing_parameters":
+            reason = missing_force_reason_from_warnings(simulation.get("warnings") or [])
+            if reason == MISSING_PROPULSION_PARAMETERS:
+                propulsion_missing = missing_params_for_reason(reason, params)
+                if propulsion_missing:
+                    self.start_define_missing_params(propulsion_missing, reason=reason)
+                    return self.param_definition_session.offer_catalog_help()
+
         if params.get("motor_power_w") is not None:
             return None
         missing = ["motor_power_w"]
@@ -869,6 +893,42 @@ class JarvisOrchestrator:
                 missing.append("battery_capacity_wh")
         self.start_define_missing_params(missing, reason=MISSING_ENERGY_PARAMETERS)
         return self.param_definition_session.offer_catalog_help()
+
+    def _try_declare_active_block_help(self, user_input: str) -> dict | None:
+        """FN-011: 'ayúdame a declarar/completar <bloque>' → deterministic acquisition.
+
+        Reuses the exact bridge already used elsewhere (the "¿Definimos X ahora?"
+        confirmation flow): _next_pending_block / _set_pending_next_block /
+        start_define_missing_params. No new acquisition logic — this only decides
+        WHEN to enter that existing bridge from a proactive user phrase instead
+        of from an affirmative reply to a proactive question.
+
+        Returns None (falls through to normal routing, eventually the LLM) when:
+        - the phrase doesn't name a recognizable block (e.g. bare "ayúdame a
+          completar" keeps its existing project_status/Continuity routing);
+        - there is no active/system-defined project;
+        - the named block is NOT actually the current pending one — never jumps
+          to, or invents params for, an unrelated/future block.
+        """
+        block_key = self.intent_resolver.resolve_declare_block_request(user_input)
+        if block_key is None:
+            return None
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return None
+        if not project_state.design_properties.system_defined:
+            return None
+        pending = self._next_pending_block(project_state)
+        if pending is None or pending[0] != block_key:
+            return None
+        self._set_pending_next_block()
+        session = self.state_manager.get_runtime_session()
+        if not session.pending_define_missing:
+            return None
+        return self.start_define_missing_params(
+            session.pending_missing_params, reason=session.pending_missing_reason
+        )
 
     def _track_turn(self, user_input: str, result: dict) -> None:
         """Append user + assistant turns to conversation history (idle mode only)."""

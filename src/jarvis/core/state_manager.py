@@ -23,6 +23,17 @@ _PERSISTED_SESSION_FIELDS: frozenset[str] = frozenset({
     "collected_params",
 })
 
+# FN-012: create/iterate wizards need drafts that are intentionally not persisted.
+# Restoring these modes alone leaves answer() with mode set and draft=None →
+# "No hay una sesión interactiva activa." Demote to IDLE on persist and restore.
+_DRAFTLESS_WIZARD_MODES: frozenset[OrchestratorMode] = frozenset({
+    OrchestratorMode.CREATE_PROJECT_INTERACTIVE,
+    OrchestratorMode.ITERATE_INTERACTIVE,
+})
+_DRAFTLESS_WIZARD_MODE_VALUES: frozenset[str] = frozenset(
+    m.value for m in _DRAFTLESS_WIZARD_MODES
+)
+
 
 class StateManager:
     def __init__(self) -> None:
@@ -121,11 +132,12 @@ class StateManager:
 
     def session_to_snapshot(self) -> dict:
         """U4: serializa los campos persistibles de la sesión activa."""
-        return {
+        data = {
             k: v
             for k, v in self.runtime_state.session.model_dump().items()
             if k in _PERSISTED_SESSION_FIELDS
         }
+        return self._sanitize_draftless_wizard_session(data)
 
     def restore_from_snapshot(self, snapshot: dict) -> None:
         """U4: restaura historial (≤ MAX_HISTORY_TURNS) y estado de sesión desde snapshot de disco."""
@@ -148,11 +160,37 @@ class StateManager:
                 session_data["mode"] = OrchestratorMode(session_data["mode"])
             except ValueError:
                 session_data["mode"] = OrchestratorMode.IDLE
+        session_data = self._sanitize_draftless_wizard_session(session_data)
         if session_data:
             restored_session = self.runtime_state.session.model_copy(update=session_data)
             self.runtime_state = self.runtime_state.model_copy(
                 update={"session": restored_session}
             )
+
+    @staticmethod
+    def _sanitize_draftless_wizard_session(session_data: dict) -> dict:
+        """FN-012: never keep create/iterate interactive mode without a draft.
+
+        Drafts are not in ``_PERSISTED_SESSION_FIELDS``. Persisting or restoring
+        those modes alone produces a stuck router that errors on every turn.
+        """
+        if not session_data:
+            return session_data
+        mode = session_data.get("mode")
+        is_draftless = (
+            mode in _DRAFTLESS_WIZARD_MODES
+            or mode in _DRAFTLESS_WIZARD_MODE_VALUES
+        )
+        if not is_draftless:
+            return session_data
+        sanitized = dict(session_data)
+        sanitized["mode"] = (
+            OrchestratorMode.IDLE
+            if isinstance(mode, OrchestratorMode)
+            else OrchestratorMode.IDLE.value
+        )
+        sanitized["step"] = 0
+        return sanitized
 
     def record_action(
         self,
