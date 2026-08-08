@@ -27,6 +27,8 @@ def render_objetivo(state: ProjectState) -> str:
 
 def render_sistema(state: ProjectState) -> str:
     """Genera views/sistema.md desde design_properties."""
+    from jarvis.core.project_closure import build_component_bom, format_bom_lines
+
     dp = state.design_properties
     if not dp.system_defined:
         return "# Sistema\n\n_No definido aún. Usa la sesión interactiva para definir los bloques del sistema._\n"
@@ -42,16 +44,29 @@ def render_sistema(state: ProjectState) -> str:
         comp_lines = "\n".join(f"- {k}: {v.component_type}" for k, v in dp.components.items())
         components_section = f"\n## Componentes definidos\n{comp_lines}\n"
 
+    bom = build_component_bom(state)
+    bom_lines = format_bom_lines(bom)
+    bom_section = ""
+    if bom_lines:
+        bom_section = "\n## BOM / gaps\n" + "\n".join(f"- {line}" for line in bom_lines) + "\n"
+
     return (
         "# Sistema\n\n"
         f"## Bloques\n{block_lines}\n\n"
         f"## Prioridad de diseño\n{priority_lines}\n"
         f"{components_section}"
+        f"{bom_section}"
     )
 
 
 def render_estado_actual(state: ProjectState) -> str:
     """Genera views/estado_actual.md con parámetros actuales + última simulación."""
+    from jarvis.core.project_closure import (
+        derive_physical_requirements,
+        energy_model_honesty_note,
+        format_requirements_lines,
+    )
+
     p = state.current_parameters
     sim = state.latest_results.get("simulation")
     calc = state.latest_results.get("calculations")
@@ -85,11 +100,22 @@ def render_estado_actual(state: ProjectState) -> str:
             f"- Resumen: {sim.get('summary', '—')}\n"
         )
 
+    req = derive_physical_requirements(state)
+    req_lines = format_requirements_lines(req)
+    req_section = ""
+    if req_lines:
+        req_section = "\n## Requisitos físicos\n" + "\n".join(f"- {line}" for line in req_lines) + "\n"
+
+    energy_note = energy_model_honesty_note(state)
+    energy_section = f"\n## Nota energética\n- {energy_note}\n" if energy_note else ""
+
     return (
         "# Estado actual\n\n"
         f"## Parámetros\n{param_lines}\n"
         f"{calc_section}"
         f"{sim_section}"
+        f"{req_section}"
+        f"{energy_section}"
     )
 
 

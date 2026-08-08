@@ -768,7 +768,8 @@ class TestIterateWizardPreemption:
         assert orchestrator.state_manager.runtime_state.session.mode == OrchestratorMode.ITERATE_INTERACTIVE
         suggestions = result.get("motor_suggestions") or []
         assert len(suggestions) > 0
-        assert "biblioteca" in (result.get("message") or "").lower()
+        msg = (result.get("message") or "").lower()
+        assert "biblioteca" in msg or "catálogo" in msg or "catalogo" in msg
 
         pick = orchestrator.handle_user_text("1", MagicMock())
         assert pick.get("preempted_iterate") is not True

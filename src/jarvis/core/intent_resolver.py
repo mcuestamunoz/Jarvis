@@ -45,10 +45,22 @@ class IntentResolver:
         "situacion actual",
         "como va el proyecto",
         "donde estamos",
+        "donde estoy",
         "que falta",
         "que nos falta",
         "situacion del proyecto",
         "resumen",
+        # FN-003: project comprehension — not analyze/impacto
+        "detalles del proyecto",
+        "dame detalles",
+        "dame detalles del proyecto",
+        "cuentame el proyecto",
+        "cuenta el proyecto",
+        "explica el proyecto",
+        "describe el proyecto",
+        "resume el diseno",
+        "resume el proyecto",
+        "como esta el proyecto",
         # Bug 39: navigation phrases that request orientation (not LLM fallback)
         "siguiente paso",
         "que hago",
@@ -57,6 +69,13 @@ class IntentResolver:
         "que debo hacer",
         "por donde empiezo",
         "como continuo",
+        # A' Project Continuity — reopen / “what now” without LLM
+        "y ahora",
+        "ahora que",
+        "que sigue",
+        "donde quedamos",
+        "por que no puedo comprar",
+        "por que no puedo montar",
         # Bug CLI-1: guidance phrases ("guíame hasta completar") routed to iterate via
         # "completar" in ITERATE_PATTERNS — must be caught here first.
         "guiame",

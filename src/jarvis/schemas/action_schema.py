@@ -209,3 +209,5 @@ class InteractiveSessionState(BaseModel):
     # DSE v1.1: último ExplorationResult en memoria para poder aplicarlo sin repetir exploración.
     # Typed as Any para evitar ciclo de importación (design_explorer → calculation_engine → ...).
     last_exploration_result: Any | None = None
+    # FN-004: pending structural substitution (e.g. motor_count 6→4) awaiting sí/no
+    pending_structural_change: dict[str, Any] | None = None

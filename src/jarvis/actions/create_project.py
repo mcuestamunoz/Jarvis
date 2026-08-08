@@ -64,6 +64,8 @@ class CreateProjectAction:
                 "detail_level": params.detail_level,
                 "calculations": calculations.model_dump(),
                 "simulation": simulation.model_dump(),
+                "design_properties": state.design_properties.model_dump(),
+                "current_parameters": state.current_parameters,
             },
         )
 

@@ -6,6 +6,68 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
+### ✅ COMPLETADO — Assisted Acquisition + hygiene (FN-005/FN-006)
+
+> Cuando falta potencia/motor, no exigir `motor_power_w` crudo ni caer en analyze. Contrato Continuity: [PROJECT_CONTINUITY.md](PROJECT_CONTINUITY.md).
+
+**Principio:** pregunta humana + 3 vías (modelo / W / catálogo) → D8 → escritura determinista + Coherence.
+**No** Conversation Engine.
+
+**Plan:**
+1. [x] P0 — `param_question` humana (sin clave como héroe)
+2. [x] P1 — `ayúdame a elegir` en wizard DEFINE → picker
+3. [x] P2 — helper compartido `motor_catalog_assist` + apply watts/thrust
+4. [x] P3 — menú 3 vías (+ candidatos inline) al preguntar potencia
+5. [x] P4 — Continuity next alineado con adquisición asistida
+6. [x] P5 — docs FN-005 + tests
+7. [x] FN-006 — higiene localizada: `_answer_assisted_motor`, `offer_catalog_help`, `MotorSuggestion` y formatter compartido
+
+**Review FN-006:** PASS WITH NOTES; sin cambios funcionales ni scope creep.
+
+**MINOR registrados (no bloqueantes):**
+1. [ ] Propagar `MotorSuggestion` a `_question_for_param(..., suggestions=...)`.
+2. [ ] Desacoplar el test público de la existencia de `_offer_catalog_help`.
+
+**Siguiente:** seguir field notes en CLI; extender el mismo patrón a batería/hélices solo si duele.
+
+### ✅ COMPLETADO — Project Coherence (después de A')
+
+> El proyecto no puede desaparecer tras el primer turno. Contrato: [PROJECT_CONTINUITY.md](PROJECT_CONTINUITY.md).
+
+**Principio:** Project-first responses + Regla de Continuidad (qué cambió / estado ahora / siguiente decisión).
+**Método:** field notes en CLI — cada vez que “parece una operación, no Jarvis”. No Conversation Engine todavía.
+
+**Hecho (A' + thin fixes FN-001…004):**
+1. [x] Experimento reopen + docs + `continuity` en startup/status
+2. [x] FN-001 — no auto-define al cargar si missing vacío / Continuity basta
+3. [x] FN-002/003 — detalles/estado → narrativa Continuity-first (`project_status`)
+4. [x] Evidencia — no gap “número de motores” si `motor_count` en params
+5. [x] FN-004 — confirmación estructural al sustituir `motor_count`
+6. [x] P4 — footer Continuity tras iterate/define/calc/sim ok
+
+### ✅ COMPLETADO — Project Continuity (A')
+
+> Objetivo: hilo al reabrir (situación / evidencia / un siguiente paso). Contrato: [PROJECT_CONTINUITY.md](PROJECT_CONTINUITY.md).
+
+**Plan:**
+1. [x] Experimento 1h sobre workspace — confirmado: faltaba continuidad, no ArduPilot
+2. [x] Documentar contrato A' (`PROJECT_CONTINUITY.md` + VISION + PRODUCT_SCOPE)
+3. [x] Unificar superficie status/startup (`continuity` en `build_startup_context` + CLI)
+
+### ✅ COMPLETADO — v1 usable (cierre de proyecto aéreo)
+
+> Criterio en [PRODUCT_SCOPE.md](../PRODUCT_SCOPE.md).
+
+**Done de producto (diseño):** simulación `pass` (o fallo claro) + requisitos físicos explícitos + BOM/gaps + huecos de catálogo honestos. Aéreo-first.
+
+**Plan:**
+1. [x] P0 — Documentar criterio v1 (`PRODUCT_SCOPE.md` + esta prioridad)
+2. [x] P1 — Requisitos físicos derivados + D8 catálogo por espacio de diseño + BOM/gaps + honestidad energética
+3. [x] P2 — D7 multi-componente + lista proyectos CLI + hint D5
+4. [x] P3 — D1 `design_properties` en iteraciones; G2/G4 solo si duele
+
+---
+
 ### ✅ COMPLETADO — Fase 2: Structure como física real
 
 > Implementado y validado el 22 de abril de 2026. 1040 tests passing (+155 vs baseline). 0 regresiones.
@@ -800,11 +862,9 @@ Variables diferidas a Fase 3: `arm_length_m`, `stiffness`, `structural_fraction`
 
 > Verificación realizada sobre el proyecto `dron-con-peso-de-2kg-2b61eb3f9a28`. No son bloqueadores de Fase 2.
 
-**D1 — `iter_N.json` no persiste `design_properties`**
+**D1 — `iter_N.json` no persistía `design_properties` → ✅ Cerrado 2026-08-06**
 
-`history/iterations/iter_002.json` solo guarda `params` y `calculations`. `design_properties` (incluido `components["frame"].properties`) no se versiona en el historial. Si el usuario guarda un frame en iter_003 y retrocede a iter_002, el frame desaparece de `state.json` pero el historial no lo refleja.
-
-**No es bloqueador de Fase 2.** `state.json` es la fuente activa. Pero en Fase 3 o al implementar rollback, se deberá extender `iter_N.json` para incluir un snapshot de `design_properties`.
+Los snapshots de iteración (`iterate`, `iterate_declarative`, `params_defined`, `dse_apply`, `create_project`) incluyen `design_properties` + `current_parameters` para rollback auditable.
 
 **D2 — `structure.material: "aluminio"` es un default del schema, no un valor declarado por el usuario**
 
@@ -1174,14 +1234,14 @@ elif block_type == "composite":
 
 | ID | Problema | Bloqueante en |
 |---|---|---|
-| D1 | `iter_N.json` no persiste `design_properties` — rollback borra frame sin reflejo en historial | Fase 3 (rollback fiel) |
+| D1 | `iter_N.json` no persiste `design_properties` — rollback borra frame sin reflejo en historial | **Cerrada 2026-08-06** — snapshots incluyen `design_properties` + `current_parameters` |
 | D2 | `structure.material = "aluminio"` es default silencioso del schema — `_build_mutable_state` lo lee como declarado | Fase 3 (migración de lectura) |
 | ~~D3~~ | ~~módulo `design_utils.py` no existe~~ → **✅ Cerrado** — `jarvis/utils/design_utils.py` existe (`get_frame_material`, etc.). Revisado 2026-08-06. | — |
 | ~~D4~~ | ~~Bypass de mirrors via signal de params~~ → **✅ Cerrado** — gatekeeper `COMPONENT_MIRRORED_PARAMS` en `param_definition_session` + writers; tests `test_d4_param_gatekeeper.py`. Revisado 2026-08-06. | — |
-| D5 | **Avance silencioso de bloque composite**: si el usuario define componentes de `propulsion` (motors + propellers + params) de forma no secuencial — sin seguir el wizard — el bloque puede pasar a `complete` sin que el sistema lo haya guiado explícitamente. No es incorrecto (el estado es válido), pero puede resultar sorprendente en UX. Mitigación futura: `_block_progress_status` puede devolver una razón de transición (`implicit_complete`) que `build_startup_context` use para emitir un hint contextual. | Fase 7+ (wizard estructurado) |
+| ~~D5~~ | ~~Avance silencioso de bloque composite~~ → **Mitigada 2026-08-06** — hint `✓ Bloque completado` al pasar a complete | — |
 | ~~D6~~ | ~~Dualidad física de `propellers` sin bridge~~ → **✅ Cerrado (U2)** — `set_propeller_component()` puentea `propeller_diameter_in` (+ pitch) a `current_parameters`; tests `test_u2_propeller_bridge.py`. Revisado 2026-08-06. | — |
-| D7 | **Frases mixtas: first-match-wins pierde información**: cuando el usuario describe propulsion en una sola frase (`"4x 2306 2400KV, hélices 10x4.5"`), el intercept global de componentes (`_handle_component_description`) solo procesa el primer componente inferido por `infer_component`. El resto de la frase se ignora. No rompe nada — el wizard pedirá el siguiente componente en el turn siguiente — pero se pierde la oportunidad de procesar ambos en un solo mensaje. Solución futura: `infer_component` devuelve lista, `_handle_component_description` itera y guarda todos los specs en un solo write. | Fase 7+ (multi-component parse) |
-| D8 | **Catálogo de motores = productos + KV, no espacios de diseño**: `library/motores/_datos.json` + `find_motors_by_kv` emparejan por etiqueta (KV ±150), no por requisitos físicos derivados (empuje mínimo, masa, potencia, hélice…). Dirección acordada (2026-08-05): (1) Jarvis diseña/expone requisitos físicos; (2) catálogo pequeño curado (≈20–30) donde cada entrada significa “este producto satisface este espacio de diseño”; (3) sin match → declarar requisitos + “no tengo uno en el catálogo”, nunca inventar; (4) catálogos externos solo cuando el bridge (1)→(2) esté estable. Ingeniería estable ≠ mercado volátil. | Cuando el diseño de requisitos de motor sea estable (no antes) |
+| ~~D7~~ | ~~Frases mixtas first-match-wins~~ → **Cerrada 2026-08-06** — `infer_components` + loop en handler | — |
+| ~~D8~~ | ~~Catálogo motores solo por KV~~ → **Cerrada 2026-08-06** — `design_space` + `find_motors_for_requirements` + hueco honesto | — |
 
 ---
 

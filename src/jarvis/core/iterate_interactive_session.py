@@ -372,7 +372,8 @@ class IterateInteractiveSession:
             updated_session = session.model_copy(update={"step": 3, "iteration_draft": updated_draft})
 
             # ── Motor KV without thrust → suggest before advancing ────────
-            motor_suggestions = self._build_motor_suggestions(spec)
+            project_state = self._project_state_for_session(session)
+            motor_suggestions = self._build_motor_suggestions(spec, project_state=project_state)
             if motor_suggestions:
                 updated_session = updated_session.model_copy(
                     update={"step": 2, "motor_suggestions": motor_suggestions}
@@ -383,7 +384,7 @@ class IterateInteractiveSession:
                     message=suggestion_text,
                     question="¿Quieres usar alguno? (1/2/… o 'no', especifica el tuyo)",
                 )
-            empty_catalog_note = self._empty_motor_catalog_note(spec)
+            empty_catalog_note = self._empty_motor_catalog_note(spec, project_state=project_state)
             if empty_catalog_note:
                 feedback_message = (
                     f"{feedback_message}\n{empty_catalog_note}"
@@ -1277,13 +1278,32 @@ class IterateInteractiveSession:
 
     # ── Motor suggestion helpers ──────────────────────────────────────────────
 
-    def _build_motor_suggestions(self, spec) -> list[dict]:
+    @staticmethod
+    def _project_state_for_session(session: InteractiveSessionState):
+        """Best-effort load of ProjectState from the draft workspace (for D8 matching)."""
+        draft = session.iteration_draft
+        if draft is None or not draft.workspace_path:
+            return None
+        try:
+            from pathlib import Path
+            import json
+            from jarvis.schemas.state_schema import ProjectState
+
+            path = Path(draft.workspace_path) / "state.json"
+            if not path.exists():
+                return None
+            return ProjectState.model_validate(json.loads(path.read_text(encoding="utf-8")))
+        except Exception:  # noqa: BLE001 — suggestion path must never fail the wizard
+            return None
+
+    def _build_motor_suggestions(self, spec, project_state=None) -> list[dict]:
         """Return library suggestions when *spec* is a motor with kv_rating but no thrust_n.
 
         Only fires when component_type == "propulsion_active" — never for batteries,
         propellers, or other components that may also carry a kv_rating property.
         Returns empty list when thrust_n is already present (user-declared data
-        takes absolute priority) or when no motor matches the KV range.
+        takes absolute priority) or when no motor matches the design space.
+        Prefer D8 ``find_motors_for_requirements`` when thrust/prop constraints exist.
         Never auto-applies — for display and selection only.
         """
         # Guard: only motor components trigger this
@@ -1295,6 +1315,15 @@ class IterateInteractiveSession:
         kv_prop = props.get("kv_rating")
         if kv_prop is None:
             return []
+
+        if project_state is not None:
+            from jarvis.core.motor_catalog_assist import build_motor_catalog_suggestions
+
+            kv = int(kv_prop.value)
+            return build_motor_catalog_suggestions(
+                project_state, library=self._library, kv=kv
+            )
+
         kv = int(kv_prop.value)
         matches = self._library.find_motors_by_kv(kv)
         return [
@@ -1304,13 +1333,15 @@ class IterateInteractiveSession:
                 "thrust_n": m.thrust_n,
                 "kv_rating": m.kv_rating,
                 "weight_g": m.weight_g,
+                "max_watts": m.max_watts,
+                "is_generic": m.is_generic,
             }
             for i, m in enumerate(matches)
         ]
 
     @staticmethod
-    def _empty_motor_catalog_note(spec) -> str | None:
-        """Explain silent skip when KV is known but the library has no near match."""
+    def _empty_motor_catalog_note(spec, project_state=None) -> str | None:
+        """Explain silent skip when KV/requirements are known but the library has no match."""
         if getattr(spec, "component_type", None) != "propulsion_active":
             return None
         props = getattr(spec, "properties", {}) or {}
@@ -1320,20 +1351,27 @@ class IterateInteractiveSession:
         if kv_prop is None:
             return None
         kv = int(kv_prop.value)
+        need_bits = [f"~{kv}KV"]
+        if project_state is not None:
+            from jarvis.core.project_closure import derive_physical_requirements
+            req = derive_physical_requirements(project_state)
+            thrust = req.get("thrust_per_motor_needed_n")
+            if thrust is not None:
+                need_bits.insert(0, f"empuje ≥ {thrust:.1f} N/motor")
+        need = ", ".join(need_bits)
         return (
-            f"No encontré motores en la biblioteca cerca de {kv}KV. "
+            f"Necesitas {need}; no tengo un motor en el catálogo que cubra ese espacio. "
             "Cuando puedas, declara el empuje real (N) para calcular."
         )
 
     @staticmethod
     def _format_motor_suggestions(suggestions: list[dict]) -> str:
-        lines = ["He encontrado motores similares en la biblioteca:"]
-        for s in suggestions:
-            lines.append(
-                f"  {s['idx']}. {s['name']}  →  {s['thrust_n']}N, {s['weight_g']}g, {s['kv_rating']}KV"
-            )
-        lines.append("Para calcular necesito empuje real.")
-        return "\n".join(lines)
+        from jarvis.core.motor_catalog_assist import format_motor_catalog_suggestions
+
+        text = format_motor_catalog_suggestions(suggestions)
+        if suggestions:
+            return text + "\nPara calcular necesito empuje real. Elige un número o di 'no'."
+        return text
 
     def _handle_motor_suggestion_selection(
         self, session: InteractiveSessionState, user_input: str

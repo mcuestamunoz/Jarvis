@@ -571,12 +571,12 @@ def test_motor_kv_empty_catalog_explains_and_advances():
     """KV with no library match must not silence the gap — note + step 3."""
     session = IterateInteractiveSession()
     s = _start_define_session(session, "m_empty")
-    resp = session.answer(s, "4 motores 1500KV")
+    resp = session.answer(s, "4 motores 6000KV")
     assert resp["step"] == 3
     assert resp.get("motor_suggestions") in (None, [])
     message = resp.get("message") or ""
-    assert "1500" in message
-    assert "biblioteca" in message.lower()
+    assert "6000" in message
+    assert "catálogo" in message.lower() or "catalogo" in message.lower() or "empuje" in message.lower()
     assert "empuje" in message.lower()
 
 

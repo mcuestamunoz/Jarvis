@@ -6,9 +6,37 @@ from pathlib import Path
 
 from jarvis.config import DEFAULT_LLM_LOG_ROOT, OLLAMA_BASE_URL, OLLAMA_MODEL
 from jarvis.core.orchestrator import JarvisOrchestrator
-from jarvis.core.parameter_requirements import DEFAULT_MISSING_FORCE_REASON, param_hint
+from jarvis.core.parameter_requirements import (
+    DEFAULT_MISSING_FORCE_REASON,
+    MISSING_COMPONENT_DEFINITION,
+    MISSING_ENERGY_PARAMETERS,
+    MISSING_PROPELLER_PARAMETERS,
+    param_hint,
+)
 from jarvis.llm.llm_client import JarvisLLMInterface
 from jarvis.llm.ollama_client import OllamaClient
+
+# Reasons that justify auto-opening the define-missing wizard on project load.
+_AUTO_DEFINE_REASONS = frozenset({
+    MISSING_COMPONENT_DEFINITION,
+    MISSING_ENERGY_PARAMETERS,
+    MISSING_PROPELLER_PARAMETERS,
+})
+
+
+def should_auto_start_define_on_load(startup_ctx: dict) -> bool:
+    """FN-001: only auto-open define wizard when there are real pending params.
+
+    Do not start the wizard merely because proactive_question / continuity
+    suggests a next step — that produced spurious "No hay parámetros pendientes".
+    """
+    missing = list(startup_ctx.get("missing_params") or [])
+    if not missing:
+        return False
+    if startup_ctx.get("status_type") == "blocking":
+        return True
+    reason = startup_ctx.get("param_definition_reason") or ""
+    return reason in _AUTO_DEFINE_REASONS
 
 
 class DemoLLMClient:
@@ -83,10 +111,28 @@ def render_startup_context(ctx: dict) -> str:
     lines.append(f"Proyecto: {ctx['project_slug']}")
     if ctx.get("objective"):
         lines.append(f"Objetivo: {ctx['objective']}")
+
+    # ── A' Project Continuity: Situation / Evidence / Next useful step ───────
+    continuity = ctx.get("continuity") or {}
+    if continuity.get("situation") or continuity.get("next_useful_step"):
+        lines.append("─" * 44)
+        if continuity.get("situation"):
+            lines.append(f"Situación: {continuity['situation']}")
+        evidence = continuity.get("evidence") or []
+        if evidence:
+            lines.append("Evidencia:")
+            for item in evidence[:6]:
+                lines.append(f"   • {item}")
+        if continuity.get("next_useful_step"):
+            lines.append(f"Siguiente paso: {continuity['next_useful_step']}")
+            if continuity.get("next_useful_why"):
+                lines.append(f"   Por qué: {continuity['next_useful_why']}")
+        lines.append("─" * 44)
+
     phase = ctx.get("phase")
-    if phase:
+    # FN-002: when Continuity is present, skip noisy "Fase: completado" — situation covers it.
+    if phase and not continuity.get("situation"):
         lines.append(_PHASE_LABELS.get(phase, f"Fase: {phase}"))
-    lines.append("─" * 44)
 
     status_type = ctx.get("status_type", "no_data")
     icon = _STATUS_ICON.get(status_type, "  ")
@@ -102,40 +148,59 @@ def render_startup_context(ctx: dict) -> str:
     elif status_type == "warning":
         reason = ctx.get("status_reason") or ""
         short = WARNING_SHORT.get(reason, reason) if reason else "warning activo"
-        lines.append(f"{icon}Última simulación: WARNING ({short})") 
-    elif status_type == "nominal":
+        lines.append(f"{icon}Última simulación: WARNING ({short})")
+    elif status_type == "nominal" and not continuity.get("situation"):
         lines.append(f"{icon}Última simulación: OK")
-    else:
+    elif status_type == "no_data" and not continuity.get("situation"):
         lines.append(f"{icon}Sin simulación previa")
 
     active_vars = ctx.get("active_variables") or {}
-    if active_vars:
+    if active_vars and not continuity.get("evidence"):
         var_str = "  ·  ".join(f"{k}={v}" for k, v in active_vars.items())
         lines.append(f"   {var_str}")
 
+    # Secondary signals — only if they don't duplicate the continuity next step
+    continuity_next = (continuity.get("next_useful_step") or "").strip()
     suggested = ctx.get("suggested_action")
-    if suggested:
-        lines.append("")
-        lines.append(f"→  {suggested['label']}")
-        if suggested.get("hint"):
-            lines.append(f"   {suggested['hint']}")
+    if suggested and suggested.get("label"):
+        # Hide optimization suggestion when continuity already chose a higher-priority next
+        if continuity_next and suggested["label"] not in continuity_next:
+            pass  # competing hint — Continuity wins
+        elif not continuity_next:
+            lines.append("")
+            lines.append(f"→  {suggested['label']}")
+            if suggested.get("hint"):
+                lines.append(f"   {suggested['hint']}")
 
-    proactive = ctx.get("proactive_question")
-    if proactive:
-        lines.append("")
-        lines.append(f"?  {proactive}")
-
-    # Architecture progress — shown when the system has a defined architecture.
+    # Architecture progress — compact when Continuity already narrates gaps
     arch_progress = ctx.get("architecture_progress")
     arch_label = ctx.get("next_architecture_label")
     arch_block_status = ctx.get("next_block_status")
-    if arch_progress:
+    if arch_progress and not continuity.get("next_useful_step"):
         lines.append("")
         if arch_label:
             status_tag = " (en progreso)" if arch_block_status == "in_progress" else ""
             lines.append(f"   Arquitectura {arch_progress} — Siguiente: {arch_label}{status_tag}")
         else:
             lines.append(f"   Arquitectura {arch_progress} — completa ✓")
+    elif arch_progress and continuity.get("next_useful_step"):
+        # One quiet line under Continuity
+        if not arch_label:
+            lines.append(f"   Arquitectura {arch_progress} — completa ✓")
+
+    req_lines = ctx.get("physical_requirements_lines") or []
+    if req_lines and not continuity.get("evidence"):
+        lines.append("")
+        lines.append("Requisitos físicos:")
+        for line in req_lines:
+            lines.append(f"   • {line}")
+
+    bom_lines = ctx.get("component_bom_lines") or []
+    if bom_lines and not continuity.get("evidence"):
+        lines.append("")
+        lines.append("Componentes / gaps:")
+        for line in bom_lines:
+            lines.append(f"   {line}")
 
     return "\n".join(lines)
 
@@ -253,6 +318,24 @@ def render_response(result: dict) -> str:
             parts.append("")
             parts.append(next_step_hint)
 
+        # P4 Project Coherence: prefer Continuity footer over raw reasoning dump when present
+        coherence = result.get("coherence_footer") or result.get("continuity")
+        if not coherence:
+            ctx = result.get("startup_context") or {}
+            coherence = ctx.get("continuity")
+        if coherence and (coherence.get("situation") or coherence.get("next_useful_step")):
+            parts.append("")
+            parts.append("─" * 44)
+            if result.get("project_change_summary"):
+                parts.append(f"Cambio: {result['project_change_summary']}")
+            if coherence.get("situation"):
+                parts.append(f"Estado: {coherence['situation']}")
+            if coherence.get("next_useful_step"):
+                parts.append(f"Siguiente paso: {coherence['next_useful_step']}")
+                if coherence.get("next_useful_why"):
+                    parts.append(f"   Por qué: {coherence['next_useful_why']}")
+            return "\n".join(parts)
+
         reasoning = result.get("reasoning")
         if reasoning:
             if reasoning.get("explanation"):
@@ -333,20 +416,37 @@ def run_demo() -> None:
 
 
 def _list_existing_projects(orchestrator: JarvisOrchestrator) -> list[dict]:
-    """Devuelve lista de proyectos existentes con id, slug y timestamp de modificación."""
+    """Devuelve lista de proyectos existentes con id, slug y timestamp de modificación.
+
+    Deduplica por ``project_id`` (keep newest mtime). If several rows share the
+    same slug, the label includes a short id suffix so the CLI list is unambiguous.
+    """
     state_paths = orchestrator.workspace_manager._list_state_paths()
-    projects = []
+    by_id: dict[str, dict] = {}
     for path in sorted(state_paths, key=lambda p: p.stat().st_mtime, reverse=True):
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
-            projects.append({
-                "project_id": data.get("project_id", "?"),
+            pid = str(data.get("project_id") or path.parent.name)
+            if pid in by_id:
+                continue  # newer first — skip older duplicates
+            by_id[pid] = {
+                "project_id": pid,
                 "project_slug": data.get("project_slug", "?"),
                 "objective": data.get("objective", ""),
                 "workspace_path": str(path.parent),
-            })
+            }
         except Exception:
             continue
+    projects = list(by_id.values())
+    slug_counts: dict[str, int] = {}
+    for p in projects:
+        slug_counts[p["project_slug"]] = slug_counts.get(p["project_slug"], 0) + 1
+    for p in projects:
+        if slug_counts.get(p["project_slug"], 0) > 1:
+            short = p["project_id"][:8]
+            p["display_slug"] = f"{p['project_slug']} ({short})"
+        else:
+            p["display_slug"] = p["project_slug"]
     return projects
 
 
@@ -356,7 +456,7 @@ def _print_welcome(projects: list[dict]) -> None:
     if projects:
         print("Proyectos existentes:")
         for i, p in enumerate(projects, 1):
-            label = p["project_slug"]
+            label = p.get("display_slug") or p["project_slug"]
             if p["objective"]:
                 label += f" — {p['objective']}"
             print(f"  {i}. {label}")
@@ -498,10 +598,15 @@ def run_chat() -> None:
                     startup_ctx = orchestrator.build_startup_context()
                     if startup_ctx.get("has_project"):
                         print(f"Jarvis >\n{render_startup_context(startup_ctx)}\n")
-                        if startup_ctx.get("proactive_question"):
+                        # FN-001: only open define wizard when there are real pending params
+                        if should_auto_start_define_on_load(startup_ctx):
                             missing = startup_ctx.get("missing_params") or []
-                            reason = startup_ctx.get("param_definition_reason", DEFAULT_MISSING_FORCE_REASON)
-                            proactive = orchestrator.start_define_missing_params(missing, reason=reason)
+                            reason = startup_ctx.get(
+                                "param_definition_reason", DEFAULT_MISSING_FORCE_REASON
+                            )
+                            proactive = orchestrator.start_define_missing_params(
+                                missing, reason=reason
+                            )
                             print(f"Jarvis > {render_response(proactive)}")
                     else:
                         print(f"Jarvis > {render_response(startup_result)}")
@@ -511,6 +616,7 @@ def run_chat() -> None:
 
         try:
             result = orchestrator.handle_user_text(user_input, llm_interface)
+            result = orchestrator.attach_project_coherence(result)
         except Exception as error:
             print(f"Jarvis > Error interno: {error}")
             continue

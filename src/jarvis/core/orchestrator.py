@@ -42,7 +42,7 @@ from jarvis.core.system_architecture_catalog import (
     get_block_type,
     get_param_reason_for_block,
 )
-from jarvis.schemas.state_schema import HistoryEntry
+from jarvis.schemas.state_schema import HistoryEntry, ProjectState
 from jarvis.memory.memory_manager import MemoryManager
 from jarvis.core.mutation_engine import MutationEngine
 from jarvis.core.planner import Planner, requires_planning
@@ -262,7 +262,18 @@ class JarvisOrchestrator:
 
         # ── Escape: cancel any active session ────────────────────────────────
         if normalized in ESCAPE_WORDS:
-            active_mode = self.state_manager.runtime_state.session.mode
+            session = self.state_manager.runtime_state.session
+            # FN-004: pending structural confirm is active even when mode is IDLE
+            if session.pending_structural_change:
+                self.state_manager.set_runtime_session(
+                    session.model_copy(update={"pending_structural_change": None})
+                )
+                return {
+                    "status": "cancelled",
+                    "action": "structural_confirm",
+                    "message": "Cambio cancelado. El proyecto conserva la configuración anterior.",
+                }
+            active_mode = session.mode
             if active_mode != OrchestratorMode.IDLE:
                 self.state_manager.clear_runtime_session()
                 return {
@@ -305,8 +316,46 @@ class JarvisOrchestrator:
         except ValueError:
             return False
 
+    def _interceptable_component_specs(self, text: str, session: Any) -> list:
+        """Return ComponentSpecs that should route to the component flow (D7-aware).
+
+        Same guards as ``_should_intercept_component``, but recovers *all* components
+        from mixed phrases via ``infer_components``.
+        """
+        _norm_for_guard = self.intent_resolver._normalize_text(text)
+        if self.intent_resolver._resolve_strong_action_intent(_norm_for_guard) is not None:
+            return []
+
+        from jarvis.core.component_inference import infer_components as _si_infer_many
+        from jarvis.domains.aerial import aerial_registry as _si_reg
+
+        _lower = text.lower().lstrip()
+        if _lower.startswith(("que ", "qué ", "cual ", "cuál ", "¿")):
+            return []
+        if self._is_pure_numeric(text):
+            return []
+        if session.mode == OrchestratorMode.CREATE_PROJECT_INTERACTIVE:
+            return []
+        if session.mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS:
+            return []
+        if session.mode == OrchestratorMode.ITERATE_INTERACTIVE:
+            return []
+
+        specs = _si_infer_many(text, registry=_si_reg)
+        accepted: list = []
+        for spec in specs:
+            if spec.suggested_key == "generic_component":
+                continue
+            if not spec.properties:
+                continue
+            if spec.suggested_key == "battery":
+                if not any(u in text.lower() for u in ("mah", "wh", "v", "s")):
+                    continue
+            accepted.append(spec)
+        return accepted
+
     def _should_intercept_component(self, text: str, session: Any) -> "Any | None":
-        """Return ComponentSpec if input should be routed to component flow, else None.
+        """Return first ComponentSpec if input should be routed to component flow, else None.
 
         Routing is based on the *type of input*, not the orchestrator mode.
         Rule: if the user describes a real physical component → always intercept,
@@ -326,46 +375,8 @@ class JarvisOrchestrator:
           (5) mode allows interception    — not CREATE_PROJECT or DEFINE_MISSING
           (6) battery-specific units guard — 'bateria 5000' (no units) must NOT intercept
         """
-        # Bug 68: action commands (simulate, calculate, iterate…) are never component
-        # descriptions. Guard BEFORE calling infer_component to avoid the substring
-        # collision between 'simula' and 'imu' inside SENSOR_TYPE_MAP.
-        _norm_for_guard = self.intent_resolver._normalize_text(text)
-        if self.intent_resolver._resolve_strong_action_intent(_norm_for_guard) is not None:
-            return None
-
-        from jarvis.core.component_inference import infer_component as _si_infer
-        from jarvis.domains.aerial import aerial_registry as _si_reg
-
-        spec = _si_infer(text, registry=_si_reg)
-
-        if spec.suggested_key == "generic_component":
-            return None
-        if not spec.properties:
-            return None
-        # Guard: interrogative phrases are questions, not component declarations.
-        # "que/qué/cuál/cual/¿" at start → comparison/question → let LLM handle it.
-        _lower = text.lower().lstrip()
-        if _lower.startswith(("que ", "qué ", "cual ", "cuál ", "¿")):
-            return None
-        if self._is_pure_numeric(text):
-            return None
-        if session.mode == OrchestratorMode.CREATE_PROJECT_INTERACTIVE:
-            return None
-        if session.mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS:
-            return None
-        # Bug 64: component intercept must not fire inside the iterate wizard.
-        # The iterate wizard owns the input when ITERATE_INTERACTIVE is active;
-        # intercepting here would apply the component but leave the wizard open (zombie state).
-        if session.mode == OrchestratorMode.ITERATE_INTERACTIVE:
-            return None
-
-        # Battery-specific guard: 'bateria 5000' has no units and could mis-route.
-        # Require at least one energy unit keyword (mAh, Wh, V, S) to confirm intent.
-        if spec.suggested_key == "battery":
-            if not any(u in text.lower() for u in ("mah", "wh", "v", "s")):
-                return None
-
-        return spec
+        specs = self._interceptable_component_specs(text, session)
+        return specs[0] if specs else None
 
     # Intents that abort ITERATE_INTERACTIVE and take over the turn (calibration 2026-08-05).
     # project_status / analyze stay as soft interrupts (Bug 7) and are handled earlier.
@@ -430,6 +441,110 @@ class JarvisOrchestrator:
             return existing
         return f"{notice}\n\n{existing}"
 
+    def _consume_structural_confirm(self, user_input: str) -> dict:
+        """FN-004: apply, resume original path, cancel, or re-prompt."""
+        from jarvis.core.param_definition_session import (
+            _STRUCTURAL_AFFIRMATIVES,
+            _STRUCTURAL_NEGATIVES,
+        )
+
+        session = self.state_manager.get_runtime_session()
+        pending = session.pending_structural_change
+        if not pending:
+            return {
+                "status": "error",
+                "action": "structural_confirm",
+                "message": "No hay cambio estructural pendiente.",
+            }
+        normalized = user_input.strip().lower()
+        if normalized in _STRUCTURAL_AFFIRMATIVES:
+            pending_copy = dict(pending)
+            self.state_manager.set_runtime_session(
+                session.model_copy(update={"pending_structural_change": None})
+            )
+            resume_kind = pending_copy.get("resume_kind")
+            if resume_kind == "component":
+                resume_input = pending_copy.get("resume_user_input") or ""
+                expected = list(pending_copy.get("resume_expected_keys") or [])
+                resume_session = self.state_manager.get_runtime_session().model_copy(
+                    update={"pending_missing_params": expected}
+                )
+                return self._handle_component_description(
+                    str(resume_input), resume_session, structural_confirmed=True
+                )
+            if resume_kind == "iterate":
+                draft = pending_copy.get("resume_iteration_draft")
+                if draft:
+                    return self.router.resolve(ActionName.ITERATE).run(
+                        {
+                            "iteration_draft": draft,
+                            "structural_confirmed": True,
+                        }
+                    )
+            updates = {
+                k: float(v) for k, v in (pending_copy.get("updates") or {}).items()
+            }
+            return self.param_definition_session.apply_and_recalculate(
+                updates, confirmed=True
+            )
+        if normalized in _STRUCTURAL_NEGATIVES:
+            self.state_manager.set_runtime_session(
+                session.model_copy(update={"pending_structural_change": None})
+            )
+            return {
+                "status": "cancelled",
+                "action": "structural_confirm",
+                "message": "Cambio cancelado. El proyecto conserva la configuración anterior.",
+            }
+        return {
+            "status": "interactive",
+            "action": "structural_confirm",
+            "message": (
+                f"Pendiente: sustituir {pending.get('param')} "
+                f"{pending.get('from_value')} → {pending.get('to_value')}."
+            ),
+            "question": "Responde sí para aplicar, o no para cancelar.",
+        }
+
+    def attach_project_coherence(self, result: dict) -> dict:
+        """P4: attach Continuity footer after relevant successful operations.
+
+        Project-first responses: what changed / state now / next useful step.
+        No Conversation Engine — thin attach after the fact.
+        """
+        if not isinstance(result, dict):
+            return result
+        if result.get("status") != "ok":
+            return result
+        action_l = str(result.get("action") or "").lower()
+        coherent_actions = {
+            "define_missing_params",
+            ActionName.ITERATE.value,
+            ActionName.CALCULATE.value,
+            ActionName.SIMULATE.value,
+            ActionName.CREATE_PROJECT.value,
+            "component_description_saved",
+            "dse_apply",
+            "apply_exploration_result",
+        }
+        if action_l not in coherent_actions:
+            return result
+        try:
+            ctx = self.build_startup_context()
+        except Exception:  # noqa: BLE001 — footer must never break the main reply
+            return result
+        if not ctx.get("has_project"):
+            return result
+        cont = ctx.get("continuity") or {}
+        if not (cont.get("situation") or cont.get("next_useful_step")):
+            return result
+        return {
+            **result,
+            "startup_context": ctx,
+            "continuity": cont,
+            "coherence_footer": cont,
+        }
+
     def handle_user_text(self, user_input: str, llm_interface) -> dict:
         """U4: wrapper público — delega al procesador interno y persiste el snapshot."""
         result = self._handle_user_text_inner(user_input, llm_interface)
@@ -457,6 +572,12 @@ class JarvisOrchestrator:
         runtime_state = self.state_manager.runtime_state
         current_session = runtime_state.session
 
+        # ── FN-004: pending structural substitution (sí/no) ───────────────────
+        if current_session.pending_structural_change:
+            result = self._consume_structural_confirm(user_input)
+            self._track_turn(user_input, result)
+            return result
+
         # ── Bug 54: consume pending_define_missing confirmation ───────────────
         # If the previous turn showed a proactive "¿Definimos X ahora?" and the
         # user replies affirmatively, open the define_missing wizard immediately.
@@ -478,14 +599,26 @@ class JarvisOrchestrator:
             runtime_state = self.state_manager.runtime_state
             current_session = runtime_state.session
         # ─────────────────────────────────────────────────────────────────────
+        # ── FN-005: "ayúdame a elegir" while IDLE → open assisted motor flow ─
+        from jarvis.core.motor_catalog_assist import is_help_choose_phrase
+
+        if (
+            current_session.mode == OrchestratorMode.IDLE
+            and is_help_choose_phrase(user_input)
+        ):
+            assist = self._try_start_assisted_motor_help()
+            if assist is not None:
+                self._track_turn(user_input, assist)
+                return assist
+        # ─────────────────────────────────────────────────────────────────────
         # ── Global component intercept ────────────────────────────────────────
         # Fires in any mode where the user might describe a physical component.
         # Input type determines routing, not orchestrator mode.
         # See _should_intercept_component for full guard logic.
-        _gi_spec = self._should_intercept_component(user_input, current_session)
-        if _gi_spec is not None:
+        _gi_specs = self._interceptable_component_specs(user_input, current_session)
+        if _gi_specs:
             _gi_session = current_session.model_copy(update={
-                "pending_missing_params": [_gi_spec.suggested_key],
+                "pending_missing_params": [s.suggested_key for s in _gi_specs],
                 "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
             })
             result = self._handle_component_description(user_input, _gi_session)
@@ -562,7 +695,11 @@ class JarvisOrchestrator:
                 result = self._handle_project_status()
                 self._track_turn(user_input, result)
                 return result
-            if _dm_intent == "analyze":
+            # FN-005: "ayúdame a elegir" matches analyze patterns — keep it in the
+            # assisted acquisition wizard instead of LLM analyze.
+            from jarvis.core.motor_catalog_assist import is_help_choose_phrase
+
+            if _dm_intent == "analyze" and not is_help_choose_phrase(user_input):
                 result = self._handle_analyze(user_input, llm_interface)
                 self._track_turn(user_input, result)
                 return result
@@ -707,6 +844,31 @@ class JarvisOrchestrator:
         self, missing_params: list[str], reason: str = DEFAULT_MISSING_FORCE_REASON
     ) -> dict:
         return self.param_definition_session.start(missing_params, reason=reason)
+
+    def _try_start_assisted_motor_help(self) -> dict | None:
+        """FN-005: IDLE help-choose → DEFINE motor_power_w + catalog list.
+
+        Returns None when there is no active project or power is already set.
+        """
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return None
+        params = project_state.current_parameters or {}
+        if params.get("motor_power_w") is not None:
+            return None
+        missing = ["motor_power_w"]
+        if params.get("battery_capacity_wh") is None:
+            constraints = project_state.parsed_constraints or {}
+            autonomy = (
+                constraints.get("autonomy_min")
+                if isinstance(constraints, dict)
+                else None
+            )
+            if autonomy is not None:
+                missing.append("battery_capacity_wh")
+        self.start_define_missing_params(missing, reason=MISSING_ENERGY_PARAMETERS)
+        return self.param_definition_session.offer_catalog_help()
 
     def _track_turn(self, user_input: str, result: dict) -> None:
         """Append user + assistant turns to conversation history (idle mode only)."""
@@ -1002,7 +1164,128 @@ class JarvisOrchestrator:
             return "Describe el componente."
         return _COMPONENT_PROMPTS.get(keys[0], f"Describe el componente: {keys[0]}")
 
-    def _handle_component_description(self, user_input: str, session: Any) -> dict[str, Any]:
+    def _apply_inferred_component_spec(
+        self, project_state: ProjectState, spec: ComponentSpec
+    ) -> tuple[ProjectState, str]:
+        """Write one inferred component and optionally recalculate. Returns (state, msg)."""
+        if spec.suggested_key == "frame":
+            mass_prop = spec.properties.get("mass_kg")
+            mat_prop = spec.properties.get("material")
+            mass_val: float | None = mass_prop.value if mass_prop else None
+            material_val: str | None = mat_prop.value if mat_prop else None
+            updated_state = set_frame_material(project_state, mass_val, material_val)
+            try:
+                params = updated_state.current_parameters or {}
+                calculations = self.calculation_engine.build(params)
+                autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
+                simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
+                updated_state = self.state_manager.record_action(
+                    state=updated_state,
+                    action=HistoryEntry(
+                        action=ActionName.ITERATE,
+                        summary=f"Frame definido: {material_val or '?'} {mass_val or '?'}kg",
+                    ),
+                    latest_results={
+                        "calculations": calculations.model_dump(),
+                        "simulation": simulation.model_dump(),
+                    },
+                )
+            except Exception:  # noqa: BLE001
+                pass
+            parts = []
+            if material_val:
+                parts.append(material_val.replace("_", " "))
+            if mass_val is not None:
+                parts.append(f"{mass_val}kg")
+            desc = " ".join(parts) if parts else "frame"
+            return updated_state, f"Frame registrado: {desc}."
+
+        if spec.suggested_key == "battery":
+            cap_prop = spec.properties.get("battery_capacity_wh")
+            capacity_val: float | None = cap_prop.value if cap_prop else None
+            updated_state = set_battery_component(project_state, spec, capacity_val)
+            try:
+                params = updated_state.current_parameters or {}
+                calculations = self.calculation_engine.build(params)
+                autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
+                simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
+                updated_state = self.state_manager.record_action(
+                    state=updated_state,
+                    action=HistoryEntry(
+                        action=ActionName.ITERATE,
+                        summary=f"Batería definida: {capacity_val}Wh",
+                    ),
+                    latest_results={
+                        "calculations": calculations.model_dump(),
+                        "simulation": simulation.model_dump(),
+                    },
+                )
+            except Exception:  # noqa: BLE001
+                pass
+            saved_msg = (
+                f"Batería registrada: {capacity_val}Wh." if capacity_val else "Batería registrada."
+            )
+            return updated_state, saved_msg
+
+        if spec.suggested_key == "motors":
+            power_prop = spec.properties.get("power_w")
+            power_val: float | None = power_prop.value if power_prop else None
+            updated_state = set_motor_component(project_state, spec, power_val)
+            try:
+                params = updated_state.current_parameters or {}
+                calculations = self.calculation_engine.build(params)
+                autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
+                simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
+                updated_state = self.state_manager.record_action(
+                    state=updated_state,
+                    action=HistoryEntry(
+                        action=ActionName.ITERATE,
+                        summary=f"Motores definidos: {power_val}W" if power_val else "Motores definidos",
+                    ),
+                    latest_results={
+                        "calculations": calculations.model_dump(),
+                        "simulation": simulation.model_dump(),
+                    },
+                )
+            except Exception:  # noqa: BLE001
+                pass
+            saved_msg = (
+                f"Motores registrados: {power_val}W." if power_val else "Motores registrados."
+            )
+            return updated_state, saved_msg
+
+        if spec.suggested_key == "propellers":
+            updated_state = set_propeller_component(project_state, spec)
+            try:
+                params = updated_state.current_parameters or {}
+                calculations = self.calculation_engine.build(params)
+                autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
+                simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
+                updated_state = self.state_manager.record_action(
+                    state=updated_state,
+                    action=HistoryEntry(
+                        action=ActionName.ITERATE,
+                        summary="Hélices definidas",
+                    ),
+                    latest_results={
+                        "calculations": calculations.model_dump(),
+                        "simulation": simulation.model_dump(),
+                    },
+                )
+            except Exception:  # noqa: BLE001
+                pass
+            return updated_state, "Hélices registradas."
+
+        updated_state = set_control_component(project_state, spec)
+        return updated_state, f"{spec.suggested_key.replace('_', ' ').capitalize()} registrado."
+
+    def _handle_component_description(
+        self,
+        user_input: str,
+        session: Any,
+        *,
+        structural_confirmed: bool = False,
+    ) -> dict[str, Any]:
         """Handle user input when mode is DEFINE_MISSING_PARAMETERS and reason is MISSING_COMPONENT_DEFINITION.
 
         Expected component keys for the active block are read from session.pending_missing_params.
@@ -1010,8 +1293,15 @@ class JarvisOrchestrator:
           - matches expected key → dispatch to appropriate writer (_set_frame_material or _set_control_component)
           - does not match       → contextual redirect (no write)
         Affirmative inputs → context-aware prompt based on which components still need defining.
+
+        D7: mixed phrases (``4 motores 920KV, hélices 10x4.5``) save every matched component
+        in one turn via ``infer_components``.
         """
-        from jarvis.core.component_inference import infer_component
+        from jarvis.core.component_inference import infer_component, infer_components
+        from jarvis.core.param_definition_session import (
+            begin_structural_confirm,
+            structural_confirm_needed,
+        )
         from jarvis.domains.aerial import aerial_registry
 
         expected_keys: list[str] = list(session.pending_missing_params or [])
@@ -1031,31 +1321,34 @@ class JarvisOrchestrator:
             msg = self._component_prompt_for_first_missing(keys_to_prompt)
             return {"status": "interactive", "action": "component_description_prompt", "message": msg}
 
-        # ── Try to infer component from freeform description ──────────────────
-        spec = infer_component(user_input, registry=aerial_registry)
+        # ── Infer one or more components from freeform description (D7) ───────
+        specs = infer_components(user_input, registry=aerial_registry)
+        processable = [s for s in specs if s.completeness in ("medium", "high")]
 
-        if spec.completeness in ("medium", "high"):
-            # ── Validate component belongs to the active block ────────────────
-            if expected_keys and spec.suggested_key not in expected_keys:
-                keys_to_prompt = expected_keys
-                try:
-                    project_state = self.state_manager.load_active_project(self.workspace_manager)
-                    components = project_state.design_properties.components
-                    missing_keys = [
-                        k for k in expected_keys
-                        if components.get(k) is None or components[k].completeness == "low"
-                    ]
-                    if missing_keys:
-                        keys_to_prompt = missing_keys
-                except FileNotFoundError:
-                    pass
-                return {
-                    "status": "interactive",
-                    "action": "component_description_prompt",
-                    "message": self._component_prompt_for_first_missing(keys_to_prompt),
-                }
+        if processable:
+            # Keep only specs that belong to the active expected set (when set).
+            if expected_keys:
+                in_scope = [s for s in processable if s.suggested_key in expected_keys]
+                if not in_scope:
+                    keys_to_prompt = expected_keys
+                    try:
+                        project_state = self.state_manager.load_active_project(self.workspace_manager)
+                        components = project_state.design_properties.components
+                        missing_keys = [
+                            k for k in expected_keys
+                            if components.get(k) is None or components[k].completeness == "low"
+                        ]
+                        if missing_keys:
+                            keys_to_prompt = missing_keys
+                    except FileNotFoundError:
+                        pass
+                    return {
+                        "status": "interactive",
+                        "action": "component_description_prompt",
+                        "message": self._component_prompt_for_first_missing(keys_to_prompt),
+                    }
+                processable = in_scope
 
-            # ── Load project ──────────────────────────────────────────────────
             try:
                 project_state = self.state_manager.load_active_project(self.workspace_manager)
             except FileNotFoundError:
@@ -1065,139 +1358,79 @@ class JarvisOrchestrator:
                     "message": "No hay proyecto activo. Crea uno primero.",
                 }
 
-            # ── Dispatch to the correct writer ────────────────────────────────
-            if spec.suggested_key == "frame":
-                mass_prop = spec.properties.get("mass_kg")
-                mat_prop = spec.properties.get("material")
-                mass_val: float | None = mass_prop.value if mass_prop else None
-                material_val: str | None = mat_prop.value if mat_prop else None
-
-                updated_state = set_frame_material(project_state, mass_val, material_val)
-
-                # Recalculate physics with the updated parameters
-                try:
-                    params = updated_state.current_parameters or {}
-                    calculations = self.calculation_engine.build(params)
-                    autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
-                    simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
-                    updated_state = self.state_manager.record_action(
-                        state=updated_state,
-                        action=HistoryEntry(
-                            action=ActionName.ITERATE,
-                            summary=f"Frame definido: {material_val or '?'} {mass_val or '?'}kg",
-                        ),
-                        latest_results={
-                            "calculations": calculations.model_dump(),
-                            "simulation": simulation.model_dump(),
-                        },
-                    )
-                except Exception:  # noqa: BLE001 — recalculation failure must not lose the frame data
-                    pass
-
-                parts = []
-                if material_val:
-                    parts.append(material_val.replace("_", " "))
-                if mass_val is not None:
-                    parts.append(f"{mass_val}kg")
-                desc = " ".join(parts) if parts else "frame"
-                saved_msg = f"Frame registrado: {desc}."
-
-            elif spec.suggested_key == "battery":
-                cap_prop = spec.properties.get("battery_capacity_wh")
-                capacity_val: float | None = cap_prop.value if cap_prop else None
-                updated_state = set_battery_component(project_state, spec, capacity_val)
-
-                # Recalculate physics with the updated parameters
-                try:
-                    params = updated_state.current_parameters or {}
-                    calculations = self.calculation_engine.build(params)
-                    autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
-                    simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
-                    updated_state = self.state_manager.record_action(
-                        state=updated_state,
-                        action=HistoryEntry(
-                            action=ActionName.ITERATE,
-                            summary=f"Batería definida: {capacity_val}Wh",
-                        ),
-                        latest_results={
-                            "calculations": calculations.model_dump(),
-                            "simulation": simulation.model_dump(),
-                        },
-                    )
-                except Exception:  # noqa: BLE001 — recalculation failure must not lose the battery data
-                    pass
-
-                saved_msg = (
-                    f"Batería registrada: {capacity_val}Wh." if capacity_val else "Batería registrada."
+            # FN-004: "4 motores" via component intercept must not silent-replace count
+            if not structural_confirmed:
+                new_count = None
+                for spec in processable:
+                    if spec.suggested_key != "motors":
+                        continue
+                    count_prop = (spec.properties or {}).get("motor_count")
+                    if count_prop is not None and count_prop.value is not None:
+                        try:
+                            new_count = float(count_prop.value)
+                        except (TypeError, ValueError):
+                            new_count = None
+                        break
+                needed = structural_confirm_needed(
+                    project_state.current_parameters, new_count
                 )
-
-            elif spec.suggested_key == "motors":
-                power_prop = spec.properties.get("power_w")
-                power_val: float | None = power_prop.value if power_prop else None
-                updated_state = set_motor_component(project_state, spec, power_val)
-
-                # Recalculate physics with the updated parameters
-                try:
-                    params = updated_state.current_parameters or {}
-                    calculations = self.calculation_engine.build(params)
-                    autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
-                    simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
-                    updated_state = self.state_manager.record_action(
-                        state=updated_state,
-                        action=HistoryEntry(
-                            action=ActionName.ITERATE,
-                            summary=f"Motores definidos: {power_val}W" if power_val else "Motores definidos",
-                        ),
-                        latest_results={
-                            "calculations": calculations.model_dump(),
-                            "simulation": simulation.model_dump(),
-                        },
+                if needed:
+                    old_f, new_f = needed
+                    margin = None
+                    sim = (project_state.latest_results or {}).get("simulation") or {}
+                    if sim.get("safety_margin_ratio") is not None:
+                        margin = float(sim["safety_margin_ratio"])
+                    impact = ""
+                    if margin is not None:
+                        impact = f" Margen de seguridad actual: {margin:.2f}."
+                    return begin_structural_confirm(
+                        self.state_manager,
+                        param="motor_count",
+                        from_value=old_f,
+                        to_value=new_f,
+                        updates={"motor_count": new_f},
+                        impact_note=impact,
+                        resume_kind="component",
+                        resume_user_input=user_input,
+                        resume_expected_keys=list(expected_keys),
                     )
-                except Exception:  # noqa: BLE001 — recalculation failure must not lose the motor data
-                    pass
 
-                saved_msg = (
-                    f"Motores registrados: {power_val}W." if power_val else "Motores registrados."
-                )
-
-            elif spec.suggested_key == "propellers":
-                updated_state = set_propeller_component(project_state, spec)
-
-                # Recalculate physics with the updated parameters
-                try:
-                    params = updated_state.current_parameters or {}
-                    calculations = self.calculation_engine.build(params)
-                    autonomy_threshold = updated_state.parsed_constraints.get("autonomy_min")
-                    simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
-                    updated_state = self.state_manager.record_action(
-                        state=updated_state,
-                        action=HistoryEntry(
-                            action=ActionName.ITERATE,
-                            summary="Hélices definidas",
-                        ),
-                        latest_results={
-                            "calculations": calculations.model_dump(),
-                            "simulation": simulation.model_dump(),
-                        },
+            # D5: track which architecture blocks were incomplete before this write.
+            blocks_before: dict[str, str] = {}
+            params_now = project_state.current_parameters or {}
+            if project_state.design_properties.system_defined:
+                for block in project_state.design_properties.system_priority or []:
+                    blocks_before[block] = self._block_progress_status(
+                        block, project_state.design_properties, params_now
                     )
-                except Exception:  # noqa: BLE001 — recalculation failure must not lose the propeller data
-                    pass
 
-                saved_msg = "Hélices registradas."
-
-            else:
-                # Control components (flight_controller, sensors) and future component types
-                updated_state = set_control_component(project_state, spec)
-                saved_msg = f"{spec.suggested_key.replace('_', ' ').capitalize()} registrado."
+            saved_msgs: list[str] = []
+            updated_state = project_state
+            for spec in processable:
+                updated_state, msg = self._apply_inferred_component_spec(updated_state, spec)
+                saved_msgs.append(msg)
 
             self.workspace_manager.save_state(updated_state)
+            saved_msg = " ".join(saved_msgs)
 
             # U5: validación inline de restricciones — informativo, nunca bloquea
             _violations = self._check_constraint_violations(updated_state)
             if _violations:
                 saved_msg += f" ⚠ {'; '.join(_violations)}"
 
-            # ── Check if all expected components for this block are now complete ─
+            # D5: explicit hint when a block becomes complete outside sequential guidance
+            if blocks_before:
+                newly_complete: list[str] = []
+                params_after = updated_state.current_parameters or {}
+                for block, before in blocks_before.items():
+                    after = self._block_progress_status(
+                        block, updated_state.design_properties, params_after
+                    )
+                    if before != "complete" and after == "complete":
+                        newly_complete.append(self._block_label_for(updated_state, block))
+                if newly_complete:
+                    saved_msg += " ✓ Bloque completado: " + ", ".join(newly_complete) + "."
+
             components = updated_state.design_properties.components
             still_missing = [
                 k for k in expected_keys
@@ -1205,7 +1438,6 @@ class JarvisOrchestrator:
             ]
 
             if not still_missing:
-                # Block complete → advance to next block
                 self._set_pending_next_block()
                 result: dict[str, Any] = {
                     "status": "ok",
@@ -1214,7 +1446,6 @@ class JarvisOrchestrator:
                 }
                 return self._append_arch_progress_hint(result)
 
-            # Block in progress → ask for the next missing component
             follow_up = self._component_prompt_for_first_missing(still_missing)
             return {
                 "status": "ok",
@@ -1223,6 +1454,7 @@ class JarvisOrchestrator:
             }
 
         # ── completeness == "low" → ask targeted follow-up ────────────────────
+        spec = specs[0] if specs else infer_component(user_input, registry=aerial_registry)
         if spec.suggested_key == "flight_controller" and spec.hints:
             msg = spec.hints[0]
         elif spec.suggested_key == "sensors" and spec.hints:
@@ -1468,6 +1700,10 @@ class JarvisOrchestrator:
         calculations = self.calculation_engine.build(canonical_params)
         simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
 
+        # DA2: when components_delta was used, start from updated_project (has
+        # both the new components and derived params); otherwise start from base.
+        base_state_for_save = updated_project if updated_project is not None else project_state
+
         iteration_path = self.workspace_manager.save_iteration_snapshot(
             workspace_path,
             iteration_index,
@@ -1480,6 +1716,8 @@ class JarvisOrchestrator:
                 "params_delta": best.params_delta,
                 "calculations": calculations.model_dump(),
                 "simulation": simulation.model_dump(),
+                "design_properties": base_state_for_save.design_properties.model_dump(),
+                "current_parameters": canonical_params,
             },
         )
 
@@ -1488,9 +1726,6 @@ class JarvisOrchestrator:
             summary=f"DSE apply: {best.label} (goal={exploration.goal_key})",
             artifacts={"iteration": str(iteration_path)},
         )
-        # DA2: when components_delta was used, start from updated_project (has
-        # both the new components and derived params); otherwise start from base.
-        base_state_for_save = updated_project if updated_project is not None else project_state
         updated_state = self.state_manager.record_action(
             state=base_state_for_save.model_copy(update={"current_parameters": canonical_params}),
             action=history_entry,
@@ -1826,6 +2061,88 @@ class JarvisOrchestrator:
                         f"puedes optimizar o simular."
                     )
 
+        # ── Project closure surface (requirements / BOM / energy honesty / D8) ─
+        from jarvis.core.project_closure import (
+            build_component_bom,
+            derive_physical_requirements,
+            energy_model_honesty_note,
+            format_bom_lines,
+            format_requirements_lines,
+        )
+        from jarvis.knowledge.library import default_library
+
+        physical_requirements = derive_physical_requirements(project_state)
+        bom = build_component_bom(project_state)
+        energy_note = energy_model_honesty_note(project_state)
+
+        catalog_matches: list[dict[str, Any]] = []
+        catalog_gap: str | None = None
+        thrust_per = physical_requirements.get("thrust_per_motor_needed_n")
+        kv_hint = None
+        motors_comp = (project_state.design_properties.components or {}).get("motors")
+        if motors_comp is not None:
+            kv_prop = (motors_comp.properties or {}).get("kv_rating")
+            if kv_prop is not None:
+                try:
+                    kv_hint = int(kv_prop.value)
+                except (TypeError, ValueError):
+                    kv_hint = None
+        prop_inch = None
+        params_all = project_state.current_parameters or {}
+        if params_all.get("propeller_diameter_in") is not None:
+            try:
+                prop_inch = float(params_all["propeller_diameter_in"])
+            except (TypeError, ValueError):
+                prop_inch = None
+
+        if thrust_per is not None or kv_hint is not None:
+            matches = default_library.find_motors_for_requirements(
+                min_thrust_n=thrust_per,
+                kv=kv_hint,
+                prop_inch=prop_inch,
+            )
+            catalog_matches = [
+                {
+                    "name": m.name,
+                    "thrust_n": m.thrust_n,
+                    "kv_rating": m.kv_rating,
+                    "weight_g": m.weight_g,
+                    "is_generic": m.is_generic,
+                }
+                for m in matches[:5]
+            ]
+            if not catalog_matches:
+                parts = []
+                if thrust_per is not None:
+                    parts.append(f"empuje ≥ {thrust_per:.1f} N/motor")
+                if kv_hint is not None:
+                    parts.append(f"~{kv_hint}KV")
+                if prop_inch is not None:
+                    parts.append(f"hélice ~{prop_inch:.0f}\"")
+                need = ", ".join(parts) or "requisitos de motor"
+                catalog_gap = (
+                    f"Necesitas {need}; no tengo un motor en el catálogo que cubra ese espacio."
+                )
+
+        from jarvis.core.project_continuity import build_project_continuity
+
+        continuity = build_project_continuity(
+            project_state=project_state,
+            status_type=status_type,
+            status_reason=status_reason,
+            phase=phase_info["phase"],
+            architecture_progress=arch_progress,
+            next_architecture_label=arch_next_label,
+            next_block_status=arch_block_status,
+            proactive_question=proactive_question,
+            suggested_action=suggested_action,
+            physical_requirements=physical_requirements,
+            component_bom=bom,
+            energy_model_note=energy_note,
+            motor_catalog_gap=catalog_gap,
+            motor_catalog_matches=catalog_matches,
+        )
+
         return {
             "has_project": True,
             "project_slug": project_state.project_slug,
@@ -1845,6 +2162,16 @@ class JarvisOrchestrator:
             "next_architecture_block": arch_next_block,
             "next_architecture_label": arch_next_label,
             "next_block_status": arch_block_status,
+            # v1 closure surface
+            "physical_requirements": physical_requirements,
+            "physical_requirements_lines": format_requirements_lines(physical_requirements),
+            "component_bom": bom,
+            "component_bom_lines": format_bom_lines(bom),
+            "energy_model_note": energy_note,
+            "motor_catalog_matches": catalog_matches,
+            "motor_catalog_gap": catalog_gap,
+            # A' Project Continuity — Situation / Evidence / Next useful step
+            "continuity": continuity,
         }
 
     def _build_analyze_context(self, project_state) -> dict[str, Any]:

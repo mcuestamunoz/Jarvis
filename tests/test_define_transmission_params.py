@@ -44,14 +44,14 @@ def _make_blocking_project(tmp_path: Path) -> tuple[JarvisOrchestrator, str]:
 def test_param_question_wheel_radius_is_human_readable():
     orchestrator = JarvisOrchestrator()
     q = orchestrator.param_definition_session.param_question("wheel_radius_m")
-    assert "wheel_radius_m" in q
+    assert "radio" in q.lower()
     assert "0.15" in q
 
 
 def test_param_question_gear_ratio_is_human_readable():
     orchestrator = JarvisOrchestrator()
     q = orchestrator.param_definition_session.param_question("gear_ratio")
-    assert "gear_ratio" in q
+    assert "relación" in q.lower() or "relacion" in q.lower() or "transmisión" in q.lower()
     assert "10" in q
 
 
@@ -124,7 +124,7 @@ def test_start_session_returns_interactive_with_question():
     assert result["status"] == "interactive"
     assert result["action"] == "define_missing_params"
     assert "question" in result
-    assert "wheel_radius_m" in result["question"]
+    assert "radio" in result["question"].lower()
 
 
 def test_start_session_pending_params_stored_in_session():
@@ -172,7 +172,8 @@ def test_answer_skip_phrase_advances_to_next_param():
     assert result["status"] == "interactive"
     # Should NOT be an error — should advance to next param
     assert "error" not in result
-    assert "gear_ratio" in result.get("question", "")
+    q = result.get("question", "").lower()
+    assert "relación" in q or "relacion" in q or "transmisión" in q or "transmision" in q
 
 
 def test_answer_first_param_asks_for_second():
@@ -180,7 +181,8 @@ def test_answer_first_param_asks_for_second():
     orchestrator.start_define_missing_params(["wheel_radius_m", "gear_ratio"])
     result = orchestrator.param_definition_session.answer("0.15")
     assert result["status"] == "interactive"
-    assert "gear_ratio" in result["question"]
+    q = result["question"].lower()
+    assert "relación" in q or "relacion" in q or "transmisión" in q or "transmision" in q
 
 
 def test_answer_first_param_stores_collected_value():
@@ -435,9 +437,15 @@ def test_try_ingest_valid_physics_explicit_param_override(tmp_path: Path):
     })
     result = orchestrator.param_definition_session.try_ingest("6 motores")
     assert result is not None
-    assert result.get("action") == "define_missing_params"
-    assert result.get("status") == "ok"
-    calc = result.get("calculations") or {}
+    # FN-004: substituting an already-defined motor_count asks for confirmation
+    assert result.get("action") == "structural_confirm"
+    assert result.get("status") == "interactive"
+    assert orchestrator.state_manager.get_runtime_session().pending_structural_change
+
+    confirmed = orchestrator.param_definition_session.resolve_structural_confirm("sí")
+    assert confirmed.get("status") == "ok"
+    assert confirmed.get("action") == "define_missing_params"
+    calc = confirmed.get("calculations") or {}
     assert calc.get("motors") == 6
 
 
@@ -455,7 +463,7 @@ def test_try_ingest_motors_only_starts_define_for_thrust(tmp_path: Path):
     assert result is not None
     assert result["status"] == "interactive"
     assert result["action"] == "define_missing_params"
-    assert "per_motor_max_thrust_n" in result["question"]
+    assert "empuje" in result["question"].lower()
     # motor_count persisted
     project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
     assert project_state.current_parameters.get("motor_count") == pytest.approx(4.0)

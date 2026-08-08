@@ -9,6 +9,17 @@ from jarvis.config import ESCAPE_WORDS
 from jarvis.core.calculation_engine import CalculationEngine
 from jarvis.core.component_resolver import resolve_propulsion_parameters
 from jarvis.core.component_writers import set_battery_component, set_motor_component, set_propeller_component
+from jarvis.core.motor_catalog_assist import (
+    ASSISTED_MOTOR_PARAMS,
+    MotorSuggestion,
+    build_motor_catalog_suggestions,
+    format_motor_catalog_suggestions,
+    is_bare_watts_input,
+    is_help_choose_phrase,
+    looks_like_motor_model_text,
+    match_suggestion_by_input,
+    resolve_motor_from_text,
+)
 from jarvis.core.parameter_requirements import (
     DEFAULT_MISSING_FORCE_REASON,
     all_parameter_names,
@@ -25,6 +36,81 @@ from jarvis.core.system_architecture_catalog import COMPONENT_MIRRORED_PARAMS
 from jarvis.workspace.workspace_manager import WorkspaceManager
 
 logger = logging.getLogger(__name__)
+
+_STRUCTURAL_PARAMS = ("motor_count",)
+
+_STRUCTURAL_AFFIRMATIVES = frozenset({
+    "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante",
+    "perfecto", "de acuerdo", "por supuesto", "afirmativo", "vamos",
+    "yes", "confirmo",
+})
+_STRUCTURAL_NEGATIVES = frozenset({
+    "no", "n", "cancelar", "cancela", "cancel", "mejor no", "salir", "abortar", "abort", "exit",
+})
+
+
+def begin_structural_confirm(
+    state_manager: StateManager,
+    *,
+    param: str,
+    from_value: float,
+    to_value: float,
+    updates: dict[str, float],
+    impact_note: str = "",
+    **resume_fields: object,
+) -> dict:
+    """FN-004: park a structural substitution and ask Sí/No before writing.
+
+    Clears ``pending_define_missing`` to avoid the affirmative race that would
+    reopen the define wizard after the user confirms the substitution.
+    """
+    session = state_manager.get_runtime_session()
+    pending: dict = {
+        "param": param,
+        "from_value": from_value,
+        "to_value": to_value,
+        "updates": {k: float(v) for k, v in updates.items()},
+        **resume_fields,
+    }
+    state_manager.set_runtime_session(
+        session.model_copy(
+            update={
+                "pending_structural_change": pending,
+                "pending_define_missing": False,
+            }
+        )
+    )
+    label = "motores" if param == "motor_count" else param
+    return {
+        "status": "interactive",
+        "action": "structural_confirm",
+        "message": (
+            f"El proyecto usa ahora {int(from_value)} {label}. "
+            f"¿Quieres sustituirlos por {int(to_value)}?{impact_note}"
+        ),
+        "question": "Responde sí para aplicar el cambio, o no para cancelar.",
+        "pending_structural_change": pending,
+    }
+
+
+def structural_confirm_needed(
+    current_parameters: dict | None,
+    new_motor_count: float | None,
+) -> tuple[float, float] | None:
+    """Return (old, new) when motor_count would replace an existing different value."""
+    if new_motor_count is None:
+        return None
+    if not current_parameters or current_parameters.get("motor_count") is None:
+        return None
+    try:
+        old_f = float(current_parameters["motor_count"])
+        new_f = float(new_motor_count)
+    except (TypeError, ValueError):
+        return None
+    if old_f == new_f:
+        return None
+    return old_f, new_f
+
 
 # Bug 77: phrases that indicate the user wants to skip/defer a parameter.
 # Detected before the numeric parse error so the wizard doesn't block.
@@ -71,6 +157,34 @@ def _make_motor_spec(power_w: float) -> ComponentSpec:
                 value=power_w, unit="W", confidence=0.9, source="declared"
             )
         },
+    )
+
+
+def _make_motor_spec_from_catalog(suggestion: dict) -> ComponentSpec:
+    """Rich motor spec from a D8 catalog pick (power + thrust + kv + weight)."""
+    watts = float(suggestion["max_watts"])
+    props = {
+        "power_w": PropertyValue(
+            value=watts, unit="W", confidence=0.9, source="declared"
+        ),
+        "thrust_n": PropertyValue(
+            value=float(suggestion["thrust_n"]), unit="N", confidence=0.9, source="declared"
+        ),
+        "kv_rating": PropertyValue(
+            value=int(suggestion["kv_rating"]), confidence=0.9, source="declared"
+        ),
+        "weight_g": PropertyValue(
+            value=float(suggestion["weight_g"]), unit="g", confidence=0.9, source="declared"
+        ),
+    }
+    return ComponentSpec(
+        name=str(suggestion.get("name") or f"motor_{int(watts)}W"),
+        component_type="propulsion_active",
+        suggested_key="motors",
+        inference_confidence=0.95,
+        completeness="high",
+        source="declared",
+        properties=props,
     )
 
 
@@ -122,20 +236,211 @@ class ParamDefinitionSession:
                 "action": "define_missing_params",
                 "message": "No hay parámetros pendientes.",
             }
+        suggestions: list[dict] = []
+        first = missing_params[0]
+        if first in ASSISTED_MOTOR_PARAMS:
+            suggestions = self._catalog_suggestions_for_active_project()
         session = InteractiveSessionState(
             mode=OrchestratorMode.DEFINE_MISSING_PARAMETERS,
             step=0,
             pending_param_definitions=list(missing_params),
             collected_params={},
             param_definition_reason=reason,
+            motor_suggestions=suggestions,
         )
         self.state_manager.set_runtime_session(session)
         return {
             "status": "interactive",
             "action": "define_missing_params",
-            "question": self.param_question(missing_params[0]),
+            "question": self._question_for_param(first, suggestions),
             "pending": list(missing_params),
+            "motor_suggestions": suggestions,
         }
+
+    def _catalog_suggestions_for_active_project(self) -> list[MotorSuggestion]:
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return []
+        return build_motor_catalog_suggestions(project_state)
+
+    def _question_for_param(self, param: str, suggestions: list[dict] | None = None) -> str:
+        from jarvis.core.parameter_requirements import param_question_with_context
+        from jarvis.core.project_closure import derive_physical_requirements
+
+        thrust_hint = None
+        try:
+            state = self.state_manager.load_active_project(self.workspace_manager)
+            thrust_hint = derive_physical_requirements(state).get("thrust_per_motor_needed_n")
+        except FileNotFoundError:
+            pass
+        return param_question_with_context(
+            param, suggestions=suggestions, thrust_hint_n=thrust_hint
+        )
+
+    def _offer_catalog_help(self, session: InteractiveSessionState, pending: list[str]) -> dict:
+        suggestions = self._catalog_suggestions_for_active_project()
+        updated = session.model_copy(update={"motor_suggestions": suggestions})
+        self.state_manager.set_runtime_session(updated)
+        if not suggestions:
+            return {
+                "status": "interactive",
+                "action": "define_missing_params",
+                "message": format_motor_catalog_suggestions([]),
+                "question": self._question_for_param(pending[0], []),
+                "pending": list(pending),
+                "motor_suggestions": [],
+            }
+        return {
+            "status": "interactive",
+            "action": "define_missing_params",
+            "message": format_motor_catalog_suggestions(suggestions),
+            "question": "Elige un número de la lista, o indica W a mano.",
+            "pending": list(pending),
+            "motor_suggestions": suggestions,
+        }
+
+    def offer_catalog_help(self) -> dict:
+        """FN-006: session-level public entry point for catalog assistance.
+
+        Resolves the active runtime session and its pending param definitions
+        internally, then delegates to the existing worker.
+        """
+        session = self.state_manager.get_runtime_session()
+        pending = list(session.pending_param_definitions)
+        return self._offer_catalog_help(session, pending)
+
+    def _apply_catalog_motor_pick(
+        self, suggestion: MotorSuggestion, session: InteractiveSessionState, pending: list[str]
+    ) -> dict:
+        """Apply a catalog pick: power bridge + rich motors component, then continue wizard."""
+        watts = float(suggestion["max_watts"])
+        collected = {**session.collected_params, "motor_power_w": watts}
+        remaining = [p for p in pending if p != "motor_power_w"]
+
+        # Persist rich motor component before/with recalc
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+            spec = _make_motor_spec_from_catalog(suggestion)
+            project_state = set_motor_component(project_state, spec, watts)
+            # Keep thrust available for physics when possible
+            params = dict(project_state.current_parameters or {})
+            if params.get("per_motor_max_thrust_n") is None:
+                params["per_motor_max_thrust_n"] = float(suggestion["thrust_n"])
+                project_state = project_state.model_copy(update={"current_parameters": params})
+            self.workspace_manager.save_state(project_state)
+        except FileNotFoundError:
+            pass
+
+        if remaining:
+            next_suggestions = (
+                self._catalog_suggestions_for_active_project()
+                if remaining[0] in ASSISTED_MOTOR_PARAMS
+                else []
+            )
+            updated = session.model_copy(
+                update={
+                    "pending_param_definitions": remaining,
+                    "collected_params": collected,
+                    "motor_suggestions": next_suggestions,
+                }
+            )
+            self.state_manager.set_runtime_session(updated)
+            return {
+                "status": "interactive",
+                "action": "define_missing_params",
+                "message": (
+                    f"Motor elegido: {suggestion['name']} "
+                    f"(~{int(watts)}W, {suggestion['thrust_n']}N)."
+                ),
+                "question": self._question_for_param(remaining[0], next_suggestions),
+                "pending": remaining,
+                "project_change_summary": f"motor → {suggestion['name']} (~{int(watts)}W)",
+            }
+
+        self.state_manager.clear_runtime_session()
+        # Rich motors component already saved — do not re-bridge motor_power_w via
+        # the minimal _make_motor_spec writer (would wipe thrust/kv/weight).
+        other_updates = {k: v for k, v in collected.items() if k != "motor_power_w"}
+        result = self.apply_and_recalculate(other_updates, confirmed=True)
+        result["project_change_summary"] = (
+            f"motor → {suggestion['name']} (~{int(watts)}W)"
+        )
+        result["message"] = (
+            f"Motor elegido: {suggestion['name']} (~{int(watts)}W, "
+            f"{suggestion['thrust_n']}N). Sistema recalculado."
+        )
+        return result
+
+    def _answer_assisted_motor(
+        self,
+        user_input: str,
+        session: InteractiveSessionState,
+        pending: list[str],
+        suggestions: list[MotorSuggestion],
+    ) -> dict | None:
+        """FN-005/FN-006: catalog help / pick / model while defining motor power.
+
+        Returns ``None`` when nothing in the assisted-motor branch matched, so
+        the caller falls through to the generic numeric/keyword parsing in
+        ``answer()``.
+        """
+        current = pending[0]
+        if is_help_choose_phrase(user_input):
+            return self.offer_catalog_help()
+        picked = match_suggestion_by_input(user_input, suggestions) if suggestions else None
+        if picked is None:
+            # Also try against fresh catalog (inline numbers from start, or full library name)
+            fresh = suggestions or self._catalog_suggestions_for_active_project()
+            picked = match_suggestion_by_input(user_input, fresh)
+            if picked is None:
+                picked = resolve_motor_from_text(user_input)
+        if picked is not None:
+            return self._apply_catalog_motor_pick(picked, session, pending)
+        # Decline catalog → re-ask for manual W
+        _norm = unicodedata.normalize("NFC", user_input.strip().lower())
+        if _norm in {"no", "n", "ninguno", "ninguna"} and suggestions:
+            cleared = session.model_copy(update={"motor_suggestions": []})
+            self.state_manager.set_runtime_session(cleared)
+            return {
+                "status": "interactive",
+                "action": "define_missing_params",
+                "message": "De acuerdo. Indica la potencia aproximada en W.",
+                "question": self._question_for_param(current, []),
+                "pending": list(pending),
+            }
+        # Model-like text that didn't resolve — never scrape MN3508 as watts
+        if looks_like_motor_model_text(user_input) and not is_bare_watts_input(user_input):
+            return {
+                "status": "interactive",
+                "action": "define_missing_params",
+                "error": (
+                    f"No encuentro el motor '{user_input.strip()}' en el catálogo. "
+                    "Elige un número de la lista, indica W (ej: 350), "
+                    "o di 'ayúdame a elegir'."
+                ),
+                "question": self._question_for_param(current, suggestions),
+                "pending": list(pending),
+            }
+        # Only accept numeric power when input is bare watts or keyword+number
+        if not is_bare_watts_input(user_input):
+            bidir = self.parse_params_bidir(user_input, ["motor_power_w"])
+            if "motor_power_w" not in bidir:
+                # Digits embedded with letters without potencia keyword → refuse
+                if self.parse_floats_from_input(user_input) and re.search(
+                    r"[a-záéíóúñA-ZÁÉÍÓÚÑ]", user_input
+                ):
+                    return {
+                        "status": "interactive",
+                        "action": "define_missing_params",
+                        "error": (
+                            "No reconozco ese valor como potencia en W ni como modelo "
+                            "de catálogo. Ejemplo: 350  ·  o  'ayúdame a elegir'."
+                        ),
+                        "question": self._question_for_param(current, suggestions),
+                        "pending": list(pending),
+                    }
+        return None
 
     def answer(self, user_input: str) -> dict:
         session = self.state_manager.get_runtime_session()
@@ -153,6 +458,15 @@ class ParamDefinitionSession:
             self.state_manager.clear_runtime_session()
             return {"status": "ok", "action": "define_missing_params", "message": "Sesión ya completada."}
 
+        current = pending[0]
+        suggestions = list(session.motor_suggestions or [])
+
+        # FN-005/FN-006: catalog help / pick / model while defining motor power
+        if current in ASSISTED_MOTOR_PARAMS:
+            assisted_result = self._answer_assisted_motor(user_input, session, pending, suggestions)
+            if assisted_result is not None:
+                return assisted_result
+
         values = self.parse_floats_from_input(user_input)
         if not values:
             _normalized = unicodedata.normalize("NFC", user_input.strip().lower())
@@ -160,7 +474,7 @@ class ParamDefinitionSession:
                 return {
                     "status": "interactive",
                     "action": "define_missing_params",
-                    "question": self.param_question(pending[0]),
+                    "question": self._question_for_param(pending[0], suggestions),
                 }
             # Bug 77: skip phrases — user wants to defer the current parameter.
             # Remove it from pending and continue; apply_and_recalculate is called
@@ -168,24 +482,35 @@ class ParamDefinitionSession:
             if _normalized in _SKIP_PHRASES:
                 remaining = pending[1:]
                 if remaining:
+                    next_sugg = (
+                        self._catalog_suggestions_for_active_project()
+                        if remaining[0] in ASSISTED_MOTOR_PARAMS
+                        else []
+                    )
                     updated_session = session.model_copy(
-                        update={"pending_param_definitions": remaining}
+                        update={
+                            "pending_param_definitions": remaining,
+                            "motor_suggestions": next_sugg,
+                        }
                     )
                     self.state_manager.set_runtime_session(updated_session)
                     return {
                         "status": "interactive",
                         "action": "define_missing_params",
                         "message": f"Parámetro '{pending[0]}' omitido — puedes definirlo después.",
-                        "question": self.param_question(remaining[0]),
+                        "question": self._question_for_param(remaining[0], next_sugg),
                     }
                 # All params processed (some skipped) — apply whatever was collected.
                 self.state_manager.clear_runtime_session()
                 return self.apply_and_recalculate(session.collected_params)
+            hint = ""
+            if current in ASSISTED_MOTOR_PARAMS:
+                hint = " Puedes dar W, un modelo, o decir 'ayúdame a elegir'."
             return {
                 "status": "interactive",
                 "action": "define_missing_params",
-                "error": f"No reconozco '{user_input}' como número. Escribe un valor numérico.",
-                "question": self.param_question(pending[0]),
+                "error": f"No reconozco '{user_input}' como valor.{hint}",
+                "question": self._question_for_param(pending[0], suggestions),
             }
 
         keyword_matches = self.parse_params_bidir(user_input, pending)
@@ -203,17 +528,23 @@ class ParamDefinitionSession:
             remaining = pending[consumed:]
 
         if remaining:
+            next_sugg = (
+                self._catalog_suggestions_for_active_project()
+                if remaining[0] in ASSISTED_MOTOR_PARAMS
+                else []
+            )
             updated_session = session.model_copy(
                 update={
                     "pending_param_definitions": remaining,
                     "collected_params": collected,
+                    "motor_suggestions": next_sugg,
                 }
             )
             self.state_manager.set_runtime_session(updated_session)
             return {
                 "status": "interactive",
                 "action": "define_missing_params",
-                "question": self.param_question(remaining[0]),
+                "question": self._question_for_param(remaining[0], next_sugg),
             }
 
         self.state_manager.clear_runtime_session()
@@ -267,7 +598,9 @@ class ParamDefinitionSession:
             return self.apply_and_recalculate(parsed)
         return None
 
-    def apply_and_recalculate(self, param_updates: dict[str, float]) -> dict:
+    def apply_and_recalculate(
+        self, param_updates: dict[str, float], *, confirmed: bool = False
+    ) -> dict:
         # K2: normalizar alias de motor count antes de procesar.
         # Cubre callers externos que pasen 'motors' en vez de 'motor_count'.
         # Nota: no usar {**d, key: d.pop(key)} — el ** spread ocurre antes del pop.
@@ -282,6 +615,33 @@ class ParamDefinitionSession:
                 "action": "define_missing_params",
                 "message": "No hay proyecto activo para aplicar los parámetros.",
             }
+
+        # FN-004: conscious substitution for structural params already defined
+        if not confirmed:
+            for key in _STRUCTURAL_PARAMS:
+                if key not in param_updates:
+                    continue
+                needed = structural_confirm_needed(
+                    project_state.current_parameters, param_updates.get(key)
+                )
+                if not needed:
+                    continue
+                old_f, new_f = needed
+                margin = None
+                sim = (project_state.latest_results or {}).get("simulation") or {}
+                if sim.get("safety_margin_ratio") is not None:
+                    margin = float(sim["safety_margin_ratio"])
+                impact = ""
+                if margin is not None:
+                    impact = f" Margen de seguridad actual: {margin:.2f}."
+                return begin_structural_confirm(
+                    self.state_manager,
+                    param=key,
+                    from_value=old_f,
+                    to_value=new_f,
+                    updates={k: float(v) for k, v in param_updates.items()},
+                    impact_note=impact,
+                )
 
         # === MIRRORED PARAM CONTRACT — punto de aplicación ===
         # Los params en COMPONENT_MIRRORED_PARAMS no se escriben directamente
@@ -340,6 +700,8 @@ class ParamDefinitionSession:
                 "params": {**bridged_updates, **filtered_updates},
                 "calculations": calculations.model_dump(),
                 "simulation": simulation.model_dump(),
+                "design_properties": project_state.design_properties.model_dump(),
+                "current_parameters": updated_params,
             },
         )
 
@@ -368,6 +730,21 @@ class ParamDefinitionSession:
         )
         self.workspace_manager.render_views(workspace_path, updated_state)
 
+        # Clear any pending structural confirmation
+        session = self.state_manager.get_runtime_session()
+        if session.pending_structural_change:
+            self.state_manager.set_runtime_session(
+                session.model_copy(update={"pending_structural_change": None})
+            )
+
+        change_bits = []
+        for k, v in all_written.items():
+            if k == "motor_count":
+                change_bits.append(f"motores → {int(v)}")
+            else:
+                change_bits.append(f"{k}={v}")
+        change_summary = ", ".join(change_bits) if change_bits else param_str
+
         return {
             "status": "ok",
             "action": "define_missing_params",
@@ -375,6 +752,51 @@ class ParamDefinitionSession:
             "calculations": calculations.model_dump(),
             "simulation": simulation.model_dump(),
             "project_id": project_state.project_id,
+            "project_change_summary": change_summary,
+        }
+
+    def resolve_structural_confirm(self, user_input: str) -> dict | None:
+        """FN-004: sí/no for pending substitution (param-only resume).
+
+        When pending has ``resume_kind`` (component / iterate), the orchestrator
+        must handle affirmation — this method only clears + applies param updates
+        or cancels / re-prompts.
+        """
+        session = self.state_manager.get_runtime_session()
+        pending = session.pending_structural_change
+        if not pending:
+            return None
+        normalized = user_input.strip().lower()
+        if normalized in _STRUCTURAL_AFFIRMATIVES:
+            if pending.get("resume_kind"):
+                # Orchestrator resumes the original path; signal via special status.
+                return {
+                    "status": "structural_resume",
+                    "action": "structural_confirm",
+                    "pending_structural_change": pending,
+                }
+            updates = {k: float(v) for k, v in (pending.get("updates") or {}).items()}
+            self.state_manager.set_runtime_session(
+                session.model_copy(update={"pending_structural_change": None})
+            )
+            return self.apply_and_recalculate(updates, confirmed=True)
+        if normalized in _STRUCTURAL_NEGATIVES:
+            self.state_manager.set_runtime_session(
+                session.model_copy(update={"pending_structural_change": None})
+            )
+            return {
+                "status": "cancelled",
+                "action": "structural_confirm",
+                "message": "Cambio cancelado. El proyecto conserva la configuración anterior.",
+            }
+        return {
+            "status": "interactive",
+            "action": "structural_confirm",
+            "message": (
+                f"Pendiente: sustituir {pending.get('param')} "
+                f"{pending.get('from_value')} → {pending.get('to_value')}."
+            ),
+            "question": "Responde sí para aplicar, o no para cancelar.",
         }
 
     def param_question(self, param: str) -> str:

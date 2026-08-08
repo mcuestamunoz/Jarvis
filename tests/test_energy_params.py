@@ -290,15 +290,17 @@ def test_build_startup_context_transmission_returns_param_definition_reason(tmp_
 def test_param_question_battery_capacity_is_human_readable():
     o = JarvisOrchestrator()
     q = o.param_definition_session.param_question("battery_capacity_wh")
-    assert "battery_capacity_wh" in q
+    assert "bater" in q.lower() or "capacidad" in q.lower()
     assert "2000" in q
 
 
 def test_param_question_motor_power_is_human_readable():
     o = JarvisOrchestrator()
     q = o.param_definition_session.param_question("motor_power_w")
-    assert "motor_power_w" in q
-    assert "50" in q
+    assert "potencia" in q.lower()
+    assert "ayúdame a elegir" in q.lower() or "ayudame a elegir" in q.lower()
+    # Internal key must not be the hero of the prompt
+    assert "(motor_power_w)" not in q
 
 
 # ── _parse_params_from_keywords ───────────────────────────────────────────────

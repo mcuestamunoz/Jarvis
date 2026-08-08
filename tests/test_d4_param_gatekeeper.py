@@ -76,7 +76,9 @@ class TestParamGatekeeper:
         orchestrator = JarvisOrchestrator(workspace_root=tmp_path)
         _create_drone_project(orchestrator)
 
-        result = orchestrator.param_definition_session.apply_and_recalculate({"motor_count": 6.0})
+        result = orchestrator.param_definition_session.apply_and_recalculate(
+            {"motor_count": 6.0}, confirmed=True
+        )
 
         saved = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
         assert (saved.current_parameters or {}).get("motor_count") == pytest.approx(6.0)
@@ -113,7 +115,9 @@ class TestParamGatekeeper:
         orchestrator = JarvisOrchestrator(workspace_root=tmp_path)
         _create_drone_project(orchestrator)
 
-        result = orchestrator.param_definition_session.apply_and_recalculate({"motors": 6.0})
+        result = orchestrator.param_definition_session.apply_and_recalculate(
+            {"motors": 6.0}, confirmed=True
+        )
 
         saved = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
         assert result["status"] == "ok"

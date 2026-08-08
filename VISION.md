@@ -39,5 +39,19 @@ El conocimiento de mercado (catálogos, proveedores) puede evolucionar aparte.
 
 Probar, en uso real, que ese contrato aguanta: crear un sistema, definirlo por componentes, calcular, simular, iterar y explorar alternativas — con un núcleo en el que se puede confiar.
 
+## Hacia v1 usable
+
+Cerrar un proyecto aéreo con *pass + requisitos + gaps/BOM*, sin ambigüedad. Detalle: [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md).
+
+## Project Continuity → Project Coherence
+
+Jarvis no acompaña “fases”. El **proyecto** es el protagonista:
+
+- Al **reabrir**: situación / evidencia / un siguiente paso útil (A').
+- En **toda** la conversación: las operaciones no sustituyen al proyecto — **Project Coherence**. Tras cada operación relevante debe quedar claro qué cambió, cómo está el proyecto ahora y cuál es la siguiente decisión útil.
+
+Regla y field notes: [docs/PROJECT_CONTINUITY.md](docs/PROJECT_CONTINUITY.md).
+No construir aún un “Conversation Engine”: descubrir con uso real en CLI.
+
 Si dentro de cinco años lees esto, la pregunta sigue siendo la misma:  
 **¿Jarvis sigue siendo el lugar donde la física no se negocia?**

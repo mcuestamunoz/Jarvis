@@ -55,6 +55,8 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 | Doc | Role |
 |-----|------|
 | [VISION.md](VISION.md) | Product contract (non-technical) |
+| [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md) | v1 usable — when a project is “done” |
+| [docs/PROJECT_CONTINUITY.md](docs/PROJECT_CONTINUITY.md) | A' — Situation / Evidence / Next useful step |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the system is built |
 | [docs/IMPLEMENTATION_TASKS.md](docs/IMPLEMENTATION_TASKS.md) | Roadmap, gaps, technical debt |
 | [src/jarvis/README.md](src/jarvis/README.md) | Deeper product / flow reference |

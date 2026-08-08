@@ -4,41 +4,162 @@
     "kv_rating": 1100,
     "weight_g": 62,
     "max_watts": 280,
-    "compatible_prop_inch": [10, 11]
+    "compatible_prop_inch": [10, 11],
+    "design_space": {"min_thrust_n": 10.0, "max_thrust_n": 15.0, "kv_min": 950, "kv_max": 1250}
   },
   "t-motor_mn3110_700": {
     "thrust_n": 14.0,
     "kv_rating": 700,
     "weight_g": 102,
     "max_watts": 350,
-    "compatible_prop_inch": [12, 13]
+    "compatible_prop_inch": [12, 13],
+    "design_space": {"min_thrust_n": 11.0, "max_thrust_n": 18.0, "kv_min": 550, "kv_max": 850}
   },
   "emax_rs2205_2300": {
     "thrust_n": 8.0,
     "kv_rating": 2300,
     "weight_g": 30,
     "max_watts": 250,
-    "compatible_prop_inch": [5]
+    "compatible_prop_inch": [5],
+    "design_space": {"min_thrust_n": 6.0, "max_thrust_n": 10.0, "kv_min": 2100, "kv_max": 2500}
   },
   "sunnysky_x2212_980": {
     "thrust_n": 11.0,
     "kv_rating": 980,
     "weight_g": 58,
     "max_watts": 260,
-    "compatible_prop_inch": [10, 11]
+    "compatible_prop_inch": [10, 11],
+    "design_space": {"min_thrust_n": 9.0, "max_thrust_n": 13.5, "kv_min": 850, "kv_max": 1100}
   },
   "t-motor_mn4014_400": {
     "thrust_n": 22.0,
     "kv_rating": 400,
     "weight_g": 175,
     "max_watts": 550,
-    "compatible_prop_inch": [15, 16]
+    "compatible_prop_inch": [15, 16],
+    "design_space": {"min_thrust_n": 18.0, "max_thrust_n": 28.0, "kv_min": 300, "kv_max": 500}
   },
   "generic_920kv": {
     "thrust_n": 10.0,
     "kv_rating": 920,
     "weight_g": 65,
     "max_watts": 220,
-    "compatible_prop_inch": [10]
+    "compatible_prop_inch": [10],
+    "is_generic": true,
+    "design_space": {"min_thrust_n": 8.0, "max_thrust_n": 12.0, "kv_min": 800, "kv_max": 1050}
+  },
+  "brotherhobby_avenger_2500": {
+    "thrust_n": 9.5,
+    "kv_rating": 2500,
+    "weight_g": 32,
+    "max_watts": 280,
+    "compatible_prop_inch": [5],
+    "design_space": {"min_thrust_n": 7.5, "max_thrust_n": 11.5, "kv_min": 2300, "kv_max": 2700}
+  },
+  "t-motor_f80_2400": {
+    "thrust_n": 12.0,
+    "kv_rating": 2400,
+    "weight_g": 36,
+    "max_watts": 320,
+    "compatible_prop_inch": [5, 6],
+    "design_space": {"min_thrust_n": 9.0, "max_thrust_n": 14.0, "kv_min": 2200, "kv_max": 2600}
+  },
+  "sunnysky_v4006_740": {
+    "thrust_n": 16.0,
+    "kv_rating": 740,
+    "weight_g": 85,
+    "max_watts": 400,
+    "compatible_prop_inch": [12, 13],
+    "design_space": {"min_thrust_n": 13.0, "max_thrust_n": 20.0, "kv_min": 600, "kv_max": 900}
+  },
+  "t-motor_mn5008_340": {
+    "thrust_n": 28.0,
+    "kv_rating": 340,
+    "weight_g": 195,
+    "max_watts": 700,
+    "compatible_prop_inch": [17, 18],
+    "design_space": {"min_thrust_n": 22.0, "max_thrust_n": 35.0, "kv_min": 280, "kv_max": 420}
+  },
+  "emax_eco_ii_2207_1700": {
+    "thrust_n": 14.5,
+    "kv_rating": 1700,
+    "weight_g": 38,
+    "max_watts": 350,
+    "compatible_prop_inch": [6, 7],
+    "design_space": {"min_thrust_n": 11.0, "max_thrust_n": 17.0, "kv_min": 1550, "kv_max": 1850}
+  },
+  "hobbywing_xrotor_2207_2450": {
+    "thrust_n": 11.5,
+    "kv_rating": 2450,
+    "weight_g": 34,
+    "max_watts": 300,
+    "compatible_prop_inch": [5],
+    "design_space": {"min_thrust_n": 9.0, "max_thrust_n": 13.5, "kv_min": 2250, "kv_max": 2650}
+  },
+  "t-motor_antigravity_mn4006_380": {
+    "thrust_n": 20.0,
+    "kv_rating": 380,
+    "weight_g": 160,
+    "max_watts": 500,
+    "compatible_prop_inch": [15, 16],
+    "design_space": {"min_thrust_n": 16.0, "max_thrust_n": 25.0, "kv_min": 300, "kv_max": 480}
+  },
+  "sunnysky_r2305_2500": {
+    "thrust_n": 7.5,
+    "kv_rating": 2500,
+    "weight_g": 28,
+    "max_watts": 220,
+    "compatible_prop_inch": [5],
+    "design_space": {"min_thrust_n": 6.0, "max_thrust_n": 9.5, "kv_min": 2300, "kv_max": 2700}
+  },
+  "generic_1500kv": {
+    "thrust_n": 13.0,
+    "kv_rating": 1500,
+    "weight_g": 55,
+    "max_watts": 300,
+    "compatible_prop_inch": [7, 8],
+    "is_generic": true,
+    "design_space": {"min_thrust_n": 10.0, "max_thrust_n": 16.0, "kv_min": 1350, "kv_max": 1650}
+  },
+  "generic_700kv": {
+    "thrust_n": 15.0,
+    "kv_rating": 700,
+    "weight_g": 95,
+    "max_watts": 350,
+    "compatible_prop_inch": [12],
+    "is_generic": true,
+    "design_space": {"min_thrust_n": 12.0, "max_thrust_n": 19.0, "kv_min": 550, "kv_max": 850}
+  },
+  "t-motor_u8_170": {
+    "thrust_n": 45.0,
+    "kv_rating": 170,
+    "weight_g": 250,
+    "max_watts": 900,
+    "compatible_prop_inch": [22, 24],
+    "design_space": {"min_thrust_n": 35.0, "max_thrust_n": 55.0, "kv_min": 130, "kv_max": 220}
+  },
+  "sunnysky_x2820_900": {
+    "thrust_n": 18.0,
+    "kv_rating": 900,
+    "weight_g": 110,
+    "max_watts": 450,
+    "compatible_prop_inch": [11, 12],
+    "design_space": {"min_thrust_n": 14.0, "max_thrust_n": 22.0, "kv_min": 750, "kv_max": 1050}
+  },
+  "emax_mt2216_810": {
+    "thrust_n": 12.0,
+    "kv_rating": 810,
+    "weight_g": 70,
+    "max_watts": 280,
+    "compatible_prop_inch": [10, 11],
+    "design_space": {"min_thrust_n": 9.5, "max_thrust_n": 15.0, "kv_min": 700, "kv_max": 950}
+  },
+  "brotherhobby_returner_r5_2700": {
+    "thrust_n": 10.0,
+    "kv_rating": 2700,
+    "weight_g": 31,
+    "max_watts": 260,
+    "compatible_prop_inch": [5],
+    "design_space": {"min_thrust_n": 8.0, "max_thrust_n": 12.0, "kv_min": 2500, "kv_max": 2900}
   }
 }

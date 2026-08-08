@@ -145,6 +145,37 @@ class IterateAction:
         updated_parameters = self._apply_mutation_to_parameters(project_state.current_parameters, mutated_state)
         updated_design_properties = self._apply_design_property_mutation(project_state.design_properties, mutated_state)
 
+        # FN-004: substituting defined motor_count requires explicit Sí/No
+        if not parameters.get("structural_confirmed"):
+            from jarvis.core.param_definition_session import (
+                begin_structural_confirm,
+                structural_confirm_needed,
+            )
+
+            needed = structural_confirm_needed(
+                project_state.current_parameters,
+                updated_parameters.get("motor_count"),
+            )
+            if needed:
+                old_f, new_f = needed
+                margin = None
+                sim = (project_state.latest_results or {}).get("simulation") or {}
+                if isinstance(sim, dict) and sim.get("safety_margin_ratio") is not None:
+                    margin = float(sim["safety_margin_ratio"])
+                impact_note = ""
+                if margin is not None:
+                    impact_note = f" Margen de seguridad actual: {margin:.2f}."
+                return begin_structural_confirm(
+                    self.state_manager,
+                    param="motor_count",
+                    from_value=old_f,
+                    to_value=new_f,
+                    updates={"motor_count": new_f},
+                    impact_note=impact_note,
+                    resume_kind="iterate",
+                    resume_iteration_draft=draft.model_dump(),
+                )
+
         # Resolve propulsion overrides from declarative component specs (ephemeral — not persisted)
         propulsion_override = resolve_propulsion_parameters(
             {k: v.model_dump() for k, v in project_state.design_properties.components.items()}
@@ -189,6 +220,8 @@ class IterateAction:
                 "impact": impact,
                 "calculations": calculations.model_dump(),
                 "simulation": simulation.model_dump(),
+                "design_properties": updated_design_properties.model_dump(),
+                "current_parameters": updated_parameters,
             },
         )
 
@@ -282,6 +315,8 @@ class IterateAction:
                     "restrictions": draft.restrictions,
                 },
                 "mutation": mutated_state,
+                "design_properties": updated_design_properties.model_dump(),
+                "current_parameters": project_state.current_parameters,
             },
         )
 
