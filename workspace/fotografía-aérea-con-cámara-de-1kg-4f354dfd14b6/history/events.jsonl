@@ -1,6 +1,0 @@
-{"timestamp": "2026-06-03T09:58:32.404477+00:00", "type": "create_project", "project_id": "4f354dfd14b6", "objective": "fotografía aérea con cámara de 1kg"}
-{"timestamp": "2026-06-03T09:58:32.406660+00:00", "type": "params_defined", "iteration_id": 1, "params": ["motor_count", "per_motor_max_thrust_n"]}
-{"timestamp": "2026-06-03T09:58:32.412654+00:00", "type": "calculate", "calc_id": 5}
-{"timestamp": "2026-06-03T09:58:32.413591+00:00", "type": "simulation", "sim_id": 6, "status": "pass"}
-{"timestamp": "2026-06-03T09:58:32.416344+00:00", "type": "dse_apply", "iteration_id": 2, "goal_key": "mejorar_autonomia", "label": "batería (Wh)=177.6"}
-{"timestamp": "2026-06-03T09:58:32.417395+00:00", "type": "simulation", "sim_id": 8, "status": "pass"}

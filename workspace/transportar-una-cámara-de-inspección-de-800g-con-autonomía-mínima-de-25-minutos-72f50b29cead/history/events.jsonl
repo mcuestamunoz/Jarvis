@@ -1,5 +1,0 @@
-{"timestamp": "2026-06-03T09:52:34.603984+00:00", "type": "create_project", "project_id": "72f50b29cead", "objective": "transportar una cámara de inspección de 800g con autonomía mínima de 25 minutos"}
-{"timestamp": "2026-06-03T09:52:55.230696+00:00", "type": "params_defined", "iteration_id": 1, "params": ["motor_count", "per_motor_max_thrust_n"]}
-{"timestamp": "2026-06-03T09:53:32.609014+00:00", "type": "calculate", "calc_id": 6}
-{"timestamp": "2026-06-03T09:54:43.524831+00:00", "type": "simulation", "sim_id": 7, "status": "pass"}
-{"timestamp": "2026-06-03T09:55:00.371055+00:00", "type": "dse_apply", "iteration_id": 2, "goal_key": "mejorar_autonomia", "label": "battery: battery_capacity_wh=1200.0"}

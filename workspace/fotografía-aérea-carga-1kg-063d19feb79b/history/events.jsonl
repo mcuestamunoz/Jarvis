@@ -1,5 +1,0 @@
-{"timestamp": "2026-06-05T09:31:33.997541+00:00", "type": "create_project", "project_id": "063d19feb79b", "objective": "fotografía aérea, carga 1kg"}
-{"timestamp": "2026-06-05T09:31:50.376971+00:00", "type": "simulation", "sim_id": 4, "status": "fail"}
-{"timestamp": "2026-06-05T09:35:20.456037+00:00", "type": "params_defined", "iteration_id": 1, "params": ["wheel_radius_m", "gear_ratio"]}
-{"timestamp": "2026-06-05T09:35:27.757817+00:00", "type": "params_defined", "iteration_id": 2, "params": ["wheel_radius_m", "gear_ratio"]}
-{"timestamp": "2026-06-05T09:37:36.837661+00:00", "type": "params_defined", "iteration_id": 3, "params": ["wheel_radius_m", "gear_ratio"]}
