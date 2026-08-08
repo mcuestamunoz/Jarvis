@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "FN-012 — Runtime snapshot must not restore create/iterate wizard mode without draft (reopen → \"No hay una sesión interactiva activa\").",
-  "scope": "state_manager restore/persist sanitization; U4 regression tests. No acquisition/router changes.",
+  "cycle_intent": "FN-013 — Active block declaration routing: in DEFINE_MISSING_PARAMETERS, definir/completar/declarar + active block must re-prompt pending acquisition (0 LLM), not parse as param value or restart session.",
+  "scope": "orchestrator DEFINE_MISSING branch only; reuse resolve_declare_block_request + _next_pending_block; preserve collected_params/pending. No Conversation Engine, physics, catalog, or component-question copy.",
   "execution_status": "closed",
   "current_mode": "Idle",
   "movement_trigger": {
-    "type": "evidence",
-    "note": "CLI reopen of f565ad40 trapped all turns in create_project_interactive without project_draft"
+    "type": "decision",
+    "note": "Engineer approved FN-013 contract; implemented and smoke-validated"
   },
   "relevant_workflow_phases": [
     "Intent",
@@ -17,6 +17,7 @@
   "applicable_rules": [],
   "required_artifacts": [
     "Change",
+    "Cycle close",
     "Regression tests",
     "Docs"
   ],
@@ -25,16 +26,16 @@
   "authority_gates": [],
   "coherence_checklist": [
     "tests",
+    "ux",
     "docs"
   ],
   "outcome": {
     "status": "done",
-    "summary": "Draftless CREATE/ITERATE interactive modes demoted to IDLE on session_to_snapshot and restore_from_snapshot. 4 new tests; U4 suite green. Existing poisoned snapshots heal on next orchestrator init.",
+    "summary": "DEFINE_MISSING re-prompts on declare-block for the active architecture block without wiping collected_params or calling the LLM. Wrong-block names do not jump. 5 new tests; FN-011 still green.",
     "next_candidates": [
-      "CLI re-validate: reopen f565ad40 → definir propulsion / siguiente paso",
-      "FN-011 deferred: declare-block help inside active DEFINE_MISSING",
-      "Copy debt: _answer_assisted_motor W-vs-N error paths"
+      "Copy: human question for component keys (propellers/motors)",
+      "CLI continue propulsion declaration with real propeller input"
     ]
   },
-  "updated_at": "2026-08-08T12:32:00Z"
+  "updated_at": "2026-08-08T12:40:00Z"
 }

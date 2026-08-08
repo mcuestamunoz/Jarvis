@@ -6,6 +6,18 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
+### ✅ COMPLETADO — FN-013: declare block dentro de DEFINE_MISSING
+
+> En adquisición activa, `definir/declarar/completar + bloque activo` re-pregunta el pendiente (0 LLM), sin reiniciar sesión ni saltar de bloque.
+
+**Plan:**
+1. [x] Intercept en rama `DEFINE_MISSING` antes de analyze/valor
+2. [x] Solo si bloque nombrado == `_next_pending_block`
+3. [x] Re-prompt; preservar `collected_params` / `pending`
+4. [x] Tests field-note + wrong-block + valor numérico
+
+**Siguiente:** field notes CLI; copy genérico de component keys solo si duele.
+
 ### ✅ COMPLETADO — FN-012: snapshot wizard sin draft → IDLE
 
 > Reabrir proyecto no debe restaurar `create_project_interactive` / `iterate_interactive` sin draft (error “No hay una sesión interactiva activa”).

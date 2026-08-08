@@ -1,20 +1,21 @@
-# Change — FN-012 draftless wizard snapshot sanitize
+# Change — FN-013 active block declaration in DEFINE_MISSING
 
 **Date:** 2026-08-08  
-**Operation:** Implement (minimum cycle)
+**Closed:** `.jes/artifacts/cycle_close_fn013.md`
 
 ## Summary
 
-Never persist or restore `create_project_interactive` / `iterate_interactive` without drafts. Demote to `IDLE` so reopen cannot trap the router.
+While DEFINE_MISSING is open, declare/define/completar + the active architecture block re-prompts the current pending parameter. Session and `collected_params` are preserved; 0 LLM; no cross-block jump.
 
 ## Files
 
 | File | Change |
 |---|---|
-| `state_manager.py` | `_sanitize_draftless_wizard_session` on persist + restore |
-| `tests/test_u4_conversation_persistence.py` | 4 FN-012 regressions |
-| Docs | IMPLEMENTATION_TASKS + PROJECT_CONTINUITY |
+| `orchestrator.py` | `_try_reprompt_active_block_declaration` before analyze/value |
+| `tests/test_fn013_active_block_declare_routing.py` | 5 regressions |
+| Docs / `.jes` | FN-013 closed |
 
 ## Validation
 
-- `pytest tests/test_u4_conversation_persistence.py tests/test_session_mode_coercion.py` → **17 passed**
+- Focused FN-011+013: **12 passed**
+- Workspace smoke: `definir propulsión` twice → reprompt, no value error

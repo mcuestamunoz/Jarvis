@@ -705,6 +705,14 @@ class JarvisOrchestrator:
                 result = self._handle_project_status()
                 self._track_turn(user_input, result)
                 return result
+            # FN-013: "definir/declarar/completar <bloque activo>" while acquisition
+            # is already open — re-prompt the current pending param. Do NOT parse
+            # the phrase as a value, do NOT call the LLM, do NOT restart the session
+            # (would wipe collected_params). Wrong-block names fall through unchanged.
+            _block_reprompt = self._try_reprompt_active_block_declaration(user_input)
+            if _block_reprompt is not None:
+                self._track_turn(user_input, _block_reprompt)
+                return _block_reprompt
             # FN-005: "ayúdame a elegir" matches analyze patterns — keep it in the
             # assisted acquisition wizard instead of LLM analyze.
             from jarvis.core.motor_catalog_assist import is_help_choose_phrase
@@ -929,6 +937,44 @@ class JarvisOrchestrator:
         return self.start_define_missing_params(
             session.pending_missing_params, reason=session.pending_missing_reason
         )
+
+    def _try_reprompt_active_block_declaration(self, user_input: str) -> dict | None:
+        """FN-013: block-level help while DEFINE_MISSING is already active.
+
+        If the user names the architecture block that is currently pending,
+        re-ask the current pending parameter without restarting the session.
+        Returns None when the phrase is not a declare-block request, or when
+        the named block is not the active pending block (no cross-block jump).
+        """
+        block_key = self.intent_resolver.resolve_declare_block_request(user_input)
+        if block_key is None:
+            return None
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return None
+        if not project_state.design_properties.system_defined:
+            return None
+        pending_block = self._next_pending_block(project_state)
+        if pending_block is None or pending_block[0] != block_key:
+            return None
+        session = self.state_manager.get_runtime_session()
+        pending = list(session.pending_param_definitions or [])
+        if not pending:
+            return None
+        suggestions = list(session.motor_suggestions or [])
+        label = self._block_label_for(project_state, block_key)
+        return {
+            "status": "interactive",
+            "action": "define_missing_params",
+            "message": f"Seguimos con {label} — sin reiniciar lo ya capturado.",
+            "question": self.param_definition_session._question_for_param(
+                pending[0], suggestions
+            ),
+            "pending": pending,
+            "motor_suggestions": suggestions,
+            "block_declaration_reprompt": True,
+        }
 
     def _track_turn(self, user_input: str, result: dict) -> None:
         """Append user + assistant turns to conversation history (idle mode only)."""

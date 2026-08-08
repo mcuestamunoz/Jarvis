@@ -108,6 +108,12 @@ Review verdict: **PASS WITH NOTES** — 49 focused tests and 1431 full-suite tes
 reported green. The non-blocking note is that the end-to-end fixture reproduces
 the corruption mechanism but not the field note's exact ≈7.03 N/motor value.
 
+## Field note FN-013 — Active block declaration inside DEFINE_MISSING (closed)
+
+| ID | Symptom | Fix | Status |
+|----|---------|-----|--------|
+| FN-013 | `"definir propulsión"` during DEFINE_MISSING → treated as param value | Re-prompt current pending when named block == active; no restart / no LLM | ✅ |
+
 ## Field note FN-012 — Runtime snapshot draftless wizard (closed)
 
 | ID | Symptom | Fix | Status |
