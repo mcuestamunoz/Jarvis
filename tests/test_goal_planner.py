@@ -11,6 +11,8 @@ from jarvis.core.goal_planner import (
     detect_goal,
     format_goal_plan,
     get_goal_context_for_llm,
+    is_engineering_intention,
+    looks_like_numeric_mutate,
     _prioritize_strategies,
 )
 from jarvis.llm.prompt_builder import PromptBuilder
@@ -57,6 +59,43 @@ class TestDetectGoal:
 
     def test_no_match_empty(self):
         assert detect_goal("") is None
+
+    # ── FN-022: keyword coverage additions (generic, all 4 goals) ─────────
+
+    def test_thrust_empuje_maps_to_estabilidad(self):
+        """Primary mapping decision: thrust/empuje-as-intention lands on
+        mejorar_estabilidad, whose strategies already lead with the thrust/
+        margin lever — not a new fifth goal."""
+        assert detect_goal("aumentar el empuje") == "mejorar_estabilidad"
+        assert detect_goal("mas thrust") == "mejorar_estabilidad"
+
+    def test_bare_margen_maps_to_estabilidad(self):
+        assert detect_goal("el margen es bajo") == "mejorar_estabilidad"
+
+    def test_payload_new_phrase(self):
+        assert detect_goal("quiero transportar mas peso") == "aumentar_payload"
+
+    def test_autonomia_new_phrase(self):
+        assert detect_goal("quiero volar mas tiempo") == "mejorar_autonomia"
+
+
+class TestIsEngineeringIntention:
+    def test_bare_intention_returns_goal_key(self):
+        assert is_engineering_intention("Aumentar el empuje") == "mejorar_estabilidad"
+        assert is_engineering_intention("Reducir la masa") == "reducir_masa"
+
+    def test_numeric_value_defers_to_iterate(self):
+        assert is_engineering_intention("sube el empuje a 15N") is None
+        assert is_engineering_intention("aumentar payload a 3kg") is None
+        assert is_engineering_intention("5") is None
+
+    def test_no_goal_returns_none(self):
+        assert is_engineering_intention("hola, como estas") is None
+
+    def test_looks_like_numeric_mutate(self):
+        assert looks_like_numeric_mutate("a 15 N") is True
+        assert looks_like_numeric_mutate("en 2 kg") is True
+        assert looks_like_numeric_mutate("aumentar el empuje") is False
 
 
 # ── format_goal_plan ──────────────────────────────────────────────────────────

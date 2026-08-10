@@ -25,3 +25,9 @@ OLLAMA_TIMEOUT_SECONDS = float(os.getenv("JARVIS_OLLAMA_TIMEOUT_SECONDS", "60"))
 # Single source of truth used by orchestrator and session handlers.
 ESCAPE_WORDS: frozenset[str] = frozenset({"cancelar", "cancel", "salir", "abortar", "abort", "exit"})
 NEW_PROJECT_WORDS: frozenset[str] = frozenset({"n", "nuevo", "nuevo proyecto", "crear"})
+# FN-016: navigation-back words, scoped to acquisition wizards only (NOT a
+# global escape — deliberately not merged into ESCAPE_WORDS/checked outside
+# DEFINE_MISSING_PARAMETERS). Values are already accent-normalized; callers
+# must normalize user_input the same way before comparing (see
+# acquisition_target.is_navigation_back_phrase).
+NAVIGATION_BACK_WORDS: frozenset[str] = frozenset({"atras", "volver", "vuelve"})

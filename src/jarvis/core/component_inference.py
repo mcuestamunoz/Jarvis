@@ -34,6 +34,24 @@ _LOOKS_LIKE_MOTOR_RE = re.compile(
 )
 
 
+def _spec_from_rule(raw_name: str, rule: ComponentRule, normalized: str) -> ComponentSpec:
+    props = rule.property_extractor(normalized)
+    completeness, missing_fields = rule.completeness_evaluator(props)
+    hints = list(rule.missing_field_hints) if missing_fields else []
+    hints += list(rule.extra_hints)
+    return ComponentSpec(
+        name=raw_name.strip(),
+        suggested_key=rule.suggested_key,
+        component_type=rule.component_type,
+        inference_confidence=rule.inference_confidence,
+        properties=props,
+        completeness=completeness,
+        missing_fields=missing_fields,
+        hints=hints,
+        output_magnitude=rule.output_magnitude,
+    )
+
+
 def infer_component(
     raw_name: str,
     raw_value: str | None = None,
@@ -55,21 +73,7 @@ def infer_component(
     rule = active_registry.match(normalized, name_lc)
 
     if rule is not None:
-        props = rule.property_extractor(normalized)
-        completeness, missing_fields = rule.completeness_evaluator(props)
-        hints = list(rule.missing_field_hints) if missing_fields else []
-        hints += list(rule.extra_hints)
-        return ComponentSpec(
-            name=raw_name.strip(),
-            suggested_key=rule.suggested_key,
-            component_type=rule.component_type,
-            inference_confidence=rule.inference_confidence,
-            properties=props,
-            completeness=completeness,
-            missing_fields=missing_fields,
-            hints=hints,
-            output_magnitude=rule.output_magnitude,
-        )
+        return _spec_from_rule(raw_name, rule, normalized)
 
     # ── Generic fallback — no rule matched ───────────────────────────────────
     completeness = "medium" if len(normalized.split()) >= 2 else "low"
@@ -89,6 +93,31 @@ def _rule_for_key(registry: ComponentRuleRegistry, suggested_key: str) -> Compon
         if rule.suggested_key == suggested_key:
             return rule
     return None
+
+
+def infer_component_for_key(
+    raw_name: str,
+    suggested_key: str,
+    raw_value: str | None = None,
+    registry: ComponentRuleRegistry | None = None,
+) -> ComponentSpec | None:
+    """FN-019: force inference against a specific suggested_key's rule,
+    bypassing keyword matching entirely.
+
+    Used only when acquisition context already names the expected component
+    (e.g. propellers pending) and the input has no keyword to trigger the
+    normal registry match (e.g. "10x4.5" with no "hélices" word — the
+    property extractor already parses it fine, it just never runs). Reuses
+    the rule's own property_extractor/completeness_evaluator unchanged — no
+    second copy of the size regex. Returns None if no rule is registered for
+    ``suggested_key``.
+    """
+    active_registry = registry or _DEFAULT_REGISTRY
+    rule = _rule_for_key(active_registry, suggested_key)
+    if rule is None:
+        return None
+    text = (raw_value or raw_name).strip()
+    return _spec_from_rule(raw_name, rule, text.lower())
 
 
 def _merge_same_key_specs(

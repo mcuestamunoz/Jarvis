@@ -6,6 +6,8 @@ import unicodedata
 from pathlib import Path
 
 from jarvis.config import ESCAPE_WORDS
+from jarvis.core.acquisition_brief import build_acquisition_brief
+from jarvis.core.acquisition_target import COMPONENT_PROMPTS, is_navigation_back_phrase
 from jarvis.core.calculation_engine import CalculationEngine
 from jarvis.core.component_resolver import resolve_propulsion_parameters
 from jarvis.core.component_writers import set_battery_component, set_motor_component, set_propeller_component
@@ -23,6 +25,7 @@ from jarvis.core.motor_catalog_assist import (
 )
 from jarvis.core.parameter_requirements import (
     DEFAULT_MISSING_FORCE_REASON,
+    MISSING_COMPONENT_DEFINITION,
     all_parameter_names,
     keywords_for_param,
     missing_force_reason_from_warnings,
@@ -33,10 +36,22 @@ from jarvis.core.state_manager import StateManager
 from jarvis.schemas.action_schema import ActionName, ComponentSpec, InteractiveSessionState, OrchestratorMode, PropertyValue
 from jarvis.schemas.state_schema import HistoryEntry
 from jarvis.simulation.simulator import FlightSimulator
-from jarvis.core.system_architecture_catalog import COMPONENT_MIRRORED_PARAMS
+from jarvis.core.system_architecture_catalog import BLOCK_TO_COMPONENTS, COMPONENT_MIRRORED_PARAMS
 from jarvis.workspace.workspace_manager import WorkspaceManager
 
 logger = logging.getLogger(__name__)
+
+# FN-016: all component suggested_keys across every architecture block —
+# single source of truth (system_architecture_catalog.BLOCK_TO_COMPONENTS),
+# not orchestrator._COMPONENT_PROMPTS, to avoid a circular import (orchestrator
+# already imports this module at load time). A component key is never a
+# numeric engineering parameter — answer()'s float/positional parser must
+# never assign a value to one, even as defense-in-depth (the normal path
+# routes MISSING_COMPONENT_DEFINITION to _handle_component_description before
+# answer() is ever called).
+_ACQUISITION_COMPONENT_KEYS: frozenset[str] = frozenset(
+    key for keys in BLOCK_TO_COMPONENTS.values() for key in keys
+)
 
 _STRUCTURAL_PARAMS = ("motor_count",)
 
@@ -246,6 +261,7 @@ class ParamDefinitionSession:
         first = missing_params[0]
         if first in ASSISTED_MOTOR_PARAMS:
             suggestions = self._catalog_suggestions_for_active_project()
+        is_component_definition = reason == MISSING_COMPONENT_DEFINITION
         session = InteractiveSessionState(
             mode=OrchestratorMode.DEFINE_MISSING_PARAMETERS,
             step=0,
@@ -253,15 +269,47 @@ class ParamDefinitionSession:
             collected_params={},
             param_definition_reason=reason,
             motor_suggestions=suggestions,
+            # FN-017 B1: keep pending_missing_params coherent with the live
+            # wizard for component-definition reasons. Before this, the field
+            # went stale to [] the moment the wizard opened (it only ever
+            # carried the Bug54 "about to open" signal), and
+            # _handle_component_description reads it as expected_keys —
+            # meaning a real component description given right after opening
+            # Phase A had no scope to match against.
+            pending_missing_params=list(missing_params) if is_component_definition else [],
+            pending_missing_reason=reason if is_component_definition else "",
         )
         self.state_manager.set_runtime_session(session)
-        return {
+        # FN-017 B5 / FN-018 C1b: opening question for a component-definition
+        # wizard is the concrete "describe this component" prompt
+        # (COMPONENT_PROMPTS), never the generic "¿Cuál es el valor de
+        # propellers?" fallback. FN-018 additionally wraps it in the thin
+        # Acquisition Brief (acquisition_brief.build_acquisition_brief) when
+        # one exists for this key — degrades to COMPONENT_PROMPTS-only
+        # ("message": "") otherwise, identical to FN-017 behavior.
+        message = ""
+        if is_component_definition and first in COMPONENT_PROMPTS:
+            brief = build_acquisition_brief(first, self._safe_active_project())
+            message = brief["message"]
+            question = brief["question"]
+        else:
+            question = self._question_for_param(first, suggestions)
+        result: dict = {
             "status": "interactive",
             "action": "define_missing_params",
-            "question": self._question_for_param(first, suggestions),
+            "question": question,
             "pending": list(missing_params),
             "motor_suggestions": suggestions,
         }
+        if message:
+            result["message"] = message
+        return result
+
+    def _safe_active_project(self):
+        try:
+            return self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return None
 
     def _catalog_suggestions_for_active_project(self) -> list[MotorSuggestion]:
         try:
@@ -482,6 +530,19 @@ class ParamDefinitionSession:
                 "message": "Definición cancelada. Puedes retomar cuando quieras.",
             }
 
+        # FN-016: navigation words ("atrás"/"volver"/"vuelve") are never a value
+        # and never a skip — same cancel outcome as ESCAPE_WORDS, so backing out
+        # of the wizard doesn't produce "No reconozco 'atrás' como valor."
+        # Fallback for direct callers (tests/tools); the orchestrator already
+        # short-circuits this earlier in the DEFINE_MISSING_PARAMETERS branch.
+        if is_navigation_back_phrase(user_input):
+            self.state_manager.clear_runtime_session()
+            return {
+                "status": "cancelled",
+                "action": "define_missing_params",
+                "message": "Definición cancelada. Puedes retomar cuando quieras.",
+            }
+
         pending = list(session.pending_param_definitions)
         if not pending:
             self.state_manager.clear_runtime_session()
@@ -495,6 +556,21 @@ class ParamDefinitionSession:
             assisted_result = self._answer_assisted_motor(user_input, session, pending, suggestions)
             if assisted_result is not None:
                 return assisted_result
+
+        # FN-016: a component key (motors/propellers/battery/frame/…) is never
+        # a numeric engineering parameter. Defense-in-depth: the normal path
+        # never reaches answer() for these (orchestrator routes
+        # MISSING_COMPONENT_DEFINITION to _handle_component_description first),
+        # but if pending[0] is ever a component key here, refuse to zip a bare
+        # float onto it and re-prompt instead.
+        if current in _ACQUISITION_COMPONENT_KEYS:
+            return {
+                "status": "interactive",
+                "action": "define_missing_params",
+                "message": f"Seguimos definiendo {current}.",
+                "question": self._question_for_param(current, suggestions),
+                "pending": list(pending),
+            }
 
         values = self.parse_floats_from_input(user_input)
         if not values:
@@ -551,10 +627,19 @@ class ParamDefinitionSession:
             remaining = [param for param in pending if param not in keyword_matches]
         else:
             collected = {**session.collected_params}
-            for param, value in zip(pending, values):
-                collected[param] = value
-            consumed = min(len(values), len(pending))
-            remaining = pending[consumed:]
+            remaining = []
+            values_iter = iter(values)
+            for param in pending:
+                # FN-016: defense-in-depth — never zip a bare float onto a
+                # component key, even if it's not the first pending item.
+                # It stays pending; no value is consumed for it.
+                if param in _ACQUISITION_COMPONENT_KEYS:
+                    remaining.append(param)
+                    continue
+                try:
+                    collected[param] = next(values_iter)
+                except StopIteration:
+                    remaining.append(param)
 
         if remaining:
             next_sugg = (

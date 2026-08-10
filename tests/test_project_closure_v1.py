@@ -163,8 +163,19 @@ def test_infer_component_single_unchanged():
     assert spec.suggested_key == "motors"
 
 
-def test_bom_kv_motor_is_incomplete_not_declarative():
-    """Motors with KV are measurable — must not be labelled declarative-only."""
+def test_bom_kv_motor_is_declared_not_stub():
+    """FN-020: a 'medium' completeness component with measurable signal and no
+    outstanding missing_fields is architecture-present (same threshold as
+    _component_is_low/_block_progress_status, via classify_component) — it
+    must land in 'declarative' (declared, enrichment optional), never in the
+    strong-gap 'incomplete' (stub) bucket that BOM/Continuity treat as a real
+    acquisition target.
+
+    Superseded assertion (pre-FN-020: medium ⇒ 'incomplete' unconditionally)
+    was the exact dual-threshold contradiction FN-020 removes: architecture
+    progress already counted this same component as present (completeness !=
+    'low'), while BOM called it a gap — see docs/PROJECT_CONTINUITY.md FN-020.
+    """
     motors = ComponentSpec(
         name="4x 920KV",
         suggested_key="motors",
@@ -185,8 +196,8 @@ def test_bom_kv_motor_is_incomplete_not_declarative():
         )
     )
     bom = build_component_bom(state)
-    assert any(e["key"] == "motors" for e in bom["incomplete"])
-    assert not any(e["key"] == "motors" for e in bom["declarative"])
+    assert any(e["key"] == "motors" for e in bom["declarative"])
+    assert not any(e["key"] == "motors" for e in bom["incomplete"])
 
 
 def test_bom_extra_low_completeness_not_defined():

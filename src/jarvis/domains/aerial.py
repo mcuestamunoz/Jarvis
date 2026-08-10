@@ -106,11 +106,18 @@ def extract_propeller_properties(normalized: str) -> dict[str, PropertyValue]:
         props["pitch_in"] = PropertyValue(
             value=float(size_match.group(2)), unit="in", confidence=0.9, source="declared"
         )
-    count_match = re.search(r"\b(\d+)\b", normalized)
-    if count_match and "diameter_in" in props:
-        props["count"] = PropertyValue(
-            value=int(count_match.group(1)), unit=None, confidence=0.8, source="declared"
-        )
+    # Count must be an integer OUTSIDE the NxP size span. A naive \b(\d+)\b
+    # otherwise steals pitch decimals ("10x4.5" → count=5) or diameter digits
+    # ("10 x 4.5" → count=10). Explicit counts like "6 hélices 15x5" still match.
+    if "diameter_in" in props:
+        size_span = size_match.span() if size_match else None
+        for count_match in re.finditer(r"\b(\d+)\b", normalized):
+            if size_span is not None and size_span[0] <= count_match.start() < size_span[1]:
+                continue
+            props["count"] = PropertyValue(
+                value=int(count_match.group(1)), unit=None, confidence=0.8, source="declared"
+            )
+            break
     return props
 
 

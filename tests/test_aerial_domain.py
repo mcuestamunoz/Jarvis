@@ -69,6 +69,23 @@ def test_propeller_extracts_diameter_and_pitch():
     assert "pitch_in" in props
     assert props["diameter_in"].value == 10.0
     assert props["pitch_in"].value == 4.5
+    assert "count" not in props  # must not steal pitch decimal "5"
+
+
+def test_propeller_bare_size_does_not_invent_count():
+    """FN-019 residual: bare NxP must not set count from diameter/pitch digits."""
+    for phrase in ("10x4.5", "10 x 4.5", "hélices 10x4.5"):
+        props = extract_propeller_properties(phrase)
+        assert props["diameter_in"].value == 10.0
+        assert props["pitch_in"].value == 4.5
+        assert "count" not in props, phrase
+
+
+def test_propeller_explicit_count_still_extracted():
+    props = extract_propeller_properties("6 hélices 15x5")
+    assert props["diameter_in"].value == 15.0
+    assert props["pitch_in"].value == 5.0
+    assert props["count"].value == 6
 
 
 def test_propeller_returns_empty_without_size_pattern():

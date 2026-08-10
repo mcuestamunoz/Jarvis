@@ -7,12 +7,21 @@ from jarvis.actions.calculate import CalculateAction
 from jarvis.actions.create_project import CreateProjectAction
 from jarvis.actions.iterate import IterateAction
 from jarvis.actions.simulate import SimulateAction
+from jarvis.core.acquisition_brief import build_acquisition_brief
+from jarvis.core.acquisition_target import (
+    COMPONENT_PROMPTS,
+    is_help_define_pending_phrase,
+    is_mention_on_active_gap,
+    is_navigation_back_phrase,
+    resolve_acquisition_mention,
+)
 from jarvis.core.action_router import ActionRouter
 from jarvis.core.calculation_engine import CalculationEngine
 from jarvis.core.interactive_session import CreateProjectInteractiveSession
 from jarvis.core.intent_resolver import IntentResolver
 from jarvis.core.iterate_interactive_session import IterateInteractiveSession
 from jarvis.core.param_definition_session import ParamDefinitionSession
+from jarvis.core.project_closure import component_presence_tier
 from jarvis.core.system_definition_session import SystemDefinitionSession
 from jarvis.core.parameter_requirements import (
     DEFAULT_MISSING_FORCE_REASON,
@@ -27,7 +36,12 @@ from jarvis.core.parameter_requirements import (
 )
 from jarvis.core.phase_layer import PhaseLayer
 from jarvis.core.reasoning_layer import ReasoningLayer
-from jarvis.core.goal_planner import detect_goal, format_goal_plan, get_goal_context_for_llm
+from jarvis.core.goal_planner import (
+    detect_goal,
+    format_goal_plan,
+    get_goal_context_for_llm,
+    is_engineering_intention,
+)
 from jarvis.core.component_writers import (
     set_battery_component,
     set_control_component,
@@ -78,14 +92,10 @@ def _get_frame_material_display(design_properties) -> str:
 
 # ── Component description prompts (keyed by component suggested_key) ──────────
 # Used by _handle_component_description affirmative path and follow-up messages.
-_COMPONENT_PROMPTS: dict[str, str] = {
-    "frame":             "Describe el frame del dron (material y masa). Ej: 'fibra de carbono 450g'",
-    "flight_controller": "Describe la controladora de vuelo. Ej: 'Pixhawk 4' o 'Betaflight F7'",
-    "sensors":           "Describe el GPS/sensores. Ej: 'GPS M9N' o 'Here3'",
-    "battery":           "Describe la batería. Ej: 'LiPo 6S 5000mAh' o '100Wh'",
-    "motors":            "Describe los motores. Ej: '4x 2306 2400KV 50W'",
-    "propellers":        "Describe las hélices. Ej: '10x4.5' o 'hélices de carbono'",
-}
+# FN-017: moved to acquisition_target.COMPONENT_PROMPTS (single source of truth,
+# shared with param_definition_session.py) — kept as a local alias so every
+# existing `_COMPONENT_PROMPTS` reference in this file needs no other change.
+_COMPONENT_PROMPTS = COMPONENT_PROMPTS
 
 # ── Proactive question hints for component-driven blocks in build_startup_context ─
 _BLOCK_COMPONENT_HINTS: dict[str, str] = {
@@ -612,14 +622,26 @@ class JarvisOrchestrator:
                 self._track_turn(user_input, assist)
                 return assist
         # ─────────────────────────────────────────────────────────────────────
-        # ── FN-011: "ayúdame a declarar/completar <bloque activo>" while IDLE ──
-        # e.g. "ayúdame a declarar propulsión" — must not leak to the LLM when
-        # the state already knows the real next gap for that block.
+        # ── FN-014: "definir/declarar/completar <bloque o componente activo>" ──
+        # while IDLE (including IDLE re-dispatch after an iterate preempt) —
+        # must not leak to the LLM or open the iterate wizard when the state
+        # already knows the real next gap. Supersedes FN-011 (block-only): a
+        # strict superset, so block-only phrases keep working unchanged.
         if current_session.mode == OrchestratorMode.IDLE:
-            block_help = self._try_declare_active_block_help(user_input)
-            if block_help is not None:
-                self._track_turn(user_input, block_help)
-                return block_help
+            acquisition_help = self._try_start_acquisition_from_mention(user_input)
+            if acquisition_help is not None:
+                self._track_turn(user_input, acquisition_help)
+                return acquisition_help
+        # ─────────────────────────────────────────────────────────────────────
+        # ── FN-015: bare "ayúdame a definir" while IDLE, known next gap ────────
+        # Opens the same Bug54/FN-011/FN-014 bridge, then immediately returns
+        # deterministic help for the real pending item — one turn, 0 LLM. Never
+        # invents a soft open without a real _next_pending_block.
+        if current_session.mode == OrchestratorMode.IDLE:
+            pending_help_idle = self._try_help_define_pending_idle(user_input)
+            if pending_help_idle is not None:
+                self._track_turn(user_input, pending_help_idle)
+                return pending_help_idle
         # ─────────────────────────────────────────────────────────────────────
         # ── Global component intercept ────────────────────────────────────────
         # Fires in any mode where the user might describe a physical component.
@@ -713,6 +735,16 @@ class JarvisOrchestrator:
             if _block_reprompt is not None:
                 self._track_turn(user_input, _block_reprompt)
                 return _block_reprompt
+            # FN-015: bare "ayúdame a definir (el valor)" — no named block/component
+            # — must get deterministic help for the real pending item, never the
+            # LLM. Must run before the analyze→LLM branch below. Named-target
+            # phrases (FN-011/013/014's territory) are excluded by the detector
+            # itself, so this never steals a real declare-block request.
+            if is_help_define_pending_phrase(user_input):
+                _pending_help = self._help_current_pending_acquisition(current_session)
+                if _pending_help is not None:
+                    self._track_turn(user_input, _pending_help)
+                    return _pending_help
             # FN-005: "ayúdame a elegir" matches analyze patterns — keep it in the
             # assisted acquisition wizard instead of LLM analyze.
             from jarvis.core.motor_catalog_assist import is_help_choose_phrase
@@ -729,8 +761,39 @@ class JarvisOrchestrator:
                 result = self.handle({"action": ActionName.SIMULATE.value, "parameters": {}})
                 self._track_turn(user_input, result)
                 return result
+            # FN-016: navigation words ("atrás"/"volver"/"vuelve") cancel the
+            # wizard cleanly — must run BEFORE the component-driven intercept
+            # below, so Phase A "atrás" doesn't fall into
+            # _handle_component_description's low-completeness follow-ups.
+            # Scoped to acquisition wizards only (NOT added to global
+            # ESCAPE_WORDS) — see acquisition_target.is_navigation_back_phrase.
+            if is_navigation_back_phrase(user_input):
+                self.state_manager.clear_runtime_session()
+                result = {
+                    "status": "cancelled",
+                    "action": "define_missing_params",
+                    "message": "Definición cancelada. Puedes retomar cuando quieras.",
+                }
+                self._track_turn(user_input, result)
+                return result
             # UX-C: intercept component-driven blocks before numeric wizard
-            if current_session.pending_missing_reason == MISSING_COMPONENT_DEFINITION:
+            # FN-016: pending_missing_reason is the "about to open" signal set by
+            # _set_pending_next_block BEFORE start_define_missing_params runs —
+            # ParamDefinitionSession.start() builds a brand-new session that does
+            # NOT carry it forward, so on the wizard's own live turns it is always
+            # "". The field actually populated on an open wizard is
+            # param_definition_reason. Checking pending_missing_reason only (as
+            # before) meant a real component description given right after
+            # opening Phase A (via Bug54/FN-011/FN-013/FN-014) never reached
+            # _handle_component_description at all and fell through to
+            # ParamDefinitionSession.answer()'s numeric parser instead — which,
+            # before the FN-016 component-key guard, silently corrupted state
+            # (e.g. current_parameters["propellers"] = 10.0). Purely additive
+            # (OR): widens when the intercept fires, narrows nothing.
+            if (
+                current_session.pending_missing_reason == MISSING_COMPONENT_DEFINITION
+                or current_session.param_definition_reason == MISSING_COMPONENT_DEFINITION
+            ):
                 result = self._handle_component_description(user_input, current_session)
                 self._track_turn(user_input, result)
                 return result
@@ -813,6 +876,25 @@ class JarvisOrchestrator:
                     params = {}
                 missing = missing_params_for_reason(reason, params)
                 result = self.start_define_missing_params(missing, reason=reason)
+                self._track_turn(user_input, result)
+                return result
+
+        # FN-022: bare engineering intention ("aumentar el empuje", "mejorar
+        # la autonomía", ...) with no concrete target value yet — show the
+        # deterministic strategy plan (goal_planner.GOAL_STRATEGIES) instead
+        # of opening the iterate wizard or falling to the LLM. Only
+        # intercepts intent in {"iterate", "unknown"} — every more specific
+        # route already returned above (project_status, analyze,
+        # define_params, dismiss_suggestion) or returns below unchanged
+        # (explore_design_space, apply_exploration_result) and is untouched.
+        # A phrase with a concrete value ("sube el empuje a 15N") is never
+        # intercepted — is_engineering_intention() defers to iterate for
+        # those (looks_like_numeric_mutate). Runs only in IDLE (this code is
+        # only reached when no mode-specific branch above already returned).
+        if intent in ("iterate", "unknown") and self._has_active_project():
+            goal_key = is_engineering_intention(user_input)
+            if goal_key is not None:
+                result = self._handle_engineering_intent(goal_key)
                 self._track_turn(user_input, result)
                 return result
 
@@ -905,31 +987,93 @@ class JarvisOrchestrator:
     def _try_declare_active_block_help(self, user_input: str) -> dict | None:
         """FN-011: 'ayúdame a declarar/completar <bloque>' → deterministic acquisition.
 
-        Reuses the exact bridge already used elsewhere (the "¿Definimos X ahora?"
-        confirmation flow): _next_pending_block / _set_pending_next_block /
-        start_define_missing_params. No new acquisition logic — this only decides
-        WHEN to enter that existing bridge from a proactive user phrase instead
-        of from an affirmative reply to a proactive question.
-
-        Returns None (falls through to normal routing, eventually the LLM) when:
-        - the phrase doesn't name a recognizable block (e.g. bare "ayúdame a
-          completar" keeps its existing project_status/Continuity routing);
-        - there is no active/system-defined project;
-        - the named block is NOT actually the current pending one — never jumps
-          to, or invents params for, an unrelated/future block.
+        FN-014: thin block-only wrapper kept for callers that want strictly
+        block-level semantics. The IDLE call site now uses the superseding
+        _try_start_acquisition_from_mention (blocks ∪ components) directly —
+        for block-only phrases the two are behaviorally identical, since a
+        block mention is the first resolution step in both.
         """
-        block_key = self.intent_resolver.resolve_declare_block_request(user_input)
-        if block_key is None:
+        mention = resolve_acquisition_mention(user_input, self._safe_active_project())
+        if mention is None or mention["kind"] != "block":
             return None
+        return self._try_start_acquisition_from_mention(user_input)
+
+    def _safe_active_project(self):
         try:
-            project_state = self.state_manager.load_active_project(self.workspace_manager)
+            return self.state_manager.load_active_project(self.workspace_manager)
         except FileNotFoundError:
+            return None
+
+    def _try_start_acquisition_from_mention(self, user_input: str) -> dict | None:
+        """FN-014: unified block ∪ component acquisition gate for IDLE (including
+        IDLE re-dispatch after an iterate-wizard preempt).
+
+        Resolves user_input to a block or component mention
+        (acquisition_target.resolve_acquisition_mention) and, only when that
+        mention names the block that is genuinely the current pending gap
+        (_next_pending_block), opens the SAME deterministic bridge already
+        used by Bug54/FN-011/FN-013 (_set_pending_next_block +
+        start_define_missing_params). No new acquisition logic — this only
+        widens WHEN that existing bridge is entered, from block names to
+        block ∪ component names.
+
+        Wrong-block mentions (§4.6): when the phrase names a real block or
+        component that belongs to a DIFFERENT block than the active pending
+        one, returns a short deterministic message instead of silently
+        falling through to iterate/define_params for that other block — never
+        a silent cross-block jump. Mode stays IDLE, no LLM.
+
+        Returns None (falls through to normal routing) when: there's no
+        mention at all, no active/system-defined project, or no pending block
+        (architecture complete or undefined) — existing routing unchanged.
+        """
+        project_state = self._safe_active_project()
+        if project_state is None:
             return None
         if not project_state.design_properties.system_defined:
             return None
+
         pending = self._next_pending_block(project_state)
-        if pending is None or pending[0] != block_key:
+        pending_block_key = pending[0] if pending is not None else None
+        if pending_block_key is None:
             return None
+
+        mention = resolve_acquisition_mention(
+            user_input, project_state, pending_block_key=pending_block_key
+        )
+        if mention is None:
+            return None
+
+        if not is_mention_on_active_gap(mention, pending_block_key, project_state):
+            if mention["block_key"] != pending_block_key:
+                # FN-014 §4.6: named a real block/component, but not the active
+                # one — never silently open a different block's wizard.
+                label = self._block_label_for(project_state, pending_block_key)
+                return {
+                    "status": "ok",
+                    "action": "acquisition_target_mismatch",
+                    "message": (
+                        f"Ahora toca {label}. Cuando esté completa, "
+                        "podremos definir el resto."
+                    ),
+                }
+            if mention["kind"] == "component":
+                # FN-017 B6: right block, but this specific component is
+                # already resolved (e.g. "declarar motores" when motors is
+                # done but propellers still isn't) — continue the SAME
+                # block's remaining gap instead of falling through to
+                # define_params/intent_resolver, which can route to an
+                # unrelated domain's params (e.g. ground transmission torque
+                # on an aerial project). Same bridge, no new acquisition logic.
+                return self._continue_block_acquisition()
+            return None
+
+        return self._continue_block_acquisition()
+
+    def _continue_block_acquisition(self) -> dict | None:
+        """Shared tail for _try_start_acquisition_from_mention: load the next
+        pending block's gap into the session and open it via the existing
+        Bug54/FN-011/FN-013 bridge. No new acquisition logic."""
         self._set_pending_next_block()
         session = self.state_manager.get_runtime_session()
         if not session.pending_define_missing:
@@ -964,17 +1108,115 @@ class JarvisOrchestrator:
             return None
         suggestions = list(session.motor_suggestions or [])
         label = self._block_label_for(project_state, block_key)
+        message = f"Seguimos con {label} — sin reiniciar lo ya capturado."
+        first = pending[0]
+        # FN-018 C0: this was the one remaining path still calling
+        # _question_for_param unconditionally for a component key, producing
+        # "¿Cuál es el valor de propellers?" instead of the harmonized
+        # COMPONENT_PROMPTS/Brief text every other entry point already uses
+        # (FN-017 B5/B3, FN-015 help). Route component keys through the same
+        # Brief builder; non-component params keep the original path.
+        if first in COMPONENT_PROMPTS:
+            brief = build_acquisition_brief(first, project_state)
+            if brief["message"]:
+                message = f"{message}\n\n{brief['message']}"
+            question = brief["question"]
+        else:
+            question = self.param_definition_session._question_for_param(
+                first, suggestions
+            )
         return {
             "status": "interactive",
             "action": "define_missing_params",
-            "message": f"Seguimos con {label} — sin reiniciar lo ya capturado.",
-            "question": self.param_definition_session._question_for_param(
-                pending[0], suggestions
-            ),
+            "message": message,
+            "question": question,
             "pending": pending,
             "motor_suggestions": suggestions,
             "block_declaration_reprompt": True,
         }
+
+    def _help_current_pending_acquisition(self, session: Any) -> dict | None:
+        """FN-015: deterministic help for the current pending acquisition item.
+
+        No session mutation beyond what the delegated bridge already does
+        (offer_catalog_help only refreshes motor_suggestions) — collected_params
+        and pending are otherwise untouched, unlike start_define_missing_params.
+
+        Branches on pending[0]:
+          - assisted motor param (motor_power_w / per_motor_max_thrust_n) →
+            the existing FN-005 catalog-help bridge (offer_catalog_help()).
+          - known component key → _COMPONENT_PROMPTS hint (never mentions
+            energy/battery unless the pending key genuinely is "battery").
+          - any other pending param → re-ask via the existing
+            _question_for_param, with a short clarifying line.
+
+        Returns None when there is nothing pending (caller falls through).
+        """
+        pending = list(session.pending_param_definitions or [])
+        if not pending:
+            return None
+        current = pending[0]
+
+        from jarvis.core.motor_catalog_assist import ASSISTED_MOTOR_PARAMS
+
+        if current in ASSISTED_MOTOR_PARAMS:
+            return self.param_definition_session.offer_catalog_help()
+
+        if current in _COMPONENT_PROMPTS:
+            # FN-018 C0b: same Brief builder as Phase A open / FN-013 reprompt
+            # — never a bare "Seguimos definiendo {key}." with no guidance.
+            brief = build_acquisition_brief(current, self._safe_active_project())
+            message = brief["message"] or f"Seguimos definiendo {current}."
+            return {
+                "status": "interactive",
+                "action": "define_missing_params",
+                "message": message,
+                "question": brief["question"],
+                "pending": pending,
+                "pending_help": True,
+            }
+
+        question = self.param_definition_session._question_for_param(current)
+        return {
+            "status": "interactive",
+            "action": "define_missing_params",
+            "message": "Te ayudo con el valor pendiente.",
+            "question": question,
+            "pending": pending,
+            "pending_help": True,
+        }
+
+    def _try_help_define_pending_idle(self, user_input: str) -> dict | None:
+        """FN-015 §4.4: IDLE + bare "ayúdame a definir" with a known next gap.
+
+        Opens the same deterministic bridge as Bug54/FN-011/FN-014
+        (_set_pending_next_block + start_define_missing_params) and then
+        immediately returns help for the real pending item — one turn, 0 LLM.
+        Never opens a Continuity-only soft prompt without a real
+        _next_pending_block; returns None (existing routing unchanged) when
+        there is no active/system-defined project or no pending block at all.
+        """
+        if not is_help_define_pending_phrase(user_input):
+            return None
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        if not project_state.design_properties.system_defined:
+            return None
+        pending_block = self._next_pending_block(project_state)
+        if pending_block is None:
+            return None
+
+        self._set_pending_next_block()
+        session = self.state_manager.get_runtime_session()
+        if not session.pending_define_missing:
+            return None
+        self.start_define_missing_params(
+            session.pending_missing_params, reason=session.pending_missing_reason
+        )
+        return self._help_current_pending_acquisition(
+            self.state_manager.get_runtime_session()
+        )
 
     def _track_turn(self, user_input: str, result: dict) -> None:
         """Append user + assistant turns to conversation history (idle mode only)."""
@@ -1104,12 +1346,14 @@ class JarvisOrchestrator:
     def _component_is_low(component: Any) -> bool:
         """True if a component is absent/default (completeness is None or 'low').
 
-        Single source of truth for the 'completeness' threshold used by both
-        _block_progress_status and get_block_in_progress_reason. If the
-        completeness representation ever changes (e.g. a new sentinel value),
-        update only this function.
+        FN-020: thin wrapper over project_closure.component_presence_tier —
+        the same presence primitive classify_component (BOM/Continuity) uses,
+        so architecture progress and BOM/Continuity can never disagree on
+        what counts as "present" again. Behavior unchanged (still exactly
+        completeness == 'low'); only the threshold's ownership moved to a
+        shared, explicitly-named helper.
         """
-        return (component.completeness or "low") == "low"
+        return component_presence_tier(component) == "stub"
 
     @staticmethod
     def get_block_in_progress_reason(state: Any, block: str) -> str:
@@ -1154,7 +1398,19 @@ class JarvisOrchestrator:
         Does nothing when:
         - no active project exists
         - system is not defined (no priority order)
-        - all blocks are already complete
+
+        FN-021: when there is genuinely no next pending block (architecture is
+        fully acquired — any block, not a specific one), and the runtime
+        session is still sat inside an acquisition wizard
+        (DEFINE_MISSING_PARAMETERS), the session is cleared to IDLE instead of
+        silently returning. Without this, the wizard's stale
+        pending_missing_params/param_definition_reason survive architecture
+        completion and steal the next unrelated turn (e.g. an iterate-class
+        phrase gets answered with a leftover component_description_prompt).
+        Gated on mode so callers that only pre-load from IDLE (Bug54/FN-011/
+        FN-014/FN-015 bridges — none of them are ever inside
+        DEFINE_MISSING_PARAMETERS when they call this) keep working unchanged:
+        "nothing left to pre-load" there is a true no-op, not a wizard finish.
         """
         try:
             project_state = self.state_manager.load_active_project(self.workspace_manager)
@@ -1164,6 +1420,8 @@ class JarvisOrchestrator:
             return
         pending = self._next_pending_block(project_state)
         if pending is None:
+            if self.state_manager.get_runtime_session().mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS:
+                self.state_manager.clear_runtime_session()
             return
         block_key, _status = pending
         block_type = get_block_type(block_key)
@@ -1403,7 +1661,11 @@ class JarvisOrchestrator:
         D7: mixed phrases (``4 motores 920KV, hélices 10x4.5``) save every matched component
         in one turn via ``infer_components``.
         """
-        from jarvis.core.component_inference import infer_component, infer_components
+        from jarvis.core.component_inference import (
+            infer_component,
+            infer_component_for_key,
+            infer_components,
+        )
         from jarvis.core.param_definition_session import (
             begin_structural_confirm,
             structural_confirm_needed,
@@ -1411,6 +1673,13 @@ class JarvisOrchestrator:
         from jarvis.domains.aerial import aerial_registry
 
         expected_keys: list[str] = list(session.pending_missing_params or [])
+        if not expected_keys and session.param_definition_reason == MISSING_COMPONENT_DEFINITION:
+            # FN-017 B1 defensive read: pending_missing_params should already be
+            # populated by ParamDefinitionSession.start() for this reason (see
+            # param_definition_session.py), but fall back to the field the live
+            # wizard actually advances (pending_param_definitions) so this method
+            # never silently operates on an empty scope.
+            expected_keys = list(session.pending_param_definitions or [])
 
         # ── Affirmative: user confirmed — emit context-specific prompt ────────
         if self._is_affirmative(user_input):
@@ -1429,7 +1698,33 @@ class JarvisOrchestrator:
 
         # ── Infer one or more components from freeform description (D7) ───────
         specs = infer_components(user_input, registry=aerial_registry)
-        processable = [s for s in specs if s.completeness in ("medium", "high")]
+        # FN-019: bare propeller size ("10x4.5", no "hélices" keyword) has
+        # nothing to trigger aerial_registry's propeller rule, so it falls to
+        # generic_component and loops the user on the Brief forever (FN-017/018
+        # correctly refuse the generic write). When propellers is the
+        # acquisition target and nothing else was recognized, force inference
+        # against the propellers rule directly — reuses the same
+        # extract_propeller_properties/_propeller_completeness the keyword
+        # path already uses, no new regex. Never overrides a real match for
+        # another component (e.g. "bateria 2000mAh" while propellers is also
+        # pending stays battery) — only fires when every spec found is still
+        # generic_component.
+        if "propellers" in expected_keys and all(
+            s.suggested_key == "generic_component" for s in specs
+        ):
+            forced = infer_component_for_key(user_input, "propellers", registry=aerial_registry)
+            if forced is not None and forced.completeness != "low":
+                specs = [forced]
+        # FN-017 B4: inside a scoped wizard (expected_keys set), never silently
+        # write a generic_component placeholder — it has no physical meaning
+        # and previously masked the fact that the description wasn't
+        # recognized as the actually-pending key. Falls through to the
+        # low-completeness branch below, which re-prompts for expected_keys.
+        processable = [
+            s for s in specs
+            if s.completeness in ("medium", "high")
+            and not (expected_keys and s.suggested_key == "generic_component")
+        ]
 
         if processable:
             # Keep only specs that belong to the active expected set (when set).
@@ -1559,13 +1854,21 @@ class JarvisOrchestrator:
                 "message": f"{saved_msg} {follow_up}",
             }
 
-        # ── completeness == "low" → ask targeted follow-up ────────────────────
+        # ── completeness == "low" (or filtered out as generic) → targeted follow-up
+        # FN-017 B3: key-aware. A scoped wizard (expected_keys set) ALWAYS
+        # re-prompts for its own expected key — never the frame-specific
+        # material/masa probe for a different pending component (that was the
+        # root cause of "definir hélices"/"declarar batería" showing "Indica
+        # material y masa..." while propellers was actually pending).
         spec = specs[0] if specs else infer_component(user_input, registry=aerial_registry)
         if spec.suggested_key == "flight_controller" and spec.hints:
             msg = spec.hints[0]
         elif spec.suggested_key == "sensors" and spec.hints:
             msg = spec.hints[0]
-        else:
+        elif (expected_keys and expected_keys[0] == "frame") or (
+            not expected_keys and spec.suggested_key == "frame"
+        ):
+            # Frame's fine-grained probe stays intact — unbroken (criterion H).
             has_mass = "mass_kg" in spec.properties
             has_material = "material" in spec.properties
             if has_material and not has_mass:
@@ -1574,6 +1877,17 @@ class JarvisOrchestrator:
                 msg = "¿De qué material es? Ej: 'fibra de carbono' o 'aluminio'"
             else:
                 msg = "Indica material y masa. Ej: 'fibra de carbono 450g'"
+        elif expected_keys:
+            # FN-018 C1c: same Brief builder as the other entry points —
+            # degrades to the plain COMPONENT_PROMPTS text (via
+            # _component_prompt_for_first_missing's fallback) for keys with
+            # no Brief blurb, identical to FN-017 behavior.
+            brief = build_acquisition_brief(expected_keys[0], self._safe_active_project())
+            question = brief["question"] or self._component_prompt_for_first_missing(expected_keys)
+            msg = f"{brief['message']}\n\n{question}" if brief["message"] else question
+        else:
+            fallback_key = spec.suggested_key if spec.suggested_key not in (None, "generic_component") else None
+            msg = self._component_prompt_for_first_missing([fallback_key] if fallback_key else [])
 
         return {
             "status": "interactive",
@@ -1937,6 +2251,44 @@ class JarvisOrchestrator:
             payload["project_id"] = project_state.project_id
             payload["workspace_path"] = project_state.workspace_path
         return payload
+
+    # FN-022: canonical explore-domain word per goal, used only to compose a
+    # generic CTA ("optimiza para <domain>") — not a second copy of the
+    # strategy catalog, and not thrust-specific (every goal gets one).
+    _GOAL_EXPLORE_DOMAIN: dict[str, str] = {
+        "aumentar_payload": "payload",
+        "mejorar_autonomia": "autonomía",
+        "reducir_masa": "masa",
+        "mejorar_estabilidad": "estabilidad",
+    }
+
+    def _handle_engineering_intent(self, goal_key: str) -> dict:
+        """FN-022: deterministic strategy plan for a bare engineering
+        intention (no numeric mutation yet, no explicit explore request).
+
+        Same sim_context wiring as the analyze path (_build_analyze_context's
+        "last_simulation") so strategies are prioritized against the real
+        project state — 0 LLM, no DSE run (explore only happens via the
+        existing, separate explore_design_space intent).
+        """
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            project_state = None
+        context = self._build_analyze_context(project_state)
+        sim_context = context.get("last_simulation")
+        plan = format_goal_plan(goal_key, sim_context=sim_context)
+        domain = self._GOAL_EXPLORE_DOMAIN.get(goal_key, goal_key.replace("_", " "))
+        cta = (
+            f"Puedes explorar configuraciones (p. ej. 'optimiza para {domain}' "
+            "o 'explora opciones') o indicar un cambio concreto de una palanca."
+        )
+        return {
+            "status": "ok",
+            "action": "engineering_intent",
+            "goal_key": goal_key,
+            "message": f"{plan}\n\n{cta}",
+        }
 
     # ── Startup context ───────────────────────────────────────────────────────
 

@@ -52,30 +52,118 @@ def derive_physical_requirements(project_state: Any) -> dict[str, Any]:
     return req
 
 
-def build_component_bom(project_state: Any) -> dict[str, Any]:
-    """Light BOM: defined / incomplete / missing / declarative-only components."""
-    from jarvis.core.system_architecture_catalog import BLOCK_TO_COMPONENTS
+# FN-020: keys that count as measurable engineering signal (not name-only).
+# Single source of truth for "measurable" — shared by classify_component and
+# build_component_bom's entry metadata. Do not fork a second copy.
+_MEASURABLE = frozenset({
+    "thrust_n",
+    "kv_rating",
+    "power_w",
+    "watts",
+    "battery_capacity_wh",
+    "mass_kg",
+    "torque_nm",
+    "diameter_in",
+    "pitch_in",
+    "motor_count",
+    "propeller_diameter_in",
+    "propeller_pitch_in",
+    "capacity_wh",
+    "gps_model",
+    "sensor_type",
+    "material",
+    "model",
+})
 
-    # Keys that count as measurable engineering signal (not name-only).
-    _MEASURABLE = frozenset({
-        "thrust_n",
-        "kv_rating",
-        "power_w",
-        "watts",
-        "battery_capacity_wh",
-        "mass_kg",
-        "torque_nm",
-        "diameter_in",
-        "pitch_in",
-        "motor_count",
-        "propeller_diameter_in",
-        "propeller_pitch_in",
-        "capacity_wh",
-        "gps_model",
-        "sensor_type",
-        "material",
-        "model",
-    })
+
+def _is_motor_count_gap(field: str) -> bool:
+    fl = field.lower()
+    return (
+        "número de motores" in fl
+        or "numero de motores" in fl
+        or fl.strip() == "motor_count"
+    )
+
+
+def _measurable_and_missing_fields(
+    key: str, spec: Any, project_state: Any
+) -> tuple[bool, list[str]]:
+    """Shared by classify_component and build_component_bom: whether ``spec``
+    carries measurable engineering signal, and its missing_fields with the P2
+    motor_count-in-current_parameters gap already filtered out (motor_count
+    living in current_parameters is not a BOM gap)."""
+    missing_fields = list(getattr(spec, "missing_fields", None) or [])
+    props = getattr(spec, "properties", None) or {}
+    params = getattr(project_state, "current_parameters", None) or {}
+
+    count_from_params = False
+    if key == "motors" and params.get("motor_count") is not None:
+        missing_fields = [f for f in missing_fields if not _is_motor_count_gap(f)]
+        count_from_params = True
+
+    measurable = any(k in props for k in _MEASURABLE) or count_from_params
+    return measurable, missing_fields
+
+
+def component_presence_tier(spec: Any) -> str:
+    """'stub' if ``spec`` is absent/completeness is 'low' (or unset), else
+    'present'.
+
+    FN-020: single source of truth for "is this component present" for
+    architecture-progress purposes (orchestrator._component_is_low /
+    _block_progress_status), and the first branch of classify_component
+    (BOM/Continuity). Presence here deliberately does NOT require measurable
+    data — that finer distinction is classify_component's declared/defined
+    split, which architecture progress does not need (same threshold as
+    before FN-020, just named and shared explicitly now).
+    """
+    if spec is None:
+        return "stub"
+    completeness = getattr(spec, "completeness", "low") or "low"
+    return "stub" if completeness == "low" else "present"
+
+
+def classify_component(key: str, spec: Any, project_state: Any) -> str:
+    """FN-020: single classification of component presence/completeness,
+    consumed by BOTH architecture progress (via component_presence_tier) and
+    BOM/Continuity reporting — eliminates the prior dual-threshold
+    contradiction where a 'medium' completeness component (e.g. a battery
+    with capacity_wh declared) counted as architecture-present but as a BOM/
+    Continuity gap at the same time.
+
+    Returns one of:
+      "missing"  — key not in design_properties.components
+      "stub"     — present but completeness is 'low' (or unset)
+      "declared" — non-low, has measurable signal (or is non-low name-only —
+                   same presence threshold as architecture), but not a
+                   strict close
+      "defined"  — completeness 'high', measurable, no outstanding
+                   missing_fields (strict close)
+
+    Pure over ProjectState-shaped objects (duck-typed via getattr). No I/O.
+    """
+    if spec is None:
+        return "missing"
+    if component_presence_tier(spec) == "stub":
+        return "stub"
+
+    completeness = getattr(spec, "completeness", "low") or "low"
+    measurable, missing_fields = _measurable_and_missing_fields(key, spec, project_state)
+    if completeness == "high" and measurable and not missing_fields:
+        return "defined"
+    return "declared"
+
+
+def build_component_bom(project_state: Any) -> dict[str, Any]:
+    """Light BOM: defined / incomplete / missing / declarative-only components.
+
+    FN-020: bucket routing is driven entirely by classify_component (single
+    classifier, shared with architecture progress) — "incomplete" now means
+    genuinely low/stub (a real acquisition target), never a merely-medium-but-
+    measurable component (that lands in "declarative", matching what
+    architecture progress already treats as present).
+    """
+    from jarvis.core.system_architecture_catalog import BLOCK_TO_COMPONENTS
 
     dp = getattr(project_state, "design_properties", None)
     components = getattr(dp, "components", None) or {}
@@ -94,45 +182,25 @@ def build_component_bom(project_state: Any) -> dict[str, Any]:
     missing: list[str] = []
     declarative: list[dict[str, Any]] = []
 
-    def _is_motor_count_gap(field: str) -> bool:
-        fl = field.lower()
-        return (
-            "número de motores" in fl
-            or "numero de motores" in fl
-            or fl.strip() == "motor_count"
-        )
-
-    def _classify(key: str, spec: Any) -> None:
-        completeness = getattr(spec, "completeness", "low") or "low"
-        missing_fields = list(getattr(spec, "missing_fields", None) or [])
-        props = getattr(spec, "properties", None) or {}
-        params = getattr(project_state, "current_parameters", None) or {}
-
-        # P2: if motor_count lives in current_parameters, don't report it as a BOM gap
-        count_from_params = False
-        if key == "motors" and params.get("motor_count") is not None:
-            missing_fields = [f for f in missing_fields if not _is_motor_count_gap(f)]
-            count_from_params = True
-
-        measurable = any(k in props for k in _MEASURABLE) or count_from_params
-        entry = {
+    def _entry(key: str, spec: Any) -> dict[str, Any]:
+        _, missing_fields = _measurable_and_missing_fields(key, spec, project_state)
+        return {
             "key": key,
             "name": getattr(spec, "name", key),
-            "completeness": completeness,
+            "completeness": getattr(spec, "completeness", "low") or "low",
             "missing_fields": missing_fields,
             "component_type": getattr(spec, "component_type", None),
         }
-        if completeness == "low":
+
+    def _classify(key: str, spec: Any) -> None:
+        tier = classify_component(key, spec, project_state)
+        entry = _entry(key, spec)
+        if tier == "stub":
             incomplete.append(entry)
-        elif not measurable:
-            declarative.append(entry)
-        elif missing_fields:
-            incomplete.append(entry)
-        elif completeness == "medium":
-            # Measurable but not fully specified (e.g. KV without thrust)
-            incomplete.append(entry)
-        else:
+        elif tier == "defined":
             defined.append(entry)
+        else:  # "declared"
+            declarative.append(entry)
 
     for key in expected_keys:
         spec = components.get(key)

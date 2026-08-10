@@ -9,6 +9,7 @@ Flujo:
 from __future__ import annotations
 
 import json
+import re
 import unicodedata
 from typing import Optional
 
@@ -88,6 +89,11 @@ _GOAL_KEYWORDS: list[tuple[str, list[str]]] = [
             "levantar mas", "levantar peso", "mas carga",
             "mejorar carga", "aumentar carga", "incrementar carga",
             "subir carga", "mas peso util", "peso util",
+            # FN-022: fill natural-intention gaps (generic, same pattern as
+            # the existing entries — not thrust-specific).
+            "aumentar payload", "subir payload", "incrementar payload",
+            "mas capacidad de carga", "transportar mas peso", "transportar mas carga",
+            "cargar mas",
         ],
     ),
     (
@@ -96,6 +102,9 @@ _GOAL_KEYWORDS: list[tuple[str, list[str]]] = [
             "autonomia", "duracion vuelo", "vuelo mas largo", "mas tiempo",
             "mejorar autonomia", "aumentar autonomia", "mas autonomia",
             "bateria", "duracion bateria", "mas vuelo",
+            # FN-022: fill natural-intention gaps.
+            "volar mas tiempo", "volar mas", "mayor autonomia",
+            "aumentar el tiempo de vuelo", "mas duracion",
         ],
     ),
     (
@@ -123,6 +132,16 @@ _GOAL_KEYWORDS: list[tuple[str, list[str]]] = [
             "estabilidad", "mas estable", "mejorar estabilidad",
             "aumentar estabilidad", "estabilizar", "vuelo estable",
             "margen de seguridad", "margen seguridad", "safety margin",
+            # FN-022: primary mapping for thrust/empuje-as-intention — this
+            # goal's strategies already lead with thrust/margin levers
+            # (per_motor_max_thrust_n / safety_factor), so "aumentar empuje"
+            # style phrases land here rather than creating a fifth goal.
+            # Documented in FN-022 report §3.
+            "margen", "poco margen", "margen bajo", "margen justo",
+            "empuje", "mas empuje", "aumentar empuje", "subir empuje",
+            "mas thrust", "aumentar thrust", "thrust",
+            "relacion empuje peso", "relacion empuje/peso", "ratio empuje peso",
+            "thrust to weight", "thrust/weight",
         ],
     ),
 ]
@@ -146,6 +165,36 @@ def detect_goal(user_input: str) -> Optional[str]:
             if kw in normalized:
                 return goal_key
     return None
+
+
+# FN-022: any digit means the user already gave a concrete target value
+# (bare number, "a 15 N", "en 2 kg", ...) — deliberately conservative, no
+# unit/format parsing. A numeric value always means iterate/define_params
+# owns the turn, never the intention-only goal plan.
+_HAS_DIGIT_RE = re.compile(r"\d")
+
+
+def looks_like_numeric_mutate(user_input: str) -> bool:
+    """True when the input already carries a concrete numeric target."""
+    return bool(_HAS_DIGIT_RE.search(user_input))
+
+
+def is_engineering_intention(user_input: str) -> Optional[str]:
+    """FN-022: detect a bare engineering intention ("aumentar el empuje",
+    "mejorar la autonomía", ...) with no concrete target value yet.
+
+    Returns the goal_key when detect_goal() recognizes a goal AND the input
+    does not already carry a numeric value (looks_like_numeric_mutate) —
+    None otherwise, so a phrase like "sube el empuje a 15N" is left alone
+    for the existing iterate/define_params path. Generic over every goal in
+    GOAL_STRATEGIES — no goal-specific branching here.
+    """
+    key = detect_goal(user_input)
+    if key is None:
+        return None
+    if looks_like_numeric_mutate(user_input):
+        return None
+    return key
 
 
 def _prioritize_strategies(
