@@ -194,6 +194,17 @@ class IntentResolver:
         r"\bque\s+parametros?\b",                                # "qué parámetros me faltan"
         r"\bque\s+(?:hay\s+)?pendiente[s]?\b",                  # "qué hay pendiente"
         r"\bque\s+(?:me\s+)?(?:falta|queda)\s+(?:definir|completar|configurar)\b",
+        # FN-023: generic next-step orientation help ("ayúdame con el
+        # siguiente paso") — must resolve to project_status (Continuity
+        # authority, 0 LLM) via GUIDANCE, checked before ANALYZE's bare
+        # \bayudame\b would otherwise claim it and send it to the LLM. Not a
+        # named block/component/value request — those are FN-005/011/014/015's
+        # territory and already return before resolve_intent is ever called.
+        # Bare "siguiente paso" / "cuál es el siguiente paso" (no "ayudame")
+        # already resolve to project_status via STATUS_PATTERNS — unaffected.
+        r"\bayudame\b.*\bsiguiente\s+paso\b",
+        r"\bayudame\s+con\s+el\s+siguiente\b",
+        r"\bayudame\s+a\s+seguir\b",
     )
     _GUIDANCE_PATTERNS_RE = tuple(
         re.compile(p) for p in GUIDANCE_PATTERNS
