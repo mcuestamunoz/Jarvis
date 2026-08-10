@@ -6,6 +6,135 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
+### ✅ COMPLETADO — FN-023: ayuda genérica de "siguiente paso" → Continuity/`project_status`
+
+> "ayúdame con el siguiente paso" resolvía `intent="analyze"` (`\bayudame\b` de `ANALYZE_PATTERNS` gana antes de que `_looks_like_status_query` llegue a ejecutarse) → LLM → podía inventar un gap no relacionado (p. ej. `battery_capacity_wh`) aunque Continuity ya conocía el target real pendiente.
+
+**Plan:**
+1. [x] Tres patrones nuevos en `GUIDANCE_PATTERNS` (`intent_resolver.py`, chequeados antes que `ANALYZE_PATTERNS`) — "ayúdame con el siguiente paso"/"ayúdame con el siguiente"/"ayúdame a seguir" → `intent="project_status"`
+2. [x] **Sin cambios en `orchestrator.py`** — el despacho `if intent == "project_status"` (cola IDLE) y el soft-interrupt ya existente dentro de `DEFINE_MISSING_PARAMETERS` (Bug 56) ya reutilizan `_handle_project_status()`/Continuity automáticamente en cuanto `resolve_intent` devuelve el valor correcto
+3. [x] Genérico: probado con dos gaps reales distintos (propulsión/hélices vs estructura/frame) — cada uno refleja su propio `next_architecture_label`/`next_useful_step`, nunca batería inventada
+4. [x] Tests: `test_fn023_next_step_help.py` (8) + regresión FN-005/011/013/014/015/016/017/018/019/020/021/022 + orchestrator/main_cli (185) verdes
+
+**Siguiente:** Create→BOM handoff. Consistencia plan-first vs auto-DSE (residual de FN-022, opcional). Step D sigue bloqueado.
+
+### ✅ COMPLETADO — FN-022: Engineering Intent → plan de estrategia determinista
+
+> Una intención de ingeniería sin valor concreto ("Aumentar el empuje", "más thrust") resolvía `intent="iterate"` (verbo `aumentar`/`subir` capturado antes de cualquier capa de goal) y abría el wizard de iterate, o caía al LLM — en vez del plan estratégico determinista que ya vive en `goal_planner.GOAL_STRATEGIES`/`format_goal_plan`.
+
+**Plan:**
+1. [x] `goal_planner._GOAL_KEYWORDS` ampliado para **los 4 goals** (no solo empuje) — payload/autonomía/masa también rellenados; empuje/thrust/margen añadidos bajo `mejorar_estabilidad` (mapping primario documentado: esa goal ya lidera con la palanca de thrust/margen)
+2. [x] Nuevo `goal_planner.is_engineering_intention(text) -> goal_key | None` — `detect_goal` + guarda conservadora `looks_like_numeric_mutate` (cualquier dígito ⇒ deja el turno a iterate)
+3. [x] Nueva puerta IDLE en `orchestrator.py`: `intent in ("iterate", "unknown")` con goal detectado → `_handle_engineering_intent(goal_key)` (reutiliza `format_goal_plan` + el mismo `sim_context` que ya usa `_handle_analyze`, 0 LLM), insertada justo antes del despacho de iterate existente — todas las rutas más específicas (`project_status`/`analyze`/`define_params`/`dismiss_suggestion`/`explore_design_space`/`apply_exploration_result`) quedan intactas
+4. [x] Tests: `test_fn022_engineering_intent.py` (9) + `test_goal_planner.py` (8 nuevos) + regresión FN-011..021/orchestrator/iterate/reasoning_layer (283) verdes
+5. [x] **Ajuste dentro de este mismo corte**: una aserción propia de FN-021 (`"Aumentar el empuje"` → `iterate_interactive`) se actualizó para aceptar el resultado ahora mejor (`engineering_intent`) — la propiedad que FN-021 realmente protege (sin component prompt obsoleto) se mantiene intacta
+
+**Siguiente:** ayuda genérica al siguiente paso → Continuity, Create→BOM handoff. Step D sigue bloqueado.
+
+### ✅ COMPLETADO — FN-021: higiene de sesión — arquitectura completa vuelve a IDLE
+
+> Al completar adquisición, cuando `_next_pending_block()` es `None` (nada más que adquirir, para **cualquier** bloque), `_set_pending_next_block()` hacía `return` sin más — dejando `mode=DEFINE_MISSING_PARAMETERS` con `pending_missing_params`/`param_definition_reason` obsoletos. El siguiente turno, sea cual sea su intención real, se respondía con un `component_description_prompt` residual. Sonda de campo: "Aumentar el empuje" tras arquitectura 4/4 seguía pidiendo la controladora de vuelo.
+
+**Plan:**
+1. [x] `_set_pending_next_block()`: cuando `pending is None` **y** la sesión sigue en `DEFINE_MISSING_PARAMETERS`, llama a `state_manager.clear_runtime_session()` (existente, sin inventar un segundo clearer) en vez de retornar en silencio. Gateado por modo, no por bloque/clave — genérico
+2. [x] Camino de parámetros numéricos (`ParamDefinitionSession.answer()`) ya se autolimpiaba en su propia finalización — el bug era específico del camino de finalización de `_handle_component_description`, que nunca limpiaba por sí mismo
+3. [x] Encadenamiento a bloque no-final sin cambios (código de esa rama no tocado)
+4. [x] Tests: `test_fn021_session_hygiene.py` (4) — prueba primaria con fixture mínima de un solo bloque (genérica, sin ramas por tipo de bloque/clave) + sonda de campo (control/"Aumentar el empuje") como test adicional, no como diseño
+
+**Siguiente:** Engineering Intent → goal_planner/DSE (contrato aparte), "ayúdame con el siguiente paso" → Continuity, Create→BOM handoff. Step D sigue bloqueado.
+
+### ✅ COMPLETADO — FN-019: hélice sin palabra clave ("10x4.5" a secas)
+
+> Bloqueo de campo: con `propellers` pendiente, el Brief/`COMPONENT_PROMPTS` anuncian `'10x4.5'` como ejemplo, pero sin la palabra "hélices" nunca disparaba la regla de `aerial_registry` (gateada por keyword) → `generic_component` → FN-017/018 rechazan correctamente la escritura y repiten el mismo Brief → el usuario queda en bucle con su propio ejemplo anunciado.
+
+**Plan:**
+1. [x] Nuevo `component_inference.py::infer_component_for_key(raw_name, suggested_key, ...)` — fuerza la inferencia contra la regla de una clave concreta (mismo `extract_propeller_properties`/`_propeller_completeness`, sin regex nueva), sin pasar por el match de keywords
+2. [x] Refactor de `infer_component` para compartir la construcción del spec vía `_spec_from_rule` (sin duplicar)
+3. [x] Wiring en `orchestrator._handle_component_description`, gateado estrictamente: solo dispara si `"propellers" in expected_keys` **y** todos los specs que encontró `infer_components` siguen siendo `generic_component` — nunca sustituye un match real de otro componente
+4. [x] Tests: `test_fn019_bare_propeller_size.py` (7, A–G) + regresión FN-011/013/014/015/016/017/018/020 (100 tests) verdes
+
+**Siguiente:** Create → BOM handoff queda para un contrato posterior. Step D sigue bloqueado hasta autorización del Engineer.
+
+### ✅ COMPLETADO — FN-020: coherencia de completitud (arquitectura ↔ BOM ↔ Continuity)
+
+> Dos umbrales de completitud contradictorios sobre el mismo `ComponentSpec`: `_block_progress_status` trataba cualquier `completeness` no-`low` como presente (arquitectura 4/4), mientras `build_component_bom` metía cualquier `medium` en `incomplete` sin condición — Continuity podía decir "aún tiene gaps de componentes" en el mismo turno que "Arquitectura: 4/4". Caso real: `construir-dron-6ac77f21daf5` (battery/sensors en `medium` con propiedades medibles reales).
+
+**Plan:**
+1. [x] Nuevo `project_closure.py::classify_component(key, spec, project_state) -> missing/stub/declared/defined` — clasificador único, sobre `component_presence_tier(spec) -> stub/present` (primitiva compartida) y `_measurable_and_missing_fields` (reutiliza `_MEASURABLE` + la regla motor_count-en-current_parameters existente, sin fork)
+2. [x] `build_component_bom` enruta sus 4 buckets (forma sin cambios: `defined`/`incomplete`/`missing`/`declarative`) vía el clasificador — `incomplete` ahora es solo `stub` real, nunca `medium`-pero-medible (eso cae en `declarative`)
+3. [x] `orchestrator._component_is_low` — wrapper delgado sobre `component_presence_tier`, comportamiento sin cambios (sigue siendo exactamente `completeness == "low"`)
+4. [x] `project_continuity.py` — **sin cambios de código**: su lógica de situación/evidencia/next-step ya trataba `incomplete`/`missing` (nunca `declarative`) como señal fuerte de gap; verificado con traza real del caso `construir-dron` que el resultado ya es coherente una vez arreglada la clasificación en el BOM
+5. [x] **Hallazgo corregido dentro de este mismo corte, documentado explícitamente** (no en la lista de archivos permitidos del contrato): `tests/test_project_closure_v1.py::test_bom_kv_motor_is_incomplete_not_declarative` fijaba exactamente la contradicción que este corte elimina — renombrado a `test_bom_kv_motor_is_declared_not_stub` y actualizado, mismo precedente que FN-016/017
+6. [x] Tests: `test_fn020_completeness_coherence.py` (6) + `test_project_closure_v1.py`/`test_project_continuity.py`/`test_project_coherence.py`/`test_architecture_progress.py` (67) verdes
+
+**Siguiente:** FN-019 (bare `10x4.5`) es el siguiente en cola. Create → BOM handoff y Step D siguen bloqueados/diferidos.
+
+### ✅ COMPLETADO — FN-018: Thin Acquisition Brief + armonización de preguntas de componente
+
+> Step C de "Acquisition Guided Engineering". C0 (obligatorio): ningún camino que pregunta por una clave de componente pendiente debe usar `_question_for_param` genérico — el único que quedaba (`_try_reprompt_active_block_declaration`, re-prompt de FN-013) ahora usa el mismo builder. C1: abrir/re-preguntar/ayudar sobre un target de definición de componente muestra un Brief corto y determinista (qué definimos / qué sabe Jarvis / por qué importa / qué necesita de mí), sin LLM, sin nueva subsistema de diálogo.
+
+**Plan:**
+1. [x] Nuevo `core/acquisition_brief.py::build_acquisition_brief(key, project_state) -> {message, question}` — blurb estático + hecho determinista de componentes hermanos ya declarados (`BLOCK_TO_COMPONENTS`) + línea "why" opcional (reutiliza `derive_physical_requirements`, sin cálculo nuevo) para `propellers`/`motors`/`battery`/`frame`; degrada a solo `COMPONENT_PROMPTS[key]` para cualquier otra clave (igual que FN-017)
+2. [x] `ParamDefinitionSession.start()` — pregunta de apertura de Fase A usa el Brief cuando existe
+3. [x] `_try_reprompt_active_block_declaration` (FN-013) — **fix C0**: deja de llamar `_question_for_param` sin condición para claves de componente
+4. [x] `_help_current_pending_acquisition` (FN-015) — usa el mismo builder en vez del hint plano de `_COMPONENT_PROMPTS`
+5. [x] `_handle_component_description`, rama `elif expected_keys` (baja completitud) — usa el builder; la rama propia de frame (material/masa) queda intacta
+6. [x] Tests: `test_fn018_acquisition_brief.py` (8) + regresión FN-011/013/014/015/016/017 (61) verdes
+
+**Siguiente:** Step D (subsistema de Guided Engineering) sigue bloqueado hasta autorización explícita del Engineer. Bare `"10x4.5"` sin keyword "hélices" sigue diferido.
+
+### ✅ COMPLETADO — FN-017: plumbing de adquisición de componentes
+
+> Corrige la capa de UX/routing que se apoya sobre el dispatch ya corregido (FN-011–016): `pending_missing_params` coherente en un wizard vivo, follow-up de baja completitud consciente de la clave pendiente (no siempre "material y masa"), ninguna escritura silenciosa de `generic_component`, pregunta de apertura concreta por componente, y `"declarar motores"` en IDLE (motores hechos, hélices pendiente) continúa el bloque de propulsión en vez de caer en el wizard de par de transmisión terrestre.
+
+**Plan:**
+1. [x] `ParamDefinitionSession.start()` — puebla `pending_missing_params`/`pending_missing_reason` desde la misma lista cuando `reason == MISSING_COMPONENT_DEFINITION` (aditivo, no toca otros callers de Bug54)
+2. [x] `_handle_component_description` — fallback defensivo lee `pending_param_definitions` si `pending_missing_params` viniera vacío
+3. [x] Rama de baja completitud consciente de la clave: frame conserva su probe fino (material/masa), el resto usa `acquisition_target.COMPONENT_PROMPTS[expected_keys[0]]`
+4. [x] `processable` filtra coincidencias `generic_component` cuando hay `expected_keys` — cae al re-prompt dirigido en vez de escribir
+5. [x] `COMPONENT_PROMPTS` movido de `orchestrator._COMPONENT_PROMPTS` a `acquisition_target.py` (fuente única, sin import circular) — `start()` la usa como pregunta de apertura para wizards de definición de componente
+6. [x] Nuevo `orchestrator._continue_block_acquisition()` (dedup del tail Bug54/FN-011/FN-013) — `_try_start_acquisition_from_mention` lo llama cuando el mention resuelve al bloque correcto pero a un componente ya satisfecho, continuando el hueco real del bloque en vez de caer a `define_params`/`intent_resolver`. Sin cambios en `intent_resolver.py`
+7. [x] Tests: `test_fn017_component_acquisition_plumbing.py` (10) + regresión FN-011/013/014/015/016 (43) verdes
+
+**Siguiente:** Corte 4 (copy de `¿Cuál es el valor de X?` restante) y wrong-block-while-wizard LLM leak siguen como residuales conocidos, no corregidos aquí. Bare `"10x4.5"` sin keyword "hélices" sigue sin reconocerse en el registro aéreo — preexistente, diferido.
+
+### ✅ COMPLETADO — FN-016: navegación y seguridad de parseo en adquisición
+
+> `DEFINE_MISSING` (Fase A o B): `"atrás"/"volver"/"vuelve"` cancela limpio (0 LLM, sin escribir valor) en vez de caer en "No reconozco ... como valor". Una clave de componente (`propellers`/`motors`/`battery`/…) nunca recibe un float posicional como si fuera un parámetro numérico.
+
+**Plan:**
+1. [x] `config.NAVIGATION_BACK_WORDS` + `acquisition_target.is_navigation_back_phrase` — exact-match, deliberadamente NO añadido a `ESCAPE_WORDS` global
+2. [x] `param_definition_session._ACQUISITION_COMPONENT_KEYS` (fuente única: `BLOCK_TO_COMPONENTS`) — guard antes del parseo posicional en `answer()`, y en el bucle `zip` (defensa en profundidad para claves no-primeras)
+3. [x] Wiring en `DEFINE_MISSING` (orchestrator, antes del intercept de componentes) y dentro de `ParamDefinitionSession.answer` (fallback para callers directos)
+4. [x] **Hallazgo durante implementación, corregido dentro de este mismo corte** (justificado por el propio criterio D del contrato): el intercept `UX-C` comprobaba `pending_missing_reason`, campo que `ParamDefinitionSession.start()` nunca traslada a la sesión ya abierta — una descripción real de componente tras abrir el wizard (por Bug54, FN-011, FN-013 o FN-014) nunca llegaba a `_handle_component_description` y corrompía silenciosamente `current_parameters["propellers"]=10.0`. Fix aditivo (OR con `param_definition_reason`), sin quitar el check original
+5. [x] Tests: `test_fn016_navigation_parse_safety.py` (11) + regresión FN-011/013/014/015 verdes
+
+**Siguiente:** Corte 4 (copy de `¿Cuál es el valor de X?`) — solo si sigue doliendo tras este corte. Wrong-block-while-wizard LLM leak sigue como residual conocido, no corregido aquí.
+
+### ✅ COMPLETADO — FN-015: ayuda genérica al pendiente ("ayúdame a definir")
+
+> `DEFINE_MISSING` (y IDLE con hueco conocido): `"ayúdame a definir"` / `"ayúdame a definir el valor"` sin nombrar bloque/componente → ayuda determinista para `pending[0]` real (nunca energía/batería si lo pendiente es propulsión). 0 LLM, sesión no se reinicia.
+
+**Plan:**
+1. [x] `acquisition_target.is_help_define_pending_phrase` — excluye help-choose (FN-005) y targets nombrados vía bloque (FN-011/013/014); reutiliza el mismo verbo de adquisición, sin duplicar vocabulario
+2. [x] `orchestrator._help_current_pending_acquisition` — rama por `pending[0]`: catálogo asistido (FN-005) / hint de `_COMPONENT_PROMPTS` / re-pregunta genérica; sin mutar `collected_params`
+3. [x] Wiring en `DEFINE_MISSING` (tras FN-013, antes de analyze→LLM) y en IDLE (abre el bridge de Bug54/FN-011/014 y devuelve la ayuda en el mismo turno)
+4. [x] Tests: `test_fn015_pending_help.py` (9) + regresión FN-005/011/013/014 verdes
+
+**Siguiente:** FN-016 (navegación `atrás` / parse safety) — próximo contrato, no incluido aquí.
+
+### ✅ COMPLETADO — FN-014: Acquisition Target Authority (gate IDLE unificado)
+
+> IDLE: `definir/declarar/completar + bloque **o componente** activo` (p.ej. `"definir propellers"`) abre adquisición determinista — antes caía en ITERATE_INTERACTIVE porque `propellers` no es un alias de bloque. Mismo bridge que FN-011/Bug54, sin duplicar lógica.
+
+**Plan:**
+1. [x] `core/acquisition_target.py` — `resolve_acquisition_mention` (bloque ∪ componente, con verbo de adquisición reutilizado de `IntentResolver.DECLARE_BLOCK_VERB_PATTERNS`) + `is_mention_on_active_gap`
+2. [x] `orchestrator._try_start_acquisition_from_mention` sustituye el call site IDLE de FN-011 (superset estricto); `_try_declare_active_block_help` (FN-011) queda como wrapper delgado
+3. [x] Bloque equivocado (`definir batería` con propulsión activa) → mensaje determinista, sin saltar de bloque, 0 LLM
+4. [x] Tests: `test_fn014_acquisition_target_idle.py` (11) + regresión FN-011 (7) + FN-013 (5) verdes
+
+**Siguiente:** FN-015 (`ayúdame a definir` sin bloque, dentro de DEFINE_MISSING) y FN-016 (`atrás`/navegación) — próximos contratos, no incluidos aquí.
+
 ### ✅ COMPLETADO — FN-013: declare block dentro de DEFINE_MISSING
 
 > En adquisición activa, `definir/declarar/completar + bloque activo` re-pregunta el pendiente (0 LLM), sin reiniciar sesión ni saltar de bloque.
