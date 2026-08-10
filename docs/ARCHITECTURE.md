@@ -42,6 +42,7 @@ _list_existing_projects → proyectos en disco
   └─ hay proyectos → mostrar lista + opción n/1/2...
        ├─ n → instrucción libre (loop normal)
   └─ 1..N / texto ordinal ("continuar", "el más reciente", "uno"...) → touch(state.json) + build_startup_context() [sin LLM]
+       └─ Continuity (situation / evidence / next_useful_step) dentro del startup context
 Input de usuario
   │
   ├─ sesión activa (CREATE_PROJECT_INTERACTIVE)
@@ -52,36 +53,46 @@ Input de usuario
   │     └─ system_definition_session.answer(input)             [sin LLM]
   │           └─ completado → stubs + system_priority → bridge → DEFINE_MISSING_PARAMETERS
   │
-  ├─ sesión activa (DEFINE_MISSING_PARAMETERS)
-  │     └─ param_definition_session.answer(input)              [sin LLM]
+  ├─ sesión activa (DEFINE_MISSING_PARAMETERS)                 [sin LLM]
+  │     ├─ soft-interrupt project_status / analyze
+  │     ├─ FN-013/014/015: re-prompt bloque activo / help-define pendiente
+  │     ├─ FN-016: "atrás"/"volver" → cancel (no valor)
+  │     ├─ descripción de componente (+ Brief FN-018; bare size FN-019 si aplica)
+  │     └─ param_definition_session.answer / component path
+  │           └─ al completar último bloque → clear → IDLE (FN-021)
   │
   ├─ sesión activa (ITERATE_INTERACTIVE)
-  │     ├─ classify_input_intent → "information" / "hybrid" → _handle_analyze   [sin LLM]
-  │     └─ classify_input_intent → "action" → iterate_interactive_session.answer(session, input)  [sin LLM]
+  │     ├─ classify_input_intent → "information" / "hybrid" → _handle_analyze
+  │     └─ classify_input_intent → "action" → iterate_interactive_session.answer
   │
-  ├─ intent_resolver: acción clara (calcular, simular, reducir...)
-  │     └─ ActionRequest local                       [sin LLM]
+  ├─ IDLE — Acquisition Target (FN-014/015): "definir/declarar <bloque|componente>"
+  │     └─ resolve_acquisition_mention → DEFINE_MISSING / Brief          [sin LLM]
   │
-  ├─ intent_resolver: project_status ("estado del proyecto", "resumen"...)
-  │     └─ build_startup_context() → render          [sin LLM]
+  ├─ intent_resolver: project_status / GUIDANCE
+  │     ("estado…", "siguiente paso", "ayúdame con el siguiente paso" FN-023…)
+  │     └─ build_startup_context() + Continuity                          [sin LLM]
   │
-  ├─ intent_resolver: explore_design_space ("optimiza para autonomía"...)
-  │     └─ _handle_explore → DesignExplorer.explore() → ExplorationResult  [sin LLM]
-  │           └─ persiste en session.last_exploration_result
+  ├─ intent_resolver: explore_design_space ("optimiza para autonomía"…)
+  │     └─ _handle_explore → DesignExplorer                              [sin LLM]
   │
-  ├─ intent_resolver: apply_exploration_result ("aplica la mejor"...)
-  │     └─ _handle_apply_exploration → _apply_delta → calculate → simulate → save  [sin LLM]
+  ├─ intent_resolver: apply_exploration_result ("aplica la mejor"…)
+  │     └─ _handle_apply_exploration → calculate → simulate → save       [sin LLM]
   │
-  ├─ intent_resolver: analyze (pregunta, "qué pasa si"...)
-  │     └─ LLM (respuesta en texto natural)          [LLM]
+  ├─ IDLE — Engineering Intent (FN-022): intención sin valor numérico
+  │     ("aumentar el empuje", …) → is_engineering_intention
+  │     └─ format_goal_plan + CTA (0 LLM; DSE solo si luego exploran)
+  │
+  ├─ intent_resolver: acción clara (calcular, simular, iterate con valor…)
+  │     └─ ActionRequest local                                           [sin LLM]
+  │
+  ├─ intent_resolver: analyze (pregunta, "qué pasa si"…)
+  │     └─ LLM (puede anteponer format_goal_plan si detect_goal)         [LLM]
   │
   └─ intent_resolver: ambiguous / unknown
-        └─ LLM → JSON → response_parser + ActionPolicy → ActionRequest
-             └─ Interactive session o acción directa
-                  └─ Planner opcional
-                       └─ Mutation / Calculation / Simulation
-                            └─ Workspace + state.json
+        └─ LLM → JSON → ActionRequest → Mutation / Calculation / Simulation
 ```
+
+> **Autoridad:** el estado del proyecto / Continuity / Acquisition Target eligen el *siguiente objetivo de ingeniería*. El LLM interpreta lenguaje; no inventa el gap pendiente. Sin Conversation Engine. Step D (Guided Engineering ampliado) y Create→BOM: fuera de este mapa hasta aprobación explícita — ver `docs/PROJECT_CONTINUITY.md` e `IMPLEMENTATION_TASKS.md`.
 
 ## Capas Del Sistema
 
@@ -140,18 +151,15 @@ Orden de ejecución en `handle_user_text`:
 1. _handle_global_commands            ← comandos universales (escape, nuevo proyecto)
 2. modo de sesión activo
    - CREATE_PROJECT_INTERACTIVE        ← delega a create_project wizard
-   - ITERATE_INTERACTIVE               ← en orden:
-                                          (a) soft interrupt Bug 7: project_status / analyze → responde + wizard_reprompt (sesión intacta)
-                                          (b) classify_input_intent: "information"/"hybrid" → _handle_analyze + wizard_reprompt
-                                          (c) hard preempt (calibración 2026-08-05): explore/calculate/simulate/
-                                              create_project/define_params/iterate/components → clear_runtime_session +
-                                              re-dispatch idle; respuesta con preempted_iterate + aviso
-                                          (d) resto → delega al iterate wizard
-   - DEFINE_MISSING_PARAMETERS         ← delega a param_definition_session
-   - SYSTEM_DEFINITION                 ← delega a system_definition_session
-3. capa de ingesta                    ← ParamDefinitionSession.try_ingest
-4. intent resolver                    ← sin LLM
-5. fallback LLM                       ← último recurso
+   - ITERATE_INTERACTIVE               ← soft interrupt / classify / hard preempt / wizard
+   - DEFINE_MISSING_PARAMETERS         ← soft-interrupt status; FN-013/015; nav-back FN-016;
+                                         component description + Brief; param wizard
+   - SYSTEM_DEFINITION                 ← system_definition_session
+3. IDLE Acquisition Target (FN-014/015) ← mention gate / bare help-define → acquisition
+4. intent resolver                    ← sin LLM (GUIDANCE/status antes que ANALYZE)
+5. IDLE Engineering Intent (FN-022)   ← iterate|unknown + is_engineering_intention → goal_plan
+6. acciones locales / explore / apply ← calculate, simulate, iterate-con-valor, DSE…
+7. fallback LLM                       ← último recurso
 ```
 
 Existe además una CLI mínima para validación humana real en `python -m jarvis.main --chat`.
@@ -182,12 +190,31 @@ Diccionario `WARNING_MESSAGES: dict[str, str]` que mapea códigos de warning del
 Detecta objetivos de diseño en lenguaje natural y genera planes estratégicos priorizados.
 
 - `GOAL_STRATEGIES: dict[str, list[dict]]` — catálogo de estrategias por objetivo
-- `detect_goal(text) → str | None` — detecta palabras clave para `aumentar_payload`, `mejorar_autonomia`, `reducir_masa`, `mejorar_estabilidad`
-- `_prioritize_strategies(key, strategies, sim_context) → list[dict]` — reordena estrategias según `safety_margin_ratio` del estado actual (baja margen → prioriza reducción de carga; alta → permite añadir payload)
-- `format_goal_plan(key, sim_context) → str` — genera bloque determinista en texto para el usuario
-- `get_goal_context_for_llm(key) → str` — contexto inyectado al prompt LLM para análisis complementario
+- `detect_goal(text) → str | None` — keywords para `aumentar_payload`, `mejorar_autonomia`, `reducir_masa`, `mejorar_estabilidad` (incluye empuje/thrust → `mejorar_estabilidad`)
+- `looks_like_numeric_mutate` / `is_engineering_intention` — FN-022: intención bare sin dígitos → `goal_key`; con valor numérico → cede a iterate
+- `_prioritize_strategies(key, strategies, sim_context) → list[dict]` — reordena según `safety_margin_ratio` / warnings
+- `format_goal_plan(key, sim_context) → str` — bloque determinista para el usuario
+- `get_goal_context_for_llm(key) → str` — contexto inyectado al prompt LLM
 
-Flujo en `_handle_analyze`: si `detect_goal` identifica un objetivo → `format_goal_plan` → separador `"─── Evaluación contextual ───"` → análisis LLM contextual.
+**Dos usos:**
+1. **IDLE Engineering Intent (FN-022):** gate en orquestador antes de iterate → `_handle_engineering_intent` → `format_goal_plan` + CTA a vocabulario DSE existente — **0 LLM**, sin auto-DSE.
+2. **`_handle_analyze`:** si `detect_goal` → antepone `format_goal_plan` al análisis LLM.
+
+Residual documentado: frases que ya matchean `EXPLORE_PATTERNS` (`mejorar estabilidad`…) siguen auto-DSE; no unificar en este mapa (ver `.jes/artifacts/residual_engineering_intent_plan_vs_explore.md`).
+
+#### Acquisition Fluency + Continuity (FN-014…021, FN-023)
+
+Módulos deterministas; el LLM no elige el siguiente target de adquisición.
+
+| Módulo | Rol |
+|---|---|
+| `core/acquisition_target.py` | Autoridad de mención bloque∪componente; `COMPONENT_PROMPTS`; help-define / nav-back helpers |
+| `core/acquisition_brief.py` | Brief fino (qué / qué sabe Jarvis / pregunta) reutilizado en open / re-prompt / help |
+| `core/project_continuity.py` | `build_project_continuity` → situation / evidence / `next_useful_step` |
+| `core/project_closure.py` | BOM + `classify_component` / `component_presence_tier` (FN-020: una clasificación para arch↔BOM↔Continuity) |
+| `config.NAVIGATION_BACK_WORDS` | `atras`/`volver`/`vuelve` — solo wizards de adquisición (FN-016), no escape global |
+
+Orquestador (IDLE / DEFINE_MISSING): gates FN-014…018, bare propeller vía `infer_component_for_key` (FN-019), clear a IDLE al cerrar arquitectura (FN-021). Detalle de field notes: `docs/PROJECT_CONTINUITY.md`.
 
 ### 3. Estado temporal vs persistente
 
@@ -501,21 +528,24 @@ Si el contexto incluye `proactive_question`, la CLI inicia automáticamente una 
 4. Bloque de arquitectura composite `not_started` — Phase A: componentes; Phase B: parámetros numéricos
 5. Bloque de arquitectura param-driven o component-driven pendiente
 
-### Intent `project_status`
+### Intent `project_status` (+ Continuity)
 
-Cuando el usuario escribe frases como `"estado del proyecto"`, `"resumen"`, `"qué falta"` o `"cómo va el proyecto"`, `IntentResolver` las clasifica como `project_status` (no `analyze`). El orquestador las atiende en `_handle_project_status()`, que delega en `build_startup_context()` — misma fuente de verdad, cero llamadas LLM.
+Cuando el usuario escribe frases como `"estado del proyecto"`, `"resumen"`, `"qué falta"`, `"siguiente paso"` o `"cómo va el proyecto"`, `IntentResolver` las clasifica como `project_status` (no `analyze`). El orquestador las atiende en `_handle_project_status()`, que delega en `build_startup_context()` — misma fuente de verdad, cero llamadas LLM. El contexto incluye `continuity` (`situation` / evidence / `next_useful_step`).
 
-`STATUS_PATTERNS` vive separado de `QUESTION_PATTERNS` en `IntentResolver`. `_looks_like_status_query()` se evalúa antes que `_looks_like_question()` para garantizar precedencia.
+`STATUS_PATTERNS` vive separado de `QUESTION_PATTERNS`. `_looks_like_status_query()` se evalúa antes que `_looks_like_question()` cuando no hay strong-action previo.
+
+**FN-023:** `"ayúdame con el siguiente paso"` (y variantes) iría a `analyze` por el `\bayudame\b` de `ANALYZE_PATTERNS`. Se corrige en `GUIDANCE_PATTERNS` (evaluados **antes** de ANALYZE en `_resolve_strong_action_intent`) → `project_status`. Continuity sigue siendo la única autoridad del siguiente paso; no hay recommender paralelo.
 
 ### Modo `DEFINE_MISSING_PARAMETERS`
 
 Dos sub-modos bajo el mismo `OrchestratorMode.DEFINE_MISSING_PARAMETERS`, diferenciados por `param_definition_reason`:
 
 **Sub-modo A — Component description** (`reason = MISSING_COMPONENT_DEFINITION`):  
-Activado cuando el siguiente bloque de arquitectura es `component` o el siguiente bloque composite (Phase A) tiene componentes ausentes. `_handle_component_description()` gestiona el input:
-- `infer_component(raw_name, registry)` → `ComponentSpec` con `suggested_key`
-- Routing por `suggested_key`: `"motors"` → `_set_motor_component()`, `"propellers"` → `_set_propeller_component()`, frame/sensors/etc. → helpers específicos
-- Cuando todos los componentes del bloque están completos → `_set_pending_next_block()` avanza al bloque siguiente
+Activado cuando el siguiente bloque de arquitectura es `component` o el siguiente bloque composite (Phase A) tiene componentes ausentes. La pregunta de apertura / re-prompt / help usa `acquisition_brief.build_acquisition_brief` + `acquisition_target.COMPONENT_PROMPTS` (no el genérico `¿Cuál es el valor de X?`). `_handle_component_description()` gestiona el input:
+- `infer_components` y, si aplica, `infer_component_for_key` (FN-019: bare `"10x4.5"` con `propellers` en `expected_keys`)
+- Rechazo de `generic_component` cuando hay `expected_keys` (FN-017)
+- Routing por `suggested_key` → writers (`_set_motor_component`, `_set_propeller_component`, …)
+- Cuando el bloque está completo → `_set_pending_next_block()`; si no hay siguiente bloque y el modo sigue DEFINE_MISSING → `clear_runtime_session()` → IDLE (FN-021)
 
 **Sub-modo B — Param wizard numérico** (`reason ∈ {MISSING_PROPULSION_PARAMETERS, MISSING_ENERGY_PARAMETERS, MISSING_TRANSMISSION_PARAMETERS, MISSING_PROPELLER_PARAMETERS}`):  
 Activado para blocks param-driven o composite Phase B (componentes ya completos, params ausentes).
@@ -531,7 +561,9 @@ El campo `param_definition_reason` incluye: `"missing_transmission_parameters"`,
 
 Este flujo no toca `mutation_engine` ni `IterateInteractiveSession`.
 
-**Escape:** en cualquier paso, el usuario puede escribir `cancelar`, `cancel`, `salir` o `abortar`. El sistema llama `state_manager.clear_runtime_session()` y vuelve al modo `NONE`.
+**Escape global:** `cancelar` / `cancel` / `salir` / `abortar` → `clear_runtime_session()`.
+
+**Navegación de adquisición (FN-016):** `atrás` / `volver` / `vuelve` (`NAVIGATION_BACK_WORDS`) cancelan el wizard de DEFINE_MISSING sin tratarse como valor numérico ni como escape global fuera de adquisición. Las claves de componente nunca reciben un float posicional.
 
 ### Bloque de arquitectura composite — Wizard de dos fases
 
@@ -1419,7 +1451,8 @@ Implementado:
 - `phase_layer.py` — `PhaseLayer.infer(signals, simulation)`: 4 fases deterministas (`definition`, `physical_validation`, `optimization`, `complete`); reglas en prioridad estricta; reutiliza `HIGH_MARGIN_THRESHOLD` de `reasoning_layer`
 - `build_startup_context()` — snapshot operativo sin LLM; jerarquía 4 niveles; `active_variables` y `suggested_action` con hint; `phase`/`phase_description`/`phase_confidence`; `proactive_question` + `missing_params` cuando blocking
 - `OrchestratorMode.DEFINE_MISSING_PARAMETERS` — sesión ligera para recolección de parámetros numéricos + recalculo directo; sin LLM; sin `iterate_interactive`; `param_definition_reason` identifica el origen; `ParamDefinitionSession` usa `parameter_requirements.py` para parseo semántico con fallback posicional
-- `IntentResolver` — `project_status` intent; `STATUS_PATTERNS` separado; consultas de estado no entran por `analyze`
+- `IntentResolver` — `project_status` intent; `STATUS_PATTERNS` + `GUIDANCE_PATTERNS` (FN-023 next-step help) antes de `ANALYZE`; consultas de estado/orientación no entran por `analyze`
+- **Acquisition Fluency + Continuity (FN-014…023)** — `acquisition_target` / `acquisition_brief` / `project_continuity` / `classify_component`; IDLE Engineering Intent (`is_engineering_intention` → `goal_plan`); session hygiene a IDLE (FN-021). Field notes: `PROJECT_CONTINUITY.md`. Create→BOM y Step D: aún no en este mapa.
 - `knowledge/library.py` — capa de biblioteca determinista (no RAG): `ComponentLibrary` carga catálogos JSON de materiales y motores desde `library/`. Lookups exactos (`get_material`, `get_motor`), sugerencia por KV (`find_motors_by_kv`) y por **espacio de diseño** (`find_motors_for_requirements`: empuje/KV/hélice). Cada entrada declara la región que cubre (`design_space`). Sin match → hueco honesto, nunca inventar SKU.
 - `tools/mechanics.py` — `calculate_autonomy_min(battery_capacity_wh, total_power_w)` — dominio energético; fórmula `(wh/w)×60`
 - `tools/electricity.py` — `calculate_autonomy_min` — movida desde `mechanics.py` a su dominio correcto (energía/electricidad)
@@ -1530,9 +1563,11 @@ El wizard determinista (`iterate_interactive_session`) se abre siempre: la difer
 
 - Selección inicial de proyecto por número (`1`, `2`...) — `main.py` lee `state.json` directamente
 - Proyecto seleccionado → startup display — `build_startup_context()` es determinista
-- **Consulta de estado del proyecto** (`"estado del proyecto"`, `"resumen"`, `"qué falta"`...) — `project_status` intent → `build_startup_context()` sin LLM
-- Sesión interactiva activa — cada respuesta va al session handler sin pasar por el LLM
-- Intent claro reconocido por `IntentResolver` (`calcular`, `simular`, `reducir`...) — `ActionRequest` local
+- **Consulta de estado / Continuity** (`"estado del proyecto"`, `"resumen"`, `"qué falta"`, `"siguiente paso"`, `"ayúdame con el siguiente paso"`…) — `project_status` → `build_startup_context()` sin LLM
+- **Acquisition Target / Brief** (declarar bloque∪componente, help-define, nav-back) — orquestador + `acquisition_*` sin LLM
+- **Engineering Intent** (intención bare sin valor) — `goal_plan` determinista (FN-022); no abre iterate
+- Sesión interactiva activa — session handler (salvo soft-interrupt status/analyze)
+- Intent claro (`calcular`, `simular`, iterate **con valor**, explore/apply…) — `ActionRequest` / DSE local
 - Todos los pasos dentro de `create_project_interactive` e `iterate_interactive`
 - Extracción de slots en `semantic_interpreter` — determinista por reglas
 

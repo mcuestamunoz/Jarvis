@@ -6,6 +6,18 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
+### ✅ COMPLETADO — Sync docs: `ARCHITECTURE.md` ↔ stack FN-014…023
+
+> El diagrama de flujo IDLE, el orden de `handle_user_text`, `goal_planner`, `project_status`/Continuity y DEFINE_MISSING no reflejaban Acquisition Fluency / Engineering Intent / next-step help.
+
+**Plan:**
+1. [x] Actualizar flujo conceptual + orden de despacho en `docs/ARCHITECTURE.md`
+2. [x] Documentar módulos `acquisition_*`, Continuity/coherence, FN-022/023
+3. [x] Alinear “cuándo NO interviene el LLM” y bullets de estado actual
+4. [x] Sin Create→BOM, sin Step D, sin cambios de código
+
+**Siguiente:** Create→BOM handoff (diseño). Residual plan-first vs auto-DSE opcional.
+
 ### ✅ COMPLETADO — FN-023: ayuda genérica de "siguiente paso" → Continuity/`project_status`
 
 > "ayúdame con el siguiente paso" resolvía `intent="analyze"` (`\bayudame\b` de `ANALYZE_PATTERNS` gana antes de que `_looks_like_status_query` llegue a ejecutarse) → LLM → podía inventar un gap no relacionado (p. ej. `battery_capacity_wh`) aunque Continuity ya conocía el target real pendiente.
