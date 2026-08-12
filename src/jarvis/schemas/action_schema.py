@@ -127,6 +127,19 @@ class PropertyValue(BaseModel):
     source: Literal["declared", "inferred", "calculated"] = "inferred"
 
 
+class CatalogRef(BaseModel):
+    """Physical Component Catalog v1 (Impl A) — identity placeholder.
+
+    Points a ComponentSpec at a specific `library/**/_datos.json` SKU. Additive
+    and optional: introduced by Impl A's schema, but no writer, assisted pick,
+    or Continuity path populates it yet — that is Impl B's Bind step. See
+    docs/PHYSICAL_COMPONENT_CATALOG_V1.md, decision 1A.
+    """
+
+    family: Literal["motor", "battery", "propeller"]
+    sku: str
+
+
 class ComponentSpec(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -144,6 +157,10 @@ class ComponentSpec(BaseModel):
     # component_inference from the matching ComponentRule.  The resolver reads
     # this instead of hardcoding domain-specific property names.
     output_magnitude: str | None = None
+    # Catalog v1 (Impl A) — optional identity placeholder. Default None means
+    # "declared/inferred, not catalog-bound" (today's only behavior). No
+    # production code path sets this in Impl A — see CatalogRef docstring.
+    catalog_ref: CatalogRef | None = None
 
 
 class IterationOperation(str, Enum):

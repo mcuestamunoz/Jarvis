@@ -14,6 +14,7 @@ import json
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 # Root of the knowledge base relative to this file:
 # src/jarvis/knowledge/ → ../../../../library/
@@ -48,6 +49,56 @@ class MotorSpec:
     kv_min: int = 0
     kv_max: int = 0
     is_generic: bool = False
+    # Catalog v1 (Impl A) — optional enrichment fields. Absent in existing rows;
+    # loader defaults keep every pre-existing motor loading unchanged.
+    manufacturer: str | None = None
+    model: str | None = None
+    max_current_a: float | None = None
+    voltage_min: float | None = None
+    voltage_max: float | None = None
+    compatible_prop_ids: tuple[str, ...] = ()
+    # Optional operating envelope samples. No consumer code reads this in
+    # Impl A/B — present only so the shape exists before it's needed.
+    operating_points: tuple[dict[str, Any], ...] = ()
+    source_url: str | None = None
+
+
+@dataclass(frozen=True)
+class BatterySpec:
+    """Catalog v1 (Impl A) entry: a real battery pack.
+
+    Canonical mass unit is grams (``mass_g``), matching ``MotorSpec.weight_g``'s
+    convention. Voltage identity is carried via ``cells`` and/or
+    ``nominal_voltage`` — at least one is required by the loader (validated at
+    load time, not enforced by the frozen dataclass itself).
+    """
+
+    name: str
+    chemistry: str
+    energy_wh: float
+    mass_g: float
+    cells: int | None = None
+    nominal_voltage: float | None = None
+    capacity_mah: float | None = None
+    max_continuous_current_a: float | None = None
+    c_rating: float | None = None
+    design_space: dict[str, float] | None = None
+    operating_points: tuple[dict[str, Any], ...] = ()
+
+
+@dataclass(frozen=True)
+class PropellerSpec:
+    """Catalog v1 (Impl A) entry: a real propeller."""
+
+    name: str
+    diameter_in: float
+    pitch_in: float
+    mass_g: float | None = None
+    ct: float | None = None
+    cp: float | None = None
+    compatible_kv_band: tuple[int, int] | None = None
+    tags: tuple[str, ...] = ()
+    operating_points: tuple[dict[str, Any], ...] = ()
 
 
 class ComponentLibrary:
@@ -57,6 +108,8 @@ class ComponentLibrary:
         self._root = library_root or _LIBRARY_ROOT
         self._materials: dict[str, MaterialSpec] | None = None
         self._motors: dict[str, MotorSpec] | None = None
+        self._batteries: dict[str, BatterySpec] | None = None
+        self._propellers: dict[str, PropellerSpec] | None = None
 
     # ── Materials ────────────────────────────────────────────────────────────
 
@@ -129,6 +182,20 @@ class ComponentLibrary:
             kv_min=kv_min,
             kv_max=kv_max,
             is_generic=bool(data.get("is_generic", name.startswith("generic_"))),
+            manufacturer=data.get("manufacturer"),
+            model=data.get("model"),
+            max_current_a=(
+                float(data["max_current_a"]) if data.get("max_current_a") is not None else None
+            ),
+            voltage_min=(
+                float(data["voltage_min"]) if data.get("voltage_min") is not None else None
+            ),
+            voltage_max=(
+                float(data["voltage_max"]) if data.get("voltage_max") is not None else None
+            ),
+            compatible_prop_ids=tuple(data.get("compatible_prop_ids") or ()),
+            operating_points=tuple(data.get("operating_points") or ()),
+            source_url=data.get("source_url"),
         )
 
     def _load_motors(self) -> dict[str, MotorSpec]:
@@ -210,6 +277,207 @@ class ComponentLibrary:
             return True
         except KeyError:
             return False
+
+    # ── Batteries (Catalog v1 — Impl A) ───────────────────────────────────────
+
+    @staticmethod
+    def _battery_from_raw(name: str, data: dict) -> BatterySpec:
+        chemistry = data.get("chemistry")
+        energy_wh = data.get("energy_wh")
+        mass_g = data.get("mass_g")
+        if chemistry is None or energy_wh is None or mass_g is None:
+            raise ValueError(
+                f"Battery '{name}' está incompleta en la biblioteca: "
+                "chemistry, energy_wh y mass_g son obligatorios."
+            )
+        cells = data.get("cells")
+        nominal_voltage = data.get("nominal_voltage")
+        if cells is None and nominal_voltage is None:
+            raise ValueError(
+                f"Battery '{name}' no declara identidad de voltaje: "
+                "se requiere 'cells' y/o 'nominal_voltage'."
+            )
+        design_space = data.get("design_space")
+        return BatterySpec(
+            name=name,
+            chemistry=str(chemistry),
+            energy_wh=float(energy_wh),
+            mass_g=float(mass_g),
+            cells=int(cells) if cells is not None else None,
+            nominal_voltage=float(nominal_voltage) if nominal_voltage is not None else None,
+            capacity_mah=(
+                float(data["capacity_mah"]) if data.get("capacity_mah") is not None else None
+            ),
+            max_continuous_current_a=(
+                float(data["max_continuous_current_a"])
+                if data.get("max_continuous_current_a") is not None
+                else None
+            ),
+            c_rating=float(data["c_rating"]) if data.get("c_rating") is not None else None,
+            design_space=dict(design_space) if design_space is not None else None,
+            operating_points=tuple(data.get("operating_points") or ()),
+        )
+
+    def _load_batteries(self) -> dict[str, BatterySpec]:
+        if self._batteries is not None:
+            return self._batteries
+        path = self._root / "baterias" / "_datos.json"
+        if not path.exists():
+            raise FileNotFoundError(f"Biblioteca de baterías no encontrada: {path}")
+        raw: dict[str, dict] = json.loads(path.read_text(encoding="utf-8"))
+        self._batteries = {
+            _normalize_name(name): self._battery_from_raw(name, data)
+            for name, data in raw.items()
+        }
+        return self._batteries
+
+    def get_battery(self, name: str) -> BatterySpec:
+        """Return exact battery by name. KeyError if not found."""
+        canonical = _normalize_name(name)
+        batteries = self._load_batteries()
+        if canonical not in batteries:
+            available = ", ".join(sorted(batteries))
+            raise KeyError(
+                f"Batería '{name}' no está en la biblioteca. Disponibles: {available}"
+            )
+        return batteries[canonical]
+
+    def list_batteries(self) -> list[BatterySpec]:
+        """Return all batteries sorted by name."""
+        return sorted(self._load_batteries().values(), key=lambda b: b.name)
+
+    def has_battery(self, name: str) -> bool:
+        """Return True if *name* is in the battery library (no exception)."""
+        try:
+            self.get_battery(name)
+            return True
+        except KeyError:
+            return False
+
+    def find_batteries(
+        self,
+        *,
+        min_energy_wh: float | None = None,
+        chemistry: str | None = None,
+    ) -> list[BatterySpec]:
+        """Return batteries matching the given minimal deterministic filters.
+
+        No design-space matching (unlike motors' D8) — Impl A ships plain
+        threshold/equality filters only. Never auto-apply — suggestion /
+        gap reporting only, same discipline as ``find_motors_for_requirements``.
+        """
+        results: list[BatterySpec] = []
+        for b in self._load_batteries().values():
+            if min_energy_wh is not None and b.energy_wh < min_energy_wh:
+                continue
+            if chemistry is not None and _normalize_name(b.chemistry) != _normalize_name(chemistry):
+                continue
+            results.append(b)
+        return sorted(results, key=lambda b: (b.energy_wh, b.name))
+
+    # ── Propellers (Catalog v1 — Impl A) ──────────────────────────────────────
+
+    @staticmethod
+    def _propeller_from_raw(name: str, data: dict) -> PropellerSpec:
+        diameter_in = data.get("diameter_in")
+        pitch_in = data.get("pitch_in")
+        if diameter_in is None or pitch_in is None:
+            raise ValueError(
+                f"Propeller '{name}' está incompleta en la biblioteca: "
+                "diameter_in y pitch_in son obligatorios."
+            )
+        kv_band = data.get("compatible_kv_band")
+        return PropellerSpec(
+            name=name,
+            diameter_in=float(diameter_in),
+            pitch_in=float(pitch_in),
+            mass_g=float(data["mass_g"]) if data.get("mass_g") is not None else None,
+            ct=float(data["ct"]) if data.get("ct") is not None else None,
+            cp=float(data["cp"]) if data.get("cp") is not None else None,
+            compatible_kv_band=(
+                (int(kv_band[0]), int(kv_band[1])) if kv_band is not None else None
+            ),
+            tags=tuple(data.get("tags") or ()),
+            operating_points=tuple(data.get("operating_points") or ()),
+        )
+
+    def _load_propellers(self) -> dict[str, PropellerSpec]:
+        if self._propellers is not None:
+            return self._propellers
+        path = self._root / "helices" / "_datos.json"
+        if not path.exists():
+            raise FileNotFoundError(f"Biblioteca de hélices no encontrada: {path}")
+        raw: dict[str, dict] = json.loads(path.read_text(encoding="utf-8"))
+        self._propellers = {
+            _normalize_name(name): self._propeller_from_raw(name, data)
+            for name, data in raw.items()
+        }
+        return self._propellers
+
+    def get_propeller(self, name: str) -> PropellerSpec:
+        """Return exact propeller by name. KeyError if not found."""
+        canonical = _normalize_name(name)
+        propellers = self._load_propellers()
+        if canonical not in propellers:
+            available = ", ".join(sorted(propellers))
+            raise KeyError(
+                f"Hélice '{name}' no está en la biblioteca. Disponibles: {available}"
+            )
+        return propellers[canonical]
+
+    def list_propellers(self) -> list[PropellerSpec]:
+        """Return all propellers sorted by name."""
+        return sorted(self._load_propellers().values(), key=lambda p: p.name)
+
+    def has_propeller(self, name: str) -> bool:
+        """Return True if *name* is in the propeller library (no exception)."""
+        try:
+            self.get_propeller(name)
+            return True
+        except KeyError:
+            return False
+
+    def find_propellers(
+        self,
+        *,
+        diameter_in: float | None = None,
+        tolerance: float = 1.0,
+    ) -> list[PropellerSpec]:
+        """Return propellers within *tolerance* inches of *diameter_in*.
+
+        No design-space matching — plain deterministic distance filter.
+        Never auto-apply — suggestion / gap reporting only.
+        """
+        results: list[PropellerSpec] = []
+        for p in self._load_propellers().values():
+            if diameter_in is not None and abs(p.diameter_in - diameter_in) > tolerance:
+                continue
+            results.append(p)
+        return sorted(
+            results,
+            key=lambda p: (abs(p.diameter_in - (diameter_in or p.diameter_in)), p.name),
+        )
+
+    # ── Motor ↔ propeller compatibility (Catalog v1 — Impl A) ────────────────
+
+    def match_motor_propeller(self, motor_id: str, prop_id: str) -> bool:
+        """Return True if *motor_id* and *prop_id* are compatible.
+
+        Deterministic rule, no aerodynamic model (Design §5):
+          1. Explicit ``motor.compatible_prop_ids`` — exact membership.
+          2. Else ``motor.compatible_prop_inch`` vs the propeller's
+             ``diameter_in`` — within 1.0" (same tolerance ``find_motors_for_requirements``
+             already uses for the reverse lookup).
+          3. Neither present → False. A missing match is never fabricated as True.
+        """
+        motor = self.get_motor(motor_id)
+        prop = self.get_propeller(prop_id)
+        if motor.compatible_prop_ids:
+            normalized_ids = {_normalize_name(x) for x in motor.compatible_prop_ids}
+            return _normalize_name(prop.name) in normalized_ids
+        if motor.compatible_prop_inch:
+            return any(abs(p_in - prop.diameter_in) <= 1.0 for p_in in motor.compatible_prop_inch)
+        return False
 
 
 # Shared singleton — safe for single-process use (tests override via constructor)

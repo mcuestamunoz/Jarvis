@@ -1,0 +1,81 @@
+{
+  "gemfan_5030": {
+    "diameter_in": 5.0,
+    "pitch_in": 3.0,
+    "mass_g": 5,
+    "compatible_kv_band": [2000, 2900],
+    "tags": ["fpv", "tri-blade"]
+  },
+  "gemfan_6040": {
+    "diameter_in": 6.0,
+    "pitch_in": 4.0,
+    "mass_g": 7,
+    "compatible_kv_band": [1550, 2600]
+  },
+  "dal_7040": {
+    "diameter_in": 7.0,
+    "pitch_in": 4.0,
+    "mass_g": 9,
+    "compatible_kv_band": [1350, 1850]
+  },
+  "apc_8x4_5": {
+    "diameter_in": 8.0,
+    "pitch_in": 4.5,
+    "mass_g": 12
+  },
+  "apc_10x4_5": {
+    "diameter_in": 10.0,
+    "pitch_in": 4.5,
+    "mass_g": 18,
+    "compatible_kv_band": [800, 1250]
+  },
+  "apc_11x5_5": {
+    "diameter_in": 11.0,
+    "pitch_in": 5.5,
+    "mass_g": 22
+  },
+  "tmotor_12x4": {
+    "diameter_in": 12.0,
+    "pitch_in": 4.0,
+    "mass_g": 30,
+    "compatible_kv_band": [550, 900]
+  },
+  "tmotor_13x4_4": {
+    "diameter_in": 13.0,
+    "pitch_in": 4.4,
+    "mass_g": 35
+  },
+  "tmotor_15x5": {
+    "diameter_in": 15.0,
+    "pitch_in": 5.0,
+    "mass_g": 55,
+    "compatible_kv_band": [300, 500]
+  },
+  "tmotor_16x5_4": {
+    "diameter_in": 16.0,
+    "pitch_in": 5.4,
+    "mass_g": 65
+  },
+  "tmotor_17x5_8": {
+    "diameter_in": 17.0,
+    "pitch_in": 5.8,
+    "mass_g": 85,
+    "compatible_kv_band": [280, 420]
+  },
+  "tmotor_18x6_1": {
+    "diameter_in": 18.0,
+    "pitch_in": 6.1,
+    "mass_g": 95
+  },
+  "tmotor_22x6_7": {
+    "diameter_in": 22.0,
+    "pitch_in": 6.7,
+    "mass_g": 160,
+    "compatible_kv_band": [130, 220]
+  },
+  "tmotor_24x7_2": {
+    "diameter_in": 24.0,
+    "pitch_in": 7.2,
+    "mass_g": 190
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "lipo_2s_850mah": {
+    "chemistry": "lipo",
+    "energy_wh": 6.29,
+    "mass_g": 55,
+    "cells": 2,
+    "nominal_voltage": 7.4,
+    "capacity_mah": 850,
+    "c_rating": 75
+  },
+  "lipo_3s_1300mah": {
+    "chemistry": "lipo",
+    "energy_wh": 14.43,
+    "mass_g": 115,
+    "cells": 3,
+    "nominal_voltage": 11.1,
+    "capacity_mah": 1300,
+    "c_rating": 100
+  },
+  "lipo_3s_2200mah": {
+    "chemistry": "lipo",
+    "energy_wh": 24.42,
+    "mass_g": 180,
+    "cells": 3,
+    "nominal_voltage": 11.1,
+    "capacity_mah": 2200,
+    "c_rating": 50
+  },
+  "lipo_4s_1500mah": {
+    "chemistry": "lipo",
+    "energy_wh": 22.2,
+    "mass_g": 175,
+    "cells": 4,
+    "nominal_voltage": 14.8,
+    "capacity_mah": 1500,
+    "c_rating": 100
+  },
+  "lipo_4s_5000mah": {
+    "chemistry": "lipo",
+    "energy_wh": 74.0,
+    "mass_g": 490,
+    "cells": 4,
+    "nominal_voltage": 14.8,
+    "capacity_mah": 5000,
+    "max_continuous_current_a": 50,
+    "c_rating": 10
+  },
+  "lipo_4s_10000mah": {
+    "chemistry": "lipo",
+    "energy_wh": 148.0,
+    "mass_g": 980,
+    "cells": 4,
+    "nominal_voltage": 14.8,
+    "capacity_mah": 10000,
+    "max_continuous_current_a": 100,
+    "c_rating": 10
+  },
+  "lipo_6s_6000mah": {
+    "chemistry": "lipo",
+    "energy_wh": 133.2,
+    "mass_g": 850,
+    "cells": 6,
+    "nominal_voltage": 22.2,
+    "capacity_mah": 6000,
+    "max_continuous_current_a": 90,
+    "c_rating": 15
+  },
+  "lipo_6s_10000mah": {
+    "chemistry": "lipo",
+    "energy_wh": 222.0,
+    "mass_g": 1350,
+    "cells": 6,
+    "nominal_voltage": 22.2,
+    "capacity_mah": 10000,
+    "max_continuous_current_a": 100,
+    "c_rating": 10
+  },
+  "lipo_6s_22000mah": {
+    "chemistry": "lipo",
+    "energy_wh": 488.4,
+    "mass_g": 2950,
+    "cells": 6,
+    "nominal_voltage": 22.2,
+    "capacity_mah": 22000,
+    "max_continuous_current_a": 220,
+    "c_rating": 10
+  },
+  "lipo_12s_16000mah": {
+    "chemistry": "lipo",
+    "energy_wh": 710.4,
+    "mass_g": 4200,
+    "cells": 12,
+    "nominal_voltage": 44.4,
+    "capacity_mah": 16000,
+    "max_continuous_current_a": 160,
+    "c_rating": 10
+  }
+}

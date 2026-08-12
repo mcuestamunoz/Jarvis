@@ -6,9 +6,32 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **H1–H4 todos cerrados (FN-024/025/026). Checkpoint `checkpoint-fn026-h4`. Mapa: 59 · 58🟢 · 0🔴 · 1🟡 (C-081).**  
-> Frontera actual: handoffs Plan→DSE/Iterate resueltos; el siguiente salto de producto es **ingeniería física real** (Physical Component Catalog v1 → DSE restringido a configuraciones construibles → BOM), no más FNs de handoff por inercia.  
-> Decisión del Engineer (diseño, no implementar aún): **Catalog v1** (preferido) · H5/C-081 Continuity risk-thread · Create→BOM como consumidor posterior del catálogo.
+> **H1–H4 cerrados (`v0.2.0` / `checkpoint-fn026-h4`). Mapa: 59 · 58🟢 · 0🔴 · 1🟡 (C-081).**  
+> **PRIORIDAD AHORA:** Catalog Foundation **Impl A PASS** — commit cuando Engineer pida; luego IC **Impl B (Bind)**.  
+> Review: [`.jes/artifacts/implementation_review_catalog_foundation_v1.md`](../.jes/artifacts/implementation_review_catalog_foundation_v1.md)  
+> Design: [`PHYSICAL_COMPONENT_CATALOG_V1.md`](PHYSICAL_COMPONENT_CATALOG_V1.md) · Suite: **1616 passed**  
+> **No Impl B sin contrato nuevo.** H5 / material micro-fix / Create→BOM siguen aparte.
+
+### ✅ COMPLETADO — Catalog Foundation Impl A
+
+> Contrato: [`.jes/artifacts/implementation_contract_catalog_foundation_v1.md`](../.jes/artifacts/implementation_contract_catalog_foundation_v1.md)  
+> Informe / review: `.jes/artifacts/implementation_report_catalog_foundation_v1.md` · `implementation_review_catalog_foundation_v1.md` — **PASS**
+
+**Entregó:** `BatterySpec`/`PropellerSpec` + loaders en `ComponentLibrary`; seeds `library/baterias` (10 LiPo) + `library/helices` (14); `CatalogRef` + `ComponentSpec.catalog_ref=None` (sin writers); `match_motor_propeller`; 25 tests; **1616** suite. Motores JSON / calc / DSE / Continuity / Bind **no** tocados.
+
+**Siguiente:** commit Foundation (si Engineer pide) → IC Impl B (pick→`catalog_ref`, discard fix, masa SKU-bound).
+
+### ✅ COMPLETADO — Catalog v1 Design CLOSED
+
+> [`docs/PHYSICAL_COMPONENT_CATALOG_V1.md`](PHYSICAL_COMPONENT_CATALOG_V1.md) — Engineer 1A–5A + split A/B/C/D.
+
+### ✅ COMPLETADO — Catalog v1 AUDIT (visión + conexiones)
+
+> Contrato: [`.jes/artifacts/implementation_contract_catalog_v1_audit.md`](../.jes/artifacts/implementation_contract_catalog_v1_audit.md)  
+> Informe: [`.jes/artifacts/catalog_v1_connection_audit.md`](../.jes/artifacts/catalog_v1_connection_audit.md)  
+> Review: [`.jes/artifacts/implementation_review_catalog_v1_audit.md`](../.jes/artifacts/implementation_review_catalog_v1_audit.md) — PASS WITH NOTES  
+
+**Hallazgo central:** pick de catálogo no persiste identidad SKU (`ComponentSpec` sin `catalog_ref`). Masa motor inerte; batería = heurística 150 Wh/kg. B antes de C es dependencia dura. Bug material ES/EN independiente.
 
 ### ✅ COMPLETADO — FN-026: H4 Plan lever → Iterate preseed (C-043)
 
@@ -29,6 +52,18 @@
 **No en este corte (confirmado, sin tocar):** H5/C-081, Create→BOM, refactor de dual dispatch. Polish opcional del contrato (marcar lever "reconciliado" tras aplicar la mutación) deliberadamente omitido — no requerido para cerrar C-043.
 
 **Cola (histórica):** cerrada; siguiente decisión es del Engineer (H5 vs Create→BOM).
+
+### ✅ COMPLETADO — Layer Connection Map (diseño) → System Map → H1–H4
+
+> Artefacto histórico: [`.jes/artifacts/design_layer_connection_map.md`](../.jes/artifacts/design_layer_connection_map.md) (CLOSED / SUPERSEDED).  
+> Autoridad viva: [`docs/system_map/`](system_map/README.md) · Handoff: [`HANDOFF_CONTEXT_DESIGN.md`](system_map/HANDOFF_CONTEXT_DESIGN.md)
+
+**Entregó este plan de diseño:**
+1. [x] Mapa de capas + fallos A–E + contratos H1–H5
+2. [x] Cola reordenada: handoffs **antes** de Create→BOM
+3. [x] FN-024 (H1+H2) acotado → contrato + delivery; luego FN-025/026
+
+**Resultado:** A/B/C cerrados (FN-024/025/026). D = H5/C-081 deferred. Create→BOM sigue después del catálogo físico (ver PRIORIDAD ACTUAL).
 
 ### ✅ COMPLETADO — FN-025: H3 Help + Goal → Engineering Intent (C-025 / C-044)
 
