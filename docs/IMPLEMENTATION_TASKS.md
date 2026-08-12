@@ -6,6 +6,59 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
+### ✅ COMPLETADO — FN-024: H1+H2 Handoff Context → Plan/DSE (C-042)
+
+> Contrato: [`.jes/artifacts/implementation_contract_fn024_h1_h2_handoff_dse.md`](../.jes/artifacts/implementation_contract_fn024_h1_h2_handoff_dse.md)  
+> Diseño: [`docs/system_map/HANDOFF_CONTEXT_DESIGN.md`](system_map/HANDOFF_CONTEXT_DESIGN.md) — **§5 CLOSED** (Hybrid Operation-Scoped Context)  
+> Informe: [`.jes/artifacts/implementation_report_fn024.md`](../.jes/artifacts/implementation_report_fn024.md)
+
+**Cierra:** C-042 🔴→🟢 + CTA honesty (H2, como consecuencia de H1, no un cambio de texto aparte). Nuevo `schemas.action_schema.HandoffContext` (runtime-only, nunca persistido, con guarda `project_id` en cada lectura) creado/reemplazado en cada `_handle_engineering_intent` exitoso; `"explora opciones"` a secas hace bind vía el contexto activo; un bind+explore exitoso consume **solo** la capability DSE — `goal_key`/`levers`/`iterate_capability` quedan intactos para un futuro H4.
+
+**Plan:**
+1. [x] `HandoffContext` en `schemas/action_schema.py` (campos mínimos del contrato) + campo `handoff_context` en `InteractiveSessionState`, excluido de `_PERSISTED_SESSION_FIELDS`
+2. [x] `_handle_engineering_intent` crea/reemplaza el contexto (C-105); CTA sin cambios de texto (ya honesto por construcción)
+3. [x] `_handle_explore` hace bind cuando `goal_key is None` (C-106) — guardado por `project_id` + `dse_capability=="active"`; consume solo la capability DSE tras un explore exitoso
+4. [x] Segundo `"explora opciones"` tras consumir → mensaje determinista (0 LLM), no re-bind silencioso
+5. [x] `"optimiza para X"` explícito sin cambios — contexto intacto (opción "más simple" del contrato §4.2)
+6. [x] Tests: `test_fn024_handoff_context_dse.py` (T1–T9 + regresión FN-020/021/022/023, 11 tests) + suite completa verde
+7. [x] Mapa actualizado: `CONNECTIONS.md` (57→59, C-042 🟢, C-105/C-106 nuevos), `DIAGRAMS.md`, canvas, `FLOWS.md` FLOW-003, `MISMATCHES.md` H1/H2 → implementado, `04_engineering`/`09_state` subsystem maps
+
+**No en este corte (confirmado, sin tocar):** H3 (C-025/C-044), H4 (C-043 — pero `levers`/`iterate_capability` ya están listos para su consumidor), H5 (C-081), Create→BOM, refactor de dual dispatch.
+
+**Cola:**
+1. [ ] Cursor review de FN-024
+2. [ ] Engineer elige siguiente edge: FN-025 H3 (C-025/C-044) vs FN-026 H4 (C-043)
+3. [ ] H5 / C-081 — contrato Continuity aparte
+4. [ ] Create→BOM
+5. [ ] (Opcional) Higiene de seguimiento — ver inventario SYS-MAP-003
+
+### ✅ SYS-MAP-003 — verificación del mapa + inventario de higiene (documentación, sin cambios de código)
+
+> Ejecutado en paralelo al trabajo de FN-024/diseño anterior. Re-verifica `docs/system_map/**` contra código actual (A1–A20, todos CONFIRMED) y audita `src/jarvis/` en busca de código muerto/residual/duplicado (16 hallazgos `HYG-xxx`, solo informe, sin limpieza).
+
+**Entregables:**
+- [`.jes/artifacts/implementation_report_sys_map_003.md`](../.jes/artifacts/implementation_report_sys_map_003.md) — resumen ejecutivo
+- [`.jes/artifacts/sys_map_003_verification_matrix.md`](../.jes/artifacts/sys_map_003_verification_matrix.md) — A1–A22 completo
+- [`.jes/artifacts/sys_map_003_hygiene_inventory.md`](../.jes/artifacts/sys_map_003_hygiene_inventory.md) — catálogo `HYG-001`…`HYG-016`, top ranking
+
+**Correcciones al mapa (2, encontradas durante la re-verificación, ya aplicadas en `docs/system_map/**`):** `semantic_intent_adapter.py` estaba mal descrito en `10_llm/LLM_MAP.md` (M-003); `tools/materials.py`/`tools/math_utils.py`/`simulation/flight_model.py`/`simulation/energy_model.py` estaban listados como activos en SYS-MAP-002 pero son archivos vacíos sin ningún import (M-004) — 5 archivos vacíos más (`knowledge/loader.py`, `knowledge/parser.py`, `knowledge/retriever.py`, `utils/helpers.py`, `utils/validators.py`) nunca se habían reclamado como usados, catalogados en el inventario de higiene.
+
+**No desbloquea FN-024** ni ningún RED (`C-042`/`C-025`/`C-044`/`C-043`). Sin cambios en `src/`. Suite completa: **1558 passed**, sin cambios.
+
+**Higiene de seguimiento (opcional, no urgente):** lote mecánico sugerido — HYG-001 + HYG-003 + HYG-008…016 — ver inventario.
+
+### ✅ HANDOFF CONTEXT — diseño (lifecycle cerrado)
+
+> Hybrid Operation-Scoped Context aceptado 2026-08-10. Ver Decision log en el design doc.
+
+### ✅ SYS-MAP-002 — System Map navegable (publicado)
+
+> Árbol: [`docs/system_map/README.md`](system_map/README.md). **57** C-xxx canónicos (FN-024 añadirá C-105/C-106).
+
+**Acquisition Fluency / FN-022 / FN-023:** cerradas.
+
+---
+
 ### ✅ COMPLETADO — Sync docs: `ARCHITECTURE.md` ↔ stack FN-014…023
 
 > El diagrama de flujo IDLE, el orden de `handle_user_text`, `goal_planner`, `project_status`/Continuity y DEFINE_MISSING no reflejaban Acquisition Fluency / Engineering Intent / next-step help.
@@ -16,7 +69,7 @@
 3. [x] Alinear “cuándo NO interviene el LLM” y bullets de estado actual
 4. [x] Sin Create→BOM, sin Step D, sin cambios de código
 
-**Siguiente:** Create→BOM handoff (diseño). Residual plan-first vs auto-DSE opcional.
+**Siguiente (histórico):** Create→BOM — **reordenado**; ver Layer Connection Map arriba.
 
 ### ✅ COMPLETADO — FN-023: ayuda genérica de "siguiente paso" → Continuity/`project_status`
 

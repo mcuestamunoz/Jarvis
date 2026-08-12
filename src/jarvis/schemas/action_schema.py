@@ -187,6 +187,30 @@ class IterationDraft(BaseModel):
         return v
 
 
+class HandoffContext(BaseModel):
+    """FN-024 (H1): operation-scoped Handoff Context — a temporary, runtime-only
+    bridge between a Goal Plan just shown (goal_planner.format_goal_plan) and
+    the turn(s) that follow it (bare "explora opciones" → DSE; a named lever →
+    future H4 iterate preseed).
+
+    Deliberately NOT a sticky `last_engineering_goal` string: it is capability-
+    scoped (dse_capability/iterate_capability track what has and hasn't been
+    consumed for THIS operation) and project-scoped (project_id guards every
+    read — see orchestrator._handle_explore) so it can never be read across a
+    project boundary or reused after DSE already ran for it.
+
+    Never added to state_manager._PERSISTED_SESSION_FIELDS — same tier as
+    last_exploration_result: runtime-only, never written to state.json, never
+    restored from a snapshot.
+    """
+    goal_key: str
+    levers: list[str] = Field(default_factory=list)
+    origin: Literal["engineering_intent"] = "engineering_intent"
+    dse_capability: Literal["active", "consumed"] = "active"
+    iterate_capability: Literal["active"] = "active"
+    project_id: str
+
+
 class InteractiveSessionState(BaseModel):
     mode: OrchestratorMode = OrchestratorMode.IDLE
     step: int = 0
@@ -211,3 +235,7 @@ class InteractiveSessionState(BaseModel):
     last_exploration_result: Any | None = None
     # FN-004: pending structural substitution (e.g. motor_count 6→4) awaiting sí/no
     pending_structural_change: dict[str, Any] | None = None
+    # FN-024 (H1): operation-scoped Handoff Context — runtime-only, never
+    # persisted (not in state_manager._PERSISTED_SESSION_FIELDS). See
+    # HandoffContext's own docstring.
+    handoff_context: HandoffContext | None = None

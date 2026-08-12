@@ -1,5 +1,7 @@
 # Jarvis Architecture
 
+> **Turn order, authority, and handoff status are now maintained in [`docs/system_map/`](system_map/README.md) (SYS-MAP-002)** — a navigable tree: master picture, a first-class `C-xxx` connection registry with evidence, an authority table, reference flows (`FLOW-001`…`007`), and per-subsystem module/function detail. This file remains the conceptual/narrative overview; update the system map first when routing or authority changes.
+
 ## Modelo conceptual del sistema
 
 Jarvis transforma en tres pasos:

@@ -1,0 +1,213 @@
+# Jarvis System Map — Diagrams
+
+**Version:** SYS-MAP-002 visual companion  
+**Date:** 2026-08-10  
+**Canonical edge truth:** [`CONNECTIONS.md`](CONNECTIONS.md) → **Canonical registry** = **59** unique `C-xxx` (IDs sparse through C-106). Updated 2026-08-10 by FN-024 (C-042 fixed, C-105/C-106 added).
+
+Interactive Cursor canvas (filterable graph + full table): [`jarvis-system-map.canvas.tsx`](jarvis-system-map.canvas.tsx).  
+To open beside chat in Cursor, sync that file into the project `canvases/` folder (see header comment in the `.tsx`).
+
+## Counts (do not conflate)
+
+```text
+CONNECTIONS.md
+│
+├── Canonical registry     → 59 C-xxx únicos
+├── Derived/detail views   → may repeat C-xxx (do not add to 59)
+└── Forbidden transitions  → 8 (not C-xxx)
+```
+
+| Set | Count | Notes |
+|---|---:|---|
+| Registry edges (canonical) | **59** | Only count this |
+| Connected 🟢 | **55** | of 59 |
+| Broken 🔴 | **3** | C-025 (=C-044), C-043 |
+| Partial 🟡 | **1** | C-081 |
+| Forbidden transitions | **+8** | Not registry edges |
+| File table cells `\| C-xxx \|` | — | Do not sum leading cells across the whole file — see `CONNECTIONS.md`'s "Document structure" note |
+
+**FN-024 (2026-08-10):** C-042 fixed (🔴→🟢, Handoff Context bind); C-105/C-106 added. C-025/C-044 (H3) and C-043 (H4) remain RED, deferred — not this cut. C-025 and C-044 are the same user failure listed under Intent and Engineering (count once when prioritizing fixes).
+
+Canvas / this file manually mirror the registry (known drift risk). When adding a connection: update Canonical registry first, then Detail, then DIAGRAMS + canvas.
+
+---
+
+## Level 0 — whole system
+
+```mermaid
+flowchart TB
+  USER([USER]) --> ENTRY[00 Entry<br/>CLI / MCP]
+  ENTRY --> RT[01 Runtime<br/>Orchestrator]
+
+  RT --> INTENT[02 Intent]
+  RT --> ACQ[03 Acquisition]
+  RT --> ENG[04 Engineering<br/>Goal Plan + DSE]
+  RT --> ITER[05 Iteration]
+  RT --> LLM[10 LLM<br/>bounded]
+
+  INTENT --> ENG
+  ENG -->|C-042 FIXED FN-024| DSE[DSE explore]
+  ENG -.->|C-043 BROKEN, H4| ITER
+  HELP[ayúdame + goal] -.->|C-025 / C-044 BROKEN, H3| ANALYZE[analyze / Plan]
+
+  ITER --> CALC[06 Calculation]
+  CALC --> SIM[07 Simulation]
+  SIM --> STATE[09 State / Workspace]
+  SIM -.->|C-081 PARTIAL| CONT[08 Continuity]
+  ACQ --> STATE
+  CONT --> ACQ
+  STATE --> CALC
+
+  classDef broken stroke:#c44,stroke-width:2px,stroke-dasharray: 5 3;
+  classDef partial stroke:#c90,stroke-width:2px;
+  classDef fixed stroke:#2a2,stroke-width:2px;
+  classDef llm stroke-dasharray: 4 4;
+  class ANALYZE,HELP broken;
+  class DSE fixed;
+  class CONT partial;
+  class LLM llm;
+```
+
+---
+
+## Broken / partial (headline)
+
+| ID | From | To | Status |
+|---|---|---|---|
+| C-042 | Goal Plan CTA (`explora opciones`) | DSE goal binding | 🟢 FIXED (FN-024, 2026-08-10) |
+| C-025 / C-044 | `ayúdame` + named goal | Plan / Explore (lands on analyze) | 🔴 BROKEN — H3, not this cut |
+| C-043 | Goal Plan lever (e.g. `safety_factor`) | Iterate wizard preseed | 🔴 BROKEN — H4, not this cut |
+| C-081 | Sim `safety_margin_ratio` | Continuity `next_useful_step` | 🟡 PARTIAL — H5, deferred |
+
+---
+
+## Registry by band (all 59)
+
+Detail and evidence stay in `CONNECTIONS.md`. This index is for scanning.
+
+### 00 Entry
+| ID | From → To | Status |
+|---|---|---|
+| C-001 | User → CLI adapter | 🟢 |
+| C-002 | CLI/MCP → `handle_user_text` | 🟢 |
+| C-003 | CLI/MCP structured → `orchestrator.handle` | 🟢 |
+
+### 01 Runtime
+| ID | From → To | Status |
+|---|---|---|
+| C-010 | Runtime → Global commands | 🟢 |
+| C-011 | Runtime → FN-004 structural-confirm | 🟢 |
+| C-012 | Runtime → Bug 54 pending_define | 🟢 |
+| C-013 | Runtime → Global component intercept | 🟢 |
+| C-014 | Runtime → Mode-branch dispatch | 🟢 |
+| C-015 | Runtime → Parameter ingestion | 🟢 |
+| C-016 | `handle` → ActionRouter → Action.run | 🟢 |
+
+### 02 Intent
+| ID | From → To | Status |
+|---|---|---|
+| C-020 | Runtime → IntentResolver | 🟢 |
+| C-021 | Intent `project_status` → `_handle_project_status` | 🟢 |
+| C-022 | Intent `analyze` → `_handle_analyze` | 🟢 |
+| C-023 | Intent `define_params` → define-missing bridge | 🟢 |
+| C-024 | Intent `dismiss` → `_handle_dismiss_suggestion` | 🟢 |
+| C-025 | `ayúdame` + goal → analyze | 🔴 |
+
+### 03 Acquisition
+| ID | From → To | Status |
+|---|---|---|
+| C-030 | Runtime IDLE → FN-005 motor help | 🟢 |
+| C-031 | Runtime IDLE → FN-014 acquisition wizard | 🟢 |
+| C-032 | Runtime IDLE → FN-015 pending-help | 🟢 |
+| C-033 | DEFINE_MISSING → FN-013 reprompt | 🟢 |
+| C-034 | DEFINE_MISSING → FN-016 nav/cancel | 🟢 |
+| C-035 | Intent FN-023 phrasing → Continuity status | 🟢 |
+| C-036 | Continuity → Acquisition `_next_pending_block` | 🟢 |
+| C-037 | Acquisition complete → `_set_pending_next_block` | 🟢 |
+| C-038 | Acquisition open → `acquisition_brief` | 🟢 |
+
+### 04 Engineering
+| ID | From → To | Status |
+|---|---|---|
+| C-040 | Intent iterate/unknown → engineering_intent | 🟢 |
+| C-041 | engineering_intent → `format_goal_plan` | 🟢 |
+| C-042 | Goal Plan CTA → DSE binding | 🟢 (FN-024) |
+| C-043 | Goal Plan lever → Iterate preseed | 🔴 (H4) |
+| C-044 | `ayúdame` + goal → Plan/Explore | 🔴 (H3) |
+| C-045 | Intent explore → DesignExplorer | 🟢 |
+| C-046 | explore result → apply_exploration | 🟢 |
+| C-105 | engineering_intent success → create/replace `handoff_context` | 🟢 (FN-024, new) |
+| C-106 | active `handoff_context` → `_handle_explore` goal bind | 🟢 (FN-024, new) |
+
+### 05 Iteration
+| ID | From → To | Status |
+|---|---|---|
+| C-050 | `handle` ITERATE → IterateInteractiveSession | 🟢 |
+| C-051 | ITERATE → Bug 7 soft-interrupt | 🟢 |
+| C-052 | ITERATE → Calibration preempt | 🟢 |
+| C-053 | Iterate.answer → semantic_interpreter | 🟢 |
+| C-054 | Iterate confirm → MutationEngine | 🟢 |
+
+### 06/07 Calc · Sim
+| ID | From → To | Status |
+|---|---|---|
+| C-060 | `current_parameters` → CalculationEngine | 🟢 |
+| C-061 | component_resolver → Calculation override | 🟢 |
+| C-070 | CalculationBundle → FeasibilitySimulator | 🟢 |
+| C-071 | SimulationResult → StateManager / latest_results | 🟢 |
+
+### 08 Continuity
+| ID | From → To | Status |
+|---|---|---|
+| C-080 | ProjectState+BOM+req → Continuity | 🟢 |
+| C-081 | Sim margin → Continuity next_useful_step | 🟡 |
+| C-082 | classify_component → BOM | 🟢 |
+| C-083 | classify_component → `_block_progress_status` | 🟢 |
+| C-084 | ProjectState → PhaseLayer | 🟢 |
+| C-085 | Context → ReasoningLayer | 🟢 |
+
+### 09 Components / State
+| ID | From → To | Status |
+|---|---|---|
+| C-090 | Free text → component_inference | 🟢 |
+| C-091 | ComponentSpec → component_writers | 🟢 |
+| C-092 | Orchestrator checkpoint → runtime session | 🟢 |
+| C-093 | ProjectState → `state.json` | 🟢 |
+| C-094 | ProjectState → MD views | 🟢 |
+
+### 10 LLM
+| ID | From → To | Status |
+|---|---|---|
+| C-100 | orchestrator → llm interpret | 🟢 |
+| C-101 | PromptBuilder → LLMClient | 🟢 |
+| C-102 | Raw LLM → ActionPolicy parse/validate | 🟢 |
+| C-103 | Validated action_request → `orchestrator.handle` | 🟢 |
+| C-104 | orchestrator → llm analyze (narration) | 🟢 |
+
+---
+
+## Forbidden transitions (8 — not registry edges)
+
+```text
+LLM → acquisition target
+LLM → goal selection
+LLM → DSE configuration choice
+Continuity → mutate ProjectState
+DSE → silent mutate without apply
+Goal Planner → write physical params
+Component Inference → write components directly
+Analyze (LLM) → choose next gap
+```
+
+All structurally absent today (desired). Full wording: `CONNECTIONS.md` + `AUTHORITY.md`.
+
+---
+
+## Maintenance
+
+When an FN creates or repairs a `C-xxx`:
+
+1. Update status in `CONNECTIONS.md`
+2. Update `MISMATCHES.md` if applicable
+3. Update this file’s rollup / band table
+4. Update `jarvis-system-map.canvas.tsx` (and re-sync the live Cursor canvas if used)

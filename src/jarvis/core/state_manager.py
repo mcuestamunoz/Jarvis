@@ -11,7 +11,9 @@ MAX_HISTORY_TURNS = 6
 # U4: campos de InteractiveSessionState que tiene sentido restaurar tras un reinicio.
 # Excluidos: dismissed_suggestions ("not persisted", doc), last_exploration_result
 # (no serializable), project_draft / iteration_draft (wizards reinician solos),
-# motor_suggestions, semantic_state, memory_context.
+# motor_suggestions, semantic_state, memory_context, handoff_context (FN-024:
+# operation-scoped, runtime-only by design — same tier as last_exploration_result,
+# must never survive a process restart or be readable from a different project).
 _PERSISTED_SESSION_FIELDS: frozenset[str] = frozenset({
     "mode",
     "step",

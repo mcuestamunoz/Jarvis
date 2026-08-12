@@ -37,6 +37,7 @@ from jarvis.core.parameter_requirements import (
 from jarvis.core.phase_layer import PhaseLayer
 from jarvis.core.reasoning_layer import ReasoningLayer
 from jarvis.core.goal_planner import (
+    GOAL_STRATEGIES,
     detect_goal,
     format_goal_plan,
     get_goal_context_for_llm,
@@ -66,6 +67,7 @@ from jarvis.schemas.action_schema import (
     ActionName,
     ActionRequest,
     ComponentSpec,
+    HandoffContext,
     InteractiveSessionState,
     IterationDraft,
     IterationOperation,
@@ -1983,17 +1985,64 @@ class JarvisOrchestrator:
 
         Operación de solo lectura: no muta state, no escribe en disco.
         Si no hay proyecto activo o no se reconoce el goal, cae a analyze.
+
+        FN-024 (H1/C-042): when ``goal_key`` is None (bare "explora opciones"),
+        binds through the active Handoff Context created by
+        _handle_engineering_intent — never invents a goal, only reuses one
+        goal_planner already deterministically resolved and showed to the
+        user. The bind is guarded on project_id matching the currently active
+        project (the actual "invalidate across a project boundary"
+        mechanism — proven at every read, not assumed via a clear that could
+        be missed at some other call site) and on dse_capability=="active"
+        (a context whose DSE capability was already consumed for this
+        operation is never silently reused — see the "already explored"
+        branch below, §4.3 of the contract).
         """
         try:
             project_state = self.state_manager.load_active_project(self.workspace_manager)
         except FileNotFoundError:
             return self._handle_analyze(user_input, llm_interface)
 
-        if goal_key is None:
-            # No se detectó goal → pide clarificación vía analyze
-            return self._handle_analyze(user_input, llm_interface)
-
         from jarvis.core.design_explorer import GOAL_LABELS, EXPLORATION_GRIDS
+
+        bound_from_context = False
+        if goal_key is None:
+            handoff = self.state_manager.get_runtime_session().handoff_context
+            context_for_project = (
+                handoff is not None and handoff.project_id == project_state.project_id
+            )
+            if (
+                context_for_project
+                and handoff.dse_capability == "active"
+                and handoff.goal_key in EXPLORATION_GRIDS
+            ):
+                goal_key = handoff.goal_key
+                bound_from_context = True
+            elif context_for_project and handoff.dse_capability == "consumed":
+                # FN-024 §4.3: DSE for this operation already ran. Do not
+                # silently re-bind (would look like magic re-activation) and
+                # do not burn an LLM call narrating something already known —
+                # a deterministic message is cheap and more honest here.
+                goal_label = GOAL_LABELS.get(handoff.goal_key, handoff.goal_key)
+                domain = self._GOAL_EXPLORE_DOMAIN.get(
+                    handoff.goal_key, handoff.goal_key.replace("_", " ")
+                )
+                return {
+                    "status": "ok",
+                    "action": "explore_design_space",
+                    "goal_key": None,
+                    "message": (
+                        f"Ya exploré opciones para «{goal_label}» en este turno de trabajo. "
+                        "Puedes decir «aplica la mejor» para aplicar el resultado, o pedir "
+                        f"una nueva exploración con un objetivo explícito (p. ej. 'optimiza "
+                        f"para {domain}')."
+                    ),
+                }
+            else:
+                # No bindable context (none, wrong project, or unknown goal) →
+                # honest clarification, unchanged from pre-FN-024 behavior.
+                return self._handle_analyze(user_input, llm_interface)
+
         if goal_key not in EXPLORATION_GRIDS:
             return self._handle_analyze(user_input, llm_interface)
 
@@ -2030,7 +2079,17 @@ class JarvisOrchestrator:
 
         # DSE v1.1: persist exploration result in session so _handle_apply_exploration can use it.
         current_session = self.state_manager.runtime_state.session
-        updated_session = current_session.model_copy(update={"last_exploration_result": exploration})
+        session_updates: dict[str, Any] = {"last_exploration_result": exploration}
+        if bound_from_context and current_session.handoff_context is not None:
+            # FN-024 (H1): consume the DSE capability ONLY — goal_key, levers,
+            # and iterate_capability all remain untouched for a future H4
+            # lever-preseed consumer. Never wipe the whole context on a
+            # successful explore (explicit contract requirement — the whole
+            # point of a capability-scoped context over a sticky goal string).
+            session_updates["handoff_context"] = current_session.handoff_context.model_copy(
+                update={"dse_capability": "consumed"}
+            )
+        updated_session = current_session.model_copy(update=session_updates)
         self.state_manager.set_runtime_session(updated_session)
 
         return {
@@ -2270,19 +2329,38 @@ class JarvisOrchestrator:
         "last_simulation") so strategies are prioritized against the real
         project state — 0 LLM, no DSE run (explore only happens via the
         existing, separate explore_design_space intent).
+
+        FN-024 (H1): also creates/replaces the operation-scoped Handoff
+        Context for this project — the bridge a later bare "explora opciones"
+        (C-042, see _handle_explore) binds through. A fresh context is always
+        created here with dse_capability="active", which is exactly why the
+        CTA below can honestly advertise 'explora opciones' unconditionally
+        (H2) — no separate conditional text needed, the promise is true by
+        construction at the moment it's shown.
         """
         try:
             project_state = self.state_manager.load_active_project(self.workspace_manager)
         except FileNotFoundError:
             project_state = None
-        context = self._build_analyze_context(project_state)
-        sim_context = context.get("last_simulation")
+        analyze_context = self._build_analyze_context(project_state)
+        sim_context = analyze_context.get("last_simulation")
         plan = format_goal_plan(goal_key, sim_context=sim_context)
         domain = self._GOAL_EXPLORE_DOMAIN.get(goal_key, goal_key.replace("_", " "))
         cta = (
             f"Puedes explorar configuraciones (p. ej. 'optimiza para {domain}' "
             "o 'explora opciones') o indicar un cambio concreto de una palanca."
         )
+        if project_state is not None:
+            levers = [s["lever"] for s in GOAL_STRATEGIES.get(goal_key, [])]
+            current_session = self.state_manager.runtime_state.session
+            updated_session = current_session.model_copy(update={
+                "handoff_context": HandoffContext(
+                    goal_key=goal_key,
+                    levers=levers,
+                    project_id=project_state.project_id,
+                )
+            })
+            self.state_manager.set_runtime_session(updated_session)
         return {
             "status": "ok",
             "action": "engineering_intent",

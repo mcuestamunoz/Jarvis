@@ -1,0 +1,39 @@
+# 02 — Intent
+
+**Purpose.** Regex-based classification of raw user text into one of 14 `IntentType` values. The single deterministic classifier everything else in Runtime branches on (C-020).
+
+**Inbound:** C-020 (from Runtime). **Outbound:** C-021…C-025 (routing decisions back into Runtime handlers).
+
+## Key modules
+
+| Path | Role |
+|---|---|
+| `core/intent_resolver.py` | `IntentResolver` — the entire subsystem is this one class |
+
+## Important functions
+
+- `resolve_intent(user_input) -> IntentType` (`:280`) — top-level entry: `_resolve_strong_action_intent` first, then `_looks_like_status_query`, `_looks_like_question`, `DOMAIN_HINT_PATTERNS` (→ `"ambiguous"`), else `"unknown"`.
+- `_resolve_strong_action_intent(normalized) -> IntentType | None` (`:461`) — the ordered pattern-group chain; **this ordering is the de facto authority** for GUIDANCE vs ANALYZE vs ITERATE vs EXPLORE precedence (full order in `AUTHORITY.md`).
+- `resolve_declare_block_request(user_input) -> str | None` (`:300`) — FN-011, reused by Acquisition (C-031, C-033).
+- `resolve_explore_goal(user_input) -> str | None` (`:317`) — thin wrapper over `goal_planner.detect_goal`, used by C-042/C-045.
+- `classify_input_intent(user_input) -> "information"|"action"|"hybrid"` (`:508`) — used only by ITERATE_INTERACTIVE's soft-interrupt (C-051), not by the main dispatch chain.
+
+## Pattern groups (constants, not functions — see `AUTHORITY.md` for the precedence order they're checked in)
+
+`GUIDANCE_PATTERNS` (includes FN-023's 3 next-step-help additions), `ANALYZE_PATTERNS` (bare `\bayudame\b` lives here — root cause of C-025), `CALCULATE_PATTERNS`, `SIMULATE_PATTERNS`, `DEFINE_PARAMS_PATTERNS`, `DISMISS_SUGGESTION_PATTERNS`, `APPLY_PATTERNS`, `EXPLORE_PATTERNS` (verb + goal/domain word; `aumentar`/`subir` deliberately excluded, comment in source), `ITERATE_PATTERNS`, `CREATE_PATTERNS`, `STATUS_PATTERNS` (checked only after all of the above return `None`).
+
+## Local state touched
+
+None — `IntentResolver` is stateless; every method is a pure function of its text argument (and, for `resolve_explore_goal`, a delegated pure call into `goal_planner`).
+
+## LLM
+
+NO — zero LLM involvement anywhere in this module.
+
+## Known broken edges owned by this subsystem
+
+- **C-025** — "ayúdame" + named goal → `"analyze"` (ANALYZE_PATTERNS wins before the goal is ever checked). See `AUTHORITY.md`'s precedence table and `MISMATCHES.md`'s H3.
+
+## Tests
+
+`tests/test_orchestrator.py` (intent resolution is exercised indirectly through most orchestrator tests), plus targeted FN-014/015/016/022/023 test files which each pin specific `resolve_intent`/pattern behavior.

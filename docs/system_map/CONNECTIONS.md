@@ -1,0 +1,848 @@
+# Connections Registry
+
+Every directed edge in Jarvis that carries control, data, and/or state, as a first-class entity. Subsystem maps **reference** these by ID; they do not redefine them. IDs are stable within this map version (SYS-MAP-002); do not renumber on future edits — append new IDs, deprecate old ones in place with a note.
+
+## Document structure (count correctly)
+
+```text
+CONNECTIONS.md
+│
+├── Canonical registry  ← THIS SECTION ONLY defines the connection count
+│   └── 59 unique C-xxx  (ID space sparse through C-106)
+│         55 🟢 connected · 3 🔴 broken · 1 🟡 partial
+│
+├── Derived / detail views  ← may repeat C-xxx for readability
+│   └── "Detail — NN …" sections below; NOT additional connections
+│
+└── Forbidden transitions  ← 8 structural absences; NOT C-xxx registry edges
+```
+
+**FN-024 (2026-08-10):** C-042 flipped 🔴→🟢 (Plan→DSE now binds through a Handoff Context — see `HANDOFF_CONTEXT_DESIGN.md`); two new connections added, **C-105** (`_handle_engineering_intent` → create/replace context) and **C-106** (bound context → `_handle_explore` goal bind). Registry count moved **57 → 59**. C-025/C-044 (H3) and C-043 (H4) remain 🔴 — not touched by this cut.
+
+**Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables (historically this produced a false **65**). The only authoritative count is the length of **Canonical registry** below.
+
+Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror this registry; if they diverge, **this file wins**.
+
+## Status taxonomy
+
+```text
+🟢 CONNECTED       — explicit path in code; works for intended use
+🟡 PARTIAL         — implicit, incomplete, or only some payloads handled
+🔴 BROKEN          — path claims to work but fails / falls to wrong layer (CLI evidence)
+⚪ NOT IMPLEMENTED — designed/discussed but no code path exists
+⚠ SUSPECT          — LLM or the wrong layer appears to decide (authority smell)
+```
+
+## Canonical registry
+
+**57 unique edges.** Append new IDs here first; then add a Detail section. Derived tables elsewhere in this file must not be treated as new edges.
+
+| ID | From | To | Status |
+|---|---|---|---|
+| C-001 | User | CLI adapter | 🟢 |
+| C-002 | CLI/MCP adapter | `orchestrator.handle_user_text` | 🟢 |
+| C-003 | CLI/MCP adapter (structured) | `orchestrator.handle` | 🟢 |
+| C-010 | Runtime | Global commands intercept | 🟢 |
+| C-011 | Runtime | FN-004 structural-confirm consume | 🟢 |
+| C-012 | Runtime | Bug 54 pending_define_missing consume | 🟢 |
+| C-013 | Runtime | Global component intercept (any mode) | 🟢 |
+| C-014 | Runtime | Mode-branch dispatch | 🟢 |
+| C-015 | Runtime | Parameter ingestion layer | 🟢 |
+| C-016 | `orchestrator.handle` | `ActionRouter.resolve` → `Action.run` | 🟢 (dual-dispatch seam, documented not fixed) |
+| C-020 | Runtime | `IntentResolver.resolve_intent` | 🟢 |
+| C-021 | Intent (`project_status`) | `_handle_project_status` | 🟢 |
+| C-022 | Intent (`analyze`) | `_handle_analyze` | 🟢 |
+| C-023 | Intent (`define_params`) | `start_define_missing_params` bridge | 🟢 |
+| C-024 | Intent (`dismiss_suggestion`) | `_handle_dismiss_suggestion` | 🟢 |
+| C-025 | "ayúdame" + named goal | Intent → `analyze` | 🔴 BROKEN |
+| C-030 | Runtime (IDLE) | FN-005 assisted motor help | 🟢 |
+| C-031 | Runtime (IDLE) | FN-014 acquisition mention → wizard open | 🟢 |
+| C-032 | Runtime (IDLE) | FN-015 pending-help → deterministic help | 🟢 |
+| C-033 | Runtime (DEFINE_MISSING) | FN-013 reprompt active block | 🟢 |
+| C-034 | Runtime (DEFINE_MISSING) | FN-016 navigation cancel | 🟢 |
+| C-035 | Intent (`project_status`, FN-023 phrasing) | `_handle_project_status` (Continuity) | 🟢 |
+| C-036 | Continuity | Acquisition (`_next_pending_block` shared read) | 🟢 |
+| C-037 | Acquisition wizard completion | `_set_pending_next_block` → next block or IDLE | 🟢 (FN-021 invariant) |
+| C-038 | Acquisition wizard open | `acquisition_brief.build_acquisition_brief` | 🟢 |
+| C-040 | Intent (`iterate`/`unknown`) | `is_engineering_intention` → `_handle_engineering_intent` | 🟢 |
+| C-041 | `_handle_engineering_intent` | `goal_planner.format_goal_plan` | 🟢 |
+| C-042 | Goal Plan CTA (`"explora opciones"`) | DSE (goal binding) | 🟢 (FN-024 — binds via `handoff_context`, see C-105/C-106) |
+| C-043 | Goal Plan lever (e.g. `safety_factor`) | Iterate wizard preseed | 🔴 BROKEN (H4 — deferred, not this cut) |
+| C-044 | "ayúdame" + named goal | Plan/Explore | 🔴 BROKEN (= C-025, cross-ref; H3 — deferred, not this cut) |
+| C-045 | Intent (`explore_design_space`) | `_handle_explore` → `DesignExplorer.explore` | 🟢 (when `goal_key` is resolved, explicitly or via C-106 bind) |
+| C-046 | `_handle_explore` result | `_handle_apply_exploration` (via `session.last_exploration_result`) | 🟢 |
+| C-105 | `_handle_engineering_intent` (successful plan) | Create/replace `session.handoff_context` | 🟢 (FN-024, new) |
+| C-106 | Active `handoff_context` (`dse_capability="active"`, matching `project_id`) | `_handle_explore` goal bind | 🟢 (FN-024, new) |
+| C-050 | `orchestrator.handle` (ITERATE) | `IterateInteractiveSession.start`/`answer` | 🟢 |
+| C-051 | ITERATE_INTERACTIVE | Bug 7 soft-interrupt (`project_status`/`analyze`) | 🟢 |
+| C-052 | ITERATE_INTERACTIVE | Calibration preempt → re-dispatch as IDLE | 🟢 |
+| C-053 | `IterateInteractiveSession.answer` | `semantic_interpreter` slot filling | 🟢 |
+| C-054 | Iterate final confirm | `MutationEngine` / `apply_and_recalculate` | 🟢 |
+| C-060 | `current_parameters` | `CalculationEngine.build` | 🟢 |
+| C-061 | `component_resolver.resolve_propulsion_parameters` | Calculation input override | 🟢 |
+| C-070 | `CalculationBundle` | `FeasibilitySimulator.evaluate` | 🟢 |
+| C-071 | `SimulationResult` | `state_manager.record_action` → persisted `latest_results` | 🟢 |
+| C-080 | ProjectState + BOM + requirements | `project_continuity.build_project_continuity` | 🟢 |
+| C-081 | Sim (`safety_margin_ratio`) | Continuity `next_useful_step` (PASS+risky thread) | 🟡 PARTIAL (WEAK) |
+| C-082 | `classify_component` | BOM buckets (`build_component_bom`) | 🟢 (FN-020) |
+| C-083 | `classify_component` (via `component_presence_tier`) | `_block_progress_status` (architecture presence) | 🟢 (FN-020, same classifier as C-082) |
+| C-084 | ProjectState | `PhaseLayer.infer` | 🟢 |
+| C-085 | Context (incl. C-084) | `ReasoningLayer.build` | 🟢 |
+| C-090 | Free text | `component_inference.infer_component[s]` → `ComponentSpec` | 🟢 (pure) |
+| C-091 | `ComponentSpec` | `component_writers.set_*` → `design_properties.components[key]` | 🟢 (single write point) |
+| C-092 | Any orchestrator checkpoint | `StateManager.set_runtime_session` / `clear_runtime_session` | 🟢 |
+| C-093 | `ProjectState` | `WorkspaceManager.save_state` → `state.json` | 🟢 |
+| C-094 | `ProjectState` | `WorkspaceManager.render_views` → `estado_actual.md`/`sistema.md` | 🟢 |
+| C-100 | `orchestrator` | `llm_interface.interpret` → `PromptBuilder.build_messages` | 🟢 |
+| C-101 | `PromptBuilder` messages | `LLMClient.complete` (Ollama) | 🟢 |
+| C-102 | Raw LLM response | `LLMResponseParser.parse/validate_for_runtime` (`ActionPolicy`) | 🟢 |
+| C-103 | Validated `action_request` | `orchestrator.handle` (closed 4-verb set) | 🟢 |
+| C-104 | `orchestrator` | `llm_interface.analyze` → narration string | 🟢 |
+
+## Forbidden transitions (not registry edges)
+
+**8** normative absences — listed even where no code path exists, so a future change can be checked against them. **Do not add these to the 57.** They have no `C-xxx` IDs.
+
+```text
+LLM → acquisition target            NOT IMPLEMENTED — ActionPolicy.ALLOWED_ACTIONS has no such action (structurally impossible today)
+LLM → goal selection                NOT IMPLEMENTED — same
+LLM → DSE configuration choice      NOT IMPLEMENTED — same
+Continuity → mutate ProjectState    NOT IMPLEMENTED — project_continuity.py has zero writes/I-O
+DSE → silent mutate without apply   NOT IMPLEMENTED — DesignExplorer docstring guarantee + C-046 is the only apply path, and it is a distinct, explicit user turn
+Goal Planner → write physical params NOT IMPLEMENTED — goal_planner.py has zero writes/I-O
+Component Inference → write direct  NOT IMPLEMENTED — only component_writers.py (C-091) may write components[key]
+Analyze (LLM) → choose next gap     NOT IMPLEMENTED — analyze()'s return is a message string only, never parsed as routing
+```
+
+None of these are currently violated in code (all `NOT IMPLEMENTED`, i.e. structurally absent, which is the desired state — see `AUTHORITY.md` for the mechanism). They are listed here as a checklist for future FN reviews, not because a violation was found.
+
+---
+
+## Derived detail (may repeat C-xxx)
+
+Sections below expand evidence for canonical IDs. Summary tables that re-list IDs (e.g. C-021…024, C-084/085, C-093/094) are **derived views**, not additional connections.
+
+## Detail — 00 Entry
+
+### C-001 — User → CLI adapter
+| Field | Value |
+|---|---|
+| Kind | CONTROL |
+| Mechanism | terminal stdin loop |
+| Symbols | `adapters/cli/main.py` main loop |
+| Payload | raw text line |
+| Authority | n/a (input boundary) |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `src/jarvis/adapters/cli/main.py` |
+
+### C-002 — CLI/MCP adapter → `orchestrator.handle_user_text`
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | direct method call |
+| Symbols | `JarvisOrchestrator.handle_user_text(user_input, llm_interface)` |
+| Payload | `user_input: str`, `llm_interface` |
+| Authority | Orchestrator (routing owner from here down) |
+| Mutation | Indirect (delegates) |
+| LLM | INDIRECT (passed through, only invoked deep in the chain — C-100/C-104) |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:559` (`handle_user_text`), `:577` (`_handle_user_text_inner`) |
+
+### C-003 — CLI/MCP adapter (structured) → `orchestrator.handle`
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | direct method call, `ActionRequest` |
+| Symbols | `JarvisOrchestrator.handle(request)` |
+| Payload | `ActionRequest` (`action`, `parameters`) |
+| Authority | Orchestrator / `ActionRouter` |
+| Mutation | Indirect (delegates to Action objects) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:199` |
+
+---
+
+## Detail — 01 Runtime
+
+### C-010 — Runtime → Global commands intercept
+| Field | Value |
+|---|---|
+| Kind | CONTROL |
+| Mechanism | function call, first line of `_handle_user_text_inner` |
+| Symbols | `_handle_global_commands` |
+| Payload | `user_input` |
+| Authority | escape-word table (`config.ESCAPE_WORDS`) |
+| Mutation | YES (may `clear_runtime_session`) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:579` |
+
+### C-011 — Runtime → FN-004 structural-confirm consume
+| Field | Value |
+|---|---|
+| Kind | CONTROL, STATE |
+| Mechanism | session-field check (`pending_structural_change`) |
+| Symbols | `_consume_structural_confirm` |
+| Payload | sí/no answer |
+| Authority | session state (FN-004) |
+| Mutation | YES |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:587` |
+
+### C-012 — Runtime → Bug 54 pending_define_missing consume
+| Field | Value |
+|---|---|
+| Kind | CONTROL, STATE |
+| Mechanism | session-field check + affirmative-phrase match |
+| Symbols | `_is_affirmative`, `start_define_missing_params` |
+| Payload | sí/no answer |
+| Authority | session state (Bug 54) |
+| Mutation | YES |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:596` |
+
+### C-013 — Runtime → Global component intercept (any mode)
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | free-text component detection, mode-independent |
+| Symbols | `_interceptable_component_specs`, `_should_intercept_component`, `_handle_component_description` |
+| Payload | inferred `ComponentSpec[]` |
+| Authority | `component_inference` (C-090) |
+| Mutation | YES (via C-091) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:330` (`_interceptable_component_specs`), `:368` (`_should_intercept_component`), `:646` (call site) |
+
+### C-014 — Runtime → Mode-branch dispatch
+| Field | Value |
+|---|---|
+| Kind | CONTROL |
+| Mechanism | `if current_session.mode == OrchestratorMode.X` chain |
+| Symbols | `OrchestratorMode` (5 values) |
+| Payload | — |
+| Authority | `StateManager` session mode |
+| Mutation | Indirect |
+| LLM | INDIRECT (ITERATE_INTERACTIVE's Bug 7 soft-interrupt can reach `analyze`) |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:660-830` |
+
+### C-015 — Runtime → Parameter ingestion layer
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | direct param input recognized before intent resolution |
+| Symbols | `param_definition_session.try_ingest` |
+| Payload | e.g. "4 motores" |
+| Authority | `ParamDefinitionSession` |
+| Mutation | YES |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:840` |
+
+### C-016 — `orchestrator.handle` → `ActionRouter.resolve` → `Action.run` (dual-dispatch seam)
+| Field | Value |
+|---|---|
+| Kind | CONTROL |
+| Mechanism | dict lookup + method call |
+| Symbols | `ActionRouter.resolve(ActionName)`, `CreateProjectAction/IterateAction/CalculateAction/SimulateAction.run` |
+| Payload | `parameters: dict` |
+| Authority | `ActionRouter.ALLOWED` (4-action closed set — same set `ActionPolicy` enforces for the LLM) |
+| Mutation | YES (varies by action) |
+| LLM | NO (this is the *target* of both LLM's `action_request` and the orchestrator's own resolved-intent handoff — see C-019/C-103) |
+| Status | 🟢 CONNECTED — but reached from **two** independent call sites (`orchestrator.handle` directly, and `_handle_user_text_inner`'s `intent in {...}` branch calling `self.handle(...)`), which is the documented dual-dispatch seam. Not a bug; a structural note. |
+| Evidence | `core/orchestrator.py:257` (`handle`'s own dispatch), `:901-904` (`_handle_user_text_inner`'s handoff into `handle`), `core/action_router.py` |
+
+---
+
+## Detail — 02 Intent
+
+### C-020 — Runtime → `IntentResolver.resolve_intent`
+| Field | Value |
+|---|---|
+| Kind | CONTROL |
+| Mechanism | function call |
+| Symbols | `IntentResolver.resolve_intent(user_input) -> IntentType` |
+| Payload | `user_input: str` → one of 14 `IntentType` values |
+| Authority | `IntentResolver` (regex tables, GUIDANCE before ANALYZE before ITERATE, see `AUTHORITY.md`) |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:845`, `core/intent_resolver.py:280` |
+
+### C-021 / C-022 / C-023 / C-024 — Intent → dedicated handler
+> Derived summary — IDs already in Canonical registry (not +4 edges).
+
+| ID | Intent | Handler | Status |
+|---|---|---|---|
+| C-021 | `project_status` | `_handle_project_status` (0 LLM, Continuity-backed) | 🟢 |
+| C-022 | `analyze` | `_handle_analyze` (LLM narration) | 🟢 |
+| C-023 | `define_params` | `start_define_missing_params` bridge | 🟢 |
+| C-024 | `dismiss_suggestion` | `_handle_dismiss_suggestion` | 🟢 |
+
+Evidence: `core/orchestrator.py:846,850,864,906`.
+
+### C-025 — "ayúdame" + named goal → Intent → `analyze` 🔴 BROKEN
+| Field | Value |
+|---|---|
+| Kind | CONTROL |
+| Mechanism | `ANALYZE_PATTERNS`' bare `\bayudame\b` matches before FN-022's engineering-intent gate ever sees the turn (that gate only fires for `intent ∈ {"iterate","unknown"}`, and this phrase resolves to `"analyze"`) |
+| Symbols | `intent_resolver.ANALYZE_PATTERNS`, `IntentResolver._resolve_strong_action_intent` |
+| Payload | e.g. `"ayudame a mejorar la estabilidad"` |
+| Authority | **Should be** `goal_planner.is_engineering_intention` (it correctly detects `mejorar_estabilidad` for this exact phrase when called directly) — but routing never reaches it |
+| Mutation | NO |
+| LLM | YES — this is the bug: LLM narrates instead of the deterministic plan being shown |
+| Status | 🔴 BROKEN |
+| Evidence | `core/intent_resolver.py:103-106` (ANALYZE_PATTERNS), `core/orchestrator.py:894` (FN-022 gate's `intent in ("iterate","unknown")` guard). Verified: `resolve_intent("ayudame a mejorar la estabilidad") == "analyze"`; `is_engineering_intention("ayudame a mejorar la estabilidad") == "mejorar_estabilidad"`. Same underlying phrase as C-044 (cross-ref, not a duplicate finding). |
+
+---
+
+## Detail — 03 Acquisition
+
+### C-030 — Runtime (IDLE) → FN-005 assisted motor help
+| Field | Value | | Field | Value |
+|---|---|---|---|---|
+| Kind | CONTROL | | Mutation | YES (opens wizard) |
+| Mechanism | phrase match + bridge | | LLM | NO |
+| Symbols | `is_help_choose_phrase`, `_try_start_assisted_motor_help` | | Status | 🟢 CONNECTED |
+| Payload | "ayúdame a elegir" | | Evidence | `core/orchestrator.py:613-623` |
+| Authority | `motor_catalog_assist.py` | | | |
+
+### C-031 — Runtime (IDLE) → FN-014 acquisition mention → wizard open
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | mention resolution + Bug54 bridge |
+| Symbols | `_try_start_acquisition_from_mention`, `acquisition_target.resolve_acquisition_mention`, `_continue_block_acquisition` |
+| Payload | "declarar/definir/completar X" (block or component) |
+| Authority | `acquisition_target.py` + `_next_pending_block` |
+| Mutation | YES (session `pending_*`) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:630-634`, `core/acquisition_target.py` (FN-011/013/014) |
+
+### C-032 — Runtime (IDLE) → FN-015 pending-help → deterministic help
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | bare-help phrase detector + same Bug54 bridge |
+| Symbols | `_try_help_define_pending_idle`, `is_help_define_pending_phrase`, `_help_current_pending_acquisition` |
+| Payload | "ayúdame a definir" (no named target) |
+| Authority | `acquisition_target.py` |
+| Mutation | YES (opens wizard) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:636-644`, `1165-1195` |
+
+### C-033 — Runtime (DEFINE_MISSING) → FN-013 reprompt active block
+| Field | Value |
+|---|---|
+| Kind | CONTROL |
+| Mechanism | in-wizard re-prompt, no restart |
+| Symbols | `_try_reprompt_active_block_declaration`, `resolve_declare_block_request` |
+| Payload | "definir/declarar X" while X's wizard is already open |
+| Authority | `intent_resolver.resolve_declare_block_request` + `acquisition_brief` (FN-018) |
+| Mutation | NO (re-reads, doesn't reset `collected_params`) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:730-737,1061-1108` |
+
+### C-034 — Runtime (DEFINE_MISSING) → FN-016 navigation cancel
+| Field | Value |
+|---|---|
+| Kind | CONTROL, STATE |
+| Mechanism | exact-match navigation word → clean cancel |
+| Symbols | `is_navigation_back_phrase`, `clear_runtime_session` |
+| Payload | "atrás"/"volver"/"vuelve" |
+| Authority | `acquisition_target.py` (scoped, not global `ESCAPE_WORDS`) |
+| Mutation | YES (clears session) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:770-778` |
+
+### C-035 — Intent (`project_status`, FN-023 phrasing) → `_handle_project_status`
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | `GUIDANCE_PATTERNS` (checked before `ANALYZE_PATTERNS`) |
+| Symbols | `intent_resolver.GUIDANCE_PATTERNS` (FN-023's 3 additions), `_handle_project_status` |
+| Payload | "ayúdame con el siguiente paso" |
+| Authority | Continuity (via `build_startup_context`) |
+| Mutation | NO (read-only; may set Bug54 `pending_define_missing` as an existing side effect, IDLE only) |
+| LLM | NO |
+| Status | 🟢 CONNECTED (FN-023) |
+| Evidence | `core/intent_resolver.py` (GUIDANCE_PATTERNS FN-023 block), `core/orchestrator.py:846-849,1952-1979`; also reachable mid-wizard via C-014's DEFINE_MISSING branch (`_dm_intent == "project_status"`) |
+
+### C-036 — Continuity → Acquisition (`_next_pending_block` shared read)
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | both read the same underlying computation |
+| Symbols | `orchestrator._next_pending_block`, `_block_progress_status`, consumed by both `_try_start_acquisition_from_mention` (Acquisition) and `build_startup_context`'s `arch_progress`/`next_architecture_label` (Continuity) |
+| Payload | `(block_key, status)` or `None` |
+| Authority | `_block_progress_status` (via `classify_component`, FN-020) |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED — this shared-source property is *why* C-082/C-083 (FN-020) closed the old architecture-vs-BOM contradiction |
+| Evidence | `core/orchestrator.py:1438-1463` (`_next_pending_block`, `_architecture_progress_str`) |
+
+### C-037 — Acquisition wizard completion → `_set_pending_next_block` → next block or IDLE
+| Field | Value |
+|---|---|
+| Kind | CONTROL, STATE |
+| Mechanism | post-completion hook, gated on `_next_pending_block` result and current mode |
+| Symbols | `_set_pending_next_block`, `StateManager.clear_runtime_session` |
+| Payload | — |
+| Authority | Orchestrator (FN-021 invariant) |
+| Mutation | YES (session) |
+| LLM | NO |
+| Status | 🟢 CONNECTED (FN-021 closed the "stays in DEFINE_MISSING forever" bug) |
+| Evidence | `core/orchestrator.py:1366-1437`, `tests/test_fn021_session_hygiene.py` |
+
+### C-038 — Acquisition wizard open → `acquisition_brief.build_acquisition_brief`
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | direct call, composes blurb + known facts + why-line |
+| Symbols | `build_acquisition_brief(key, project_state)` |
+| Payload | `{"message": str, "question": str}` |
+| Authority | `acquisition_brief.py` (FN-018), reuses `COMPONENT_PROMPTS` (`acquisition_target.py`) |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/acquisition_brief.py`, called from `param_definition_session.start`, `orchestrator._try_reprompt_active_block_declaration`, `_help_current_pending_acquisition`, `_handle_component_description` |
+
+---
+
+## Detail — 04 Engineering
+
+### C-040 — Intent (`iterate`/`unknown`) → `is_engineering_intention` → `_handle_engineering_intent`
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | goal detection + numeric-mutate guard, gated to two intent values only |
+| Symbols | `goal_planner.is_engineering_intention`, `orchestrator._handle_engineering_intent` |
+| Payload | e.g. "aumentar el empuje" → `goal_key="mejorar_estabilidad"` |
+| Authority | `goal_planner.py` (FN-022) |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED (FN-022) |
+| Evidence | `core/orchestrator.py:894-899`, `core/goal_planner.py` |
+
+### C-041 — `_handle_engineering_intent` → `goal_planner.format_goal_plan`
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | direct call, deterministic template over `GOAL_STRATEGIES` |
+| Symbols | `format_goal_plan(goal_key, sim_context)`, `_prioritize_strategies` |
+| Payload | plan text (numbered strategies + levers) |
+| Authority | `goal_planner.GOAL_STRATEGIES` |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:2245-2263` (`_handle_engineering_intent`) |
+
+### C-042 — Goal Plan CTA (`"explora opciones"`) → DSE (goal binding) 🟢 CONNECTED (FN-024)
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA, STATE |
+| Mechanism | bare `"explora opciones"` (`goal_key is None`) binds through `session.handoff_context` — see C-105 (create) / C-106 (bind) — when the context belongs to the current project (`project_id` match) and `dse_capability == "active"` |
+| Symbols | `orchestrator._handle_explore`, `schemas.action_schema.HandoffContext` |
+| Payload | `handoff_context.goal_key` (never invented — reused from the plan `_handle_engineering_intent` already showed) |
+| Authority | `HandoffContext` created by `_handle_engineering_intent` (C-105); `_handle_explore` only reads it, never invents a goal |
+| Mutation | YES (session only) — successful bind+explore sets `dse_capability = "consumed"`; `goal_key`/`levers`/`iterate_capability` untouched |
+| LLM | NO for the bound case. A second bare `"explora opciones"` after consumption gets a deterministic 0-LLM message (not analyze — see `05_iteration`/`04_engineering` maps). Falls to `_handle_analyze` only when no bindable context exists at all (no context, wrong project, or unknown goal) — same honest fallback as before FN-024. |
+| Status | 🟢 CONNECTED (FN-024, 2026-08-10) |
+| Evidence | `core/orchestrator.py::_handle_explore` (bind logic), `::_handle_engineering_intent` (C-105, context creation), `tests/test_fn024_handoff_context_dse.py` (T1–T9). Verified live: plan for `mejorar_estabilidad` → `"explora opciones"` → `action="explore_design_space"`, `goal_key="mejorar_estabilidad"`, 0 LLM. Design authority: `HANDOFF_CONTEXT_DESIGN.md` Decision log (Hybrid Operation-Scoped Context). H2 (CTA honesty, M-002) closed as a consequence — the CTA's `'explora opciones'` promise is now true by construction (a fresh active context is always created immediately before the CTA is built). |
+
+### C-043 — Goal Plan lever (e.g. `safety_factor`) → Iterate preseed 🔴 BROKEN
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | **none** — the lever name the user just typed is captured as free-text `objective`, never mapped onto the wizard's `variable` slot |
+| Symbols | `iterate_interactive_session._seed_semantic_from_draft`, `semantic_interpreter.extract_entities`, `SemanticState.missing_slots` |
+| Payload | "incrementa safety_factor" → confirm → `iteration_draft.variable == None`, re-asks "¿Qué quieres modificar?" |
+| Authority | **Should be** `GOAL_STRATEGIES[goal_key][i]["lever"]` membership check (H4 design, `MISMATCHES.md`) — no such check exists today |
+| Mutation | NO (wizard stays open, asks again) |
+| LLM | NO |
+| Status | 🔴 BROKEN — **still open, deferred, not touched by FN-024** |
+| Evidence | `core/iterate_interactive_session.py:1108-1160` (`_seed_semantic_from_state`/`_seed_semantic_from_draft`). Verified via live orchestrator run: `semantic_state.missing_slots == ["variable"]` after confirming "safety_factor" by name. This is Failure C of the predecessor map. **FN-024 note:** `HandoffContext.levers` (populated by C-105, e.g. `["per_motor_max_thrust_n / motors", "safety_factor"]` for `mejorar_estabilidad`) now exists at runtime and is left untouched by every FN-024 code path — it is exactly the membership list H4 will need, already sitting there for whoever picks up H4 next; FN-024 does not read or act on it. |
+
+### C-044 — "ayúdame" + named goal → Plan/Explore (cross-ref C-025) 🔴 BROKEN
+Same underlying phrase and root cause as **C-025** — listed under both Intent and Engineering because the fix could plausibly live in either layer (a `GUIDANCE_PATTERNS` extension, per FN-023's own precedent, vs. widening the FN-022 gate's `intent` set). Do not treat as two separate findings when counting BROKEN edges (§ Implementation Report counts it once).
+
+### C-045 — Intent (`explore_design_space`) → `_handle_explore` → `DesignExplorer.explore`
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | direct call, in-memory only |
+| Symbols | `_handle_explore`, `DesignExplorer.explore(project_state, goal_key)`, `EXPLORATION_GRIDS` |
+| Payload | `ExplorationResult` (candidates, viable, baseline_simulation) |
+| Authority | `design_explorer.py` |
+| Mutation | NO ("100% en memoria: no escribe en disco, no muta project_state") |
+| LLM | NO — **when `goal_key` is resolved** either explicitly from text or via a C-106 bind. Falls to `_handle_analyze` only when no `goal_key` and no bindable context exist. |
+| Status | 🟢 CONNECTED (`goal_key` now resolves either from explicit text or, since FN-024, from a bound `handoff_context` — see C-042/C-106) |
+| Evidence | `core/orchestrator.py:912-917,1981-2046`, `core/design_explorer.py` |
+
+### C-046 — `_handle_explore` result → `_handle_apply_exploration`
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA, STATE |
+| Mechanism | runtime-session field carries the result across turns |
+| Symbols | `session.last_exploration_result`, `_handle_apply_exploration` |
+| Payload | best viable candidate's delta |
+| Authority | Orchestrator (DSE v1.1) |
+| Mutation | YES — this is the one DSE-adjacent path that **does** write `ProjectState`, and only on an explicit "aplica" turn |
+| LLM | NO |
+| Status | 🟢 CONNECTED — **this is the existing precedent** the `MISMATCHES.md` design appendix points to for how a future Plan/Handoff Context (H1) should be shaped: runtime-only, consumed-and-cleared by its own explicit next action |
+| Evidence | `core/orchestrator.py:919-923,2047-2090`, `schemas/action_schema.py` (`InteractiveSessionState.last_exploration_result`) |
+
+### C-105 — `_handle_engineering_intent` (successful plan) → create/replace `handoff_context` (FN-024, new)
+| Field | Value |
+|---|---|
+| Kind | STATE |
+| Mechanism | unconditional create-or-replace, every successful `_handle_engineering_intent(goal_key)` call builds a fresh `HandoffContext` and overwrites any previous one via `session.model_copy(update={"handoff_context": ...})` |
+| Symbols | `orchestrator._handle_engineering_intent`, `schemas.action_schema.HandoffContext` |
+| Payload | `HandoffContext(goal_key, levers=[s["lever"] for s in GOAL_STRATEGIES[goal_key]], origin="engineering_intent", dse_capability="active", iterate_capability="active", project_id=project_state.project_id)` |
+| Authority | `goal_planner.GOAL_STRATEGIES` (levers), `_handle_engineering_intent`'s own `goal_key` (already resolved deterministically by C-040, never invented here) |
+| Mutation | YES (session only — never `ProjectState`, never disk) |
+| LLM | NO |
+| Status | 🟢 CONNECTED (FN-024, new) |
+| Evidence | `core/orchestrator.py::_handle_engineering_intent`, `tests/test_fn024_handoff_context_dse.py::test_plan_creates_active_handoff_context`, `::test_new_engineering_intent_replaces_context` |
+
+### C-106 — Active `handoff_context` → `_handle_explore` goal bind (FN-024, new)
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | read-only lookup at the top of `_handle_explore`, gated on `handoff.project_id == project_state.project_id` (project-boundary proof, not an assumed clear — see `HANDOFF_CONTEXT_DESIGN.md`) and `handoff.dse_capability == "active"` |
+| Symbols | `orchestrator._handle_explore`, `StateManager.get_runtime_session().handoff_context` |
+| Payload | `handoff_context.goal_key` read into the local `goal_key` used by the rest of `_handle_explore` — from that point on, indistinguishable from an explicitly-resolved `goal_key` (C-045) except for the capability-consumption side effect on success |
+| Authority | Same as C-105 — this connection only *reads*, `_handle_engineering_intent` (C-105) is the sole writer |
+| Mutation | YES (session only) — successful bind + explore sets `dse_capability = "consumed"`, nothing else changes |
+| LLM | NO — a bind either succeeds deterministically or falls through to the pre-existing `_handle_analyze` fallback (C-042) / the deterministic "already explored" message (§4.3) |
+| Status | 🟢 CONNECTED (FN-024, new) |
+| Evidence | `core/orchestrator.py::_handle_explore` (bind block), `tests/test_fn024_handoff_context_dse.py::test_bare_explore_binds_context_and_consumes_dse_capability_only`, `::test_handoff_context_inert_across_project_boundary` |
+
+---
+
+## Detail — 05 Iteration
+
+### C-050 — `orchestrator.handle` (ITERATE) → `IterateInteractiveSession.start`/`answer`
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | interactive-session short-circuit inside `handle()`, or mode-branch inside `_handle_user_text_inner` |
+| Symbols | `IterateInteractiveSession.start`, `.answer` |
+| Payload | seed parameters, then multi-turn free text |
+| Authority | `iterate_interactive_session.py` |
+| Mutation | YES (via `apply_and_recalculate`/`record_action` at final confirm) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:220-255,669-721`, `core/iterate_interactive_session.py:88,130` |
+
+### C-051 — ITERATE_INTERACTIVE → Bug 7 soft-interrupt
+| Field | Value |
+|---|---|
+| Kind | CONTROL |
+| Mechanism | interim intent check, wizard stays open (`wizard_reprompt` attached) |
+| Symbols | `resolve_intent` (interim), `_handle_project_status`/`_handle_analyze` |
+| Payload | "¿cómo va el proyecto?" mid-wizard |
+| Authority | Same as C-021/C-022, scoped to not close the wizard |
+| Mutation | NO |
+| LLM | INDIRECT (analyze branch) |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:672-685` |
+
+### C-052 — ITERATE_INTERACTIVE → Calibration preempt
+| Field | Value |
+|---|---|
+| Kind | CONTROL, STATE |
+| Mechanism | pattern-based preempt check, clears session, re-dispatches as IDLE |
+| Symbols | `_should_preempt_iterate_wizard`, `clear_runtime_session` |
+| Payload | a new strong-intent/component phrase mid-wizard |
+| Authority | Orchestrator (2026-08-05 calibration) |
+| Mutation | YES |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:405-459` (`_should_preempt_iterate_wizard`), `:693-707` (call site) |
+
+### C-053 — `IterateInteractiveSession.answer` → `semantic_interpreter` slot filling
+| Field | Value |
+|---|---|
+| Kind | DATA, STATE |
+| Mechanism | `SemanticState` slot extraction/merge |
+| Symbols | `semantic_interpreter.update/decide/extract_entities`, `SemanticState` |
+| Payload | operation/variable/value slots |
+| Authority | `semantic_interpreter.py` |
+| Mutation | YES (session `semantic_state`) |
+| LLM | NO |
+| Status | 🟢 CONNECTED — **this is the exact mechanism C-043 is broken inside of** (the `variable` slot is a real, working concept; nothing currently writes a plan-lever name into it) |
+| Evidence | `core/semantic_interpreter.py`, `core/iterate_interactive_session.py:1108-1224` |
+
+### C-054 — Iterate final confirm → `MutationEngine`/`apply_and_recalculate`
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA, STATE |
+| Mechanism | direct call chain |
+| Symbols | `MutationEngine`, `param_definition_session.apply_and_recalculate`, `state_manager.record_action` |
+| Payload | resolved parameter delta |
+| Authority | `mutation_engine.py` |
+| Mutation | YES |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/mutation_engine.py`, `core/param_definition_session.py:715` |
+
+---
+
+## Detail — 06 Calculation / 07 Simulation
+
+### C-060 — `current_parameters` → `CalculationEngine.build`
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | pure function |
+| Symbols | `CalculationEngine.build(current_parameters) -> CalculationBundle` |
+| Payload | `current_parameters: dict` |
+| Authority | `calculation_engine.py` |
+| Mutation | NO (pure) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/calculation_engine.py:34`, `actions/calculate.py` |
+
+### C-061 — `component_resolver.resolve_propulsion_parameters` → calculation input override
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | pure function, declarative components → physical override |
+| Symbols | `resolve_propulsion_parameters(components) -> PhysicalOverride` |
+| Payload | `PhysicalOverride` |
+| Authority | `component_resolver.py` |
+| Mutation | NO (pure) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/component_resolver.py:73` |
+
+### C-070 — `CalculationBundle` → `FeasibilitySimulator.evaluate`
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | pure function |
+| Symbols | `FeasibilitySimulator.evaluate(calculations, autonomy_threshold) -> SimulationResult` |
+| Payload | `CalculationBundle` → `SimulationResult` |
+| Authority | `simulation/simulator.py` |
+| Mutation | NO (pure) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `simulation/simulator.py:18`, `actions/simulate.py` |
+
+### C-071 — `SimulationResult` → `state_manager.record_action` → persisted `latest_results`
+| Field | Value |
+|---|---|
+| Kind | STATE |
+| Mechanism | direct call, immutable `model_copy` |
+| Symbols | `StateManager.record_action`, `WorkspaceManager.save_state` |
+| Payload | `HistoryEntry` + `latest_results` dict |
+| Authority | `state_manager.py` |
+| Mutation | YES |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/state_manager.py:195-215`, `actions/calculate.py`, `actions/simulate.py` |
+
+---
+
+## Detail — 08 Continuity
+
+### C-080 — ProjectState + BOM + requirements → `build_project_continuity`
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | pure function, recomputed every call |
+| Symbols | `project_continuity.build_project_continuity` |
+| Payload | `{situation, evidence, next_useful_step, next_useful_why}` |
+| Authority | `project_continuity.py` |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/project_continuity.py:10` |
+
+### C-081 — Sim (`safety_margin_ratio`) → Continuity `next_useful_step` 🟡 PARTIAL (WEAK)
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | `sim_status == "pass"` branch does not read `safety_margin_ratio` at all |
+| Symbols | `build_project_continuity`'s `elif sim_status == "pass": next_step = "Diseño en PASS..."` |
+| Payload | margin value is available (`sim.get("safety_margin_ratio")`) but unused in this branch |
+| Authority | Continuity is still the sole decider — just under-informed |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟡 PARTIAL — not `BROKEN` (never wrong, never claims something false) but degrades to a generic fallback identical for margin=1.08 and margin=3.0. Verified via direct `build_project_continuity` call with `safety_margin_ratio=1.08`, architecture 4/4, no incomplete/missing components. |
+| Evidence | `core/project_continuity.py` (the `elif sim_status == "pass":` branch, no margin read). Failure D of the predecessor map; H5 (design-only, `MISMATCHES.md`) is the open question, not yet a queued FN. |
+
+### C-082 — `classify_component` → BOM buckets
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | pure classifier, routes into 4 buckets |
+| Symbols | `project_closure.classify_component`, `build_component_bom` |
+| Payload | `"missing"/"stub"/"declared"/"defined"` → `{defined, incomplete, missing, declarative}` |
+| Authority | `project_closure.py` (FN-020) |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/project_closure.py` |
+
+### C-083 — `classify_component` (via `component_presence_tier`) → `_block_progress_status`
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | thin wrapper — same primitive as C-082, not a second threshold |
+| Symbols | `orchestrator._component_is_low` → `project_closure.component_presence_tier` |
+| Payload | `"stub"/"present"` |
+| Authority | `project_closure.py` (FN-020) |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED — **this is the connection whose absence was the FN-020 bug**: before FN-020, architecture progress and BOM used two independently-defined thresholds that could disagree; now both read the same primitive |
+| Evidence | `core/orchestrator.py` (`_component_is_low`), `core/project_closure.py` (`component_presence_tier`) |
+
+### C-084 / C-085 — Phase / Reasoning
+> Derived summary — IDs already in Canonical registry (not +2 edges).
+
+| ID | From | To | Status | Evidence |
+|---|---|---|---|---|
+| C-084 | ProjectState | `PhaseLayer.infer` | 🟢 | `core/phase_layer.py:28` |
+| C-085 | Context (incl. phase, signals) | `ReasoningLayer.build` → insights/suggested_actions | 🟢 | `core/reasoning_layer.py:28` |
+
+---
+
+## Detail — 09 State
+
+### C-090 — Free text → `component_inference.infer_component[s]`
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | pure function, domain-registry keyword match + property extraction |
+| Symbols | `infer_component`, `infer_components`, `infer_component_for_key` (FN-019), `ComponentRuleRegistry.match` |
+| Payload | free text → `ComponentSpec` |
+| Authority | `component_inference.py` + `domains/{aerial,ground}.py` |
+| Mutation | NO (pure) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/component_inference.py`, `core/component_rules.py` |
+
+### C-091 — `ComponentSpec` → `component_writers.set_*` (single write point)
+| Field | Value |
+|---|---|
+| Kind | STATE |
+| Mechanism | direct call, atomic write to `components[key]` + mirrored `current_parameters` |
+| Symbols | `set_frame_material`, `set_control_component`, `set_battery_component`, `set_motor_component`, `set_propeller_component`, `apply_components_delta` |
+| Payload | `ComponentSpec` → `ProjectState` update |
+| Authority | `component_writers.py` — **the only** legal writer of `design_properties.components` |
+| Mutation | YES |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/component_writers.py`, `tests/test_d4_param_gatekeeper.py` (locks the mirrored-param invariant) |
+
+### C-092 — Any orchestrator checkpoint → `StateManager.set_runtime_session`/`clear_runtime_session`
+| Field | Value |
+|---|---|
+| Kind | STATE |
+| Mechanism | whole-session `model_copy(update={...})`, or full reset to a fresh IDLE `InteractiveSessionState` |
+| Symbols | `StateManager.set_runtime_session`, `clear_runtime_session` |
+| Payload | `InteractiveSessionState` fields (`mode`, `pending_*`, `last_exploration_result`, etc. — full field list in `09_state/STATE_MAP.md`) |
+| Authority | `state_manager.py` |
+| Mutation | YES (session, not disk, though snapshotted — see C-093) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/state_manager.py:98-114` |
+
+### C-093 / C-094 — ProjectState → disk
+> Derived summary — IDs already in Canonical registry (not +2 edges).
+
+| ID | To | Symbols | Status | Evidence |
+|---|---|---|---|---|
+| C-093 | `state.json` | `WorkspaceManager.save_state` | 🟢 | `workspace/workspace_manager.py:82` |
+| C-094 | `estado_actual.md`/`sistema.md` | `WorkspaceManager.render_views` (uses `project_closure`'s BOM) | 🟢 | `workspace/workspace_manager.py:115`, `workspace/render_views.py` |
+
+---
+
+## Detail — 10 LLM
+
+### C-100 — `orchestrator` → `llm_interface.interpret` → `PromptBuilder.build_messages`
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | direct call |
+| Symbols | `JarvisLLMInterface.interpret`, `PromptBuilder.build_messages` |
+| Payload | `user_input`, `runtime_state` → `messages: list[dict]` |
+| Authority | `llm/prompt_builder.py` |
+| Mutation | NO |
+| LLM | YES (this is the boundary itself) |
+| Status | 🟢 CONNECTED |
+| Evidence | `llm/llm_client.py:34-35` |
+
+### C-101 — `PromptBuilder` messages → `LLMClient.complete`
+| Field | Value |
+|---|---|
+| Kind | CONTROL |
+| Mechanism | network call to the model backend |
+| Symbols | `LLMClient.complete(messages, json_mode=True)`, implemented by `OllamaClient` |
+| Payload | messages → raw JSON string |
+| Authority | the model itself (outside this codebase) |
+| Mutation | NO |
+| LLM | YES |
+| Status | 🟢 CONNECTED |
+| Evidence | `llm/llm_client.py:38`, `llm/ollama_client.py` |
+
+### C-102 — Raw LLM response → `LLMResponseParser.parse/validate_for_runtime`
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | JSON parse → schema validation → **`ActionPolicy.validate`** |
+| Symbols | `LLMResponseParser.parse`, `.validate_for_runtime`, `ActionPolicy.validate`, `ActionPolicy.ALLOWED_ACTIONS` |
+| Payload | raw JSON → validated `LLMActionRequest` |
+| Authority | **`ActionPolicy`** — this is the structural enforcement point for "LLM must not choose the next engineering target" (see `AUTHORITY.md`) |
+| Mutation | NO |
+| LLM | YES (validating its output, not itself deciding) |
+| Status | 🟢 CONNECTED |
+| Evidence | `llm/response_parser.py:17-18`, `llm/action_policy.py:14-38` |
+
+### C-103 — Validated `action_request` → `orchestrator.handle` (closed 4-verb set)
+| Field | Value |
+|---|---|
+| Kind | CONTROL |
+| Mechanism | `to_action_request` → `self.handle(action_request)` |
+| Symbols | `LLMResponseParser.to_action_request`, `orchestrator.handle` |
+| Payload | `{"action": one of 4, "parameters": {...}}` |
+| Authority | Same closed set as C-016 |
+| Mutation | YES (delegates to the resolved Action) |
+| LLM | INDIRECT (this is the LLM's output being consumed, not the LLM itself acting) |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py:925,939` |
+
+### C-104 — `orchestrator` → `llm_interface.analyze` → narration string
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | direct call, return value is text only |
+| Symbols | `JarvisLLMInterface.analyze` |
+| Payload | `user_input`, `context`, `goal_context` (optional, from `get_goal_context_for_llm`) → message string |
+| Authority | n/a — narration is not a decision |
+| Mutation | NO |
+| LLM | YES |
+| Status | 🟢 CONNECTED |
+| Evidence | `llm/llm_client.py:76`, `core/orchestrator.py:2194-2253` (`_handle_analyze`) |
+
+---
+
+## Suspected missing edges (flagged, not fabricated)
+
+These are gaps observed while building this registry — not claimed as connections, and not implemented anywhere. Listed so a future contributor doesn't have to rediscover them from scratch.
+
+- **Plan/Handoff Context → DSE consumer** — **IMPLEMENTED (FN-024, C-105/C-106)**, closing C-042. **Plan/Handoff Context → Iterate consumer (H4/C-043)** and **→ Help+Goal routing (H3/C-025/C-044)** remain `⚪ NOT IMPLEMENTED` — `HandoffContext.levers`/`iterate_capability` already exist at runtime (populated by C-105, untouched by every FN-024 code path) specifically so a future H4 cut has them ready. See `MISMATCHES.md` design appendix.
+- **Continuity → margin/goal "thread"** — `⚪ NOT IMPLEMENTED` in the sense that no data surface currently carries "we are worried about margin" across turns; C-081 is the read-side symptom.
+- **`ActionRouter` entry for `analyze`/`project_status`/`explore_design_space`/etc.** — `⚪ NOT IMPLEMENTED` by design (§1.4 dual-dispatch note) — these intents never touch `ActionRouter` at all, which is why the seam exists. Not a bug, listed for completeness.
