@@ -67,17 +67,17 @@ A second, equally valid entry point into this same flow. **Pre-FN-025:** `resolv
 **User-visible steps (working case):**
 1. `"cambia el material a fibra de carbono"` → wizard confirms, applies, recalculates.
 
-**User-visible steps (broken case — named lever from a plan):**
+**User-visible steps (fixed case — named lever from a plan, FN-026):**
 1. FLOW-002 just showed a plan whose top strategy names lever `safety_factor`.
 2. User: `"incrementa safety_factor"` → `"sí"` (confirms the objective).
-3. **Expected:** wizard recognizes `safety_factor` as the target variable, asks for the operation/value directly.
-4. **Actual:** `iteration_draft.variable` is `None`, `semantic_state.missing_slots == ["variable"]`, wizard re-asks `"¿Qué quieres modificar?"` — the lever name the user already typed is discarded (captured only as free-text `objective`).
+3. `orchestrator._preseed_variable_from_handoff` matches `safety_factor` against the active `handoff_context.levers` (via `handoff_matching.match_plan_lever`) and seeds `iteration_draft.variable = "safety_factor"` before the wizard even opens.
+4. **Result:** `iteration_draft.variable == "safety_factor"`, `semantic_state.missing_slots == []`, wizard skips step 1 ("¿Qué quieres modificar?") entirely and jumps to step 2 — the lever the user already typed is no longer discarded.
 
-**Modules/functions:** `orchestrator.handle`(ITERATE) / mode-branch → `IterateInteractiveSession.start`/`answer` → `semantic_interpreter.extract_entities`/`update` → `MutationEngine`/`apply_and_recalculate`.
+**Modules/functions:** `orchestrator.handle`(ITERATE) / mode-branch → `orchestrator._preseed_variable_from_handoff` → `handoff_matching.match_plan_lever` → `IterateInteractiveSession.start`/`answer` → `semantic_interpreter.extract_entities`/`update` → `MutationEngine`/`apply_and_recalculate`.
 
-**Connections:** C-050, C-053 (🟢 the slot-filling mechanism itself works), **C-043 (🔴 broken — nothing feeds a plan lever into it)**.
+**Connections:** C-050, C-053 (🟢 the slot-filling mechanism itself works), **C-043 (🟢 fixed, FN-026 — a plan lever now feeds the wizard's `variable` slot before step 1)**.
 
-**Notes:** Predecessor map's Failure C. The fix (H4, design-only) must gate on "lever ∈ current plan's own strategy levers," not generic free-text matching — see `MISMATCHES.md`.
+**Notes:** Predecessor map's Failure C, closed by FN-026. The fix gates on "lever ∈ current plan's own strategy levers" (via `handoff_context.levers`, guarded on `project_id`/`iterate_capability`), never generic free-text matching — see `MISMATCHES.md`.
 
 ---
 
@@ -118,4 +118,4 @@ A second, equally valid entry point into this same flow. **Pre-FN-025:** `resolv
 
 **Connections:** C-022, C-100, C-101, C-102, C-103, C-104.
 
-**Notes:** 🟢 by construction — this is the *correctly narrow* fallback. The original bugs (Failures A/B, now closed by FN-024/FN-025) were never that this flow exists; it's that turns which *should* have been claimed by a more specific deterministic layer (C-042, C-025/C-044) fell all the way down to here instead. **C-043 (H4, lever → iterate preseed) is the one remaining case of this shape** — a named lever still isn't claimed by a more specific layer before reaching the iterate wizard's own generic fallback (not this LLM flow, but the same underlying pattern).
+**Notes:** 🟢 by construction — this is the *correctly narrow* fallback. The original bugs (Failures A/B, now closed by FN-024/FN-025) were never that this flow exists; it's that turns which *should* have been claimed by a more specific deterministic layer (C-042, C-025/C-044, and — since FN-026 — C-043) fell all the way down to here instead. A named plan lever is now claimed by `_preseed_variable_from_handoff` before it can reach the iterate wizard's own generic fallback (FLOW-004) — see `MISMATCHES.md`'s H1–H4 table.

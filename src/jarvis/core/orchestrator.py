@@ -43,6 +43,7 @@ from jarvis.core.goal_planner import (
     get_goal_context_for_llm,
     is_engineering_intention,
 )
+from jarvis.core.handoff_matching import match_plan_lever
 from jarvis.core.component_writers import (
     set_battery_component,
     set_control_component,
@@ -937,6 +938,10 @@ class JarvisOrchestrator:
         if intent in {"create_project", "iterate", "calculate", "simulate"}:
             local_action_request = self.intent_resolver.resolve_action_request(user_input, intent=intent)
             if local_action_request is not None:
+                if intent == "iterate":
+                    local_action_request = self._preseed_variable_from_handoff(
+                        local_action_request, user_input
+                    )
                 return self.handle(local_action_request)
 
         # Bug 49: dismiss the current top suggestion and show the next one.
@@ -2829,6 +2834,41 @@ class JarvisOrchestrator:
             self._session_from_response(response)
         )
         return response
+
+    def _preseed_variable_from_handoff(self, action_request: dict, user_input: str) -> dict:
+        """FN-026 (H4): if the active HandoffContext names a lever the user
+        just referenced, preseed 'variable' so the wizard skips step 1
+        ("¿Qué quieres modificar?"). Read-only consumer of the context C-105
+        already creates — never touches dse_capability, never wipes the
+        context. Honest no-op (returns action_request unchanged) when there
+        is no active project, no active context, a stale (wrong-project)
+        context, or no lever match — the wizard falls back to asking, exactly
+        as before this fix.
+        """
+        params = action_request.get("parameters") or {}
+        if params.get("variable"):
+            return action_request
+
+        handoff = self.state_manager.get_runtime_session().handoff_context
+        if handoff is None or handoff.iterate_capability != "active":
+            return action_request
+
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return action_request
+
+        if handoff.project_id != project_state.project_id:
+            return action_request
+
+        matched_variable = match_plan_lever(user_input, handoff)
+        if matched_variable is None:
+            return action_request
+
+        return {
+            **action_request,
+            "parameters": {**params, "variable": matched_variable},
+        }
 
     def _semantic_preseed(self, llm_action_dict: dict) -> dict:
         """Return extra seed keys when the LLM provides a high-confidence iterate proposal.

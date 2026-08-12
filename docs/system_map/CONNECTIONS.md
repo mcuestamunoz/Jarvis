@@ -9,7 +9,7 @@ CONNECTIONS.md
 │
 ├── Canonical registry  ← THIS SECTION ONLY defines the connection count
 │   └── 59 unique C-xxx  (ID space sparse through C-106)
-│         57 🟢 connected · 1 🔴 broken · 1 🟡 partial
+│         58 🟢 connected · 0 🔴 broken · 1 🟡 partial
 │
 ├── Derived / detail views  ← may repeat C-xxx for readability
 │   └── "Detail — NN …" sections below; NOT additional connections
@@ -19,7 +19,9 @@ CONNECTIONS.md
 
 **FN-024 (2026-08-10):** C-042 flipped 🔴→🟢 (Plan→DSE now binds through a Handoff Context — see `HANDOFF_CONTEXT_DESIGN.md`); two new connections added, **C-105** (`_handle_engineering_intent` → create/replace context) and **C-106** (bound context → `_handle_explore` goal bind). Registry count moved **57 → 59**.
 
-**FN-025 (2026-08-12):** C-025/C-044 flipped 🔴→🟢 (help + named goal now reaches the same Goal Plan path as FN-022/024, via `IntentResolver.ANALYZE_HELP_PATTERNS`/`ANALYZE_VERB_PATTERNS`). **C-043 (H4) is now the only remaining 🔴** in the registry — not touched by this cut.
+**FN-025 (2026-08-12):** C-025/C-044 flipped 🔴→🟢 (help + named goal now reaches the same Goal Plan path as FN-022/024, via `IntentResolver.ANALYZE_HELP_PATTERNS`/`ANALYZE_VERB_PATTERNS`). C-043 (H4) was the only remaining 🔴 in the registry — not touched by that cut.
+
+**FN-026 (2026-08-12):** C-043 flipped 🔴→🟢 (a Goal Plan lever named by the user now preseeds the Iterate wizard's `variable` slot, via `handoff_matching.match_plan_lever` reading the active `handoff_context.levers` — C-105 stays the sole writer). **Registry is now 58🟢 · 0🔴 · 1🟡 — H1–H4 all closed, only C-081 (H5, design-only, deferred) remains non-green.**
 
 **Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables (historically this produced a false **65**). The only authoritative count is the length of **Canonical registry** below.
 
@@ -37,7 +39,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 
 ## Canonical registry
 
-**57 unique edges.** Append new IDs here first; then add a Detail section. Derived tables elsewhere in this file must not be treated as new edges.
+**59 unique edges.** Append new IDs here first; then add a Detail section. Derived tables elsewhere in this file must not be treated as new edges.
 
 | ID | From | To | Status |
 |---|---|---|---|
@@ -69,7 +71,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-040 | Intent (`iterate`/`unknown`) | `is_engineering_intention` → `_handle_engineering_intent` | 🟢 |
 | C-041 | `_handle_engineering_intent` | `goal_planner.format_goal_plan` | 🟢 |
 | C-042 | Goal Plan CTA (`"explora opciones"`) | DSE (goal binding) | 🟢 (FN-024 — binds via `handoff_context`, see C-105/C-106) |
-| C-043 | Goal Plan lever (e.g. `safety_factor`) | Iterate wizard preseed | 🔴 BROKEN (H4 — deferred, not this cut) |
+| C-043 | Goal Plan lever (e.g. `safety_factor`) | Iterate wizard preseed | 🟢 (FN-026 — via `handoff_matching.match_plan_lever`) |
 | C-044 | "ayúdame" + named goal | Plan/Explore | 🟢 (= C-025, cross-ref; H3 — FN-025) |
 | C-045 | Intent (`explore_design_space`) | `_handle_explore` → `DesignExplorer.explore` | 🟢 (when `goal_key` is resolved, explicitly or via C-106 bind) |
 | C-046 | `_handle_explore` result | `_handle_apply_exploration` (via `session.last_exploration_result`) | 🟢 |
@@ -462,18 +464,18 @@ Evidence: `core/orchestrator.py:846,850,864,906`.
 | Status | 🟢 CONNECTED (FN-024, 2026-08-10) |
 | Evidence | `core/orchestrator.py::_handle_explore` (bind logic), `::_handle_engineering_intent` (C-105, context creation), `tests/test_fn024_handoff_context_dse.py` (T1–T9). Verified live: plan for `mejorar_estabilidad` → `"explora opciones"` → `action="explore_design_space"`, `goal_key="mejorar_estabilidad"`, 0 LLM. Design authority: `HANDOFF_CONTEXT_DESIGN.md` Decision log (Hybrid Operation-Scoped Context). H2 (CTA honesty, M-002) closed as a consequence — the CTA's `'explora opciones'` promise is now true by construction (a fresh active context is always created immediately before the CTA is built). |
 
-### C-043 — Goal Plan lever (e.g. `safety_factor`) → Iterate preseed 🔴 BROKEN
+### C-043 — Goal Plan lever (e.g. `safety_factor`) → Iterate preseed 🟢 CONNECTED (FN-026)
 | Field | Value |
 |---|---|
 | Kind | CONTROL, DATA |
-| Mechanism | **none** — the lever name the user just typed is captured as free-text `objective`, never mapped onto the wizard's `variable` slot |
-| Symbols | `iterate_interactive_session._seed_semantic_from_draft`, `semantic_interpreter.extract_entities`, `SemanticState.missing_slots` |
-| Payload | "incrementa safety_factor" → confirm → `iteration_draft.variable == None`, re-asks "¿Qué quieres modificar?" |
-| Authority | **Should be** `GOAL_STRATEGIES[goal_key][i]["lever"]` membership check (H4 design, `MISMATCHES.md`) — no such check exists today |
-| Mutation | NO (wizard stays open, asks again) |
+| Mechanism | `orchestrator._preseed_variable_from_handoff` runs right before an `intent == "iterate"` action request is dispatched to `self.handle(...)`. It reads the active `handoff_context` (C-105, never a second store), guards on `handoff.iterate_capability == "active"` and `handoff.project_id == project_state.project_id`, then calls the pure helper `handoff_matching.match_plan_lever(user_input, handoff)`, which checks each lever's full string and its slash-separated tokens against the normalized user text and resolves a hit to a canonical variable via the exact same `normalize_alias`/`_VARIABLE_NORMALIZATION`/`_fuzzy_normalize_variable` chain `iterate_interactive_session._apply_answer` already uses at step 1 — no parallel vocabulary. |
+| Symbols | `orchestrator._preseed_variable_from_handoff`, `handoff_matching.match_plan_lever`, `iterate_domain._is_valid_variable`/`_VARIABLE_NORMALIZATION`/`_fuzzy_normalize_variable` |
+| Payload | "incrementa safety_factor" (after a `mejorar_estabilidad` plan) → confirm → `iteration_draft.variable == "safety_factor"`, wizard jumps straight to step 2 — step 1 ("¿Qué quieres modificar?") never asked |
+| Authority | `GOAL_STRATEGIES[goal_key][i]["lever"]` membership (via `handoff_context.levers`) — exactly the H4 design in `MISMATCHES.md`/`HANDOFF_CONTEXT_DESIGN.md` |
+| Mutation | YES (session only — `iteration_draft.variable` seeded at wizard start); never touches `dse_capability` or wipes the context |
 | LLM | NO |
-| Status | 🔴 BROKEN — **still open, deferred, not touched by FN-024** |
-| Evidence | `core/iterate_interactive_session.py:1108-1160` (`_seed_semantic_from_state`/`_seed_semantic_from_draft`). Verified via live orchestrator run: `semantic_state.missing_slots == ["variable"]` after confirming "safety_factor" by name. This is Failure C of the predecessor map. **FN-024 note:** `HandoffContext.levers` (populated by C-105, e.g. `["per_motor_max_thrust_n / motors", "safety_factor"]` for `mejorar_estabilidad`) now exists at runtime and is left untouched by every FN-024 code path — it is exactly the membership list H4 will need, already sitting there for whoever picks up H4 next; FN-024 does not read or act on it. |
+| Status | 🟢 CONNECTED (FN-026, 2026-08-12) |
+| Evidence | `core/handoff_matching.py::match_plan_lever`, `core/orchestrator.py::_preseed_variable_from_handoff`, `tests/test_fn026_lever_iterate_preseed.py` (T1–T8), `tests/test_fn025_help_goal_intent.py::test_iterate_lever_preseed_now_implemented` (regression flipped from the pre-FN-026 pin). A compound lever like `"per_motor_max_thrust_n / motors"` (aumentar_payload) or `"total_power_w / motors"` (mejorar_autonomia) only preseeds from its settable sibling token (`motors`) — a derived/computed token (`total_power_w`) fails `_is_valid_variable` and is honestly skipped, same as if the user had typed it at step 1 manually. |
 
 ### C-044 — "ayúdame" + named goal → Plan/Explore (cross-ref C-025) 🟢 CONNECTED (FN-025)
 Same underlying phrase and root cause as **C-025** — listed under both Intent and Engineering because the fix could plausibly live in either layer. **FN-025 chose Option A** (orchestrator-side gate, per the contract's preferred option): the fix lives in `orchestrator.py`'s `intent == "analyze"` branch, reusing `intent_resolver.py`'s new `ANALYZE_HELP_PATTERNS`/`ANALYZE_VERB_PATTERNS` split — not a `GUIDANCE_PATTERNS` extension (Option B was considered and rejected: it would have required teaching `resolve_intent` itself to reach into `goal_planner`, blurring intent classification with goal detection). Full evidence at C-025 (do not treat as two separate findings when counting BROKEN edges — now zero, both closed by the one fix).
@@ -583,7 +585,7 @@ Same underlying phrase and root cause as **C-025** — listed under both Intent 
 | Authority | `semantic_interpreter.py` |
 | Mutation | YES (session `semantic_state`) |
 | LLM | NO |
-| Status | 🟢 CONNECTED — **this is the exact mechanism C-043 is broken inside of** (the `variable` slot is a real, working concept; nothing currently writes a plan-lever name into it) |
+| Status | 🟢 CONNECTED — since FN-026, this is also the mechanism C-043 feeds: `_preseed_variable_from_handoff` writes `iteration_draft.variable` directly on `.start()`, upstream of this slot-filling loop |
 | Evidence | `core/semantic_interpreter.py`, `core/iterate_interactive_session.py:1108-1224` |
 
 ### C-054 — Iterate final confirm → `MutationEngine`/`apply_and_recalculate`
@@ -845,6 +847,6 @@ Same underlying phrase and root cause as **C-025** — listed under both Intent 
 
 These are gaps observed while building this registry — not claimed as connections, and not implemented anywhere. Listed so a future contributor doesn't have to rediscover them from scratch.
 
-- **Plan/Handoff Context → DSE consumer** — **IMPLEMENTED (FN-024, C-105/C-106)**, closing C-042. **Help+Goal routing (H3/C-025/C-044)** — **IMPLEMENTED (FN-025)**, closing both. **Plan/Handoff Context → Iterate consumer (H4/C-043)** remains `⚪ NOT IMPLEMENTED` — `HandoffContext.levers`/`iterate_capability` already exist at runtime (populated by C-105, untouched by every FN-024/FN-025 code path) specifically so a future H4 cut has them ready. See `MISMATCHES.md` design appendix.
+- **Plan/Handoff Context → DSE consumer** — **IMPLEMENTED (FN-024, C-105/C-106)**, closing C-042. **Help+Goal routing (H3/C-025/C-044)** — **IMPLEMENTED (FN-025)**, closing both. **Plan/Handoff Context → Iterate consumer (H4/C-043)** — **IMPLEMENTED (FN-026)**, via `handoff_matching.match_plan_lever` + `orchestrator._preseed_variable_from_handoff`. H1–H4 all closed; only H5 (C-081, below) remains. See `MISMATCHES.md` design appendix.
 - **Continuity → margin/goal "thread"** — `⚪ NOT IMPLEMENTED` in the sense that no data surface currently carries "we are worried about margin" across turns; C-081 is the read-side symptom.
 - **`ActionRouter` entry for `analyze`/`project_status`/`explore_design_space`/etc.** — `⚪ NOT IMPLEMENTED` by design (§1.4 dual-dispatch note) — these intents never touch `ActionRouter` at all, which is why the seam exists. Not a bug, listed for completeness.

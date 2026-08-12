@@ -26,7 +26,7 @@
 | 16 | `intent == "ambiguous"` | analyze or start create_project | — |
 | 17 | `intent == "define_params"` | bridge to `start_define_missing_params` | C-023 |
 | 18 | **FN-022 engineering-intention gate** | `is_engineering_intention` → `_handle_engineering_intent` | C-040 |
-| 19 | `intent ∈ {create_project, iterate, calculate, simulate}` | `resolve_action_request` → `self.handle` | C-016 |
+| 19 | `intent ∈ {create_project, iterate, calculate, simulate}` — nested: FN-026 (H4) lever preseed when `intent == "iterate"` | `resolve_action_request` → `_preseed_variable_from_handoff` (iterate only) → `self.handle` | C-016, C-043 |
 | 20 | `intent == "dismiss_suggestion"` | `_handle_dismiss_suggestion` | C-024 |
 | 21 | `intent == "explore_design_space"` | `resolve_explore_goal` → `_handle_explore` | C-042, C-045 |
 | 22 | `intent == "apply_exploration_result"` | `_handle_apply_exploration` | C-046 |

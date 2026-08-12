@@ -6,7 +6,7 @@
 **Implementer:** Claude Code  
 **Reviewer:** Cursor (Implementation Review)  
 
-**Status:** READY FOR ENGINEER → send to Claude  
+**Status:** DONE — PASS WITH NOTES (review `.jes/artifacts/implementation_review_fn026.md`; awaiting commit + tag `checkpoint-fn026-h4`)  
 
 **Type:** Product behavior — third **Handoff Context consumer** (Plan lever → Iterate preseed).  
 

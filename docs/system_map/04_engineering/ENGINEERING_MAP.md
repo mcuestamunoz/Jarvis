@@ -1,8 +1,8 @@
 # 04 — Engineering
 
-**Purpose.** "What design goal is the user naming" + Design Space Exploration. This subsystem owned the map's three headline broken edges; C-042 (FN-024) and C-025/C-044 (FN-025) are now fixed — **C-043 (H4) is the only one remaining**.
+**Purpose.** "What design goal is the user naming" + Design Space Exploration. This subsystem owned the map's three headline broken edges; C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) are now all fixed — **0 RED edges remain**.
 
-**Inbound:** C-020 (from Intent), C-040 (from Runtime's FN-022 gate), C-025/C-044 (from Runtime's FN-025 help-goal gate, new). **Outbound:** C-045/C-046 (DSE run/apply), C-105/C-106 (Handoff Context create/bind, FN-024), and the still-**broken** C-043.
+**Inbound:** C-020 (from Intent), C-040 (from Runtime's FN-022 gate), C-025/C-044 (from Runtime's FN-025 help-goal gate). **Outbound:** C-045/C-046 (DSE run/apply), C-105/C-106 (Handoff Context create/bind, FN-024), C-043 (Handoff Context → Iterate preseed, FN-026).
 
 ## Key modules
 
@@ -12,6 +12,7 @@
 | `core/design_explorer.py` | `DesignExplorer`, `EXPLORATION_GRIDS`, `GOAL_LABELS` — in-memory only, never mutates |
 | `schemas/action_schema.py::HandoffContext` | FN-024 (H1) — the operation-scoped, runtime-only bridge between a Goal Plan and its DSE (and, later, Iterate) consumers. Not part of `goal_planner.py`/`design_explorer.py` themselves (it's a schema type, owned by `orchestrator.py`'s create/bind logic), but conceptually belongs to this subsystem. FN-025 added a *second entry point* into the same create path (C-105) — help+goal phrases — without touching `HandoffContext` itself at all. |
 | `core/intent_resolver.py::ANALYZE_HELP_PATTERNS`/`ANALYZE_VERB_PATTERNS` | FN-025 — lives in `02_intent`, referenced here because it's what lets `orchestrator.py` distinguish "ayúdame + goal" from a real analyze verb before falling to `_handle_analyze`. |
+| `core/handoff_matching.py::match_plan_lever` | FN-026 (H4) — pure helper, resolves a user-referenced `handoff_context.levers` entry to a canonical iterate variable name. Owned here (reads `HandoffContext`), consumed from `01_runtime`/`orchestrator._preseed_variable_from_handoff`; see also `05_iteration`. |
 
 ## Important functions (Level 2)
 
@@ -27,7 +28,7 @@
 ## Local state touched
 
 - `InteractiveSessionState.last_exploration_result` (write: `_handle_explore`; read+clear-by-consumption: `_handle_apply_exploration`) — unchanged by FN-024.
-- `InteractiveSessionState.handoff_context` (FN-024, new) — write: `_handle_engineering_intent` (create/replace, C-105); read: `_handle_explore` (C-106, project_id + `dse_capability` guarded); partial-write: `_handle_explore` sets `dse_capability="consumed"` on a successful bind+explore, leaving `goal_key`/`levers`/`iterate_capability` untouched. Never read or written by any other code path (verified — `grep -rn "handoff_context" src/jarvis` shows exactly these two functions). Never persisted (`state_manager._PERSISTED_SESSION_FIELDS` excludes it).
+- `InteractiveSessionState.handoff_context` (FN-024, new) — write: `_handle_engineering_intent` (create/replace, C-105); read: `_handle_explore` (C-106, project_id + `dse_capability` guarded) and, since FN-026, `_preseed_variable_from_handoff` (C-043, project_id + `iterate_capability` guarded); partial-write: `_handle_explore` sets `dse_capability="consumed"` on a successful bind+explore, leaving `goal_key`/`levers`/`iterate_capability` untouched — `_preseed_variable_from_handoff` never writes to the context at all (pure read). Never persisted (`state_manager._PERSISTED_SESSION_FIELDS` excludes it).
 
 ## LLM
 
@@ -37,10 +38,10 @@ NO for `goal_planner.py`, `design_explorer.py`, and the `HandoffContext` create/
 
 - ~~**C-042** 🔴~~ → **🟢 FIXED (FN-024)** — Goal Plan → DSE now binds via `handoff_context` (C-105/C-106).
 - ~~**C-044** 🔴~~ → **🟢 FIXED (FN-025)** — "ayúdame" + named goal → analyze (shared ownership with `02_intent`; same root cause as C-025) now routes to `_handle_engineering_intent` instead.
-- **C-043** 🔴 — Goal Plan lever → Iterate preseed (shared ownership with `05_iteration`). **Not closed by FN-024 or FN-025** — `HandoffContext.levers`/`iterate_capability` exist and are left untouched by both, ready for a future H4 cut, but no consumer reads them yet. **This is the only remaining RED edge in the entire registry.**
+- ~~**C-043** 🔴~~ → **🟢 FIXED (FN-026)** — Goal Plan lever → Iterate preseed (shared ownership with `05_iteration`), via `handoff_matching.match_plan_lever` + `orchestrator._preseed_variable_from_handoff`.
 
-H4 (C-043) remains DESIGN-only per `MISMATCHES.md` — no fix in this cut.
+**No open issues remain in this subsystem.** H1–H4 are all closed (FN-024/FN-025/FN-026, see `MISMATCHES.md`). H5 (C-081) belongs to `08_continuity`, not here.
 
 ## Tests
 
-`tests/test_goal_planner.py`, `tests/test_fn022_engineering_intent.py`, `tests/test_fn024_handoff_context_dse.py` (T1–T9, `HandoffContext` create/bind/consume, cross-project invalidation, CTA honesty smoke), `tests/test_fn025_help_goal_intent.py` (T1–T8 + 2 regressions, help+goal → plan, bare help → Continuity, real-analyze-verb precedence).
+`tests/test_goal_planner.py`, `tests/test_fn022_engineering_intent.py`, `tests/test_fn024_handoff_context_dse.py` (T1–T9, `HandoffContext` create/bind/consume, cross-project invalidation, CTA honesty smoke), `tests/test_fn025_help_goal_intent.py` (T1–T8 + 2 regressions, help+goal → plan, bare help → Continuity, real-analyze-verb precedence), `tests/test_fn026_lever_iterate_preseed.py` (T1–T8, lever → Iterate `variable` preseed, compound-lever token matching, cross-project/DSE-consumed independence).

@@ -6,20 +6,29 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-### 🔵 FN-026 — H4: Plan lever → Iterate preseed (C-043)
+> **H1–H4 todos cerrados (FN-024/025/026). Checkpoint `checkpoint-fn026-h4`. Mapa: 59 · 58🟢 · 0🔴 · 1🟡 (C-081).**  
+> Frontera actual: handoffs Plan→DSE/Iterate resueltos; el siguiente salto de producto es **ingeniería física real** (Physical Component Catalog v1 → DSE restringido a configuraciones construibles → BOM), no más FNs de handoff por inercia.  
+> Decisión del Engineer (diseño, no implementar aún): **Catalog v1** (preferido) · H5/C-081 Continuity risk-thread · Create→BOM como consumidor posterior del catálogo.
+
+### ✅ COMPLETADO — FN-026: H4 Plan lever → Iterate preseed (C-043)
 
 > Contrato: [`.jes/artifacts/implementation_contract_fn026_h4_lever_iterate.md`](../.jes/artifacts/implementation_contract_fn026_h4_lever_iterate.md)  
-> Diseño: mismo `HandoffContext.levers` / `iterate_capability`  
-> Estado: **READY** — Engineer envía a Claude.  
-> Tag: `checkpoint-fn025-h3` · commits `ff550f3` + `1442d44`.
+> Diseño: mismo `HandoffContext.levers` / `iterate_capability` ([`HANDOFF_CONTEXT_DESIGN.md`](system_map/HANDOFF_CONTEXT_DESIGN.md))  
+> Informe: [`.jes/artifacts/implementation_report_fn026.md`](../.jes/artifacts/implementation_report_fn026.md)
 
-**Cierra:** último RED del mapa (C-043). Preseed solo si lever ∈ plan activo.  
-**No en este corte:** H5/C-081, Create→BOM.
+**Cierra:** C-043 🔴→🟢 — último RED del mapa. Nombrar un lever del plan activo (`"incrementa safety_factor"` tras `"ayudame a mejorar la estabilidad"`) ahora preseed `iteration_draft.variable` antes de que se abra el wizard — salta el paso 1 ("¿Qué quieres modificar?"). Nuevo helper puro `core/handoff_matching.py::match_plan_lever` (busca cada lever completo y sus tokens separados por `/` contra el texto del usuario, aceptando solo candidatos válidos vía `iterate_domain._is_valid_variable`; resuelve con la misma cadena `normalize_alias`/`_VARIABLE_NORMALIZATION`/`_fuzzy_normalize_variable` que ya usa `_apply_answer` en el paso 1 — sin vocabulario paralelo). Llamado desde `orchestrator._preseed_variable_from_handoff`, justo antes de despachar un `intent == "iterate"` — guardado por `handoff.project_id == project_state.project_id` y `handoff.iterate_capability == "active"`; nunca lee ni toca `dse_capability`.
 
-**Cola:**
-1. [ ] Claude FN-026 → Cursor review
-2. [ ] Commit + tag `checkpoint-fn026-h4` (0 RED)
-3. [ ] Engineer: H5 design vs Create→BOM
+**Plan:**
+1. [x] `core/handoff_matching.py::match_plan_lever(user_input, handoff_context) -> str | None` — helper puro, reutiliza `iterate_domain`/`parameter_requirements`
+2. [x] `orchestrator._preseed_variable_from_handoff` — no-op honesto sin contexto activo, proyecto distinto, o sin match; nunca sobrescribe un `variable` ya presente en `parameters`
+3. [x] Wired en el dispatch de `intent in {"create_project","iterate","calculate","simulate"}` (solo rama `iterate`), antes de `self.handle(...)`
+4. [x] Matching de lever compuesto (`"per_motor_max_thrust_n / motors"`) — token válido (`motors`) preseed, token derivado/no-settable (`total_power_w`) se descarta honestamente
+5. [x] Tests: `test_fn026_lever_iterate_preseed.py` (T1–T8, 12 tests) + regresión FN-025 actualizada (`test_iterate_lever_preseed_now_implemented`, invierte el pin pre-FN-026) + regresión FN-022/023/024/025 (350 tests) + suite completa verde (1591 = 1579 + 12)
+6. [x] Mapa actualizado: `CONNECTIONS.md` (C-043 🟢, rollup 58🟢/0🔴/1🟡), `AUTHORITY.md`, `FLOWS.md` (FLOW-004), `MISMATCHES.md` (H4 → implementado, H1–H4 todos cerrados), `DIAGRAMS.md`, canvas, `JARVIS_SYSTEM_MAP.md`, `01_runtime`/`04_engineering`/`05_iteration` — consistencia verificada programáticamente (0 diferencia simétrica de IDs entre `CONNECTIONS.md`/`DIAGRAMS.md`/canvas)
+
+**No en este corte (confirmado, sin tocar):** H5/C-081, Create→BOM, refactor de dual dispatch. Polish opcional del contrato (marcar lever "reconciliado" tras aplicar la mutación) deliberadamente omitido — no requerido para cerrar C-043.
+
+**Cola (histórica):** cerrada; siguiente decisión es del Engineer (H5 vs Create→BOM).
 
 ### ✅ COMPLETADO — FN-025: H3 Help + Goal → Engineering Intent (C-025 / C-044)
 
@@ -36,9 +45,9 @@
 4. [x] Tests: `test_fn025_help_goal_intent.py` (T1–T8 + 2 regresiones, 10 tests) + regresión FN-005/011/013/014/015/016/020/021/022/023/024 (338 tests) + suite completa verde
 5. [x] Mapa actualizado: `CONNECTIONS.md` (C-025/C-044 🟢, solo C-043 queda rojo), `AUTHORITY.md`, `FLOWS.md` (FLOW-002b), `MISMATCHES.md` (H3 implementado), `DIAGRAMS.md`, canvas, `01_runtime`/`02_intent`/`04_engineering`
 
-**No en este corte (confirmado, sin tocar):** H4/C-043, H5/C-081, Create→BOM, refactor de dual dispatch.
+**No en este corte (confirmado, sin tocar):** H4/C-043 (cerrado después en FN-026), H5/C-081, Create→BOM, refactor de dual dispatch.
 
-**Cola (histórica):** cerrada en `checkpoint-fn025-h3`; siguiente es FN-026.
+**Cola (histórica):** cerrada en `checkpoint-fn025-h3`; siguiente fue FN-026 (ver arriba).
 
 ### ✅ COMPLETADO — FN-024: H1+H2 Handoff Context → Plan/DSE (C-042)
 
@@ -58,7 +67,7 @@
 6. [x] Tests: `test_fn024_handoff_context_dse.py` (T1–T9 + regresión FN-020/021/022/023, 11 tests) + suite completa verde
 7. [x] Mapa actualizado: `CONNECTIONS.md` (57→59, C-042 🟢, C-105/C-106 nuevos), `DIAGRAMS.md`, canvas, `FLOWS.md` FLOW-003, `MISMATCHES.md` H1/H2 → implementado, `04_engineering`/`09_state` subsystem maps
 
-**No en este corte (confirmado, sin tocar):** H3 (C-025/C-044), H4 (C-043 — pero `levers`/`iterate_capability` ya están listos para su consumidor), H5 (C-081), Create→BOM, refactor de dual dispatch.
+**No en este corte (confirmado, sin tocar):** H3 (C-025/C-044, cerrado en FN-025), H4 (C-043, cerrado en FN-026 — `levers`/`iterate_capability` ya estaban listos para su consumidor), H5 (C-081, sigue deferred), Create→BOM, refactor de dual dispatch.
 
 **Cola (histórica — ver FN-025 arriba):** checkpoint `ff550f3` cerrado; siguiente es FN-025.
 

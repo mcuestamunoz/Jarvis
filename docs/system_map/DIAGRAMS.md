@@ -2,7 +2,7 @@
 
 **Version:** SYS-MAP-002 visual companion  
 **Date:** 2026-08-10  
-**Canonical edge truth:** [`CONNECTIONS.md`](CONNECTIONS.md) → **Canonical registry** = **59** unique `C-xxx` (IDs sparse through C-106). Updated 2026-08-10 by FN-024 (C-042 fixed, C-105/C-106 added); updated 2026-08-12 by FN-025 (C-025/C-044 fixed).
+**Canonical edge truth:** [`CONNECTIONS.md`](CONNECTIONS.md) → **Canonical registry** = **59** unique `C-xxx` (IDs sparse through C-106). Updated 2026-08-10 by FN-024 (C-042 fixed, C-105/C-106 added); updated 2026-08-12 by FN-025 (C-025/C-044 fixed) and FN-026 (C-043 fixed).
 
 Interactive Cursor canvas (filterable graph + full table): [`jarvis-system-map.canvas.tsx`](jarvis-system-map.canvas.tsx).  
 To open beside chat in Cursor, sync that file into the project `canvases/` folder (see header comment in the `.tsx`).
@@ -20,15 +20,17 @@ CONNECTIONS.md
 | Set | Count | Notes |
 |---|---:|---|
 | Registry edges (canonical) | **59** | Only count this |
-| Connected 🟢 | **57** | of 59 |
-| Broken 🔴 | **1** | C-043 (H4 — only remaining RED) |
+| Connected 🟢 | **58** | of 59 |
+| Broken 🔴 | **0** | — |
 | Partial 🟡 | **1** | C-081 |
 | Forbidden transitions | **+8** | Not registry edges |
 | File table cells `\| C-xxx \|` | — | Do not sum leading cells across the whole file — see `CONNECTIONS.md`'s "Document structure" note |
 
 **FN-024 (2026-08-10):** C-042 fixed (🔴→🟢, Handoff Context bind); C-105/C-106 added.
 
-**FN-025 (2026-08-12):** C-025/C-044 fixed (🔴→🟢, help+goal → same Goal Plan path). Same user failure listed under Intent and Engineering (counted once). **C-043 (H4) is now the only remaining RED**, deferred — not yet implemented.
+**FN-025 (2026-08-12):** C-025/C-044 fixed (🔴→🟢, help+goal → same Goal Plan path). Same user failure listed under Intent and Engineering (counted once).
+
+**FN-026 (2026-08-12):** C-043 fixed (🔴→🟢, Goal Plan lever → Iterate preseed, via `handoff_matching.match_plan_lever`). **H1–H4 all closed, 0 RED remaining — C-081 (H5, design-only) is the sole non-green edge.**
 
 Canvas / this file manually mirror the registry (known drift risk). When adding a connection: update Canonical registry first, then Detail, then DIAGRAMS + canvas.
 
@@ -49,7 +51,7 @@ flowchart TB
 
   INTENT --> ENG
   ENG -->|C-042 FIXED FN-024| DSE[DSE explore]
-  ENG -.->|C-043 BROKEN, H4| ITER
+  ENG -->|C-043 FIXED FN-026| ITER
   HELP[ayúdame + goal] -->|C-025 / C-044 FIXED FN-025| ANALYZE[analyze / Plan]
 
   ITER --> CALC[06 Calculation]
@@ -64,21 +66,21 @@ flowchart TB
   classDef partial stroke:#c90,stroke-width:2px;
   classDef fixed stroke:#2a2,stroke-width:2px;
   classDef llm stroke-dasharray: 4 4;
-  class DSE,ANALYZE,HELP fixed;
+  class DSE,ANALYZE,HELP,ITER fixed;
   class CONT partial;
   class LLM llm;
 ```
 
 ---
 
-## Broken / partial (headline)
+## Fixed / partial (headline)
 
 | ID | From | To | Status |
 |---|---|---|---|
 | C-042 | Goal Plan CTA (`explora opciones`) | DSE goal binding | 🟢 FIXED (FN-024, 2026-08-10) |
 | C-025 / C-044 | `ayúdame` + named goal | Plan / Explore | 🟢 FIXED (FN-025, 2026-08-12) |
-| C-043 | Goal Plan lever (e.g. `safety_factor`) | Iterate wizard preseed | 🔴 BROKEN — H4, only remaining RED |
-| C-081 | Sim `safety_margin_ratio` | Continuity `next_useful_step` | 🟡 PARTIAL — H5, deferred |
+| C-043 | Goal Plan lever (e.g. `safety_factor`) | Iterate wizard preseed | 🟢 FIXED (FN-026, 2026-08-12) |
+| C-081 | Sim `safety_margin_ratio` | Continuity `next_useful_step` | 🟡 PARTIAL — H5, deferred, sole remaining non-green edge |
 
 ---
 
@@ -133,7 +135,7 @@ Detail and evidence stay in `CONNECTIONS.md`. This index is for scanning.
 | C-040 | Intent iterate/unknown → engineering_intent | 🟢 |
 | C-041 | engineering_intent → `format_goal_plan` | 🟢 |
 | C-042 | Goal Plan CTA → DSE binding | 🟢 (FN-024) |
-| C-043 | Goal Plan lever → Iterate preseed | 🔴 (H4, only remaining RED) |
+| C-043 | Goal Plan lever → Iterate preseed | 🟢 (FN-026, H4) |
 | C-044 | `ayúdame` + goal → Plan/Explore | 🟢 (FN-025) |
 | C-045 | Intent explore → DesignExplorer | 🟢 |
 | C-046 | explore result → apply_exploration | 🟢 |

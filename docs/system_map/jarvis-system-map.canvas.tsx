@@ -8,8 +8,9 @@
  * Counts: 59 canonical registry edges (CONNECTIONS.md) + 8 forbidden (not C-xxx).
  * Updated 2026-08-10 by FN-024: C-042 fixed (BROKEN → CONNECTED), C-105/C-106 added.
  * Updated 2026-08-12 by FN-025: C-025/C-044 fixed (BROKEN → CONNECTED).
- * Only C-043 (H4) remains BROKEN. Never report "65 connections" — that counted
- * derived-table duplicates.
+ * Updated 2026-08-12 by FN-026: C-043 fixed (BROKEN → CONNECTED) — H1-H4 all
+ * closed. Only C-081 (H5, design-only, deferred) remains non-green.
+ * Never report "65 connections" — that counted derived-table duplicates.
  */
 import {
   Button,
@@ -83,7 +84,7 @@ const CONNECTIONS: Conn[] = [
   { id: "C-040", from: "intent", to: "eng_intent", fromLabel: "Intent iterate/unknown", toLabel: "engineering_intent gate", status: "connected", band: "04 Engineering" },
   { id: "C-041", from: "eng_intent", to: "goal_plan", fromLabel: "_handle_engineering_intent", toLabel: "goal_planner.format_goal_plan", status: "connected", band: "04 Engineering" },
   { id: "C-042", from: "goal_plan", to: "dse", fromLabel: "Goal Plan CTA explora opciones", toLabel: "DSE goal binding (via handoff_context)", status: "connected", band: "04 Engineering" },
-  { id: "C-043", from: "goal_plan", to: "iter", fromLabel: "Goal Plan lever", toLabel: "Iterate wizard preseed", status: "broken", band: "04 Engineering" },
+  { id: "C-043", from: "goal_plan", to: "iter", fromLabel: "Goal Plan lever", toLabel: "Iterate wizard preseed", status: "connected", band: "04 Engineering" },
   { id: "C-044", from: "help_goal", to: "goal_plan", fromLabel: "ayúdame + named goal", toLabel: "Plan/Explore", status: "connected", band: "04 Engineering" },
   { id: "C-045", from: "intent", to: "dse", fromLabel: "Intent explore_design_space", toLabel: "DesignExplorer.explore", status: "connected", band: "04 Engineering" },
   { id: "C-046", from: "dse", to: "apply_exp", fromLabel: "explore result", toLabel: "apply_exploration", status: "connected", band: "04 Engineering" },
@@ -558,9 +559,10 @@ export default function JarvisSystemMapCanvas() {
       </Text>
 
       <Callout tone="info" title="Next">
-        Sole remaining RED: C-043 (H4 — Plan lever → Iterate preseed). Next
-        cut: FN-026 on the same HandoffContext (lever ∈ plan levers only).
-        H5 / C-081 and Create→BOM remain paused.
+        FN-026 closed C-043 (H4 — Plan lever → Iterate preseed) on the same
+        HandoffContext (lever ∈ plan levers only). H1–H4 all closed, 0 RED.
+        Sole remaining non-green edge: C-081 (H5, YELLOW, design-only).
+        H5 and Create→BOM remain paused — Engineer to choose next.
       </Callout>
     </Stack>
   );

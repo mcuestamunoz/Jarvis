@@ -99,7 +99,7 @@ This is the exact reason the design questions below (absorbed from the predecess
 
 ## Design-only appendix — engineering state vs. handoff context (no implementation implied)
 
-> **Living design authority for this topic:** [`HANDOFF_CONTEXT_DESIGN.md`](HANDOFF_CONTEXT_DESIGN.md) — **§5 CLOSED** (Hybrid Operation-Scoped Context, 2026-08-10). **FN-024 (H1+H2 / C-042) and FN-025 (H3 / C-025+C-044) are both DONE** — see `.jes/artifacts/implementation_report_fn024.md` and `.jes/artifacts/implementation_report_fn025.md`. **H4 (C-043) is the only remaining consumer, not yet implemented** — `HandoffContext.levers`/`iterate_capability` exist and are untouched, ready for it; H5 deferred.
+> **Living design authority for this topic:** [`HANDOFF_CONTEXT_DESIGN.md`](HANDOFF_CONTEXT_DESIGN.md) — **§5 CLOSED** (Hybrid Operation-Scoped Context, 2026-08-10). **FN-024 (H1+H2 / C-042), FN-025 (H3 / C-025+C-044), and FN-026 (H4 / C-043) are all DONE** — see `.jes/artifacts/implementation_report_fn024.md`, `.jes/artifacts/implementation_report_fn025.md`, and `.jes/artifacts/implementation_report_fn026.md`. **H1–H4 fully closed; only H5 (C-081) remains, design-only, deferred.**
 
 This section is absorbed verbatim in substance from the predecessor single-file map (`docs/JARVIS_SYSTEM_MAP.md` §8/§9, itself absorbing `.jes/artifacts/design_layer_connection_map.md`'s H1–H5). Reviewed PASS WITH NOTES.
 
@@ -112,17 +112,18 @@ Engineering Goal          ← may be persistent engineering meaning (optional fu
 Goal Plan (strategies/levers)     ← goal_planner.GOAL_STRATEGIES[goal_key], already
         │                            fully deterministic and stateless
         ▼
-Plan / Handoff Context    ← IMPLEMENTED for the DSE consumer (FN-024, 2026-08-10) AND
-        │                    the help+goal entry consumer (FN-025, 2026-08-12),
+Plan / Handoff Context    ← IMPLEMENTED for the DSE consumer (FN-024, 2026-08-10),
+        │                    the help+goal entry consumer (FN-025, 2026-08-12), AND
+        │                    the Iterate lever consumer (FN-026, 2026-08-12),
         │                    schemas.action_schema.HandoffContext. Was C-042/C-043/
-        │                    C-025/C-044's shared root cause — still the root cause
-        │                    for the one NOT-yet-implemented consumer (H4/C-043).
-        │                    Capability-scoped: which goal_key, which levers (stored,
-        │                    unused until H4), which DSE capability state — scoped to
+        │                    C-025/C-044's shared root cause — all four now closed.
+        │                    Capability-scoped: which goal_key, which levers (now read
+        │                    by H4), which DSE capability state — scoped to
         │                    "the conversation is still about the thing we just planned."
         │
         ├── valid context exists → "explora opciones" binds to the plan's goal_key ✅
         ├── "ayúdame" + named goal → enters/refreshes the same context ✅ (FN-025)
+        ├── a named lever ∈ context.levers → preseeds Iterate's variable ✅ (FN-026)
         └── no valid context     → require explicit resolve ("optimiza para
                                     estabilidad") or ask ✅ (unchanged fallback)
 ```
@@ -149,7 +150,9 @@ Plan / Handoff Context    ← IMPLEMENTED for the DSE consumer (FN-024, 2026-08-
 | **H1** | Plan → DSE (closes C-042) | ✅ **IMPLEMENTED (FN-024, 2026-08-10)** | Bound via `schemas.action_schema.HandoffContext` — runtime-only (never in `_PERSISTED_SESSION_FIELDS`), project-scoped (`project_id` guard at every read, proven not assumed — see `tests/test_fn024_handoff_context_dse.py::test_handoff_context_inert_across_project_boundary`), capability-scoped (`dse_capability`/`iterate_capability` tracked independently — a successful DSE bind consumes `dse_capability` only, `goal_key`/`levers`/`iterate_capability` survive for H4). Lifecycle chosen: Hybrid Operation-Scoped Context per `HANDOFF_CONTEXT_DESIGN.md`'s Decision log. |
 | **H2** | CTA honesty (M-002, closes part of C-042's symptom) | ✅ **IMPLEMENTED (FN-024)** | Closed as a *consequence* of H1, not a separate text change: `_handle_engineering_intent` unconditionally creates a fresh `dse_capability="active"` context immediately before building the CTA, so the existing `"... o 'explora opciones' ..."` phrasing is now true by construction every time it's shown — no conditional CTA logic was needed. |
 | **H3** | Help + goal (closes C-025/C-044) | ✅ **IMPLEMENTED (FN-025, 2026-08-12)** | `IntentResolver.ANALYZE_PATTERNS` split into `ANALYZE_VERB_PATTERNS`/`ANALYZE_HELP_PATTERNS` (same union, zero change to `resolve_intent`'s own classification — GUIDANCE still wins first, unaffected). Orchestrator's `intent == "analyze"` branch checks whether the match came from the help half specifically (a real analytical verb always keeps its analyze routing); if so, `goal_planner.is_engineering_intention` (same authority as C-040, no second detector) decides: a detected goal routes into the existing `_handle_engineering_intent` (same plan, same `handoff_context` creation via C-105); no goal routes to `project_status`/Continuity, never an LLM-invented target. Option A chosen (orchestrator-side gate) over Option B (widening `resolve_intent` itself) — see C-025's `CONNECTIONS.md` entry for why. |
-| **H4** | Lever → Iterate (closes C-043) | 🔴 Still design-only, **not this cut** | Preseed the wizard's `variable` slot **only if** the named lever is a member of the **current plan's own** `GOAL_STRATEGIES[goal_key][i]["lever"]` list — never a bare free-text guess. FN-024 already populates `HandoffContext.levers` and leaves `iterate_capability="active"` untouched on every code path (verified: no FN-024 path reads or consumes it) — the data H4 needs is sitting there, ready, but FN-024 does not implement the consumer. |
+| **H4** | Lever → Iterate (closes C-043) | ✅ **IMPLEMENTED (FN-026, 2026-08-12)** | `orchestrator._preseed_variable_from_handoff` runs right before an `intent == "iterate"` request dispatches, guarded on `handoff.iterate_capability == "active"` and `handoff.project_id` matching the loaded project (same proof-at-read pattern as C-106, not an assumed clear). The pure helper `handoff_matching.match_plan_lever(user_input, handoff)` checks each lever's full string and its slash-separated tokens against the user text, accepting a candidate only if it also passes `iterate_domain._is_valid_variable` — so a compound lever's derived/non-settable token (e.g. `total_power_w`) is honestly skipped while its settable sibling (`motors`) still preseeds. Resolution reuses the exact `normalize_alias`/`_VARIABLE_NORMALIZATION`/`_fuzzy_normalize_variable` chain `_apply_answer` already uses at step 1 — no parallel vocabulary. Never reads or touches `dse_capability`. |
 | **H5** | Sim → Continuity, PASS + risky (addresses C-081) | 🟡 **Remains DESIGN, not a queued FN** | C-081 is `PARTIAL`/WEAK, not `BROKEN` — the fallback is honest, just uninformative. Open data-contract question: should `build_project_continuity` emit a new sentence reading `safety_margin_ratio` directly (cheap, consistent with `_prioritize_strategies`'s existing margin-reading pattern), or a structured "risk thread" field a future goal-thread mechanism (H1's context) could also consume? No position taken; do not implement an FN from this row until that data contract is written down as its own design note. |
 
-**Forbidden across H1–H5 (unchanged):** Conversation Engine; Step D; inventing a parallel recommender to Continuity; Create→BOM. FN-024 and FN-025 both confirmed none of these were touched (see their respective `.jes/artifacts/implementation_report_fn0*.md`).
+**H1–H4 all closed (FN-024/FN-025/FN-026). H5 (C-081) is the sole remaining non-green row — design-only, deferred.**
+
+**Forbidden across H1–H5 (unchanged):** Conversation Engine; Step D; inventing a parallel recommender to Continuity; Create→BOM. FN-024, FN-025, and FN-026 all confirmed none of these were touched (see their respective `.jes/artifacts/implementation_report_fn0*.md`).

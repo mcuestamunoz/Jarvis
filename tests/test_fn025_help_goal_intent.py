@@ -210,16 +210,19 @@ def test_help_plus_different_goal_generic(tmp_path: Path):
     assert result["goal_key"] == "mejorar_autonomia"
 
 
-# ── Regression: H4/C-043 (iterate preseed) untouched ────────────────────────
+# ── Regression: H4/C-043 (iterate preseed) now implemented (FN-026) ────────
 
-def test_iterate_lever_preseed_still_not_implemented(tmp_path: Path):
-    """H4 is explicitly deferred — a named lever after a help+goal plan must
-    still hit the existing (unfixed) honest fallback, not a new preseed."""
+def test_iterate_lever_preseed_now_implemented(tmp_path: Path):
+    """FN-026 (H4) closed C-043 — a named lever after a help+goal plan now
+    preseeds 'variable' and skips step 1 ("¿Qué quieres modificar?"). This
+    test used to pin the pre-FN-026 broken fallback (variable stayed None,
+    missing_slots == ["variable"]); it now locks in the fixed outcome. See
+    tests/test_fn026_lever_iterate_preseed.py for the full FN-026 suite."""
     orch = _closed_project(tmp_path)
     orch.handle_user_text("ayudame a mejorar la estabilidad", _RefuseLLM())
 
     orch.handle_user_text("incrementa safety_factor", _RefuseLLM())
     result = orch.handle_user_text("si", _RefuseLLM())
 
-    assert result["iteration_draft"]["variable"] is None
-    assert result["semantic_state"]["missing_slots"] == ["variable"]
+    assert result["iteration_draft"]["variable"] == "safety_factor"
+    assert result["semantic_state"]["missing_slots"] == []

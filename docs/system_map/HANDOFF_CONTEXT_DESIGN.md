@@ -21,16 +21,16 @@
 
 ```text
 FN-014…023     ✅ closed
-System Map     ✅ living authority (57 C-xxx)
+System Map     ✅ living authority (59 unique C-xxx · 58🟢 / 0🔴 / 1🟡)
 Handoff §5     ✅ CLOSED — Hybrid Operation-Scoped Context (below)
+FN-024 H1+H2   ✅ C-042 (+ CTA honesty)
+FN-025 H3      ✅ C-025 / C-044
+FN-026 H4      ✅ C-043
 Create→BOM     ⏸️ paused
 H5 / C-081     ⏸️ deferred (own Continuity data contract later)
 
-Next:
-  FN-024  H1+H2  → C-042 (+ CTA honesty)   ← Implementation Contract ready
-  FN-025  H3     → C-025 / C-044
-  FN-026  H4     → C-043
-  … then H5 / Create→BOM
+Next (Engineer decision — not an automatic FN):
+  H5 / C-081 design  vs  Create→BOM
 ```
 
 **Process rule:**
@@ -71,10 +71,10 @@ Context
 ├── goal_key
 ├── plan / levers[]     (statuses ACTIVE | CONSUMED | RECONCILED)
 ├── DSE capability      ACTIVE → CONSUMED after successful DSE bind/run
-└── Iterate capability  ACTIVE (H4 later may preseed; do not wipe on DSE)
+└── Iterate capability  ACTIVE (FN-026 / H4 may preseed; do not wipe on DSE)
 ```
 
-After `"explora opciones"` → DSE: mark **DSE capability CONSUMED**; keep `goal_key` + levers for Iterate (C-043 / H4).
+After `"explora opciones"` → DSE: mark **DSE capability CONSUMED**; keep `goal_key` + levers for Iterate (C-043 / H4 — implemented FN-026).
 
 ### Hard invalidation (whole context)
 
@@ -103,17 +103,16 @@ Prefer **RECONCILED** (lever marked used; operation may continue) over blanket I
 | Persist to `state.json` / snapshot | **No** (same family as `last_exploration_result`) |
 | Project boundary | Always clear |
 
-### Consumer map (unchanged order)
+### Consumer map (order completed for H1–H4)
 
 ```text
 Handoff Context
-       ├── H1/H2 → Plan → DSE     (FN-024)  consume DSE capability
-       ├── H3    → Help + Goal    (later)   enter/continue operation via plan
-       └── H4    → Plan → Iterate (later)   preseed lever ∈ plan levers only
+       ├── H1/H2 → Plan → DSE     (FN-024)  ✅ consume DSE capability
+       ├── H3    → Help + Goal    (FN-025)  ✅ enter/continue operation via plan
+       └── H4    → Plan → Iterate (FN-026)  ✅ preseed lever ∈ plan levers only
 ```
 
-H5 / C-081 stays **out** of this policy’s first cuts.
-
+H5 / C-081 stays **out** of this policy — sole remaining non-green edge (🟡), design-only, deferred.
 ### Checklist (was §10) — now satisfied
 
 - [x] Lifecycle policy chosen (hybrid operation-scoped)  

@@ -32,7 +32,7 @@ The codebase already has a repeated, working pattern for "deterministic layer de
 - **FN-022** — Engineering Intent gate (goal plan before iterate/LLM)
 - **FN-023** — next-step help routed to Continuity, not analyze
 
-§8/§9 of `MISMATCHES.md` (absorbed from the predecessor map) extend this exact pattern to "engineering intent → plan → DSE/iterate" handoffs. Two of the three (C-042 via FN-024, C-025/C-044 via FN-025) now have that authority; C-043 (H4, iterate lever preseed) remains the one edge without it — `🔴 BROKEN` precisely because no such authority exists yet for that specific consumer.
+§8/§9 of `MISMATCHES.md` (absorbed from the predecessor map) extend this exact pattern to "engineering intent → plan → DSE/iterate" handoffs. All three (C-042 via FN-024, C-025/C-044 via FN-025, C-043 via FN-026) now have that authority — `handoff_context.levers` membership (via `handoff_matching.match_plan_lever`) is the sole source for the iterate preseed, never a generic NLP guess.
 
 ## GUIDANCE / ANALYZE / ITERATE precedence (the mechanism behind several rows above)
 

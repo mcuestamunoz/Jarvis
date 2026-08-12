@@ -20,9 +20,9 @@ ORCHESTRATOR (core/orchestrator.py) ──────────────�
   │       mention gate · help-define · Brief · component wizards
   │
   ├──► ENGINEERING (what design goal? deterministic plan; DSE)  ──── 04_engineering
-  │       goal_planner · design_explorer · handoff_context (FN-024/025)
-  │       ⚠ one known-broken handoff remains — see C-043 (H4)
-  │       (C-042 fixed FN-024 — C-105/C-106; C-025/C-044 fixed FN-025)
+  │       goal_planner · design_explorer · handoff_context (FN-024/025/026)
+  │       (C-042 fixed FN-024 — C-105/C-106; C-025/C-044 fixed FN-025;
+  │        C-043 fixed FN-026 — H1-H4 all closed, 0 RED)
   │
   ├──► ITERATION (concrete mutation wizard) ─────────────────────── 05_iteration
   │
@@ -64,10 +64,10 @@ Full detail: `00_entry/ENTRY_MAP.md` and `01_runtime/RUNTIME_MAP.md`; connection
 |---|---|---|
 | Goal Plan → DSE (bare `"explora opciones"` after a plan) | 🟢 **FIXED (FN-024, 2026-08-10)** | C-042 |
 | "ayúdame" + named goal → plan/explore | 🟢 **FIXED (FN-025, 2026-08-12)** | C-025 / C-044 |
-| Goal Plan lever (e.g. `safety_factor`) → Iterate preseed | 🔴 BROKEN — H4, only remaining RED | C-043 |
+| Goal Plan lever (e.g. `safety_factor`) → Iterate preseed | 🟢 **FIXED (FN-026, 2026-08-12)** | C-043 |
 | Sim PASS + risky margin → Continuity next-step thread | 🟡 PARTIAL (WEAK) — H5, deferred | C-081 |
 
-C-042 (FN-024) and C-025/C-044 (FN-025) were the first two RED edges the Engineer picked — both bind through the same `HandoffContext` (Hybrid Operation-Scoped lifecycle — see `MISMATCHES.md`). **C-043 (H4) is now the only remaining RED edge**; `HandoffContext.levers`/`iterate_capability` already exist, ready for it. FN-026+/Create→BOM prioritization is an Engineer decision — see `docs/IMPLEMENTATION_TASKS.md`.
+C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the same `HandoffContext` (Hybrid Operation-Scoped lifecycle — see `MISMATCHES.md`). **H1–H4 are all closed — 0 RED edges remain.** C-081 (H5) is the sole non-green edge, design-only, deferred. H5 / Create→BOM prioritization is an Engineer decision — see `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Subsystem index
 
