@@ -6,11 +6,26 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
+### 🔵 FN-026 — H4: Plan lever → Iterate preseed (C-043)
+
+> Contrato: [`.jes/artifacts/implementation_contract_fn026_h4_lever_iterate.md`](../.jes/artifacts/implementation_contract_fn026_h4_lever_iterate.md)  
+> Diseño: mismo `HandoffContext.levers` / `iterate_capability`  
+> Estado: **READY** — Engineer envía a Claude.  
+> Tag: `checkpoint-fn025-h3` · commits `ff550f3` + `1442d44`.
+
+**Cierra:** último RED del mapa (C-043). Preseed solo si lever ∈ plan activo.  
+**No en este corte:** H5/C-081, Create→BOM.
+
+**Cola:**
+1. [ ] Claude FN-026 → Cursor review
+2. [ ] Commit + tag `checkpoint-fn026-h4` (0 RED)
+3. [ ] Engineer: H5 design vs Create→BOM
+
 ### ✅ COMPLETADO — FN-025: H3 Help + Goal → Engineering Intent (C-025 / C-044)
 
 > Contrato: [`.jes/artifacts/implementation_contract_fn025_h3_help_goal.md`](../.jes/artifacts/implementation_contract_fn025_h3_help_goal.md)  
 > Diseño: mismo `HandoffContext` / C-105 ([`HANDOFF_CONTEXT_DESIGN.md`](system_map/HANDOFF_CONTEXT_DESIGN.md))  
-> Informe: [`.jes/artifacts/implementation_report_fn025.md`](../.jes/artifacts/implementation_report_fn025.md)
+> Informe / review: `.jes/artifacts/*fn025*` · Commit: `1442d44` · Tag: `checkpoint-fn025-h3`
 
 **Cierra:** C-025 🔴→🟢 + C-044 🔴→🟢 (misma raíz, un solo fix). `"ayudame a mejorar la estabilidad"` → `_handle_engineering_intent` (mismo plan, mismo `handoff_context` vía C-105), 0 LLM. `intent_resolver.ANALYZE_PATTERNS` dividido en `ANALYZE_VERB_PATTERNS`/`ANALYZE_HELP_PATTERNS` (misma unión, sin cambio de comportamiento de `resolve_intent`); el gate vive en `orchestrator.py` (Opción A del contrato, no en `intent_resolver.py`).
 
@@ -23,11 +38,7 @@
 
 **No en este corte (confirmado, sin tocar):** H4/C-043, H5/C-081, Create→BOM, refactor de dual dispatch.
 
-**Cola:**
-1. [ ] Cursor review de FN-025
-2. [ ] Replay: help+goal → plan → `explora opciones` → DSE (regresión ya cubierta por tests)
-3. [ ] FN-026 H4 (C-043) — lever ∈ `HandoffContext.levers` únicamente
-4. [ ] Checkpoint post H1–H4 → luego H5 / Create→BOM
+**Cola (histórica):** cerrada en `checkpoint-fn025-h3`; siguiente es FN-026.
 
 ### ✅ COMPLETADO — FN-024: H1+H2 Handoff Context → Plan/DSE (C-042)
 
