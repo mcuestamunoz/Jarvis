@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.1 prototype**
+**v0.2.0**
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -41,14 +41,16 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
-## What v0.1 includes
+## What v0.2 includes
 
 - Guided / direct `create_project`
 - Component definition in natural language (motors, frame, battery, propellers, …)
 - Deterministic `calculate` and `simulate` with history + Markdown views
 - Controlled `iterate` and design-space explore / apply (DSE)
+- Engineering intent → Goal Plan → Handoff Context (Plan → DSE / Iterate, FN-024…026)
+- Living System Map (`docs/system_map/`) — 59 connections, 0 RED
 - CLI and MCP adapters
-- Curated material & motor library (small; matching by KV — see debt **D8**)
+- Curated material & motor library (small; Physical Catalog v1 is the next engineering leap)
 
 ## Docs
 
@@ -58,9 +60,12 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 | [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md) | v1 usable — when a project is “done” |
 | [docs/PROJECT_CONTINUITY.md](docs/PROJECT_CONTINUITY.md) | A' — Situation / Evidence / Next useful step |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the system is built |
+| [docs/system_map/README.md](docs/system_map/README.md) | System Map — connections & authority |
 | [docs/IMPLEMENTATION_TASKS.md](docs/IMPLEMENTATION_TASKS.md) | Roadmap, gaps, technical debt |
 | [src/jarvis/README.md](src/jarvis/README.md) | Deeper product / flow reference |
 
-## Tag
+## Tags
 
-`v0.1.0-prototype` — first functional cut. Not a production CAD/FEM tool.
+`v0.2.0` — H1–H4 handoffs closed; System Map at 0 RED. Still not a production CAD/FEM tool; physical catalogs remain thin.  
+`checkpoint-fn026-h4` — architectural checkpoint for the handoff stack.  
+`v0.1.0-prototype` — first functional cut.
