@@ -2,7 +2,7 @@
 
 **Version:** SYS-MAP-002 visual companion  
 **Date:** 2026-08-10  
-**Canonical edge truth:** [`CONNECTIONS.md`](CONNECTIONS.md) → **Canonical registry** = **59** unique `C-xxx` (IDs sparse through C-106). Updated 2026-08-10 by FN-024 (C-042 fixed, C-105/C-106 added).
+**Canonical edge truth:** [`CONNECTIONS.md`](CONNECTIONS.md) → **Canonical registry** = **59** unique `C-xxx` (IDs sparse through C-106). Updated 2026-08-10 by FN-024 (C-042 fixed, C-105/C-106 added); updated 2026-08-12 by FN-025 (C-025/C-044 fixed).
 
 Interactive Cursor canvas (filterable graph + full table): [`jarvis-system-map.canvas.tsx`](jarvis-system-map.canvas.tsx).  
 To open beside chat in Cursor, sync that file into the project `canvases/` folder (see header comment in the `.tsx`).
@@ -20,13 +20,15 @@ CONNECTIONS.md
 | Set | Count | Notes |
 |---|---:|---|
 | Registry edges (canonical) | **59** | Only count this |
-| Connected 🟢 | **55** | of 59 |
-| Broken 🔴 | **3** | C-025 (=C-044), C-043 |
+| Connected 🟢 | **57** | of 59 |
+| Broken 🔴 | **1** | C-043 (H4 — only remaining RED) |
 | Partial 🟡 | **1** | C-081 |
 | Forbidden transitions | **+8** | Not registry edges |
 | File table cells `\| C-xxx \|` | — | Do not sum leading cells across the whole file — see `CONNECTIONS.md`'s "Document structure" note |
 
-**FN-024 (2026-08-10):** C-042 fixed (🔴→🟢, Handoff Context bind); C-105/C-106 added. C-025/C-044 (H3) and C-043 (H4) remain RED, deferred — not this cut. C-025 and C-044 are the same user failure listed under Intent and Engineering (count once when prioritizing fixes).
+**FN-024 (2026-08-10):** C-042 fixed (🔴→🟢, Handoff Context bind); C-105/C-106 added.
+
+**FN-025 (2026-08-12):** C-025/C-044 fixed (🔴→🟢, help+goal → same Goal Plan path). Same user failure listed under Intent and Engineering (counted once). **C-043 (H4) is now the only remaining RED**, deferred — not yet implemented.
 
 Canvas / this file manually mirror the registry (known drift risk). When adding a connection: update Canonical registry first, then Detail, then DIAGRAMS + canvas.
 
@@ -48,7 +50,7 @@ flowchart TB
   INTENT --> ENG
   ENG -->|C-042 FIXED FN-024| DSE[DSE explore]
   ENG -.->|C-043 BROKEN, H4| ITER
-  HELP[ayúdame + goal] -.->|C-025 / C-044 BROKEN, H3| ANALYZE[analyze / Plan]
+  HELP[ayúdame + goal] -->|C-025 / C-044 FIXED FN-025| ANALYZE[analyze / Plan]
 
   ITER --> CALC[06 Calculation]
   CALC --> SIM[07 Simulation]
@@ -62,8 +64,7 @@ flowchart TB
   classDef partial stroke:#c90,stroke-width:2px;
   classDef fixed stroke:#2a2,stroke-width:2px;
   classDef llm stroke-dasharray: 4 4;
-  class ANALYZE,HELP broken;
-  class DSE fixed;
+  class DSE,ANALYZE,HELP fixed;
   class CONT partial;
   class LLM llm;
 ```
@@ -75,8 +76,8 @@ flowchart TB
 | ID | From | To | Status |
 |---|---|---|---|
 | C-042 | Goal Plan CTA (`explora opciones`) | DSE goal binding | 🟢 FIXED (FN-024, 2026-08-10) |
-| C-025 / C-044 | `ayúdame` + named goal | Plan / Explore (lands on analyze) | 🔴 BROKEN — H3, not this cut |
-| C-043 | Goal Plan lever (e.g. `safety_factor`) | Iterate wizard preseed | 🔴 BROKEN — H4, not this cut |
+| C-025 / C-044 | `ayúdame` + named goal | Plan / Explore | 🟢 FIXED (FN-025, 2026-08-12) |
+| C-043 | Goal Plan lever (e.g. `safety_factor`) | Iterate wizard preseed | 🔴 BROKEN — H4, only remaining RED |
 | C-081 | Sim `safety_margin_ratio` | Continuity `next_useful_step` | 🟡 PARTIAL — H5, deferred |
 
 ---
@@ -111,7 +112,7 @@ Detail and evidence stay in `CONNECTIONS.md`. This index is for scanning.
 | C-022 | Intent `analyze` → `_handle_analyze` | 🟢 |
 | C-023 | Intent `define_params` → define-missing bridge | 🟢 |
 | C-024 | Intent `dismiss` → `_handle_dismiss_suggestion` | 🟢 |
-| C-025 | `ayúdame` + goal → analyze | 🔴 |
+| C-025 | `ayúdame` + goal → engineering_intent | 🟢 (FN-025) |
 
 ### 03 Acquisition
 | ID | From → To | Status |
@@ -132,8 +133,8 @@ Detail and evidence stay in `CONNECTIONS.md`. This index is for scanning.
 | C-040 | Intent iterate/unknown → engineering_intent | 🟢 |
 | C-041 | engineering_intent → `format_goal_plan` | 🟢 |
 | C-042 | Goal Plan CTA → DSE binding | 🟢 (FN-024) |
-| C-043 | Goal Plan lever → Iterate preseed | 🔴 (H4) |
-| C-044 | `ayúdame` + goal → Plan/Explore | 🔴 (H3) |
+| C-043 | Goal Plan lever → Iterate preseed | 🔴 (H4, only remaining RED) |
+| C-044 | `ayúdame` + goal → Plan/Explore | 🟢 (FN-025) |
 | C-045 | Intent explore → DesignExplorer | 🟢 |
 | C-046 | explore result → apply_exploration | 🟢 |
 | C-105 | engineering_intent success → create/replace `handoff_context` | 🟢 (FN-024, new) |

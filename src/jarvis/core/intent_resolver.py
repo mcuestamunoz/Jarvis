@@ -100,10 +100,21 @@ class IntentResolver:
         re.compile(r"\b" + re.escape(p) + r"\b")
         for p in STATUS_PATTERNS
     )
-    ANALYZE_PATTERNS = (
+    # FN-025 (H3): split into two named groups — real analytical verbs vs.
+    # help-seeking phrases — so orchestrator.py can distinguish "analiza el
+    # margen" (must stay analyze) from "ayúdame a mejorar la estabilidad"
+    # (help-verb; must be checked against a detectable engineering goal
+    # before falling to analyze/LLM). ANALYZE_PATTERNS is kept as the exact
+    # same union for every existing _resolve_strong_action_intent /
+    # _matches_any(..., self.ANALYZE_PATTERNS) call — zero behavior change
+    # to intent resolution itself, only new named handles on the two halves.
+    ANALYZE_VERB_PATTERNS = (
         r"\b(?:analiza|analizar|analisis|evalua|evaluar|evaluacion|revisa|revisar|informe|diagnostica|diagnosticar)\b",
+    )
+    ANALYZE_HELP_PATTERNS = (
         r"\b(?:orientame|orientar|ayudame|dame opciones|que opciones|como hago|como puedo|que deberia)\b",
     )
+    ANALYZE_PATTERNS = ANALYZE_VERB_PATTERNS + ANALYZE_HELP_PATTERNS
     CALCULATE_PATTERNS = (
         r"\b(?:calcula|calcular|recalcula|recalcular)\b",
     )

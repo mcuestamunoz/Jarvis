@@ -32,6 +32,14 @@ User-visible journeys, step by step, each tied to `C-xxx` connection IDs. These 
 
 **Notes:** 🟢 (FN-022). Primary mapping: "aumentar empuje"/"más thrust" → `mejorar_estabilidad` (documented in `04_engineering/ENGINEERING_MAP.md`). The CTA text this flow ends on is what FLOW-003 picks up — since FN-024, that handoff now works.
 
+### FLOW-002b — Help + named goal entry (`"ayúdame a mejorar la estabilidad"` → goal_plan, fixed by FN-025)
+
+A second, equally valid entry point into this same flow. **Pre-FN-025:** `resolve_intent("ayudame a mejorar la estabilidad") == "analyze"` (the help-verb half of `ANALYZE_PATTERNS` won before the FN-022 gate — which only fires for `intent ∈ {"iterate","unknown"}` — ever saw the turn) → LLM narrated instead of the plan being shown. This was C-025/C-044.
+
+**Since FN-025:** inside the `intent == "analyze"` branch, the orchestrator checks whether the match came from `ANALYZE_HELP_PATTERNS` specifically (not `ANALYZE_VERB_PATTERNS` — a real analytical verb like `"analiza"`/`"evalúa"`/`"revisa"` always keeps its analyze routing, even combined with a help word). If so, it calls the exact same `goal_planner.is_engineering_intention` → `orchestrator._handle_engineering_intent` chain FLOW-002 already uses — same plan, same `handoff_context` creation (C-105), same CTA. A help phrase with **no** detectable goal (bare `"ayúdame"`) routes to `project_status`/Continuity instead — never an LLM-invented goal. FN-023's own next-step-help patterns (`"ayúdame con el siguiente paso"`) are checked earlier in `resolve_intent` (GUIDANCE, before ANALYZE) and never reach this branch at all — unaffected by construction, see FLOW-006.
+
+**Connections:** C-025/C-044 (🟢, fixed FN-025), C-040/C-041 (reused, unchanged), C-105 (reused, unchanged).
+
 ---
 
 ## FLOW-003 — Explore design space (incl. `"explora opciones"` after a plan — fixed by FN-024)
@@ -50,7 +58,7 @@ User-visible journeys, step by step, each tied to `C-xxx` connection IDs. These 
 
 **Connections:** C-045 (🟢), **C-042 (🟢, fixed FN-024)**, **C-105/C-106 (🟢, new)**.
 
-**Notes:** This is the headline broken edge (predecessor map's Failure A). No fix in this cut — see `MISMATCHES.md` §8/§9 (H1/H2) for the design-only discussion of why a naive fix is risky.
+**Notes:** This was the headline broken edge (predecessor map's Failure A) — **fixed by FN-024**. See `MISMATCHES.md`'s H1/H2 rows for the implemented design (Hybrid Operation-Scoped `HandoffContext`) and why a naive sticky-string fix was rejected in favor of it.
 
 ---
 
@@ -96,7 +104,7 @@ User-visible journeys, step by step, each tied to `C-xxx` connection IDs. These 
 
 **Connections:** C-035, C-080, C-036, C-082.
 
-**Notes:** 🟢 (FN-023). This flow is the one that made the "ayúdame + next-step orientation" case work; it deliberately does **not** cover "ayúdame + a named goal" (that's FLOW-002/FLOW-003's broken seam, C-025/C-044).
+**Notes:** 🟢 (FN-023). This flow is the one that made the "ayúdame + next-step orientation" case work; it deliberately does **not** cover "ayúdame + a named goal" — that's FLOW-002b's territory (C-025/C-044, fixed separately by FN-025). The two are distinguished at the `resolve_intent` level: GUIDANCE (this flow, checked first) vs. the `ANALYZE_HELP_PATTERNS` half of ANALYZE (FLOW-002b, checked second) — never confused, never claiming each other's phrasing.
 
 ---
 
@@ -110,4 +118,4 @@ User-visible journeys, step by step, each tied to `C-xxx` connection IDs. These 
 
 **Connections:** C-022, C-100, C-101, C-102, C-103, C-104.
 
-**Notes:** 🟢 by construction — this is the *correctly narrow* fallback. The bug in Failures A/B/C is not that this flow exists; it's that turns which *should* have been claimed by a more specific deterministic layer (C-042/C-043/C-025) fall all the way down to here instead.
+**Notes:** 🟢 by construction — this is the *correctly narrow* fallback. The original bugs (Failures A/B, now closed by FN-024/FN-025) were never that this flow exists; it's that turns which *should* have been claimed by a more specific deterministic layer (C-042, C-025/C-044) fell all the way down to here instead. **C-043 (H4, lever → iterate preseed) is the one remaining case of this shape** — a named lever still isn't claimed by a more specific layer before reaching the iterate wizard's own generic fallback (not this LLM flow, but the same underlying pattern).

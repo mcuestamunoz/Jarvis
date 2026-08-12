@@ -11,7 +11,7 @@ This is not a convention that could quietly be violated — it is enforced **str
 | What component/gap is missing? | `acquisition_target.py` + `orchestrator._next_pending_block`/`_block_progress_status` | LLM; a second inference engine | ✅ structural (ActionPolicy) |
 | What is the single next useful step? | `project_continuity.build_project_continuity` → `next_useful_step` | LLM narrating a different gap | ✅ `project_continuity.py` has zero I/O and is never passed to the LLM as a decision input |
 | Is a component key present/stub/declared/defined? | `project_closure.classify_component` (FN-020) | Any second completeness threshold | ✅ `orchestrator._component_is_low` is a thin wrapper over the same primitive (C-083) |
-| What design goal is the user naming? | `goal_planner.detect_goal`/`is_engineering_intention` (FN-022) | LLM inventing a goal | ✅ `goal_planner.py` has zero I/O |
+| What design goal is the user naming? | `goal_planner.detect_goal`/`is_engineering_intention` (FN-022, reused unchanged by FN-025 for help-phrased goals) | LLM inventing a goal | ✅ `goal_planner.py` has zero I/O |
 | Which configs to try (DSE)? | `DesignExplorer.explore(project_state, goal_key)` | LLM | ✅ docstring guarantee ("100% en memoria... no muta project_state") + no LLM import in `design_explorer.py` |
 | Mutate a concrete parameter? | `IterateInteractiveSession`/`ParamDefinitionSession.answer` (value already given) | LLM inventing a variable/value | ✅ LLM's only reachable mutation actions are the 4 `ActionPolicy` verbs, all of which still resolve to deterministic Action objects, not LLM-chosen values |
 | What component was declared and its properties? | `component_inference.infer_component[s]` → `component_writers.set_*` | Any other code path writing `design_properties.components` | ✅ `component_writers.py` is the only module that assigns `design_properties.components[key]` (grep-verified, no other write site in `src/`) |
@@ -32,7 +32,7 @@ The codebase already has a repeated, working pattern for "deterministic layer de
 - **FN-022** — Engineering Intent gate (goal plan before iterate/LLM)
 - **FN-023** — next-step help routed to Continuity, not analyze
 
-§8/§9 of `MISMATCHES.md` (absorbed from the predecessor map) extend this exact pattern to "engineering intent → plan → DSE/iterate" handoffs — which today do **not** yet have an authority of their own (C-042/C-043/C-044 are `🔴 BROKEN` precisely because no such authority exists).
+§8/§9 of `MISMATCHES.md` (absorbed from the predecessor map) extend this exact pattern to "engineering intent → plan → DSE/iterate" handoffs. Two of the three (C-042 via FN-024, C-025/C-044 via FN-025) now have that authority; C-043 (H4, iterate lever preseed) remains the one edge without it — `🔴 BROKEN` precisely because no such authority exists yet for that specific consumer.
 
 ## GUIDANCE / ANALYZE / ITERATE precedence (the mechanism behind several rows above)
 
@@ -40,8 +40,9 @@ The codebase already has a repeated, working pattern for "deterministic layer de
 
 ```text
 1. GUIDANCE_PATTERNS   (project_status — includes FN-023's next-step-help additions)
-2. ANALYZE_PATTERNS    (bare "ayúdame" lives here — this is why C-025/C-044 are broken:
-                        a goal word after "ayúdame" never reaches step 6 below)
+2. ANALYZE_PATTERNS    (= ANALYZE_VERB_PATTERNS + ANALYZE_HELP_PATTERNS, FN-025 split —
+                        same union, same classification as before; bare "ayúdame" lives
+                        in the HELP half)
 3. CALCULATE_PATTERNS
 4. SIMULATE_PATTERNS
 5. DEFINE_PARAMS_PATTERNS (guarded: no numeric value present)
@@ -52,6 +53,11 @@ The codebase already has a repeated, working pattern for "deterministic layer de
 10. CREATE_PATTERNS
 ```
 
-Only *after* this returns `None` does `resolve_intent` fall to `_looks_like_status_query`/`_looks_like_question`/`ambiguous`/`unknown`. The FN-022 engineering-intent gate (C-040) is **not** part of this ordered list — it is a separate check the orchestrator runs on the *result* (`intent ∈ {"iterate","unknown"}`), which is exactly why a phrase that resolves to `"analyze"` at step 2 never reaches it. This is the single most important fact for understanding Failures A/B/C's shared root shape.
+Only *after* this returns `None` does `resolve_intent` fall to `_looks_like_status_query`/`_looks_like_question`/`ambiguous`/`unknown`. Two authority checks now sit **downstream** of this ordered list, both in `orchestrator.py`, both reusing `goal_planner.is_engineering_intention` (never a second goal detector):
 
-Full code: `core/intent_resolver.py:461-506` (`_resolve_strong_action_intent`).
+- **C-040 (FN-022)** — a separate check on the *result* `intent ∈ {"iterate","unknown"}`.
+- **C-025/C-044 (FN-025)** — a separate check inside the `intent == "analyze"` branch, gated on the match having come from `ANALYZE_HELP_PATTERNS` specifically (not `ANALYZE_VERB_PATTERNS` — a real analytical verb always keeps its analyze routing, even combined with a help word, e.g. `"ayúdame, analiza el margen"`). A detected goal routes into the same `_handle_engineering_intent` C-040 uses; no detected goal (bare help) routes to `project_status`/Continuity, never an LLM-invented goal.
+
+Precedence is still fully determined by the ordered list above — these two checks only refine what happens *after* a phrase already resolved to `"iterate"`/`"unknown"`/`"analyze"`; they never reorder or bypass GUIDANCE, which is why FN-023's next-step-help patterns (step 1) are untouched by either.
+
+Full code: `core/intent_resolver.py:461-506` (`_resolve_strong_action_intent`), `core/orchestrator.py`'s `intent == "analyze"` and `intent in ("iterate", "unknown")` branches.

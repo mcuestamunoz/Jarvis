@@ -850,6 +850,40 @@ class JarvisOrchestrator:
             self._track_turn(user_input, result)
             return result
         if intent == "analyze":
+            # FN-025 (H3): a help-seeking phrase ("ayúdame", "oriéntame", ...)
+            # must not silently reach the LLM when a deterministic authority
+            # can already answer it. Only the help-verb half of
+            # ANALYZE_PATTERNS is eligible — a phrase carrying a real
+            # analytical verb ("analiza", "evalúa", "revisa", ...) always
+            # keeps its analyze routing unchanged, even if it also contains a
+            # help word ("ayúdame, analiza el margen" stays analyze).
+            # FN-023's own GUIDANCE next-step patterns are checked earlier in
+            # resolve_intent (before ANALYZE) and already return
+            # "project_status" directly — they never reach this branch at
+            # all, so that precedence is preserved by construction, not by a
+            # special case here.
+            _normalized_help = self.intent_resolver._normalize_text(user_input)
+            _is_help_verb = self.intent_resolver._matches_any(
+                _normalized_help, IntentResolver.ANALYZE_HELP_PATTERNS
+            ) and not self.intent_resolver._matches_any(
+                _normalized_help, IntentResolver.ANALYZE_VERB_PATTERNS
+            )
+            if _is_help_verb:
+                # Reuses goal_planner.is_engineering_intention — the exact
+                # same deterministic authority FN-022 already uses; no second
+                # goal detector. A real project is required to name a goal
+                # (mirrors FN-022's own _has_active_project() gate); bare
+                # help with no detectable goal — or no active project at all
+                # — falls to project_status/Continuity, never an
+                # LLM-invented engineering target.
+                goal_key = is_engineering_intention(user_input) if self._has_active_project() else None
+                if goal_key is not None:
+                    result = self._handle_engineering_intent(goal_key)
+                    self._track_turn(user_input, result)
+                    return result
+                result = self._handle_project_status()
+                self._track_turn(user_input, result)
+                return result
             result = self._handle_analyze(user_input, llm_interface)
             self._track_turn(user_input, result)
             return result

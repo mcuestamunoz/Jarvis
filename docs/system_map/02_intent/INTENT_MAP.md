@@ -20,7 +20,7 @@
 
 ## Pattern groups (constants, not functions — see `AUTHORITY.md` for the precedence order they're checked in)
 
-`GUIDANCE_PATTERNS` (includes FN-023's 3 next-step-help additions), `ANALYZE_PATTERNS` (bare `\bayudame\b` lives here — root cause of C-025), `CALCULATE_PATTERNS`, `SIMULATE_PATTERNS`, `DEFINE_PARAMS_PATTERNS`, `DISMISS_SUGGESTION_PATTERNS`, `APPLY_PATTERNS`, `EXPLORE_PATTERNS` (verb + goal/domain word; `aumentar`/`subir` deliberately excluded, comment in source), `ITERATE_PATTERNS`, `CREATE_PATTERNS`, `STATUS_PATTERNS` (checked only after all of the above return `None`).
+`GUIDANCE_PATTERNS` (includes FN-023's 3 next-step-help additions), `ANALYZE_PATTERNS` (FN-025: now `ANALYZE_VERB_PATTERNS + ANALYZE_HELP_PATTERNS`, same union, same classification behavior — bare `\bayudame\b` lives in the HELP half, which `orchestrator.py` checks separately after `resolve_intent` returns `"analyze"`, see C-025), `CALCULATE_PATTERNS`, `SIMULATE_PATTERNS`, `DEFINE_PARAMS_PATTERNS`, `DISMISS_SUGGESTION_PATTERNS`, `APPLY_PATTERNS`, `EXPLORE_PATTERNS` (verb + goal/domain word; `aumentar`/`subir` deliberately excluded, comment in source), `ITERATE_PATTERNS`, `CREATE_PATTERNS`, `STATUS_PATTERNS` (checked only after all of the above return `None`).
 
 ## Local state touched
 
@@ -32,7 +32,7 @@ NO — zero LLM involvement anywhere in this module.
 
 ## Known broken edges owned by this subsystem
 
-- **C-025** — "ayúdame" + named goal → `"analyze"` (ANALYZE_PATTERNS wins before the goal is ever checked). See `AUTHORITY.md`'s precedence table and `MISMATCHES.md`'s H3.
+None currently open. ~~C-025 — "ayúdame" + named goal → `"analyze"`~~ **fixed (FN-025)**: `ANALYZE_PATTERNS` was split into `ANALYZE_VERB_PATTERNS`/`ANALYZE_HELP_PATTERNS` (this module, zero change to `resolve_intent`'s own output) so `orchestrator.py` can distinguish the two groups and route help+goal into the Goal Plan path before falling to analyze. See `AUTHORITY.md`'s precedence table and `MISMATCHES.md`'s H3.
 
 ## Tests
 

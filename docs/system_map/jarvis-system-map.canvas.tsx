@@ -7,7 +7,9 @@
  *
  * Counts: 59 canonical registry edges (CONNECTIONS.md) + 8 forbidden (not C-xxx).
  * Updated 2026-08-10 by FN-024: C-042 fixed (BROKEN → CONNECTED), C-105/C-106 added.
- * Never report "65 connections" — that counted derived-table duplicates.
+ * Updated 2026-08-12 by FN-025: C-025/C-044 fixed (BROKEN → CONNECTED).
+ * Only C-043 (H4) remains BROKEN. Never report "65 connections" — that counted
+ * derived-table duplicates.
  */
 import {
   Button,
@@ -66,7 +68,7 @@ const CONNECTIONS: Conn[] = [
   { id: "C-022", from: "intent", to: "h_analyze", fromLabel: "Intent analyze", toLabel: "_handle_analyze", status: "connected", band: "02 Intent" },
   { id: "C-023", from: "intent", to: "def_params", fromLabel: "Intent define_params", toLabel: "start_define_missing bridge", status: "connected", band: "02 Intent" },
   { id: "C-024", from: "intent", to: "dismiss", fromLabel: "Intent dismiss", toLabel: "_handle_dismiss_suggestion", status: "connected", band: "02 Intent" },
-  { id: "C-025", from: "help_goal", to: "h_analyze", fromLabel: "ayúdame + named goal", toLabel: "Intent → analyze", status: "broken", band: "02 Intent" },
+  { id: "C-025", from: "help_goal", to: "h_analyze", fromLabel: "ayúdame + named goal", toLabel: "Intent → engineering_intent (was analyze)", status: "connected", band: "02 Intent" },
 
   { id: "C-030", from: "orch", to: "motor", fromLabel: "Runtime IDLE", toLabel: "FN-005 motor help", status: "connected", band: "03 Acquisition" },
   { id: "C-031", from: "orch", to: "acq", fromLabel: "Runtime IDLE", toLabel: "FN-014 acquisition wizard", status: "connected", band: "03 Acquisition" },
@@ -82,7 +84,7 @@ const CONNECTIONS: Conn[] = [
   { id: "C-041", from: "eng_intent", to: "goal_plan", fromLabel: "_handle_engineering_intent", toLabel: "goal_planner.format_goal_plan", status: "connected", band: "04 Engineering" },
   { id: "C-042", from: "goal_plan", to: "dse", fromLabel: "Goal Plan CTA explora opciones", toLabel: "DSE goal binding (via handoff_context)", status: "connected", band: "04 Engineering" },
   { id: "C-043", from: "goal_plan", to: "iter", fromLabel: "Goal Plan lever", toLabel: "Iterate wizard preseed", status: "broken", band: "04 Engineering" },
-  { id: "C-044", from: "help_goal", to: "goal_plan", fromLabel: "ayúdame + named goal", toLabel: "Plan/Explore", status: "broken", band: "04 Engineering" },
+  { id: "C-044", from: "help_goal", to: "goal_plan", fromLabel: "ayúdame + named goal", toLabel: "Plan/Explore", status: "connected", band: "04 Engineering" },
   { id: "C-045", from: "intent", to: "dse", fromLabel: "Intent explore_design_space", toLabel: "DesignExplorer.explore", status: "connected", band: "04 Engineering" },
   { id: "C-046", from: "dse", to: "apply_exp", fromLabel: "explore result", toLabel: "apply_exploration", status: "connected", band: "04 Engineering" },
   { id: "C-105", from: "eng_intent", to: "handoff_ctx", fromLabel: "engineering_intent success", toLabel: "create/replace handoff_context", status: "connected", band: "04 Engineering" },
@@ -548,16 +550,17 @@ export default function JarvisSystemMapCanvas() {
         })}
       </Stack>
 
-      <H3>Intent precedence (C-025 root)</H3>
+      <H3>Intent precedence (post FN-025)</H3>
       <Text size="small" tone="secondary">
-        GUIDANCE → ANALYZE (bare ayudame) → … → EXPLORE → ITERATE. FN-022 gate
-        only sees iterate/unknown — ayudame+goal never reaches engineering
-        intent (C-025 / C-044).
+        GUIDANCE (FN-023) → ANALYZE (verb vs help split) → … → EXPLORE →
+        ITERATE. Help + named goal now reaches engineering intent via the
+        orchestrator refine (C-025 / C-044 🟢). Bare help → Continuity.
       </Text>
 
       <Callout tone="info" title="Next">
-        Pick first RED (C-042 / C-025 / C-043), decide handoff-context
-        lifecycle, then emit FN contract citing that C-xxx. Create→BOM paused.
+        Sole remaining RED: C-043 (H4 — Plan lever → Iterate preseed). Next
+        cut: FN-026 on the same HandoffContext (lever ∈ plan levers only).
+        H5 / C-081 and Create→BOM remain paused.
       </Callout>
     </Stack>
   );

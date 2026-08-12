@@ -6,11 +6,35 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
+### ✅ COMPLETADO — FN-025: H3 Help + Goal → Engineering Intent (C-025 / C-044)
+
+> Contrato: [`.jes/artifacts/implementation_contract_fn025_h3_help_goal.md`](../.jes/artifacts/implementation_contract_fn025_h3_help_goal.md)  
+> Diseño: mismo `HandoffContext` / C-105 ([`HANDOFF_CONTEXT_DESIGN.md`](system_map/HANDOFF_CONTEXT_DESIGN.md))  
+> Informe: [`.jes/artifacts/implementation_report_fn025.md`](../.jes/artifacts/implementation_report_fn025.md)
+
+**Cierra:** C-025 🔴→🟢 + C-044 🔴→🟢 (misma raíz, un solo fix). `"ayudame a mejorar la estabilidad"` → `_handle_engineering_intent` (mismo plan, mismo `handoff_context` vía C-105), 0 LLM. `intent_resolver.ANALYZE_PATTERNS` dividido en `ANALYZE_VERB_PATTERNS`/`ANALYZE_HELP_PATTERNS` (misma unión, sin cambio de comportamiento de `resolve_intent`); el gate vive en `orchestrator.py` (Opción A del contrato, no en `intent_resolver.py`).
+
+**Plan:**
+1. [x] `ANALYZE_PATTERNS` dividido en dos grupos nombrados (`intent_resolver.py`)
+2. [x] Gate en `orchestrator.py`'s rama `intent == "analyze"`: si el match viene del grupo help (nunca el grupo de verbos reales) → `is_engineering_intention`; goal detectado → `_handle_engineering_intent`; sin goal → `_handle_project_status` (nunca LLM inventando un objetivo)
+3. [x] FN-023 (`"ayúdame con el siguiente paso"`) intacto por construcción — GUIDANCE se comprueba antes que ANALYZE, nunca llega a esta rama
+4. [x] Tests: `test_fn025_help_goal_intent.py` (T1–T8 + 2 regresiones, 10 tests) + regresión FN-005/011/013/014/015/016/020/021/022/023/024 (338 tests) + suite completa verde
+5. [x] Mapa actualizado: `CONNECTIONS.md` (C-025/C-044 🟢, solo C-043 queda rojo), `AUTHORITY.md`, `FLOWS.md` (FLOW-002b), `MISMATCHES.md` (H3 implementado), `DIAGRAMS.md`, canvas, `01_runtime`/`02_intent`/`04_engineering`
+
+**No en este corte (confirmado, sin tocar):** H4/C-043, H5/C-081, Create→BOM, refactor de dual dispatch.
+
+**Cola:**
+1. [ ] Cursor review de FN-025
+2. [ ] Replay: help+goal → plan → `explora opciones` → DSE (regresión ya cubierta por tests)
+3. [ ] FN-026 H4 (C-043) — lever ∈ `HandoffContext.levers` únicamente
+4. [ ] Checkpoint post H1–H4 → luego H5 / Create→BOM
+
 ### ✅ COMPLETADO — FN-024: H1+H2 Handoff Context → Plan/DSE (C-042)
 
 > Contrato: [`.jes/artifacts/implementation_contract_fn024_h1_h2_handoff_dse.md`](../.jes/artifacts/implementation_contract_fn024_h1_h2_handoff_dse.md)  
 > Diseño: [`docs/system_map/HANDOFF_CONTEXT_DESIGN.md`](system_map/HANDOFF_CONTEXT_DESIGN.md) — **§5 CLOSED** (Hybrid Operation-Scoped Context)  
-> Informe: [`.jes/artifacts/implementation_report_fn024.md`](../.jes/artifacts/implementation_report_fn024.md)
+> Informe: [`.jes/artifacts/implementation_report_fn024.md`](../.jes/artifacts/implementation_report_fn024.md)  
+> Commit checkpoint: `ff550f3`.
 
 **Cierra:** C-042 🔴→🟢 + CTA honesty (H2, como consecuencia de H1, no un cambio de texto aparte). Nuevo `schemas.action_schema.HandoffContext` (runtime-only, nunca persistido, con guarda `project_id` en cada lectura) creado/reemplazado en cada `_handle_engineering_intent` exitoso; `"explora opciones"` a secas hace bind vía el contexto activo; un bind+explore exitoso consume **solo** la capability DSE — `goal_key`/`levers`/`iterate_capability` quedan intactos para un futuro H4.
 
@@ -25,12 +49,7 @@
 
 **No en este corte (confirmado, sin tocar):** H3 (C-025/C-044), H4 (C-043 — pero `levers`/`iterate_capability` ya están listos para su consumidor), H5 (C-081), Create→BOM, refactor de dual dispatch.
 
-**Cola:**
-1. [ ] Cursor review de FN-024
-2. [ ] Engineer elige siguiente edge: FN-025 H3 (C-025/C-044) vs FN-026 H4 (C-043)
-3. [ ] H5 / C-081 — contrato Continuity aparte
-4. [ ] Create→BOM
-5. [ ] (Opcional) Higiene de seguimiento — ver inventario SYS-MAP-003
+**Cola (histórica — ver FN-025 arriba):** checkpoint `ff550f3` cerrado; siguiente es FN-025.
 
 ### ✅ SYS-MAP-003 — verificación del mapa + inventario de higiene (documentación, sin cambios de código)
 

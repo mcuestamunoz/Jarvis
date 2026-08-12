@@ -22,7 +22,7 @@
 | 12 | Parameter ingestion layer | `try_ingest` | C-015 |
 | 13 | `intent = resolve_intent(user_input)` | — | C-020 |
 | 14 | `intent == "project_status"` | `_handle_project_status` | C-021, C-035 |
-| 15 | `intent == "analyze"` | `_handle_analyze` | C-022 |
+| 15 | `intent == "analyze"` — nested: FN-025 (H3) help-verb + goal check first | `is_engineering_intention` → `_handle_engineering_intent`, or `_handle_project_status` (bare help, no goal), else `_handle_analyze` | C-022, C-025/C-044 |
 | 16 | `intent == "ambiguous"` | analyze or start create_project | — |
 | 17 | `intent == "define_params"` | bridge to `start_define_missing_params` | C-023 |
 | 18 | **FN-022 engineering-intention gate** | `is_engineering_intention` → `_handle_engineering_intent` | C-040 |

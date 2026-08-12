@@ -9,7 +9,7 @@ CONNECTIONS.md
 │
 ├── Canonical registry  ← THIS SECTION ONLY defines the connection count
 │   └── 59 unique C-xxx  (ID space sparse through C-106)
-│         55 🟢 connected · 3 🔴 broken · 1 🟡 partial
+│         57 🟢 connected · 1 🔴 broken · 1 🟡 partial
 │
 ├── Derived / detail views  ← may repeat C-xxx for readability
 │   └── "Detail — NN …" sections below; NOT additional connections
@@ -17,7 +17,9 @@ CONNECTIONS.md
 └── Forbidden transitions  ← 8 structural absences; NOT C-xxx registry edges
 ```
 
-**FN-024 (2026-08-10):** C-042 flipped 🔴→🟢 (Plan→DSE now binds through a Handoff Context — see `HANDOFF_CONTEXT_DESIGN.md`); two new connections added, **C-105** (`_handle_engineering_intent` → create/replace context) and **C-106** (bound context → `_handle_explore` goal bind). Registry count moved **57 → 59**. C-025/C-044 (H3) and C-043 (H4) remain 🔴 — not touched by this cut.
+**FN-024 (2026-08-10):** C-042 flipped 🔴→🟢 (Plan→DSE now binds through a Handoff Context — see `HANDOFF_CONTEXT_DESIGN.md`); two new connections added, **C-105** (`_handle_engineering_intent` → create/replace context) and **C-106** (bound context → `_handle_explore` goal bind). Registry count moved **57 → 59**.
+
+**FN-025 (2026-08-12):** C-025/C-044 flipped 🔴→🟢 (help + named goal now reaches the same Goal Plan path as FN-022/024, via `IntentResolver.ANALYZE_HELP_PATTERNS`/`ANALYZE_VERB_PATTERNS`). **C-043 (H4) is now the only remaining 🔴** in the registry — not touched by this cut.
 
 **Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables (historically this produced a false **65**). The only authoritative count is the length of **Canonical registry** below.
 
@@ -54,7 +56,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-022 | Intent (`analyze`) | `_handle_analyze` | 🟢 |
 | C-023 | Intent (`define_params`) | `start_define_missing_params` bridge | 🟢 |
 | C-024 | Intent (`dismiss_suggestion`) | `_handle_dismiss_suggestion` | 🟢 |
-| C-025 | "ayúdame" + named goal | Intent → `analyze` | 🔴 BROKEN |
+| C-025 | "ayúdame" + named goal | Intent → engineering_intent (was analyze) | 🟢 (FN-025) |
 | C-030 | Runtime (IDLE) | FN-005 assisted motor help | 🟢 |
 | C-031 | Runtime (IDLE) | FN-014 acquisition mention → wizard open | 🟢 |
 | C-032 | Runtime (IDLE) | FN-015 pending-help → deterministic help | 🟢 |
@@ -68,7 +70,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-041 | `_handle_engineering_intent` | `goal_planner.format_goal_plan` | 🟢 |
 | C-042 | Goal Plan CTA (`"explora opciones"`) | DSE (goal binding) | 🟢 (FN-024 — binds via `handoff_context`, see C-105/C-106) |
 | C-043 | Goal Plan lever (e.g. `safety_factor`) | Iterate wizard preseed | 🔴 BROKEN (H4 — deferred, not this cut) |
-| C-044 | "ayúdame" + named goal | Plan/Explore | 🔴 BROKEN (= C-025, cross-ref; H3 — deferred, not this cut) |
+| C-044 | "ayúdame" + named goal | Plan/Explore | 🟢 (= C-025, cross-ref; H3 — FN-025) |
 | C-045 | Intent (`explore_design_space`) | `_handle_explore` → `DesignExplorer.explore` | 🟢 (when `goal_key` is resolved, explicitly or via C-106 bind) |
 | C-046 | `_handle_explore` result | `_handle_apply_exploration` (via `session.last_exploration_result`) | 🟢 |
 | C-105 | `_handle_engineering_intent` (successful plan) | Create/replace `session.handoff_context` | 🟢 (FN-024, new) |
@@ -287,18 +289,18 @@ Sections below expand evidence for canonical IDs. Summary tables that re-list ID
 
 Evidence: `core/orchestrator.py:846,850,864,906`.
 
-### C-025 — "ayúdame" + named goal → Intent → `analyze` 🔴 BROKEN
+### C-025 — "ayúdame" + named goal → Intent → `analyze` 🟢 CONNECTED (FN-025)
 | Field | Value |
 |---|---|
 | Kind | CONTROL |
-| Mechanism | `ANALYZE_PATTERNS`' bare `\bayudame\b` matches before FN-022's engineering-intent gate ever sees the turn (that gate only fires for `intent ∈ {"iterate","unknown"}`, and this phrase resolves to `"analyze"`) |
-| Symbols | `intent_resolver.ANALYZE_PATTERNS`, `IntentResolver._resolve_strong_action_intent` |
-| Payload | e.g. `"ayudame a mejorar la estabilidad"` |
-| Authority | **Should be** `goal_planner.is_engineering_intention` (it correctly detects `mejorar_estabilidad` for this exact phrase when called directly) — but routing never reaches it |
-| Mutation | NO |
-| LLM | YES — this is the bug: LLM narrates instead of the deterministic plan being shown |
-| Status | 🔴 BROKEN |
-| Evidence | `core/intent_resolver.py:103-106` (ANALYZE_PATTERNS), `core/orchestrator.py:894` (FN-022 gate's `intent in ("iterate","unknown")` guard). Verified: `resolve_intent("ayudame a mejorar la estabilidad") == "analyze"`; `is_engineering_intention("ayudame a mejorar la estabilidad") == "mejorar_estabilidad"`. Same underlying phrase as C-044 (cross-ref, not a duplicate finding). |
+| Mechanism | `intent == "analyze"` is now split at the orchestrator: `IntentResolver.ANALYZE_PATTERNS` was split into `ANALYZE_VERB_PATTERNS` (analiza/evalúa/revisa/...) and `ANALYZE_HELP_PATTERNS` (ayúdame/oriéntame/...), same union, zero change to `resolve_intent`'s own classification. When the match came from the help group only (not the verb group), the orchestrator checks `goal_planner.is_engineering_intention` before falling to `_handle_analyze` |
+| Symbols | `intent_resolver.ANALYZE_VERB_PATTERNS`, `ANALYZE_HELP_PATTERNS` (new, FN-025), `orchestrator`'s `intent == "analyze"` branch, `goal_planner.is_engineering_intention`, `orchestrator._handle_engineering_intent` (reused, unchanged, same as C-040) |
+| Payload | e.g. `"ayudame a mejorar la estabilidad"` → `goal_key="mejorar_estabilidad"` |
+| Authority | `goal_planner.is_engineering_intention` — the exact same authority C-040/FN-022 already uses; no second goal detector |
+| Mutation | YES (session) — routes into `_handle_engineering_intent`, which creates/replaces `handoff_context` via the existing C-105, same as any other engineering-intent entry |
+| LLM | NO for help+goal (routes to the plan) and for bare help with no goal (routes to `project_status`). Still YES for genuine analytical verbs (`"analiza el margen..."`) and for help+verb combinations where a real analyze verb is also present (verb wins, unaffected) — this gate never claims those. |
+| Status | 🟢 CONNECTED (FN-025, 2026-08-12) |
+| Evidence | `core/intent_resolver.py` (`ANALYZE_VERB_PATTERNS`/`ANALYZE_HELP_PATTERNS`), `core/orchestrator.py`'s `intent == "analyze"` branch, `tests/test_fn025_help_goal_intent.py` (T1–T8 + 2 regressions). Verified live: `"ayudame a mejorar la estabilidad"` → `action="engineering_intent"`, `goal_key="mejorar_estabilidad"`, `handoff_context` created; `"ayudame con el siguiente paso"` (FN-023) and `"analiza el margen de seguridad"` both unaffected. Same underlying fix as C-044 (cross-ref, one finding, one fix). |
 
 ---
 
@@ -473,8 +475,8 @@ Evidence: `core/orchestrator.py:846,850,864,906`.
 | Status | 🔴 BROKEN — **still open, deferred, not touched by FN-024** |
 | Evidence | `core/iterate_interactive_session.py:1108-1160` (`_seed_semantic_from_state`/`_seed_semantic_from_draft`). Verified via live orchestrator run: `semantic_state.missing_slots == ["variable"]` after confirming "safety_factor" by name. This is Failure C of the predecessor map. **FN-024 note:** `HandoffContext.levers` (populated by C-105, e.g. `["per_motor_max_thrust_n / motors", "safety_factor"]` for `mejorar_estabilidad`) now exists at runtime and is left untouched by every FN-024 code path — it is exactly the membership list H4 will need, already sitting there for whoever picks up H4 next; FN-024 does not read or act on it. |
 
-### C-044 — "ayúdame" + named goal → Plan/Explore (cross-ref C-025) 🔴 BROKEN
-Same underlying phrase and root cause as **C-025** — listed under both Intent and Engineering because the fix could plausibly live in either layer (a `GUIDANCE_PATTERNS` extension, per FN-023's own precedent, vs. widening the FN-022 gate's `intent` set). Do not treat as two separate findings when counting BROKEN edges (§ Implementation Report counts it once).
+### C-044 — "ayúdame" + named goal → Plan/Explore (cross-ref C-025) 🟢 CONNECTED (FN-025)
+Same underlying phrase and root cause as **C-025** — listed under both Intent and Engineering because the fix could plausibly live in either layer. **FN-025 chose Option A** (orchestrator-side gate, per the contract's preferred option): the fix lives in `orchestrator.py`'s `intent == "analyze"` branch, reusing `intent_resolver.py`'s new `ANALYZE_HELP_PATTERNS`/`ANALYZE_VERB_PATTERNS` split — not a `GUIDANCE_PATTERNS` extension (Option B was considered and rejected: it would have required teaching `resolve_intent` itself to reach into `goal_planner`, blurring intent classification with goal detection). Full evidence at C-025 (do not treat as two separate findings when counting BROKEN edges — now zero, both closed by the one fix).
 
 ### C-045 — Intent (`explore_design_space`) → `_handle_explore` → `DesignExplorer.explore`
 | Field | Value |
@@ -843,6 +845,6 @@ Same underlying phrase and root cause as **C-025** — listed under both Intent 
 
 These are gaps observed while building this registry — not claimed as connections, and not implemented anywhere. Listed so a future contributor doesn't have to rediscover them from scratch.
 
-- **Plan/Handoff Context → DSE consumer** — **IMPLEMENTED (FN-024, C-105/C-106)**, closing C-042. **Plan/Handoff Context → Iterate consumer (H4/C-043)** and **→ Help+Goal routing (H3/C-025/C-044)** remain `⚪ NOT IMPLEMENTED` — `HandoffContext.levers`/`iterate_capability` already exist at runtime (populated by C-105, untouched by every FN-024 code path) specifically so a future H4 cut has them ready. See `MISMATCHES.md` design appendix.
+- **Plan/Handoff Context → DSE consumer** — **IMPLEMENTED (FN-024, C-105/C-106)**, closing C-042. **Help+Goal routing (H3/C-025/C-044)** — **IMPLEMENTED (FN-025)**, closing both. **Plan/Handoff Context → Iterate consumer (H4/C-043)** remains `⚪ NOT IMPLEMENTED` — `HandoffContext.levers`/`iterate_capability` already exist at runtime (populated by C-105, untouched by every FN-024/FN-025 code path) specifically so a future H4 cut has them ready. See `MISMATCHES.md` design appendix.
 - **Continuity → margin/goal "thread"** — `⚪ NOT IMPLEMENTED` in the sense that no data surface currently carries "we are worried about margin" across turns; C-081 is the read-side symptom.
 - **`ActionRouter` entry for `analyze`/`project_status`/`explore_design_space`/etc.** — `⚪ NOT IMPLEMENTED` by design (§1.4 dual-dispatch note) — these intents never touch `ActionRouter` at all, which is why the seam exists. Not a bug, listed for completeness.
