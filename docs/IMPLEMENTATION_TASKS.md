@@ -7,19 +7,27 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **H1–H4 cerrados (`v0.2.0` / `checkpoint-fn026-h4`). Mapa: 59 · 58🟢 · 0🔴 · 1🟡 (C-081).**  
-> **PRIORIDAD AHORA:** Catalog Foundation **Impl A PASS** — commit cuando Engineer pida; luego IC **Impl B (Bind)**.  
-> Review: [`.jes/artifacts/implementation_review_catalog_foundation_v1.md`](../.jes/artifacts/implementation_review_catalog_foundation_v1.md)  
-> Design: [`PHYSICAL_COMPONENT_CATALOG_V1.md`](PHYSICAL_COMPONENT_CATALOG_V1.md) · Suite: **1616 passed**  
-> **No Impl B sin contrato nuevo.** H5 / material micro-fix / Create→BOM siguen aparte.
+> **PRIORIDAD AHORA:** IC **Impl B — Catalog Bind** listo para Claude (tras checkpoint Impl A).  
+> Tag: `checkpoint-catalog-impl-a` · Commit Foundation: `b46260e` (pushed).  
+> Contrato Bind: [`.jes/artifacts/implementation_contract_catalog_bind_v1.md`](../.jes/artifacts/implementation_contract_catalog_bind_v1.md)  
+> Design: [`PHYSICAL_COMPONENT_CATALOG_V1.md`](PHYSICAL_COMPONENT_CATALOG_V1.md)  
+> **No código Bind hasta que Claude ejecute este IC.** CLI agresivo = criterio post-B.
+
+### 🔵 EN CURSO — Catalog Bind Impl B (IC listo)
+
+> Contrato: [`.jes/artifacts/implementation_contract_catalog_bind_v1.md`](../.jes/artifacts/implementation_contract_catalog_bind_v1.md)  
+> Primers ciudadanos: (1) SKU no desaparece (2) diverge limpia `catalog_ref` (3) masa motor causal en calc.
+
+**Plan:**
+1. [ ] Claude implementa Bind + tests + report
+2. [ ] Cursor review
+3. [ ] Engineer CLI probe
+4. [ ] commit + tag checkpoint-catalog-impl-b (cuando Engineer pida)
 
 ### ✅ COMPLETADO — Catalog Foundation Impl A
 
-> Contrato: [`.jes/artifacts/implementation_contract_catalog_foundation_v1.md`](../.jes/artifacts/implementation_contract_catalog_foundation_v1.md)  
-> Informe / review: `.jes/artifacts/implementation_report_catalog_foundation_v1.md` · `implementation_review_catalog_foundation_v1.md` — **PASS**
-
-**Entregó:** `BatterySpec`/`PropellerSpec` + loaders en `ComponentLibrary`; seeds `library/baterias` (10 LiPo) + `library/helices` (14); `CatalogRef` + `ComponentSpec.catalog_ref=None` (sin writers); `match_motor_propeller`; 25 tests; **1616** suite. Motores JSON / calc / DSE / Continuity / Bind **no** tocados.
-
-**Siguiente:** commit Foundation (si Engineer pide) → IC Impl B (pick→`catalog_ref`, discard fix, masa SKU-bound).
+> Contrato / review: `.jes/artifacts/implementation_*catalog_foundation*` — **PASS**  
+> Commit: `b46260e` · Tag: **`checkpoint-catalog-impl-a`** (pushed)
 
 ### ✅ COMPLETADO — Catalog v1 Design CLOSED
 
