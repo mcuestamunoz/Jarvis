@@ -2380,6 +2380,7 @@ class JarvisOrchestrator:
     # strategy catalog, and not thrust-specific (every goal gets one).
     _GOAL_EXPLORE_DOMAIN: dict[str, str] = {
         "aumentar_payload": "payload",
+        "reducir_payload": "payload",
         "mejorar_autonomia": "autonomía",
         "reducir_masa": "masa",
         "mejorar_estabilidad": "estabilidad",

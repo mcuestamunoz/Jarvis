@@ -30,6 +30,7 @@ from jarvis.tools.electricity import estimate_battery_mass_kg
 GOAL_LABELS: dict[str, str] = {
     "mejorar_autonomia": "maximizar autonomía",
     "aumentar_payload": "maximizar carga útil",
+    "reducir_payload": "minimizar carga útil",
     "reducir_masa": "minimizar masa total",
     "mejorar_estabilidad": "maximizar margen de seguridad",
 }
@@ -88,6 +89,20 @@ EXPLORATION_GRIDS: dict[str, list[dict[str, Any]]] = {
         {"structure_mass_factor_factor": 0.4},
         {"payload_kg_factor": 0.8},
         {"structure_mass_factor_factor": 0.7, "payload_kg_factor": 0.8},
+    ],
+    # F-1: direction-mirrored counterpart of aumentar_payload — factors below
+    # 1.0 only, so candidates always explore LOWER payload than the current
+    # value, never accidentally reusing the increase direction. motor_count_delta
+    # stays architecture-conditional by construction: _apply_delta() already
+    # omits any candidate whose referenced param is absent from base_params
+    # (no motor_count on this project → that candidate is silently skipped,
+    # same mechanism every other goal's motor_count_delta entries already rely on).
+    "reducir_payload": [
+        {"payload_kg_factor": 0.85},
+        {"payload_kg_factor": 0.7},
+        {"payload_kg_factor": 0.5},
+        {"structure_mass_factor_factor": 0.85, "payload_kg_factor": 0.85},
+        {"motor_count_delta": -1, "payload_kg_factor": 0.85},
     ],
     "mejorar_estabilidad": [
         {"motor_count_delta": 2},
@@ -251,6 +266,10 @@ def _score_candidate(
         return sim.autonomy_min or 0.0
     if goal_key == "aumentar_payload":
         return sim.safety_margin_ratio * calc.payload_kg
+    if goal_key == "reducir_payload":
+        # Mirrors reducir_masa's shape (pure-reduction goal): lower payload_kg
+        # scores higher so descending sort favors bigger reductions.
+        return -calc.payload_kg
     if goal_key == "reducir_masa":
         return -calc.total_mass_kg
     if goal_key == "mejorar_estabilidad":

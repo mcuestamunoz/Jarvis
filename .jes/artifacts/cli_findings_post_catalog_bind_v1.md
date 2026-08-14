@@ -13,23 +13,27 @@
 
 | ID | Severity | Status | One-line |
 |---|---|---|---|
-| F-1 | 🔴 | **Bug — prioritario** | `reducir payload` → Goal Plan de **aumentar** carga útil |
-| F-2 | 🟡 | Known gap | `aumentar diámetro de las hélices` no llega a `propeller_diameter_in` / iterate limpio |
-| F-3 | 🟡 | Expected (pre-UX) | `configurar hélices` → `propeller_rpm`, no pick SKU de hélice |
-| F-4 | 🟢 | **Demostrado** | Motor catalog pick → identidad + masa → cálculo |
-| F-5 | 🟡 | **Pendiente de verificación** | Divergencia numérica post-DSE → limpieza de `catalog_ref` |
-| F-6 | 🟢 | **Demostrado** | Gap de catálogo honesto cuando no hay motor adecuado |
+| F-1 | 🔴→🟢 | **Fixed** | `reducir payload` → Plan Reducir + DSE ↓ |
+| **G5** | 🔴 | **Investigar** | DSE 675 N → iterate 80 N; dual-truth params vs ComponentSpec |
+| G3 | 🟡 | Known gap | `optimiza payload` vs handoff `reducir_payload` |
+| F-2 | 🟡 | Known gap | Diámetro hélices → iterate |
+| F-3 | 🟡 | Expected | `configurar hélices` → RPM only |
+| F-4 | 🟢 | Demostrado | Motor catalog pick + masa |
+| F-5 | 🟡 | Pendiente verificación | Divergencia `catalog_ref` post-DSE |
+| F-6 | 🟢 | Demostrado | Gap catálogo honesto |
 
-**Next queue (Engineer):**
+**Next queue (Engineer 2026-08-14):**
 
 ```text
-checkpoint-catalog-impl-b
+checkpoint-f1-reducir-payload ✅
         ↓
-F-1 hardening (contrato pequeño)
+G5 investigation
         ↓
-UX catálogo batería/hélice
+G3 handoff explore
         ↓
-Impl C — DSE por SKUs
+G1/G2 + H5 design
+        ↓
+UX catálogo → Impl C → BOM
 ```
 
 **Explicitly out of scope here:** Impl C, material ES/EN (3A), H5/C-081, BOM/Continuity SKU labeling.
@@ -74,7 +78,59 @@ Direct semantic inversion of user intent. Dangerous because the system proposes 
 
 ### Next step
 
-Small Implementation Contract: **F-1 hardening** with regression tests for both directions and Goal Plan smoke tests.
+~~F-1 hardening contract~~ → **DONE** (`checkpoint-f1-reducir-payload`). Next: **G5 investigation**.
+
+---
+
+## G5 🔴 — DSE params-only → iterate revierte empuje (675 N → 80 N)
+
+**Severity:** 🔴 investigar (bloquea H5/G1)  
+**Category:** State dual-truth — `current_parameters` vs `ComponentSpec`  
+**Depends on catalog:** Partially (`catalog_ref` cleared on thrust diverge; revert is separate)
+
+### Observed (CLI 2026-08-14, proyecto `1f7e6e8d1a70`)
+
+```text
+DSE estabilidad apply (iter_010):
+  motor_count=10, per_motor_max_thrust_n=67.5 → empuje_disponible=675 N
+
+iterate safety_factor=1.4 (iter_011):
+  motor_count=4,  per_motor_max_thrust_n=20.0 → empuje_disponible=80 N
+```
+
+Sin explicación en UI. `components.motors` sigue en 4×20 N; `catalog_ref=null`.
+
+### Hypothesis
+
+Params-only DSE escribe `current_parameters`; `ComponentSpec` queda stale. Iterate recalcula y **pisa** params con verdad del componente.
+
+### Impact
+
+Secuencias DSE → iterate no son confiables; invalida confianza en exploración antes de objetivo compuesto (H5).
+
+### Next step
+
+Investigation contract: [`.jes/artifacts/investigation_contract_g5_dse_iterate_dual_truth.md`](investigation_contract_g5_dse_iterate_dual_truth.md)
+
+---
+
+## G3 🟡 — Explore explícito vs handoff activo
+
+**Severity:** 🟡 known gap  
+**Category:** Continuity / handoff (H1 partial)
+
+### Observed
+
+```text
+Plan reducir_payload + "explora opciones"     → minimizar carga útil ✅
+Plan reducir_payload + "optimiza payload"   → maximizar carga útil ❌
+```
+
+H1 solo bind en bare `"explora opciones"`. Explore explícito re-deriva goal del texto.
+
+### Next step
+
+Micro-contrato post-G5: prefer `handoff.goal_key` when active for explore verbs + payload dimension.
 
 ---
 
@@ -105,12 +161,12 @@ Iterate UX friction when user follows Goal Plan lever wording (`propeller_diamet
 
 ### Notes
 
-- **Do not** fix by stuffing synonyms into `match_plan_lever` (H4). That would reintroduce global keyword routing and weaken the "only preseed levers from active plan" property.
+- **Do not** fix by stuffing synonyms into `match_plan_lever` (H4).
 - Requires a separate authority decision for semantic intent → variable (outside H4 scope).
 
 ### Next step
 
-Defer until after F-1. Design semantic resolution layer or explicit propeller configure entry point — not part of Impl C by default.
+Defer until post-G5. Design semantic resolution layer or explicit propeller configure entry point.
 
 ---
 
@@ -277,8 +333,25 @@ Recorded for context; **do not** treat as Impl B regressions:
 
 ## Engineer decisions locked in this artifact
 
-1. **F-1** → next Implementation Contract (before catalog UX or Impl C).
-2. **F-5** → 🟡 until thrust-divergence CLI probe or state inspection.
-3. **F-2** → no H4 synonym hack; design semantic authority separately.
-4. **F-3** → catalog pick UX for battery/propeller is its own stage, not Impl C.
-5. **No catalog code changes** until F-1 contract is approved and delivered.
+1. ~~**F-1** → next Implementation Contract~~ → **DONE** (`checkpoint-f1-reducir-payload`).
+2. **G5** → investigation contract **before** H5/G1 design.
+3. **F-5** → 🟡 until thrust-divergence CLI probe or state inspection.
+4. **G3** → post-G5 handoff explore bind extension.
+5. **G1/G2/H5** → design only; Impl C **after** objective layer.
+6. **No catalog Impl C** until G5 closed (+ fix if needed).
+
+---
+
+## Queue (updated 2026-08-14)
+
+```text
+checkpoint-f1-reducir-payload ✅
+        ↓
+G5 investigation (+ fix contract)
+        ↓
+G3 handoff explore
+        ↓
+G1/G2 + H5 design
+        ↓
+UX catálogo → Impl C → BOM
+```

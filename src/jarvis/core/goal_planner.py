@@ -75,6 +75,29 @@ GOAL_STRATEGIES: dict[str, list[dict[str, str]]] = {
             "lever": "safety_factor",
         },
     ],
+    # F-1: direction-mirrored counterpart of aumentar_payload — same
+    # architecture (dict of action/description/lever), vehicle-agnostic
+    # wording (no drone-specific concepts). Strategy 3 uses a lever that is
+    # not universal (motor_count) — see the Engineer lock note on
+    # _prioritize_strategies below; it stays in the catalog but is never
+    # promoted for architectures where motor_count is unknown.
+    "reducir_payload": [
+        {
+            "action": "Reducir requisito de carga útil",
+            "description": "Bajar directamente el payload objetivo del sistema.",
+            "lever": "payload_kg",
+        },
+        {
+            "action": "Aligerar estructura si está sobredimensionada",
+            "description": "Con menos carga que soportar, el factor de masa estructural o el material pueden reducirse sin perder margen.",
+            "lever": "structure_mass_factor / material",
+        },
+        {
+            "action": "Reducir actuadores si el payload baja",
+            "description": "Menos payload puede permitir reducir el número de motores/actuadores manteniendo margen (solo cuando el diseño tiene actuadores configurados).",
+            "lever": "motors / motor_count",
+        },
+    ],
 }
 
 # ── Tabla de detección de objetivos ───────────────────────────────────────────
@@ -82,20 +105,11 @@ GOAL_STRATEGIES: dict[str, list[dict[str, str]]] = {
 # Las keywords deben estar normalizadas (minúsculas, sin diacríticos).
 
 _GOAL_KEYWORDS: list[tuple[str, list[str]]] = [
-    (
-        "aumentar_payload",
-        [
-            "carga util", "carga utile", "payload",
-            "levantar mas", "levantar peso", "mas carga",
-            "mejorar carga", "aumentar carga", "incrementar carga",
-            "subir carga", "mas peso util", "peso util",
-            # FN-022: fill natural-intention gaps (generic, same pattern as
-            # the existing entries — not thrust-specific).
-            "aumentar payload", "subir payload", "incrementar payload",
-            "mas capacidad de carga", "transportar mas peso", "transportar mas carga",
-            "cargar mas",
-        ],
-    ),
+    # F-1: payload is no longer a bare-keyword entry here — bare tokens like
+    # "payload"/"carga util" carry no direction, which was the root cause of
+    # "reducir payload" resolving to aumentar_payload (substring match on the
+    # bare dimension word). Payload is now resolved by _detect_payload_goal
+    # (dimension + direction), checked before this table in detect_goal().
     (
         "mejorar_autonomia",
         [
@@ -153,6 +167,79 @@ def _normalize(text: str) -> str:
     return "".join(c for c in nfkd if not unicodedata.combining(c))
 
 
+# ── F-1: direction-aware dimension resolution ─────────────────────────────────
+# A goal is (engineering dimension, direction). Bare dimension words alone
+# ("payload", "carga util") are not sufficient evidence of direction — that
+# was the root cause of "reducir payload" resolving to aumentar_payload
+# (naive substring match on a direction-less token). This is a small, reusable
+# pattern; F-1 migrates ONLY payload to it. Other dimensions (autonomía,
+# thrust, masa, safety margin) keep their existing single-direction keyword
+# lists and are explicitly out of scope here — future contracts (F-1b) may
+# migrate them the same way.
+_INCREASE_WORDS: tuple[str, ...] = ("aument", "subir", "sube", "increment", "mejorar", "levantar")
+_DECREASE_WORDS: tuple[str, ...] = ("reduc", "bajar", "disminu", "menos", "aligerar")
+
+
+def _direction_of(normalized: str) -> Optional[str]:
+    """Return "increase" | "decrease" | None (absent, or both present — ambiguous)."""
+    has_increase = any(w in normalized for w in _INCREASE_WORDS)
+    has_decrease = any(w in normalized for w in _DECREASE_WORDS)
+    if has_increase and not has_decrease:
+        return "increase"
+    if has_decrease and not has_increase:
+        return "decrease"
+    return None
+
+
+# Bare payload-dimension terms — name the dimension without encoding a
+# direction on their own. Never matched alone as evidence of a specific
+# direction; always paired with _direction_of() below.
+_PAYLOAD_DIMENSION_TERMS: tuple[str, ...] = (
+    "carga util", "carga utile", "payload", "capacidad de carga",
+)
+
+# Phrases that already bake BOTH dimension and direction into the words
+# themselves — safe to match directly regardless of _direction_of(), and kept
+# verbatim from the pre-F-1 keyword list so existing intent stays compatible.
+_PAYLOAD_INCREASE_PHRASES: tuple[str, ...] = (
+    "levantar mas", "levantar peso", "mas carga",
+    "mejorar carga", "aumentar carga", "incrementar carga",
+    "subir carga", "mas peso util",
+    "aumentar payload", "subir payload", "incrementar payload",
+    "mas capacidad de carga", "transportar mas peso", "transportar mas carga",
+    "cargar mas",
+)
+# New F-1 mirror — only the phrasing that needs context beyond a bare
+# dimension term + direction word (the "transportar" framing distinguishes
+# payload reduction from generic structural mass reduction, which already
+# owns bare "menos peso"/"bajar peso" in reducir_masa's keyword list).
+_PAYLOAD_DECREASE_PHRASES: tuple[str, ...] = (
+    "transportar menos peso", "transportar menos carga",
+)
+
+
+def _detect_payload_goal(normalized: str) -> Optional[str]:
+    """Direction-aware payload detection (F-1). Checked before the generic
+    _GOAL_KEYWORDS loop in detect_goal(). Returns "aumentar_payload",
+    "reducir_payload", or None (no payload dimension mentioned at all).
+    """
+    if any(p in normalized for p in _PAYLOAD_DECREASE_PHRASES):
+        return "reducir_payload"
+    if any(p in normalized for p in _PAYLOAD_INCREASE_PHRASES):
+        return "aumentar_payload"
+    if any(t in normalized for t in _PAYLOAD_DIMENSION_TERMS):
+        # Bare dimension term with an explicit decrease word ("reducir",
+        # "bajar", ...) anywhere in the phrase → reducir_payload. Otherwise
+        # (explicit increase word, or no direction word at all) defaults to
+        # aumentar_payload — the same default bare "payload"/"carga util"
+        # already had pre-F-1, now only reachable when no decrease word is
+        # present, closing the "reducir payload" inversion bug.
+        if _direction_of(normalized) == "decrease":
+            return "reducir_payload"
+        return "aumentar_payload"
+    return None
+
+
 def detect_goal(user_input: str) -> Optional[str]:
     """Detecta el goal de diseño del usuario.
 
@@ -160,6 +247,9 @@ def detect_goal(user_input: str) -> Optional[str]:
         goal_key si se detecta un objetivo reconocido, None en caso contrario.
     """
     normalized = _normalize(user_input)
+    payload_goal = _detect_payload_goal(normalized)
+    if payload_goal is not None:
+        return payload_goal
     for goal_key, keywords in _GOAL_KEYWORDS:
         for kw in keywords:
             if kw in normalized:
@@ -208,6 +298,10 @@ def _prioritize_strategies(
       - aumentar_payload:
           margin < 1.15  → empuje primero (urgencia real de thrust)
           margin > 1.5   → payload directo primero (hay margen, aprovéchalo)
+      - reducir_payload:
+          margin < 1.15  → reducir payload_kg directamente primero (F-1)
+          la palanca de actuadores nunca se promueve — ver nota architecture-
+          conditional más abajo
       - mejorar_autonomia:
           sin batería (warnings contienen 'energy') → batería primero
       - reducir_masa / mejorar_estabilidad → orden por defecto
@@ -228,6 +322,21 @@ def _prioritize_strategies(
         elif margin > 1.5:
             # Margen holgado: se puede aumentar carga directamente sin tocar motores
             ordered.sort(key=lambda s: 0 if "payload" in s["lever"].lower() or "factor" in s["lever"].lower() else 1)
+
+    elif goal_key == "reducir_payload":
+        if margin is not None and margin < 1.15:
+            # Margen crítico: reducir el payload objetivo es la palanca más
+            # directa e inmediata (contract F-1: "if margin is low,
+            # prioritizing payload_kg reduction is appropriate").
+            ordered.sort(key=lambda s: 0 if "payload" in s["lever"].lower() else 1)
+        # Engineer lock (F-1): motor_count is architecture-conditional, not
+        # universal — sim_context (last_simulation-shaped) never carries it
+        # today, so the actuator/motor lever is always pushed last here
+        # rather than promoted. It stays in GOAL_STRATEGIES (Handoff/H4 may
+        # still reference it when the user names it explicitly) — this only
+        # controls display/priority order, never invents motor_count.
+        if sim_context.get("motor_count") is None:
+            ordered.sort(key=lambda s: 1 if "motor" in s["lever"].lower() else 0)
 
     elif goal_key == "mejorar_autonomia":
         if "energy" in warnings_str or "bateria" in warnings_str or "battery" in warnings_str:
@@ -251,6 +360,7 @@ def format_goal_plan(goal_key: str, sim_context: dict | None = None) -> str:
 
     goal_labels = {
         "aumentar_payload": "Aumentar carga útil",
+        "reducir_payload": "Reducir carga útil",
         "mejorar_autonomia": "Mejorar autonomía",
         "reducir_masa": "Reducir masa",
         "mejorar_estabilidad": "Mejorar estabilidad",
