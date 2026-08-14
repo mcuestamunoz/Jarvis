@@ -14,7 +14,7 @@
 | ID | Severity | Status | One-line |
 |---|---|---|---|
 | F-1 | 🔴→🟢 | **Fixed** | `reducir payload` → Plan Reducir + DSE ↓ |
-| **G5** | 🔴 | **Investigar** | DSE 675 N → iterate 80 N; dual-truth params vs ComponentSpec |
+| **G5** | 🔴→🟢 | **Fixed** | Dual-truth cerrado — sync component tras DSE params-only — [review](implementation_review_g5_dse_component_sync.md) |
 | G3 | 🟡 | Known gap | `optimiza payload` vs handoff `reducir_payload` |
 | F-2 | 🟡 | Known gap | Diámetro hélices → iterate |
 | F-3 | 🟡 | Expected | `configurar hélices` → RPM only |
@@ -82,35 +82,22 @@ Direct semantic inversion of user intent. Dangerous because the system proposes 
 
 ---
 
-## G5 🔴 — DSE params-only → iterate revierte empuje (675 N → 80 N)
+## G5 🟢 — DSE params-only → iterate revierte empuje (675 N → 80 N)
 
-**Severity:** 🔴 investigar (bloquea H5/G1)  
+**Severity:** was 🔴 · **Status:** **Fixed** (Option A)  
 **Category:** State dual-truth — `current_parameters` vs `ComponentSpec`  
-**Depends on catalog:** Partially (`catalog_ref` cleared on thrust diverge; revert is separate)
 
-### Observed (CLI 2026-08-14, proyecto `1f7e6e8d1a70`)
+### Fix
+
+`component_sync.sync_motors_component_from_params` wired after `invalidate_diverged_catalog_refs` in `_handle_apply_exploration`. Component stays current; `resolve_propulsion_parameters` no longer clobbers DSE elevations.  
+Review: [implementation_review_g5_dse_component_sync.md](implementation_review_g5_dse_component_sync.md)
+
+### Observed (historical)
 
 ```text
-DSE estabilidad apply (iter_010):
-  motor_count=10, per_motor_max_thrust_n=67.5 → empuje_disponible=675 N
-
-iterate safety_factor=1.4 (iter_011):
-  motor_count=4,  per_motor_max_thrust_n=20.0 → empuje_disponible=80 N
+DSE estabilidad apply (iter_010): 10×67.5 → 675 N
+iterate safety_factor (iter_011): 4×20 → 80 N   ← cerrado
 ```
-
-Sin explicación en UI. `components.motors` sigue en 4×20 N; `catalog_ref=null`.
-
-### Hypothesis
-
-Params-only DSE escribe `current_parameters`; `ComponentSpec` queda stale. Iterate recalcula y **pisa** params con verdad del componente.
-
-### Impact
-
-Secuencias DSE → iterate no son confiables; invalida confianza en exploración antes de objetivo compuesto (H5).
-
-### Next step
-
-Investigation contract: [`.jes/artifacts/investigation_contract_g5_dse_iterate_dual_truth.md`](investigation_contract_g5_dse_iterate_dual_truth.md)
 
 ---
 
@@ -333,12 +320,12 @@ Recorded for context; **do not** treat as Impl B regressions:
 
 ## Engineer decisions locked in this artifact
 
-1. ~~**F-1** → next Implementation Contract~~ → **DONE** (`checkpoint-f1-reducir-payload`).
-2. **G5** → investigation contract **before** H5/G1 design.
+1. ~~**F-1**~~ → **DONE** (`checkpoint-f1-reducir-payload`).
+2. ~~**G5** investigation + fix~~ → **DONE** (PASS).
 3. **F-5** → 🟡 until thrust-divergence CLI probe or state inspection.
-4. **G3** → post-G5 handoff explore bind extension.
+4. **G3** → next: handoff explore bind extension.
 5. **G1/G2/H5** → design only; Impl C **after** objective layer.
-6. **No catalog Impl C** until G5 closed (+ fix if needed).
+6. **No catalog Impl C** until G3 (+ G1 design) decided.
 
 ---
 
@@ -347,9 +334,9 @@ Recorded for context; **do not** treat as Impl B regressions:
 ```text
 checkpoint-f1-reducir-payload ✅
         ↓
-G5 investigation (+ fix contract)
+G5 investigation + fix ✅
         ↓
-G3 handoff explore
+G3 handoff explore          ← SIGUIENTE
         ↓
 G1/G2 + H5 design
         ↓

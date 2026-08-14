@@ -2216,13 +2216,24 @@ class JarvisOrchestrator:
         # replaces the whole spec via apply_components_delta (which never
         # carries a prior catalog_ref forward), so this is a safe no-op there.
         from jarvis.core.catalog_bind import invalidate_diverged_catalog_refs
+        from jarvis.core.component_sync import sync_motors_component_from_params
         _base_components = (
             updated_project.design_properties.components
             if updated_project is not None
             else project_state.design_properties.components
         )
-        _updated_components, canonical_params = invalidate_diverged_catalog_refs(
+        # Order matters: invalidate BEFORE sync. invalidate_diverged_catalog_refs
+        # needs the still-stale component to correctly detect true SKU
+        # divergence; sync_motors_component_from_params then brings
+        # motor_count/thrust_n up to date so the NEXT turn's
+        # resolve_propulsion_parameters reads current data instead of
+        # reverting to stale pre-DSE values (G5 fix — see
+        # investigation_report_g5_dse_iterate_dual_truth.md).
+        _invalidated_components, canonical_params = invalidate_diverged_catalog_refs(
             _base_components, canonical_params
+        )
+        _updated_components = sync_motors_component_from_params(
+            _invalidated_components, canonical_params
         )
         if _updated_components is not _base_components:
             _source_state = updated_project if updated_project is not None else project_state

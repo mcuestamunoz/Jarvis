@@ -7,9 +7,21 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **H1–H4 cerrados (`v0.2.0` / `checkpoint-fn026-h4`). Mapa: 59 · 58🟢 · 0🔴 · 1🟡 (C-081).**  
-> **PRIORIDAD AHORA:** **G5** — investigar dual-truth DSE params-only → iterate revert (675 N → 80 N).  
-> Contrato: [`.jes/artifacts/investigation_contract_g5_dse_iterate_dual_truth.md`](../.jes/artifacts/investigation_contract_g5_dse_iterate_dual_truth.md)  
-> **No H5 / G1 / Impl C** hasta G5 investigado (+ fix si aplica).
+> **PRIORIDAD AHORA:** **G3** — continuidad goal activo (`optimiza payload` vs handoff).  
+> Checkpoint: **`checkpoint-g5-dse-component-sync`** (F-1 + G5 cerrados).  
+> Review G5: [`.jes/artifacts/implementation_review_g5_dse_component_sync.md`](../.jes/artifacts/implementation_review_g5_dse_component_sync.md)  
+> **No H5 / G1 / Impl C** hasta G3 (+ diseño G1) decididos.
+
+### ✅ COMPLETADO — G5 Fix (DSE → component sync)
+
+> Contrato / informe / review **PASS**.  
+> Helper `component_sync.sync_motors_component_from_params` + wiring en `_handle_apply_exploration`.  
+> Cliff 675→80 cerrado; xfail G5 promovido a regresión verde. Suite **1693**.  
+> Tag: **`checkpoint-g5-dse-component-sync`** (estado post F-1 + G5).
+
+### ✅ COMPLETADO — G5 Investigation
+
+> Contrato / informe / review PASS. Hipótesis confirmada. Zero `src/` en investigación.
 
 ### ✅ COMPLETADO — F-1 Vehicle-Agnostic Payload Direction
 
@@ -18,23 +30,16 @@
 > `reducir payload` → `reducir_payload` + DSE simétrico; H1–H4 smoke OK.  
 > Artefactos: `.jes/artifacts/implementation_*f1_reducir_payload*`
 
-### 🔴 ABIERTO — G5 DSE ↔ iterate dual-truth
-
-> Evidencia: `iter_010` (DSE: 10×67.5 N → 675 N) → `iter_011` (iterate: 4×20 N → 80 N).  
-> Hipótesis: params-only DSE no sincroniza `ComponentSpec`; iterate pisa params.  
-> Finding: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md) — G5  
-> **Bloquea:** diseño H5/G1 encima de estado inconsistente.
-
 ### Cola acordada (Engineer 2026-08-14)
 
 ```text
 ✅ Catalog Impl A + Impl B + F-1
         ↓
-🔍 G5 — investigar (+ fix contract después)
+✅ G5 investigation + fix
         ↓
-🟡 G3 — continuidad goal activo ("optimiza payload" vs handoff)
+🟡 G3 — continuidad goal activo ("optimiza payload" vs handoff)  ← SIGUIENTE
         ↓
-🔴 G1/G2 — requisitos compuestos + H5 (diseño; no implementar aún)
+🔴 G1/G2 — requisitos compuestos + H5 (diseño)
         ↓
 🟢 UX catálogo batería/hélice
         ↓
