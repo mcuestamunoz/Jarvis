@@ -137,7 +137,20 @@ def set_battery_component(
     updated_params = dict(project_state.current_parameters or {})
     if capacity_wh is not None:
         updated_params["battery_capacity_wh"] = capacity_wh
-        updated_params["battery_mass_kg"] = estimate_battery_mass_kg(capacity_wh)
+        # Catalog v1 (Impl B, 4A): a SKU-bound battery's mass comes from the
+        # SKU's real mass_g, overriding the 150 Wh/kg heuristic. Unbound
+        # batteries (catalog_ref is None — today's only case) keep the
+        # heuristic exactly as before this change.
+        mass_prop = spec.properties.get("mass_g") if spec.catalog_ref is not None else None
+        if (
+            spec.catalog_ref is not None
+            and spec.catalog_ref.family == "battery"
+            and mass_prop is not None
+            and mass_prop.value is not None
+        ):
+            updated_params["battery_mass_kg"] = round(float(mass_prop.value) / 1000.0, 4)
+        else:
+            updated_params["battery_mass_kg"] = estimate_battery_mass_kg(capacity_wh)
     else:
         updated_params.pop("battery_capacity_wh", None)
         updated_params.pop("battery_mass_kg", None)
@@ -209,6 +222,23 @@ def set_motor_component(
         updated_params["motor_kv_rating"] = float(kv_prop.value)
     else:
         updated_params.pop("motor_kv_rating", None)
+    # Catalog v1 (Impl B, 2A): motor mass enters calc ONLY when the component
+    # is SKU-bound (catalog_ref set) — free-text-declared motors keep today's
+    # physics unchanged (no motor_mass_kg mirror at all, same as before this
+    # change). fleet mass = per-motor weight_g × motor_count.
+    weight_prop = spec.properties.get("weight_g")
+    if (
+        spec.catalog_ref is not None
+        and spec.catalog_ref.family == "motor"
+        and weight_prop is not None
+        and weight_prop.value is not None
+        and updated_params.get("motor_count") is not None
+    ):
+        updated_params["motor_mass_kg"] = round(
+            float(weight_prop.value) / 1000.0 * int(updated_params["motor_count"]), 4
+        )
+    else:
+        updated_params.pop("motor_mass_kg", None)
 
     return project_state.model_copy(update={
         "design_properties": updated_dp,

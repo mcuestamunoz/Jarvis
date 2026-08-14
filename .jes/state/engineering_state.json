@@ -1,41 +1,55 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "FN-013 — Active block declaration routing: in DEFINE_MISSING_PARAMETERS, definir/completar/declarar + active block must re-prompt pending acquisition (0 LLM), not parse as param value or restart session.",
-  "scope": "orchestrator DEFINE_MISSING branch only; reuse resolve_declare_block_request + _next_pending_block; preserve collected_params/pending. No Conversation Engine, physics, catalog, or component-question copy.",
-  "execution_status": "closed",
-  "current_mode": "Idle",
+  "cycle_intent": "SYS-MAP-002 PASS WITH NOTES. Living authority: docs/system_map/. Await Engineer: lifecycle + first RED C-xxx. No FN-024 yet.",
+  "scope": "Architecture map accepted. Product FNs still paused.",
+  "execution_status": "completed",
+  "current_mode": "Close",
   "movement_trigger": {
     "type": "decision",
-    "note": "Engineer approved FN-013 contract; implemented and smoke-validated"
+    "note": "Engineer requested navigable System Map contract (not another ARCHITECTURE.md; not FN-024)."
   },
   "relevant_workflow_phases": [
     "Intent",
+    "Plan",
     "Implementation",
-    "Validation",
-    "Completion"
+    "Validation"
   ],
   "applicable_rules": [],
   "required_artifacts": [
-    "Change",
-    "Cycle close",
-    "Regression tests",
-    "Docs"
+    "Implementation Contract SYS-MAP-002",
+    "docs/system_map/**",
+    "Implementation Review"
   ],
   "open_questions": [],
-  "active_operation": null,
-  "authority_gates": [],
+  "active_operation": "Plan",
+  "authority_gates": [
+    "Claude builds docs/system_map/ per SYS-MAP-002",
+    "Cursor Implementation Review after report"
+  ],
   "coherence_checklist": [
     "tests",
     "ux",
     "docs"
   ],
-  "outcome": {
-    "status": "done",
-    "summary": "DEFINE_MISSING re-prompts on declare-block for the active architecture block without wiping collected_params or calling the LLM. Wrong-block names do not jump. 5 new tests; FN-011 still green.",
-    "next_candidates": [
-      "Copy: human question for component keys (propellers/motors)",
-      "CLI continue propulsion declaration with real propeller input"
-    ]
-  },
-  "updated_at": "2026-08-08T12:40:00Z"
+  "outcome": "PASS WITH NOTES",
+  "updated_at": "2026-08-10T18:05:17Z",
+  "phase": "Close",
+  "status": "completed",
+  "active_gate": "Engineer chooses handoff-context lifecycle and first RED edge (C-042 / C-025 / C-043).",
+  "active_artifact": ".jes/artifacts/implementation_review_sys_map_002.md",
+  "blocking_reason": null,
+  "next_required_action": "Engineer decisions \u2192 then Cursor emits first handoff Implementation Contract citing C-xxx.",
+  "evidence_refs": [
+    ".jes/artifacts/implementation_review_sys_map_002.md",
+    "docs/system_map/README.md",
+    "docs/system_map/CONNECTIONS.md"
+  ],
+  "open_decisions": [
+    "Handoff-context lifecycle (before H1)",
+    "First RED: C-042 (+H2) vs C-025/C-044 vs C-043",
+    "H5 Continuity data contract later"
+  ],
+  "risks": [
+    "Map must stay as-is; mismatches must be explicit"
+  ]
 }

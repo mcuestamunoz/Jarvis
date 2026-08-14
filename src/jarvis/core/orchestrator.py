@@ -2209,6 +2209,31 @@ class JarvisOrchestrator:
                 ),
             }
 
+        # Catalog v1 (Impl B): a params-only candidate scales physics directly
+        # in current_parameters without ever touching the component spec — so
+        # a SKU-bound motor/battery would otherwise keep a stale catalog_ref
+        # next to a diverged number. A component-driven candidate already
+        # replaces the whole spec via apply_components_delta (which never
+        # carries a prior catalog_ref forward), so this is a safe no-op there.
+        from jarvis.core.catalog_bind import invalidate_diverged_catalog_refs
+        _base_components = (
+            updated_project.design_properties.components
+            if updated_project is not None
+            else project_state.design_properties.components
+        )
+        _updated_components, canonical_params = invalidate_diverged_catalog_refs(
+            _base_components, canonical_params
+        )
+        if _updated_components is not _base_components:
+            _source_state = updated_project if updated_project is not None else project_state
+            updated_project = _source_state.model_copy(
+                update={
+                    "design_properties": _source_state.design_properties.model_copy(
+                        update={"components": _updated_components}
+                    )
+                }
+            )
+
         # ── Apply, calculate, simulate, save ─────────────────────────────────
         from pathlib import Path
         workspace_path = Path(project_state.workspace_path)

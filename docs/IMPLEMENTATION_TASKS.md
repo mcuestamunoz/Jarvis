@@ -7,22 +7,16 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **H1–H4 cerrados (`v0.2.0` / `checkpoint-fn026-h4`). Mapa: 59 · 58🟢 · 0🔴 · 1🟡 (C-081).**  
-> **PRIORIDAD AHORA:** IC **Impl B — Catalog Bind** listo para Claude (tras checkpoint Impl A).  
-> Tag: `checkpoint-catalog-impl-a` · Commit Foundation: `b46260e` (pushed).  
-> Contrato Bind: [`.jes/artifacts/implementation_contract_catalog_bind_v1.md`](../.jes/artifacts/implementation_contract_catalog_bind_v1.md)  
-> Design: [`PHYSICAL_COMPONENT_CATALOG_V1.md`](PHYSICAL_COMPONENT_CATALOG_V1.md)  
-> **No código Bind hasta que Claude ejecute este IC.** CLI agresivo = criterio post-B.
+> **PRIORIDAD AHORA:** CLI hardening **F-1** (`reducir payload` → goal invertido).  
+> Findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md)  
+> **No Impl C** ni UX catálogo batería/hélice hasta F-1 cerrado.
 
-### 🔵 EN CURSO — Catalog Bind Impl B (IC listo)
+### ✅ COMPLETADO — Catalog Bind Impl B
 
-> Contrato: [`.jes/artifacts/implementation_contract_catalog_bind_v1.md`](../.jes/artifacts/implementation_contract_catalog_bind_v1.md)  
-> Primers ciudadanos: (1) SKU no desaparece (2) diverge limpia `catalog_ref` (3) masa motor causal en calc.
-
-**Plan:**
-1. [ ] Claude implementa Bind + tests + report
-2. [ ] Cursor review
-3. [ ] Engineer CLI probe
-4. [ ] commit + tag checkpoint-catalog-impl-b (cuando Engineer pida)
+> Contrato / informe (+ addendum) / review PASS.  
+> Identidad + masa + invalidación atómicas (iterate + DEFINE_MISSING).  
+> Tag: **`checkpoint-catalog-impl-b`**  
+> CLI findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md) — F-1🔴 · F-5🟡
 
 ### ✅ COMPLETADO — Catalog Foundation Impl A
 

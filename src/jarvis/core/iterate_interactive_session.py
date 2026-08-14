@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from jarvis.core.catalog_bind import bind_motor_from_catalog
 from jarvis.core.component_inference import infer_component
 import jarvis.core.semantic_interpreter as sem
 from jarvis.domains.registry_selector import get_registry
@@ -1404,13 +1405,13 @@ class IterateInteractiveSession:
                 )
                 if target_key is not None:
                     existing_spec = component_patch[target_key]
-                    # Preserve all original properties — only add what was missing
-                    updated_props = dict(existing_spec.properties or {})
-                    updated_props["thrust_n"] = PropertyValue(value=s["thrust_n"], unit="N")
-                    updated_props["weight_g"] = PropertyValue(value=s["weight_g"], unit="g")
-                    updated_spec = existing_spec.model_copy(
-                        update={"properties": updated_props, "completeness": "high"}
-                    )
+                    # Catalog v1 (Impl B): bind_motor_from_catalog merges onto
+                    # existing_spec (preserving motor_count etc, exactly as the
+                    # old inline splice did) but ALSO sets catalog_ref — fixing
+                    # the pre-Impl-B bug where the SKU identity was discarded
+                    # after this turn (only thrust_n/weight_g survived). Shared
+                    # with the DEFINE_MISSING catalog pick — no dual divergence.
+                    updated_spec = bind_motor_from_catalog(s, base=existing_spec)
                     component_patch[target_key] = updated_spec
                     updated_draft = draft.model_copy(update={"component_patch": component_patch})
                 else:

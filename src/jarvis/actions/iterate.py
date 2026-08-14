@@ -4,6 +4,7 @@ from pathlib import Path
 
 from jarvis.core.calculation_engine import CalculationEngine
 from jarvis.core.component_resolver import resolve_propulsion_parameters
+from jarvis.core.component_writers import set_battery_component, set_motor_component
 from jarvis.core.mutation_engine import MutationEngine
 from jarvis.core.parameter_requirements import (
     MISSING_PROPELLER_PARAMETERS,
@@ -145,6 +146,22 @@ class IterateAction:
         updated_parameters = self._apply_mutation_to_parameters(project_state.current_parameters, mutated_state)
         updated_design_properties = self._apply_design_property_mutation(project_state.design_properties, mutated_state)
 
+        # Catalog v1 (Impl B): a numeric mutation patches current_parameters
+        # directly (mutated_state["current_parameters"]) without touching the
+        # component spec at all — so a SKU-bound motor/battery would otherwise
+        # keep a stale catalog_ref next to a diverged physical number. Clear
+        # it here, the one place both this direct-patch path and the DSE
+        # params-only apply path (orchestrator._handle_apply_exploration)
+        # converge on the same rule (Design §8).
+        from jarvis.core.catalog_bind import invalidate_diverged_catalog_refs
+        updated_components, updated_parameters = invalidate_diverged_catalog_refs(
+            updated_design_properties.components, updated_parameters
+        )
+        if updated_components is not updated_design_properties.components:
+            updated_design_properties = updated_design_properties.model_copy(
+                update={"components": updated_components}
+            )
+
         # FN-004: substituting defined motor_count requires explicit Sí/No
         if not parameters.get("structural_confirmed"):
             from jarvis.core.param_definition_session import (
@@ -277,6 +294,46 @@ class IterateAction:
         workspace_path = Path(project_state.workspace_path)
         iteration_index = project_state.active_iteration
         updated_design_properties = self._apply_design_property_mutation(project_state.design_properties, mutated_state)
+
+        # Catalog v1 (Impl B completion fix — Cursor review, PASS WITH NOTES):
+        # mutation_engine.apply_component_definition persists draft.component_patch
+        # straight into design_properties via model_dump(), bypassing the MIRRORED
+        # PARAM CONTRACT writers entirely. catalog_ref survives (it's a plain field
+        # on the dumped ComponentSpec), but no current_parameters mirror — notably
+        # motor_mass_kg / SKU battery mass — ever gets written for a catalog-bound
+        # pick made through the iterate wizard (identity-only bug). DEFINE_MISSING's
+        # own catalog pick already calls set_motor_component directly and was never
+        # affected. Re-run the same writers here, but ONLY for components that are
+        # actually catalog-bound in this patch — an unbound declarative patch (the
+        # overwhelming majority of DEFINE iterations) takes zero extra writer calls
+        # and current_parameters stays byte-for-byte what it already was.
+        updated_parameters = dict(project_state.current_parameters)
+        component_patch = draft.component_patch or {}
+        carrier_state = project_state.model_copy(update={
+            "design_properties": updated_design_properties,
+            "current_parameters": updated_parameters,
+        })
+        motors_patch = component_patch.get("motors")
+        if motors_patch is not None and motors_patch.catalog_ref is not None:
+            power_prop = motors_patch.properties.get("power_w")
+            power_w = (
+                float(power_prop.value)
+                if power_prop is not None and power_prop.value is not None
+                else None
+            )
+            carrier_state = set_motor_component(carrier_state, motors_patch, power_w)
+        battery_patch = component_patch.get("battery")
+        if battery_patch is not None and battery_patch.catalog_ref is not None:
+            capacity_prop = battery_patch.properties.get("battery_capacity_wh")
+            capacity_wh = (
+                float(capacity_prop.value)
+                if capacity_prop is not None and capacity_prop.value is not None
+                else None
+            )
+            carrier_state = set_battery_component(carrier_state, battery_patch, capacity_wh)
+        updated_design_properties = carrier_state.design_properties
+        updated_parameters = carrier_state.current_parameters
+
         calculations = self._resolve_existing_calculations(project_state)
         simulation = self._resolve_existing_simulation(project_state)
         suggestions = []
@@ -290,7 +347,7 @@ class IterateAction:
         reasoning = self.reasoning_layer.build(
             {
                 "objective": project_state.objective,
-                "current_parameters": project_state.current_parameters,
+                "current_parameters": updated_parameters,
                 "design_properties": updated_design_properties.model_dump(),
                 "last_calculation": calculations.model_dump() if calculations is not None else None,
                 "last_simulation": simulation.model_dump() if simulation is not None else None,
@@ -316,7 +373,7 @@ class IterateAction:
                 },
                 "mutation": mutated_state,
                 "design_properties": updated_design_properties.model_dump(),
-                "current_parameters": project_state.current_parameters,
+                "current_parameters": updated_parameters,
             },
         )
 
@@ -328,7 +385,10 @@ class IterateAction:
         latest_results = dict(project_state.latest_results)
         latest_results["mutation"] = declarative_mutation
         updated_state = self.state_manager.record_action(
-            state=project_state.model_copy(update={"design_properties": updated_design_properties}),
+            state=project_state.model_copy(update={
+                "design_properties": updated_design_properties,
+                "current_parameters": updated_parameters,
+            }),
             action=history_entry,
             latest_results=latest_results,
             increment_iteration=True,

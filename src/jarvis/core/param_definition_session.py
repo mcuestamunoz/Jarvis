@@ -9,6 +9,7 @@ from jarvis.config import ESCAPE_WORDS
 from jarvis.core.acquisition_brief import build_acquisition_brief
 from jarvis.core.acquisition_target import COMPONENT_PROMPTS, is_navigation_back_phrase
 from jarvis.core.calculation_engine import CalculationEngine
+from jarvis.core.catalog_bind import bind_motor_from_catalog
 from jarvis.core.component_resolver import resolve_propulsion_parameters
 from jarvis.core.component_writers import set_battery_component, set_motor_component, set_propeller_component
 from jarvis.core.motor_catalog_assist import (
@@ -173,39 +174,6 @@ def _make_motor_spec(power_w: float) -> ComponentSpec:
                 value=power_w, unit="W", confidence=0.9, source="declared"
             )
         },
-    )
-
-
-def _make_motor_spec_from_catalog(suggestion: dict) -> ComponentSpec:
-    """Rich motor spec from a D8 catalog pick (power + thrust + kv + weight)."""
-    watts = float(suggestion["max_watts"])
-    props = {
-        "power_w": PropertyValue(
-            value=watts, unit="W", confidence=0.9, source="declared"
-        ),
-        "thrust_n": PropertyValue(
-            value=float(suggestion["thrust_n"]), unit="N", confidence=0.9, source="declared"
-        ),
-        "kv_rating": PropertyValue(
-            value=int(suggestion["kv_rating"]), confidence=0.9, source="declared"
-        ),
-        "weight_g": PropertyValue(
-            value=float(suggestion["weight_g"]), unit="g", confidence=0.9, source="declared"
-        ),
-    }
-    return ComponentSpec(
-        name=str(suggestion.get("name") or f"motor_{int(watts)}W"),
-        component_type="propulsion_active",
-        suggested_key="motors",
-        inference_confidence=0.95,
-        completeness="high",
-        source="declared",
-        properties=props,
-        # FN-007: marks thrust_n as the resolvable physical magnitude for this
-        # component so component_resolver.resolve_propulsion_parameters extracts
-        # per_motor_max_thrust_n from it on every recalculation (replacing any
-        # stale value), instead of silently falling back to count_only.
-        output_magnitude="thrust_n",
     )
 
 
@@ -395,14 +363,17 @@ class ParamDefinitionSession:
         remaining = [p for p in pending if p not in ASSISTED_MOTOR_PARAMS]
 
         # Persist rich motor component (power/thrust/kv/weight + preserved
-        # motor_count) before recalc. output_magnitude="thrust_n" on the spec
-        # (set in _make_motor_spec_from_catalog) lets resolve_propulsion_parameters
-        # derive per_motor_max_thrust_n from the component on every recalculation
-        # below — no separate manual current_parameters patch needed here, so
-        # there is a single coherent write followed by a single recalculation.
+        # motor_count + catalog_ref identity) before recalc.
+        # output_magnitude="thrust_n" on the spec (set in bind_motor_from_catalog)
+        # lets resolve_propulsion_parameters derive per_motor_max_thrust_n from
+        # the component on every recalculation below — no separate manual
+        # current_parameters patch needed here, so there is a single coherent
+        # write followed by a single recalculation. Catalog v1 (Impl B): shared
+        # with the iterate wizard's catalog pick via bind_motor_from_catalog —
+        # both paths set catalog_ref identically, no dual divergence.
         try:
             project_state = self.state_manager.load_active_project(self.workspace_manager)
-            spec = _make_motor_spec_from_catalog(suggestion)
+            spec = bind_motor_from_catalog(suggestion)
             project_state = set_motor_component(project_state, spec, watts)
             self.workspace_manager.save_state(project_state)
         except FileNotFoundError:

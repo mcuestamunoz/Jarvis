@@ -238,10 +238,15 @@ BLOCK_TO_PARAM_REASON: dict[str, str] = {
 # ──────────────────────────────────────────────────────────────────────────────
 COMPONENT_MIRRORED_PARAMS: frozenset[str] = frozenset({
     "battery_capacity_wh",      # canónico: components["battery"].properties["battery_capacity_wh"]
-    "battery_mass_kg",          # derivado: estimate_battery_mass_kg(battery_capacity_wh)
+    "battery_mass_kg",          # derivado: estimate_battery_mass_kg(battery_capacity_wh) — o
+                                 # mass_g/1000 de la SKU cuando components["battery"].catalog_ref
+                                 # está fijado (Catalog v1, Impl B, 4A)
     "battery_cell_count",       # canónico: components["battery"].properties["cell_count"]  (U2)
     "motor_power_w",            # canónico: components["motors"].properties["power_w"]
     "motor_kv_rating",          # canónico: components["motors"].properties["kv_rating"]    (U2)
+    "motor_mass_kg",            # derivado: (weight_g/1000) * motor_count — SOLO cuando
+                                 # components["motors"].catalog_ref está fijado (Catalog v1,
+                                 # Impl B, 2A); ausente para motores declarados en texto libre.
     # motor_count NO entra aquí — se puede fijar tanto por componente como por wizard.
     # El invariante "user input beats component inference" requiere que no esté bloqueado.
     "propeller_diameter_in",    # canónico: components["propellers"].properties["diameter_in"]

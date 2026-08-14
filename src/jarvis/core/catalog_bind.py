@@ -1,0 +1,245 @@
+"""Physical Component Catalog v1 — Impl B (Bind).
+
+Pure/deterministic helpers that project a confirmed catalog SKU into a
+ComponentSpec carrying CatalogRef identity, plus the shared divergence check
+that clears catalog_ref when a later mutation moves a physical number away
+from what the bound SKU actually is (Design §8: forbid silent overwrite —
+never keep a stale SKU label next to numbers that no longer match it).
+
+Design authority: docs/PHYSICAL_COMPONENT_CATALOG_V1.md (CLOSED, locks
+1A/2A/4A). No LLM. No second JSON reader — all catalog reads go through
+jarvis.knowledge.library.ComponentLibrary.
+"""
+from __future__ import annotations
+
+from typing import Any
+
+from jarvis.core.motor_catalog_assist import MotorSuggestion
+from jarvis.knowledge.library import ComponentLibrary, default_library
+from jarvis.schemas.action_schema import CatalogRef, ComponentSpec, PropertyValue
+from jarvis.tools.electricity import estimate_battery_mass_kg
+
+
+def bind_motor_from_catalog(
+    suggestion: MotorSuggestion, *, base: ComponentSpec | None = None
+) -> ComponentSpec:
+    """Project a catalog ``MotorSuggestion`` into a ``ComponentSpec`` with
+    ``catalog_ref`` set.
+
+    Single shared helper for both catalog-pick entry points (the iterate
+    wizard's mid-session pick and the DEFINE_MISSING wizard's first pick) —
+    avoids the two paths diverging on what gets bound (the pre-Impl-B bug:
+    iterate's pick only copied ``thrust_n``/``weight_g``, discarding the SKU).
+
+    * ``base=None``   — builds a fresh spec (DEFINE_MISSING's pick shape).
+    * ``base=<spec>`` — merges onto an existing draft spec, preserving
+      whatever properties were already collected (e.g. ``motor_count``) —
+      the iterate wizard's mid-session pick shape.
+    """
+    watts = float(suggestion["max_watts"])
+    sku = str(suggestion["name"])
+    catalog_ref = CatalogRef(family="motor", sku=sku)
+    projected = {
+        "power_w": PropertyValue(value=watts, unit="W", confidence=0.9, source="declared"),
+        "thrust_n": PropertyValue(
+            value=float(suggestion["thrust_n"]), unit="N", confidence=0.9, source="declared"
+        ),
+        "kv_rating": PropertyValue(
+            value=int(suggestion["kv_rating"]), confidence=0.9, source="declared"
+        ),
+        "weight_g": PropertyValue(
+            value=float(suggestion["weight_g"]), unit="g", confidence=0.9, source="declared"
+        ),
+    }
+    if base is not None:
+        merged_properties = {**(base.properties or {}), **projected}
+        return base.model_copy(update={
+            "properties": merged_properties,
+            "completeness": "high",
+            "catalog_ref": catalog_ref,
+            # FN-007 precedent: thrust_n is the resolvable magnitude for this
+            # component so component_resolver derives per_motor_max_thrust_n
+            # from it on every recalculation.
+            "output_magnitude": "thrust_n",
+        })
+    return ComponentSpec(
+        name=sku,
+        component_type="propulsion_active",
+        suggested_key="motors",
+        inference_confidence=0.95,
+        completeness="high",
+        source="declared",
+        properties=projected,
+        output_magnitude="thrust_n",
+        catalog_ref=catalog_ref,
+    )
+
+
+def bind_battery_from_catalog(
+    sku: str,
+    *,
+    library: ComponentLibrary | None = None,
+    base: ComponentSpec | None = None,
+) -> ComponentSpec:
+    """Project a catalog battery SKU into a ``ComponentSpec`` with
+    ``catalog_ref`` set.
+
+    No CLI/UX entry point calls this yet — no battery catalog pick flow
+    exists (Impl A's 5A lock: no Continuity/assist redesign for batteries in
+    Foundation). Exposed as a deterministic, test-callable API so Impl B can
+    prove the Bind → writer → calc causality chain without inventing a
+    Continuity UX ahead of when it's actually needed.
+    """
+    lib = library or default_library
+    spec = lib.get_battery(sku)
+    catalog_ref = CatalogRef(family="battery", sku=sku)
+    projected = {
+        "battery_capacity_wh": PropertyValue(
+            value=spec.energy_wh, unit="Wh", confidence=0.95, source="declared"
+        ),
+        "mass_g": PropertyValue(value=spec.mass_g, unit="g", confidence=0.95, source="declared"),
+        "chemistry": PropertyValue(value=spec.chemistry, confidence=0.95, source="declared"),
+    }
+    if spec.cells is not None:
+        projected["cell_count"] = PropertyValue(
+            value=spec.cells, confidence=0.9, source="declared"
+        )
+    if base is not None:
+        merged_properties = {**(base.properties or {}), **projected}
+        return base.model_copy(update={
+            "properties": merged_properties,
+            "completeness": "high",
+            "catalog_ref": catalog_ref,
+        })
+    return ComponentSpec(
+        name=sku,
+        component_type="energy_storage",
+        suggested_key="battery",
+        inference_confidence=0.95,
+        completeness="high",
+        source="declared",
+        properties=projected,
+        catalog_ref=catalog_ref,
+    )
+
+
+def bind_propeller_from_catalog(
+    sku: str,
+    *,
+    library: ComponentLibrary | None = None,
+    base: ComponentSpec | None = None,
+) -> ComponentSpec:
+    """Project a catalog propeller SKU into a ``ComponentSpec`` with
+    ``catalog_ref`` set.
+
+    Same status as the battery helper — no existing pick UX, deterministic
+    test-callable API only. Propeller mass is **not** wired into calc in this
+    cut (contract §2.1.D — optional, explicitly deferred; motor + battery
+    already prove the causality chain end to end).
+    """
+    lib = library or default_library
+    spec = lib.get_propeller(sku)
+    catalog_ref = CatalogRef(family="propeller", sku=sku)
+    projected = {
+        "diameter_in": PropertyValue(
+            value=spec.diameter_in, unit="in", confidence=0.95, source="declared"
+        ),
+        "pitch_in": PropertyValue(
+            value=spec.pitch_in, unit="in", confidence=0.95, source="declared"
+        ),
+    }
+    if spec.mass_g is not None:
+        projected["mass_g"] = PropertyValue(
+            value=spec.mass_g, unit="g", confidence=0.9, source="declared"
+        )
+    if base is not None:
+        merged_properties = {**(base.properties or {}), **projected}
+        return base.model_copy(update={
+            "properties": merged_properties,
+            "completeness": "high",
+            "catalog_ref": catalog_ref,
+        })
+    return ComponentSpec(
+        name=sku,
+        component_type="propulsion_passive",
+        suggested_key="propellers",
+        inference_confidence=0.95,
+        completeness="high",
+        source="declared",
+        properties=projected,
+        catalog_ref=catalog_ref,
+    )
+
+
+def invalidate_diverged_catalog_refs(
+    components: dict[str, ComponentSpec],
+    params: dict[str, Any],
+    *,
+    epsilon: float = 1e-6,
+) -> tuple[dict[str, ComponentSpec], dict[str, Any]]:
+    """Clear ``catalog_ref`` on any component whose SKU-projected physical
+    number no longer matches *params*. Pure — returns the same objects
+    unchanged when nothing diverged, new dicts otherwise; never mutates
+    inputs in place.
+
+    Covers the two divergence paths named in the contract: a DSE params-only
+    apply that scales ``per_motor_max_thrust_n``/``battery_capacity_wh``
+    directly in ``current_parameters`` (never touching ``components`` at
+    all), and an iterate numeric mutation that does the same
+    (``_apply_mutation_to_parameters`` patches params directly; a numeric
+    mutation's ``mutated_state`` carries no ``design_properties.components``
+    patch, so the component spec — and any ``catalog_ref`` on it — is left
+    completely untouched by construction). Both bypass the component spec
+    entirely; this is the one shared place that reconciles them afterward.
+
+    A component-driven DSE candidate (``apply_components_delta`` full-spec
+    replace) already drops any prior ``catalog_ref`` by construction — the
+    delta spec never carries one — so it needs no extra handling here; a
+    no-op call on it is harmless (its ``catalog_ref`` is already ``None``).
+
+    Motor: compares ``components["motors"].properties["thrust_n"]`` against
+    ``params["per_motor_max_thrust_n"]``. On divergence, clears
+    ``catalog_ref`` and drops ``motor_mass_kg`` — falls back to no
+    motor-mass contribution, identical to today's unbound behavior.
+
+    Battery: compares ``components["battery"].properties["battery_capacity_wh"]``
+    against ``params["battery_capacity_wh"]``. On divergence, clears
+    ``catalog_ref`` and reverts ``battery_mass_kg`` to the 150 Wh/kg
+    heuristic (``estimate_battery_mass_kg``) — the same fallback an unbound
+    battery already uses.
+    """
+    updated_components = dict(components)
+    updated_params = dict(params)
+    changed = False
+
+    motor = components.get("motors")
+    if motor is not None and motor.catalog_ref is not None and motor.catalog_ref.family == "motor":
+        old_prop = motor.properties.get("thrust_n")
+        old_value = old_prop.value if old_prop is not None else None
+        new_value = updated_params.get("per_motor_max_thrust_n")
+        if (
+            old_value is not None
+            and new_value is not None
+            and abs(float(old_value) - float(new_value)) > epsilon
+        ):
+            updated_components["motors"] = motor.model_copy(update={"catalog_ref": None})
+            updated_params.pop("motor_mass_kg", None)
+            changed = True
+
+    battery = components.get("battery")
+    if battery is not None and battery.catalog_ref is not None and battery.catalog_ref.family == "battery":
+        old_prop = battery.properties.get("battery_capacity_wh")
+        old_value = old_prop.value if old_prop is not None else None
+        new_value = updated_params.get("battery_capacity_wh")
+        if (
+            old_value is not None
+            and new_value is not None
+            and abs(float(old_value) - float(new_value)) > epsilon
+        ):
+            updated_components["battery"] = battery.model_copy(update={"catalog_ref": None})
+            updated_params["battery_mass_kg"] = estimate_battery_mass_kg(float(new_value))
+            changed = True
+
+    if not changed:
+        return components, params
+    return updated_components, updated_params

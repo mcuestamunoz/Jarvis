@@ -48,10 +48,19 @@ class CalculationEngine:
             structure_mass_kg = round(float(structure_mass_override_kg), 4)
 
         # U1: battery mass enters total mass. Derived from battery_capacity_wh via
-        # estimate_battery_mass_kg (150 Wh/kg LiPo). Zero when battery not declared.
+        # estimate_battery_mass_kg (150 Wh/kg LiPo), or from a SKU's real mass_g
+        # when catalog-bound (Catalog v1, Impl B, 4A). Zero when battery not declared.
         battery_mass_kg = round(float(parameters.get("battery_mass_kg") or 0.0), 4)
+        # Catalog v1 (Impl B, 2A): motor mass enters total mass ONLY when the
+        # motors component is SKU-bound — component_writers.set_motor_component
+        # is the sole writer of this mirrored param, and it never sets it for an
+        # unbound (free-text-declared) motor. Zero here reproduces today's exact
+        # pre-Impl-B physics for every unbound project.
+        motor_mass_kg = round(float(parameters.get("motor_mass_kg") or 0.0), 4)
 
-        total_mass = calculate_total_mass(payload_kg, structure_mass_kg + battery_mass_kg)
+        total_mass = calculate_total_mass(
+            payload_kg, structure_mass_kg + battery_mass_kg + motor_mass_kg
+        )
         tool_results.append(total_mass)
         total_mass_kg = total_mass.outputs["total_mass_kg"]
 
