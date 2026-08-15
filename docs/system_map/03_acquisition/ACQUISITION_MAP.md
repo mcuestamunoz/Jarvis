@@ -32,7 +32,8 @@ NO — zero LLM involvement anywhere in this subsystem (verified: every FN-011�
 
 ## Known issues owned by this subsystem
 
-None currently open — this is the subsystem with the most FN coverage (FN-005, FN-009, FN-011, FN-013, FN-014, FN-015, FN-016, FN-017, FN-018, FN-019, FN-021) and the fewest remaining gaps. The only cross-subsystem gap it participates in is **C-025/C-044** (owned by Intent/Engineering, not Acquisition).
+- **G8 (SYS-MAP-004)** — while `DEFINE_MISSING_PARAMETERS` is open with `MISSING_COMPONENT_DEFINITION`, UX-C's `_handle_component_description` intercept swallows turns that classifiers already resolve as engineering intent / explore (`reducir payload`, `optimiza payload`, `explora opciones`), so Runtime never reaches C-040. Cross-cutting with Runtime (mode branch owns the return). **Registered only** — needs R3 preempt-policy design before any FN; do not port C-052 verbatim (`collected_params`). See `.jes/artifacts/cli_findings_post_catalog_bind_v1.md` G8 and `CONNECTIONS.md` C-040 caveat.
+- Historical note: C-025/C-044 (help+goal) were Intent/Engineering-owned and are now 🟢 (FN-025).
 
 ## Tests
 

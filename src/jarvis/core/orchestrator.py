@@ -2043,28 +2043,58 @@ class JarvisOrchestrator:
             return self._handle_analyze(user_input, llm_interface)
 
         from jarvis.core.design_explorer import GOAL_LABELS, EXPLORATION_GRIDS
+        from jarvis.core.explore_continuity import resolve_explore_goal_with_handoff
+
+        handoff = self.state_manager.get_runtime_session().handoff_context
+        context_for_project = (
+            handoff is not None and handoff.project_id == project_state.project_id
+        )
+        bindable_handoff = handoff if context_for_project else None
+
+        # G3 (★1-★4): precedence between a freshly text-derived goal and the
+        # active HandoffContext's own goal, for explore-shaped turns only.
+        # goal_key is None here for bare "explora opciones" (H1, unchanged
+        # by this call — rule 2 just returns handoff.goal_key verbatim).
+        text_goal = goal_key
+        resolved_goal_key = resolve_explore_goal_with_handoff(user_input, text_goal, bindable_handoff)
+        # using_handoff_goal gates dse_capability consumption — it must be
+        # True ONLY when the handoff's goal was actually SUBSTITUTED IN
+        # (bare "explora opciones", text_goal is None → H1; or a G3 rule-4
+        # inheritance, where text_goal on its own would have resolved to
+        # something else). An EXPLICIT goal phrase that simply happens to
+        # already name the same goal as the active handoff (e.g. "optimiza
+        # para estabilidad" while that plan is already active) is FN-024's
+        # pre-existing "simplest option" (§4.2) — self-sufficient, capability-
+        # neutral, handoff left completely untouched. Conflating the two
+        # broke that exact FN-024 regression the first time this was wired.
+        using_handoff_goal = bindable_handoff is not None and (
+            text_goal is None
+            or (
+                text_goal != bindable_handoff.goal_key
+                and resolved_goal_key == bindable_handoff.goal_key
+            )
+        )
 
         bound_from_context = False
-        if goal_key is None:
-            handoff = self.state_manager.get_runtime_session().handoff_context
-            context_for_project = (
-                handoff is not None and handoff.project_id == project_state.project_id
-            )
+        replace_handoff_goal: str | None = None
+        if using_handoff_goal:
             if (
-                context_for_project
-                and handoff.dse_capability == "active"
-                and handoff.goal_key in EXPLORATION_GRIDS
+                bindable_handoff.dse_capability == "active"
+                and resolved_goal_key in EXPLORATION_GRIDS
             ):
-                goal_key = handoff.goal_key
+                goal_key = resolved_goal_key
                 bound_from_context = True
-            elif context_for_project and handoff.dse_capability == "consumed":
+            elif bindable_handoff.dse_capability == "consumed":
                 # FN-024 §4.3: DSE for this operation already ran. Do not
                 # silently re-bind (would look like magic re-activation) and
                 # do not burn an LLM call narrating something already known —
-                # a deterministic message is cheap and more honest here.
-                goal_label = GOAL_LABELS.get(handoff.goal_key, handoff.goal_key)
+                # a deterministic message is cheap and more honest here. This
+                # now also covers G3 continuation phrases ("optimiza payload"
+                # after the same goal was already explored), not just bare
+                # "explora opciones" — both are the same continuation intent.
+                goal_label = GOAL_LABELS.get(bindable_handoff.goal_key, bindable_handoff.goal_key)
                 domain = self._GOAL_EXPLORE_DOMAIN.get(
-                    handoff.goal_key, handoff.goal_key.replace("_", " ")
+                    bindable_handoff.goal_key, bindable_handoff.goal_key.replace("_", " ")
                 )
                 return {
                     "status": "ok",
@@ -2081,9 +2111,19 @@ class JarvisOrchestrator:
                 # No bindable context (none, wrong project, or unknown goal) →
                 # honest clarification, unchanged from pre-FN-024 behavior.
                 return self._handle_analyze(user_input, llm_interface)
-
-        if goal_key not in EXPLORATION_GRIDS:
-            return self._handle_analyze(user_input, llm_interface)
+        else:
+            # Explicit new goal (★2) or no bindable handoff at all — resolved
+            # independently of any active context, exactly like a text-derived
+            # goal always worked pre-G3.
+            goal_key = resolved_goal_key
+            if goal_key is None or goal_key not in EXPLORATION_GRIDS:
+                return self._handle_analyze(user_input, llm_interface)
+            if bindable_handoff is not None and goal_key != bindable_handoff.goal_key:
+                # ★4: an explicit override that resolves to a DIFFERENT goal
+                # than the prior active handoff — replace it (once the
+                # explore below actually succeeds) so a later bare "explora
+                # opciones" stays honest about which goal is now active.
+                replace_handoff_goal = goal_key
 
         exploration = self.design_explorer.explore(project_state, goal_key)
 
@@ -2127,6 +2167,23 @@ class JarvisOrchestrator:
             # point of a capability-scoped context over a sticky goal string).
             session_updates["handoff_context"] = current_session.handoff_context.model_copy(
                 update={"dse_capability": "consumed"}
+            )
+        elif replace_handoff_goal is not None:
+            # G3 (★4): the explore that just ran used an explicitly overridden
+            # goal, different from the prior active handoff — replace it with
+            # a fresh context for the new goal (same construction shape as
+            # _handle_engineering_intent/C-105), so a later bare "explora
+            # opciones" follows the goal the user just actually explored, not
+            # a stale one. dse_capability starts "consumed" (not "active"):
+            # this explore already ran DSE for that goal, so a further bare
+            # "explora opciones" should get the same honest "already
+            # explored" message H1 gives, not a silent free re-run.
+            levers = [s["lever"] for s in GOAL_STRATEGIES.get(replace_handoff_goal, [])]
+            session_updates["handoff_context"] = HandoffContext(
+                goal_key=replace_handoff_goal,
+                levers=levers,
+                dse_capability="consumed",
+                project_id=project_state.project_id,
             )
         updated_session = current_session.model_copy(update=session_updates)
         self.state_manager.set_runtime_session(updated_session)

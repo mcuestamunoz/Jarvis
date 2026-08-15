@@ -58,6 +58,8 @@ Only *after* this returns `None` does `resolve_intent` fall to `_looks_like_stat
 - **C-040 (FN-022)** — a separate check on the *result* `intent ∈ {"iterate","unknown"}`.
 - **C-025/C-044 (FN-025)** — a separate check inside the `intent == "analyze"` branch, gated on the match having come from `ANALYZE_HELP_PATTERNS` specifically (not `ANALYZE_VERB_PATTERNS` — a real analytical verb always keeps its analyze routing, even combined with a help word, e.g. `"ayúdame, analiza el margen"`). A detected goal routes into the same `_handle_engineering_intent` C-040 uses; no detected goal (bare help) routes to `project_status`/Continuity, never an LLM-invented goal.
 
+**Mode caveat (SYS-MAP-004 / G8):** this whole apparatus (ordered list + C-040/C-025 refinements) only runs when no earlier **mode branch** has already returned. In particular, an open `DEFINE_MISSING_PARAMETERS` session with `MISSING_COMPONENT_DEFINITION` handles the turn inside Acquisition's UX-C intercept and never reaches C-040 — unlike `ITERATE_INTERACTIVE`, which has C-052 preempt-and-redispatch. Classifiers may still be correct; the Goal Plan is simply unreachable until IDLE (or a future R3/R4 preempt policy).
+
 Precedence is still fully determined by the ordered list above — these two checks only refine what happens *after* a phrase already resolved to `"iterate"`/`"unknown"`/`"analyze"`; they never reorder or bypass GUIDANCE, which is why FN-023's next-step-help patterns (step 1) are untouched by either.
 
 Full code: `core/intent_resolver.py:461-506` (`_resolve_strong_action_intent`), `core/orchestrator.py`'s `intent == "analyze"` and `intent in ("iterate", "unknown")` branches.

@@ -81,6 +81,23 @@ Resolution:                 Fixed in 06_calculation/CALCULATION_MAP.md, 07_simul
                             per contract §6). No src/ change.
 ```
 
+### M-005 — C-040 presented without DEFINE_MISSING reachability caveat (SYS-MAP-004)
+```text
+Prior documentation said:  C-040 🟢 CONNECTED (FN-022) with evidence orchestrator.py:894-899;
+                            ACQUISITION_MAP "Known issues: None"; AUTHORITY precedence table
+                            implied Goal Plan reachable whenever classifiers fire
+Code currently:             C-040 gate at orchestrator.py:931-936 only runs after all mode
+                            branches return; DEFINE_MISSING + MISSING_COMPONENT_DEFINITION
+                            UX-C (:796-802) returns first. Runtime comment already: "Runs
+                            only in IDLE". ITERATE has C-052 preempt; DEFINE_MISSING does not.
+                            Classifiers (F-1) are correct — turn never reaches the gate.
+Pointers:                   CONNECTIONS.md C-040; orchestrator.py:796-802, :931-936;
+                            .jes/artifacts/sys_map_004_routing_audit.md; finding G8
+Resolution:                 Doc-only R1 (2026-08-15): C-040 Status/Evidence updated;
+                            ACQUISITION_MAP known-issue pointer; AUTHORITY mode caveat.
+                            Product preempt policy deferred to R3 → R4 (do not copy C-052).
+```
+
 **Note on the design appendix below (observed during this verification pass, 2026-08-10):** `HANDOFF_CONTEXT_DESIGN.md`'s own status line and Decision Log now show **§5 CLOSED** (Hybrid Operation-Scoped Context) with an FN-024 (H1+H2) Implementation Contract already issued — this happened via an external Engineer/JES decision concurrent with this SYS-MAP-003 audit, not as part of this contract's own work (which is explicitly forbidden from touching H1–H5/FN-024). The "Open questions" section immediately below (§ Design-only appendix, "1. Lifecycle…" through "4. Explicit rejection…") still reads as if §5 is unresolved — it was **not** rewritten in this pass, since reconciling it would mean interpreting/restating an H1-adjacent decision, which SYS-MAP-003's scope excludes. Flagged here for Cursor/Engineer to reconcile in whatever pass formally absorbs the FN-024 outcome, so a future reader does not trust the stale "still open" framing over `HANDOFF_CONTEXT_DESIGN.md`'s own Decision Log.
 
 No other mismatches were found between `docs/ARCHITECTURE.md`/`docs/PROJECT_CONTINUITY.md` and current code as of 2026-08-10 — the FN-by-FN log in `PROJECT_CONTINUITY.md` was cross-checked against this map's `CONNECTIONS.md` rows and found consistent (both were largely produced by the same closed-loop implement→test→document discipline, so this is expected, not a coincidence).

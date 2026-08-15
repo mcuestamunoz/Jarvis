@@ -7,16 +7,38 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **H1–H4 cerrados (`v0.2.0` / `checkpoint-fn026-h4`). Mapa: 59 · 58🟢 · 0🔴 · 1🟡 (C-081).**  
-> **PRIORIDAD AHORA:** **G3** — continuidad goal activo (`optimiza payload` vs handoff).  
-> Checkpoint: **`checkpoint-g5-dse-component-sync`** (F-1 + G5 cerrados).  
-> Review G5: [`.jes/artifacts/implementation_review_g5_dse_component_sync.md`](../.jes/artifacts/implementation_review_g5_dse_component_sync.md)  
-> **No H5 / G1 / Impl C** hasta G3 (+ diseño G1) decididos.
+> **PRIORIDAD AHORA:** tras **`checkpoint-g3`** → estudiar **G10** (materiales/frame) antes de Impl C; R3 preempt en paralelo según Engineer.  
+> G3 **CLI PASS** (2026-08-15). SYS-MAP-004 **PASS WITH NOTES**. G8/G9/G10 registrados — sin implementar.  
+> Findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md)  
+> **No R4 / no Impl C** hasta design.
+
+### ✅ COMPLETADO — G3 Active Goal Continuity (+ CLI PASS)
+
+> Diseño CLOSED ★1–★4 · IC · informe · review **PASS WITH NOTES** · **CLI PASS**.  
+> Probe: `reducir payload` → Plan; `optimiza para aumentar payload` → DSE maximizar; `explora opciones` → continues maximizar; `aplica la mejor` → state.  
+> Workaround G8: `cancelar` si DEFINE_MISSING abierto.  
+> Tag: **`checkpoint-g3`**. Artefactos: `.jes/artifacts/*g3_active_goal_continuity*`
+
+### ✅ COMPLETADO — SYS-MAP-004 Routing / System Map Audit
+
+> Audit + Cursor review **PASS WITH NOTES** · veredicto **B (map overclaim)**.  
+> Artefactos: `.jes/artifacts/sys_map_004_routing_audit.md`, `implementation_review_sys_map_004_*`.  
+> **R1 doc applied** (C-040 caveat, ACQUISITION known issue, AUTHORITY mode note, M-005).  
+> **G8 / G9** registered in findings — no implement.
+
+### 🟡 REGISTRADOS — G8 / G9 / G10 / G6 / G7 (no implementar)
+
+> **G10** — Material catalog ↔ frame acquisition misalignment (study before Impl C).  
+> **G8** — DEFINE_MISSING UX-C swallows engineering/explore (needs R3 before FN).  
+> **G9** — Continuity catalog-gap vs declared thrust / `catalog_ref`.  
+> **G6** — mass breakdown determinista/auditable.  
+> **G7** — iterate `operation=None` / mid-flow intent break.  
+> Fuente: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md)
 
 ### ✅ COMPLETADO — G5 Fix (DSE → component sync)
 
-> Contrato / informe / review **PASS**.  
+> Contrato / informe / review **PASS** · CLI probe **PASS** (180 N sobrevive a `safety_factor`).  
 > Helper `component_sync.sync_motors_component_from_params` + wiring en `_handle_apply_exploration`.  
-> Cliff 675→80 cerrado; xfail G5 promovido a regresión verde. Suite **1693**.  
 > Tag: **`checkpoint-g5-dse-component-sync`** (estado post F-1 + G5).
 
 ### ✅ COMPLETADO — G5 Investigation
@@ -33,19 +55,27 @@
 ### Cola acordada (Engineer 2026-08-14)
 
 ```text
-✅ Catalog Impl A + Impl B + F-1
+✅ Catalog Impl A + Impl B + F-1 + G5
         ↓
-✅ G5 investigation + fix
+📝 G6 / G7 registered (no code)
         ↓
-🟡 G3 — continuidad goal activo ("optimiza payload" vs handoff)  ← SIGUIENTE
+✅ G3 Design + implement + review + CLI PASS → checkpoint-g3
         ↓
-🔴 G1/G2 — requisitos compuestos + H5 (diseño)
+✅ SYS-MAP-004 audit + R1 + G8/G9 registered
         ↓
-🟢 UX catálogo batería/hélice
+📝 G10 registered (materials/frame) — study before Impl C   ← AHORA
         ↓
-🟢 Catalog Impl C (DSE por SKU)
+G10 design/contract  ⟷  R3 DEFINE_MISSING preempt design
         ↓
-🟢 Create → BOM
+R4 FN G8 (if approved) · G9 aparte
+        ↓
+G1/G2 + H5 (diseño)
+        ↓
+UX catálogo batería/hélice
+        ↓
+Catalog Impl C (DSE por SKU)
+        ↓
+Create → BOM
 ```
 
 ### ✅ COMPLETADO — Catalog Bind Impl B

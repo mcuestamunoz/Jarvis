@@ -1,11 +1,10 @@
-# CLI Findings — Post Catalog Bind v1 (Impl B)
+# CLI Findings — Post Catalog Bind v1 → F-1 / G5 / G3 / SYS-MAP-004
 
-**Date:** 2026-08-14  
-**Checkpoint:** `checkpoint-catalog-impl-b` (after this artifact)  
-**Evidence:** Engineer CLI session, project `levantar-4kg-con-atonomia-de-70min` (`1f7e6e8d1a70`)  
-**Review base:** [`.jes/artifacts/implementation_review_catalog_bind_v1.md`](implementation_review_catalog_bind_v1.md) — **PASS**
+**Date:** 2026-08-15 (updated after G3 CLI PASS + G10 register)  
+**Checkpoints:** `checkpoint-catalog-impl-b` · `checkpoint-f1-reducir-payload` · `checkpoint-g5-dse-component-sync` · **`checkpoint-g3`**  
+**Evidence:** Engineer CLI (G3 probe + Continuity/materials) · SYS-MAP-004 audit  
 
-> Snapshot of real-user behavior **immediately after Impl B**. Purpose: distinguish bugs, known limits, expected behavior, and deliberately deferred work before the next contracts (F-1 hardening, catalog UX, Impl C).
+> Living register of CLI findings. Distinguishes bugs, known limits, expected behavior, and deferred work. **Do not confuse a finding with a regression** after later checkpoints.
 
 ---
 
@@ -14,29 +13,34 @@
 | ID | Severity | Status | One-line |
 |---|---|---|---|
 | F-1 | 🔴→🟢 | **Fixed** | `reducir payload` → Plan Reducir + DSE ↓ |
-| **G5** | 🔴→🟢 | **Fixed** | Dual-truth cerrado — sync component tras DSE params-only — [review](implementation_review_g5_dse_component_sync.md) |
-| G3 | 🟡 | Known gap | `optimiza payload` vs handoff `reducir_payload` |
+| G5 | 🔴→🟢 | **Fixed** (+ CLI PASS) | Dual-truth DSE→iterate cerrado |
+| **G3** | 🟡→🟢 | **Fixed + CLI PASS** | Active-goal continuity explore; override + consumed handoff |
+| **G8** | 🟡 | **Registered — no implement** | DEFINE_MISSING UX-C swallows engineering/explore intent (map overclaim C-040) |
+| **G9** | 🟡 | **Registered — no implement** | Continuity catalog-gap blind to declared thrust / `catalog_ref` |
+| **G10** | 🟡 | **Registered — no implement** | Material catalog ↔ frame acquisition misalignment |
+| **G6** | 🟡 | **Registered — no implement** | Mass breakdown must be deterministic / auditable (not LLM-invented) |
+| **G7** | 🟡 | **Registered — no implement** | Iterate wizard: `operation=None` / mid-flow intent break |
 | F-2 | 🟡 | Known gap | Diámetro hélices → iterate |
 | F-3 | 🟡 | Expected | `configurar hélices` → RPM only |
 | F-4 | 🟢 | Demostrado | Motor catalog pick + masa |
 | F-5 | 🟡 | Pendiente verificación | Divergencia `catalog_ref` post-DSE |
-| F-6 | 🟢 | Demostrado | Gap catálogo honesto |
+| F-6 | 🟢→🟡 | Demostrado + **G9 elevates stale-gap** | Gap catálogo honesto; honesty vs bound SKU = G9 |
 
-**Next queue (Engineer 2026-08-14):**
+**Next queue (Engineer 2026-08-15):**
 
 ```text
-checkpoint-f1-reducir-payload ✅
+✅ G3 CLI PASS → checkpoint-g3
         ↓
-G5 investigation
+📝 G10 registered (materials / frame) — study before Impl C
         ↓
-G3 handoff explore
+G10 design/contract  ⟷  R3 DEFINE_MISSING preempt (Engineer chooses order)
         ↓
-G1/G2 + H5 design
+R4 FN G8 (only after R3) · G9 aparte
         ↓
-UX catálogo → Impl C → BOM
+G1/G2 + H5 · UX catálogo · Impl C
 ```
 
-**Explicitly out of scope here:** Impl C, material ES/EN (3A), H5/C-081, BOM/Continuity SKU labeling.
+**Explicitly out of scope for near-term implementation:** G6 · G7 · G8 (until R3) · G9 · G10 · Impl C · material ES/EN (3A) · H5/C-081 · BOM/Continuity SKU labeling. Do **not** port `_should_preempt_iterate_wizard` verbatim into DEFINE_MISSING.
 
 ---
 
@@ -103,8 +107,10 @@ iterate safety_factor (iter_011): 4×20 → 80 N   ← cerrado
 
 ## G3 🟡 — Explore explícito vs handoff activo
 
-**Severity:** 🟡 known gap  
-**Category:** Continuity / handoff (H1 partial)
+**Severity:** was 🟡 · **Status:** **Fixed** (PASS WITH NOTES)  
+**Category:** Continuity / handoff (H1 partial)  
+**Design:** [design_g3_active_goal_continuity.md](design_g3_active_goal_continuity.md) — ★1–★4 locked  
+**Review:** [implementation_review_g3_active_goal_continuity.md](implementation_review_g3_active_goal_continuity.md)
 
 ### Observed
 
@@ -115,9 +121,224 @@ Plan reducir_payload + "optimiza payload"   → maximizar carga útil ❌
 
 H1 solo bind en bare `"explora opciones"`. Explore explícito re-deriva goal del texto.
 
+### Design direction (not implemented)
+
+```text
+explicit new goal  >  active goal  >  inferred/default goal
+```
+
+`"optimiza payload"` (undirected) should inherit active `reducir_payload`;  
+`"ahora aumenta el payload"` must override. See design ★1–★4.
+
 ### Next step
 
-Micro-contrato post-G5: prefer `handoff.goal_key` when active for explore verbs + payload dimension.
+~~IC → Claude~~ → **DONE**. Optional live CLI probe, then checkpoint when Engineer asks.
+
+---
+
+## G6 🟡 — Mass breakdown must be deterministic / auditable
+
+**Severity:** 🟡 registered — **do not implement yet**  
+**Category:** Explainability / Continuity — derived magnitudes  
+**Depends on catalog:** Partially (Bind made mass contributions real; explanation layer did not catch up)
+
+### Observed (CLI 2026-08-14, post-G5)
+
+```text
+masa_total = 5.783 kg
+
+Actual (state):
+  payload_kg           2.000
+  structure_override   0.450
+  battery_mass_kg      3.333   ← 500 Wh × 150 Wh/kg heuristic (unbound)
+  motor_mass_kg        (absent → 0; catalog_ref cleared after DSE thrust diverge)
+
+User: "De donde vienen los 5,783kg de masa_total"
+LLM analyze: invents "peso adicional no especificado ~3.783 kg"  ❌
+```
+
+Physics was **correct**. Conversational audit trail was **not**.
+
+### Principle (Engineer)
+
+> **Toda magnitud derivada importante debe poder explicarse a partir de contribuciones deterministas del estado.**  
+> El LLM interpreta; **no** es autoridad sobre hechos físicos.
+
+### Why not now
+
+- Not a handoff bug (≠ G3).  
+- Not a Bind/calc bug.  
+- Belongs near Continuity / G1–H5 explainability — separate contract later.  
+- Recording prevents mistaking this for a mass regression after catalog.
+
+### Next step
+
+Document only. Candidate future: deterministic mass-breakdown block in Continuity / analyze context (0 LLM).
+
+---
+
+## G7 🟡 — Iterate wizard: `operation=None` / mid-flow intent break
+
+**Severity:** 🟡 registered — **do not implement yet**  
+**Category:** Iterate UX / wizard state machine  
+**Depends on catalog:** No
+
+### Observed (CLI 2026-08-14)
+
+```text
+"quiero reducir la carga útil a 0 kg"  → iterate starts
+"no cambiar tamaño"                    → aborts / reinterprets as objective "tamano"
+"-2kg"                                 → strategy="-2kg", operation=None, value=None
+confirm                                → "Error: La iteración no tiene operación definida"
+                                       → sticky loop (sí/s/confirmo all fail)
+```
+
+### Why separate
+
+```text
+G3 ≠ operation=None   (goal continuity / explore)
+G5 ≠ operation=None   (component sync)
+G7 = wizard state machine / slot completion
+```
+
+Do **not** fold into G3 scope.
+
+### Next step
+
+Document only. Future micro-contract: infer `reducir` from `-2kg` delta; do not reach confirm with `operation=None`; mid-flow restriction phrases should not replace the active iterate objective.
+
+---
+
+## G8 🟡 — DEFINE_MISSING swallows engineering / explore intent
+
+**Severity:** 🟡 registered — **do not implement yet** (needs R3 design first)  
+**Category:** Routing / session mode — mid-wizard authority  
+**Depends on catalog:** No  
+**Source:** SYS-MAP-004 audit + Cursor review PASS WITH NOTES (2026-08-14/15)
+
+### Observed (CLI + audit probes P3/P6)
+
+```text
+DEFINE_MISSING open on battery (MISSING_COMPONENT_DEFINITION)
+User > reducir payload
+        ↓
+IntentResolver → "iterate"
+goal_planner   → reducir_payload   ✅ (F-1 OK)
+        ↓
+UX-C intercept (_handle_component_description) — unconditional
+        ↓
+"Vamos a definir la batería…"
+        ✋ C-040 / Goal Plan never reached
+
+Same swallow for: "explora opciones", "optimiza payload"
+```
+
+### Root cause (confirmed)
+
+Checkpoint 10 (`DEFINE_MISSING_PARAMETERS`) returns before checkpoint 18 (C-040).  
+`ITERATE_INTERACTIVE` has C-052 preempt; **DEFINE_MISSING has no analogue**.  
+Map presented C-040 as if globally reachable → **B map overclaim** (code gate already comments "Runs only in IDLE").
+
+### Why not implement now
+
+- Do **not** port `_should_preempt_iterate_wizard` verbatim — DEFINE_MISSING carries `collected_params`.
+- Sequence: **R3 design** (preempt policy) → **R4 FN** only after Engineer lock.
+- Workaround for G3 CLI: `cancelar` → IDLE → then engineering/explore phrases.
+
+### Separate from
+
+```text
+G3 ≠ G8   (explore continuity once IDLE; G8 blocks reaching it mid-wizard)
+G9 ≠ G8   (catalog_ref honesty in Continuity)
+FN-021 ≠ G8  (FN-021 = post-completion clear; G8 = mid-wizard turn)
+```
+
+### Next step
+
+Document only until R3. Map caveat: R1 (C-040 / ACQUISITION_MAP).
+
+---
+
+## G9 🟡 — Continuity catalog-gap blind to bound `catalog_ref`
+
+**Severity:** 🟡 registered — **do not implement yet**  
+**Category:** Continuity / catalog honesty  
+**Depends on catalog:** Yes (Bind + gap matcher)  
+**Source:** SYS-MAP-004 §4.5 / probe P7 — elevates F-6 "Stale-gap UX" from suspected → confirmed-with-repro
+
+### Observed
+
+```text
+motors.catalog_ref = sunnysky_r2305_2500   (bound, untouched)
+physical requirements grow past that SKU's coverage
+        ↓
+build_startup_context recomputes catalog_matches from thrust/KV/prop
+        ↓
+never reads catalog_ref
+        ↓
+"no tengo un motor en el catálogo que cubra ese espacio"
+```
+
+### Root cause
+
+`orchestrator.build_startup_context` catalog-gap block (~`:2747-2794`) — no `catalog_ref` read.  
+Not Continuity authority violation (still 0 LLM); content honesty gap.
+
+### Why separate from G8 / C-081
+
+- Different symbols and call path than DEFINE_MISSING UX-C.
+- Not C-081 (margin unread in PASS) — do not force-fit.
+- Data-contract question: bound-but-underspec'd SKU → gap, warning, or silence?
+
+### Next step
+
+Document only. Future contract after R3/R4 or alongside Continuity/H5 work — Engineer decides.
+
+**CLI addendum (2026-08-15, post-G3 apply):** after DSE set `per_motor_max_thrust_n=12` / `motor_count=6` (`empuje_disponible=72`, `requerido≈25.8`, PASS), Continuity still said *“Declara empuje ≥ 4.3 N… no tengo un motor en el catálogo”*. Physics was fine; the 4.3 N is the *requirement* recomputed for catalog matching (KV+prop filters → 0 hits), not missing declared thrust. Confirms G9 content-honesty gap.
+
+---
+
+## G10 🟡 — Material catalog / frame acquisition misalignment
+
+**Severity:** 🟡 registered — **do not implement yet**  
+**Category:** Catalog / Acquisition — non-motor physical entities  
+**Depends on catalog:** Yes (`library/materiales/_datos.json`)  
+**Source:** Engineer CLI 2026-08-15 (`plastico`/`PVC`/`PPC` rejected; only `fibra de carbono 450g` accepted)
+
+### Observed
+
+```text
+definir material / frame wizard open
+User > plastico 390g     → re-prompt ejemplo
+User > PVC 390g          → re-prompt
+User > PPC 390g          → re-prompt
+User > fibra de carbono 450g → OK
+```
+
+Ask *“qué materiales tenemos en el catálogo?”* → LLM analyze invents/partial answer (no deterministic list path).
+
+### Evidence (three layers)
+
+1. **Library has 8 materials:** aluminio, fibra de carbono, titanio, acero, kevlar, magnesio, plástico, pvc (`library/materiales/_datos.json`).
+2. **Frame rule keywords** (`aerial.py`) only: `frame, chasis, estructura, armazon, carbon, carbono, aluminio` — no `plastico`/`pvc` → `infer_component` → `generic_component` → scoped wizard rejects.
+3. **`MATERIAL_MAP`** incomplete vs library (`plastico` present; **`pvc` absent**). No FN-019-style `infer_component_for_key(..., "frame")` force when wizard expects frame (unlike bare propeller size).
+4. **No deterministic “list materials” intent** — catalog query falls to LLM.
+
+### Why study before Impl C
+
+G10 shows how Jarvis treats **physical catalog entities that are not motors**. Aligning materials acquisition/list/authority informs Catalog v1 architecture for batteries/props/BOM — do **not** bury under Impl C SKU DSE.
+
+### Separate from
+
+```text
+G9 ≠ G10   (motor Continuity honesty vs frame/materials acquisition)
+G8 ≠ G10   (routing mid-wizard vs material vocabulary)
+Design 3A  related alias noise — G10 is the broader misalignment
+```
+
+### Next step
+
+Document only. Candidate: G10 design/contract (align keywords + MATERIAL_MAP ↔ library; optional force-frame; deterministic list) — Engineer before or interleaved with R3; **before Impl C**.
 
 ---
 
@@ -286,7 +507,7 @@ Catálogo: Necesitas empuje ≥ 19.3 N/motor, ~380KV, hélice ~10";
 
 ### Notes
 
-- Stale-gap UX: message may not reflect a motor **already bound** earlier in the session (Continuity gap matcher vs bound `catalog_ref` — related to deferred BOM/Continuity SKU labeling).
+- Stale-gap UX: message may not reflect a motor **already bound** earlier in the session — **confirmed as G9** (SYS-MAP-004): `build_startup_context` never reads `catalog_ref` when recomputing catalog gap.
 - Epistemology warning in same Continuity block is valuable and should be preserved:
 
   > `Modelo energético simplificado: autonomía ≈ (Wh / W) × 60 — sin curva de descarga ni C-rating.`
@@ -321,24 +542,32 @@ Recorded for context; **do not** treat as Impl B regressions:
 ## Engineer decisions locked in this artifact
 
 1. ~~**F-1**~~ → **DONE** (`checkpoint-f1-reducir-payload`).
-2. ~~**G5** investigation + fix~~ → **DONE** (PASS).
-3. **F-5** → 🟡 until thrust-divergence CLI probe or state inspection.
-4. **G3** → next: handoff explore bind extension.
-5. **G1/G2/H5** → design only; Impl C **after** objective layer.
-6. **No catalog Impl C** until G3 (+ G1 design) decided.
+2. ~~**G5** investigation + fix + CLI~~ → **DONE** (`checkpoint-g5-dse-component-sync`).
+3. **G6** / **G7** → registered only; **no implement** until separate contracts.
+4. ~~**G3**~~ → **DONE** (PASS WITH NOTES + **CLI PASS** 2026-08-15) → `checkpoint-g3`.
+5. **G8** / **G9** → registered (SYS-MAP-004); **no implement**. G8 needs R3 design before any FN. G9 separate.
+6. **G10** → registered (materials/frame); **no implement** — study/design before Impl C.
+7. **F-5** → 🟡 until thrust-divergence CLI probe or state inspection.
+8. **G1/G2/H5** → design after G3 checkpoint; Impl C **after** objective layer + G10 study.
+9. **No catalog Impl C** until G3 checkpoint (+ G10/G1 design) decided.
+10. **Do not** port iterate preempt into DEFINE_MISSING without R3.
 
 ---
 
-## Queue (updated 2026-08-14)
+## Queue (updated 2026-08-15)
 
 ```text
-checkpoint-f1-reducir-payload ✅
+✅ G3 CLI PASS → checkpoint-g3
         ↓
-G5 investigation + fix ✅
+📝 G10 registered (materials / frame) — no implement
         ↓
-G3 handoff explore          ← SIGUIENTE
+G10 design/contract  ⟷  R3 preempt design (Engineer order)
+        ↓
+R4 FN G8 (if approved) · G9 aparte
         ↓
 G1/G2 + H5 design
+        ↓
+(G6/G7 if prioritized)
         ↓
 UX catálogo → Impl C → BOM
 ```

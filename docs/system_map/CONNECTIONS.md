@@ -68,7 +68,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-036 | Continuity | Acquisition (`_next_pending_block` shared read) | 🟢 |
 | C-037 | Acquisition wizard completion | `_set_pending_next_block` → next block or IDLE | 🟢 (FN-021 invariant) |
 | C-038 | Acquisition wizard open | `acquisition_brief.build_acquisition_brief` | 🟢 |
-| C-040 | Intent (`iterate`/`unknown`) | `is_engineering_intention` → `_handle_engineering_intent` | 🟢 |
+| C-040 | Intent (`iterate`/`unknown`) | `is_engineering_intention` → `_handle_engineering_intent` | 🟢 (IDLE / via C-052; **not** mid DEFINE_MISSING — G8 / SYS-MAP-004) |
 | C-041 | `_handle_engineering_intent` | `goal_planner.format_goal_plan` | 🟢 |
 | C-042 | Goal Plan CTA (`"explora opciones"`) | DSE (goal binding) | 🟢 (FN-024 — binds via `handoff_context`, see C-105/C-106) |
 | C-043 | Goal Plan lever (e.g. `safety_factor`) | Iterate wizard preseed | 🟢 (FN-026 — via `handoff_matching.match_plan_lever`) |
@@ -431,12 +431,12 @@ Evidence: `core/orchestrator.py:846,850,864,906`.
 | Kind | CONTROL, DATA |
 | Mechanism | goal detection + numeric-mutate guard, gated to two intent values only |
 | Symbols | `goal_planner.is_engineering_intention`, `orchestrator._handle_engineering_intent` |
-| Payload | e.g. "aumentar el empuje" → `goal_key="mejorar_estabilidad"` |
+| Payload | e.g. "aumentar el empuje" → `goal_key="mejorar_estabilidad"`; "reducir payload" → `goal_key="reducir_payload"` (F-1) |
 | Authority | `goal_planner.py` (FN-022) |
 | Mutation | NO |
 | LLM | NO |
-| Status | 🟢 CONNECTED (FN-022) |
-| Evidence | `core/orchestrator.py:894-899`, `core/goal_planner.py` |
+| Status | 🟢 CONNECTED (FN-022) — **reachability is mode-gated** (SYS-MAP-004 / G8). Reachable from **IDLE**, and from **ITERATE_INTERACTIVE** via C-052 preempt-and-redispatch. **Not reachable from `DEFINE_MISSING_PARAMETERS`** while `param_definition_reason`/`pending_missing_reason` == `MISSING_COMPONENT_DEFINITION`: UX-C (`_handle_component_description`) intercepts unconditionally and returns before this gate. The runtime comment at the gate already states it runs only in IDLE; earlier map rows omitted that caveat (map overclaim by omission — not a broken connection when IDLE). |
+| Evidence | `core/orchestrator.py:931-936` (C-040 gate; FN-025 also calls `is_engineering_intention` earlier at ~`:880` inside the analyze branch); `core/goal_planner.py`; contrast C-052. Finding: G8 in `.jes/artifacts/cli_findings_post_catalog_bind_v1.md`; audit `.jes/artifacts/sys_map_004_routing_audit.md`. |
 
 ### C-041 — `_handle_engineering_intent` → `goal_planner.format_goal_plan`
 | Field | Value |
