@@ -1,8 +1,8 @@
 # CLI Findings — Post Catalog Bind v1 → F-1 / G5 / G3 / SYS-MAP-004 / G10–G15
 
-**Date:** 2026-08-15 (updated — Continuity ★ CLOSED · Implementation Contract READY)  
-**Checkpoints:** `checkpoint-catalog-impl-b` · `checkpoint-f1-reducir-payload` · `checkpoint-g5-dse-component-sync` · **`checkpoint-g3`** · `checkpoint-g10` **deferred**  
-**Evidence:** Engineer CLI continuity breakage on fresh project `prueba` + prior G10–G13 sessions · Continuity investigation  
+**Date:** 2026-08-15 (updated — **2026-08-17** CLI polish bundle queued · commit `1b4769f`)  
+**Checkpoints:** `checkpoint-catalog-impl-b` · `checkpoint-f1-reducir-payload` · `checkpoint-g5-dse-component-sync` · **`checkpoint-g3`** · post-g3 **`1b4769f`** (Continuity + G10, untagged)  
+**Evidence:** Engineer CLI `continuity-bom` walk 2026-08-17 + prior G10–G13 sessions  
 
 > Living register of CLI findings. Distinguishes bugs, known limits, expected behavior, and deferred work. **Do not confuse a finding with a regression** after later checkpoints.
 
@@ -20,13 +20,13 @@
 | **G16** | 🟡 | **Registered — polish** | (A) list-motors + `?` → analyze (wizard **and IDLE**); (B) CTA duplicada |
 | **G17** | 🔴 | **Registered — force-motors gap** | Example `4x 2306…` re-prompts; needs keyword `motores` |
 | **G18** | 🔴 | **Registered — cross-domain routing** | `definir motores` on **dron** opens terrestrial transmission wizard (torque/rueda) |
-| **G19** | 🔴 | **Registered — catalog-gap exploration dead-end** | Gap empuje activo pero sin path a listar/explorar motores (solo “declara empuje”) |
+| **G19** | 🔴 | **Registered — CTA/discoverability** | Catalog-gap CTA no conecta con DSE/list-motors; exploración oculta |
 | **G10** | 🟡→🟢 | **Fixed (CLI parcial)** | `plastico` + **`PVC 400g` acquisition PASS** (Continuity CLI 2026-08-17) |
 | **G11** | 🟡 | **Registered — Continuity/R3** | Iterate preempt / acquisition collision (C-052) |
 | **G12** | 🟡 | **Registered — Continuity/R3** | DEFINE_MISSING sticky retarget — hay que `cancelar` |
 | **G13** | 🟡 | **Registered — later** | Iterate material `PVC 400g` opaque slug |
 | **G8** | 🟡 | **Registered — Continuity/R3** | DEFINE_MISSING swallows engineering/explore |
-| **G9** | 🟡 | **Registered — no isolate** | Continuity catalog-gap vs `catalog_ref` |
+| **G9** | 🟡 | **Registered — polish bundle** | Catalog-gap misleading post-PASS (G9-B); blind to `catalog_ref` (G9-A) |
 | **G6** | 🟡 | **Registered — later** | Mass breakdown deterministic |
 | **G7** | 🟡 | **Registered — Continuity** | Iterate `operation=None` / mid-flow break |
 | F-2 | 🟡 | Known gap | Diámetro hélices → iterate |
@@ -35,26 +35,27 @@
 | F-5 | 🟡 | Pendiente verificación | Divergencia `catalog_ref` post-DSE |
 | F-6 | 🟢→🟡 | Demostrado + **G9 elevates stale-gap** | Gap catálogo honesto; honesty vs bound SKU = G9 |
 
-**Next queue (Engineer 2026-08-15 — RELOCKED):**
+**Next queue (Engineer 2026-08-17 — POLISH BUNDLE):**
 
 ```text
 ✅ checkpoint-g3
-✅ G10 impl + review + ★8 + plastico frame CLI
-⏸ checkpoint-g10 / PVC acquisition — DEFERRED (cannot probe cleanly)
+✅ Continuity Hardening impl + review + CLI walk (continuity-bom)
+✅ G10 impl + PVC/plastico acquisition CLI PASS
+✅ commit 1b4769f (Continuity + G10 + findings G16–G19)
         ↓
-🔴 Continuity Hardening IMPLEMENT (★1–★7 CLOSED)
-   IC: `.jes/artifacts/implementation_contract_continuity_hardening.md`
-   slices: G14 → G12/G8 refuse → G15 → G11
+🔴 CLI Polish Audit (Claude) — IC: implementation_contract_cli_polish_audit.md
+   Plan: work_plan_cli_polish_audit.md
         ↓
-Cursor review → CLI BOM walk
+Design + Implementation Contract (from audit report)
         ↓
-then resume G10 PVC / checkpoint-g10 · G13 details
+Polish impl (G9-B · G16 · G17 · G18 · G19 · G12-FN013 · …)
         ↓
-R3 formalization (if not absorbed) · G9 · Impl C …
+CLI re-walk → checkpoint tag
+        ↓
+G11/G13/R3 remainder · Impl C
 ```
 
-**Engineer lock:** ★ Continuity CLOSED. Stop micro-probes until BOM walk restored.  
-**Do not** patch G10 materials to compensate routing.
+**Engineer lock:** Audit before impl. No `src/` until IC approved from audit report.
 
 **Explicitly deferred:** G10 PVC CLI · G13 · G9 isolate · thrust gate (★7) · Impl C · H5/C-081.
 
@@ -313,6 +314,33 @@ Not Continuity authority violation (still 0 LLM); content honesty gap.
 Document only. Future contract after R3/R4 or alongside Continuity/H5 work — Engineer decides.
 
 **CLI addendum (2026-08-15, post-G3 apply):** after DSE set `per_motor_max_thrust_n=12` / `motor_count=6` (`empuje_disponible=72`, `requerido≈25.8`, PASS), Continuity still said *“Declara empuje ≥ 4.3 N… no tengo un motor en el catálogo”*. Physics was fine; the 4.3 N is the *requirement* recomputed for catalog matching (KV+prop filters → 0 hits), not missing declared thrust. Confirms G9 content-honesty gap.
+
+### G9-B — Misleading catalog-gap CTA when physics PASS with declared thrust (2026-08-17)
+
+**Severity:** 🔴 UX — **priority polish bundle**  
+**Source:** `continuity-bom` after DSE apply (`per_motor_max_thrust_n=30`, `motor_count=6`)
+
+```text
+Cálculos: empuje_requerido=19.777 N, empuje_disponible=180.0 N, margen=9.101
+Sim: PASS
+
+Continuity:
+  Siguiente paso: Declara empuje real por motor (≥ 3.3 N) …
+  Por qué: Necesitas empuje ≥ 3.3 N/motor, ~2400KV, hélice ~10"; no tengo un motor…
+```
+
+**Root:**
+
+- `thrust_per_motor_needed_n` = `required_thrust_n / motor_count` ≈ **3.3 N** (piso físico).
+- `per_motor_max_thrust_n` = **30 N** (declarado vía DSE) — no leído por Continuity CTA.
+- `find_motors_for_requirements(≥3.3, kv=2400, prop=10)` → 0 SKU (filtro KV+hélice, no falta empuje).
+- `project_continuity.py` rank 3: `motor_catalog_gap` **gana** sobre “diseño validado PASS”.
+
+**User impact:** mensaje suena a “te falta empuje” cuando el margen es ~9×. El gap real es **identidad BOM/catálogo** (combo 2400KV+10″ sin SKU), no viabilidad física.
+
+**Expected:** si `per_motor_max_thrust_n ≥ thrust_per_motor_needed_n` y sim PASS → suprimir o degradar a aviso BOM no bloqueante; no pedir “declara empuje ≥ X” usando el piso físico.
+
+**Fix sketch:** guard en `build_project_continuity` + reformular CTA; opcionalmente leer `catalog_ref` (G9-A).
 
 ---
 
@@ -800,14 +828,14 @@ Register only. Fix: gate E1 terrestrial `define_params` on `vehicle_type != dron
 
 ---
 
-## G19 🔴 — Catalog-gap active but no motor exploration path
+## G19 🔴 — Catalog-gap CTA: poor discoverability + no list/explore bridge
 
-**Severity:** 🔴 product gap — **blocks user from acting on Continuity guidance**  
-**Category:** Continuity + catalog + reasoning — gap without exploration bridge  
+**Severity:** 🔴 product gap — **CTA incoherente con capacidades existentes**  
+**Category:** Continuity + catalog + reasoning — discoverability  
 **Depends on catalog:** Yes (`library/motores`, `find_motors_for_requirements`)  
 **Source:** Engineer Continuity CLI 2026-08-17 (`continuity-bom`, post 4/4, sim PASS)
 
-### Observed
+### Observed (phase 1 — dead-end aparente)
 
 Continuity repeatedly says:
 
@@ -816,7 +844,7 @@ Siguiente paso: Declara empuje real por motor (≥ 4.8 N) o elige una pieza fuer
 Por qué: Necesitas empuje ≥ 4.8 N/motor, ~2400KV, hélice ~10"; no tengo un motor en el catálogo que cubra ese espacio.
 ```
 
-User tries to **explore options** to meet that requirement:
+User tries to **explore options**:
 
 ```text
 User > ¿que motores tenemos en el catalogo?
@@ -824,14 +852,21 @@ User > ¿que motores tenemos en el catalogo?
 
 User > modelar unidad de potencia
 → analyze/LLM: "No puedo estimar ese impacto con precisión…"           ❌
-
-Reasoning layer had suggested:
-  - "Definir empuje por motor real"
-  - "Modelar unidad de potencia"
-→ neither is wired to a deterministic action handler at IDLE
 ```
 
-User **cannot** discover which catalog motors exist, which are closest to requirements, or enter DSE/explore specifically for thrust/motor selection — despite Continuity telling them the catalog doesn't cover their declared combo.
+### Observed (phase 2 — path oculto existe, 2026-08-17 addendum)
+
+```text
+User > declarar empuje        → engineering_intent → Plan estabilidad
+User > explora opciones       → DSE 5 configs (mejor: 30N × 6 motores)  ✅
+User > aplica la mejor        → per_motor_max_thrust_n 20→30, motors 4→6 ✅
+→ sim PASS margen 9.1 — pero Continuity sigue pidiendo "declara empuje ≥ 3.3 N" (G9-B)
+```
+
+**Refined diagnosis:** exploración **existe** vía `declarar empuje` → `explora opciones` → `aplica la mejor`, pero:
+- Continuity **no lo anuncia** cuando hay catalog_gap
+- list-motors **no funciona** en IDLE / con `?`
+- reasoning suggestions no son **ejecutables**
 
 ### Root (code-confirmed)
 
