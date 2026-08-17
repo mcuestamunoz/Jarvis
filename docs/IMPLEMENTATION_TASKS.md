@@ -12,11 +12,16 @@
 > Audit IC: [`.jes/artifacts/implementation_contract_cli_polish_audit.md`](../.jes/artifacts/implementation_contract_cli_polish_audit.md)  
 > Findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md)
 
-### 🔴 AHORA — CLI Polish Audit (Phase 1)
+### ✅ COMPLETADO — CLI Polish Audit (Phase 1)
 
-> **Zero `src/`** — Claude ejecuta IC de auditoría → `investigation_cli_polish_audit.md`  
-> Scope Tier-1: **G9-B · G16 · G17 · G18 · G19 · G12-FN013** (+ G13 defer recommendation)  
-> Evidencia CLI: proyecto `continuity-bom` (2026-08-17)
+> Entregable: [`.jes/artifacts/investigation_cli_polish_audit.md`](../.jes/artifacts/investigation_cli_polish_audit.md)  
+> Veredicto: **ready for IC** (6/8 findings); G9-B threshold = decisión Engineer; G13 = re-verificación CLI antes de S8.  
+> Slices: S1–S7 código + S8 verification-gated · S7 depende de S1+S2.
+
+### 🔴 AHORA — Implementation Contract polish (Phase 2–3)
+
+> Basado en audit report → `implementation_contract_cli_polish.md` (pendiente)  
+> Resolver §4.7 open questions antes o dentro del IC.
 
 ### ✅ COMPLETADO — Continuity CLI BOM walk (2026-08-17)
 
@@ -48,10 +53,9 @@
 ✅ Continuity Hardening impl + G10 impl
 ✅ CLI walk continuity-bom + findings G16–G19
 ✅ commit 1b4769f
+✅ CLI Polish Audit (Claude) → investigation_cli_polish_audit.md
         ↓
-🔴 CLI Polish Audit (Claude)                    ← AHORA
-        ↓
-Design + IC polish
+🔴 Design + IC polish (S1–S7)                    ← AHORA
         ↓
 Impl + review + CLI re-walk + checkpoint
         ↓
