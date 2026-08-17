@@ -17,6 +17,7 @@ IntentType = Literal[
     "project_status",
     "explore_design_space",
     "apply_exploration_result",
+    "list_materials",
     "ambiguous",
     "unknown",
 ]
@@ -216,6 +217,20 @@ class IntentResolver:
         r"\bayudame\b.*\bsiguiente\s+paso\b",
         r"\bayudame\s+con\s+el\s+siguiente\b",
         r"\bayudame\s+a\s+seguir\b",
+    )
+    # G10 ★8: deterministic catalog-list query for materials — 0 LLM.
+    # Narrow on purpose (materials family only, not a general catalog
+    # browser). Checked before ANALYZE/GUIDANCE so it never falls to the LLM
+    # (investigation §4/P5: "qué materiales tenemos en el catálogo?" was
+    # previously routed to analyze/explanation). Must not steal the existing
+    # "material" + define-verb → iterate routing (resolve_action_request,
+    # "cambiar material a X") — those phrases carry a value/define verb this
+    # list stays clear of ("disponibles", "tenemos", "hay", "catalogo").
+    LIST_MATERIALS_PATTERNS = (
+        r"\bque\s+materiales\b",
+        r"\bmateriales\s+(?:disponibles|tenemos|hay)\b",
+        r"\bcatalogo\s+de\s+materiales\b",
+        r"\blista(?:r)?\s+(?:de\s+)?materiales\b",
     )
     _GUIDANCE_PATTERNS_RE = tuple(
         re.compile(p) for p in GUIDANCE_PATTERNS
@@ -481,6 +496,11 @@ class IntentResolver:
         return None
 
     def _resolve_strong_action_intent(self, normalized: str) -> IntentType | None:
+        # G10 ★8: materials catalog query, before anything else — narrow
+        # enough it can't collide with GUIDANCE/ANALYZE/ITERATE patterns.
+        if self._matches_any(normalized, self.LIST_MATERIALS_PATTERNS):
+            return "list_materials"
+
         # Bug CLI-1: guidance phrases FIRST — they share verbs with both ANALYZE
         # ("ayudame") and ITERATE ("completar"). Must be caught before either.
         if any(rx.search(normalized) for rx in self._GUIDANCE_PATTERNS_RE):

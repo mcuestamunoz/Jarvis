@@ -285,7 +285,7 @@ def test_criterio_frame_in_natural_language_saved_correctly(tmp_path):
     assert "mass_kg" in frame.properties
     assert "material" in frame.properties
     assert frame.properties["mass_kg"].value == pytest.approx(0.45, rel=1e-3)
-    assert frame.properties["material"].value == "carbon_fiber"
+    assert frame.properties["material"].value == "fibra de carbono"
 
     # current_parameters["structure_mass_override_kg"] (bypass física)
     # Nota: mirror legacy structure.material eliminado en Fase 3 — ya no se verifica aquí.
@@ -388,7 +388,7 @@ def test_component_description_saves_frame_and_recalculates(tmp_path):
     frame = saved.design_properties.components.get("frame")
     assert frame is not None
     assert frame.properties["mass_kg"].value == pytest.approx(0.45, rel=1e-3)
-    assert frame.properties["material"].value == "carbon_fiber"
+    assert frame.properties["material"].value == "fibra de carbono"
 
 
 def test_component_description_updates_structure_material(tmp_path):
@@ -404,7 +404,7 @@ def test_component_description_updates_structure_material(tmp_path):
     frame = saved.design_properties.components.get("frame")
     assert frame is not None
     assert frame.properties.get("material") is not None
-    assert frame.properties["material"].value == "aluminum"
+    assert frame.properties["material"].value == "aluminio"
     assert saved.current_parameters.get("structure_mass_override_kg") == pytest.approx(0.6, rel=1e-3)
 
 

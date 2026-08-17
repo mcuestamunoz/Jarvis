@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -414,14 +415,30 @@ class JarvisOrchestrator:
         Component descriptions preempt only when the wizard is *not* actively
         collecting a component spec (DEFINE @ step 2) or awaiting a motor-catalog
         pick — otherwise motor suggestions / define-component flows are aborted.
+
+        Continuity Hardening ★3 (G11): ownership is now consulted BEFORE the
+        strong-intent short-circuit, not after — G11-A/B (investigation §3.4)
+        reproduced a step-2/strategy-selection answer like "cambiar a pvc"
+        self-preempting because it also matches `_resolve_strong_action_intent
+        == "iterate"`, and the ownership guard (below) was only ever reached
+        for the *component-inference* fallback, never for the strong-intent
+        check. The suppression is narrow: only intents `{None, "iterate"}` are
+        swallowed while the wizard owns the step — a genuinely different
+        strong action (`simula`, `explora opciones`, `calcula`, ...) still
+        preempts even while the wizard owns the current step, per ★3 rule 4.
         """
         normalized = self.intent_resolver._normalize_text(user_input)
         strong = self.intent_resolver._resolve_strong_action_intent(normalized)
+
+        session = self.state_manager.runtime_state.session
+        owns_input = self._iterate_owns_component_input(session)
+        if owns_input and strong in (None, "iterate"):
+            return False
+
         if strong in self._ITERATE_PREEMPT_INTENTS:
             return True
 
-        session = self.state_manager.runtime_state.session
-        if self._iterate_owns_component_input(session):
+        if owns_input:
             return False
 
         # Component descriptions: Bug 64 blocks _should_intercept during ITERATE;
@@ -431,7 +448,20 @@ class JarvisOrchestrator:
 
     @staticmethod
     def _iterate_owns_component_input(session) -> bool:
-        """True when iterate is collecting a component description or motor pick."""
+        """True when iterate already owns whatever input arrives next.
+
+        Two shapes:
+          - original scope: collecting a component description or motor pick
+            (`DEFINE` operation, step 2, or a live `motor_suggestions` list).
+          - Continuity Hardening ★3 (G11-B): a strategy-selection answer for
+            an already-named variable — `variable` is set but `operation` is
+            not yet resolved (e.g. "¿Cómo quieres aplicar el cambio?" right
+            after `variable="material"`). A bare material name or "cambiar a
+            X" at that step is this step's own answer, not a new request —
+            see `_should_preempt_iterate_wizard` for how this combines with
+            the strong-intent check to still let unrelated strong actions
+            (simular/calcular/explorar) preempt even while owned.
+        """
         if session.motor_suggestions:
             return True
         draft = session.iteration_draft
@@ -439,10 +469,11 @@ class JarvisOrchestrator:
             return False
         operation = draft.operation
         op_value = operation.value if hasattr(operation, "value") else operation
-        if op_value != IterationOperation.DEFINE.value:
-            return False
-        # Step 2 is the component-spec / motor-suggestion prompt in DEFINE flows.
-        return session.step == 2
+        if op_value == IterationOperation.DEFINE.value and session.step == 2:
+            return True
+        if draft.variable is not None and operation is None:
+            return True
+        return False
 
     @staticmethod
     def _preempt_iterate_message(result: dict) -> str:
@@ -680,6 +711,12 @@ class JarvisOrchestrator:
                 result["wizard_reprompt"] = self.iterate_interactive_session.get_current_prompt(current_session)
                 self._track_turn(user_input, result)
                 return result
+            if _interim_intent == "list_materials":
+                # G10 ★8: same soft-interrupt shape as project_status above.
+                result = self._handle_list_materials()
+                result["wizard_reprompt"] = self.iterate_interactive_session.get_current_prompt(current_session)
+                self._track_turn(user_input, result)
+                return result
             if _interim_intent == "analyze":
                 result = self._handle_analyze(user_input, llm_interface)
                 # Bug 51: same reprompt for analyze interruption.
@@ -728,6 +765,14 @@ class JarvisOrchestrator:
             _dm_intent = self.intent_resolver.resolve_intent(user_input)
             if _dm_intent == "project_status":
                 result = self._handle_project_status()
+                self._track_turn(user_input, result)
+                return result
+            # G10 ★8: same soft-interrupt shape as project_status above — a
+            # materials catalog query mid-wizard (e.g. right after declaring
+            # a frame material) must not be misread as a frame description
+            # attempt by the component intercept further down.
+            if _dm_intent == "list_materials":
+                result = self._handle_list_materials()
                 self._track_turn(user_input, result)
                 return result
             # FN-013: "definir/declarar/completar <bloque activo>" while acquisition
@@ -848,6 +893,10 @@ class JarvisOrchestrator:
         intent = self.intent_resolver.resolve_intent(user_input)
         if intent == "project_status":
             result = self._handle_project_status()
+            self._track_turn(user_input, result)
+            return result
+        if intent == "list_materials":
+            result = self._handle_list_materials()
             self._track_turn(user_input, result)
             return result
         if intent == "analyze":
@@ -1684,6 +1733,117 @@ class JarvisOrchestrator:
         updated_state = set_control_component(project_state, spec)
         return updated_state, f"{spec.suggested_key.replace('_', ' ').capitalize()} registrado."
 
+    # Continuity Hardening ★4 (G14): the propeller ComponentRule's own keywords —
+    # reused here, not duplicated, so a future keyword addition to that rule
+    # automatically widens this predicate too.
+    _PROPELLER_KEYWORDS = ("helice", "hélice", "propeller", "props")
+
+    @staticmethod
+    def _looks_clearly_propeller_shaped(text: str) -> bool:
+        """G14 fix: is *text* unambiguously a propeller description?
+
+        Used to gate the FN-019 force-propellers bypass when ``motors`` is
+        also a pending acquisition target in the same composite wizard — see
+        ``_handle_component_description``. A bare ``"NxP"`` match alone is
+        NOT enough (a motor phrase like ``"1x 2306 2400KV 50W"`` matches the
+        same regex with diameter=1, pitch=2306): also require the matched
+        pair to fall inside a realistic propeller size band, and the absence
+        of a KV marker (motor phrases almost always carry one, propeller
+        phrases never do).
+        """
+        lower = text.lower()
+        if any(kw in lower for kw in JarvisOrchestrator._PROPELLER_KEYWORDS):
+            return True
+        if re.search(r"\bkv\b", lower):
+            return False
+        match = re.search(r"\b(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\b", lower)
+        if not match:
+            return False
+        diameter, pitch = float(match.group(1)), float(match.group(2))
+        return 1.5 <= diameter <= 30 and 0.5 <= pitch <= 20
+
+    # Continuity Hardening ★2 (G12/G8 refuse policy) — noun phrases for the
+    # honest refuse line. Deliberately separate from _block_label_for's
+    # block-progress labels (different vocabulary: component keys, not
+    # block keys; different grammatical context: mid-sentence, lowercase).
+    _ACQUISITION_TARGET_LABELS: dict[str, str] = {
+        "motors": "los motores",
+        "propellers": "las hélices",
+        "esc": "el ESC",
+        "battery": "la batería",
+        "frame": "el frame",
+        "flight_controller": "la controladora de vuelo",
+        "sensors": "los sensores",
+    }
+    _BLOCK_REFUSE_LABELS: dict[str, str] = {
+        "propulsion": "la propulsión",
+        "energy": "la energía",
+        "structure": "la estructura",
+        "control": "el control",
+        "actuation": "la actuación",
+        "transmission": "la transmisión",
+    }
+
+    def _maybe_refuse_different_target(
+        self, user_input: str, expected_keys: list[str]
+    ) -> dict[str, Any] | None:
+        """Continuity Hardening ★2 — refuse (never retarget) when *user_input*
+        clearly names something OTHER than the active acquisition target.
+
+        Two shapes, one shared response, per design ★2/contract Slice 2:
+          - G12: "definir/declarar/completar <a different block>" while a
+            DEFINE_MISSING wizard is open for a component belonging to a
+            different block. `_try_reprompt_active_block_declaration`
+            (C-033) already handles the SAME-block case upstream of this
+            call and returns before `_handle_component_description` is ever
+            reached for it — by the time this runs, any declare-block match
+            found here is necessarily for a different block.
+          - G8: an engineering-intent phrase ("reducir payload") or an
+            explore-shaped phrase ("explora opciones") — today silently
+            absorbed into this method's own low-completeness fallback,
+            which just re-shows the active wizard's brief with no
+            acknowledgment. See SYS-MAP-004 / investigation §3.3.
+
+        Returns None (caller proceeds unchanged) when neither shape
+        matches. Never mutates session state — `cancelar` (C-034) remains
+        the only way to actually switch targets, per ★2's "refuse, not
+        retarget" lock.
+        """
+        if not expected_keys:
+            return None
+        active_key = expected_keys[0]
+        active_label = self._ACQUISITION_TARGET_LABELS.get(active_key, active_key)
+
+        block_key = self.intent_resolver.resolve_declare_block_request(user_input)
+        if block_key is not None and active_key not in BLOCK_TO_COMPONENTS.get(block_key, []):
+            other_label = self._BLOCK_REFUSE_LABELS.get(block_key, block_key)
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": (
+                    f"Estoy definiendo {active_label}. Escribe 'cancelar' primero "
+                    f"si quieres pasar a definir {other_label}."
+                ),
+            }
+
+        from jarvis.core.goal_planner import is_engineering_intention
+
+        goal_key = is_engineering_intention(user_input)
+        is_explore = (
+            goal_key is None
+            and self.intent_resolver.resolve_intent(user_input) == "explore_design_space"
+        )
+        if goal_key is not None or is_explore:
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": (
+                    f"Estoy definiendo {active_label}. Escribe 'cancelar' primero "
+                    "si quieres explorar otras opciones de diseño."
+                ),
+            }
+        return None
+
     def _handle_component_description(
         self,
         user_input: str,
@@ -1722,6 +1882,14 @@ class JarvisOrchestrator:
             # never silently operates on an empty scope.
             expected_keys = list(session.pending_param_definitions or [])
 
+        # Continuity Hardening ★2 (G12/G8): refuse before anything else gets
+        # a chance to silently re-show this wizard's own brief as if the
+        # user's "definir <other>" / engineering-intent / explore phrase had
+        # not been understood.
+        refusal = self._maybe_refuse_different_target(user_input, expected_keys)
+        if refusal is not None:
+            return refusal
+
         # ── Affirmative: user confirmed — emit context-specific prompt ────────
         if self._is_affirmative(user_input):
             try:
@@ -1750,10 +1918,34 @@ class JarvisOrchestrator:
         # another component (e.g. "bateria 2000mAh" while propellers is also
         # pending stays battery) — only fires when every spec found is still
         # generic_component.
-        if "propellers" in expected_keys and all(
-            s.suggested_key == "generic_component" for s in specs
+        # Continuity Hardening ★4 (G14): when "motors" is ALSO pending in this
+        # same composite wizard (e.g. propulsion's ["motors","propellers"]),
+        # a motor-shaped phrase like "1x 2306 2400KV 50W" must not be forced
+        # into propellers just because its "NxP"-looking substring parses —
+        # only force when the phrase is unambiguously propeller-shaped.
+        # Singleton expected_keys=["propellers"] (no motors pending) is
+        # unaffected — FN-019's original bare-size behavior is unchanged.
+        if (
+            "propellers" in expected_keys
+            and all(s.suggested_key == "generic_component" for s in specs)
+            and (
+                "motors" not in expected_keys
+                or self._looks_clearly_propeller_shaped(user_input)
+            )
         ):
             forced = infer_component_for_key(user_input, "propellers", registry=aerial_registry)
+            if forced is not None and forced.completeness != "low":
+                specs = [forced]
+        # G10 ★3: mirrors the propellers force above. Frame's own keyword list
+        # (aerial.ComponentRule for "frame") can miss a material stem even
+        # after ★4's expansion (e.g. a future library material not yet added
+        # as a keyword) — when the wizard already names frame as the expected
+        # key, bypass the keyword gate entirely via infer_component_for_key,
+        # same extractor/completeness evaluator, no new parser.
+        if "frame" in expected_keys and all(
+            s.suggested_key == "generic_component" for s in specs
+        ):
+            forced = infer_component_for_key(user_input, "frame", registry=aerial_registry)
             if forced is not None and forced.completeness != "low":
                 specs = [forced]
         # FN-017 B4: inside a scoped wizard (expected_keys set), never silently
@@ -2017,6 +2209,27 @@ class JarvisOrchestrator:
             "status": "ok",
             "action": "project_status",
             "startup_context": ctx,
+        }
+
+    def _handle_list_materials(self) -> dict[str, Any]:
+        """G10 ★8: deterministic materials catalog listing — 0 LLM.
+
+        Reuses ComponentLibrary.list_materials() directly (same authority
+        acquisition/mutation already read from) — no separate materials
+        vocabulary, no LLM invention of rows.
+        """
+        from jarvis.knowledge.library import default_library
+
+        materials = default_library.list_materials()
+        lines = [f"  • {m.name} — {m.density_kg_m3:g} kg/m³" for m in materials]
+        message = "Materiales disponibles en el catálogo:\n" + "\n".join(lines)
+        return {
+            "status": "ok",
+            "action": "list_materials",
+            "message": message,
+            "materials": [
+                {"name": m.name, "density_kg_m3": m.density_kg_m3} for m in materials
+            ],
         }
 
     def _handle_explore(self, goal_key: str | None, user_input: str, llm_interface: Any) -> dict:

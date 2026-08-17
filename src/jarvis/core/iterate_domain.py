@@ -12,6 +12,7 @@ from jarvis.core.parameter_requirements import (
     build_semantic_params,
     build_valid_domain,
 )
+from jarvis.domains.materials import MATERIAL_ALIASES
 
 
 # Maps user-facing concept words to canonical current_parameters keys.
@@ -93,21 +94,8 @@ def _is_valid_variable(raw: str) -> bool:
 
 
 # Canonical material names recognised in freeform text.
-# Sorted by key length desc so multi-word keys match before substrings.
-_KNOWN_MATERIALS: dict[str, str] = {
-    "fibra de carbono": "fibra de carbono",
-    "carbon fiber": "fibra de carbono",
-    "carbono": "fibra de carbono",
-    "kevlar": "kevlar",
-    "magnesio": "magnesio",
-    "titanio": "titanio",
-    "titanium": "titanio",
-    "aluminio": "aluminio",
-    "aluminum": "aluminio",
-    "madera": "madera",
-    "acero": "acero",
-    "steel": "acero",
-    "plastico": "plástico",
-    "plástico": "plástico",
-    "pvc": "pvc",
-}
+# G10 ★2/★7: single source is jarvis.domains.materials.MATERIAL_ALIASES —
+# aerial.py's frame extractor uses the same table. "madera" was removed there
+# (no library entry, was an unhandled-KeyError hazard — investigation §5.3)
+# and is therefore absent here too.
+_KNOWN_MATERIALS: dict[str, str] = MATERIAL_ALIASES

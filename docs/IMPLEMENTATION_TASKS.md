@@ -6,11 +6,46 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **H1–H4 cerrados (`v0.2.0` / `checkpoint-fn026-h4`). Mapa: 59 · 58🟢 · 0🔴 · 1🟡 (C-081).**  
-> **PRIORIDAD AHORA:** tras **`checkpoint-g3`** → estudiar **G10** (materiales/frame) antes de Impl C; R3 preempt en paralelo según Engineer.  
-> G3 **CLI PASS** (2026-08-15). SYS-MAP-004 **PASS WITH NOTES**. G8/G9/G10 registrados — sin implementar.  
-> Findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md)  
-> **No R4 / no Impl C** hasta design.
+> **H1–H4 cerrados. Mapa: 59 · 58🟢 · 0🔴 · 1🟡 (C-081).**  
+> **PRIORIDAD AHORA:** Continuity Hardening — **CLI BOM walk** (Cursor review **PASS WITH NOTES**).  
+> Impl ★1–★7 DONE · Review: [`.jes/artifacts/implementation_review_continuity_hardening.md`](../.jes/artifacts/implementation_review_continuity_hardening.md)  
+> Luego: G10 PVC / `checkpoint-g10`. Findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md)
+
+### 🟡 EN CURSO — Continuity CLI BOM walk
+
+> Código + tests verdes. Probar proyecto **nuevo**: propulsion → battery → frame  
+> sin `cancelar` obligatorio (solo para retarget intencional).  
+> Smoke: `1x 2306…` ≠ hélices · `definir frame` mid-battery → refuse · list-motors mid-thrust.
+
+### ✅ COMPLETADO — Continuity Hardening Implementation (+ Cursor review)
+
+> 4 slices · T1–T10 · report · Cursor **PASS WITH NOTES**.  
+> Artefactos: `implementation_contract/report/review_continuity_hardening*`.  
+> G10 materials **untouched**.
+
+### ⏸ DIFERIDO — G10 CLI PVC / checkpoint-g10
+
+> Tras Continuity CLI PASS. `plastico` ya PASS · ★8 PASS.
+
+### ✅ COMPLETADO — G10 Implementation (+ review)
+
+> ★1–★8 · tests · Cursor **PASS WITH NOTES**. ★8 CLI PASS. `plastico` frame CLI PASS.  
+> Artefactos: `implementation_*g10_materials_frame*`, `design_g10_*`, `investigation_g10_*`.  
+> **No patch G10 por routing.**
+
+### 🟡 REGISTRADOS — Continuity bundle + later
+
+> **G17** 🔴 — Motors wizard: ejemplo `4x 2306…` no registra sin palabra `motores` (falta force-motors; G10-shaped).  
+> **G16** 🟡 — Continuity residual: (A) `que motores…?` → analyze/LLM; (B) CTA “Elige un número” duplicada.  
+> **G14/G15** — Continuity impl; CLI en curso.  
+> **G12 / G11 / G8 / G7** — sticky / preempt / swallow / iterate break.  
+> **G13** — iterate `PVC 400g` opaque (después).  
+> **G9** — no tocar aislado.  
+> Fuente: findings register.
+
+### ✅ COMPLETADO — G10 Investigation + Design
+
+> Investigation + Design OPEN → Cursor review **PASS WITH NOTES** → Engineer ★1–★8 locked.
 
 ### ✅ COMPLETADO — G3 Active Goal Continuity (+ CLI PASS)
 
@@ -25,15 +60,6 @@
 > Artefactos: `.jes/artifacts/sys_map_004_routing_audit.md`, `implementation_review_sys_map_004_*`.  
 > **R1 doc applied** (C-040 caveat, ACQUISITION known issue, AUTHORITY mode note, M-005).  
 > **G8 / G9** registered in findings — no implement.
-
-### 🟡 REGISTRADOS — G8 / G9 / G10 / G6 / G7 (no implementar)
-
-> **G10** — Material catalog ↔ frame acquisition misalignment (study before Impl C).  
-> **G8** — DEFINE_MISSING UX-C swallows engineering/explore (needs R3 before FN).  
-> **G9** — Continuity catalog-gap vs declared thrust / `catalog_ref`.  
-> **G6** — mass breakdown determinista/auditable.  
-> **G7** — iterate `operation=None` / mid-flow intent break.  
-> Fuente: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md)
 
 ### ✅ COMPLETADO — G5 Fix (DSE → component sync)
 
@@ -52,31 +78,29 @@
 > `reducir payload` → `reducir_payload` + DSE simétrico; H1–H4 smoke OK.  
 > Artefactos: `.jes/artifacts/implementation_*f1_reducir_payload*`
 
-### Cola acordada (Engineer 2026-08-14)
+### Cola acordada (Engineer 2026-08-15 — RELOCKED)
 
 ```text
 ✅ Catalog Impl A + Impl B + F-1 + G5
         ↓
-📝 G6 / G7 registered (no code)
+📝 G6 / G7 registered
         ↓
-✅ G3 Design + implement + review + CLI PASS → checkpoint-g3
+✅ G3 + SYS-MAP-004 + R1 → checkpoint-g3
         ↓
-✅ SYS-MAP-004 audit + R1 + G8/G9 registered
+✅ G10 impl + review · ★8 · plastico frame CLI PASS
+⏸ G10 PVC / checkpoint-g10 — DEFERRED
         ↓
-📝 G10 registered (materials/frame) — study before Impl C   ← AHORA
+🔴 Continuity Hardening (G14 · G15 · G12 · G8 · G11)   ← AHORA IMPLEMENT
+        │  ★1–★7 CLOSED · IC READY
         ↓
-G10 design/contract  ⟷  R3 DEFINE_MISSING preempt design
+Cursor review → CLI BOM walk
         ↓
-R4 FN G8 (if approved) · G9 aparte
+then G10 PVC / checkpoint-g10 · G13
         ↓
-G1/G2 + H5 (diseño)
-        ↓
-UX catálogo batería/hélice
-        ↓
-Catalog Impl C (DSE por SKU)
-        ↓
-Create → BOM
+R3 remainder · G9 · G1/H5 · UX · Impl C
 ```
+
+**Engineer locks:** ★1–★7 Continuity CLOSED; System Map caveats after impl; no G10 materials patch; no `src/` outside Continuity IC.
 
 ### ✅ COMPLETADO — Catalog Bind Impl B
 

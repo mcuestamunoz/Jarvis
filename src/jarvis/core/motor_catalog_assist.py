@@ -79,6 +79,29 @@ def is_help_choose_phrase(user_input: str) -> bool:
     return False
 
 
+# Continuity Hardening ★5 (G15): deterministic list-motors escape, mirrors
+# G10 ★8's list-materials pattern shape. Narrow on purpose — must not steal
+# a bare numeric thrust/watts answer or a real motor model string.
+_LIST_MOTORS_PATTERNS: tuple[str, ...] = (
+    r"\bque\s+motores\b",
+    r"\bmotores\s+(?:disponibles|tenemos|hay)\b",
+    r"\bcatalogo\s+de\s+motores\b",
+    r"\blista(?:r)?\s+(?:de\s+)?motores\b",
+)
+_LIST_MOTORS_RE = tuple(re.compile(p) for p in _LIST_MOTORS_PATTERNS)
+
+
+def is_list_motors_phrase(user_input: str) -> bool:
+    """G15 ★5: does *user_input* ask what motors are in the catalog?
+
+    Deliberately narrow — same shape as G10 ★8's ``LIST_MATERIALS_PATTERNS``
+    (`intent_resolver.py`) — so it never collides with a genuine numeric
+    thrust/watts answer or a catalog model string.
+    """
+    normalized = _normalize_help(user_input)
+    return any(rx.search(normalized) for rx in _LIST_MOTORS_RE)
+
+
 def is_bare_watts_input(user_input: str) -> bool:
     """True when the whole input is a power number (optional W suffix), not a model string."""
     return _BARE_WATTS_RE.match(user_input.strip()) is not None
@@ -165,19 +188,14 @@ def resolve_motor_from_text(
     return None
 
 
-def build_motor_catalog_suggestions(
-    project_state: Any,
-    *,
-    library: ComponentLibrary | None = None,
-    limit: int = 5,
-    kv: int | None = None,
-) -> list[MotorSuggestion]:
-    """Ranked catalog candidates for the current project's design space."""
-    lib = library or default_library
-    from jarvis.core.project_closure import derive_physical_requirements
-
-    req = derive_physical_requirements(project_state) if project_state is not None else {}
-    min_thrust = req.get("thrust_per_motor_needed_n")
+def derive_kv_prop_filters(project_state: Any, *, kv: int | None = None) -> tuple[int | None, float | None]:
+    """Extract (kv_hint, prop_inch) from *project_state* — the same design-space
+    filters ``build_motor_catalog_suggestions`` uses. Factored out (Continuity
+    Hardening ★6) so a caller that already got zero candidates from a filtered
+    search can compute a "catalog max" using those SAME filters, instead of
+    silently falling back to an unfiltered full-catalog max that can
+    contradict the filtered "no candidates" verdict (investigation A10/A11).
+    """
     kv_hint = kv
     if kv_hint is None and project_state is not None:
         motors_comp = getattr(
@@ -198,6 +216,23 @@ def build_motor_catalog_suggestions(
             prop_inch = float(params["propeller_diameter_in"])
         except (TypeError, ValueError):
             prop_inch = None
+    return kv_hint, prop_inch
+
+
+def build_motor_catalog_suggestions(
+    project_state: Any,
+    *,
+    library: ComponentLibrary | None = None,
+    limit: int = 5,
+    kv: int | None = None,
+) -> list[MotorSuggestion]:
+    """Ranked catalog candidates for the current project's design space."""
+    lib = library or default_library
+    from jarvis.core.project_closure import derive_physical_requirements
+
+    req = derive_physical_requirements(project_state) if project_state is not None else {}
+    min_thrust = req.get("thrust_per_motor_needed_n")
+    kv_hint, prop_inch = derive_kv_prop_filters(project_state, kv=kv)
 
     if min_thrust is None and kv_hint is None and prop_inch is None:
         # Fall back: list a few motors near a light aerial thrust band
@@ -323,6 +358,8 @@ def format_no_thrust_candidate_message(
     *,
     required_n: float | None = None,
     library: ComponentLibrary | None = None,
+    kv: int | None = None,
+    prop_inch: float | None = None,
 ) -> str:
     """FN-009: deterministic, honest response when no catalog motor covers the
     computed thrust requirement.
@@ -330,16 +367,30 @@ def format_no_thrust_candidate_message(
     Names the requirement, what the catalog actually covers, and concrete
     options the user can act on. Never invents a SKU and never mutates
     motor_count automatically.
+
+    Continuity Hardening ★6 (G15): when *kv*/*prop_inch* are given (the same
+    filters the search that produced zero candidates already used), the
+    quoted "máximo cubierto" is computed over that SAME filtered set — not
+    the unfiltered full catalog, which could quote a number no motor in
+    range actually offers (investigation A10/A11: "no motor ≥37.7 N" next to
+    an unrelated "máximo ~55 N" from a KV-incompatible motor). With no
+    filters given (bare thrust-only search), the full-catalog max is still
+    the correct, honest figure — unchanged from before this fix.
     """
     lib = library or default_library
-    motors = lib.list_motors()
+    filtered = kv is not None or prop_inch is not None
+    if filtered:
+        motors = lib.find_motors_for_requirements(kv=kv, prop_inch=prop_inch)
+    else:
+        motors = lib.list_motors()
     max_available_n = max((m.max_thrust_n for m in motors), default=0.0)
     if required_n is not None:
         line = f"No tengo un motor en el catálogo que cubra ≥ {required_n:.1f} N/motor"
     else:
         line = "No tengo un motor en el catálogo que cubra este requisito de empuje"
+    filter_note = " compatible con tu KV/hélice" if filtered else ""
     line += (
-        f" (máximo cubierto por el catálogo: ~{max_available_n:.1f} N/motor)."
+        f" (máximo{filter_note} cubierto por el catálogo: ~{max_available_n:.1f} N/motor)."
         if max_available_n > 0
         else "."
     )

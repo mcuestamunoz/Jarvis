@@ -16,10 +16,12 @@ from jarvis.core.motor_catalog_assist import (
     ASSISTED_MOTOR_PARAMS,
     MotorSuggestion,
     build_motor_catalog_suggestions,
+    derive_kv_prop_filters,
     format_motor_catalog_suggestions,
     format_no_thrust_candidate_message,
     is_bare_watts_input,
     is_help_choose_phrase,
+    is_list_motors_phrase,
     looks_like_motor_model_text,
     match_suggestion_by_input,
     resolve_motor_from_text,
@@ -311,10 +313,20 @@ class ParamDefinitionSession:
             # FN-009: honest deterministic gap — requirement, catalog coverage,
             # concrete options. Never invents a SKU or mutates motor_count.
             thrust_hint = self._thrust_hint_for_active_project()
+            # Continuity Hardening ★6: same kv/prop filters the (empty)
+            # suggestions search above already used, so "máximo cubierto"
+            # never quotes an unfiltered figure next to a filtered verdict.
+            try:
+                active_state = self.state_manager.load_active_project(self.workspace_manager)
+            except FileNotFoundError:
+                active_state = None
+            kv_hint, prop_inch = derive_kv_prop_filters(active_state)
             return {
                 "status": "interactive",
                 "action": "define_missing_params",
-                "message": format_no_thrust_candidate_message(required_n=thrust_hint),
+                "message": format_no_thrust_candidate_message(
+                    required_n=thrust_hint, kv=kv_hint, prop_inch=prop_inch
+                ),
                 "question": self._question_for_param(pending[0], []),
                 "pending": list(pending),
                 "motor_suggestions": [],
@@ -434,7 +446,12 @@ class ParamDefinitionSession:
         ``answer()``.
         """
         current = pending[0]
-        if is_help_choose_phrase(user_input):
+        # Continuity Hardening ★5 (G15): "qué motores tenemos en el catálogo"
+        # today falls all the way to answer()'s "No reconozco X como valor"
+        # (investigation A12) — reuse the same deterministic listing
+        # "ayúdame a elegir" already returns; no new formatter, no LLM, wizard
+        # stays open (offer_catalog_help never clears pending).
+        if is_list_motors_phrase(user_input) or is_help_choose_phrase(user_input):
             return self.offer_catalog_help()
         picked = match_suggestion_by_input(user_input, suggestions) if suggestions else None
         if picked is None:

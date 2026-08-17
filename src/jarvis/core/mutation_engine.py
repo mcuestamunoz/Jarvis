@@ -239,10 +239,16 @@ class MutationEngine:
             )
 
         # ── Validate both materials exist in library (hard error) ────────────
+        # G10 ★6: state["material"] is the canonical value — seeded by
+        # actions/iterate.py:_build_mutable_state via design_utils.get_frame_material(),
+        # the Single Read Point for components["frame"]. structure["material"]
+        # is the legacy mirror (component_writers.set_frame_material never
+        # updates it) and must not win here — preferring it silently computed
+        # a density ratio against a stale material (investigation §5.2).
         design = state.get("design_properties", {})
         structure = design.get("structure", {}) if isinstance(design, dict) else {}
         current_material = (
-            structure.get("material") or state.get("material") or "aluminio"
+            state.get("material") or structure.get("material") or "aluminio"
         ).strip().lower()
         structural_fraction = float(structure.get("structural_fraction", 0.25))
 

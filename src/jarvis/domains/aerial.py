@@ -14,6 +14,7 @@ from __future__ import annotations
 import re
 
 from jarvis.core.component_rules import ComponentRule, ComponentRuleRegistry
+from jarvis.domains.materials import MATERIAL_ALIASES, resolve_material_alias
 from jarvis.schemas.action_schema import PropertyValue
 
 
@@ -196,30 +197,23 @@ def _battery_completeness(props: dict) -> tuple[str, list[str]]:
 
 # ── Frame property extractor ─────────────────────────────────────────────────
 
-MATERIAL_MAP: dict[str, str] = {
-    "carbono":           "carbon_fiber",
-    "fibra de carbono":  "carbon_fiber",
-    "carbon":            "carbon_fiber",
-    "carbon fiber":      "carbon_fiber",
-    "cf":                "carbon_fiber",
-    "aluminio":          "aluminum",
-    "aluminum":          "aluminum",
-    "aluminium":         "aluminum",
-    "alu":               "aluminum",
-    "plastico":          "plastic",
-    "plástico":          "plastic",
-    "abs":               "plastic",
-    "nylon":             "plastic",
-}
+# G10: retired as the acquisition alias source — kept as an alias so existing
+# importers keep working. Points at the shared table (jarvis.domains.materials),
+# which now emits library canonical (Spanish) names, not English slugs.
+MATERIAL_MAP: dict[str, str] = MATERIAL_ALIASES
 
 
 def extract_frame_properties(normalized: str) -> dict[str, PropertyValue]:
     """Extract mass_kg and material from a free-text frame description.
 
+    Material values are the library's own canonical (Spanish) names — see
+    ``jarvis.domains.materials`` — so they can be passed straight to
+    ``ComponentLibrary.get_material()`` with no translation step.
+
     Examples:
-        "fibra de carbono 450g"  → {mass_kg: 0.45, material: "carbon_fiber"}
-        "aluminio 0.6kg"         → {mass_kg: 0.6,  material: "aluminum"}
-        "carbono"                → {material: "carbon_fiber"}
+        "fibra de carbono 450g"  → {mass_kg: 0.45, material: "fibra de carbono"}
+        "aluminio 0.6kg"         → {mass_kg: 0.6,  material: "aluminio"}
+        "carbono"                → {material: "fibra de carbono"}
         "500g"                   → {mass_kg: 0.5}
     """
     props: dict[str, PropertyValue] = {}
@@ -236,14 +230,7 @@ def extract_frame_properties(normalized: str) -> dict[str, PropertyValue]:
             value=round(float(mass_g.group(1)) / 1000, 4), unit="kg", confidence=0.9, source="declared"
         )
 
-    # material: longest match first to prefer "fibra de carbono" over "carbono"
-    found_material: str | None = None
-    found_len = 0
-    lower = normalized.lower()
-    for alias, canonical in MATERIAL_MAP.items():
-        if alias in lower and len(alias) > found_len:
-            found_material = canonical
-            found_len = len(alias)
+    found_material = resolve_material_alias(normalized)
     if found_material:
         props["material"] = PropertyValue(
             value=found_material, unit=None, confidence=0.9, source="declared"
@@ -479,7 +466,14 @@ aerial_registry = ComponentRuleRegistry([
         missing_field_hints=("Define battery_capacity_wh (Wh) y motor_power_w (W) para calcular autonomía",),
     ),
     ComponentRule(
-        keywords=("frame", "chasis", "estructura", "armazon", "armazón", "carbon", "carbono", "aluminio"),
+        keywords=(
+            "frame", "chasis", "estructura", "armazon", "armazón",
+            # G10 ★4: all 8 library material stems, so a cold phrase like
+            # "frame de kevlar 300g" resolves without needing the scoped
+            # wizard's force-frame bypass (component_inference.infer_component_for_key).
+            "carbon", "carbono", "aluminio", "plastico", "plástico", "pvc",
+            "titanio", "acero", "kevlar", "magnesio",
+        ),
         component_type="structure",
         suggested_key="frame",
         inference_confidence=0.8,

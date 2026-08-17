@@ -216,14 +216,28 @@ def test_extract_frame_mass_with_material():
     assert "mass_kg" in props
     assert abs(props["mass_kg"].value - 0.45) < 1e-6
     assert "material" in props
-    assert props["material"].value == "carbon_fiber"
+    # G10 ★1: canonical value is the library's own Spanish name, not an
+    # internal English slug — get_material() must accept it directly.
+    assert props["material"].value == "fibra de carbono"
 
 
 def test_extract_frame_material_only():
     props = extract_frame_properties("aluminio")
     assert "material" in props
-    assert props["material"].value == "aluminum"
+    assert props["material"].value == "aluminio"
     assert "mass_kg" not in props
+
+
+def test_extract_frame_material_covers_all_library_materials():
+    """G10: every library material must be extractable via its own name."""
+    from jarvis.knowledge.library import default_library
+
+    for spec in default_library.list_materials():
+        props = extract_frame_properties(f"{spec.name} 400g")
+        assert "material" in props, f"{spec.name!r} not recognized"
+        assert props["material"].value == spec.name
+        # Must round-trip through the library without KeyError.
+        assert default_library.has_material(props["material"].value)
 
 
 def test_frame_completeness_low_empty():

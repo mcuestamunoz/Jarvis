@@ -65,9 +65,9 @@ def _dp(frame: ComponentSpec | None = None, battery: ComponentSpec | None = None
 class TestGetFrameMaterial:
 
     def test_returns_material_from_components(self):
-        """Caso normal: frame definido con material carbon_fiber."""
-        dp = _dp(frame=_make_frame_spec("carbon_fiber"))
-        assert get_frame_material(dp) == "carbon_fiber"
+        """Caso normal: frame definido con material fibra de carbono (library Spanish, ★1)."""
+        dp = _dp(frame=_make_frame_spec("fibra de carbono"))
+        assert get_frame_material(dp) == "fibra de carbono"
 
     def test_fallback_when_no_frame(self):
         """Sin frame en components → fallback 'aluminio'."""
@@ -76,31 +76,41 @@ class TestGetFrameMaterial:
 
     def test_fallback_when_completeness_low(self):
         """Frame con completeness=low → tratar como ausente → fallback 'aluminio'."""
-        dp = _dp(frame=_make_frame_spec("carbon_fiber", completeness="low"))
+        dp = _dp(frame=_make_frame_spec("fibra de carbono", completeness="low"))
         assert get_frame_material(dp) == "aluminio"
 
     def test_getter_wins_over_mirror_when_inconsistent(self):
-        """COHERENCIA CRÍTICA: components dice carbon_fiber, mirror dice aluminio.
+        """COHERENCIA CRÍTICA: components dice fibra de carbono, mirror dice aluminio.
         El getter debe retornar el valor de components (fuente canónica), no el mirror.
         Este es el test definitorio de Fase 3: si pasa, Single Read Point está correcto."""
         dp = _dp(
-            frame=_make_frame_spec("carbon_fiber"),
+            frame=_make_frame_spec("fibra de carbono"),
             mirror_material="aluminio",  # mirror inconsistente
         )
-        assert get_frame_material(dp) == "carbon_fiber"  # components gana siempre
+        assert get_frame_material(dp) == "fibra de carbono"  # components gana siempre
 
     def test_mirror_value_irrelevant_when_components_has_data(self):
         """El mirror puede tener cualquier valor — si components tiene datos, gana."""
         dp = _dp(
-            frame=_make_frame_spec("aluminum"),
-            mirror_material="carbon_fiber",  # mirror incorrecto
+            frame=_make_frame_spec("aluminio"),
+            mirror_material="fibra de carbono",  # mirror incorrecto
         )
-        assert get_frame_material(dp) == "aluminum"
+        assert get_frame_material(dp) == "aluminio"
 
     def test_fallback_to_aluminio_not_mirror_when_no_frame(self):
         """Sin frame en components → fallback es 'aluminio' explícito, nunca el mirror."""
-        dp = _dp(mirror_material="carbon_fiber")  # mirror tiene algo, pero no hay frame
+        dp = _dp(mirror_material="fibra de carbono")  # mirror tiene algo, pero no hay frame
         assert get_frame_material(dp) == "aluminio"  # fallback explícito, ignora mirror
+
+    def test_legacy_english_slug_translated_to_library_name(self):
+        """G10 ★5: a ComponentSpec persisted before this fix (English MATERIAL_MAP
+        slug) must read back as the library Spanish name — no state migration needed."""
+        dp = _dp(frame=_make_frame_spec("carbon_fiber"))
+        assert get_frame_material(dp) == "fibra de carbono"
+        dp2 = _dp(frame=_make_frame_spec("aluminum"))
+        assert get_frame_material(dp2) == "aluminio"
+        dp3 = _dp(frame=_make_frame_spec("plastic"))
+        assert get_frame_material(dp3) == "plástico"
 
 
 # ── get_frame_mass_kg ─────────────────────────────────────────────────────────
@@ -197,8 +207,8 @@ class TestIterateBuildMutableStateUsesGetter:
 
         state = orc.state_manager.load_active_project(orc.workspace_manager)
 
-        # Frame con carbon_fiber en components, aluminio en mirror → inconsistencia deliberada
-        frame_spec = _make_frame_spec("carbon_fiber", mass_kg=0.45)
+        # Frame con fibra de carbono en components, aluminio en mirror → inconsistencia deliberada
+        frame_spec = _make_frame_spec("fibra de carbono", mass_kg=0.45)
         updated_components = {**state.design_properties.components, "frame": frame_spec}
         updated_structure = state.design_properties.structure.model_copy(
             update={"material": "aluminio"}  # mirror inconsistente
@@ -212,8 +222,8 @@ class TestIterateBuildMutableStateUsesGetter:
         iterate_action = self._make_iterate_action(orc)
         mutable = iterate_action._build_mutable_state(state_with_inconsistency)
 
-        # El getter debe retornar carbon_fiber (de components), no aluminio (del mirror)
-        assert mutable["material"] == "carbon_fiber"
+        # El getter debe retornar fibra de carbono (de components), no aluminio (del mirror)
+        assert mutable["material"] == "fibra de carbono"
 
     def test_build_mutable_state_fallback_when_no_frame(self, tmp_path):
         """Sin frame en components, _build_mutable_state usa 'aluminio' como fallback."""
@@ -275,8 +285,8 @@ class TestDisplayUsesGetterNotMirror:
 
         state = orc.state_manager.load_active_project(orc.workspace_manager)
 
-        # Inyectar inconsistencia: components dice carbon_fiber, mirror dice aluminio
-        frame_spec = _make_frame_spec("carbon_fiber", mass_kg=0.45)
+        # Inyectar inconsistencia: components dice fibra de carbono, mirror dice aluminio
+        frame_spec = _make_frame_spec("fibra de carbono", mass_kg=0.45)
         updated_components = {**state.design_properties.components, "frame": frame_spec}
         updated_structure = state.design_properties.structure.model_copy(
             update={"material": "aluminio"}  # mirror stale
@@ -289,8 +299,8 @@ class TestDisplayUsesGetterNotMirror:
 
         context = orc._build_analyze_context(state_inconsistent)
 
-        # El display debe retornar carbon_fiber (de components), no aluminio (del mirror)
-        assert context["material"] == "carbon_fiber"
+        # El display debe retornar fibra de carbono (de components), no aluminio (del mirror)
+        assert context["material"] == "fibra de carbono"
 
     def test_display_fallback_when_no_frame(self, tmp_path):
         """Sin frame en components, _build_analyze_context['material'] retorna 'aluminio'."""

@@ -15,6 +15,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from jarvis.domains.materials import LEGACY_MATERIAL_SLUGS
+
 if TYPE_CHECKING:
     from jarvis.schemas.state_schema import DesignProperties
 
@@ -23,7 +25,12 @@ def get_frame_material(design_properties: "DesignProperties") -> str:
     """Lectura canónica del material del frame.
 
     Returns:
-        Material del frame como string canónico (ej: "carbon_fiber", "aluminum").
+        Material del frame como string canónico — la biblioteca (nombre en
+        español, ej. "fibra de carbono", "aluminio"; ver
+        ``jarvis.domains.materials``). G10 ★5: si el valor almacenado es un
+        slug inglés heredado de acquisitions anteriores a este fix
+        (``carbon_fiber``/``aluminum``/``plastic``), se traduce aquí en
+        lectura — no requiere migrar archivos de estado existentes.
         Fallback: "aluminio" cuando el frame no está definido o tiene completeness=low.
     """
     frame = design_properties.components.get("frame")
@@ -33,7 +40,10 @@ def get_frame_material(design_properties: "DesignProperties") -> str:
         and "material" in frame.properties
     ):
         value = frame.properties["material"].value
-        return str(value) if value else "aluminio"
+        if not value:
+            return "aluminio"
+        value = str(value)
+        return LEGACY_MATERIAL_SLUGS.get(value, value)
     return "aluminio"
 
 
