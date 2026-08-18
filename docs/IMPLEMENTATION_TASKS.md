@@ -6,11 +6,25 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** commit **`15aa503`** · tag **`checkpoint-continuity-polish`** (Continuity + G10 + polish S1–S7).  
-> **PRIORIDAD AHORA:** **Post-polish follow-ups** — G17 residual, G14 routing, G13 iterate path.  
-> Findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md)
+> **Base:** ERF-1 implemented (uncommitted) · 1813 tests pass · System Map synced 2026-08-18.  
+> **PRIORIDAD AHORA:** Engineer review → commit/tag **`checkpoint-erf1`** (when asked).  
+> Report: [`.jes/artifacts/implementation_report_erf1.md`](../.jes/artifacts/implementation_report_erf1.md)  
+> Vision (to-be): [`docs/ENGINEERING_READINESS_VISION.md`](ENGINEERING_READINESS_VISION.md)
 
-### 🟡 SIGUIENTE — Post-polish micro-fixes
+### ✅ COMPLETADO — ERF-1 Readiness Foundation (2026-08-18)
+
+> Slices 1–5 · 40 new tests · suite 1813 pass · **not committed** (per contract).  
+> IC: [`.jes/artifacts/implementation_contract_erf1.md`](../.jes/artifacts/implementation_contract_erf1.md)  
+> Report: [`.jes/artifacts/implementation_report_erf1.md`](../.jes/artifacts/implementation_report_erf1.md)  
+> System Map: C-107–C-110 + forbidden transitions (Continuity↛Readiness; no `readiness.json`).
+
+### 🟡 SIGUIENTE — ERF-1 follow-ups (optional, post-checkpoint)
+
+> **ERF-1 Slice 4b** — full Continuity handoff (BOM/arch/FN-005) or richer `recommended_next_step`  
+> **ERF-1 polish** — dedupe `resolve_motor_catalog_surface` in orchestrator (drift guard)  
+> **ERF-2** — ESC/FC/integration gaps + compatibility solver
+
+### 🟡 SIGUIENTE — Post-polish micro-fixes (parallel track)
 
 > G17 — bare motor phrase at IDLE still → analyze (prefix `motores` works).  
 > G14 — `10x4.5` → analyze; `helices 10x4.5` OK.  

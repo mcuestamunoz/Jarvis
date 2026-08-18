@@ -5,13 +5,13 @@
  * To open live in Cursor beside chat, copy/sync to the project canvases folder:
  *   ~/.cursor/projects/<workspace>/canvases/jarvis-system-map.canvas.tsx
  *
- * Counts: 59 canonical registry edges (CONNECTIONS.md) + 8 forbidden (not C-xxx).
+ * Counts: 63 canonical registry edges (CONNECTIONS.md) + 10 forbidden (not C-xxx).
  * Updated 2026-08-10 by FN-024: C-042 fixed (BROKEN → CONNECTED), C-105/C-106 added.
  * Updated 2026-08-12 by FN-025: C-025/C-044 fixed (BROKEN → CONNECTED).
  * Updated 2026-08-12 by FN-026: C-043 fixed (BROKEN → CONNECTED) — H1-H4 all
- * closed. Only C-081 (H5, design-only, deferred) remains non-green.
- * Updated 2026-08-18 post checkpoint-continuity-polish: CLI polish S1-S7 PASS.
- * No new connections; intent count corrected 14→13. G20/G20-B registered.
+ * closed.
+ * Updated 2026-08-18 ERF-1: C-107–C-110 added (engineering_readiness aggregator).
+ * Non-green: C-081 (H5) + C-108 (catalog-gap handoff only, Slice 4b deferred).
  * Never report "65 connections" — that counted derived-table duplicates.
  */
 import {
@@ -110,6 +110,10 @@ const CONNECTIONS: Conn[] = [
   { id: "C-083", from: "classify", to: "block_prog", fromLabel: "classify_component", toLabel: "_block_progress_status", status: "connected", band: "08 Continuity" },
   { id: "C-084", from: "proj_state", to: "phase", fromLabel: "ProjectState", toLabel: "PhaseLayer.infer", status: "connected", band: "08 Continuity" },
   { id: "C-085", from: "ctx", to: "reasoning", fromLabel: "Context (+phase)", toLabel: "ReasoningLayer.build", status: "connected", band: "08 Continuity" },
+  { id: "C-107", from: "proj_state", to: "readiness", fromLabel: "ProjectState + authorities", toLabel: "build_engineering_readiness", status: "connected", band: "08 Continuity" },
+  { id: "C-108", from: "readiness", to: "continuity", fromLabel: "EngineeringReadinessResult", toLabel: "Continuity catalog-gap ranking", status: "partial", band: "08 Continuity" },
+  { id: "C-109", from: "orch", to: "readiness", fromLabel: "build_startup_context", toLabel: "readiness field in context dict", status: "connected", band: "08 Continuity" },
+  { id: "C-110", from: "cli", to: "read_ui", fromLabel: "render_startup_context", toLabel: "ENGINEERING READINESS block", status: "connected", band: "08 Continuity" },
 
   { id: "C-090", from: "free_text", to: "infer", fromLabel: "Free text", toLabel: "component_inference", status: "connected", band: "09 Components/State" },
   { id: "C-091", from: "infer", to: "writers", fromLabel: "ComponentSpec", toLabel: "component_writers", status: "connected", band: "09 Components/State" },
@@ -133,6 +137,7 @@ const LAYOUT_BRIDGES: Array<{ from: string; to: string }> = [
   { from: "mutation", to: "curr_params" },
   { from: "writers", to: "proj_state" },
   { from: "phase", to: "ctx" },
+  { from: "readiness", to: "continuity" },
 ];
 
 const NODE_LABELS: Record<string, string> = {
@@ -175,6 +180,8 @@ const NODE_LABELS: Record<string, string> = {
   sim: "Simulation",
   state_mgr: "StateManager",
   continuity: "Continuity",
+  readiness: "Eng. Readiness",
+  read_ui: "READINESS UI",
   classify: "classify_comp",
   bom: "BOM",
   block_prog: "block_progress",
@@ -201,6 +208,8 @@ const FORBIDDEN = [
   ["LLM → goal selection", "ActionPolicy closed set"],
   ["LLM → DSE configuration", "ActionPolicy closed set"],
   ["Continuity → mutate ProjectState", "zero I/O in continuity"],
+  ["Continuity → engineering_readiness", "circularity forbidden (ERF-1)"],
+  ["engineering_readiness → persist readiness.json", "derived-on-read only"],
   ["DSE → silent mutate", "only via C-046 apply"],
   ["Goal Planner → write params", "zero writes in goal_planner"],
   ["Inference → write components", "only via C-091 writers"],
@@ -465,7 +474,9 @@ export default function JarvisSystemMapCanvas() {
       </Row>
 
       <Callout tone="warning" title="Authority">
-        ProjectState / Acquisition / Continuity own what is next. LLM narrates
+        ProjectState / Acquisition own acquisition targets. Gap registry +
+        assembly rollup: engineering_readiness (ERF-1, C-107). Human next-step
+        copy: Continuity (C-108 partial for catalog gap only). LLM narrates
         only. ActionPolicy = CREATE_PROJECT | ITERATE | CALCULATE | SIMULATE.
       </Callout>
 
@@ -560,12 +571,11 @@ export default function JarvisSystemMapCanvas() {
         orchestrator refine (C-025 / C-044 🟢). Bare help → Continuity.
       </Text>
 
-      <Callout tone="info" title="Next (post checkpoint-continuity-polish)">
-        CLI polish S1–S7 PASS WITH NOTES (2026-08-18). No new connections —
-        polish was UX/routing, not architectural. G20/G20-B (energy block
-        label vs motor_power_w) registered as follow-ups. Sole non-green
-        edge: C-081 (H5, YELLOW, design-only). Current queue: G20 micro-fix,
-        G17/G14/G13 residuals, R3 (G11/G8), G9-A, then C.
+      <Callout tone="info" title="ERF-1 (2026-08-18)">
+        Engineering Readiness Foundation shipped: C-107–C-110. 63 registry edges,
+        62 green, 2 partial (C-081 H5 + C-108 catalog handoff). Slice 4b
+        (full Continuity ranking) deferred. Report: .jes/artifacts/
+        implementation_report_erf1.md
       </Callout>
     </Stack>
   );

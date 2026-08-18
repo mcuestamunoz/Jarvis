@@ -28,7 +28,8 @@ ORCHESTRATOR (core/orchestrator.py) ──────────────�
   │
   ├──► CALCULATION → SIMULATION (pure physics) ──────────────────── 06/07
   │
-  ├──► CONTINUITY (Situation / Evidence / Next-step; BOM; phase) ─── 08_continuity
+  ├──► CONTINUITY (Situation / Evidence / Next-step; BOM; readiness rollup ERF-1) ─── 08_continuity
+  │       project_continuity · engineering_readiness · project_closure (C-107–C-110)
   │
   └──► STATE / WORKSPACE (ProjectState, runtime session, disk) ───── 09_state
            ▲
@@ -66,6 +67,7 @@ Full detail: `00_entry/ENTRY_MAP.md` and `01_runtime/RUNTIME_MAP.md`; connection
 | "ayúdame" + named goal → plan/explore | 🟢 **FIXED (FN-025, 2026-08-12)** | C-025 / C-044 |
 | Goal Plan lever (e.g. `safety_factor`) → Iterate preseed | 🟢 **FIXED (FN-026, 2026-08-12)** | C-043 |
 | Sim PASS + risky margin → Continuity next-step thread | 🟡 PARTIAL (WEAK) — H5, deferred | C-081 |
+| Readiness → full Continuity next-step handoff | 🟡 PARTIAL — catalog gap only (Slice 4b deferred) | C-108 |
 
 C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the same `HandoffContext` (Hybrid Operation-Scoped lifecycle — see `MISMATCHES.md`). **H1–H4 are all closed — 0 RED edges remain.** C-081 (H5) is the sole non-green edge, design-only, deferred. H5 / Create→BOM prioritization is an Engineer decision — see `docs/IMPLEMENTATION_TASKS.md`.
 
@@ -81,13 +83,13 @@ C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the sa
 | [`05_iteration`](05_iteration/ITERATION_MAP.md) | Concrete mutation wizard | Runtime | State, Calculation |
 | [`06_calculation`](06_calculation/CALCULATION_MAP.md) | Physics build | Iteration, Actions | Simulation |
 | [`07_simulation`](07_simulation/SIMULATION_MAP.md) | Feasibility verdict | Calculation | State, Continuity |
-| [`08_continuity`](08_continuity/CONTINUITY_MAP.md) | Situation/Evidence/Next-step | State, Simulation | Runtime (project_status), Acquisition |
+| [`08_continuity`](08_continuity/CONTINUITY_MAP.md) | Situation/Evidence/Next-step; readiness rollup (ERF-1) | State, Simulation, authorities (C-107) | Runtime (project_status), Acquisition, CLI (C-108–C-110) |
 | [`09_state`](09_state/STATE_MAP.md) | Source of truth | Everything | Everything |
 | [`10_llm`](10_llm/LLM_MAP.md) | Bounded fallback + narrator | Runtime | Runtime (closed action set) |
 
 ## Registries
 
-- [`CONNECTIONS.md`](CONNECTIONS.md) — every edge, `C-001`…`C-104`, with evidence
+- [`CONNECTIONS.md`](CONNECTIONS.md) — every edge, `C-001`…`C-110`, with evidence
 - [`AUTHORITY.md`](AUTHORITY.md) — decision → authority → forbidden, verified against code
 - [`FLOWS.md`](FLOWS.md) — `FLOW-001`…`FLOW-007`, user-visible journeys tied to connection IDs
 - [`MISMATCHES.md`](MISMATCHES.md) — doc↔code discrepancies, sticky-state lesson, design-only appendix (handoff-context lifecycle, H5)

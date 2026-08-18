@@ -102,6 +102,57 @@ _PHASE_LABELS = {
 }
 
 
+# ERF-1 — canonical display order + labels for the eight readiness subsystems.
+_READINESS_SUBSYSTEM_LABELS: dict[str, str] = {
+    "requirements": "Requirements",
+    "architecture": "Architecture",
+    "structure": "Structure",
+    "propulsion": "Propulsion",
+    "energy": "Energy",
+    "control": "Control",
+    "catalog": "Catalog",
+    "bom": "BOM",
+}
+_READINESS_SUBSYSTEM_ORDER: tuple[str, ...] = tuple(_READINESS_SUBSYSTEM_LABELS)
+
+
+def _render_readiness_block(readiness: dict) -> list[str]:
+    """ERF-1 Slice 5 — 8 subsystem lines + overall + up to 3 top gaps.
+
+    Pure formatting over an already-computed readiness dict (from
+    ``dataclasses.asdict(EngineeringReadinessResult)``) — no engineering
+    logic here, only display.
+    """
+    subsystems = readiness.get("subsystems") or {}
+    lines: list[str] = ["ENGINEERING READINESS", ""]
+    for key in _READINESS_SUBSYSTEM_ORDER:
+        entry = subsystems.get(key) or {}
+        verdict = entry.get("verdict", "UNVERIFIABLE")
+        label = _READINESS_SUBSYSTEM_LABELS[key]
+        lines.append(f"{label:<14} {verdict}")
+
+    overall = readiness.get("overall", "NOT_ASSEMBLY_READY")
+    status_text = "ASSEMBLY READY" if overall == "ASSEMBLY_READY" else "NOT ASSEMBLY READY"
+    lines.append("")
+    lines.append(f"PROJECT STATUS: {status_text}")
+
+    top_gaps = (readiness.get("prioritized_gaps") or [])[:3]
+    if top_gaps:
+        lines.append("")
+        lines.append("TOP GAPS")
+        for gap in top_gaps:
+            lines.append("")
+            lines.append(gap["gap_id"])
+            lines.append(f"  {gap['title']}")
+            blocks = ", ".join(gap.get("blocks") or [])
+            lines.append(f"  {gap['severity']} — blocks: {blocks}")
+            depends_on = ", ".join(gap.get("depends_on") or [])
+            lines.append(f"  depends_on: [{depends_on}]")
+            next_step = gap.get("recommended_next_step") or {}
+            lines.append(f"  next: {next_step.get('action', '')}")
+    return lines
+
+
 def render_startup_context(ctx: dict) -> str:
     """Render a build_startup_context dict as a concise CLI block."""
     if not ctx.get("has_project"):
@@ -201,6 +252,12 @@ def render_startup_context(ctx: dict) -> str:
         lines.append("Componentes / gaps:")
         for line in bom_lines:
             lines.append(f"   {line}")
+
+    # ERF-1 Slice 5 — Engineering Readiness block (8 subsystems + overall + top gaps)
+    readiness = ctx.get("readiness")
+    if readiness:
+        lines.append("")
+        lines.extend(_render_readiness_block(readiness))
 
     return "\n".join(lines)
 

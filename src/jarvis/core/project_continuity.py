@@ -6,35 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
-
-def _catalog_gap_covered_by_declared_thrust(
-    project_state: Any, sim_status: str, req: dict[str, Any]
-) -> bool:
-    """G9-B: is the catalog-gap a BOM identity note, not a physics blocker?
-
-    True only when the simulation PASSes AND the user already declared a
-    per-motor thrust that covers the computed floor — in that case the gap
-    (no SKU for this KV/prop/thrust combo) is honest but not actionable, and
-    must not outrank the PASS branch. Any other case (no PASS, no declared
-    thrust, or declared thrust under the floor) keeps the gap winning
-    ``next_useful_step`` — this is a `>=` comparison, never a blanket
-    suppression on ``sim_status == "pass"`` alone (G9-B regression guard).
-    Does NOT read ``catalog_ref`` (G9-A stays deferred/out of scope).
-    """
-    if sim_status != "pass":
-        return False
-    declared = (getattr(project_state, "current_parameters", None) or {}).get(
-        "per_motor_max_thrust_n"
-    )
-    if declared is None:
-        return False
-    needed = req.get("thrust_per_motor_needed_n")
-    if needed is None:
-        return False
-    try:
-        return float(declared) >= float(needed)
-    except (TypeError, ValueError):
-        return False
+from jarvis.core.project_closure import catalog_gap_covered_by_declared_thrust
 
 
 def build_project_continuity(
@@ -53,6 +25,7 @@ def build_project_continuity(
     energy_model_note: str | None,
     motor_catalog_gap: str | None,
     motor_catalog_matches: list[dict[str, Any]] | None = None,
+    readiness: Any | None = None,
 ) -> dict[str, Any]:
     """Return the three-question continuity contract for a live project.
 
@@ -64,6 +37,21 @@ def build_project_continuity(
       5. Architecture block still in progress / pending
       6. Optimization suggestion only when the design is otherwise closed
       7. Fallback: design validated / continue
+
+    ERF-1 Slice 4: ``readiness`` (an ``EngineeringReadinessResult``, optional
+    kw-only) is the new Gap Registry authority (design_erf1_readiness_
+    foundation.md ★2/★9). When provided, the catalog-gap ranking decision
+    (rank 3 / the PASS-demoted branch) is sourced from
+    ``readiness.top_gap``/``readiness.subsystems["catalog"]`` instead of
+    re-deriving it locally — this is the one ranking Continuity previously
+    owned ad-hoc that ERF-1's own investigation named directly (G9-B).
+    Every other rank (blocking/warning/motor_power_w assisted flow/BOM/
+    architecture/optimization/plain PASS) is untouched — those are not
+    duplicated ranking logic ERF-1 models today, and FN-005's assisted-
+    acquisition copy has no ERF-1 gap-type equivalent to derive from without
+    losing its richer, catalog-suggestion-aware text (regression guard, see
+    implementation report). When ``readiness`` is omitted (every existing
+    direct caller/unit test), behavior is byte-identical to pre-ERF-1.
     """
     sim = (getattr(project_state, "latest_results", None) or {}).get("simulation") or {}
     calc = (getattr(project_state, "latest_results", None) or {}).get("calculations") or {}
@@ -74,6 +62,20 @@ def build_project_continuity(
     missing = list(bom.get("missing") or [])
     sim_status = (sim.get("status") or "").lower()
     can_fly = sim.get("can_fly")
+
+    if readiness is not None:
+        _catalog_is_top = (
+            readiness.top_gap is not None
+            and readiness.top_gap.gap_type == "GAP-MOTOR-CATALOG-UNRESOLVED"
+        )
+        _catalog_subsystem = readiness.subsystems.get("catalog")
+        _catalog_demoted = bool(
+            _catalog_subsystem is not None
+            and _catalog_subsystem.warning_type == "CATALOG-GAP-DEMOTED-POST-PASS"
+        )
+    else:
+        _catalog_is_top = bool(motor_catalog_gap)
+        _catalog_demoted = catalog_gap_covered_by_declared_thrust(project_state, sim_status, req)
 
     # ── Situation (where am I?) ───────────────────────────────────────────────
     if status_type == "blocking":
@@ -160,9 +162,7 @@ def build_project_continuity(
         warn = (sim.get("warnings") or [None])[0] or status_reason
         next_step = proactive_question or "Corrige la causa del warning/fallo de simulación."
         next_why = str(warn) if warn else "La última simulación no es PASS."
-    elif motor_catalog_gap and not _catalog_gap_covered_by_declared_thrust(
-        project_state, sim_status, req
-    ):
+    elif motor_catalog_gap and _catalog_is_top and not _catalog_demoted:
         thrust = req.get("thrust_per_motor_needed_n")
         if thrust is not None:
             next_step = (
@@ -220,7 +220,7 @@ def build_project_continuity(
     elif suggested_action and sim_status == "pass" and not incomplete and not missing:
         next_step = suggested_action.get("label") or "Optimiza o itera el diseño."
         next_why = suggested_action.get("reason") or "Diseño cerrado; puedes explorar mejoras."
-    elif sim_status == "pass" and motor_catalog_gap:
+    elif sim_status == "pass" and motor_catalog_gap and _catalog_is_top and _catalog_demoted:
         # G9-B demoted here: PASS + declared thrust already covers the floor —
         # the catalog gap is an honest BOM/identity note, not a physics
         # blocker. Named in next_why (not hidden), with the two working

@@ -8,20 +8,22 @@ Every directed edge in Jarvis that carries control, data, and/or state, as a fir
 CONNECTIONS.md
 │
 ├── Canonical registry  ← THIS SECTION ONLY defines the connection count
-│   └── 59 unique C-xxx  (ID space sparse through C-106)
-│         58 🟢 connected · 0 🔴 broken · 1 🟡 partial
+│   └── 63 unique C-xxx  (ID space sparse through C-110)
+│         62 🟢 connected · 0 🔴 broken · 2 🟡 partial
 │
 ├── Derived / detail views  ← may repeat C-xxx for readability
 │   └── "Detail — NN …" sections below; NOT additional connections
 │
-└── Forbidden transitions  ← 8 structural absences; NOT C-xxx registry edges
+└── Forbidden transitions  ← 10 structural absences; NOT C-xxx registry edges
 ```
 
 **FN-024 (2026-08-10):** C-042 flipped 🔴→🟢 (Plan→DSE now binds through a Handoff Context — see `HANDOFF_CONTEXT_DESIGN.md`); two new connections added, **C-105** (`_handle_engineering_intent` → create/replace context) and **C-106** (bound context → `_handle_explore` goal bind). Registry count moved **57 → 59**.
 
 **FN-025 (2026-08-12):** C-025/C-044 flipped 🔴→🟢 (help + named goal now reaches the same Goal Plan path as FN-022/024, via `IntentResolver.ANALYZE_HELP_PATTERNS`/`ANALYZE_VERB_PATTERNS`). C-043 (H4) was the only remaining 🔴 in the registry — not touched by that cut.
 
-**FN-026 (2026-08-12):** C-043 flipped 🔴→🟢 (a Goal Plan lever named by the user now preseeds the Iterate wizard's `variable` slot, via `handoff_matching.match_plan_lever` reading the active `handoff_context.levers` — C-105 stays the sole writer). **Registry is now 58🟢 · 0🔴 · 1🟡 — H1–H4 all closed, only C-081 (H5, design-only, deferred) remains non-green.**
+**FN-026 (2026-08-12):** C-043 flipped 🔴→🟢 (a Goal Plan lever named by the user now preseeds the Iterate wizard's `variable` slot, via `handoff_matching.match_plan_lever` reading the active `handoff_context.levers` — C-105 stays the sole writer). **Registry was 58🟢 · 0🔴 · 1🟡 — H1–H4 all closed, only C-081 (H5, design-only, deferred) remained non-green.**
+
+**ERF-1 (2026-08-18):** Four new connections added — **C-107** (authorities → `build_engineering_readiness`), **C-108** (readiness → Continuity catalog-gap ranking, 🟡 PARTIAL), **C-109** (startup context exposes `"readiness"`), **C-110** (CLI renders `ENGINEERING READINESS` block). Registry count moved **59 → 63**; **62🟢 · 0🔴 · 2🟡** (C-081 + C-108). Two forbidden absences added (Continuity→Readiness; persist `readiness.json`). Report: [`.jes/artifacts/implementation_report_erf1.md`](../../.jes/artifacts/implementation_report_erf1.md).
 
 **Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables (historically this produced a false **65**). The only authoritative count is the length of **Canonical registry** below.
 
@@ -39,7 +41,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 
 ## Canonical registry
 
-**59 unique edges.** Append new IDs here first; then add a Detail section. Derived tables elsewhere in this file must not be treated as new edges.
+**63 unique edges.** Append new IDs here first; then add a Detail section. Derived tables elsewhere in this file must not be treated as new edges.
 
 | ID | From | To | Status |
 |---|---|---|---|
@@ -102,16 +104,22 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-102 | Raw LLM response | `LLMResponseParser.parse/validate_for_runtime` (`ActionPolicy`) | 🟢 |
 | C-103 | Validated `action_request` | `orchestrator.handle` (closed 4-verb set) | 🟢 |
 | C-104 | `orchestrator` | `llm_interface.analyze` → narration string | 🟢 |
+| C-107 | `ProjectState` + closure/arch/sim authorities | `engineering_readiness.build_engineering_readiness` | 🟢 (ERF-1) |
+| C-108 | `EngineeringReadinessResult` | `project_continuity.build_project_continuity(readiness=…)` — catalog-gap ranking only | 🟡 PARTIAL (ERF-1) |
+| C-109 | `orchestrator.build_startup_context` | startup context `"readiness"` field | 🟢 (ERF-1) |
+| C-110 | CLI `render_startup_context` | `ENGINEERING READINESS` block | 🟢 (ERF-1) |
 
 ## Forbidden transitions (not registry edges)
 
-**8** normative absences — listed even where no code path exists, so a future change can be checked against them. **Do not add these to the 57.** They have no `C-xxx` IDs.
+**10** normative absences — listed even where no code path exists, so a future change can be checked against them. **Do not add these to the 63.** They have no `C-xxx` IDs.
 
 ```text
 LLM → acquisition target            NOT IMPLEMENTED — ActionPolicy.ALLOWED_ACTIONS has no such action (structurally impossible today)
 LLM → goal selection                NOT IMPLEMENTED — same
 LLM → DSE configuration choice      NOT IMPLEMENTED — same
 Continuity → mutate ProjectState    NOT IMPLEMENTED — project_continuity.py has zero writes/I-O
+Continuity → engineering_readiness  NOT IMPLEMENTED — circularity forbidden (ERF-1 ★7); Readiness composes authorities, never Continuity output
+engineering_readiness → persist readiness.json  NOT IMPLEMENTED — derived-on-read only (ERF-1); no parallel persisted readiness state
 DSE → silent mutate without apply   NOT IMPLEMENTED — DesignExplorer docstring guarantee + C-046 is the only apply path, and it is a distinct, explicit user turn
 Goal Planner → write physical params NOT IMPLEMENTED — goal_planner.py has zero writes/I-O
 Component Inference → write direct  NOT IMPLEMENTED — only component_writers.py (C-091) may write components[key]
@@ -686,6 +694,58 @@ Same underlying phrase and root cause as **C-025** — listed under both Intent 
 | LLM | NO |
 | Status | 🟡 PARTIAL — not `BROKEN` (never wrong, never claims something false) but degrades to a generic fallback identical for margin=1.08 and margin=3.0. Verified via direct `build_project_continuity` call with `safety_margin_ratio=1.08`, architecture 4/4, no incomplete/missing components. |
 | Evidence | `core/project_continuity.py` (the `elif sim_status == "pass":` branch, no margin read). Failure D of the predecessor map; H5 (design-only, `MISMATCHES.md`) is the open question, not yet a queued FN. |
+
+### C-107 — Authorities → `build_engineering_readiness` 🟢 (ERF-1)
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | pure projection over `ProjectState` + existing authority helpers |
+| Symbols | `engineering_readiness.build_engineering_readiness` |
+| Payload | `EngineeringReadinessResult` — gap registry (primary), eight subsystem lines, `overall`, `top_gap` |
+| Authority | `engineering_readiness.py` — authoritative over **gap aggregation and assembly-ready rollup**, not over physics/BOM/sim truth |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/engineering_readiness.py`, `tests/test_engineering_readiness_*.py` |
+
+### C-108 — Readiness → Continuity (catalog-gap ranking only) 🟡 PARTIAL (ERF-1)
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | optional kw-only `readiness=` on `build_project_continuity`; gates catalog-gap branches via `readiness.top_gap.gap_type == "GAP-MOTOR-CATALOG-UNRESOLVED"` and `subsystems["catalog"].warning_type` (G9-B demotion) |
+| Symbols | `project_continuity.build_project_continuity(..., readiness=readiness)` |
+| Payload | affects only the two motor-catalog-gap `next_useful_step` branches; all other ranking (blocking, FN-005, BOM, arch, optimization, fallback) remains Continuity's legacy chain |
+| Authority | Gap ordering from C-107; human next-step copy still from Continuity |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟡 PARTIAL — intentional ERF-1 scope cut; full handoff deferred (Slice 4b). See `.jes/artifacts/implementation_report_erf1.md` "Scope decision". |
+| Evidence | `core/project_continuity.py`, `core/orchestrator.py` (`build_startup_context`), `tests/test_engineering_readiness_continuity.py` |
+
+### C-109 — `build_startup_context` → `"readiness"` field 🟢 (ERF-1)
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | `readiness = build_engineering_readiness(project_state)` then `dataclasses.asdict(readiness)` in return dict |
+| Symbols | `orchestrator.build_startup_context` |
+| Payload | full readiness snapshot (derived on read, not persisted) |
+| Authority | C-107 |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py`, `tests/test_engineering_readiness_cli.py` |
+
+### C-110 — CLI → `ENGINEERING READINESS` render block 🟢 (ERF-1)
+| Field | Value |
+|---|---|
+| Kind | DATA (presentation) |
+| Mechanism | `_render_readiness_block` in `render_startup_context` |
+| Symbols | `adapters/cli/main.py::_render_readiness_block` |
+| Payload | 8 subsystem verdict lines, `PROJECT STATUS`, up to 3 `TOP GAPS` |
+| Authority | display only — reads C-109 payload, no new domain logic |
+| Mutation | NO |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `adapters/cli/main.py`, `tests/test_engineering_readiness_cli.py` |
 
 ### C-082 — `classify_component` → BOM buckets
 | Field | Value |

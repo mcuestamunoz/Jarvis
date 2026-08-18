@@ -7,6 +7,40 @@ from __future__ import annotations
 from typing import Any
 
 
+def catalog_gap_covered_by_declared_thrust(
+    project_state: Any, sim_status: str, req: dict[str, Any]
+) -> bool:
+    """G9-B: is a motor catalog gap a BOM identity note, not a physics blocker?
+
+    True only when the simulation PASSes AND the user already declared a
+    per-motor thrust that covers the computed floor — in that case a catalog
+    gap (no SKU for this KV/prop/thrust combo) is honest but not actionable.
+    Any other case (no PASS, no declared thrust, or declared thrust under the
+    floor) returns False — this is a `>=` comparison, never a blanket
+    suppression on ``sim_status == "pass"`` alone.
+
+    ERF-1 (engineering_readiness) authority home for this predicate —
+    formerly private to project_continuity, moved here so a non-Continuity
+    consumer (Readiness) can use it without importing project_continuity
+    (circularity forbidden by design). project_continuity keeps its own copy
+    until Slice 4 switches it to import this one.
+    """
+    if sim_status != "pass":
+        return False
+    declared = (getattr(project_state, "current_parameters", None) or {}).get(
+        "per_motor_max_thrust_n"
+    )
+    if declared is None:
+        return False
+    needed = req.get("thrust_per_motor_needed_n")
+    if needed is None:
+        return False
+    try:
+        return float(declared) >= float(needed)
+    except (TypeError, ValueError):
+        return False
+
+
 def derive_physical_requirements(project_state: Any) -> dict[str, Any]:
     """Derive explicit engineering requirements from constraints + last calc/sim."""
     constraints = getattr(project_state, "parsed_constraints", None) or {}

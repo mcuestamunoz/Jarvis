@@ -1,8 +1,8 @@
 # Jarvis System Map — Diagrams
 
 **Version:** SYS-MAP-002 visual companion  
-**Date:** 2026-08-10  
-**Canonical edge truth:** [`CONNECTIONS.md`](CONNECTIONS.md) → **Canonical registry** = **59** unique `C-xxx` (IDs sparse through C-106). Updated 2026-08-10 by FN-024 (C-042 fixed, C-105/C-106 added); updated 2026-08-12 by FN-025 (C-025/C-044 fixed) and FN-026 (C-043 fixed).
+**Date:** 2026-08-10 (ERF-1 delta: 2026-08-18)  
+**Canonical edge truth:** [`CONNECTIONS.md`](CONNECTIONS.md) → **Canonical registry** = **63** unique `C-xxx` (IDs sparse through C-110). Updated 2026-08-10 by FN-024 (C-042 fixed, C-105/C-106 added); updated 2026-08-12 by FN-025 (C-025/C-044 fixed) and FN-026 (C-043 fixed); updated 2026-08-18 by ERF-1 (C-107–C-110 added).
 
 Interactive Cursor canvas (filterable graph + full table): [`jarvis-system-map.canvas.tsx`](jarvis-system-map.canvas.tsx).  
 To open beside chat in Cursor, sync that file into the project `canvases/` folder (see header comment in the `.tsx`).
@@ -12,25 +12,27 @@ To open beside chat in Cursor, sync that file into the project `canvases/` folde
 ```text
 CONNECTIONS.md
 │
-├── Canonical registry     → 59 C-xxx únicos
-├── Derived/detail views   → may repeat C-xxx (do not add to 59)
-└── Forbidden transitions  → 8 (not C-xxx)
+├── Canonical registry     → 63 C-xxx únicos
+├── Derived/detail views   → may repeat C-xxx (do not add to 63)
+└── Forbidden transitions  → 10 (not C-xxx)
 ```
 
 | Set | Count | Notes |
 |---|---:|---|
-| Registry edges (canonical) | **59** | Only count this |
-| Connected 🟢 | **58** | of 59 |
+| Registry edges (canonical) | **63** | Only count this |
+| Connected 🟢 | **62** | of 63 |
 | Broken 🔴 | **0** | — |
-| Partial 🟡 | **1** | C-081 |
-| Forbidden transitions | **+8** | Not registry edges |
+| Partial 🟡 | **2** | C-081, C-108 |
+| Forbidden transitions | **+10** | Not registry edges |
 | File table cells `\| C-xxx \|` | — | Do not sum leading cells across the whole file — see `CONNECTIONS.md`'s "Document structure" note |
 
 **FN-024 (2026-08-10):** C-042 fixed (🔴→🟢, Handoff Context bind); C-105/C-106 added.
 
 **FN-025 (2026-08-12):** C-025/C-044 fixed (🔴→🟢, help+goal → same Goal Plan path). Same user failure listed under Intent and Engineering (counted once).
 
-**FN-026 (2026-08-12):** C-043 fixed (🔴→🟢, Goal Plan lever → Iterate preseed, via `handoff_matching.match_plan_lever`). **H1–H4 all closed, 0 RED remaining — C-081 (H5, design-only) is the sole non-green edge.**
+**FN-026 (2026-08-12):** C-043 fixed (🔴→🟢, Goal Plan lever → Iterate preseed, via `handoff_matching.match_plan_lever`). **H1–H4 all closed, 0 RED remaining.**
+
+**ERF-1 (2026-08-18):** C-107–C-110 added (`engineering_readiness` aggregator + startup/CLI surface). C-108 🟡 PARTIAL — Continuity consumes readiness for catalog-gap ranking only (Slice 4b deferred). Two forbidden absences added (Continuity→Readiness; persist `readiness.json`).
 
 Canvas / this file manually mirror the registry (known drift risk). When adding a connection: update Canonical registry first, then Detail, then DIAGRAMS + canvas.
 
@@ -58,6 +60,10 @@ flowchart TB
   CALC --> SIM[07 Simulation]
   SIM --> STATE[09 State / Workspace]
   SIM -.->|C-081 PARTIAL| CONT[08 Continuity]
+  STATE --> READ[engineering_readiness<br/>ERF-1 C-107]
+  READ -.->|C-108 PARTIAL| CONT
+  RT -->|C-109| READ
+  ENTRY -->|C-110| READ_UI[READINESS UI]
   ACQ --> STATE
   CONT --> ACQ
   STATE --> CALC
@@ -67,7 +73,7 @@ flowchart TB
   classDef fixed stroke:#2a2,stroke-width:2px;
   classDef llm stroke-dasharray: 4 4;
   class DSE,ANALYZE,HELP,ITER fixed;
-  class CONT partial;
+  class CONT,READ partial;
   class LLM llm;
 ```
 
@@ -80,11 +86,12 @@ flowchart TB
 | C-042 | Goal Plan CTA (`explora opciones`) | DSE goal binding | 🟢 FIXED (FN-024, 2026-08-10) |
 | C-025 / C-044 | `ayúdame` + named goal | Plan / Explore | 🟢 FIXED (FN-025, 2026-08-12) |
 | C-043 | Goal Plan lever (e.g. `safety_factor`) | Iterate wizard preseed | 🟢 FIXED (FN-026, 2026-08-12) |
-| C-081 | Sim `safety_margin_ratio` | Continuity `next_useful_step` | 🟡 PARTIAL — H5, deferred, sole remaining non-green edge |
+| C-081 | Sim `safety_margin_ratio` | Continuity `next_useful_step` | 🟡 PARTIAL — H5, deferred |
+| C-108 | `EngineeringReadinessResult` | Continuity catalog-gap ranking | 🟡 PARTIAL — ERF-1 Slice 4b deferred |
 
 ---
 
-## Registry by band (all 59)
+## Registry by band (all 63)
 
 Detail and evidence stay in `CONNECTIONS.md`. This index is for scanning.
 
@@ -168,6 +175,10 @@ Detail and evidence stay in `CONNECTIONS.md`. This index is for scanning.
 | C-083 | classify_component → `_block_progress_status` | 🟢 |
 | C-084 | ProjectState → PhaseLayer | 🟢 |
 | C-085 | Context → ReasoningLayer | 🟢 |
+| C-107 | ProjectState + authorities → `build_engineering_readiness` | 🟢 (ERF-1) |
+| C-108 | Readiness → Continuity catalog-gap ranking | 🟡 (ERF-1) |
+| C-109 | `build_startup_context` → `"readiness"` field | 🟢 (ERF-1) |
+| C-110 | CLI → `ENGINEERING READINESS` block | 🟢 (ERF-1) |
 
 ### 09 Components / State
 | ID | From → To | Status |
@@ -189,13 +200,15 @@ Detail and evidence stay in `CONNECTIONS.md`. This index is for scanning.
 
 ---
 
-## Forbidden transitions (8 — not registry edges)
+## Forbidden transitions (10 — not registry edges)
 
 ```text
 LLM → acquisition target
 LLM → goal selection
 LLM → DSE configuration choice
 Continuity → mutate ProjectState
+Continuity → engineering_readiness          (ERF-1 — circularity forbidden)
+engineering_readiness → persist readiness.json   (ERF-1 — derived on read)
 DSE → silent mutate without apply
 Goal Planner → write physical params
 Component Inference → write components directly

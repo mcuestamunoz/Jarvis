@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import re
 from pathlib import Path
 from typing import Any
@@ -3252,7 +3253,10 @@ class JarvisOrchestrator:
                     f"Necesitas {need}; no tengo un motor en el catálogo que cubra ese espacio."
                 )
 
+        from jarvis.core.engineering_readiness import build_engineering_readiness
         from jarvis.core.project_continuity import build_project_continuity
+
+        readiness = build_engineering_readiness(project_state)
 
         continuity = build_project_continuity(
             project_state=project_state,
@@ -3269,6 +3273,7 @@ class JarvisOrchestrator:
             energy_model_note=energy_note,
             motor_catalog_gap=catalog_gap,
             motor_catalog_matches=catalog_matches,
+            readiness=readiness,
         )
 
         return {
@@ -3300,6 +3305,8 @@ class JarvisOrchestrator:
             "motor_catalog_gap": catalog_gap,
             # A' Project Continuity — Situation / Evidence / Next useful step
             "continuity": continuity,
+            # ERF-1 — Engineering Readiness (Gap Registry + 8-subsystem rollup)
+            "readiness": dataclasses.asdict(readiness),
         }
 
     def _build_analyze_context(self, project_state) -> dict[str, Any]:

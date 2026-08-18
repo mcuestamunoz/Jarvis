@@ -1,53 +1,43 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Post-checkpoint continuity polish alignment. Reflect current code state after G20/G20-B closure and keep JES queue focused on remaining CLI residuals.",
-  "scope": "Current baseline is checkpoint-continuity-polish + post-checkpoint micro-fix d224dc1.",
-  "execution_status": "active",
-  "current_mode": "Align",
+  "cycle_intent": "ERF-1 Readiness Foundation — checkpoint-erf1 closed.",
+  "scope": "Engineering Readiness aggregator shipped; System Map C-107–C-110; Slice 4b deferred.",
+  "execution_status": "idle",
+  "current_mode": "Checkpoint",
   "movement_trigger": {
-    "type": "state_sync",
-    "note": "Engineer requested JES restoration against actual code state."
+    "type": "checkpoint",
+    "note": "CLI walk PASS on prueba-9f1031895508; tag checkpoint-erf1."
   },
   "relevant_workflow_phases": [
-    "Close",
-    "Maintenance"
+    "Review"
   ],
   "applicable_rules": [],
   "required_artifacts": [
-    ".jes/artifacts/cli_findings_post_catalog_bind_v1.md",
-    ".jes/artifacts/work_plan_cli_polish_audit.md",
-    "docs/IMPLEMENTATION_TASKS.md"
+    "docs/ENGINEERING_READINESS_VISION.md",
+    ".jes/artifacts/implementation_report_erf1.md"
   ],
   "open_questions": [],
-  "active_operation": "Context alignment",
-  "authority_gates": [
-    "Code and tests are source of truth",
-    "JES artifacts must mirror post-checkpoint state"
-  ],
+  "active_operation": "ERF-2 planning",
+  "authority_gates": [],
   "coherence_checklist": [
     "tests",
     "ux",
     "docs"
   ],
-  "outcome": "IN_SYNC_WITH_CODE",
-  "updated_at": "2026-08-18T10:36:00Z",
-  "phase": "Close",
+  "outcome": "CHECKPOINT_ERF1",
+  "updated_at": "2026-08-18T13:00:00Z",
+  "phase": "Plan",
   "status": "active",
-  "active_gate": "Remaining queue prioritization after G20/G20-B closure.",
-  "active_artifact": ".jes/artifacts/cli_findings_post_catalog_bind_v1.md",
+  "active_gate": "ERF-2 investigation/design — motor↔ESC↔battery + integration gaps.",
+  "active_artifact": "docs/ENGINEERING_READINESS_VISION.md",
   "blocking_reason": null,
-  "next_required_action": "Execute next approved micro-fix contract from remaining queue (G17/G14/G13 or R3).",
+  "next_required_action": "Open ERF-2 investigation contract (no G17/G14/G13 before ERF-2 unless CLI regression).",
   "evidence_refs": [
-    ".jes/artifacts/implementation_review_cli_polish.md",
-    ".jes/artifacts/work_plan_cli_polish_audit.md",
-    ".jes/artifacts/cli_findings_post_catalog_bind_v1.md"
+    ".jes/artifacts/implementation_report_erf1.md",
+    "tag:checkpoint-erf1"
   ],
   "open_decisions": [
-    "Next micro-fix ordering among G17/G14/G13",
-    "When to open R3 for G11/G8 preempt policy",
-    "Timing for G9-A and Impl C"
+    "ERF-1 Slice 4b deferred to post-ERF-2 or on-demand"
   ],
-  "risks": [
-    "JES drift if post-checkpoint code fixes are not reflected in living artifacts"
-  ]
+  "risks": []
 }
