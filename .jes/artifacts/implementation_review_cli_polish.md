@@ -54,7 +54,7 @@ Live extractor check (S4 justification):
 
 ---
 
-## Notes (do not block CLI re-walk)
+## Notes (review + CLI — closed 2026-08-18)
 
 ### N1 — S5 refreshes the brief, not the session field
 
@@ -117,17 +117,23 @@ If `suggested_action` is set on PASS with empty BOM gaps, that branch still wins
 
 ---
 
-## Next
+## CLI re-walk — CLOSED (2026-08-18)
 
-**CLI re-walk** (Engineer), probes from contract §6. Highest-value:
+Engineer walk on proyecto `prueba-9f1031895508`. **Verdict: PASS WITH NOTES** (same as code review).
 
-```text
-1.  ¿que motores tenemos en el catalogo?     → lista, 0 LLM
-2.  DSE apply PASS margen alto               → no "Declara empuje ≥ floor"
-3.  definir motores on dron                  → no par de torsión
-4.  4x 2306 2400KV 50W in motors wizard      → Motores registrados
-5.  definir bateria after propulsion         → battery brief; try answering LiPo (N1)
-8.  iterate material PVC 400g                → pvc + impacto (S8 lock)
-```
+| # | Probe | Result |
+|---|---|---|
+| 1 | `¿que motores tenemos en el catalogo?` | ✅ `list_motors`, 0 LLM |
+| 2 | Post-DSE apply PASS + margin > 2 | ✅ no "Declara empuje ≥ floor" (G9-B) |
+| 3 | `definir motores` on dron | ✅ aerial motors wizard (G18) |
+| 4 | `4x 2306 2400KV 50W` in motors wizard | ⚠️ partial — needs `motores` prefix at some paths (G17 residual) |
+| 5 | `definir bateria` after propulsion | ✅ battery brief (S5/G12) |
+| 6 | catalog_gap / DSE discoverability | ✅ `explora opciones` / list-motors CTA (G19) |
+| 7 | `PVC 400g` frame acquisition | ✅ G10 |
+| 8 | iterate `PVC 400g` | ⚠️ opaque slug (G13 CLI path; unit T14 closed) |
 
-Then: Engineer commit/tag `checkpoint-continuity-polish` if CLI PASS. Optional follow-ups: N1 session sync, N2 no-fallthrough, System Map caveat from the report (not applied).
+**New findings registered:** G20 (energy 3/4 label after catalog motor re-pick), G20-B (`si` to energy hint → motor_power_w wizard).
+
+**Checkpoint:** `15aa503` · **`checkpoint-continuity-polish`**
+
+Optional follow-ups: N1 session sync, N2 aerial redirect `None` fallthrough, G20 micro-fix copy.

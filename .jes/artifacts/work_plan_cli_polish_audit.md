@@ -1,20 +1,17 @@
 # Work Plan — CLI Polish Bundle (post Continuity + G10)
 
-**Date:** 2026-08-17  
+**Date:** 2026-08-17 (closed **2026-08-18**)  
 **Base commit:** `1b4769f` (Continuity Hardening + G10 materials/frame + findings G16–G19)  
+**Delivered:** `15aa503` · tag **`checkpoint-continuity-polish`**  
 **Prior checkpoint:** `checkpoint-g3` (`a3b72b8`)  
-**Tests baseline:** 1753 passed  
-**CLI evidence project:** `continuity-bom` (`fa9f25c1d2a2`)
+**Tests baseline:** 1753 → **1768** after polish  
+**CLI evidence project:** `prueba-9f1031895508` (re-walk) · prior `continuity-bom` (`fa9f25c1d2a2`)
 
 ---
 
 ## 1. Executive summary
 
-Continuity Hardening and G10 materials landed in `1b4769f`. A full CLI BOM walk on `continuity-bom` validated the core path (architecture 4/4, DSE, acquisition) but exposed **residual polish gaps** in routing, Continuity messaging, and catalog UX.
-
-**Next phase:** structured audit → design → implementation contract → polish impl → CLI re-walk → checkpoint tag.
-
-**Rule:** No `src/` changes until audit report is reviewed and Implementation Contract approved.
+Continuity Hardening and G10 materials landed in `1b4769f`. CLI BOM walk exposed residual polish gaps (routing, Continuity CTA, catalog UX). **Audit → IC → impl S1–S7 → review → CLI re-walk → checkpoint are complete.** Verdict: **PASS WITH NOTES**. Follow-ups: G20/G20-B, G17 residual, G14, G13 iterate path.
 
 ---
 
@@ -32,31 +29,30 @@ Continuity Hardening and G10 materials landed in `1b4769f`. A full CLI BOM walk 
 
 ---
 
-## 3. Open gaps — full register (polish bundle scope)
+## 3. Gap register — polish bundle scope (2026-08-18 status)
 
-### Tier 1 — 🔴 High impact (user confusion / wrong routing)
+### Tier 1 — closed or partial in S1–S7
 
-| ID | Summary | Symptom | Primary files |
-|---|---|---|---|
-| **G9-B** | Catalog-gap CTA misleading post-PASS | Margen 9.1 PASS pero pide "declara empuje ≥ 3.3 N" | `project_continuity.py`, `orchestrator.py` |
-| **G18** | Cross-domain routing | `definir motores` en dron → wizard robot (N·m, rueda) | `intent_resolver.py` |
-| **G17** | No force-motors | `4x 2306…` re-prompt; solo funciona con `motores` | `orchestrator.py` (mirror FN-019) |
-| **G19** | CTA/discoverability | catalog_gap no conecta con DSE/list-motors; path oculto | `project_continuity.py`, `intent_resolver.py`, `reasoning_layer.py` |
-| **G16-A** | list-motors + `?` → analyze | IDLE y wizard; no `list_motors` global | `orchestrator.py`, `intent_resolver.py` |
-
-### Tier 2 — 🟡 Medium (UX friction, workarounds exist)
-
-| ID | Summary | Workaround |
+| ID | Status | Notes |
 |---|---|---|
-| **G12 / FN-013** | Stale pending vs next-block | `cancelar` |
-| **G16-B** | CTA "Elige un número…" duplicada | Ignorar línea duplicada |
-| **G13** | Iterate material compound slug | Acquisition directa (`plástico 550g`) |
-| **G9-A** | catalog_gap blind to `catalog_ref` | — |
-| **G11** | Iterate preempt collision | Evitar frases wizard mid-iterate |
-| **G8** | DEFINE_MISSING swallows explore | `cancelar` |
-| **G7** | Iterate operation=None fragility | — |
+| **G9-B** | ✅ Fixed S1 | Demote catalog-gap CTA when PASS + declared ≥ floor |
+| **G18** | ✅ Fixed S3 | Aerial `definir motores` gate |
+| **G17** | ⚠️ Partial S4 | Wizard force-motors; IDLE bare phrase residual |
+| **G19** | ✅ Fixed S7 | CTA bridge list-motors + DSE |
+| **G16-A** | ✅ Fixed S2 | Global `list_motors` + soft-interrupt |
 
-### Tier 3 — 🟡 Deferred (post polish / R3 / Impl C)
+### Tier 2 — partial / follow-up
+
+| ID | Status | Notes |
+|---|---|---|
+| **G12 / FN-013** | ⚠️ Partial S5 | `definir bateria` fixed; other retarget paths → R3 |
+| **G16-B** | ✅ Fixed S2 | CTA dedupe |
+| **G13** | 🟡 Open | Unit T14 closed; CLI iterate path differs |
+| **G20 / G20-B** | 🟡 New | Energy label vs `motor_power_w`; post-checkpoint |
+| **G9-A** | 🟡 Deferred | catalog_ref blind spot |
+| **G11 / G8 / G7** | 🟡 R3 | Iterate/DEFINE_MISSING preempt |
+
+### Tier 3 — deferred (unchanged)
 
 | ID | Summary |
 |---|---|
@@ -90,10 +86,10 @@ Phase 0  ✅ CLI walk + findings register + commit 1b4769f
 Phase 1  ✅ Claude audit → investigation_cli_polish_audit.md
 Phase 2  ✅ Engineer locks closed in IC (no separate design doc)
 Phase 3  ✅ Implementation Contract → implementation_contract_cli_polish.md
-Phase 4  🔴 Implementation (Claude)
-Phase 5  Cursor review + CLI re-walk
-Phase 6  Checkpoint tag `checkpoint-continuity-polish`
-Phase 7  R3 remainder (G11/G8) · G13 if S8 fails · Impl C
+Phase 4  ✅ Implementation S1–S7 (Claude + Cursor)
+Phase 5  ✅ Cursor review + CLI re-walk PASS WITH NOTES
+Phase 6  ✅ Checkpoint `checkpoint-continuity-polish` (`15aa503`)
+Phase 7  🟡 R3 remainder · G20/G20-B · G13/G17/G14 · Impl C
 ```
 
 ---
@@ -166,7 +162,7 @@ Project: `prueba-9f1031895508` (fresh dron walk, Engineer transcript).
 | 2 | G18 location | orchestrator gate; IntentResolver stays stateless |
 | 3 | G19 executability | relabel two suggestions only |
 | 4 | G13 | S8 probe; no code unless reproduced |
-| 5 | Checkpoint | `checkpoint-continuity-polish` |
-| 6 | Packaging | one IC S1–S7 |
+| 5 | Checkpoint | `checkpoint-continuity-polish` ✅ |
+| 6 | Packaging | one IC S1–S7 ✅ |
 
-G9-A remains deferred (Impl C). `1b4769f` is the code baseline; `39b85b2` is the audit commit.
+G9-A remains deferred (Impl C). Baseline chain: `1b4769f` → audit `39b85b2` → polish `15aa503` · **`checkpoint-continuity-polish`**.

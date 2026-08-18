@@ -15,7 +15,7 @@
 
 ## Important functions (Level 2)
 
-- `build_project_continuity(...) -> {situation, evidence, next_useful_step, next_useful_why}` (`project_continuity.py:10`) — pure function, recomputed every call from `ProjectState` + `component_bom` + `physical_requirements`. Ranking order for `next_useful_step` (first match wins): blocking physics → sim warning/fail → honest catalog gap → incomplete/missing BOM → architecture block pending → optimization suggestion (PASS + closed) → fallback "design validated."
+- `build_project_continuity(...) -> {situation, evidence, next_useful_step, next_useful_why}` (`project_continuity.py:10`) — pure function, recomputed every call from `ProjectState` + `component_bom` + `physical_requirements`. Ranking order for `next_useful_step` (first match wins): blocking physics → sim warning/fail → honest catalog gap (**demoted when PASS + declared `per_motor_max_thrust_n >= floor`** — G9-B/S1, 2026-08-18) → incomplete/missing BOM → architecture block pending → optimization suggestion (PASS + closed) → fallback "design validated."
 - `classify_component(key, spec, project_state) -> "missing"|"stub"|"declared"|"defined"` (`project_closure.py`, FN-020) — **the single classifier** shared with `03_acquisition`'s architecture-progress check (C-082/C-083). Before FN-020 there were two independently-defined completeness thresholds that could disagree (architecture "present" vs. BOM "incomplete" for the same `medium`-completeness component) — this function is the fix.
 - `component_presence_tier(spec) -> "stub"|"present"` — the presence-only primitive `orchestrator._component_is_low` wraps (C-083).
 - `build_component_bom(project_state) -> {defined, incomplete, missing, declarative}` — buckets driven entirely by `classify_component`; `incomplete` now means genuinely `stub`, never merely-`medium`-but-measurable.
@@ -33,7 +33,9 @@ NO — zero LLM involvement anywhere in this subsystem, by design (this is the e
 ## Known issues owned by this subsystem
 
 - **C-081** 🟡 PARTIAL (WEAK) — the `elif sim_status == "pass":` branch of `build_project_continuity`'s next-step logic does not read `safety_margin_ratio` at all, so PASS+risky and PASS+comfortable produce identical generic text. See `MISMATCHES.md` H5 (design-only, no FN queued).
+- **G20 / G20-B** 🟡 (post-polish, doc-only tracked) — composite **energy** block label ("Energía (batería)") can mask an active **`motor_power_w`** param gap after re-declaring motors at IDLE; Bug 54 affirmative `si` then opens motor-power wizard, not battery LiPo. See `.jes/artifacts/cli_findings_post_catalog_bind_v1.md` G20/G20-B.
+- **G9-A** 🟡 — `build_startup_context` catalog-gap computation still blind to bound `catalog_ref` (separate from G9-B demotion fix).
 
 ## Tests
 
-`tests/test_project_continuity.py`, `tests/test_project_closure_v1.py`, `tests/test_project_coherence.py`, `tests/test_fn020_completeness_coherence.py`, `tests/test_phase_layer.py`, `tests/test_reasoning_layer.py`.
+`tests/test_project_continuity.py`, `tests/test_project_closure_v1.py`, `tests/test_project_coherence.py`, `tests/test_fn020_completeness_coherence.py`, `tests/test_phase_layer.py`, `tests/test_reasoning_layer.py`, **`tests/test_cli_polish.py`** (G9-B, G19 CTA).

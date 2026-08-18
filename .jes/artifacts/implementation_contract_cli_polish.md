@@ -6,7 +6,8 @@
 **Implementer:** Claude Code  
 **Reviewer:** Cursor (Implementation Review)  
 
-**Status:** READY FOR ENGINEER → send to Claude  
+**Status:** **COMPLETE** — impl + review + CLI re-walk **PASS WITH NOTES** (2026-08-18)  
+**Commit / tag:** `15aa503` · **`checkpoint-continuity-polish`**  
 
 **Type:** Product behavior — Continuity CTA honesty + catalog list-motors parity + cross-domain routing + force-motors + FN-013 session freshness.
 
@@ -18,7 +19,7 @@
 **Prior G10 locks (do not reopen):** [`.jes/artifacts/design_g10_materials_frame.md`](design_g10_materials_frame.md) ★1–★8  
 
 **Checkpoint base:** commit **`39b85b2`** (audit report) on top of **`1b4769f`** (Continuity + G10). Prior tag: `checkpoint-g3`.  
-**Target tag (Engineer, after CLI PASS):** `checkpoint-continuity-polish`
+**Delivered:** `15aa503` · tag **`checkpoint-continuity-polish`** ✅
 
 **Workflow:** Claude implements **all S1–S7 in one cut** (tests stay green) + tests + report → Engineer → **Cursor review** → **CLI re-walk** → commit/tag only if Engineer asks. **Do not commit or push unless asked.**
 
@@ -323,3 +324,18 @@ Stop and ask Engineer if:
 3. S4 force-motors reintroduces G14 (hélices write) and cannot be ordered without loosening `_looks_clearly_propeller_shaped`.
 4. S8 `"PVC 400g"` iterate probe **fails** (do not silently patch).
 5. Any slice appears to need a new architectural subsystem.
+
+---
+
+## 10. Closure (2026-08-18)
+
+| Phase | Result |
+|---|---|
+| Implementation S1–S7 | ✅ |
+| S8 G13 probe | ✅ did not reproduce; closed as G10 ★2 (unit T14) |
+| Cursor review | ✅ PASS WITH NOTES |
+| CLI re-walk | ✅ PASS WITH NOTES — proyecto `prueba-9f1031895508` |
+| Commit | `15aa503` |
+| Tag | `checkpoint-continuity-polish` |
+
+**Post-checkpoint follow-ups (not blockers):** G20/G20-B (energy label vs `motor_power_w`), G17 residual bare motor phrase, G14 routing, G13 iterate path, N1 session sync, N2 aerial redirect fallthrough.

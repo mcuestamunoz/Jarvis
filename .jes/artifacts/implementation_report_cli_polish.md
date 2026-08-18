@@ -3,7 +3,7 @@
 **Contract:** [`implementation_contract_cli_polish.md`](implementation_contract_cli_polish.md)
 **Audit:** [`investigation_cli_polish_audit.md`](investigation_cli_polish_audit.md)
 **Base commit:** `39b85b2` (audit report) on `1b4769f` (Continuity Hardening + G10)
-**Status:** Implemented, tests added, full suite green. **Not committed** (per contract §"Do not commit or push unless asked").
+**Status:** Implemented · committed **`15aa503`** · tag **`checkpoint-continuity-polish`** · CLI re-walk PASS WITH NOTES (2026-08-18).
 
 ---
 

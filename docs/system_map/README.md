@@ -1,7 +1,7 @@
 # Jarvis System Map — Navigation Guide
 
-**Version:** SYS-MAP-002 (split/navigability delta of SYS-MAP-001, reviewed PASS WITH NOTES)
-**Date:** 2026-08-10
+**Version:** SYS-MAP-002 (split/navigability delta of SYS-MAP-001, reviewed PASS WITH NOTES)  
+**Date:** 2026-08-10 (subsystem deltas: 2026-08-18 post-`checkpoint-continuity-polish`)  
 **Type:** As-is architecture documentation. Zero product behavior changes.
 
 ## How to navigate

@@ -6,7 +6,7 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** **`checkpoint-continuity-polish`** (Continuity + G10 + polish S1–S7).  
+> **Base:** commit **`15aa503`** · tag **`checkpoint-continuity-polish`** (Continuity + G10 + polish S1–S7).  
 > **PRIORIDAD AHORA:** **Post-polish follow-ups** — G20/G20-B energy label, G17 residual, G14 routing.  
 > Findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md)
 
@@ -19,7 +19,7 @@
 
 ### ✅ COMPLETADO — CLI Polish re-walk + checkpoint (2026-08-18)
 
-> Verdict: **PASS WITH NOTES** · tag **`checkpoint-continuity-polish`**.  
+> Verdict: **PASS WITH NOTES** · commit **`15aa503`** · tag **`checkpoint-continuity-polish`**.  
 > IC: [`.jes/artifacts/implementation_contract_cli_polish.md`](../.jes/artifacts/implementation_contract_cli_polish.md)  
 > Report: [`.jes/artifacts/implementation_report_cli_polish.md`](../.jes/artifacts/implementation_report_cli_polish.md)  
 > Review: [`.jes/artifacts/implementation_review_cli_polish.md`](../.jes/artifacts/implementation_review_cli_polish.md)  
@@ -38,7 +38,7 @@
 
 ### ✅ COMPLETADO — Continuity CLI BOM walk (2026-08-17)
 
-> Walk `continuity-bom`: arch 4/4 · DSE apply · PVC/plastico acquisition PASS · gaps G16–G19 registrados.  
+> Walk `continuity-bom`: arch 4/4 · DSE apply · PVC/plastico acquisition PASS · gaps G16–G19 registrados (cerrados en polish).  
 > Review Continuity: **PASS WITH NOTES** · [`.jes/artifacts/implementation_review_continuity_hardening.md`](../.jes/artifacts/implementation_review_continuity_hardening.md)
 
 ### ✅ COMPLETADO — Continuity Hardening + G10 (commit 1b4769f)
@@ -46,16 +46,13 @@
 > Continuity 4 slices ★1–★7 · G10 ★1–★8 · tests 1753 pass.  
 > Artefactos: `implementation_*continuity_hardening*`, `implementation_*g10_materials_frame*`.
 
-### 🟡 SIGUIENTE — Polish Implementation (after audit)
-
-> Tras audit report + Engineer approval → `implementation_contract_cli_polish.md`  
-> Slices hipótesis: G9-B → G16/G19 list_motors → G18 → G17 → G12-FN013 → G16-B  
-> CLI re-walk → checkpoint tag
-
 ### 🟡 REGISTRADOS — Tier 2/3 (post polish or R3)
 
+> **G20 / G20-B** — energy block label vs `motor_power_w` gap; Bug 54 `si` misroutes to motor wizard  
 > **G11 / G8 / G7** — iterate/DEFINE_MISSING preempt (R3)  
-> **G13** — iterate material compound slug (`plastico 550g`)  
+> **G13** — iterate material compound slug (`PVC 400g`; unit T14 closed, CLI iterate path differs)  
+> **G14** — bare propeller size routing (`10x4.5` → analyze)  
+> **G17 residual** — bare motor phrase at IDLE (`4x 2306…` → analyze; `motores 4x…` OK)  
 > **G9-A** — catalog_ref blind spot  
 > **G6 / F-2 / F-5** — later
 
@@ -73,7 +70,7 @@ G20/G20-B · G17 · G14 · G13
 R3 (G11/G8) · G9-A · Impl C
 ```
 
-**Engineer lock:** Audit before impl. No G10 materials patch for routing. No `src/` until IC approved.
+**Engineer lock (histórico):** Audit-before-impl cerrado para polish. Nuevos cambios `src/` requieren IC propio (p. ej. micro-fix G20).
 
 ### ✅ COMPLETADO — Catalog Bind Impl B
 
@@ -1273,9 +1270,10 @@ Este valor proviene del default de `StructureProperties`, no de ninguna acción 
 
 ---
 
-### Fase 2.5 — Control (ComponentRule mínimo) (AHORA)
+### Fase 2.5 — Control (ComponentRule mínimo) _(histórico — ver 🔴 PRIORIDAD ACTUAL)_
 
-> Implementar inmediatamente después de Fase 2 validada. Solo UX — cero impacto en cálculo.
+> Implementar inmediatamente después de Fase 2 validada. Solo UX — cero impacto en cálculo.  
+> **Nota 2026-08-18:** bloque control ya cerrable vía acquisition (`Pixhawk 4`, `GPS M9N` en walk `prueba`); maps formales abajo siguen como deuda de catálogo/ComponentRule.
 
 **Objetivo:** `"Pixhawk 4 + GPS M9N"` → componente guardado. Sin esto el cuarto bloque del dron cae al LLM y la promesa de "te guío hasta completar" se rompe.
 

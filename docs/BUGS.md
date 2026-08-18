@@ -1,5 +1,8 @@
 # Jarvis — Bug Tracker (fase CLI real)
 
+> **Living CLI findings (G9–G20, post-catalog):** [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md) — authoritative for routing/Continuity UX gaps outside numbered bugs below.  
+> **Roadmap / queue:** [`docs/IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md) · **Checkpoint:** `checkpoint-continuity-polish` (`15aa503`).
+
 > Fecha de apertura: 15 abril 2026  
 > Revisado: 29 abril 2026 (Fase K — primera sesión de validación end-to-end proyecto nuevo)  
 > Revisado: 3 junio 2026 (Fase L — sesión de validación post-G1, flujo completo desde cero)  

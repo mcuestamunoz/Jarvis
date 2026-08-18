@@ -98,9 +98,30 @@ Resolution:                 Doc-only R1 (2026-08-15): C-040 Status/Evidence upda
                             Product preempt policy deferred to R3 → R4 (do not copy C-052).
 ```
 
+### M-006 — Energy block label vs active param gap (G20, post-polish CLI)
+```text
+Prior documentation said:  (implicit via block labels) "Energía (batería)" means the user
+                            should re-declare or confirm the battery component
+Code currently:             composite energy block can be in_progress because motor_power_w
+                            (or catalog motor bind) is stale after re-declaring motors at
+                            IDLE, while battery component + battery_capacity_wh remain set.
+                            build_startup_context proactive_question may say
+                            "¿Definimos motor_power_w (energía) ahora?" but architecture
+                            progress hint still uses block marketing label "Energía (batería)".
+                            Bug 54 affirmative si correctly opens motor_power_w wizard — user
+                            expectation mismatch, not wrong param wizard.
+Pointers:                   orchestrator.build_startup_context (~3008-3114),
+                            system_architecture_catalog BLOCK_TO_COMPONENTS["energy"],
+                            .jes/artifacts/cli_findings_post_catalog_bind_v1.md G20/G20-B
+Resolution:                 Registered follow-up (copy-only micro-fix). Not a polish-bundle
+                            blocker. checkpoint-continuity-polish documents as known UX debt.
+```
+
 **Note on the design appendix below (observed during this verification pass, 2026-08-10):** `HANDOFF_CONTEXT_DESIGN.md`'s own status line and Decision Log now show **§5 CLOSED** (Hybrid Operation-Scoped Context) with an FN-024 (H1+H2) Implementation Contract already issued — this happened via an external Engineer/JES decision concurrent with this SYS-MAP-003 audit, not as part of this contract's own work (which is explicitly forbidden from touching H1–H5/FN-024). The "Open questions" section immediately below (§ Design-only appendix, "1. Lifecycle…" through "4. Explicit rejection…") still reads as if §5 is unresolved — it was **not** rewritten in this pass, since reconciling it would mean interpreting/restating an H1-adjacent decision, which SYS-MAP-003's scope excludes. Flagged here for Cursor/Engineer to reconcile in whatever pass formally absorbs the FN-024 outcome, so a future reader does not trust the stale "still open" framing over `HANDOFF_CONTEXT_DESIGN.md`'s own Decision Log.
 
 No other mismatches were found between `docs/ARCHITECTURE.md`/`docs/PROJECT_CONTINUITY.md` and current code as of 2026-08-10 — the FN-by-FN log in `PROJECT_CONTINUITY.md` was cross-checked against this map's `CONNECTIONS.md` rows and found consistent (both were largely produced by the same closed-loop implement→test→document discipline, so this is expected, not a coincidence).
+
+**2026-08-18 addendum:** CLI polish S1–S7 landed at `15aa503` (`checkpoint-continuity-polish`). System map subsystem files `02_intent`, `03_acquisition`, `08_continuity` updated for `list_motors`, force-motors, G9-B demotion, FN-013 pending sync. G20 energy-label mismatch recorded as M-006 above — not yet fixed in code.
 
 ---
 

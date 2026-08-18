@@ -2,6 +2,7 @@
 
 **Type:** Investigation / Audit — **zero `src/` changes**  
 **Date:** 2026-08-17  
+**Status:** **CLOSED** — delivered as [implementation_contract_cli_polish.md](implementation_contract_cli_polish.md) S1–S7; tag **`checkpoint-continuity-polish`**.  
 **Requester:** Engineer  
 **Executor:** Claude (JES investigation agent)  
 **Work plan:** [work_plan_cli_polish_audit.md](work_plan_cli_polish_audit.md)  

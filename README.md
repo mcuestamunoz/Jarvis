@@ -62,10 +62,12 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the system is built |
 | [docs/system_map/README.md](docs/system_map/README.md) | System Map — connections & authority |
 | [docs/IMPLEMENTATION_TASKS.md](docs/IMPLEMENTATION_TASKS.md) | Roadmap, gaps, technical debt |
+| [.jes/artifacts/cli_findings_post_catalog_bind_v1.md](.jes/artifacts/cli_findings_post_catalog_bind_v1.md) | Living CLI findings register (G9–G20) |
 | [src/jarvis/README.md](src/jarvis/README.md) | Deeper product / flow reference |
 
 ## Tags
 
 `v0.2.0` — H1–H4 handoffs closed; System Map at 0 RED. Still not a production CAD/FEM tool; physical catalogs remain thin.  
+`checkpoint-continuity-polish` — Continuity Hardening + G10 materials/frame + CLI polish S1–S7 (G9-B, G16, G18, G17 partial, G12, G19); commit `15aa503`.  
 `checkpoint-fn026-h4` — architectural checkpoint for the handoff stack.  
 `v0.1.0-prototype` — first functional cut.

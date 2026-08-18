@@ -3,6 +3,8 @@
 **Validated:** 2026-08-06 — workspace experiment + live CLI field notes
 (`inspección-de-puentes-…`, `transportar-cámara-800g-…`).
 
+**Updated:** 2026-08-18 — CLI polish checkpoint `checkpoint-continuity-polish` (`15aa503`). Living CLI findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md).
+
 ## Product contract (A')
 
 Whenever the engineer **reopens** a project, Jarvis must answer:
@@ -294,3 +296,15 @@ on the pending assisted param (same pattern as `_offer_catalog_help`). Tracked i
 `build_startup_context` / `project_status` / CLI expose a `continuity` block (situation / evidence / one next step).
 
 After relevant `ok` ops, `attach_project_coherence` + CLI `render_response` append the same Continuity Rule (cambio / estado / siguiente paso). Further field notes still welcome before any larger response layer.
+
+## CLI polish checkpoint (2026-08-18)
+
+Tag **`checkpoint-continuity-polish`** — Continuity + G10 + polish S1–S7. Key Continuity-facing changes:
+
+| Slice | Behavior |
+|---|---|
+| **S1 G9-B** | When sim PASS and declared `per_motor_max_thrust_n >=` physics floor, catalog BOM gap stays in **evidence** but no longer wins `next_useful_step` with imperative "Declara empuje ≥ X". |
+| **S7 G19** | PASS branch and reasoning labels bridge to **`list_motors`** and **`explora opciones`** (existing DSE path). |
+| **G20 (open)** | Re-declaring a catalog motor at IDLE can reopen energy as 3/4; block label "Energía (batería)" may mask active gap **`motor_power_w`** — see findings G20/G20-B. |
+
+Full register and queue: `.jes/artifacts/cli_findings_post_catalog_bind_v1.md` · roadmap: `docs/IMPLEMENTATION_TASKS.md`.

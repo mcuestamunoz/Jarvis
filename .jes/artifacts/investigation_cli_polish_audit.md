@@ -1,9 +1,12 @@
 # Investigation — CLI Polish Audit
 
-**Type:** Investigation / Audit only. Zero `src/` changes.
-**Contract:** [implementation_contract_cli_polish_audit.md](implementation_contract_cli_polish_audit.md)
-**Work plan:** [work_plan_cli_polish_audit.md](work_plan_cli_polish_audit.md)
-**Base commit:** `1b4769f` (Continuity Hardening + G10 materials/frame)
+**Type:** Investigation / Audit only. Zero `src/` changes.  
+**Status:** **CLOSED** — implemented as S1–S7; CLI re-walk PASS WITH NOTES; tag **`checkpoint-continuity-polish`**.  
+**Contract:** [implementation_contract_cli_polish_audit.md](implementation_contract_cli_polish_audit.md)  
+**Work plan:** [work_plan_cli_polish_audit.md](work_plan_cli_polish_audit.md)  
+**Implementation IC:** [implementation_contract_cli_polish.md](implementation_contract_cli_polish.md)  
+**Base commit:** `1b4769f` (Continuity Hardening + G10 materials/frame)  
+**Delivered:** `15aa503`
 
 ---
 
