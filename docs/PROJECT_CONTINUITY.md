@@ -305,6 +305,6 @@ Tag **`checkpoint-continuity-polish`** — Continuity + G10 + polish S1–S7. Ke
 |---|---|
 | **S1 G9-B** | When sim PASS and declared `per_motor_max_thrust_n >=` physics floor, catalog BOM gap stays in **evidence** but no longer wins `next_useful_step` with imperative "Declara empuje ≥ X". |
 | **S7 G19** | PASS branch and reasoning labels bridge to **`list_motors`** and **`explora opciones`** (existing DSE path). |
-| **G20 (open)** | Re-declaring a catalog motor at IDLE can reopen energy as 3/4; block label "Energía (batería)" may mask active gap **`motor_power_w`** — see findings G20/G20-B. |
+| **G20 (closed)** | Closed in `d224dc1`: composite energy in-progress labels now reflect the active sub-gap (`motor_power_w` vs battery), aligning progress hint and follow-up wizard expectation. |
 
 Full register and queue: `.jes/artifacts/cli_findings_post_catalog_bind_v1.md` · roadmap: `docs/IMPLEMENTATION_TASKS.md`.

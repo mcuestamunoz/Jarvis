@@ -11,7 +11,7 @@
 
 ## 1. Executive summary
 
-Continuity Hardening and G10 materials landed in `1b4769f`. CLI BOM walk exposed residual polish gaps (routing, Continuity CTA, catalog UX). **Audit → IC → impl S1–S7 → review → CLI re-walk → checkpoint are complete.** Verdict: **PASS WITH NOTES**. Follow-ups: G20/G20-B, G17 residual, G14, G13 iterate path.
+Continuity Hardening and G10 materials landed in `1b4769f`. CLI BOM walk exposed residual polish gaps (routing, Continuity CTA, catalog UX). **Audit → IC → impl S1–S7 → review → CLI re-walk → checkpoint are complete.** Verdict: **PASS WITH NOTES**. Post-checkpoint micro-fix `d224dc1` closed G20/G20-B. Open follow-ups: G17 residual, G14, G13 iterate path.
 
 ---
 
@@ -48,7 +48,7 @@ Continuity Hardening and G10 materials landed in `1b4769f`. CLI BOM walk exposed
 | **G12 / FN-013** | ⚠️ Partial S5 | `definir bateria` fixed; other retarget paths → R3 |
 | **G16-B** | ✅ Fixed S2 | CTA dedupe |
 | **G13** | 🟡 Open | Unit T14 closed; CLI iterate path differs |
-| **G20 / G20-B** | 🟡 New | Energy label vs `motor_power_w`; post-checkpoint |
+| **G20 / G20-B** | ✅ Closed post-checkpoint | Fixed in `d224dc1` (dynamic composite in-progress labels) |
 | **G9-A** | 🟡 Deferred | catalog_ref blind spot |
 | **G11 / G8 / G7** | 🟡 R3 | Iterate/DEFINE_MISSING preempt |
 
@@ -89,7 +89,7 @@ Phase 3  ✅ Implementation Contract → implementation_contract_cli_polish.md
 Phase 4  ✅ Implementation S1–S7 (Claude + Cursor)
 Phase 5  ✅ Cursor review + CLI re-walk PASS WITH NOTES
 Phase 6  ✅ Checkpoint `checkpoint-continuity-polish` (`15aa503`)
-Phase 7  🟡 R3 remainder · G20/G20-B · G13/G17/G14 · Impl C
+Phase 7  🟡 R3 remainder · G13/G17/G14 · Impl C
 ```
 
 ---
@@ -138,7 +138,8 @@ Project: `prueba-9f1031895508` (fresh dron walk, Engineer transcript).
 | 6 | catalog_gap active | CTA mentions `explora opciones` or list-motors | ✅ PASS (G19) |
 | 7 | `plastico 550g` / `PVC 400g` frame acquisition | Parses | ✅ PASS (G10) |
 
-**Additional findings (post-walk, not blockers):** G20/G20-B (energy 3/4 label + `si`→motor_power_w wizard); G14 (`10x4.5` routing); G13 iterate `PVC 400g`.
+**Additional findings (post-walk, not blockers):** G20/G20-B (energy 3/4 label + `si`→motor_power_w wizard), G14 (`10x4.5` routing), G13 iterate `PVC 400g`.  
+**Update:** G20/G20-B closed by post-checkpoint micro-fix `d224dc1`.
 
 **Tag:** `checkpoint-continuity-polish`
 

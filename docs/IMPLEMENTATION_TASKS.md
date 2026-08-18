@@ -7,12 +7,11 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** commit **`15aa503`** · tag **`checkpoint-continuity-polish`** (Continuity + G10 + polish S1–S7).  
-> **PRIORIDAD AHORA:** **Post-polish follow-ups** — G20/G20-B energy label, G17 residual, G14 routing.  
+> **PRIORIDAD AHORA:** **Post-polish follow-ups** — G17 residual, G14 routing, G13 iterate path.  
 > Findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md)
 
 ### 🟡 SIGUIENTE — Post-polish micro-fixes
 
-> G20/G20-B — energy block label vs `motor_power_w` gap; Bug 54 `si` routing clarity.  
 > G17 — bare motor phrase at IDLE still → analyze (prefix `motores` works).  
 > G14 — `10x4.5` → analyze; `helices 10x4.5` OK.  
 > G13 — iterate `PVC 400g` opaque slug (CLI path ≠ unit T14).
@@ -23,7 +22,7 @@
 > IC: [`.jes/artifacts/implementation_contract_cli_polish.md`](../.jes/artifacts/implementation_contract_cli_polish.md)  
 > Report: [`.jes/artifacts/implementation_report_cli_polish.md`](../.jes/artifacts/implementation_report_cli_polish.md)  
 > Review: [`.jes/artifacts/implementation_review_cli_polish.md`](../.jes/artifacts/implementation_review_cli_polish.md)  
-> CLI evidence: proyecto `prueba-9f1031895508` — G9-B, G16, G18, G12, G10, G19 PASS; G20/G20-B registered.
+> CLI evidence: proyecto `prueba-9f1031895508` — G9-B, G16, G18, G12, G10, G19 PASS; G20/G20-B closed post-checkpoint in `d224dc1`.
 
 ### ✅ COMPLETADO — CLI Polish Implementation + Cursor review
 
@@ -48,7 +47,6 @@
 
 ### 🟡 REGISTRADOS — Tier 2/3 (post polish or R3)
 
-> **G20 / G20-B** — energy block label vs `motor_power_w` gap; Bug 54 `si` misroutes to motor wizard  
 > **G11 / G8 / G7** — iterate/DEFINE_MISSING preempt (R3)  
 > **G13** — iterate material compound slug (`PVC 400g`; unit T14 closed, CLI iterate path differs)  
 > **G14** — bare propeller size routing (`10x4.5` → analyze)  
@@ -65,12 +63,12 @@
 ✅ CLI re-walk PASS WITH NOTES
 ✅ checkpoint-continuity-polish
         ↓
-G20/G20-B · G17 · G14 · G13
+G17 · G14 · G13
         ↓
 R3 (G11/G8) · G9-A · Impl C
 ```
 
-**Engineer lock (histórico):** Audit-before-impl cerrado para polish. Nuevos cambios `src/` requieren IC propio (p. ej. micro-fix G20).
+**Engineer lock (histórico):** Audit-before-impl cerrado para polish. Nuevos cambios `src/` requieren IC propio.
 
 ### ✅ COMPLETADO — Catalog Bind Impl B
 

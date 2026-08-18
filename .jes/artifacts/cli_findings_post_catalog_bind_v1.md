@@ -21,8 +21,8 @@
 | **G17** | 🔴→🟡 | **Partial (S4) + CLI residual** | Wizard force-motors `== high`; bare `4x 2306…` still → analyze (needs `motores` prefix) |
 | **G18** | 🔴→🟢 | **Fixed (S3) + CLI PASS** | Aerial gate: `definir motores` → motors wizard on dron |
 | **G19** | 🔴→🟢 | **Fixed (S7) + CLI PASS** | CTA bridge list-motors + DSE; demoted PASS copy (with G9-B) |
-| **G20** | 🟡 | **Registered — post-polish** | Re-declare catalog motor at IDLE → energy 3/4; label says "batería" but gap is `motor_power_w` |
-| **G20-B** | 🟡 | **Registered — post-polish** | Affirmative `si` to energy hint opens motor_power_w wizard, not battery LiPo wizard |
+| **G20** | 🟡→🟢 | **Fixed (post-polish)** | Dynamic composite label: energy in-progress now names the real active gap (`motor_power_w` vs battery) |
+| **G20-B** | 🟡→🟢 | **Fixed (post-polish)** | `si` after energy proactive hint is now coherent with the surfaced gap context |
 | **G10** | 🟡→🟢 | **Fixed + CLI PASS** | `plastico` + **`PVC 400g` acquisition PASS** (polish re-walk 2026-08-18) |
 | **G11** | 🟡 | **Registered — Continuity/R3** | Iterate preempt / acquisition collision (C-052) |
 | **G12** | 🟡 | **Partial (S5 FN-013) + CLI PASS** | `definir bateria` → battery body OK; other stale-pending paths remain |
@@ -46,14 +46,13 @@
 ✅ CLI re-walk PASS WITH NOTES (proyecto prueba-9f1031895508)
 ✅ checkpoint-continuity-polish
         ↓
-G20/G20-B energy label + motor_power_w vs battery wizard
 G17 residual bare motor phrase · G14 routing (10x4.5)
 G13 iterate PVC 400g · G11 iterate preempt · G9-A
         ↓
 R3 · Impl C
 ```
 
-**Polish bundle verdict:** **PASS WITH NOTES** — S1–S7 acceptance met; G20/G20-B registered as follow-up, not blockers.
+**Polish bundle verdict:** **PASS WITH NOTES** — S1–S7 acceptance met; G20/G20-B were later closed in a post-checkpoint micro-fix (`d224dc1`).
 
 **Explicitly deferred:** G9-A · G11/G8 R3 · Impl C · H5/C-081.
 
@@ -927,9 +926,9 @@ G15   = filtered max works mid-wizard; G19 is the IDLE/post-architecture mirror 
 
 ---
 
-## G20 🟡 — Re-declare catalog motor at IDLE reopens energy as 3/4 with misleading block label
+## G20 🟢 — Re-declare catalog motor at IDLE: energy label now reflects real active sub-gap
 
-**Severity:** 🟡 UX — **registered post-polish; not a polish-bundle blocker**  
+**Severity:** was 🟡 · **Status:** **Fixed (post-polish, `d224dc1`)**  
 **Category:** Architecture progress / composite energy block — label vs actual gap  
 **Depends on catalog:** Yes (catalog motor pick at IDLE)  
 **Source:** Engineer CLI polish re-walk 2026-08-18 (`prueba-9f1031895508`, post 4/4)
@@ -960,15 +959,15 @@ Block label says **"Energía (batería)"** while the active gap is **`motor_powe
 
 When energy gap is param-side only (`motor_power_w` present in params but stale, battery complete): label should name the param ("potencia nominal del motor") or split energy sub-gaps explicitly. Do not imply battery LiPo wizard.
 
-### Next step
+### Resolution
 
-Micro-fix follow-up — `build_startup_context` / `_append_arch_progress_hint` copy only. Not in S1–S7 scope.
+`orchestrator._block_label_for` now computes dynamic labels for composite blocks in `in_progress` state, based on missing sub-parts instead of a static block marketing label. This closes the misleading `"Energía (batería)"` copy when the real active gap is `motor_power_w`.
 
 ---
 
-## G20-B 🟡 — Affirmative `si` to energy hint opens motor_power_w wizard, not battery
+## G20-B 🟢 — Affirmative `si` to energy hint now matches surfaced gap semantics
 
-**Severity:** 🟡 UX — **registered with G20**  
+**Severity:** was 🟡 · **Status:** **Fixed with G20 micro-fix (`d224dc1`)**  
 **Category:** Bug 54 proactive_question routing — question text vs wizard body mismatch  
 **Source:** Same CLI session as G20
 
@@ -993,9 +992,9 @@ G12/S5 = definir bateria → battery body (fixed)
 G20-B  = si to energy proactive after catalog motor re-pick at IDLE
 ```
 
-### Next step
+### Resolution
 
-Pair with G20 micro-fix: proactive question should quote the actual missing param(s), not only the block marketing label.
+With dynamic composite labels and aligned progress hints, the `"si"` handoff remains correctly routed to `motor_power_w` when that is the active energy gap, and no longer appears as a battery-wizard contradiction to the user.
 
 ---
 
@@ -1219,7 +1218,7 @@ Recorded for context; **do not** treat as Impl B regressions:
 ✅ CLI Polish S1–S7 + re-walk PASS WITH NOTES
 ✅ checkpoint-continuity-polish
         ↓
-G20/G20-B · G17 residual · G14 routing · G13 iterate
+G17 residual · G14 routing · G13 iterate
         ↓
 R3 (G11/G8) · G9-A · Impl C
 ```

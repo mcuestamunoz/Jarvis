@@ -1,55 +1,53 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "SYS-MAP-002 PASS WITH NOTES. Living authority: docs/system_map/. Await Engineer: lifecycle + first RED C-xxx. No FN-024 yet.",
-  "scope": "Architecture map accepted. Product FNs still paused.",
-  "execution_status": "completed",
-  "current_mode": "Close",
+  "cycle_intent": "Post-checkpoint continuity polish alignment. Reflect current code state after G20/G20-B closure and keep JES queue focused on remaining CLI residuals.",
+  "scope": "Current baseline is checkpoint-continuity-polish + post-checkpoint micro-fix d224dc1.",
+  "execution_status": "active",
+  "current_mode": "Align",
   "movement_trigger": {
-    "type": "decision",
-    "note": "Engineer requested navigable System Map contract (not another ARCHITECTURE.md; not FN-024)."
+    "type": "state_sync",
+    "note": "Engineer requested JES restoration against actual code state."
   },
   "relevant_workflow_phases": [
-    "Intent",
-    "Plan",
-    "Implementation",
-    "Validation"
+    "Close",
+    "Maintenance"
   ],
   "applicable_rules": [],
   "required_artifacts": [
-    "Implementation Contract SYS-MAP-002",
-    "docs/system_map/**",
-    "Implementation Review"
+    ".jes/artifacts/cli_findings_post_catalog_bind_v1.md",
+    ".jes/artifacts/work_plan_cli_polish_audit.md",
+    "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [],
-  "active_operation": "Plan",
+  "active_operation": "Context alignment",
   "authority_gates": [
-    "Claude builds docs/system_map/ per SYS-MAP-002",
-    "Cursor Implementation Review after report"
+    "Code and tests are source of truth",
+    "JES artifacts must mirror post-checkpoint state"
   ],
   "coherence_checklist": [
     "tests",
     "ux",
     "docs"
   ],
-  "outcome": "PASS WITH NOTES",
-  "updated_at": "2026-08-10T18:05:17Z",
+  "outcome": "IN_SYNC_WITH_CODE",
+  "updated_at": "2026-08-18T10:36:00Z",
   "phase": "Close",
-  "status": "completed",
-  "active_gate": "Engineer chooses handoff-context lifecycle and first RED edge (C-042 / C-025 / C-043).",
-  "active_artifact": ".jes/artifacts/implementation_review_sys_map_002.md",
+  "status": "active",
+  "active_gate": "Remaining queue prioritization after G20/G20-B closure.",
+  "active_artifact": ".jes/artifacts/cli_findings_post_catalog_bind_v1.md",
   "blocking_reason": null,
-  "next_required_action": "Engineer decisions \u2192 then Cursor emits first handoff Implementation Contract citing C-xxx.",
+  "next_required_action": "Execute next approved micro-fix contract from remaining queue (G17/G14/G13 or R3).",
   "evidence_refs": [
-    ".jes/artifacts/implementation_review_sys_map_002.md",
-    "docs/system_map/README.md",
-    "docs/system_map/CONNECTIONS.md"
+    ".jes/artifacts/implementation_review_cli_polish.md",
+    ".jes/artifacts/work_plan_cli_polish_audit.md",
+    ".jes/artifacts/cli_findings_post_catalog_bind_v1.md"
   ],
   "open_decisions": [
-    "Handoff-context lifecycle (before H1)",
-    "First RED: C-042 (+H2) vs C-025/C-044 vs C-043",
-    "H5 Continuity data contract later"
+    "Next micro-fix ordering among G17/G14/G13",
+    "When to open R3 for G11/G8 preempt policy",
+    "Timing for G9-A and Impl C"
   ],
   "risks": [
-    "Map must stay as-is; mismatches must be explicit"
+    "JES drift if post-checkpoint code fixes are not reflected in living artifacts"
   ]
 }

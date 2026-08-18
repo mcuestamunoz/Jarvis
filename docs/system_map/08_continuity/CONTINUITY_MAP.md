@@ -33,7 +33,7 @@ NO — zero LLM involvement anywhere in this subsystem, by design (this is the e
 ## Known issues owned by this subsystem
 
 - **C-081** 🟡 PARTIAL (WEAK) — the `elif sim_status == "pass":` branch of `build_project_continuity`'s next-step logic does not read `safety_margin_ratio` at all, so PASS+risky and PASS+comfortable produce identical generic text. See `MISMATCHES.md` H5 (design-only, no FN queued).
-- **G20 / G20-B** 🟡 (post-polish, doc-only tracked) — composite **energy** block label ("Energía (batería)") can mask an active **`motor_power_w`** param gap after re-declaring motors at IDLE; Bug 54 affirmative `si` then opens motor-power wizard, not battery LiPo. See `.jes/artifacts/cli_findings_post_catalog_bind_v1.md` G20/G20-B.
+- **G20 / G20-B** ✅ closed in `d224dc1` — composite in-progress labels are now dynamic and reflect the active energy sub-gap (`motor_power_w` vs battery), removing the prior label/wizard expectation mismatch.
 - **G9-A** 🟡 — `build_startup_context` catalog-gap computation still blind to bound `catalog_ref` (separate from G9-B demotion fix).
 
 ## Tests
