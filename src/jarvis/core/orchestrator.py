@@ -717,6 +717,12 @@ class JarvisOrchestrator:
                 result["wizard_reprompt"] = self.iterate_interactive_session.get_current_prompt(current_session)
                 self._track_turn(user_input, result)
                 return result
+            if _interim_intent == "list_motors":
+                # G16-A: same soft-interrupt shape as list_materials above.
+                result = self._handle_list_motors()
+                result["wizard_reprompt"] = self.iterate_interactive_session.get_current_prompt(current_session)
+                self._track_turn(user_input, result)
+                return result
             if _interim_intent == "analyze":
                 result = self._handle_analyze(user_input, llm_interface)
                 # Bug 51: same reprompt for analyze interruption.
@@ -773,6 +779,15 @@ class JarvisOrchestrator:
             # attempt by the component intercept further down.
             if _dm_intent == "list_materials":
                 result = self._handle_list_materials()
+                self._track_turn(user_input, result)
+                return result
+            # G16-A: same soft-interrupt shape as list_materials above — a
+            # motors catalog query mid-wizard (including a trailing "?", which
+            # would otherwise resolve to "analyze" before this dedicated
+            # intent existed) must not fall to the LLM or the component
+            # intercept further down.
+            if _dm_intent == "list_motors":
+                result = self._handle_list_motors()
                 self._track_turn(user_input, result)
                 return result
             # FN-013: "definir/declarar/completar <bloque activo>" while acquisition
@@ -899,6 +914,10 @@ class JarvisOrchestrator:
             result = self._handle_list_materials()
             self._track_turn(user_input, result)
             return result
+        if intent == "list_motors":
+            result = self._handle_list_motors()
+            self._track_turn(user_input, result)
+            return result
         if intent == "analyze":
             # FN-025 (H3): a help-seeking phrase ("ayúdame", "oriéntame", ...)
             # must not silently reach the LLM when a deterministic authority
@@ -959,7 +978,26 @@ class JarvisOrchestrator:
                     )
                     params = project_state.current_parameters or {}
                 except FileNotFoundError:
+                    project_state = None
                     params = {}
+                # G18: DEFINE_PARAMS_PATTERNS' terrestrial "motor(es)" branch
+                # has no domain gate (IntentResolver is a stateless text
+                # classifier by design — no vehicle_type access), so it wins
+                # unconditionally even on an aerial project. Gate here, where
+                # project_state is already available: an aerial project's
+                # "definir motores" must never open the terrestrial
+                # per_actuator_torque_nm/wheel_radius_m/gear_ratio wizard.
+                if (
+                    reason == "missing_transmission_parameters"
+                    and project_state is not None
+                    and CreateProjectInteractiveSession._domain_kind(
+                        params.get("vehicle_type")
+                    ) == "aerial"
+                ):
+                    redirect = self._redirect_aerial_motors_request(project_state)
+                    if redirect is not None:
+                        self._track_turn(user_input, redirect)
+                        return redirect
                 missing = missing_params_for_reason(reason, params)
                 result = self.start_define_missing_params(missing, reason=reason)
                 self._track_turn(user_input, result)
@@ -1172,6 +1210,53 @@ class JarvisOrchestrator:
             session.pending_missing_params, reason=session.pending_missing_reason
         )
 
+    def _redirect_aerial_motors_request(self, project_state: Any) -> dict | None:
+        """G18: aerial "definir motores" → propulsion/motors acquisition,
+        never the terrestrial transmission wizard (torque/rueda/gear_ratio).
+
+        If propulsion is still the active pending block, continue that
+        existing bridge (same as any other component mention on the active
+        gap). Otherwise reopen the motors component wizard directly — the
+        same component-level redefine any other component intercept already
+        uses — rather than inventing a terrestrial project or silently
+        refusing a motors-shaped phrase.
+        """
+        pending = (
+            self._next_pending_block(project_state)
+            if project_state.design_properties.system_defined
+            else None
+        )
+        if pending is not None and pending[0] == "propulsion":
+            return self._continue_block_acquisition()
+        return self.start_define_missing_params(["motors"], reason=MISSING_COMPONENT_DEFINITION)
+
+    def _fresh_pending_keys_for_block(self, project_state: Any, block_key: str) -> list[str]:
+        """G12/FN-013: recompute the pending keys for *block_key* the same way
+        ``_set_pending_next_block`` would for a fresh open of that block.
+
+        Used to verify a session's stale ``pending_param_definitions`` field
+        still belongs to the block it's about to be re-shown under — a
+        component can legitimately appear in more than one block's
+        ``BLOCK_TO_COMPONENTS`` entry (e.g. "motors" in both "propulsion" and
+        "energy"), so a static membership check isn't enough: the check must
+        be against what's genuinely still incomplete for THIS block right
+        now, not just what the block's component set could ever contain.
+        """
+        block_type = get_block_type(block_key)
+        components = project_state.design_properties.components
+        if block_type in ("composite", "component"):
+            component_keys = BLOCK_TO_COMPONENTS.get(block_key, [])
+            missing_component_keys = [
+                k for k in component_keys
+                if components.get(k) is None or components[k].completeness == "low"
+            ]
+            if missing_component_keys or block_type == "component":
+                return missing_component_keys
+        param_reason = get_param_reason_for_block(block_key)
+        if not param_reason:
+            return []
+        return missing_params_for_reason(param_reason, project_state.current_parameters or {})
+
     def _try_reprompt_active_block_declaration(self, user_input: str) -> dict | None:
         """FN-013: block-level help while DEFINE_MISSING is already active.
 
@@ -1196,6 +1281,17 @@ class JarvisOrchestrator:
         pending = list(session.pending_param_definitions or [])
         if not pending:
             return None
+        # G12/FN-013: session.pending_param_definitions can go stale — e.g. a
+        # DSE apply/component_sync completes "motors" directly, bypassing the
+        # wizard's own turn-by-turn chaining, while the session field still
+        # names a component from a DIFFERENT (now-complete) block's own
+        # earlier turn. Re-derive the fresh pending set for block_key itself
+        # and only trust the session's own ordering when its head is still
+        # genuinely part of it — otherwise rebuild the brief from the fresh
+        # list so the body never narrates an already-resolved component.
+        fresh_pending = self._fresh_pending_keys_for_block(project_state, block_key)
+        if fresh_pending and pending[0] not in fresh_pending:
+            pending = fresh_pending
         suggestions = list(session.motor_suggestions or [])
         label = self._block_label_for(project_state, block_key)
         message = f"Seguimos con {label} — sin reiniciar lo ya capturado."
@@ -1925,6 +2021,29 @@ class JarvisOrchestrator:
         # only force when the phrase is unambiguously propeller-shaped.
         # Singleton expected_keys=["propellers"] (no motors pending) is
         # unaffected — FN-019's original bare-size behavior is unchanged.
+        # G17: aerial.py's motors ComponentRule only keys off the literal
+        # substring "motor" — a phrase like "1x 2306 2400KV 50W" (no such
+        # substring) falls to generic_component even though
+        # infer_component_for_key resolves it perfectly (motor_count=1,
+        # kv_rating=2400, power_w=50). Force-bind it here, same shape as the
+        # force-propellers/force-frame blocks below. Runs FIRST (before
+        # force-propellers) so a motor-shaped phrase in a composite
+        # ["motors","propellers"] wizard binds motors — Continuity Hardening
+        # ★4 (G14) already established "prefer motors" as the tiebreak; this
+        # ordering is that tiebreak, no new logic needed.
+        # completeness == "high" (not just "!= low"): the motors extractor's
+        # own motor_count regex spuriously matches a bare "NxP" propeller size
+        # (e.g. "10x4.5" → motor_count=10, completeness="medium") — requiring
+        # "high" (a real KV/thrust/power signal alongside the count) keeps
+        # that bare-size case falling through to the propellers force block
+        # below, unchanged (FN-019/G14 regression guard).
+        if (
+            "motors" in expected_keys
+            and all(s.suggested_key == "generic_component" for s in specs)
+        ):
+            forced = infer_component_for_key(user_input, "motors", registry=aerial_registry)
+            if forced is not None and forced.completeness == "high":
+                specs = [forced]
         if (
             "propellers" in expected_keys
             and all(s.suggested_key == "generic_component" for s in specs)
@@ -2229,6 +2348,65 @@ class JarvisOrchestrator:
             "message": message,
             "materials": [
                 {"name": m.name, "density_kg_m3": m.density_kg_m3} for m in materials
+            ],
+        }
+
+    def _handle_list_motors(self) -> dict[str, Any]:
+        """G16-A: deterministic motors catalog listing — 0 LLM, mirrors
+        _handle_list_materials (G10 ★8).
+
+        Filtered by the active project's design-space (thrust/kv/prop) via
+        the same authority ``build_motor_catalog_suggestions`` already uses
+        for assisted acquisition — no separate motors vocabulary, no LLM
+        invention of rows. Falls back to an unfiltered catalog dump when
+        there's no active project or no design-space filters yet.
+        """
+        from jarvis.core.motor_catalog_assist import (
+            build_motor_catalog_suggestions,
+            derive_kv_prop_filters,
+        )
+        from jarvis.core.project_closure import derive_physical_requirements
+        from jarvis.knowledge.library import default_library
+
+        project_state = self._safe_active_project()
+        filtered: list[dict[str, Any]] | None = None
+        if project_state is not None:
+            req = derive_physical_requirements(project_state)
+            kv_hint, prop_inch = derive_kv_prop_filters(project_state)
+            has_filters = (
+                req.get("thrust_per_motor_needed_n") is not None
+                or kv_hint is not None
+                or prop_inch is not None
+            )
+            if has_filters:
+                filtered = build_motor_catalog_suggestions(project_state, limit=10)
+
+        if filtered is not None:
+            lines = [
+                f"  • {m['name']} — {m['thrust_n']}N, {m['kv_rating']}KV, {m['weight_g']}g"
+                for m in filtered
+            ] or ["  (sin candidatos para este espacio de diseño)"]
+            message = "Motores del catálogo para este espacio de diseño:\n" + "\n".join(lines)
+            return {
+                "status": "ok",
+                "action": "list_motors",
+                "message": message,
+                "motors": filtered,
+            }
+
+        all_motors = default_library.list_motors()
+        lines = [
+            f"  • {m.name} — {m.thrust_n}N, {m.kv_rating}KV, {m.weight_g}g"
+            for m in all_motors
+        ]
+        message = "Motores disponibles en el catálogo:\n" + "\n".join(lines)
+        return {
+            "status": "ok",
+            "action": "list_motors",
+            "message": message,
+            "motors": [
+                {"name": m.name, "thrust_n": m.thrust_n, "kv_rating": m.kv_rating, "weight_g": m.weight_g}
+                for m in all_motors
             ],
         }
 

@@ -87,13 +87,13 @@ Audit must propose a **single coherent policy** for when catalog_gap is shown vs
 
 ```text
 Phase 0  ✅ CLI walk + findings register + commit 1b4769f
-Phase 1  🔴 Claude audit (this plan's IC)
-Phase 2  Design doc from audit report (Engineer review)
-Phase 3  Implementation Contract (slices, tests, acceptance)
-Phase 4  Implementation (Cursor)
+Phase 1  ✅ Claude audit → investigation_cli_polish_audit.md
+Phase 2  ✅ Engineer locks closed in IC (no separate design doc)
+Phase 3  ✅ Implementation Contract → implementation_contract_cli_polish.md
+Phase 4  🔴 Implementation (Claude)
 Phase 5  Cursor review + CLI re-walk
-Phase 6  Checkpoint tag
-Phase 7  R3 remainder (G11/G8/G13) · Impl C
+Phase 6  Checkpoint tag `checkpoint-continuity-polish`
+Phase 7  R3 remainder (G11/G8) · G13 if S8 fails · Impl C
 ```
 
 ---
@@ -128,19 +128,23 @@ Claude produces **`investigation_cli_polish_audit.md`** covering:
 
 ---
 
-## 8. CLI re-walk acceptance (Phase 5)
+## 8. CLI re-walk acceptance (Phase 5) — **PASS WITH NOTES** (2026-08-18)
 
-Project: fresh dron or `continuity-bom` reset.
+Project: `prueba-9f1031895508` (fresh dron walk, Engineer transcript).
 
-| # | Probe | Expected |
-|---|---|---|
-| 1 | `¿que motores tenemos en el catalogo?` at IDLE | Deterministic list (0 LLM) |
-| 2 | Post-DSE apply with PASS + margin > 2 | No "declara empuje ≥ X" using physical floor |
-| 3 | `definir motores` on dron | Aerial propulsion path, not robot |
-| 4 | `4x 2306 2400KV 50W` in motors wizard | Registers without keyword |
-| 5 | `definir bateria` after propulsion | Battery wizard without stale motors body |
-| 6 | catalog_gap active | CTA mentions `explora opciones` or list-motors |
-| 7 | `plastico 550g` via iterate material | Parses or honest redirect to acquisition |
+| # | Probe | Expected | Result |
+|---|---|---|---|
+| 1 | `¿que motores tenemos en el catalogo?` at IDLE | Deterministic list (0 LLM) | ✅ PASS |
+| 2 | Post-DSE apply with PASS + margin > 2 | No "declara empuje ≥ X" using physical floor | ✅ PASS (G9-B) |
+| 3 | `definir motores` on dron | Aerial propulsion path, not robot | ✅ PASS (G18) |
+| 4 | `4x 2306 2400KV 50W` in motors wizard | Registers without keyword | ⚠️ PARTIAL — needs `motores` prefix at some paths (G17) |
+| 5 | `definir bateria` after propulsion | Battery wizard without stale motors body | ✅ PASS (S5/G12) |
+| 6 | catalog_gap active | CTA mentions `explora opciones` or list-motors | ✅ PASS (G19) |
+| 7 | `plastico 550g` / `PVC 400g` frame acquisition | Parses | ✅ PASS (G10) |
+
+**Additional findings (post-walk, not blockers):** G20/G20-B (energy 3/4 label + `si`→motor_power_w wizard); G14 (`10x4.5` routing); G13 iterate `PVC 400g`.
+
+**Tag:** `checkpoint-continuity-polish`
 
 ---
 
@@ -154,9 +158,15 @@ Project: fresh dron or `continuity-bom` reset.
 
 ---
 
-## 10. Engineer decision points (post-audit)
+## 10. Engineer decision points (post-audit) — CLOSED in IC 2026-08-18
 
-1. Include G13 in polish bundle or defer?
-2. G9-A (`catalog_ref` read) in same cut or separate?
-3. Checkpoint name: `checkpoint-continuity-polish` vs `checkpoint-g10`?
-4. Tag `1b4769f` as intermediate baseline before polish?
+| # | Decision | Lock |
+|---|---|---|
+| 1 | G9-B threshold | per-motor `>=` + sim PASS |
+| 2 | G18 location | orchestrator gate; IntentResolver stays stateless |
+| 3 | G19 executability | relabel two suggestions only |
+| 4 | G13 | S8 probe; no code unless reproduced |
+| 5 | Checkpoint | `checkpoint-continuity-polish` |
+| 6 | Packaging | one IC S1–S7 |
+
+G9-A remains deferred (Impl C). `1b4769f` is the code baseline; `39b85b2` is the audit commit.

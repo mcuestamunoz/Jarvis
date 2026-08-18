@@ -322,15 +322,19 @@ class ReasoningLayer:
                 )
             actions.extend(
                 [
+                    # G19: labels are re-entrant phrases the resolver already
+                    # handles (S2's list_motors, the pre-existing "explora
+                    # opciones" DSE path) — not narrative text that dead-ends
+                    # at analyze/LLM when the user types it back verbatim.
                     ReasoningSuggestion(
                         action="iterate",
-                        label="Definir empuje por motor real",
+                        label="Qué motores tenemos en el catálogo",
                         reason="Ya definiste componentes de potencia; falta mapear su empuje real para refinar el modelo.",
                         priority=0.9,
                     ),
                     ReasoningSuggestion(
                         action="iterate",
-                        label="Modelar unidad de potencia",
+                        label="Explora opciones de motor",
                         reason="Con una unidad de potencia declarada, el siguiente paso es conectarla al cálculo de propulsión.",
                         priority=0.8,
                     ),

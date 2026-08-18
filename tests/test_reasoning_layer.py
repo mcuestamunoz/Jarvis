@@ -105,7 +105,10 @@ def test_reasoning_layer_declarative_components_emits_contextual_insights_and_ne
     assert any("no alteran resultados físicos" in tradeoff.lower() for tradeoff in output.tradeoffs)
     labels = [suggestion.label for suggestion in output.suggested_actions]
     assert any(label.startswith("Completar especificación de") for label in labels)
-    assert "Definir empuje por motor real" in labels
+    # G19 (CLI polish): relabeled to a phrase the resolver already routes
+    # deterministically (list_motors), not narrative text that dead-ends at
+    # analyze/LLM when the user types it back.
+    assert "Qué motores tenemos en el catálogo" in labels
     assert "Aumentar carga útil" not in labels
 
 

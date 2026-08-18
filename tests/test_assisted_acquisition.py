@@ -398,7 +398,10 @@ def test_fn009_offer_catalog_help_power_pending_keeps_watts_copy(tmp_path: Path)
     assert result.get("motor_suggestions"), "se esperaba cobertura real de catálogo"
 
     assert result["question"] == "Elige un número de la lista, o indica W a mano."
-    assert "indica w a mano" in result["message"].lower()
+    # G16-B (CLI polish): the "Elige un número..." CTA now lives only in
+    # `question` — `message` no longer repeats it (previously both message
+    # and question showed the same instruction, G16-B's own duplication bug).
+    assert "indica w a mano" not in result["message"].lower()
     assert "empuje en n" not in result["question"].lower()
 
 

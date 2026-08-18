@@ -265,11 +265,18 @@ def _format_candidate_line(s: MotorSuggestion, *, detailed: bool) -> str:
 
 
 def format_motor_catalog_suggestions(
-    suggestions: list[MotorSuggestion], *, param: str = "motor_power_w"
+    suggestions: list[MotorSuggestion], *, param: str = "motor_power_w", include_cta: bool = True
 ) -> str:
     """``param`` selects the trailing instruction's unit/copy: W for
     motor_power_w (default, unchanged), N/combo for per_motor_max_thrust_n.
-    Callers that don't pass ``param`` keep the original W-copy verbatim."""
+    Callers that don't pass ``param`` keep the original W-copy verbatim.
+
+    G16-B: ``include_cta`` lets a caller that builds its own separate
+    "how to answer" ``question`` (e.g. ``_offer_catalog_help``) suppress this
+    trailing "Elige un número..." line from ``message`` — otherwise the same
+    instruction is shown twice (once in message, once in question). Default
+    True keeps every other existing caller's output byte-for-byte unchanged.
+    """
     if not suggestions:
         return (
             "No tengo un motor en el catálogo que cubra este espacio de diseño. "
@@ -280,13 +287,14 @@ def format_motor_catalog_suggestions(
     ]
     for s in suggestions:
         lines.append(_format_candidate_line(s, detailed=True))
-    if param == "per_motor_max_thrust_n":
-        lines.append(
-            "Elige un número, indica empuje en N (de una combinación motor-hélice), "
-            "o di 'no' para omitir."
-        )
-    else:
-        lines.append("Elige un número, indica W a mano, o di 'no' para omitir.")
+    if include_cta:
+        if param == "per_motor_max_thrust_n":
+            lines.append(
+                "Elige un número, indica empuje en N (de una combinación motor-hélice), "
+                "o di 'no' para omitir."
+            )
+        else:
+            lines.append("Elige un número, indica W a mano, o di 'no' para omitir.")
     return "\n".join(lines)
 
 

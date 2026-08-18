@@ -344,7 +344,12 @@ class ParamDefinitionSession:
         return {
             "status": "interactive",
             "action": "define_missing_params",
-            "message": format_motor_catalog_suggestions(suggestions, param=current),
+            # G16-B: question (below) already carries the "Elige un número..."
+            # instruction — suppress the formatter's own trailing copy of it
+            # so the CLI doesn't render the same CTA twice.
+            "message": format_motor_catalog_suggestions(
+                suggestions, param=current, include_cta=False
+            ),
             "question": question,
             "pending": list(pending),
             "motor_suggestions": suggestions,

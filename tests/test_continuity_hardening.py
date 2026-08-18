@@ -172,7 +172,14 @@ def test_t6_list_motors_mid_thrust_wizard_is_deterministic(tmp_path):
         "que motores tenemos en el catalogo", _FakeLLM()  # raises if LLM invoked
     )
 
-    assert result["status"] == "interactive"
+    # CLI Polish G16-A: a global list_motors intent (mirroring list_materials,
+    # G10 ★8) now intercepts this phrase before it ever reaches the wizard's
+    # own is_list_motors_phrase check inside _answer_assisted_motor — same
+    # "ok"/"list_motors" shape as _handle_list_materials, superseding this
+    # slice's original wizard-local "interactive" path. Wizard state below is
+    # untouched either way (list handlers never mutate the session).
+    assert result["status"] == "ok"
+    assert result["action"] == "list_motors"
     sess = orchestrator.state_manager.runtime_state.session
     assert sess.mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS
     assert sess.pending_param_definitions == ["per_motor_max_thrust_n"]

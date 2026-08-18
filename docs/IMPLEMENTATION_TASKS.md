@@ -6,22 +6,35 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** commit **`1b4769f`** — Continuity Hardening + G10 materials/frame (1753 tests pass).  
-> **PRIORIDAD AHORA:** **CLI Polish Audit** (Claude) → Design → IC → Impl.  
-> Plan: [`.jes/artifacts/work_plan_cli_polish_audit.md`](../.jes/artifacts/work_plan_cli_polish_audit.md)  
-> Audit IC: [`.jes/artifacts/implementation_contract_cli_polish_audit.md`](../.jes/artifacts/implementation_contract_cli_polish_audit.md)  
+> **Base:** **`checkpoint-continuity-polish`** (Continuity + G10 + polish S1–S7).  
+> **PRIORIDAD AHORA:** **Post-polish follow-ups** — G20/G20-B energy label, G17 residual, G14 routing.  
 > Findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md)
 
-### ✅ COMPLETADO — CLI Polish Audit (Phase 1)
+### 🟡 SIGUIENTE — Post-polish micro-fixes
 
-> Entregable: [`.jes/artifacts/investigation_cli_polish_audit.md`](../.jes/artifacts/investigation_cli_polish_audit.md)  
-> Veredicto: **ready for IC** (6/8 findings); G9-B threshold = decisión Engineer; G13 = re-verificación CLI antes de S8.  
-> Slices: S1–S7 código + S8 verification-gated · S7 depende de S1+S2.
+> G20/G20-B — energy block label vs `motor_power_w` gap; Bug 54 `si` routing clarity.  
+> G17 — bare motor phrase at IDLE still → analyze (prefix `motores` works).  
+> G14 — `10x4.5` → analyze; `helices 10x4.5` OK.  
+> G13 — iterate `PVC 400g` opaque slug (CLI path ≠ unit T14).
 
-### 🔴 AHORA — Implementation Contract polish (Phase 2–3)
+### ✅ COMPLETADO — CLI Polish re-walk + checkpoint (2026-08-18)
 
-> Basado en audit report → `implementation_contract_cli_polish.md` (pendiente)  
-> Resolver §4.7 open questions antes o dentro del IC.
+> Verdict: **PASS WITH NOTES** · tag **`checkpoint-continuity-polish`**.  
+> IC: [`.jes/artifacts/implementation_contract_cli_polish.md`](../.jes/artifacts/implementation_contract_cli_polish.md)  
+> Report: [`.jes/artifacts/implementation_report_cli_polish.md`](../.jes/artifacts/implementation_report_cli_polish.md)  
+> Review: [`.jes/artifacts/implementation_review_cli_polish.md`](../.jes/artifacts/implementation_review_cli_polish.md)  
+> CLI evidence: proyecto `prueba-9f1031895508` — G9-B, G16, G18, G12, G10, G19 PASS; G20/G20-B registered.
+
+### ✅ COMPLETADO — CLI Polish Implementation + Cursor review
+
+> S1 G9-B · S2 G16 · S3 G18 · S4 G17 · S5 FN-013 · S7 G19 · S8 G13 closed as G10 ★2 (unit).  
+> Suite: 1768 passed · 15 tests in `test_cli_polish.py`.
+
+### ✅ COMPLETADO — CLI Polish Audit + IC (Phase 1–3)
+
+> Audit: [`.jes/artifacts/investigation_cli_polish_audit.md`](../.jes/artifacts/investigation_cli_polish_audit.md)  
+> IC: [`.jes/artifacts/implementation_contract_cli_polish.md`](../.jes/artifacts/implementation_contract_cli_polish.md)  
+> Engineer locks §4.7 closed in the IC.
 
 ### ✅ COMPLETADO — Continuity CLI BOM walk (2026-08-17)
 
@@ -46,20 +59,18 @@
 > **G9-A** — catalog_ref blind spot  
 > **G6 / F-2 / F-5** — later
 
-### Cola acordada (Engineer 2026-08-17)
+### Cola acordada (Engineer 2026-08-18)
 
 ```text
 ✅ checkpoint-g3
-✅ Continuity Hardening impl + G10 impl
-✅ CLI walk continuity-bom + findings G16–G19
-✅ commit 1b4769f
-✅ CLI Polish Audit (Claude) → investigation_cli_polish_audit.md
+✅ Continuity Hardening + G10
+✅ CLI Polish Audit + IC + impl S1–S7
+✅ CLI re-walk PASS WITH NOTES
+✅ checkpoint-continuity-polish
         ↓
-🔴 Design + IC polish (S1–S7)                    ← AHORA
+G20/G20-B · G17 · G14 · G13
         ↓
-Impl + review + CLI re-walk + checkpoint
-        ↓
-R3 (G11/G8) · G13 · Impl C
+R3 (G11/G8) · G9-A · Impl C
 ```
 
 **Engineer lock:** Audit before impl. No G10 materials patch for routing. No `src/` until IC approved.

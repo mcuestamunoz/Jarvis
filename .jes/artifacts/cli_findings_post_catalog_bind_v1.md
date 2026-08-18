@@ -1,7 +1,7 @@
 # CLI Findings — Post Catalog Bind v1 → F-1 / G5 / G3 / SYS-MAP-004 / G10–G15
 
-**Date:** 2026-08-15 (updated — **2026-08-17** CLI polish bundle queued · commit `1b4769f`)  
-**Checkpoints:** `checkpoint-catalog-impl-b` · `checkpoint-f1-reducir-payload` · `checkpoint-g5-dse-component-sync` · **`checkpoint-g3`** · post-g3 **`1b4769f`** (Continuity + G10, untagged)  
+**Date:** 2026-08-15 (updated — **2026-08-18** CLI polish PASS WITH NOTES · tag **`checkpoint-continuity-polish`**)  
+**Checkpoints:** `checkpoint-catalog-impl-b` · `checkpoint-f1-reducir-payload` · `checkpoint-g5-dse-component-sync` · **`checkpoint-g3`** · **`checkpoint-continuity-polish`** (Continuity + G10 + polish S1–S7)  
 **Evidence:** Engineer CLI `continuity-bom` walk 2026-08-17 + prior G10–G13 sessions  
 
 > Living register of CLI findings. Distinguishes bugs, known limits, expected behavior, and deferred work. **Do not confuse a finding with a regression** after later checkpoints.
@@ -17,16 +17,18 @@
 | **G3** | 🟡→🟢 | **Fixed + CLI PASS** | Active-goal continuity explore; override + consumed handoff |
 | **G14** | 🔴→🟢 | **Fixed (Continuity)** | Motors phrase no longer force-writes hélices in composite wizard |
 | **G15** | 🟡→🟢 | **Fixed (Continuity; residuals → G16)** | Filtered max + list-motors mid-wizard (sin `?`) |
-| **G16** | 🟡 | **Registered — polish** | (A) list-motors + `?` → analyze (wizard **and IDLE**); (B) CTA duplicada |
-| **G17** | 🔴 | **Registered — force-motors gap** | Example `4x 2306…` re-prompts; needs keyword `motores` |
-| **G18** | 🔴 | **Registered — cross-domain routing** | `definir motores` on **dron** opens terrestrial transmission wizard (torque/rueda) |
-| **G19** | 🔴 | **Registered — CTA/discoverability** | Catalog-gap CTA no conecta con DSE/list-motors; exploración oculta |
-| **G10** | 🟡→🟢 | **Fixed (CLI parcial)** | `plastico` + **`PVC 400g` acquisition PASS** (Continuity CLI 2026-08-17) |
+| **G16** | 🟡→🟢 | **Fixed (S2) + CLI PASS** | Global `list_motors` + soft-interrupt; CTA dedupe (G16-B) |
+| **G17** | 🔴→🟡 | **Partial (S4) + CLI residual** | Wizard force-motors `== high`; bare `4x 2306…` still → analyze (needs `motores` prefix) |
+| **G18** | 🔴→🟢 | **Fixed (S3) + CLI PASS** | Aerial gate: `definir motores` → motors wizard on dron |
+| **G19** | 🔴→🟢 | **Fixed (S7) + CLI PASS** | CTA bridge list-motors + DSE; demoted PASS copy (with G9-B) |
+| **G20** | 🟡 | **Registered — post-polish** | Re-declare catalog motor at IDLE → energy 3/4; label says "batería" but gap is `motor_power_w` |
+| **G20-B** | 🟡 | **Registered — post-polish** | Affirmative `si` to energy hint opens motor_power_w wizard, not battery LiPo wizard |
+| **G10** | 🟡→🟢 | **Fixed + CLI PASS** | `plastico` + **`PVC 400g` acquisition PASS** (polish re-walk 2026-08-18) |
 | **G11** | 🟡 | **Registered — Continuity/R3** | Iterate preempt / acquisition collision (C-052) |
-| **G12** | 🟡 | **Registered — Continuity/R3** | DEFINE_MISSING sticky retarget — hay que `cancelar` |
-| **G13** | 🟡 | **Registered — later** | Iterate material `PVC 400g` opaque slug |
+| **G12** | 🟡 | **Partial (S5 FN-013) + CLI PASS** | `definir bateria` → battery body OK; other stale-pending paths remain |
+| **G13** | 🟡 | **Registered — CLI residual** | Iterate `PVC 400g` opaque slug (unit T14 closed; live iterate path differs) |
 | **G8** | 🟡 | **Registered — Continuity/R3** | DEFINE_MISSING swallows engineering/explore |
-| **G9** | 🟡 | **Registered — polish bundle** | Catalog-gap misleading post-PASS (G9-B); blind to `catalog_ref` (G9-A) |
+| **G9** | 🟡 | **G9-B Fixed (S1); G9-A open** | Catalog-gap demoted post-PASS; blind to `catalog_ref` still deferred |
 | **G6** | 🟡 | **Registered — later** | Mass breakdown deterministic |
 | **G7** | 🟡 | **Registered — Continuity** | Iterate `operation=None` / mid-flow break |
 | F-2 | 🟡 | Known gap | Diámetro hélices → iterate |
@@ -35,29 +37,25 @@
 | F-5 | 🟡 | Pendiente verificación | Divergencia `catalog_ref` post-DSE |
 | F-6 | 🟢→🟡 | Demostrado + **G9 elevates stale-gap** | Gap catálogo honesto; honesty vs bound SKU = G9 |
 
-**Next queue (Engineer 2026-08-17 — POLISH BUNDLE):**
+**Next queue (Engineer 2026-08-18 — post polish):**
 
 ```text
 ✅ checkpoint-g3
-✅ Continuity Hardening impl + review + CLI walk (continuity-bom)
-✅ G10 impl + PVC/plastico acquisition CLI PASS
-✅ commit 1b4769f (Continuity + G10 + findings G16–G19)
+✅ Continuity Hardening + G10 (1b4769f)
+✅ CLI Polish Audit + IC + impl S1–S7
+✅ CLI re-walk PASS WITH NOTES (proyecto prueba-9f1031895508)
+✅ checkpoint-continuity-polish
         ↓
-🔴 CLI Polish Audit (Claude) — IC: implementation_contract_cli_polish_audit.md
-   Plan: work_plan_cli_polish_audit.md
+G20/G20-B energy label + motor_power_w vs battery wizard
+G17 residual bare motor phrase · G14 routing (10x4.5)
+G13 iterate PVC 400g · G11 iterate preempt · G9-A
         ↓
-Design + Implementation Contract (from audit report)
-        ↓
-Polish impl (G9-B · G16 · G17 · G18 · G19 · G12-FN013 · …)
-        ↓
-CLI re-walk → checkpoint tag
-        ↓
-G11/G13/R3 remainder · Impl C
+R3 · Impl C
 ```
 
-**Engineer lock:** Audit before impl. No `src/` until IC approved from audit report.
+**Polish bundle verdict:** **PASS WITH NOTES** — S1–S7 acceptance met; G20/G20-B registered as follow-up, not blockers.
 
-**Explicitly deferred:** G10 PVC CLI · G13 · G9 isolate · thrust gate (★7) · Impl C · H5/C-081.
+**Explicitly deferred:** G9-A · G11/G8 R3 · Impl C · H5/C-081.
 
 ---
 
@@ -340,7 +338,7 @@ Continuity:
 
 **Expected:** si `per_motor_max_thrust_n ≥ thrust_per_motor_needed_n` y sim PASS → suprimir o degradar a aviso BOM no bloqueante; no pedir “declara empuje ≥ X” usando el piso físico.
 
-**Fix sketch:** guard en `build_project_continuity` + reformular CTA; opcionalmente leer `catalog_ref` (G9-A).
+**Status (2026-08-18):** **Fixed (S1)** — `build_project_continuity` demotes gap when PASS + declared ≥ floor. CLI re-walk PASS: post-DSE `estado` → "Aumentar carga útil", not "Declara empuje ≥ floor". G9-A (`catalog_ref` blind spot) remains open separately.
 
 ---
 
@@ -543,7 +541,7 @@ G10 = materials acquisition identity (validated once wizard is actually frame)
 
 ### Next step
 
-Document only. Feed **R3** / Continuity Hardening with G8 + G12. No `src/` now.
+**Partial fix (S5 FN-013, 2026-08-18):** `_fresh_pending_keys_for_block` syncs brief body to named block — CLI `definir bateria` → battery guide PASS. Residual: other stale-pending paths (e.g. post-propulsion energy) may still mismatch header vs body. Feed **R3** for full session retarget policy.
 
 ---
 
@@ -709,7 +707,7 @@ G10 ★8 list-materials = already has orchestrator soft-interrupt (pattern to co
 
 ### Next step
 
-Document only during Continuity BOM walk. Micro-contract after walk PASS (or fold into Continuity polish PR). Workaround CLI: omit `?`; ignore duplicated line.
+**Fixed (S2, 2026-08-18):** `LIST_MOTORS_PATTERNS` + orchestrator soft-interrupt + `_handle_list_motors()`; CTA dedupe in `format_motor_catalog_suggestions`. CLI PASS: `¿que motores tenemos en el catalogo?` → `list_motors` (wizard + IDLE); single "Elige un número…" after `ayúdame a elegir`.
 
 ---
 
@@ -763,7 +761,7 @@ When `"motors" in expected_keys` and all specs are `generic_component`, call `in
 
 ### Next step
 
-Register only. Include in Continuity polish / small FN after BOM walk (with G16). Do not patch mid-walk.
+**Partial (S4, 2026-08-18):** force-motors when `"motors" in expected_keys` and `completeness == "high"`. CLI residual: after thrust apply at IDLE, bare `4x 2306 2400KV 50W` still routes to analyze LLM; `motores 4x…` works. Follow-up: extend force-motors to post-thrust IDLE path or broaden keywordless bind.
 
 ---
 
@@ -824,7 +822,7 @@ G12 = FN-013 stale pending (different path)
 
 ### Next step
 
-Register only. Fix: gate E1 terrestrial `define_params` on `vehicle_type != dron/aerial` OR map `definir motores` to aerial block alias when project is aerial.
+**Fixed (S3, 2026-08-18):** orchestrator gate — aerial `definir motores` → motors acquisition wizard, not terrestrial transmission. CLI PASS on dron project.
 
 ---
 
@@ -925,7 +923,79 @@ G15   = filtered max works mid-wizard; G19 is the IDLE/post-architecture mirror 
 
 ### Next step
 
-Register only. Include in polish bundle with G16/G17/G18. **Do not patch mid-walk.**
+**Fixed (S7 + S1, 2026-08-18):** CTA bridge names `list_motors` + `explora opciones`; demoted PASS copy when declared thrust covers floor. CLI PASS: `declarar empuje` → DSE; post-DSE `estado` suggests catalog explore, not imperative thrust declare.
+
+---
+
+## G20 🟡 — Re-declare catalog motor at IDLE reopens energy as 3/4 with misleading block label
+
+**Severity:** 🟡 UX — **registered post-polish; not a polish-bundle blocker**  
+**Category:** Architecture progress / composite energy block — label vs actual gap  
+**Depends on catalog:** Yes (catalog motor pick at IDLE)  
+**Source:** Engineer CLI polish re-walk 2026-08-18 (`prueba-9f1031895508`, post 4/4)
+
+### Observed
+
+```text
+Architecture 4/4 complete (battery LiPo 6S 5000mAh declared)
+
+User > hobbywing_xrotor_2207_2450 — 11.5N, 2450KV, 34.0g
+→ Motores registrados.
+→ Siguiente bloque: Energía (batería) — en progreso (3/4)
+→ Estado: Arquitectura 3/4: pendiente Energía (batería).
+→ ¿Definimos motor_power_w (energía) ahora?
+```
+
+Battery was **not** invalidated — LiPo still in state. Count dropped because **energy** block requires both `battery` component **and** `motors` (as energy consumer) **and** params `battery_capacity_wh` + `motor_power_w`. Re-declaring motors can leave `motor_power_w` / catalog bind stale → energy `in_progress`.
+
+### Why 3/4 is partially correct
+
+Composite `energy` evaluates motors as **power consumer** (same physical object, second functional view — DA-MOTORS-2). Regression 4/4 → 3/4 after motor change is **architecturally valid** when `motor_power_w` needs refresh.
+
+### Why UX is wrong
+
+Block label says **"Energía (batería)"** while the active gap is **`motor_power_w`**, not battery re-declaration. User reads "batería pending" when LiPo is already done.
+
+### Expected (future)
+
+When energy gap is param-side only (`motor_power_w` present in params but stale, battery complete): label should name the param ("potencia nominal del motor") or split energy sub-gaps explicitly. Do not imply battery LiPo wizard.
+
+### Next step
+
+Micro-fix follow-up — `build_startup_context` / `_append_arch_progress_hint` copy only. Not in S1–S7 scope.
+
+---
+
+## G20-B 🟡 — Affirmative `si` to energy hint opens motor_power_w wizard, not battery
+
+**Severity:** 🟡 UX — **registered with G20**  
+**Category:** Bug 54 proactive_question routing — question text vs wizard body mismatch  
+**Source:** Same CLI session as G20
+
+### Observed
+
+```text
+User > si   (to "¿Definimos motor_power_w (energía) ahora?")
+→ Para ~4.2 N/motor necesito la potencia nominal de cada motor.
+   Candidatos: hobbywing_xrotor_2207_2450, brotherhobby_avenger_2500, …
+```
+
+User expected battery LiPo wizard (block label said "batería"). System correctly opened **motor_power_w / catalog motor** wizard per Bug 54 + `pending_missing_params`, but proactive copy did not make that explicit enough.
+
+### Root
+
+`build_startup_context` sets `proactive_question` from `missing_energy_parameters` when energy components are complete but params incomplete. Architecture hint uses block label `"Energía (batería)"` regardless of which energy sub-gap is active.
+
+### Separate from
+
+```text
+G12/S5 = definir bateria → battery body (fixed)
+G20-B  = si to energy proactive after catalog motor re-pick at IDLE
+```
+
+### Next step
+
+Pair with G20 micro-fix: proactive question should quote the actual missing param(s), not only the block marketing label.
 
 ---
 
@@ -1141,18 +1211,15 @@ Recorded for context; **do not** treat as Impl B regressions:
 
 ---
 
-## Queue (updated 2026-08-15 — Engineer RELOCK)
+## Queue (updated 2026-08-18 — post polish)
 
 ```text
 ✅ checkpoint-g3
-✅ G10 impl + ★8 + plastico CLI
-⏸ checkpoint-g10 / PVC — DEFERRED
+✅ Continuity Hardening + G10
+✅ CLI Polish S1–S7 + re-walk PASS WITH NOTES
+✅ checkpoint-continuity-polish
         ↓
-🔴 Continuity Hardening (G14 · G15 · G12 · G8 · G11)   ← AHORA
+G20/G20-B · G17 residual · G14 routing · G13 iterate
         ↓
-restore BOM walk
-        ↓
-G10 PVC / checkpoint-g10 · G13
-        ↓
-R3 remainder · G9 · G1/H5 · UX · Impl C
+R3 (G11/G8) · G9-A · Impl C
 ```

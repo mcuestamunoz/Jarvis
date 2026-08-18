@@ -7,6 +7,36 @@ from __future__ import annotations
 from typing import Any
 
 
+def _catalog_gap_covered_by_declared_thrust(
+    project_state: Any, sim_status: str, req: dict[str, Any]
+) -> bool:
+    """G9-B: is the catalog-gap a BOM identity note, not a physics blocker?
+
+    True only when the simulation PASSes AND the user already declared a
+    per-motor thrust that covers the computed floor — in that case the gap
+    (no SKU for this KV/prop/thrust combo) is honest but not actionable, and
+    must not outrank the PASS branch. Any other case (no PASS, no declared
+    thrust, or declared thrust under the floor) keeps the gap winning
+    ``next_useful_step`` — this is a `>=` comparison, never a blanket
+    suppression on ``sim_status == "pass"`` alone (G9-B regression guard).
+    Does NOT read ``catalog_ref`` (G9-A stays deferred/out of scope).
+    """
+    if sim_status != "pass":
+        return False
+    declared = (getattr(project_state, "current_parameters", None) or {}).get(
+        "per_motor_max_thrust_n"
+    )
+    if declared is None:
+        return False
+    needed = req.get("thrust_per_motor_needed_n")
+    if needed is None:
+        return False
+    try:
+        return float(declared) >= float(needed)
+    except (TypeError, ValueError):
+        return False
+
+
 def build_project_continuity(
     *,
     project_state: Any,
@@ -130,7 +160,9 @@ def build_project_continuity(
         warn = (sim.get("warnings") or [None])[0] or status_reason
         next_step = proactive_question or "Corrige la causa del warning/fallo de simulación."
         next_why = str(warn) if warn else "La última simulación no es PASS."
-    elif motor_catalog_gap:
+    elif motor_catalog_gap and not _catalog_gap_covered_by_declared_thrust(
+        project_state, sim_status, req
+    ):
         thrust = req.get("thrust_per_motor_needed_n")
         if thrust is not None:
             next_step = (
@@ -141,7 +173,10 @@ def build_project_continuity(
             next_step = (
                 "Cierra el hueco de catálogo: declara empuje real o cambia requisitos."
             )
-        next_why = motor_catalog_gap
+        next_why = (
+            f"{motor_catalog_gap} Di 'qué motores tenemos' para ver el catálogo, "
+            "o 'explora opciones' para que Jarvis pruebe configuraciones alternativas."
+        )
     elif (getattr(project_state, "current_parameters", None) or {}).get("motor_power_w") is None and (
         any(e.get("key") == "motors" for e in incomplete)
         or "motors" in missing
@@ -185,6 +220,22 @@ def build_project_continuity(
     elif suggested_action and sim_status == "pass" and not incomplete and not missing:
         next_step = suggested_action.get("label") or "Optimiza o itera el diseño."
         next_why = suggested_action.get("reason") or "Diseño cerrado; puedes explorar mejoras."
+    elif sim_status == "pass" and motor_catalog_gap:
+        # G9-B demoted here: PASS + declared thrust already covers the floor —
+        # the catalog gap is an honest BOM/identity note, not a physics
+        # blocker. Named in next_why (not hidden), with the two working
+        # escape hatches (S2's list-motors, pre-existing DSE explore) by name.
+        margin = sim.get("safety_margin_ratio")
+        margin_bit = f" (margen {float(margin):.1f}x)" if margin is not None else ""
+        next_step = (
+            f"Diseño en PASS{margin_bit} — puedes iterar, explorar alternativas, "
+            "o vincular una pieza real del catálogo."
+        )
+        next_why = (
+            f"No hay gaps físicos bloqueantes. Nota de catálogo: {motor_catalog_gap} "
+            "— di 'qué motores tenemos' para ver el catálogo, o 'explora opciones' "
+            "para que Jarvis pruebe configuraciones que sí tengan SKU."
+        )
     elif sim_status == "pass":
         next_step = "Diseño en PASS — puedes iterar, explorar alternativas o documentar el cierre."
         next_why = "No hay gaps bloqueantes en BOM/catálogo."

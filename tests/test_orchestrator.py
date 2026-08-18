@@ -369,8 +369,10 @@ def test_iterate_can_define_components_declaratively_without_internal_error(tmp_
     assert result["message"] == "Propiedad del diseño definida. No se recalcula impacto físico en esta versión."
     assert result["suggestion_context_note"] == "No se generan sugerencias físicas automáticas en iteraciones declarativas."
     assert result["suggestions"] == []
+    # G19 (CLI polish): relabeled to a phrase the resolver already routes
+    # deterministically (list_motors), not narrative text.
     assert any(
-        action["label"] == "Definir empuje por motor real"
+        action["label"] == "Qué motores tenemos en el catálogo"
         for action in result["reasoning"]["suggested_actions"]
     )
     assert (workspace_path / "history" / "iterations" / "iter_001.json").exists()
