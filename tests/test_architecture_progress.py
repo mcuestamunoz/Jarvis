@@ -410,3 +410,99 @@ class TestAppendArchProgressHint:
         out = orch._append_arch_progress_hint(result)
         # system_defined=False → message untouched
         assert out["message"] == "Params OK."
+
+
+# ── G20/G20-B: _block_label_for dynamic composite labels ─────────────────────
+
+class TestBlockLabelForG20:
+    """G20/G20-B: when energy block is in_progress, the label must reflect
+    what is actually missing (motor_power_w vs battery vs both), not the
+    static 'Energía (batería)'.
+    """
+
+    def _orchestrator(self, tmp_path: Path) -> JarvisOrchestrator:
+        return JarvisOrchestrator(workspace_root=tmp_path)
+
+    def _project_state(self, params: dict, dp: DesignProperties) -> ProjectState:
+        return ProjectState(
+            project_id="g20",
+            project_slug="test",
+            objective="test",
+            workspace_path="/tmp/test",
+            current_parameters=params,
+            design_properties=dp,
+        )
+
+    def test_t1_energy_missing_motor_power_w_only(self, tmp_path: Path):
+        """Battery and motors components OK, battery_capacity_wh OK,
+        only motor_power_w missing → label must mention 'motores', NOT 'batería'."""
+        orch = self._orchestrator(tmp_path)
+        dp = _make_design_props(components={
+            "battery": _medium_stub(),
+            "motors": _medium_stub(),
+        })
+        ps = self._project_state(
+            {**_DRONE_PARAMS_FULL, "battery_capacity_wh": 100.0},
+            dp,
+        )
+        label = orch._block_label_for(ps, "energy")
+        assert "potencia motores" in label.lower() or "motor" in label.lower()
+        assert "batería" not in label.lower() or "motores" in label.lower()
+
+    def test_t2_energy_missing_battery_component(self, tmp_path: Path):
+        """Motors component OK + both energy params present but battery
+        component missing → label must mention 'batería'."""
+        orch = self._orchestrator(tmp_path)
+        dp = _make_design_props(components={
+            "motors": _medium_stub(),
+        })
+        ps = self._project_state(
+            {**_DRONE_PARAMS_FULL, "battery_capacity_wh": 100.0, "motor_power_w": 50.0},
+            dp,
+        )
+        label = orch._block_label_for(ps, "energy")
+        assert "batería" in label.lower()
+
+    def test_t3_energy_components_ok_both_params_missing(self, tmp_path: Path):
+        """Both components OK, both energy params missing →
+        in_progress, label must mention both missing params."""
+        orch = self._orchestrator(tmp_path)
+        dp = _make_design_props(components={
+            "battery": _medium_stub(),
+            "motors": _medium_stub(),
+        })
+        ps = self._project_state(
+            {**_DRONE_PARAMS_FULL},
+            dp,
+        )
+        label = orch._block_label_for(ps, "energy")
+        assert "batería" in label.lower() or "capacidad" in label.lower()
+        assert "motor" in label.lower()
+
+    def test_t4_energy_complete_uses_static_label(self, tmp_path: Path):
+        """Energy block complete → should use the static catalog label
+        (regression guard)."""
+        orch = self._orchestrator(tmp_path)
+        dp = _make_design_props(components={
+            "battery": _medium_stub(),
+            "motors": _medium_stub(),
+        })
+        ps = self._project_state(
+            {**_DRONE_PARAMS_FULL, "battery_capacity_wh": 100.0, "motor_power_w": 50.0},
+            dp,
+        )
+        label = orch._block_label_for(ps, "energy")
+        assert label == "Energía (batería)"
+
+    def test_t5_propulsion_unaffected(self, tmp_path: Path):
+        """Propulsion label should not change (regression guard)."""
+        orch = self._orchestrator(tmp_path)
+        dp = _make_design_props(components={
+            "motors": _medium_stub(),
+        })
+        ps = self._project_state(
+            {**_DRONE_PARAMS_FULL, "motor_count": 4, "per_motor_max_thrust_n": 20.0},
+            dp,
+        )
+        label = orch._block_label_for(ps, "propulsion")
+        assert "Propulsión" in label

@@ -10,6 +10,8 @@
  * Updated 2026-08-12 by FN-025: C-025/C-044 fixed (BROKEN → CONNECTED).
  * Updated 2026-08-12 by FN-026: C-043 fixed (BROKEN → CONNECTED) — H1-H4 all
  * closed. Only C-081 (H5, design-only, deferred) remains non-green.
+ * Updated 2026-08-18 post checkpoint-continuity-polish: CLI polish S1-S7 PASS.
+ * No new connections; intent count corrected 14→13. G20/G20-B registered.
  * Never report "65 connections" — that counted derived-table duplicates.
  */
 import {
@@ -558,11 +560,12 @@ export default function JarvisSystemMapCanvas() {
         orchestrator refine (C-025 / C-044 🟢). Bare help → Continuity.
       </Text>
 
-      <Callout tone="info" title="Next">
-        FN-026 closed C-043 (H4 — Plan lever → Iterate preseed) on the same
-        HandoffContext (lever ∈ plan levers only). H1–H4 all closed, 0 RED.
-        Sole remaining non-green edge: C-081 (H5, YELLOW, design-only).
-        H5 and Create→BOM remain paused — Engineer to choose next.
+      <Callout tone="info" title="Next (post checkpoint-continuity-polish)">
+        CLI polish S1–S7 PASS WITH NOTES (2026-08-18). No new connections —
+        polish was UX/routing, not architectural. G20/G20-B (energy block
+        label vs motor_power_w) registered as follow-ups. Sole non-green
+        edge: C-081 (H5, YELLOW, design-only). Current queue: G20 micro-fix,
+        G17/G14/G13 residuals, R3 (G11/G8), G9-A, then C.
       </Callout>
     </Stack>
   );

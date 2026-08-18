@@ -272,7 +272,7 @@ Sections below expand evidence for canonical IDs. Summary tables that re-list ID
 | Kind | CONTROL |
 | Mechanism | function call |
 | Symbols | `IntentResolver.resolve_intent(user_input) -> IntentType` |
-| Payload | `user_input: str` → one of 14 `IntentType` values |
+| Payload | `user_input: str` → one of 13 `IntentType` values |
 | Authority | `IntentResolver` (regex tables, GUIDANCE before ANALYZE before ITERATE, see `AUTHORITY.md`) |
 | Mutation | NO |
 | LLM | NO |

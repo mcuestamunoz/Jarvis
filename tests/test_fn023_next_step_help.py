@@ -127,7 +127,7 @@ def test_ayudame_siguiente_paso_routes_project_status_not_analyze(tmp_path: Path
 
     assert result["action"] == "project_status"
     assert result["status"] == "ok"
-    assert _label(result) == "Propulsión (motores + hélices)"
+    assert _label(result) == "Propulsión (hélices)"
     next_step = _next_step(result).lower()
     assert "battery_capacity_wh" not in next_step
     assert "propuls" in next_step or "componentes" in next_step

@@ -1,6 +1,6 @@
 # 02 — Intent
 
-**Purpose.** Regex-based classification of raw user text into `IntentType` values. The single deterministic classifier everything else in Runtime branches on (C-020).
+**Purpose.** Regex-based classification of raw user text into one of 13 `IntentType` values. The single deterministic classifier everything else in Runtime branches on (C-020).
 
 **Inbound:** C-020 (from Runtime). **Outbound:** C-021…C-025 (routing decisions back into Runtime handlers), plus catalog list handlers (`list_materials`, `list_motors`).
 

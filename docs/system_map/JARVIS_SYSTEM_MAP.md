@@ -14,7 +14,7 @@ CLI / MCP adapter ────────────────────�
 ORCHESTRATOR (core/orchestrator.py) ────────────────────  01_runtime
   │  ~25-checkpoint dispatch chain (see FLOWS.md, C-010…C-016)
   │
-  ├──► INTENT (resolve_intent, one 14-way classifier) ──────────  02_intent
+  ├──► INTENT (resolve_intent, one 13-way classifier) ──────────  02_intent
   │
   ├──► ACQUISITION (what gap is missing? Continuity-authoritative) ── 03_acquisition
   │       mention gate · help-define · Brief · component wizards

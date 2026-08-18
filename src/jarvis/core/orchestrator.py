@@ -1690,8 +1690,22 @@ class JarvisOrchestrator:
         return f"{completed}/{len(priority)}"
 
     def _block_label_for(self, project_state: Any, block_key: str) -> str:
-        """Return the human-readable label for a block, falling back to generic labels."""
-        vehicle_type = (project_state.current_parameters or {}).get("vehicle_type", "")
+        """Return the human-readable label for a block.
+
+        For composite blocks that are in_progress, the label is dynamically
+        refined to reflect *what* is actually missing (components, params,
+        or both) — G20/G20-B fix.
+        """
+        params = project_state.current_parameters or {}
+        dp = project_state.design_properties
+        status = self._block_progress_status(block_key, dp, params)
+
+        if status == "in_progress" and get_block_type(block_key) == "composite":
+            label = self._composite_in_progress_label(project_state, block_key)
+            if label:
+                return label
+
+        vehicle_type = params.get("vehicle_type", "")
         catalog_key = VEHICLE_TYPE_ALIASES.get((vehicle_type or "").lower(), "")
         arch = SYSTEM_ARCHITECTURES.get(catalog_key)
         if arch:
@@ -1707,6 +1721,60 @@ class JarvisOrchestrator:
             "transmission": "Transmisión",
         }
         return fallback.get(block_key, block_key)
+
+    def _composite_in_progress_label(
+        self, project_state: Any, block_key: str,
+    ) -> str | None:
+        """Build a specific label for a composite block that is in_progress.
+
+        Returns None when the block is not composite or the sub-parts cannot
+        be determined, so the caller falls back to the static label.
+        """
+        component_keys = BLOCK_TO_COMPONENTS.get(block_key, [])
+        components = project_state.design_properties.components
+        missing_comps = [
+            k for k in component_keys
+            if k not in components or self._component_is_low(components[k])
+        ]
+
+        param_reason = get_param_reason_for_block(block_key)
+        if param_reason:
+            required = params_for_reason(param_reason)
+            current = project_state.current_parameters or {}
+            missing_params = [p for p in required if current.get(p) is None] if required else []
+        else:
+            missing_params = []
+
+        if not missing_comps and not missing_params:
+            return None
+
+        _COMP_LABELS: dict[str, str] = {
+            "battery": "batería",
+            "motors": "motores",
+            "propellers": "hélices",
+        }
+        _PARAM_LABELS: dict[str, str] = {
+            "motor_power_w": "potencia motores",
+            "battery_capacity_wh": "capacidad batería",
+            "motor_count": "nº motores",
+            "per_motor_max_thrust_n": "empuje por motor",
+        }
+
+        parts: list[str] = []
+        for k in missing_comps:
+            parts.append(_COMP_LABELS.get(k, k))
+        for p in missing_params:
+            parts.append(_PARAM_LABELS.get(p, p))
+
+        if not parts:
+            return None
+
+        _BLOCK_BASE: dict[str, str] = {
+            "energy": "Energía",
+            "propulsion": "Propulsión",
+        }
+        base = _BLOCK_BASE.get(block_key, block_key.capitalize())
+        return f"{base} ({' + '.join(parts)})"
 
     def _component_prompt_for_first_missing(self, keys: list[str]) -> str:
         """Return a context-specific description prompt for the first key in ``keys``."""
