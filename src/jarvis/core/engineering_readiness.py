@@ -19,6 +19,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+from jarvis.core.electrical_compatibility import (
+    CompatibilityResult,
+    evaluate_electrical_compatibility,
+)
 from jarvis.core.project_closure import (
     build_component_bom,
     catalog_gap_covered_by_declared_thrust,
@@ -90,7 +94,7 @@ class EngineeringReadinessResult:
     overall: Literal["ASSEMBLY_READY", "NOT_ASSEMBLY_READY"]
 
 
-# ── Canonical subsystem keys (§4.1 — exactly these eight) ──────────────────
+# ── Canonical subsystem keys (ERF-2 §4.2 — exactly these nine) ─────────────
 
 SUBSYSTEM_KEYS: tuple[str, ...] = (
     "requirements",
@@ -98,6 +102,7 @@ SUBSYSTEM_KEYS: tuple[str, ...] = (
     "structure",
     "propulsion",
     "energy",
+    "electronics",  # ERF-2 ★8 — new
     "control",
     "catalog",
     "bom",
@@ -110,13 +115,32 @@ SUBSYSTEM_KEYS: tuple[str, ...] = (
 ACCEPTED_WARNING_TYPES: frozenset[str] = frozenset({"CATALOG-GAP-DEMOTED-POST-PASS"})
 _G9B_ELIGIBLE_SUBSYSTEMS: frozenset[str] = frozenset({"catalog", "propulsion"})
 
+# ERF-2 §8.2 — gap types whose blocking effect is INCOMPATIBLE (deterministic
+# evidence of a real conflict), never merely INCOMPLETE. Checked before the
+# generic HIGH/MEDIUM severity path in _derive_subsystem_verdict — otherwise
+# their HIGH severity would just read as INCOMPLETE like any other gap.
+_INCOMPATIBLE_CLASS_GAP_TYPES: frozenset[str] = frozenset({
+    "GAP-ESC-UNDERSIZED",
+    "GAP-BATTERY-DISCHARGE-EXCEEDED",
+    "GAP-PROP-MOTOR-MISMATCH",
+})
+
+# ERF-2 design §6 — verdict impact can be narrower than blocks[] (e.g.
+# GAP-ESC-UNDERSIZED blocks energy for dependency graph but only electronics
+# + propulsion show INCOMPATIBLE on the subsystem line).
+_INCOMPATIBLE_VERDICT_SUBSYSTEMS: dict[str, frozenset[str]] = {
+    "GAP-ESC-UNDERSIZED": frozenset({"electronics", "propulsion"}),
+    "GAP-BATTERY-DISCHARGE-EXCEEDED": frozenset({"energy", "propulsion"}),
+    "GAP-PROP-MOTOR-MISMATCH": frozenset({"propulsion", "catalog"}),
+}
+
 # §4.2 — component key -> subsystem mapping for gap blocks[].
 _COMPONENT_SUBSYSTEM_MAP: dict[str, str] = {
     "frame": "structure",
     "landing_gear": "structure",
     "motors": "propulsion",
     "propellers": "propulsion",
-    "esc": "propulsion",
+    "esc": "electronics",  # ERF-2 §3.2 — was "propulsion" in ERF-1
     "battery": "energy",
     "flight_controller": "control",
     "sensors": "control",
@@ -125,7 +149,7 @@ _COMPONENT_SUBSYSTEM_MAP: dict[str, str] = {
 
 
 def subsystem_for_component_key(component_key: str) -> str:
-    """Return one of: structure | propulsion | energy | control | bom (fallback bom)."""
+    """Return one of: structure | propulsion | energy | electronics | control | bom (fallback bom)."""
     return _COMPONENT_SUBSYSTEM_MAP.get(component_key, "bom")
 
 
@@ -624,6 +648,118 @@ def _requirements_unmet_gaps(
     return gaps
 
 
+# ── ERF-2 §7 — four gap types from CompatibilityResult ──────────────────────
+
+
+def _esc_undefined_gap(compatibility: CompatibilityResult) -> list[Gap]:
+    """§7.1 GAP-ESC-UNDEFINED. Mutually exclusive with GAP-ESC-UNDERSIZED —
+    electrical_compatibility._esc_vs_motor already forces "unverifiable"
+    whenever esc_presence != "defined", so both gaps can never fire together."""
+    if compatibility.esc_presence != "missing":
+        return []
+    return [
+        Gap(
+            gap_id=_gap_id("GAP-ESC-UNDEFINED", None),
+            gap_type="GAP-ESC-UNDEFINED",
+            instance_key=None,
+            title="ESC not defined",
+            severity="HIGH",
+            domain="electronics",
+            blocks=["electronics", "propulsion", "bom"],
+            depends_on=[],
+            evidence=[
+                GapEvidence(source="electrical_compatibility.evaluate", fact="esc_presence.missing")
+            ],
+            recommended_next_step=RecommendedNextStep(
+                action="define_component", params={"component_key": "esc"}
+            ),
+        )
+    ]
+
+
+def _esc_undersized_gap(compatibility: CompatibilityResult) -> list[Gap]:
+    """§7.2 GAP-ESC-UNDERSIZED (★3, ★4 — per-motor predicate, not x motor_count)."""
+    if compatibility.esc_vs_motor != "undersized":
+        return []
+    return [
+        Gap(
+            gap_id=_gap_id("GAP-ESC-UNDERSIZED", None),
+            gap_type="GAP-ESC-UNDERSIZED",
+            instance_key=None,
+            title="ESC current rating below per-motor demand",
+            severity="HIGH",
+            domain="electronics",
+            blocks=["electronics", "propulsion", "energy"],
+            depends_on=[],
+            evidence=[
+                GapEvidence(
+                    source="electrical_compatibility.evaluate",
+                    fact=f"esc_current_a={compatibility.esc_current_a}",
+                ),
+                GapEvidence(
+                    source="electrical_compatibility.evaluate",
+                    fact=f"i_motor_a={compatibility.i_motor_a}",
+                ),
+            ],
+            recommended_next_step=RecommendedNextStep(action="revise_esc_rating", params={}),
+        )
+    ]
+
+
+def _battery_discharge_exceeded_gap(compatibility: CompatibilityResult) -> list[Gap]:
+    """§7.3 GAP-BATTERY-DISCHARGE-EXCEEDED."""
+    if compatibility.battery_discharge != "exceeded":
+        return []
+    return [
+        Gap(
+            gap_id=_gap_id("GAP-BATTERY-DISCHARGE-EXCEEDED", None),
+            gap_type="GAP-BATTERY-DISCHARGE-EXCEEDED",
+            instance_key=None,
+            title="Battery discharge limit exceeded",
+            severity="HIGH",
+            domain="energy",
+            blocks=["energy", "propulsion"],
+            depends_on=[],
+            evidence=[
+                GapEvidence(
+                    source="electrical_compatibility.evaluate",
+                    fact=f"i_total_a={compatibility.i_total_a}",
+                ),
+                GapEvidence(
+                    source="electrical_compatibility.evaluate",
+                    fact=f"battery_limit_a={compatibility.battery_limit_a}",
+                ),
+            ],
+            recommended_next_step=RecommendedNextStep(action="revise_battery_or_load", params={}),
+        )
+    ]
+
+
+def _prop_motor_mismatch_gap(compatibility: CompatibilityResult) -> list[Gap]:
+    """§7.4 GAP-PROP-MOTOR-MISMATCH (★10 — exposes library.match_motor_propeller,
+    no duplicate rule)."""
+    if compatibility.prop_motor != "mismatch":
+        return []
+    return [
+        Gap(
+            gap_id=_gap_id("GAP-PROP-MOTOR-MISMATCH", None),
+            gap_type="GAP-PROP-MOTOR-MISMATCH",
+            instance_key=None,
+            title="Motor and propeller catalog pairing incompatible",
+            severity="HIGH",
+            domain="propulsion",
+            blocks=["propulsion", "catalog"],
+            depends_on=[],
+            evidence=[
+                GapEvidence(source="library.match_motor_propeller", fact="match_false")
+            ],
+            recommended_next_step=RecommendedNextStep(
+                action="revise_propeller_or_motor", params={}
+            ),
+        )
+    ]
+
+
 # ── §6.10 — prioritization ───────────────────────────────────────────────────
 
 _SEVERITY_ORDER: dict[str, int] = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
@@ -737,6 +873,16 @@ def _control_evidence(ctx: _Context) -> SubsystemEvidence:
     return SubsystemEvidence(defined, calculated, simulated, validated, catalog_bound)
 
 
+def _electronics_evidence(ctx: _Context) -> SubsystemEvidence:
+    """ERF-2 §8.1 — NEW subsystem."""
+    defined = _component_present(ctx.project_state, "esc")
+    calculated = defined  # same as defined for ERF-2 MVP, per design table
+    simulated = bool(ctx.sim)
+    validated = ctx.sim_status == "pass"
+    catalog_bound = _catalog_ref_set(ctx.project_state, "esc")  # likely False in MVP — honest, no ESC catalog (★7)
+    return SubsystemEvidence(defined, calculated, simulated, validated, catalog_bound)
+
+
 def _catalog_evidence(ctx: _Context) -> SubsystemEvidence:
     query_attempted = ctx.catalog_gap is not None or bool(ctx.catalog_matches)
     simulated = bool(ctx.sim)
@@ -765,6 +911,7 @@ _EVIDENCE_BUILDERS = {
     "structure": _structure_evidence,
     "propulsion": _propulsion_evidence,
     "energy": _energy_evidence,
+    "electronics": _electronics_evidence,
     "control": _control_evidence,
     "catalog": _catalog_evidence,
     "bom": _bom_evidence,
@@ -791,14 +938,33 @@ def _derive_subsystem_verdict(
     priority over the generic "any blocking gap -> INCOMPLETE" rule exactly
     when every non-HIGH blocking gap for this subsystem is the demoted motor
     catalog gap — otherwise step 5 (WARNING) would be unreachable, since a
-    genuine gap always blocks the subsystem it names in blocks[]."""
+    genuine gap always blocks the subsystem it names in blocks[].
+
+    ERF-2 §8.2: INCOMPATIBLE-class gaps (deterministic evidence of a real
+    conflict — ★3) are checked FIRST, before the generic HIGH/MEDIUM path —
+    they are all severity=HIGH like ordinary gaps, but must read as
+    INCOMPATIBLE, not INCOMPLETE. Verdict impact uses
+    ``_INCOMPATIBLE_VERDICT_SUBSYSTEMS`` when narrower than ``blocks[]``.
+    """
     blocking = sorted(
         (g for g in prioritized_gaps if subsystem_key in g.blocks),
         key=lambda g: g.gap_id,
     )
     blocked_by_gap_ids = [g.gap_id for g in blocking]
-    high = [g for g in blocking if g.severity == "HIGH"]
-    non_high = [g for g in blocking if g.severity != "HIGH"]
+
+    incompatible = [
+        g
+        for g in blocking
+        if g.gap_type in _INCOMPATIBLE_CLASS_GAP_TYPES
+        and subsystem_key
+        in _INCOMPATIBLE_VERDICT_SUBSYSTEMS.get(g.gap_type, frozenset(g.blocks))
+    ]
+    if incompatible:
+        return SubsystemReadiness(evidence, "INCOMPATIBLE", None, blocked_by_gap_ids)
+
+    remaining = [g for g in blocking if g.gap_type not in _INCOMPATIBLE_CLASS_GAP_TYPES]
+    high = [g for g in remaining if g.severity == "HIGH"]
+    non_high = [g for g in remaining if g.severity != "HIGH"]
     accepted_type = _accepted_warning_type_for_subsystem(subsystem_key, ctx)
 
     if high:
@@ -853,6 +1019,7 @@ def build_engineering_readiness(project_state: Any) -> EngineeringReadinessResul
     params = getattr(project_state, "current_parameters", None) or {}
     catalog_gap, catalog_matches = resolve_motor_catalog_surface(project_state, req)
     arch_progress = derive_architecture_progress(project_state)
+    compatibility = evaluate_electrical_compatibility(project_state)
 
     gaps: list[Gap] = []
     gaps += _motor_catalog_gaps(req, catalog_gap)
@@ -862,6 +1029,10 @@ def build_engineering_readiness(project_state: Any) -> EngineeringReadinessResul
     sim_not_pass_gaps, sim_not_pass_triggered = _sim_not_pass_gaps(sim)
     gaps += sim_not_pass_gaps
     gaps += _requirements_unmet_gaps(req, sim, sim_not_pass_triggered)
+    gaps += _esc_undefined_gap(compatibility)
+    gaps += _esc_undersized_gap(compatibility)
+    gaps += _battery_discharge_exceeded_gap(compatibility)
+    gaps += _prop_motor_mismatch_gap(compatibility)
 
     prioritized = prioritize_gaps(gaps)
     top_gap = prioritized[0] if prioritized else None

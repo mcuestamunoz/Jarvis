@@ -34,7 +34,7 @@ SYSTEM_ARCHITECTURES: dict[str, dict] = {
     "dron": {
         "blocks": ["propulsion", "energy", "structure", "control"],
         "block_labels": {
-            "propulsion": "Propulsión (motores + hélices)",
+            "propulsion": "Propulsión (motores + hélices + ESC)",
             "energy":     "Energía (batería)",
             "structure":  "Estructura (frame)",
             "control":    "Control (controladora + sensores)",
@@ -43,7 +43,7 @@ SYSTEM_ARCHITECTURES: dict[str, dict] = {
     "uav": {
         "blocks": ["propulsion", "energy", "structure", "control"],
         "block_labels": {
-            "propulsion": "Propulsión (motores + hélices)",
+            "propulsion": "Propulsión (motores + hélices + ESC)",
             "energy":     "Energía (batería)",
             "structure":  "Estructura (frame)",
             "control":    "Control (controladora + sensores)",
@@ -155,7 +155,9 @@ BLOCK_TO_COMPONENTS: dict[str, list[str]] = {
     # Decisión DA-MOTORS-2 implementada: Opción B (dependencia compartida).
     #   → Completar motors avanza propulsion Y energy simultáneamente.
     #   → actuation=param → _block_progress_status ignora su component_keys.
-    "propulsion":    ["motors", "propellers"],
+    "propulsion":    ["motors", "propellers", "esc"],  # ERF-2 ★5: esc added so
+    # build_component_bom/architecture progress can surface GAP-ESC-UNDEFINED
+    # honestly instead of ESC being architecturally invisible.
     "energy":        ["battery", "motors"],
     "structure":     ["frame"],
     "control":       ["flight_controller", "sensors"],

@@ -180,7 +180,11 @@ class TestBlockProgressRegressionAfterRefactor:
 
     def test_param_block_complete(self):
         params = {"motor_count": 4, "per_motor_max_thrust_n": 20.0}
-        components = {"motors": _make_component("medium"), "propellers": _make_component("medium")}
+        components = {
+            "motors": _make_component("medium"),
+            "propellers": _make_component("medium"),
+            "esc": _make_component("medium"),  # ERF-2 ★5
+        }
         assert self._status("propulsion", components, params) == "complete"
 
     def test_component_block_not_started(self):

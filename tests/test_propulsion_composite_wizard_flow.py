@@ -63,6 +63,8 @@ def _patch_propulsion_as_next_block(orchestrator, *, with_components: bool):
         components = dict(dp.components)
         components["motors"] = _medium_stub("motors")
         components["propellers"] = _medium_stub("propellers")
+        # ERF-2 ★5: esc is now part of BLOCK_TO_COMPONENTS["propulsion"].
+        components["esc"] = _medium_stub("esc")
         dp = dp.model_copy(update={"components": components})
 
     updated = project_state.model_copy(update={
@@ -284,6 +286,8 @@ class TestPropulsionCompletesAfterBothComponents:
             "components": {
                 "motors": _medium_stub("motors"),
                 "propellers": _medium_stub("propellers"),
+                # ERF-2 ★5: esc is now part of BLOCK_TO_COMPONENTS["propulsion"].
+                "esc": _medium_stub("esc"),
             },
         })
         params = dict(project_state.current_parameters or {})
@@ -299,7 +303,7 @@ class TestPropulsionCompletesAfterBothComponents:
             project_state.current_parameters or {},
         )
         assert status == "complete", (
-            f"propulsion must be 'complete' with params + motors + propellers, got '{status}'"
+            f"propulsion must be 'complete' with params + motors + propellers + esc, got '{status}'"
         )
 
 

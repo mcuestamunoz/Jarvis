@@ -49,15 +49,19 @@ def _motor_spec(kv=None, catalog_ref=None):
     )
 
 
-def test_readiness_emits_exactly_eight_subsystems():
+def test_readiness_emits_exactly_nine_subsystems():
+    """ERF-2 ★8: eight ERF-1 lines + electronics."""
     result = build_engineering_readiness(_project_state())
     assert set(result.subsystems.keys()) == set(SUBSYSTEM_KEYS)
-    assert len(result.subsystems) == 8
+    assert len(result.subsystems) == 9
 
 
-def test_no_electronics_subsystem_lines():
+def test_no_integration_or_communications_subsystem_lines():
+    """ERF-2 ★8: electronics is expected now; integration/communications
+    remain forbidden without new authority."""
     result = build_engineering_readiness(_project_state())
-    forbidden = {"electronics", "communications", "integration"}
+    assert "electronics" in result.subsystems
+    forbidden = {"communications", "integration"}
     assert not (set(result.subsystems.keys()) & forbidden)
 
 
@@ -152,7 +156,14 @@ def _fully_closed_components():
         suggested_key="propellers", completeness="high", source="declared",
         properties={"diameter_in": PropertyValue(value=10.0)},
     )
-    return frame, battery, fc, sensors, propellers
+    # ERF-2 ★5: esc is now part of BLOCK_TO_COMPONENTS["propulsion"] — declared
+    # here so these "everything closed, no gaps" fixtures stay genuinely
+    # gap-free (electronics/esc gap types land in ERF-2 Slice 3, not here).
+    esc = ComponentSpec(
+        suggested_key="esc", completeness="high", source="declared",
+        properties={"current_a": PropertyValue(value=30.0)},
+    )
+    return frame, battery, fc, sensors, propellers, esc
 
 
 _FULLY_CLOSED_PARAMS = {
@@ -172,7 +183,7 @@ _FULLY_CLOSED_BLOCKS = ["structure", "energy", "control", "propulsion"]
 def test_assembly_ready_true_when_everything_pass_no_gaps():
     """Crafted fixture: every subsystem PASS, no gaps at all (motor catalog
     query finds a real match — kv/prop left unfiltered) -> ASSEMBLY_READY."""
-    frame, battery, fc, sensors, propellers = _fully_closed_components()
+    frame, battery, fc, sensors, propellers, esc = _fully_closed_components()
     motors = _motor_spec()  # no kv_rating -> unfiltered catalog query finds matches
     state = _project_state(
         current_parameters=dict(_FULLY_CLOSED_PARAMS),
@@ -181,7 +192,7 @@ def test_assembly_ready_true_when_everything_pass_no_gaps():
         design_properties=_design_properties(
             components={
                 "frame": frame, "battery": battery, "flight_controller": fc,
-                "sensors": sensors, "motors": motors, "propellers": propellers,
+                "sensors": sensors, "motors": motors, "propellers": propellers, "esc": esc,
             },
             system_blocks=_FULLY_CLOSED_BLOCKS, system_priority=_FULLY_CLOSED_BLOCKS,
         ),
@@ -197,7 +208,7 @@ def test_demoted_catalog_gap_warns_catalog_propulsion_but_bom_keeps_not_ready():
     also blocks bom[]. A demoted catalog gap therefore shows WARNING on
     catalog/propulsion but overall stays NOT_ASSEMBLY_READY via bom — the
     system is physically fine but not literally sourceable yet."""
-    frame, battery, fc, sensors, propellers = _fully_closed_components()
+    frame, battery, fc, sensors, propellers, esc = _fully_closed_components()
     motors = _motor_spec(kv=2400)  # kv+prop combo with zero catalog matches
     params = dict(_FULLY_CLOSED_PARAMS)
     params["propeller_diameter_in"] = 10.0
@@ -208,7 +219,7 @@ def test_demoted_catalog_gap_warns_catalog_propulsion_but_bom_keeps_not_ready():
         design_properties=_design_properties(
             components={
                 "frame": frame, "battery": battery, "flight_controller": fc,
-                "sensors": sensors, "motors": motors, "propellers": propellers,
+                "sensors": sensors, "motors": motors, "propellers": propellers, "esc": esc,
             },
             system_blocks=_FULLY_CLOSED_BLOCKS, system_priority=_FULLY_CLOSED_BLOCKS,
         ),

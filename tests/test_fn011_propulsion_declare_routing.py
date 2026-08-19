@@ -81,6 +81,16 @@ def _project_with_active_propulsion(
                 source="declared",
                 properties={"diameter_in": PropertyValue(value=10.0)},
             ),
+            # ERF-2 ★5: esc is now part of BLOCK_TO_COMPONENTS["propulsion"] —
+            # must be declared too for Phase A to be genuinely complete.
+            "esc": ComponentSpec(
+                name="ESC 30A",
+                component_type="propulsion_active",
+                suggested_key="esc",
+                completeness="high",
+                source="declared",
+                properties={"current_a": PropertyValue(value=30.0)},
+            ),
         }
     dp = ps.design_properties.model_copy(update={
         "system_defined": True,
@@ -103,7 +113,8 @@ def test_declare_propulsion_routes_deterministically_no_llm(tmp_path: Path):
     assert result["action"] == "define_missing_params"
     session = orch.state_manager.get_runtime_session()
     assert session.param_definition_reason == "missing_component_definition"
-    assert session.pending_param_definitions == ["motors", "propellers"]
+    # ERF-2 ★5: esc is now part of BLOCK_TO_COMPONENTS["propulsion"].
+    assert session.pending_param_definitions == ["motors", "propellers", "esc"]
 
 
 def test_declare_propulsion_phase_b_surfaces_real_propulsion_params_only(tmp_path: Path):

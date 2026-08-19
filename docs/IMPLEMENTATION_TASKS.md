@@ -6,23 +6,30 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** ERF-1 implemented (uncommitted) · 1813 tests pass · System Map synced 2026-08-18.  
-> **PRIORIDAD AHORA:** Engineer review → commit/tag **`checkpoint-erf1`** (when asked).  
-> Report: [`.jes/artifacts/implementation_report_erf1.md`](../.jes/artifacts/implementation_report_erf1.md)  
-> Vision (to-be): [`docs/ENGINEERING_READINESS_VISION.md`](ENGINEERING_READINESS_VISION.md)
+> **Base:** tag **`checkpoint-erf1`**.  
+> **PRIORIDAD AHORA:** Engineer ratifica **IC ERF-2** → Claude Slices 1–4.  
+> IC: [`.jes/artifacts/implementation_contract_erf2.md`](../.jes/artifacts/implementation_contract_erf2.md)  
+> Design: [`.jes/artifacts/design_erf2_dependency_hardening.md`](../.jes/artifacts/design_erf2_dependency_hardening.md) — **CLOSED**
 
-### ✅ COMPLETADO — ERF-1 Readiness Foundation (2026-08-18)
+### 🔴 ACTIVO — ERF-2 Implementation Contract (await approval)
 
-> Slices 1–5 · 40 new tests · suite 1813 pass · **not committed** (per contract).  
-> IC: [`.jes/artifacts/implementation_contract_erf1.md`](../.jes/artifacts/implementation_contract_erf1.md)  
-> Report: [`.jes/artifacts/implementation_report_erf1.md`](../.jes/artifacts/implementation_report_erf1.md)  
-> System Map: C-107–C-110 + forbidden transitions (Continuity↛Readiness; no `readiness.json`).
+> IC: [`.jes/artifacts/implementation_contract_erf2.md`](../.jes/artifacts/implementation_contract_erf2.md) — **READY FOR ENGINEER → Claude**  
+> Slices 1–4 only · `electrical_compatibility.py` · 4 gaps · 9 subsystems · no Continuity · no KV/voltage
 
-### 🟡 SIGUIENTE — ERF-1 follow-ups (optional, post-checkpoint)
+### ✅ COMPLETADO — ERF-2 Design (2026-08-19)
 
-> **ERF-1 Slice 4b** — full Continuity handoff (BOM/arch/FN-005) or richer `recommended_next_step`  
-> **ERF-1 polish** — dedupe `resolve_motor_catalog_surface` in orchestrator (drift guard)  
-> **ERF-2** — ESC/FC/integration gaps + compatibility solver
+> Engineer ratified ★1–★11 · investigation CLOSED.
+
+### ✅ COMPLETADO — ERF-1 + checkpoint (2026-08-18)
+
+> Tag **`checkpoint-erf1`** · commit `63c427b` · CLI walk PASS · System Map C-107–C-110.  
+> Slice 4b deferred · C-108 🟡 documented.
+
+### 🟡 DEFERIDO — post ERF-2 or on-demand
+
+> **ERF-1 Slice 4b** — full Continuity handoff  
+> **G17 · G14 · G13** — CLI residuals (Engineer: not before ERF-2)  
+> **H5 ESC catalog** — may parallel ERF-2; not required for rule-based MVP per investigation
 
 ### 🟡 SIGUIENTE — Post-polish micro-fixes (parallel track)
 

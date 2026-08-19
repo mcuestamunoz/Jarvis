@@ -70,6 +70,15 @@ def _project_with_active_propulsion(
                 source="declared",
                 properties={"diameter_in": PropertyValue(value=10.0)},
             ),
+            # ERF-2 ★5: esc is now part of BLOCK_TO_COMPONENTS["propulsion"].
+            "esc": ComponentSpec(
+                name="ESC 30A",
+                component_type="propulsion_active",
+                suggested_key="esc",
+                completeness="high",
+                source="declared",
+                properties={"current_a": PropertyValue(value=30.0)},
+            ),
         }
     dp = ps.design_properties.model_copy(
         update={
@@ -89,7 +98,7 @@ def _open_component_acquisition(orch: JarvisOrchestrator) -> None:
     assert result["action"] == "define_missing_params"
     session = orch.state_manager.get_runtime_session()
     assert session.mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS
-    assert session.pending_param_definitions == ["motors", "propellers"]
+    assert session.pending_param_definitions == ["motors", "propellers", "esc"]
 
 
 def test_definir_propulsion_inside_wizard_reprompts_no_llm(tmp_path: Path):
@@ -123,6 +132,7 @@ def test_ayudame_declarar_propulsion_inside_wizard_reprompts_no_llm(tmp_path: Pa
     assert orch.state_manager.get_runtime_session().pending_param_definitions == [
         "motors",
         "propellers",
+        "esc",
     ]
 
 

@@ -102,13 +102,15 @@ _PHASE_LABELS = {
 }
 
 
-# ERF-1 — canonical display order + labels for the eight readiness subsystems.
+# ERF-2 ★8 — canonical display order + labels for the nine readiness
+# subsystems (ERF-1's eight + electronics).
 _READINESS_SUBSYSTEM_LABELS: dict[str, str] = {
     "requirements": "Requirements",
     "architecture": "Architecture",
     "structure": "Structure",
     "propulsion": "Propulsion",
     "energy": "Energy",
+    "electronics": "Electronics",
     "control": "Control",
     "catalog": "Catalog",
     "bom": "BOM",
@@ -117,7 +119,10 @@ _READINESS_SUBSYSTEM_ORDER: tuple[str, ...] = tuple(_READINESS_SUBSYSTEM_LABELS)
 
 
 def _render_readiness_block(readiness: dict) -> list[str]:
-    """ERF-1 Slice 5 — 8 subsystem lines + overall + up to 3 top gaps.
+    """ERF-1 Slice 5 / ERF-2 Slice 4 — 9 subsystem lines + overall + up to 3
+    top gaps (verdict column shows INCOMPATIBLE verbatim — no new logic here,
+    display only; the verdict string itself comes straight from
+    engineering_readiness).
 
     Pure formatting over an already-computed readiness dict (from
     ``dataclasses.asdict(EngineeringReadinessResult)``) — no engineering

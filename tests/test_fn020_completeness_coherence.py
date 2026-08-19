@@ -41,6 +41,11 @@ def _full_dron_state(*, battery_completeness="medium", sensors_completeness="med
             name="hélices", suggested_key="propellers", component_type="propulsion_passive",
             completeness="high", properties={"diameter_in": PropertyValue(value=10.0)},
         ),
+        # ERF-2 ★5: esc is now part of BLOCK_TO_COMPONENTS["propulsion"].
+        "esc": ComponentSpec(
+            name="ESC 30A", suggested_key="esc", component_type="propulsion_active",
+            completeness="high", properties={"current_a": PropertyValue(value=30.0)},
+        ),
         "battery": ComponentSpec(
             name="batería", suggested_key="battery", component_type="energy",
             completeness=battery_completeness, missing_fields=[],

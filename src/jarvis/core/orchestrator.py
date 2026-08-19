@@ -12,10 +12,12 @@ from jarvis.actions.simulate import SimulateAction
 from jarvis.core.acquisition_brief import build_acquisition_brief
 from jarvis.core.acquisition_target import (
     COMPONENT_PROMPTS,
+    OUT_OF_SCOPE_EXPLICIT_SAVE_KEYS,
     is_help_define_pending_phrase,
     is_mention_on_active_gap,
     is_navigation_back_phrase,
     resolve_acquisition_mention,
+    user_explicitly_named_component,
 )
 from jarvis.core.action_router import ActionRouter
 from jarvis.core.calculation_engine import CalculationEngine
@@ -1895,6 +1897,15 @@ class JarvisOrchestrator:
                 pass
             return updated_state, "Hélices registradas."
 
+        if spec.suggested_key == "esc":
+            updated_state = set_control_component(project_state, spec)
+            current_prop = spec.properties.get("current_a")
+            current_val: float | None = current_prop.value if current_prop else None
+            if current_val is not None:
+                amps = int(current_val) if current_val == int(current_val) else current_val
+                return updated_state, f"ESC registrado: {amps}A."
+            return updated_state, "ESC registrado."
+
         updated_state = set_control_component(project_state, spec)
         return updated_state, f"{spec.suggested_key.replace('_', ' ').capitalize()} registrado."
 
@@ -2152,24 +2163,39 @@ class JarvisOrchestrator:
             if expected_keys:
                 in_scope = [s for s in processable if s.suggested_key in expected_keys]
                 if not in_scope:
-                    keys_to_prompt = expected_keys
-                    try:
-                        project_state = self.state_manager.load_active_project(self.workspace_manager)
-                        components = project_state.design_properties.components
-                        missing_keys = [
-                            k for k in expected_keys
-                            if components.get(k) is None or components[k].completeness == "low"
-                        ]
-                        if missing_keys:
-                            keys_to_prompt = missing_keys
-                    except FileNotFoundError:
-                        pass
-                    return {
-                        "status": "interactive",
-                        "action": "component_description_prompt",
-                        "message": self._component_prompt_for_first_missing(keys_to_prompt),
-                    }
-                processable = in_scope
+                    # FN-ESC-acquisition (post-ERF-2): explicit cross-component save
+                    # (e.g. "esc 20a" while wizard expects motors). Narrow: only
+                    # OUT_OF_SCOPE_EXPLICIT_SAVE_KEYS + named token in input.
+                    out_of_scope = [
+                        s for s in processable
+                        if s.suggested_key not in expected_keys
+                        and s.suggested_key in OUT_OF_SCOPE_EXPLICIT_SAVE_KEYS
+                        and s.completeness == "high"
+                        and s.properties
+                        and user_explicitly_named_component(user_input, s.suggested_key)
+                    ]
+                    if out_of_scope:
+                        processable = out_of_scope
+                    else:
+                        keys_to_prompt = expected_keys
+                        try:
+                            project_state = self.state_manager.load_active_project(self.workspace_manager)
+                            components = project_state.design_properties.components
+                            missing_keys = [
+                                k for k in expected_keys
+                                if components.get(k) is None or components[k].completeness == "low"
+                            ]
+                            if missing_keys:
+                                keys_to_prompt = missing_keys
+                        except FileNotFoundError:
+                            pass
+                        return {
+                            "status": "interactive",
+                            "action": "component_description_prompt",
+                            "message": self._component_prompt_for_first_missing(keys_to_prompt),
+                        }
+                else:
+                    processable = in_scope
 
             try:
                 project_state = self.state_manager.load_active_project(self.workspace_manager)

@@ -1,9 +1,11 @@
-"""ERF-1 Slice 5 — CLI / status surface.
+"""ERF-1 Slice 5 / ERF-2 Slice 4 — CLI / status surface.
 
-Covers .jes/artifacts/implementation_contract_erf1.md §7 Slice 5:
+Covers .jes/artifacts/implementation_contract_erf1.md §7 Slice 5 and
+implementation_contract_erf2.md §9 Slice 4:
   - startup_context carries a JSON-serializable "readiness" block
-  - render_startup_context renders the 8 subsystem lines + overall + top gaps
-  - no electronics/communications/integration lines ever appear
+  - render_startup_context renders the 9 subsystem lines + overall + top gaps
+  - Electronics line present; communications/integration never appear
+  - INCOMPATIBLE verdict shown verbatim when a subsystem carries one
 """
 from __future__ import annotations
 
@@ -12,6 +14,7 @@ from pathlib import Path
 
 from jarvis.adapters.cli.main import render_startup_context
 from jarvis.core.orchestrator import JarvisOrchestrator
+from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
 
 _CREATE_PARAMS = {
     "vehicle_type": "dron",
@@ -40,7 +43,7 @@ def test_startup_context_includes_readiness_block(tmp_path):
     readiness = ctx["readiness"]
     assert set(readiness["subsystems"].keys()) == {
         "requirements", "architecture", "structure", "propulsion",
-        "energy", "control", "catalog", "bom",
+        "energy", "electronics", "control", "catalog", "bom",
     }
     assert readiness["overall"] in ("ASSEMBLY_READY", "NOT_ASSEMBLY_READY")
 
@@ -65,18 +68,20 @@ def test_render_startup_context_shows_readiness_block(tmp_path):
     assert "ENGINEERING READINESS" in text
     for label in (
         "Requirements", "Architecture", "Structure", "Propulsion",
-        "Energy", "Control", "Catalog", "BOM",
+        "Energy", "Electronics", "Control", "Catalog", "BOM",
     ):
         assert label in text
     assert "PROJECT STATUS:" in text
 
 
 def test_render_startup_context_never_shows_forbidden_subsystem_lines(tmp_path):
+    """ERF-2 ★8: Electronics is now expected; Communications/Integration stay forbidden."""
     orchestrator = _fresh_orchestrator(tmp_path)
     ctx = orchestrator.build_startup_context()
     text = render_startup_context(ctx)
 
-    for forbidden in ("Electronics", "Communications", "Integration"):
+    assert "Electronics" in text
+    for forbidden in ("Communications", "Integration"):
         assert forbidden not in text
 
 
@@ -90,3 +95,43 @@ def test_render_startup_context_top_gaps_capped_at_three(tmp_path):
             line for line in text.splitlines() if line.startswith("GAP-")
         ]
         assert len(gap_id_lines) <= 3
+
+
+def test_cli_shows_electronics_line(tmp_path):
+    orchestrator = _fresh_orchestrator(tmp_path)
+    ctx = orchestrator.build_startup_context()
+    text = render_startup_context(ctx)
+    assert "Electronics" in text
+
+
+def test_cli_shows_incompatible_label(tmp_path):
+    """ERF-2: an ESC genuinely undersized for its per-motor demand must render
+    the literal 'INCOMPATIBLE' verdict in the CLI block."""
+    orchestrator = _fresh_orchestrator(tmp_path)
+    project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+
+    motors = ComponentSpec(
+        suggested_key="motors", completeness="high", source="declared",
+        properties={"motor_count": PropertyValue(value=4)},
+    )
+    battery = ComponentSpec(
+        suggested_key="battery", completeness="high", source="declared",
+        properties={"battery_capacity_wh": PropertyValue(value=50.0)},
+    )
+    esc = ComponentSpec(
+        suggested_key="esc", completeness="high", source="declared",
+        properties={"current_a": PropertyValue(value=5.0)},  # well under demand
+    )
+    dp = project_state.design_properties.model_copy(update={
+        "components": {"motors": motors, "battery": battery, "esc": esc},
+    })
+    params = dict(project_state.current_parameters or {})
+    params.update({"motor_power_w": 222.0, "battery_cell_count": 2})
+    updated = project_state.model_copy(update={"design_properties": dp, "current_parameters": params})
+    orchestrator.workspace_manager.save_state(updated)
+
+    ctx = orchestrator.build_startup_context()
+    assert ctx["readiness"]["subsystems"]["electronics"]["verdict"] == "INCOMPATIBLE"
+
+    text = render_startup_context(ctx)
+    assert "INCOMPATIBLE" in text

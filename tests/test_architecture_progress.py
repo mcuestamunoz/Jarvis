@@ -78,10 +78,11 @@ class TestBlockProgressStatusParamDriven:
         assert status == "in_progress"
 
     def test_propulsion_complete_when_both_params_defined(self):
-        # Composite: params_ok + motors + propellers components → complete
+        # Composite: params_ok + motors + propellers + esc components → complete
         dp = _make_design_props(components={
             "motors": _medium_stub(),
             "propellers": _medium_stub(),
+            "esc": _medium_stub(),  # ERF-2 ★5
         })
         status = JarvisOrchestrator._block_progress_status(
             "propulsion", dp, {"motor_count": 4, "per_motor_max_thrust_n": 20.0}
@@ -191,6 +192,7 @@ class TestNextPendingBlock:
         dp = _make_design_props(components={
             "motors": _medium_stub(),
             "propellers": _medium_stub(),
+            "esc": _medium_stub(),  # ERF-2 ★5
         })
         params = {"motor_count": 4, "per_motor_max_thrust_n": 20.0}
         ps = self._project_state(params, dp)
@@ -203,6 +205,7 @@ class TestNextPendingBlock:
         dp = _make_design_props(components={
             "motors": _medium_stub(),
             "propellers": _medium_stub(),
+            "esc": _medium_stub(),  # ERF-2 ★5
         })
         params = {
             "motor_count": 4,
@@ -223,6 +226,7 @@ class TestNextPendingBlock:
             "battery": _medium_stub(),   # energy composite component
             "motors": _medium_stub(),    # shared: propulsion + energy composite
             "propellers": _medium_stub(),  # propulsion composite component
+            "esc": _medium_stub(),  # ERF-2 ★5: propulsion composite component
         })
         params = {
             "motor_count": 4,
@@ -241,6 +245,7 @@ class TestNextPendingBlock:
             "battery": _medium_stub(),    # energy composite components present
             "motors": _medium_stub(),     # shared: propulsion + energy
             "propellers": _medium_stub(), # propulsion composite component
+            "esc": _medium_stub(),        # ERF-2 ★5: propulsion composite component
             # frame, flight_controller, sensors absent
         })
         params = {
@@ -284,6 +289,7 @@ class TestArchitectureProgressStr:
         dp = _make_design_props(components={
             "motors": _medium_stub(),
             "propellers": _medium_stub(),
+            "esc": _medium_stub(),  # ERF-2 ★5
         })
         params = {"motor_count": 4, "per_motor_max_thrust_n": 20.0}
         ps = self._ps(params, dp)
@@ -298,6 +304,7 @@ class TestArchitectureProgressStr:
             "battery": _medium_stub(),    # energy composite
             "motors": _medium_stub(),     # shared: propulsion + energy
             "propellers": _medium_stub(), # propulsion composite
+            "esc": _medium_stub(),        # ERF-2 ★5: propulsion composite
         })
         params = {
             "motor_count": 4, "per_motor_max_thrust_n": 20.0,
@@ -325,6 +332,7 @@ class TestBuildStartupContextArchitecture:
                 **project_state.design_properties.components,
                 "motors": _medium_stub(),
                 "propellers": _medium_stub(),
+                "esc": _medium_stub(),  # ERF-2 ★5
             }
         })
         orch.workspace_manager.save_state(project_state.model_copy(update={"design_properties": dp}))

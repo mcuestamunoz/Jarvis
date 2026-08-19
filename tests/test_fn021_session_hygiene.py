@@ -155,6 +155,7 @@ def test_after_arch_complete_iterate_phrase_not_stale_component_prompt(tmp_path:
         mass_kg=PropertyValue(value=0.5), material=PropertyValue(value="fibra"))
     flight_controller = _comp("flight_controller", "control",
         model=PropertyValue(value="Pixhawk 4"))
+    esc = _comp("esc", "propulsion_active", current_a=PropertyValue(value=30.0))  # ERF-2 ★5
 
     dp = ps.design_properties.model_copy(update={
         "system_defined": True,
@@ -162,7 +163,7 @@ def test_after_arch_complete_iterate_phrase_not_stale_component_prompt(tmp_path:
         "system_priority": ["propulsion", "energy", "structure", "control"],
         "components": {
             "motors": motors, "propellers": propellers, "battery": battery,
-            "frame": frame, "flight_controller": flight_controller,
+            "frame": frame, "flight_controller": flight_controller, "esc": esc,
         },
     })
     ps2 = ps.model_copy(update={

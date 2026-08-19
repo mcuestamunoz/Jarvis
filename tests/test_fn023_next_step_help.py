@@ -64,11 +64,15 @@ def _project_propulsion_pending(tmp_path: Path) -> JarvisOrchestrator:
     ps = orch.state_manager.load_active_project(orch.workspace_manager)
     motors = _comp("motors", "propulsion_active",
         motor_count=PropertyValue(value=4), kv_rating=PropertyValue(value=920))
+    # ERF-2 ★5: esc is now part of BLOCK_TO_COMPONENTS["propulsion"] — declared
+    # here so "propellers" stays the only remaining propulsion gap (this
+    # file's own target), not co-mingled with esc.
+    esc = _comp("esc", "propulsion_active", current_a=PropertyValue(value=30.0))
     dp = ps.design_properties.model_copy(update={
         "system_defined": True,
         "system_blocks": ["propulsion", "energy", "structure", "control"],
         "system_priority": ["propulsion", "energy", "structure", "control"],
-        "components": {"motors": motors},
+        "components": {"motors": motors, "esc": esc},
     })
     ps2 = ps.model_copy(update={
         "design_properties": dp,
@@ -89,12 +93,15 @@ def _project_structure_pending(tmp_path: Path) -> JarvisOrchestrator:
         motor_count=PropertyValue(value=4), kv_rating=PropertyValue(value=920))
     propellers = _comp("propellers", "propulsion_passive",
         diameter_in=PropertyValue(value=10), pitch_in=PropertyValue(value=4.5))
+    esc = _comp("esc", "propulsion_active", current_a=PropertyValue(value=30.0))  # ERF-2 ★5
     battery = _comp("battery", "energy", battery_capacity_wh=PropertyValue(value=74))
     dp = ps.design_properties.model_copy(update={
         "system_defined": True,
         "system_blocks": ["propulsion", "energy", "structure", "control"],
         "system_priority": ["propulsion", "energy", "structure", "control"],
-        "components": {"motors": motors, "propellers": propellers, "battery": battery},
+        "components": {
+            "motors": motors, "propellers": propellers, "esc": esc, "battery": battery,
+        },
     })
     ps2 = ps.model_copy(update={
         "design_properties": dp,

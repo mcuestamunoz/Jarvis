@@ -65,8 +65,19 @@ def _project_with_active_propulsion(
         source="declared",
         properties={"diameter_in": PropertyValue(value=10.0)},
     )
-    components = {"motors": motors_spec, "propellers": propellers_spec} if components_done else {
-        "motors": motors_spec
+    # ERF-2 ★5: esc is now part of BLOCK_TO_COMPONENTS["propulsion"] — declared
+    # from the start in both cases so this file's own target (propellers
+    # pending) stays the only thing under test, not co-mingled with esc.
+    esc_spec = ComponentSpec(
+        name="ESC 30A",
+        component_type="propulsion_active",
+        suggested_key="esc",
+        completeness="high",
+        source="declared",
+        properties={"current_a": PropertyValue(value=30.0)},
+    )
+    components = {"motors": motors_spec, "propellers": propellers_spec, "esc": esc_spec} if components_done else {
+        "motors": motors_spec, "esc": esc_spec
     }
     dp = ps.design_properties.model_copy(update={
         "system_defined": True,

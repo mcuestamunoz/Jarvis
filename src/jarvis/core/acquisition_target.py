@@ -86,7 +86,21 @@ COMPONENT_TERM_ALIASES: dict[str, str] = {
     "controladora": "flight_controller",
     "sensors": "sensors",
     "sensores": "sensors",
+    "esc": "esc",
 }
+
+# FN-ESC-acquisition: keys allowed to save while a scoped wizard expects another
+# component — only when the user explicitly names them (token in input).
+OUT_OF_SCOPE_EXPLICIT_SAVE_KEYS: frozenset[str] = frozenset({"esc"})
+
+
+def user_explicitly_named_component(user_input: str, component_key: str) -> bool:
+    """True when a whole word in *user_input* maps to *component_key* via aliases."""
+    normalized = _normalize(user_input)
+    return any(
+        COMPONENT_TERM_ALIASES.get(token) == component_key for token in normalized.split()
+    )
+
 
 # FN-017 B1/B5: moved here (from orchestrator.py) so both orchestrator.py and
 # param_definition_session.py can import the SAME dict without a circular
@@ -102,6 +116,7 @@ COMPONENT_PROMPTS: dict[str, str] = {
     "battery":           "Describe la batería. Ej: 'LiPo 6S 5000mAh' o '100Wh'",
     "motors":            "Describe los motores. Ej: '4x 2306 2400KV 50W'",
     "propellers":        "Describe las hélices. Ej: '10x4.5' o 'hélices de carbono'",
+    "esc":               "Describe el ESC. Ej: 'ESC 30A'",
 }
 
 

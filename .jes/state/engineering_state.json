@@ -1,43 +1,55 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "ERF-1 Readiness Foundation — checkpoint-erf1 closed.",
-  "scope": "Engineering Readiness aggregator shipped; System Map C-107–C-110; Slice 4b deferred.",
-  "execution_status": "idle",
-  "current_mode": "Checkpoint",
+  "cycle_intent": "ERF-2 Dependency Hardening — Implementation Contract ready for Engineer → Claude.",
+  "scope": "Implementation Contract drafted. No src until IC approved.",
+  "execution_status": "active",
+  "current_mode": "Implementation Contract",
   "movement_trigger": {
-    "type": "checkpoint",
-    "note": "CLI walk PASS on prueba-9f1031895508; tag checkpoint-erf1."
+    "type": "design_closed",
+    "note": "Engineer ratified design 2026-08-19; IC drafted same day."
   },
   "relevant_workflow_phases": [
-    "Review"
+    "Plan",
+    "Implement"
   ],
   "applicable_rules": [],
   "required_artifacts": [
     "docs/ENGINEERING_READINESS_VISION.md",
-    ".jes/artifacts/implementation_report_erf1.md"
+    ".jes/artifacts/investigation_erf2_dependency_hardening.md",
+    ".jes/artifacts/design_erf2_dependency_hardening.md",
+    ".jes/artifacts/implementation_contract_erf2.md"
   ],
   "open_questions": [],
-  "active_operation": "ERF-2 planning",
-  "authority_gates": [],
+  "active_operation": "ERF-2 IC review",
+  "authority_gates": [
+    "INCOMPATIBLE only with deterministic evidence",
+    "1 motor ↔ 1 ESC per-motor compare",
+    "electrical_compatibility.py pure module",
+    "nine subsystems including electronics",
+    "Continuity and Slice 4b out of MVP",
+    "no KV/voltage gaps"
+  ],
   "coherence_checklist": [
     "tests",
     "ux",
     "docs"
   ],
-  "outcome": "CHECKPOINT_ERF1",
-  "updated_at": "2026-08-18T13:00:00Z",
+  "outcome": "IC_READY",
+  "updated_at": "2026-08-19T08:15:00Z",
   "phase": "Plan",
   "status": "active",
-  "active_gate": "ERF-2 investigation/design — motor↔ESC↔battery + integration gaps.",
-  "active_artifact": "docs/ENGINEERING_READINESS_VISION.md",
+  "active_gate": "Engineer ratifies implementation_contract_erf2.md → send to Claude.",
+  "active_artifact": ".jes/artifacts/implementation_contract_erf2.md",
   "blocking_reason": null,
-  "next_required_action": "Open ERF-2 investigation contract (no G17/G14/G13 before ERF-2 unless CLI regression).",
+  "next_required_action": "Engineer approves IC → Claude implements Slices 1–4.",
   "evidence_refs": [
-    ".jes/artifacts/implementation_report_erf1.md",
-    "tag:checkpoint-erf1"
+    "tag:checkpoint-erf1",
+    ".jes/artifacts/design_erf2_dependency_hardening.md",
+    ".jes/artifacts/implementation_contract_erf2.md"
   ],
-  "open_decisions": [
-    "ERF-1 Slice 4b deferred to post-ERF-2 or on-demand"
-  ],
-  "risks": []
+  "open_decisions": [],
+  "risks": [
+    "ERF-1 subsystem count tests must migrate 8→9",
+    "Single components[esc] vs per-motor ESC instances"
+  ]
 }

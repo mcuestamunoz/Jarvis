@@ -58,11 +58,22 @@ def _project_with_active_propulsion(tmp_path: Path) -> JarvisOrchestrator:
             "kv_rating": PropertyValue(value=920),
         },
     )
+    # ERF-2 ★5: esc is now part of BLOCK_TO_COMPONENTS["propulsion"] — declared
+    # from the start so this file's own target (propellers pending) stays the
+    # only thing under test, not co-mingled with esc.
+    esc_spec = ComponentSpec(
+        name="ESC 30A",
+        component_type="propulsion_active",
+        suggested_key="esc",
+        completeness="high",
+        source="declared",
+        properties={"current_a": PropertyValue(value=30.0)},
+    )
     dp = ps.design_properties.model_copy(update={
         "system_defined": True,
         "system_blocks": ["propulsion", "energy", "structure", "control"],
         "system_priority": ["propulsion", "energy", "structure", "control"],
-        "components": {"motors": motors_spec},
+        "components": {"motors": motors_spec, "esc": esc_spec},
     })
     orch.workspace_manager.save_state(ps.model_copy(update={"design_properties": dp}))
     return orch
