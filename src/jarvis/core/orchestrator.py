@@ -916,6 +916,32 @@ class JarvisOrchestrator:
                 }
                 self._track_turn(user_input, result)
                 return result
+            # R3a Slice 2: explore_design_space as soft-interrupt — fires
+            # before the sub-mode fork so it works in both component and
+            # numeric sub-modes. Only fires when the goal is resolvable
+            # (explicit text or active handoff_context); otherwise falls
+            # through to existing behavior (refuse or LLM analyze).
+            if _dm_intent == "explore_design_space":
+                _explore_goal = self.intent_resolver.resolve_explore_goal(user_input)
+                _explore_resolvable = _explore_goal is not None
+                if not _explore_resolvable:
+                    _handoff = self.state_manager.get_runtime_session().handoff_context
+                    try:
+                        _active_project = self.state_manager.load_active_project(self.workspace_manager)
+                        _explore_resolvable = (
+                            _handoff is not None
+                            and _handoff.project_id == _active_project.project_id
+                            and _handoff.dse_capability == "active"
+                        )
+                    except FileNotFoundError:
+                        pass
+                if _explore_resolvable:
+                    result = self._handle_explore(
+                        goal_key=_explore_goal, user_input=user_input, llm_interface=llm_interface,
+                    )
+                    result["wizard_reprompt"] = self._get_define_missing_reprompt(current_session)
+                    self._track_turn(user_input, result)
+                    return result
             # UX-C: intercept component-driven blocks before numeric wizard
             # FN-016: pending_missing_reason is the "about to open" signal set by
             # _set_pending_next_block BEFORE start_define_missing_params runs —
@@ -952,6 +978,15 @@ class JarvisOrchestrator:
                 result = self._handle_component_description(user_input, _battery_session)
                 self._track_turn(user_input, result)
                 return result
+            # R3a Slice 1: port ★2 refuse to numeric sub-mode. Before
+            # answer() parses the input as a numeric value, detect
+            # engineering-intent, explore, and different-block-declare phrases
+            # and return an honest refusal instead of the generic "No reconozco
+            # X como valor." parse error.
+            _numeric_refusal = self._maybe_refuse_numeric_submode(user_input, current_session)
+            if _numeric_refusal is not None:
+                self._track_turn(user_input, _numeric_refusal)
+                return _numeric_refusal
             result = self.param_definition_session.answer(user_input)
             # Architecture progress hint: after params are applied, guide the user
             # to the next pending architecture block (only when system is defined).
@@ -2093,6 +2128,94 @@ class JarvisOrchestrator:
                 ),
             }
         return None
+
+    # R3a: human-readable labels for numeric wizard reasons. All four
+    # MISSING_FORCE_REASONS values (parameter_requirements.py) covered —
+    # MISSING_COMPONENT_DEFINITION never reaches this dict (numeric-only).
+    _NUMERIC_REASON_LABELS: dict[str, str] = {
+        "missing_propulsion_parameters": "los parámetros de propulsión",
+        "missing_energy_parameters": "los parámetros de energía",
+        "missing_propeller_parameters": "los parámetros de hélice",
+        "missing_transmission_parameters": "los parámetros de transmisión",
+    }
+
+    def _maybe_refuse_numeric_submode(
+        self, user_input: str, session: Any,
+    ) -> dict[str, Any] | None:
+        """R3a Slice 1: port ★2's refuse logic to the numeric sub-mode.
+
+        Detects the same three shapes ``_maybe_refuse_different_target`` already
+        handles for component sub-mode — engineering-intent, explore, and
+        different-block-declare — and returns an honest refusal instead of
+        letting them fall to ``ParamDefinitionSession.answer()``'s generic
+        ``"No reconozco X como valor."`` parse error.
+
+        Never mutates session state.
+        """
+        reason = session.param_definition_reason or ""
+        reason_label = self._NUMERIC_REASON_LABELS.get(reason, reason)
+
+        # Declare-different-block check FIRST — same order
+        # _maybe_refuse_different_target uses (component sub-mode), and for
+        # the same reason: goal_planner.is_engineering_intention has real
+        # keyword overlap with component names (e.g. "definir batería" also
+        # matches the "mejorar_autonomia" goal's own keyword list), so
+        # checking engineering-intent first would misfire on a plain
+        # different-block declare phrase and never reach the block check.
+        block_key = self.intent_resolver.resolve_declare_block_request(user_input)
+        if block_key is not None:
+            other_label = self._BLOCK_REFUSE_LABELS.get(block_key, block_key)
+            return {
+                "status": "interactive",
+                "action": "define_missing_params",
+                "message": (
+                    f"Estoy definiendo {reason_label}. Escribe 'cancelar' primero "
+                    f"si quieres pasar a definir {other_label}."
+                ),
+            }
+
+        from jarvis.core.goal_planner import is_engineering_intention
+
+        goal_key = is_engineering_intention(user_input)
+        is_explore = (
+            goal_key is None
+            and self.intent_resolver.resolve_intent(user_input) == "explore_design_space"
+        )
+
+        if goal_key is not None or is_explore:
+            return {
+                "status": "interactive",
+                "action": "define_missing_params",
+                "message": (
+                    f"Estoy definiendo {reason_label}. Escribe 'cancelar' primero "
+                    "si quieres explorar otras opciones de diseño."
+                ),
+            }
+
+        return None
+
+    def _get_define_missing_reprompt(self, session: Any) -> str:
+        """Return the current wizard's pending question for ``wizard_reprompt``.
+
+        Works for both sub-modes: component (delegates to the same
+        ``_component_prompt_for_first_missing``/``_COMPONENT_PROMPTS`` Brief
+        machinery FN-017/018 established — never a hand-rolled generic
+        string, same discipline ``get_current_prompt`` documents for
+        ITERATE's own ``wizard_reprompt``) and numeric (delegates to
+        ``ParamDefinitionSession._question_for_param``).
+        """
+        if (
+            session.pending_missing_reason == MISSING_COMPONENT_DEFINITION
+            or session.param_definition_reason == MISSING_COMPONENT_DEFINITION
+        ):
+            keys = list(session.pending_missing_params or session.pending_param_definitions or [])
+            return self._component_prompt_for_first_missing(keys)
+
+        pending = list(session.pending_param_definitions or [])
+        if pending:
+            suggestions = list(session.motor_suggestions or [])
+            return self.param_definition_session._question_for_param(pending[0], suggestions)
+        return "Indica el valor del parámetro pendiente."
 
     def _handle_component_description(
         self,
