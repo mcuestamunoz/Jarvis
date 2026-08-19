@@ -88,12 +88,22 @@
 ✅ CLI re-walk PASS WITH NOTES
 ✅ checkpoint-continuity-polish
 ✅ checkpoint-erf1
-✅ checkpoint-erf2  ← AQUÍ
+✅ checkpoint-erf2
+✅ G17 · G14 · G13 (CLI routing residuals)
+✅ R3a (honest refuse + DSE soft-interrupt)
         ↓
-G17 · G14 · G13
+R3b · G9-A · Impl C · Impl D
         ↓
-R3 (G11/G8) · G9-A · Impl C
+Phase 2 — Physical Propulsion Engine
 ```
+
+### 🔮 HORIZONTE — Phase 2: Physical Propulsion Engine
+
+> Evolución del modelo físico de propulsión: de "motor = empuje fijo" a puntos de operación basados en componentes reales (motor + hélice + batería + ESC + condiciones).
+> Visión: [`PHYSICAL_PROPULSION_ENGINE_PHASE2.md`](./PHYSICAL_PROPULSION_ENGINE_PHASE2.md)
+> Relacionado: [`PHYSICAL_COMPONENT_CATALOG_V1.md`](./PHYSICAL_COMPONENT_CATALOG_V1.md)
+> Prerrequisitos: Impl B ✅, ERF-2 ✅, G9-A, Impl C, Impl D.
+> **No comenzar hasta que Catalog V1 esté completo (Impl D cerrado).**
 
 **Engineer lock (histórico):** Audit-before-impl cerrado para polish. Nuevos cambios `src/` requieren IC propio.
 
