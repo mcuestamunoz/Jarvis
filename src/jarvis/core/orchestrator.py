@@ -370,7 +370,81 @@ class JarvisOrchestrator:
                 if not any(u in text.lower() for u in ("mah", "wh", "v", "s")):
                     continue
             accepted.append(spec)
+        if accepted:
+            return accepted
+
+        # G17/G14: aerial.py's motors/propellers ComponentRules key off literal
+        # keyword substrings ("motor" / helice|hélice|propeller|props) — a bare
+        # "4x 2306 1400kv" or "10x4.5" has no such keyword, so infer_components
+        # falls entirely to generic_component and gets filtered out above, even
+        # though infer_component_for_key resolves it perfectly. This mirrors
+        # _handle_component_description's own force-motors/force-propellers
+        # bypass (same guards, same ordering) so the same phrases that already
+        # work mid-wizard also work at IDLE, instead of falling to the LLM.
+        if all(s.suggested_key == "generic_component" for s in specs):
+            forced = self._force_component_spec_idle(text)
+            if forced is not None:
+                return [forced]
         return accepted
+
+    def _force_component_spec_idle(self, text: str) -> "Any | None":
+        """G17/G14: IDLE-context force-motors/force-propellers bypass.
+
+        Only fires when the active project has a genuinely pending (not yet
+        defined) motors/propellers component — never with no active project,
+        never to silently re-bind an already-defined component. Motor check
+        runs first (same order as the wizard path); propellers only forces
+        when the phrase is unambiguously propeller-shaped.
+
+        Unlike the wizard's own force-propellers block, this never bypasses
+        the shape guard just because motors isn't pending: the wizard's
+        "motors not in expected_keys" bypass is safe there only because that
+        specific wizard turn is already framed around propellers (a singleton
+        acquisition target) — no such framing exists at IDLE, where a
+        motor-shaped phrase can arrive at any time regardless of whether
+        motors happens to already be defined (e.g. the user is replacing an
+        already-declared motor). Always requiring the shape guard here is
+        what T-g17-already-defined locks in.
+        """
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+
+        from jarvis.core.component_inference import infer_component_for_key
+        from jarvis.domains.aerial import aerial_registry
+
+        components = project_state.design_properties.components
+        motors_pending = component_presence_tier(components.get("motors")) != "present"
+        propellers_pending = component_presence_tier(components.get("propellers")) != "present"
+
+        if motors_pending:
+            forced = infer_component_for_key(text, "motors", registry=aerial_registry)
+            # Not a plain completeness=="high" guard (as the wizard-side force
+            # uses): the IC's own acceptance phrase "4x 2306 1400kv" has no
+            # thrust_n/power_w, so extract_motor_properties/_motor_completeness
+            # only ever reaches "medium" for it — "high" would silently fail
+            # the contract's own acceptance criterion #1. But a bare "medium"
+            # guard alone would reopen G14 (bare "10x4.5" also reaches
+            # "medium" via the same motor_count regex's spurious NxP match).
+            # _looks_clearly_propeller_shaped is the same discriminator the
+            # wizard path already trusts for this exact ambiguity: it returns
+            # False whenever a "kv" marker is present (never true of a real
+            # propeller phrase) and True for a bare realistic NxP size, so it
+            # correctly keeps "4x 2306 1400kv" (has kv) on the motors path
+            # while still deferring "10x4.5" (no kv) to the propellers force.
+            if (
+                forced is not None
+                and forced.completeness != "low"
+                and not self._looks_clearly_propeller_shaped(text)
+            ):
+                return forced
+
+        if propellers_pending and self._looks_clearly_propeller_shaped(text):
+            forced = infer_component_for_key(text, "propellers", registry=aerial_registry)
+            if forced is not None and forced.completeness != "low":
+                return forced
+
+        return None
 
     def _should_intercept_component(self, text: str, session: Any) -> "Any | None":
         """Return first ComponentSpec if input should be routed to component flow, else None.
@@ -2111,18 +2185,31 @@ class JarvisOrchestrator:
         # ["motors","propellers"] wizard binds motors — Continuity Hardening
         # ★4 (G14) already established "prefer motors" as the tiebreak; this
         # ordering is that tiebreak, no new logic needed.
-        # completeness == "high" (not just "!= low"): the motors extractor's
-        # own motor_count regex spuriously matches a bare "NxP" propeller size
-        # (e.g. "10x4.5" → motor_count=10, completeness="medium") — requiring
-        # "high" (a real KV/thrust/power signal alongside the count) keeps
-        # that bare-size case falling through to the propellers force block
-        # below, unchanged (FN-019/G14 regression guard).
+        # completeness != "low" AND not _looks_clearly_propeller_shaped (not a
+        # plain completeness == "high" check): the motors extractor's own
+        # motor_count regex spuriously matches a bare "NxP" propeller size
+        # (e.g. "10x4.5" → motor_count=10, completeness="medium"), so a bare
+        # "medium" guard alone would reopen G14. But a real motor phrase with
+        # only count+KV and no thrust/power (e.g. "4x 2306 1400kv" — CLI
+        # Routing Residuals G17) never reaches "high" either, since
+        # _motor_completeness requires (thrust or power) AND (count or kv) for
+        # that tier. _looks_clearly_propeller_shaped is the discriminator that
+        # actually distinguishes the two ambiguous cases: it returns False
+        # whenever a "kv" marker is present (never true of a real propeller
+        # phrase) and True for a bare realistic NxP size — so it keeps a real
+        # motor phrase forcing here while still deferring a bare propeller
+        # size to the propellers force block below (FN-019/G14 regression
+        # guard, unchanged).
         if (
             "motors" in expected_keys
             and all(s.suggested_key == "generic_component" for s in specs)
         ):
             forced = infer_component_for_key(user_input, "motors", registry=aerial_registry)
-            if forced is not None and forced.completeness == "high":
+            if (
+                forced is not None
+                and forced.completeness != "low"
+                and not self._looks_clearly_propeller_shaped(user_input)
+            ):
                 specs = [forced]
         if (
             "propellers" in expected_keys
