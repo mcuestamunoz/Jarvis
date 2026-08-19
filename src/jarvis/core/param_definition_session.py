@@ -232,6 +232,9 @@ class ParamDefinitionSession:
         if first in ASSISTED_MOTOR_PARAMS:
             suggestions = self._catalog_suggestions_for_active_project()
         is_component_definition = reason == MISSING_COMPONENT_DEFINITION
+        # R3a: preserve handoff_context across wizard open so DSE
+        # soft-interrupt can resolve the goal mid-wizard.
+        prev_handoff = self.state_manager.get_runtime_session().handoff_context
         session = InteractiveSessionState(
             mode=OrchestratorMode.DEFINE_MISSING_PARAMETERS,
             step=0,
@@ -239,6 +242,7 @@ class ParamDefinitionSession:
             collected_params={},
             param_definition_reason=reason,
             motor_suggestions=suggestions,
+            handoff_context=prev_handoff,
             # FN-017 B1: keep pending_missing_params coherent with the live
             # wizard for component-definition reasons. Before this, the field
             # went stale to [] the moment the wizard opened (it only ever

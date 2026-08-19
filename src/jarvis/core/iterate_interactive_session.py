@@ -412,7 +412,8 @@ class IterateInteractiveSession:
                 material_name = self._extract_material_from_text(updated_draft.strategy or "")
                 if material_name:
                     # Name embedded in strategy → store and go to restrictions
-                    updated_draft = updated_draft.model_copy(update={"value": material_name})
+                    _op = updated_draft.operation or IterationOperation.DEFINE
+                    updated_draft = updated_draft.model_copy(update={"value": material_name, "operation": _op})
                     return self._build_response(
                         session.model_copy(update={"step": 3, "iteration_draft": updated_draft})
                     )
@@ -915,14 +916,17 @@ class IterateInteractiveSession:
             # Bug 44: when the estimate contains a meaningful summary (e.g. no
             # physics data message), surface it instead of the generic fallback.
             # Bug 58: avoid duplication when summary already starts with the prefix.
-            if estimate and estimate.summary and estimate.weight_change_percent is None:
+            if estimate and estimate.weight_change_percent is not None:
+                pass  # fall through to the normal estimate display below
+            elif estimate and estimate.summary and estimate.weight_change_percent is None:
                 if estimate.summary.startswith("Esta iteración define"):
                     return estimate.summary
                 return f"Esta iteración define una propiedad del diseño.\n{estimate.summary}"
-            return (
-                "Esta iteración define una propiedad del diseño.\n"
-                "No se recalcula impacto físico en esta versión."
-            )
+            else:
+                return (
+                    "Esta iteración define una propiedad del diseño.\n"
+                    "No se recalcula impacto físico en esta versión."
+                )
         lines = ["Estimación:"]
         if estimate.weight_change_percent is not None:
             lines.append(f"- peso: {estimate.weight_change_percent}%")

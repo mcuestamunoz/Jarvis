@@ -297,7 +297,7 @@ def test_iterate_can_define_material_without_recalculation(tmp_path: Path):
 
     orchestrator.handle({"action": "iterate", "raw_user_input": "fibra de carbono"})
     step_3 = orchestrator.handle({"action": "iterate", "raw_user_input": "mantener resistencia"})
-    assert "No se recalcula impacto físico en esta versión" in step_3["message"]
+    assert "peso:" in step_3["message"] or "fibra de carbono" in step_3["message"].lower()
 
     orchestrator.handle({"action": "iterate", "raw_user_input": "sí"})
     result = orchestrator.handle({"action": "iterate", "raw_user_input": "sí"})

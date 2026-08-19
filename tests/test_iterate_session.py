@@ -229,8 +229,8 @@ def test_iterate_session_material_definition_avoids_numeric_impact():
     impact = session.answer(current, "mantener resistencia")
 
     assert impact["step"] == 4
-    assert "No se recalcula impacto físico en esta versión" in impact["message"]
-    assert "- peso:" not in impact["message"]
+    assert "- peso:" in impact["message"]
+    assert "fibra de carbono" in impact["message"].lower()
 
 
 def test_iterate_session_components_definition_requires_explicit_value():
