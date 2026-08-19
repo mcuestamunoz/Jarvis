@@ -1,8 +1,8 @@
 # Jarvis System Map — Diagrams
 
 **Version:** SYS-MAP-002 visual companion  
-**Date:** 2026-08-10 (ERF-1 delta: 2026-08-18)  
-**Canonical edge truth:** [`CONNECTIONS.md`](CONNECTIONS.md) → **Canonical registry** = **63** unique `C-xxx` (IDs sparse through C-110). Updated 2026-08-10 by FN-024 (C-042 fixed, C-105/C-106 added); updated 2026-08-12 by FN-025 (C-025/C-044 fixed) and FN-026 (C-043 fixed); updated 2026-08-18 by ERF-1 (C-107–C-110 added).
+**Date:** 2026-08-10 (ERF-1 delta: 2026-08-18; ERF-2 delta: 2026-08-19)  
+**Canonical edge truth:** [`CONNECTIONS.md`](CONNECTIONS.md) → **Canonical registry** = **65** unique `C-xxx` (IDs sparse through C-112). Updated 2026-08-10 by FN-024 (C-042 fixed, C-105/C-106 added); updated 2026-08-12 by FN-025 (C-025/C-044 fixed) and FN-026 (C-043 fixed); updated 2026-08-18 by ERF-1 (C-107–C-110 added); updated 2026-08-19 by ERF-2 (C-111–C-112 added, C-107/C-110 updated).
 
 Interactive Cursor canvas (filterable graph + full table): [`jarvis-system-map.canvas.tsx`](jarvis-system-map.canvas.tsx).  
 To open beside chat in Cursor, sync that file into the project `canvases/` folder (see header comment in the `.tsx`).
@@ -12,15 +12,15 @@ To open beside chat in Cursor, sync that file into the project `canvases/` folde
 ```text
 CONNECTIONS.md
 │
-├── Canonical registry     → 63 C-xxx únicos
+├── Canonical registry     → 65 C-xxx únicos
 ├── Derived/detail views   → may repeat C-xxx (do not add to 63)
 └── Forbidden transitions  → 10 (not C-xxx)
 ```
 
 | Set | Count | Notes |
 |---|---:|---|
-| Registry edges (canonical) | **63** | Only count this |
-| Connected 🟢 | **62** | of 63 |
+| Registry edges (canonical) | **65** | Only count this |
+| Connected 🟢 | **64** | of 65 |
 | Broken 🔴 | **0** | — |
 | Partial 🟡 | **2** | C-081, C-108 |
 | Forbidden transitions | **+10** | Not registry edges |
@@ -33,6 +33,8 @@ CONNECTIONS.md
 **FN-026 (2026-08-12):** C-043 fixed (🔴→🟢, Goal Plan lever → Iterate preseed, via `handoff_matching.match_plan_lever`). **H1–H4 all closed, 0 RED remaining.**
 
 **ERF-1 (2026-08-18):** C-107–C-110 added (`engineering_readiness` aggregator + startup/CLI surface). C-108 🟡 PARTIAL — Continuity consumes readiness for catalog-gap ranking only (Slice 4b deferred). Two forbidden absences added (Continuity→Readiness; persist `readiness.json`).
+
+**ERF-2 (2026-08-19):** C-111–C-112 added (`electrical_compatibility` pure checks → readiness gap generation; ESC acquisition routing). C-107 updated (9 subsystems, +`electronics`). C-110 updated (9 readiness lines). `INCOMPATIBLE` verdicts with ★3 gate. Tag `checkpoint-erf2` (`9af0cc9`).
 
 Canvas / this file manually mirror the registry (known drift risk). When adding a connection: update Canonical registry first, then Detail, then DIAGRAMS + canvas.
 
@@ -60,10 +62,11 @@ flowchart TB
   CALC --> SIM[07 Simulation]
   SIM --> STATE[09 State / Workspace]
   SIM -.->|C-081 PARTIAL| CONT[08 Continuity]
-  STATE --> READ[engineering_readiness<br/>ERF-1 C-107]
+  STATE --> READ[engineering_readiness<br/>ERF-1/2 C-107]
+  ELEC[electrical_compatibility<br/>ERF-2 C-111] --> READ
   READ -.->|C-108 PARTIAL| CONT
   RT -->|C-109| READ
-  ENTRY -->|C-110| READ_UI[READINESS UI]
+  ENTRY -->|C-110| READ_UI[READINESS UI 9 lines]
   ACQ --> STATE
   CONT --> ACQ
   STATE --> CALC
@@ -175,10 +178,12 @@ Detail and evidence stay in `CONNECTIONS.md`. This index is for scanning.
 | C-083 | classify_component → `_block_progress_status` | 🟢 |
 | C-084 | ProjectState → PhaseLayer | 🟢 |
 | C-085 | Context → ReasoningLayer | 🟢 |
-| C-107 | ProjectState + authorities → `build_engineering_readiness` | 🟢 (ERF-1) |
+| C-107 | ProjectState + authorities → `build_engineering_readiness` (9 subsystems) | 🟢 (ERF-1, updated ERF-2) |
 | C-108 | Readiness → Continuity catalog-gap ranking | 🟡 (ERF-1) |
 | C-109 | `build_startup_context` → `"readiness"` field | 🟢 (ERF-1) |
-| C-110 | CLI → `ENGINEERING READINESS` block | 🟢 (ERF-1) |
+| C-110 | CLI → `ENGINEERING READINESS` block (9 lines) | 🟢 (ERF-1, updated ERF-2) |
+| C-111 | `electrical_compatibility` → readiness gap generation | 🟢 (ERF-2) |
+| C-112 | ESC acquisition routing (out-of-scope explicit save) | 🟢 (ERF-2, FN-ESC) |
 
 ### 09 Components / State
 | ID | From → To | Status |

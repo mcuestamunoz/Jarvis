@@ -46,7 +46,7 @@ _list_existing_projects → proyectos en disco
   └─ hay proyectos → mostrar lista + opción n/1/2...
        ├─ n → instrucción libre (loop normal)
   └─ 1..N / texto ordinal ("continuar", "el más reciente", "uno"...) → touch(state.json) + build_startup_context() [sin LLM]
-       └─ Engineering Readiness (8 líneas + TOP GAPS, ERF-1) + Continuity (situation / evidence / next_useful_step)
+       └─ Engineering Readiness (9 líneas + TOP GAPS, ERF-2) + Continuity (situation / evidence / next_useful_step)
 Input de usuario
   │
   ├─ sesión activa (CREATE_PROJECT_INTERACTIVE)
@@ -215,7 +215,8 @@ Módulos deterministas; el LLM no elige el siguiente target de adquisición.
 | `core/acquisition_target.py` | Autoridad de mención bloque∪componente; `COMPONENT_PROMPTS`; help-define / nav-back helpers |
 | `core/acquisition_brief.py` | Brief fino (qué / qué sabe Jarvis / pregunta) reutilizado en open / re-prompt / help |
 | `core/project_continuity.py` | `build_project_continuity` → situation / evidence / `next_useful_step` |
-| `core/engineering_readiness.py` | ERF-1 — `build_engineering_readiness` → Gap Registry + 8-subsystem rollup (derived on read; C-107) |
+| `core/engineering_readiness.py` | ERF-1/ERF-2 — `build_engineering_readiness` → Gap Registry + 9-subsystem rollup (derived on read; C-107). ERF-2 adds `electronics` subsystem, `INCOMPATIBLE` verdicts, `electrical_compatibility.py` checks |
+| `core/electrical_compatibility.py` | ERF-2 — pure deterministic checks: ESC presence, per-motor ESC vs motor current, battery discharge, prop↔motor match. No I/O, no LLM |
 | `core/project_closure.py` | BOM + `classify_component` / `component_presence_tier` (FN-020: una clasificación para arch↔BOM↔Continuity) |
 | `config.NAVIGATION_BACK_WORDS` | `atras`/`volver`/`vuelve` — solo wizards de adquisición (FN-016), no escape global |
 
@@ -493,7 +494,7 @@ Flujo:
    - warning/nominal → `["payload_kg", "motor_count", "safety_margin_ratio"]`
    - no_data → `["payload_kg", "motor_count", "safety_factor"]`
 6. Genera `suggested_action` desde el top `ReasoningSuggestion` + `hint` accionable
-7. **ERF-1:** `build_engineering_readiness(project_state)` — proyección derivada (Gap Registry + 8 subsystems + `overall`); expuesta como `"readiness"` en el dict; Continuity consume opcionalmente `readiness` para el ranking del catalog gap (C-108); no se persiste en disco
+7. **ERF-1/ERF-2:** `build_engineering_readiness(project_state)` — proyección derivada (Gap Registry + 9 subsystems + `overall`); expuesta como `"readiness"` en el dict; Continuity consume opcionalmente `readiness` para el ranking del catalog gap (C-108); no se persiste en disco. ERF-2 adds `electronics` subsystem, 4 electrical gap types (`GAP-ESC-MISSING`, `GAP-ESC-UNDERSIZED`, `GAP-BATTERY-DISCHARGE-EXCEEDED`, `GAP-PROP-MOTOR-MISMATCH`), `INCOMPATIBLE` verdicts with ★3 deterministic-evidence gate, and `electrical_compatibility.py` as pure fact provider
 
 Estructura de retorno:
 ```python
@@ -521,12 +522,12 @@ Estructura de retorno:
     "next_architecture_label": str | None,  # etiqueta humana del bloque
     "next_block_status": str | None,        # "not_started" | "in_progress"
     # ERF-1 Engineering Readiness (derived on read — not persisted)
-    "readiness": dict,                      # gaps, subsystems (8 keys), overall, top_gap, prioritized_gaps
+    "readiness": dict,                      # gaps, subsystems (9 keys), overall, top_gap, prioritized_gaps
     "continuity": dict,                     # situation, evidence, next_useful_step, next_useful_why
 }
 ```
 
-**ERF-1 authority note:** `readiness` is authoritative over **gap aggregation and assembly-ready rollup**, not over physics/BOM/sim truth. See `docs/system_map/AUTHORITY.md` and `docs/system_map/CONNECTIONS.md` C-107–C-110.
+**ERF-1/ERF-2 authority note:** `readiness` is authoritative over **gap aggregation and assembly-ready rollup**, not over physics/BOM/sim truth. ERF-2 adds `INCOMPATIBLE` verdicts (★3 deterministic-evidence gate) and `electrical_compatibility.py` as a pure fact provider for ESC/battery/prop-motor checks. See `docs/system_map/AUTHORITY.md` and `docs/system_map/CONNECTIONS.md` C-107–C-112.
 
 ### Startup display
 
@@ -541,7 +542,7 @@ Si el contexto incluye `proactive_question`, la CLI inicia automáticamente una 
 
 ### Intent `project_status` (+ Continuity)
 
-Cuando el usuario escribe frases como `"estado del proyecto"`, `"resumen"`, `"qué falta"`, `"siguiente paso"` o `"cómo va el proyecto"`, `IntentResolver` las clasifica como `project_status` (no `analyze`). El orquestador las atiende en `_handle_project_status()`, que delega en `build_startup_context()` — misma fuente de verdad, cero llamadas LLM. El contexto incluye `readiness` (ERF-1 — 8 líneas + TOP GAPS) y `continuity` (`situation` / evidence / `next_useful_step`).
+Cuando el usuario escribe frases como `"estado del proyecto"`, `"resumen"`, `"qué falta"`, `"siguiente paso"` o `"cómo va el proyecto"`, `IntentResolver` las clasifica como `project_status` (no `analyze`). El orquestador las atiende en `_handle_project_status()`, que delega en `build_startup_context()` — misma fuente de verdad, cero llamadas LLM. El contexto incluye `readiness` (ERF-2 — 9 líneas + TOP GAPS, con verdicts `INCOMPATIBLE` para gaps eléctricos) y `continuity` (`situation` / evidence / `next_useful_step`).
 
 `STATUS_PATTERNS` vive separado de `QUESTION_PATTERNS`. `_looks_like_status_query()` se evalúa antes que `_looks_like_question()` cuando no hay strong-action previo.
 

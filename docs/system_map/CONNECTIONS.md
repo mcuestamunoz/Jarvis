@@ -8,8 +8,8 @@ Every directed edge in Jarvis that carries control, data, and/or state, as a fir
 CONNECTIONS.md
 │
 ├── Canonical registry  ← THIS SECTION ONLY defines the connection count
-│   └── 63 unique C-xxx  (ID space sparse through C-110)
-│         62 🟢 connected · 0 🔴 broken · 2 🟡 partial
+│   └── 65 unique C-xxx  (ID space sparse through C-112)
+│         64 🟢 connected · 0 🔴 broken · 2 🟡 partial
 │
 ├── Derived / detail views  ← may repeat C-xxx for readability
 │   └── "Detail — NN …" sections below; NOT additional connections
@@ -25,7 +25,9 @@ CONNECTIONS.md
 
 **ERF-1 (2026-08-18):** Four new connections added — **C-107** (authorities → `build_engineering_readiness`), **C-108** (readiness → Continuity catalog-gap ranking, 🟡 PARTIAL), **C-109** (startup context exposes `"readiness"`), **C-110** (CLI renders `ENGINEERING READINESS` block). Registry count moved **59 → 63**; **62🟢 · 0🔴 · 2🟡** (C-081 + C-108). Two forbidden absences added (Continuity→Readiness; persist `readiness.json`). Report: [`.jes/artifacts/implementation_report_erf1.md`](../../.jes/artifacts/implementation_report_erf1.md).
 
-**Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables (historically this produced a false **65**). The only authoritative count is the length of **Canonical registry** below.
+**ERF-2 (2026-08-19):** Two new connections added — **C-111** (`electrical_compatibility` pure checks → `build_engineering_readiness` gap generation), **C-112** (ESC acquisition routing in `orchestrator._handle_component_description` — out-of-scope explicit save). C-107 updated (9 subsystems, `electronics` added). C-110 updated (9 readiness lines). Registry count moved **63 → 65**; **64🟢 · 0🔴 · 2🟡** (C-081 + C-108). Report: [`.jes/artifacts/implementation_report_erf2.md`](../../.jes/artifacts/implementation_report_erf2.md).
+
+**Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables. The only authoritative count is the length of **Canonical registry** below.
 
 Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror this registry; if they diverge, **this file wins**.
 
@@ -41,7 +43,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 
 ## Canonical registry
 
-**63 unique edges.** Append new IDs here first; then add a Detail section. Derived tables elsewhere in this file must not be treated as new edges.
+**65 unique edges.** Append new IDs here first; then add a Detail section. Derived tables elsewhere in this file must not be treated as new edges.
 
 | ID | From | To | Status |
 |---|---|---|---|
@@ -104,10 +106,12 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-102 | Raw LLM response | `LLMResponseParser.parse/validate_for_runtime` (`ActionPolicy`) | 🟢 |
 | C-103 | Validated `action_request` | `orchestrator.handle` (closed 4-verb set) | 🟢 |
 | C-104 | `orchestrator` | `llm_interface.analyze` → narration string | 🟢 |
-| C-107 | `ProjectState` + closure/arch/sim authorities | `engineering_readiness.build_engineering_readiness` | 🟢 (ERF-1) |
+| C-107 | `ProjectState` + closure/arch/sim/electrical authorities | `engineering_readiness.build_engineering_readiness` (9 subsystems, ERF-2) | 🟢 (ERF-1, updated ERF-2) |
 | C-108 | `EngineeringReadinessResult` | `project_continuity.build_project_continuity(readiness=…)` — catalog-gap ranking only | 🟡 PARTIAL (ERF-1) |
 | C-109 | `orchestrator.build_startup_context` | startup context `"readiness"` field | 🟢 (ERF-1) |
-| C-110 | CLI `render_startup_context` | `ENGINEERING READINESS` block | 🟢 (ERF-1) |
+| C-110 | CLI `render_startup_context` | `ENGINEERING READINESS` block (9 lines, ERF-2) | 🟢 (ERF-1, updated ERF-2) |
+| C-111 | `electrical_compatibility` checks | `engineering_readiness` gap generation (4 electrical gap types) | 🟢 (ERF-2) |
+| C-112 | `orchestrator._handle_component_description` | ESC out-of-scope explicit save (`OUT_OF_SCOPE_EXPLICIT_SAVE_KEYS`) | 🟢 (ERF-2, FN-ESC) |
 
 ## Forbidden transitions (not registry edges)
 
@@ -695,18 +699,18 @@ Same underlying phrase and root cause as **C-025** — listed under both Intent 
 | Status | 🟡 PARTIAL — not `BROKEN` (never wrong, never claims something false) but degrades to a generic fallback identical for margin=1.08 and margin=3.0. Verified via direct `build_project_continuity` call with `safety_margin_ratio=1.08`, architecture 4/4, no incomplete/missing components. |
 | Evidence | `core/project_continuity.py` (the `elif sim_status == "pass":` branch, no margin read). Failure D of the predecessor map; H5 (design-only, `MISMATCHES.md`) is the open question, not yet a queued FN. |
 
-### C-107 — Authorities → `build_engineering_readiness` 🟢 (ERF-1)
+### C-107 — Authorities → `build_engineering_readiness` 🟢 (ERF-1, updated ERF-2)
 | Field | Value |
 |---|---|
 | Kind | DATA |
-| Mechanism | pure projection over `ProjectState` + existing authority helpers |
+| Mechanism | pure projection over `ProjectState` + existing authority helpers + `electrical_compatibility` (ERF-2, C-111) |
 | Symbols | `engineering_readiness.build_engineering_readiness` |
-| Payload | `EngineeringReadinessResult` — gap registry (primary), eight subsystem lines, `overall`, `top_gap` |
+| Payload | `EngineeringReadinessResult` — gap registry (primary), nine subsystem lines (ERF-2: +`electronics`), `overall`, `top_gap`. ERF-2 adds 4 electrical gap types and `INCOMPATIBLE` verdicts (★3 gate). |
 | Authority | `engineering_readiness.py` — authoritative over **gap aggregation and assembly-ready rollup**, not over physics/BOM/sim truth |
 | Mutation | NO |
 | LLM | NO |
 | Status | 🟢 CONNECTED |
-| Evidence | `core/engineering_readiness.py`, `tests/test_engineering_readiness_*.py` |
+| Evidence | `core/engineering_readiness.py`, `core/electrical_compatibility.py`, `tests/test_engineering_readiness_*.py`, `tests/test_engineering_readiness_erf2_*.py` |
 
 ### C-108 — Readiness → Continuity (catalog-gap ranking only) 🟡 PARTIAL (ERF-1)
 | Field | Value |
@@ -740,12 +744,38 @@ Same underlying phrase and root cause as **C-025** — listed under both Intent 
 | Kind | DATA (presentation) |
 | Mechanism | `_render_readiness_block` in `render_startup_context` |
 | Symbols | `adapters/cli/main.py::_render_readiness_block` |
-| Payload | 8 subsystem verdict lines, `PROJECT STATUS`, up to 3 `TOP GAPS` |
+| Payload | 9 subsystem verdict lines (ERF-2), `PROJECT STATUS`, up to 3 `TOP GAPS` |
 | Authority | display only — reads C-109 payload, no new domain logic |
 | Mutation | NO |
 | LLM | NO |
-| Status | 🟢 CONNECTED |
+| Status | 🟢 CONNECTED (ERF-1, updated ERF-2 — 8→9 lines) |
 | Evidence | `adapters/cli/main.py`, `tests/test_engineering_readiness_cli.py` |
+
+### C-111 — `electrical_compatibility` → `engineering_readiness` gap generation 🟢 (ERF-2)
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | `build_engineering_readiness` calls `check_esc_presence`, `check_esc_vs_motor`, `check_battery_discharge`, library `match_motor_propeller` |
+| Symbols | `electrical_compatibility.check_esc_presence`, `.check_esc_vs_motor`, `.check_battery_discharge`; `library.match_motor_propeller` |
+| Payload | per-check boolean/numeric facts → 4 gap types (`GAP-ESC-MISSING`, `GAP-ESC-UNDERSIZED`, `GAP-BATTERY-DISCHARGE-EXCEEDED`, `GAP-PROP-MOTOR-MISMATCH`) |
+| Authority | `electrical_compatibility.py` — pure facts; `engineering_readiness.py` aggregates into gaps |
+| Mutation | NO (pure) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/electrical_compatibility.py`, `core/engineering_readiness.py`, `tests/test_electrical_compatibility.py`, `tests/test_engineering_readiness_erf2_gaps.py` |
+
+### C-112 — ESC acquisition routing (out-of-scope explicit save) 🟢 (ERF-2, FN-ESC)
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | `_handle_component_description` checks `OUT_OF_SCOPE_EXPLICIT_SAVE_KEYS` + `user_explicitly_named_component()` |
+| Symbols | `orchestrator._handle_component_description`, `acquisition_target.COMPONENT_TERM_ALIASES["esc"]`, `COMPONENT_PROMPTS["esc"]` |
+| Payload | user text `"esc 30a"` → ESC saved even when wizard expects different key (e.g. `motors`) |
+| Authority | `acquisition_target.py` (aliases), `orchestrator.py` (narrow save gate) |
+| Mutation | YES (via C-091, component_writers) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `core/orchestrator.py`, `core/acquisition_target.py`, `tests/test_fn_esc_acquisition.py` |
 
 ### C-082 — `classify_component` → BOM buckets
 | Field | Value |

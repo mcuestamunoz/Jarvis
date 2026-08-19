@@ -6,15 +6,18 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`checkpoint-erf1`**.  
-> **PRIORIDAD AHORA:** Engineer ratifica **IC ERF-2** → Claude Slices 1–4.  
-> IC: [`.jes/artifacts/implementation_contract_erf2.md`](../.jes/artifacts/implementation_contract_erf2.md)  
-> Design: [`.jes/artifacts/design_erf2_dependency_hardening.md`](../.jes/artifacts/design_erf2_dependency_hardening.md) — **CLOSED**
+> **Base:** tag **`checkpoint-erf2`** (`9af0cc9`).  
+> **PRIORIDAD AHORA:** Post-ERF-2. Siguiente trabajo funcional según cola acordada.
 
-### 🔴 ACTIVO — ERF-2 Implementation Contract (await approval)
+### ✅ COMPLETADO — ERF-2 Dependency Hardening + FN-ESC + checkpoint (2026-08-19)
 
-> IC: [`.jes/artifacts/implementation_contract_erf2.md`](../.jes/artifacts/implementation_contract_erf2.md) — **READY FOR ENGINEER → Claude**  
-> Slices 1–4 only · `electrical_compatibility.py` · 4 gaps · 9 subsystems · no Continuity · no KV/voltage
+> Tag **`checkpoint-erf2`** · commit `9af0cc9` · 33 files · +3185/−95.  
+> IC: [`.jes/artifacts/implementation_contract_erf2.md`](../.jes/artifacts/implementation_contract_erf2.md) — **CLOSED**  
+> Design: [`.jes/artifacts/design_erf2_dependency_hardening.md`](../.jes/artifacts/design_erf2_dependency_hardening.md) — **CLOSED**  
+> Report: [`.jes/artifacts/implementation_report_erf2.md`](../.jes/artifacts/implementation_report_erf2.md)  
+> Delivered: `electrical_compatibility.py` · 4 gap types · 9 subsystems (+ `electronics`) · `INCOMPATIBLE` verdicts with ★3 gate · ESC acquisition UX (aliases, prompt, routing, label) · Energy verdict fix.  
+> Suite: **1851 passed** · CLI walk PASS · System Map C-111–C-112.  
+> **ERF-2 congelado** — no further changes unless real bugs post-tag.
 
 ### ✅ COMPLETADO — ERF-2 Design (2026-08-19)
 
@@ -28,8 +31,9 @@
 ### 🟡 DEFERIDO — post ERF-2 or on-demand
 
 > **ERF-1 Slice 4b** — full Continuity handoff  
-> **G17 · G14 · G13** — CLI residuals (Engineer: not before ERF-2)  
-> **H5 ESC catalog** — may parallel ERF-2; not required for rule-based MVP per investigation
+> **G17 · G14 · G13** — CLI residuals  
+> **H5 ESC catalog** — not required for rule-based MVP per investigation  
+> **ESC UX follow-up** — dedupe gaps BOM/ESC, wizard polish, further acquisition paths (post-ERF-2 scope)
 
 ### 🟡 SIGUIENTE — Post-polish micro-fixes (parallel track)
 
@@ -75,7 +79,7 @@
 > **G9-A** — catalog_ref blind spot  
 > **G6 / F-2 / F-5** — later
 
-### Cola acordada (Engineer 2026-08-18)
+### Cola acordada (Engineer 2026-08-19)
 
 ```text
 ✅ checkpoint-g3
@@ -83,6 +87,8 @@
 ✅ CLI Polish Audit + IC + impl S1–S7
 ✅ CLI re-walk PASS WITH NOTES
 ✅ checkpoint-continuity-polish
+✅ checkpoint-erf1
+✅ checkpoint-erf2  ← AQUÍ
         ↓
 G17 · G14 · G13
         ↓

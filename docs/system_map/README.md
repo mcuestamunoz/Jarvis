@@ -1,7 +1,7 @@
 # Jarvis System Map — Navigation Guide
 
 **Version:** SYS-MAP-002 (split/navigability delta of SYS-MAP-001, reviewed PASS WITH NOTES)  
-**Date:** 2026-08-10 (subsystem deltas: 2026-08-18 post-ERF-1 — C-107–C-110, `engineering_readiness.py`)  
+**Date:** 2026-08-10 (subsystem deltas: 2026-08-18 post-ERF-1 — C-107–C-110; 2026-08-19 post-ERF-2 — C-111–C-112, `electrical_compatibility.py`, 9 subsystems)  
 **Type:** As-is architecture documentation. Zero product behavior changes.
 
 ## How to navigate
@@ -11,14 +11,14 @@ Level 0/1 (whole system, human-legible)
   → JARVIS_SYSTEM_MAP.md
 
 Registries (first-class entities, referenced by ID from everywhere else)
-  → CONNECTIONS.md   (Canonical registry: 63 C-xxx — derived detail may repeat IDs; +10 forbidden apart. ERF-1 2026-08-18: C-107–C-110 added)
+  → CONNECTIONS.md   (Canonical registry: 65 C-xxx — derived detail may repeat IDs; +10 forbidden apart. ERF-1: C-107–C-110; ERF-2: C-111–C-112)
   → AUTHORITY.md      (decision → authority → forbidden, verified against code)
   → FLOWS.md          (FLOW-001…007 — reference user journeys, each step tied to C-xxx)
   → MISMATCHES.md      (doc↔code discrepancies + the FN-021 sticky-state lesson)
 
 Visual companion (diagrams + interactive canvas source)
-  → DIAGRAMS.md                      (mermaid + band index; mirrors 63 canonical)
-  → jarvis-system-map.canvas.tsx     (filterable graph — 63 / 62 / 2 / 0 / +10)
+  → DIAGRAMS.md                      (mermaid + band index; mirrors 65 canonical)
+  → jarvis-system-map.canvas.tsx     (filterable graph — 65 / 64 / 2 / 0 / +10)
 
 Design (pre-implementation — handoff continuity)
   → HANDOFF_CONTEXT_DESIGN.md        (transversal contract framing for C-042/C-043/C-025; no code)

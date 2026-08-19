@@ -1,8 +1,8 @@
 # Engineering Readiness Vision
 
-**Status:** Draft (target architecture)  
+**Status:** Active (ERF-1 ✅, ERF-2 ✅, remaining phases open)  
 **Type:** Vision / To-be  
-**Date:** 2026-08-18
+**Date:** 2026-08-19 (updated post-ERF-2 checkpoint)
 
 ---
 
@@ -98,6 +98,8 @@ Minimum fields:
 
 Jarvis should eventually emit a compact engineering readiness summary:
 
+Target (full vision — not all subsystems implemented yet):
+
 ```text
 ENGINEERING READINESS
 
@@ -107,7 +109,7 @@ Mass               PASS
 Structure          PASS
 Propulsion         WARNING
 Energy             WARNING
-Electronics        INCOMPLETE
+Electronics        INCOMPATIBLE    ← ERF-2
 Control            INCOMPLETE
 Sensors            INCOMPLETE
 Communications     INCOMPLETE
@@ -117,6 +119,8 @@ BOM                INCOMPLETE
 
 PROJECT STATUS: NOT ASSEMBLY READY
 ```
+
+As of ERF-2, the implemented subset is 9 subsystems: `requirements`, `architecture`, `mass`, `structure`, `propulsion`, `energy`, `electronics`, `catalog`, `bom`. The `INCOMPATIBLE` verdict is new in ERF-2 and requires deterministic evidence (★3 gate).
 
 This summary is not narrative-only; each line must map to deterministic criteria and evidence.
 
@@ -139,27 +143,42 @@ Non-goal: selecting a single "best component" in isolation.
 
 ## 8) Proposed Evolution Phases
 
-### ERF-1 — Readiness Foundation (first)
+### ✅ ERF-1 — Readiness Foundation (2026-08-18)
 
-Scope:
+> Tag: `checkpoint-erf1` (`63c427b`). CLOSED.
 
-- normalized readiness snapshot,
-- formal gap registry,
+Delivered:
+
+- normalized readiness snapshot (8 subsystems),
+- formal gap registry (6 gap types),
 - deterministic gap prioritization,
-- continuity reading from readiness/gap authority.
+- continuity reading from readiness/gap authority (C-108 partial — Slice 4b deferred).
 
-Out of scope:
+Out of scope (deferred):
 
-- full electrical chain solver,
+- full electrical chain solver → delivered in ERF-2,
 - geometric fit/cabling model,
 - full commercial BOM engine.
 
-### ERF-2 — Dependency Hardening
+### ✅ ERF-2 — Dependency Hardening (2026-08-19)
 
-Scope:
+> Tag: `checkpoint-erf2` (`9af0cc9`). CLOSED.
 
-- first explicit dependency chain checks (at minimum `motor <-> esc <-> battery`),
-- incompatibility states in readiness/gaps.
+Delivered:
+
+- `electrical_compatibility.py` — pure deterministic checks (ESC presence, per-motor ESC vs motor, battery discharge, prop↔motor match),
+- 4 new gap types (`GAP-ESC-MISSING`, `GAP-ESC-UNDERSIZED`, `GAP-BATTERY-DISCHARGE-EXCEEDED`, `GAP-PROP-MOTOR-MISMATCH`),
+- `INCOMPATIBLE` verdicts with ★3 deterministic-evidence gate,
+- 9 subsystems (+ `electronics`),
+- `_INCOMPATIBLE_VERDICT_SUBSYSTEMS` for narrowed verdict impact (Energy not INCOMPATIBLE from ESC-only gaps),
+- ESC acquisition UX: aliases, prompt, routing, block label, out-of-scope explicit save.
+
+Out of scope (deferred):
+
+- KV/voltage gap,
+- H5 ESC catalog,
+- Slice 4b full Continuity handoff,
+- dedupe gaps BOM/ESC.
 
 ### Catalog/BOM Expansion (Impl C-aligned)
 
