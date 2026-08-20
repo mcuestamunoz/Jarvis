@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "R3b — Real preempt for DEFINE_MISSING_PARAMETERS (closes R3 residual G7/G11 after R3a)",
-  "scope": "Sub-mode-aware preempt: component sub-mode clear-and-redispatch (Slice 1); numeric sub-mode partial-apply-then-preempt (Slice 2). orchestrator.py only (param_definition_session.py only if a read-only helper is strictly needed).",
+  "cycle_intent": "G9-A — Catalog-ref blind spot fix (Option B + readiness-first hygiene)",
+  "scope": "Slice 1: bound-SKU-aware resolve_motor_catalog_surface (Scenarios B/C/D). Slice 2: orchestrator readiness-first (single catalog resolve per turn). Slice 3: G9-B/G5 regressions + full suite.",
   "execution_status": "active",
   "current_mode": "Review",
   "movement_trigger": {
     "type": "implementation_complete",
-    "note": "Slices 1-2 implemented, 10 new tests added, full suite green (1877). One contract deviation (define_params dropped from preempt set — would have regressed R3a + an existing FN-013 test) documented in implementation_report_r3b_preempt_real.md. Awaiting Engineer review; checkpoint only if Engineer asks (contract workflow)."
+    "note": "All 3 slices + readiness-first hygiene. 8 new tests, full suite green (1885). Scenario B catalog_matches deviation documented. Review PASS; not committed."
   },
   "relevant_workflow_phases": [
     "Implement",
@@ -14,64 +14,65 @@
     "Checkpoint"
   ],
   "applicable_rules": [
-    "Do not regress R3a soft-interrupts/refuse paths",
-    "No Option C (confirm-before-discard)",
-    "design_properties.components already saved must never be reverted",
-    "collected_params must not be silently lost in numeric sub-mode",
+    "Never fabricate a catalog match — honest failure on SKU lookup miss",
+    "Bound SKU with valid catalog_ref must not show 'no tengo un motor en el catálogo' when it meets current requirements (Scenario B)",
+    "G9-B demotion behavior must not regress",
+    "G5 invalidation contract unchanged",
+    "Single authority — build_engineering_readiness owns catalog surface; orchestrator consumes readiness output",
     "Zero weakened tests"
   ],
   "required_artifacts": [
-    ".jes/artifacts/investigation_r3_preempt_policy.md",
-    ".jes/artifacts/implementation_contract_r3a_preempt_refuse.md",
-    ".jes/artifacts/implementation_report_r3a_preempt_refuse.md",
-    ".jes/artifacts/implementation_contract_r3b_preempt_real.md",
-    ".jes/artifacts/implementation_report_r3b_preempt_real.md"
+    ".jes/artifacts/investigation_contract_g9a_catalog_ref_blind_spot.md",
+    ".jes/artifacts/investigation_g9a_catalog_ref_blind_spot.md",
+    ".jes/artifacts/implementation_contract_g9a_catalog_ref_blind_spot.md",
+    ".jes/artifacts/implementation_report_g9a_catalog_ref_blind_spot.md"
   ],
   "open_questions": [
-    "define_params (declare-different-block) preempt was dropped from scope — see implementation_report_r3b_preempt_real.md deviation #1. Does Engineer want a separate follow-up investigation for the narrow case, or is FN-013's existing park behavior sufficient long-term?"
+    "R3b's define_params-preempt open question (from R3b's implementation_report) is still unresolved and untracked by any dedicated artifact — carried forward, not part of this cycle.",
+    "Option C's typed bound_sku_status field remains unimplemented (deferred to Impl C per contract) — still open for a future investigation."
   ],
-  "active_operation": "R3b implementation complete (Slices 1-2) — awaiting Engineer review of implementation_report_r3b_preempt_real.md",
+  "active_operation": "G9-A implementation complete (Slices 1-3) — awaiting Engineer/Cursor review of implementation_report_g9a_catalog_ref_blind_spot.md",
   "authority_gates": [
-    "Option B only (investigation §6) — Option A already shipped as R3a",
-    "Sub-mode-aware execution: blind clear safe for component, lossy for numeric with collected_params",
-    "Partial apply before clear in numeric sub-mode via existing apply_and_recalculate (no duplicated logic)",
-    "Abort preempt on FN-004 structural confirm — do not bypass with preempt",
-    "Preempt set excludes explore_design_space / calculate / simulate (already inline soft-interrupt)",
-    "Mirror C-052 structure, not its ownership guards — DEFINE_MISSING has no strategy-selection ambiguity",
-    "preempted_define_missing flag on result, parallel to preempted_iterate"
+    "Option B only (investigation §7, Engineer ratified)",
+    "Single authority: resolve_motor_catalog_surface — orchestrator inline duplicate deleted",
+    "Reuse GAP-MOTOR-CATALOG-UNRESOLVED for Scenarios C/D — no new gap type",
+    "Scenario C = gap, not silence, not INCOMPATIBLE",
+    "gap_evidence_fact third return value distinguishes catalog_matches.empty / bound_sku_underspec:{sku} / bound_sku_missing:{sku}",
+    "Motor-only scope — no battery/propeller catalog-gap logic added"
   ],
   "coherence_checklist": [
-    "gate ordering: R3a soft-interrupts/refuses run before R3b preempt",
-    "numeric partial-apply notice appears iff collected_params was non-empty and apply succeeded",
-    "FN-004 structural confirm blocks preempt",
-    "component sub-mode preempt does not revert saved components",
-    "detector does not fire on real component specs or numeric floats",
-    "tests/test_r3a_preempt_refuse.py unchanged and passing",
-    "full suite green (1867+ baseline)"
+    "Scenario B clears gap, catalog subsystem verdict PASS ✅",
+    "Scenario C names bound SKU, does not say generic false message ✅",
+    "Scenario D honest missing-SKU message, no exception ✅",
+    "Scenario A/F unchanged (existing tests pass byte-for-byte) ✅",
+    "orchestrator readiness-first: one resolve_motor_catalog_surface call per build_startup_context ✅",
+    "G9-B demotion survives Scenario C (WARNING/CATALOG-GAP-DEMOTED-POST-PASS) ✅",
+    "G5 divergence test unchanged and passing ✅",
+    "test_cli_polish.py G9-B tests unchanged and passing ✅",
+    "full suite green: 1885 (1877 baseline + 8 new) ✅"
   ],
   "outcome": "IMPLEMENTATION_COMPLETE",
   "updated_at": "2026-08-20T00:00:00Z",
   "phase": "Review",
   "status": "active",
-  "active_gate": "R3b-EngineerReview",
-  "active_artifact": ".jes/artifacts/implementation_report_r3b_preempt_real.md",
+  "active_gate": "G9A-EngineerReview",
+  "active_artifact": ".jes/artifacts/implementation_report_g9a_catalog_ref_blind_spot.md",
   "blocking_reason": null,
-  "next_required_action": "Engineer/Cursor review of implementation_report_r3b_preempt_real.md (incl. the define_params deviation). Checkpoint only if Engineer asks, per contract workflow.",
+  "next_required_action": "Engineer/Cursor review of implementation_report_g9a_catalog_ref_blind_spot.md (incl. the Scenario B catalog_matches deviation). Checkpoint only if Engineer asks.",
   "evidence_refs": [
     "tag:checkpoint-erf1",
     "tag:checkpoint-erf2",
     "tag:checkpoint-cli-routing-residuals",
     "tag:checkpoint-r3a",
-    "commit:0044868 (iterate material operation=None fix + handoff_context preservation, post checkpoint-r3a, uncheckpointed)",
-    "commit:a918a96 (Phase 2 Physical Propulsion Engine vision doc, post checkpoint-r3a, uncheckpointed)",
-    ".jes/artifacts/investigation_r3_preempt_policy.md",
-    ".jes/artifacts/implementation_contract_r3a_preempt_refuse.md",
-    ".jes/artifacts/implementation_report_r3a_preempt_refuse.md",
-    ".jes/artifacts/implementation_contract_r3b_preempt_real.md"
+    "tag:checkpoint-r3b (4608eed)",
+    ".jes/artifacts/investigation_contract_g9a_catalog_ref_blind_spot.md",
+    ".jes/artifacts/investigation_g9a_catalog_ref_blind_spot.md",
+    ".jes/artifacts/implementation_contract_g9a_catalog_ref_blind_spot.md",
+    ".jes/artifacts/implementation_report_g9a_catalog_ref_blind_spot.md"
   ],
   "open_decisions": [],
   "risks": [
-    "Numeric sub-mode partial apply is a side effect the user did not explicitly request — notice text is mandatory whenever it fires, per contract §Slice 2.",
-    "FN-004 structural confirm must abort preempt cleanly, not merge with clear-and-redispatch."
+    "Battery/propeller catalog_ref: confirmed no equivalent gap computation exists yet — motor-only by design, unchanged from investigation.",
+    "Option C's typed bound_sku_status field still unimplemented — any future consumer wanting to branch on bound-SKU state programmatically still has to string-match the message."
   ]
 }

@@ -6,8 +6,32 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`checkpoint-erf2`** (`9af0cc9`).  
-> **PRIORIDAD AHORA:** Post-ERF-2. Siguiente trabajo funcional según cola acordada.
+> **Base:** tag **`checkpoint-g9a`** (post-commit).  
+> **PRIORIDAD AHORA:** **Impl C** — catalog-aware DSE (candidates constrained to catalog, identity through apply).
+
+### ✅ COMPLETADO — G9-A Catalog-Ref Blind Spot + checkpoint (2026-08-20)
+
+> Tag **`checkpoint-g9a`** · suite **1885 passed**.  
+> Investigation: [`.jes/artifacts/investigation_g9a_catalog_ref_blind_spot.md`](../.jes/artifacts/investigation_g9a_catalog_ref_blind_spot.md) — **CLOSED**  
+> IC: [`.jes/artifacts/implementation_contract_g9a_catalog_ref_blind_spot.md`](../.jes/artifacts/implementation_contract_g9a_catalog_ref_blind_spot.md) — **CLOSED**  
+> Report: [`.jes/artifacts/implementation_report_g9a_catalog_ref_blind_spot.md`](../.jes/artifacts/implementation_report_g9a_catalog_ref_blind_spot.md)  
+> Review: [`.jes/artifacts/implementation_review_g9a_catalog_ref_blind_spot.md`](../.jes/artifacts/implementation_review_g9a_catalog_ref_blind_spot.md)  
+> Delivered: bound-SKU-aware `resolve_motor_catalog_surface` (Scenarios B/C/D) · orchestrator readiness-first (single catalog resolve per turn) · `_motor_covers_requirements` predicate · 8 new tests.  
+> **G9-A congelado** — no further changes unless real bugs post-tag.
+
+### ✅ COMPLETADO — R3 Preempt Policy (R3a + R3b) + checkpoint (2026-08-20)
+
+> Tag **`checkpoint-r3b`** · commit `4608eed` · suite **1877 passed**.  
+> IC R3a: [`.jes/artifacts/implementation_contract_r3a_preempt_refuse.md`](../.jes/artifacts/implementation_contract_r3a_preempt_refuse.md) — **CLOSED**  
+> IC R3b: [`.jes/artifacts/implementation_contract_r3b_preempt_real.md`](../.jes/artifacts/implementation_contract_r3b_preempt_real.md) — **CLOSED**  
+> Report R3b: [`.jes/artifacts/implementation_report_r3b_preempt_real.md`](../.jes/artifacts/implementation_report_r3b_preempt_real.md)  
+> Delivered: honest refuse + DSE soft-interrupt (R3a) · sub-mode-aware real preempt with partial-apply + FN-004 abort (R3b) · closes G7/G8/G11 residual.  
+> **R3 congelado** — no further changes unless real bugs post-tag.
+
+### 🟡 SIGUIENTE — Impl C catalog-aware DSE
+
+> DSE candidates constrained to catalog; SKU identity preserved through apply.  
+> Prerequisite: G9-A (catalog honesty on bound motors) — **DONE**.
 
 ### ✅ COMPLETADO — ERF-2 Dependency Hardening + FN-ESC + checkpoint (2026-08-19)
 
@@ -70,16 +94,14 @@
 > Continuity 4 slices ★1–★7 · G10 ★1–★8 · tests 1753 pass.  
 > Artefactos: `implementation_*continuity_hardening*`, `implementation_*g10_materials_frame*`.
 
-### 🟡 REGISTRADOS — Tier 2/3 (post polish or R3)
+### 🟡 REGISTRADOS — Tier 2/3 (post R3)
 
-> **G11 / G8 / G7** — iterate/DEFINE_MISSING preempt (R3)  
-> **G13** — iterate material compound slug (`PVC 400g`; unit T14 closed, CLI iterate path differs)  
-> **G14** — bare propeller size routing (`10x4.5` → analyze)  
-> **G17 residual** — bare motor phrase at IDLE (`4x 2306…` → analyze; `motores 4x…` OK)  
-> **G9-A** — catalog_ref blind spot  
+> **G9-A** — catalog_ref blind spot — **CLOSED**  
+> **Impl C** — catalog-aware DSE ← **PRIORIDAD**  
+> **Impl D** — Create → BOM / SKU BOM  
 > **G6 / F-2 / F-5** — later
 
-### Cola acordada (Engineer 2026-08-19)
+### Cola acordada (Engineer 2026-08-19, updated 2026-08-20)
 
 ```text
 ✅ checkpoint-g3
@@ -90,9 +112,12 @@
 ✅ checkpoint-erf1
 ✅ checkpoint-erf2
 ✅ G17 · G14 · G13 (CLI routing residuals)
-✅ R3a (honest refuse + DSE soft-interrupt)
+✅ R3a + R3b (preempt policy — G7/G8/G11)
+✅ checkpoint-r3b
+✅ G9-A (catalog_ref blind spot + readiness-first hygiene)
+✅ checkpoint-g9a
         ↓
-R3b · G9-A · Impl C · Impl D
+Impl C · Impl D
         ↓
 Phase 2 — Physical Propulsion Engine
 ```

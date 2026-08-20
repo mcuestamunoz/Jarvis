@@ -3576,65 +3576,19 @@ class JarvisOrchestrator:
             format_bom_lines,
             format_requirements_lines,
         )
-        from jarvis.knowledge.library import default_library
 
         physical_requirements = derive_physical_requirements(project_state)
         bom = build_component_bom(project_state)
         energy_note = energy_model_honesty_note(project_state)
 
-        catalog_matches: list[dict[str, Any]] = []
-        catalog_gap: str | None = None
-        thrust_per = physical_requirements.get("thrust_per_motor_needed_n")
-        kv_hint = None
-        motors_comp = (project_state.design_properties.components or {}).get("motors")
-        if motors_comp is not None:
-            kv_prop = (motors_comp.properties or {}).get("kv_rating")
-            if kv_prop is not None:
-                try:
-                    kv_hint = int(kv_prop.value)
-                except (TypeError, ValueError):
-                    kv_hint = None
-        prop_inch = None
-        params_all = project_state.current_parameters or {}
-        if params_all.get("propeller_diameter_in") is not None:
-            try:
-                prop_inch = float(params_all["propeller_diameter_in"])
-            except (TypeError, ValueError):
-                prop_inch = None
-
-        if thrust_per is not None or kv_hint is not None:
-            matches = default_library.find_motors_for_requirements(
-                min_thrust_n=thrust_per,
-                kv=kv_hint,
-                prop_inch=prop_inch,
-            )
-            catalog_matches = [
-                {
-                    "name": m.name,
-                    "thrust_n": m.thrust_n,
-                    "kv_rating": m.kv_rating,
-                    "weight_g": m.weight_g,
-                    "is_generic": m.is_generic,
-                }
-                for m in matches[:5]
-            ]
-            if not catalog_matches:
-                parts = []
-                if thrust_per is not None:
-                    parts.append(f"empuje ≥ {thrust_per:.1f} N/motor")
-                if kv_hint is not None:
-                    parts.append(f"~{kv_hint}KV")
-                if prop_inch is not None:
-                    parts.append(f"hélice ~{prop_inch:.0f}\"")
-                need = ", ".join(parts) or "requisitos de motor"
-                catalog_gap = (
-                    f"Necesitas {need}; no tengo un motor en el catálogo que cubra ese espacio."
-                )
-
+        # G9-A: readiness-first — catalog surface comes from build_engineering_readiness
+        # (single resolve_motor_catalog_surface call), not a second invocation here.
         from jarvis.core.engineering_readiness import build_engineering_readiness
         from jarvis.core.project_continuity import build_project_continuity
 
         readiness = build_engineering_readiness(project_state)
+        catalog_gap = readiness.motor_catalog_gap
+        catalog_matches = readiness.motor_catalog_matches
 
         continuity = build_project_continuity(
             project_state=project_state,

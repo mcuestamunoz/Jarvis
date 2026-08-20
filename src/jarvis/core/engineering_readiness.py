@@ -92,6 +92,11 @@ class EngineeringReadinessResult:
     top_gap: Gap | None
     subsystems: dict[str, SubsystemReadiness]
     overall: Literal["ASSEMBLY_READY", "NOT_ASSEMBLY_READY"]
+    # G9-A hygiene: motor catalog surface exposed so orchestrator/Continuity
+    # consume readiness output instead of calling resolve_motor_catalog_surface again.
+    motor_catalog_gap: str | None = None
+    motor_catalog_matches: list[dict[str, Any]] = field(default_factory=list)
+    motor_catalog_gap_fact: str | None = None
 
 
 # ── Canonical subsystem keys (ERF-2 §4.2 — exactly these nine) ─────────────
@@ -177,18 +182,42 @@ def _gap_id(gap_type: str, instance_key: str | None) -> str:
 # ── §6.1 — shared helper: motor catalog surface ─────────────────────────────
 
 
+def _motor_catalog_matches_dicts(matches: list[Any]) -> list[dict[str, Any]]:
+    return [
+        {
+            "name": m.name,
+            "thrust_n": m.thrust_n,
+            "kv_rating": m.kv_rating,
+            "weight_g": m.weight_g,
+            "is_generic": m.is_generic,
+        }
+        for m in matches[:5]
+    ]
+
+
 def resolve_motor_catalog_surface(
     project_state: Any, physical_requirements: dict[str, Any]
-) -> tuple[str | None, list[dict[str, Any]]]:
-    """Returns (catalog_gap_message | None, catalog_matches). Pure.
+) -> tuple[str | None, list[dict[str, Any]], str | None]:
+    """Returns (catalog_gap_message | None, catalog_matches, gap_evidence_fact | None). Pure.
 
-    Ported byte-for-byte from ``orchestrator.build_startup_context``'s own
-    catalog-gap computation (unchanged there) — same filters, same wording.
+    G9-A: catalog_ref-aware. A bound motor SKU (Impl B) is authoritative for
+    catalog honesty:
+      - Scenario B — bound SKU still covers current requirements: no gap, even
+        when a fresh generic search would come back empty (the identity
+        decision already made stands).
+      - Scenario C — bound SKU no longer covers requirements (drift): gap
+        names the stale SKU instead of implying nothing was ever bound;
+        alternatives (if any) are still searched against current requirements.
+      - Scenario D — bound SKU no longer resolves in the library: honest
+        "no longer in the catalog" message, never a raw KeyError.
+      - Unbound (no ``catalog_ref``): original ERF-1 behavior (Scenario A/F),
+        byte-identical to the pre-G9-A generic search.
     """
-    from jarvis.knowledge.library import default_library
+    from jarvis.knowledge.library import _motor_covers_requirements, default_library
 
     catalog_matches: list[dict[str, Any]] = []
     catalog_gap: str | None = None
+    gap_evidence_fact: str | None = None
     thrust_per = physical_requirements.get("thrust_per_motor_needed_n")
     kv_hint = None
     dp = getattr(project_state, "design_properties", None)
@@ -208,36 +237,65 @@ def resolve_motor_catalog_surface(
         except (TypeError, ValueError):
             prop_inch = None
 
+    def _need_label() -> str:
+        parts = []
+        if thrust_per is not None:
+            parts.append(f"empuje ≥ {thrust_per:.1f} N/motor")
+        if kv_hint is not None:
+            parts.append(f"~{kv_hint}KV")
+        if prop_inch is not None:
+            parts.append(f"hélice ~{prop_inch:.0f}\"")
+        return ", ".join(parts) or "requisitos de motor"
+
+    catalog_ref = getattr(motors_comp, "catalog_ref", None) if motors_comp is not None else None
+    if catalog_ref is not None and catalog_ref.family == "motor":
+        sku = catalog_ref.sku
+        if not default_library.has_motor(sku):
+            catalog_gap = f"El motor vinculado ({sku}) ya no está en el catálogo."
+            gap_evidence_fact = f"bound_sku_missing:{sku}"
+            return catalog_gap, catalog_matches, gap_evidence_fact
+
+        bound = default_library.get_motor(sku)
+        if _motor_covers_requirements(
+            bound, min_thrust_n=thrust_per, kv=kv_hint, prop_inch=prop_inch
+        ):
+            # Report the bound SKU itself as the (only) match — not an empty
+            # list. `_catalog_evidence`'s `query_attempted` flag (and thus the
+            # catalog subsystem's PASS verdict) reads `bool(catalog_matches)`;
+            # an empty list here would read as "nothing known," understating
+            # a bound-and-sufficient identity as INCOMPLETE instead of PASS.
+            return None, _motor_catalog_matches_dicts([bound]), None
+
+        matches = default_library.find_motors_for_requirements(
+            min_thrust_n=thrust_per, kv=kv_hint, prop_inch=prop_inch,
+        )
+        catalog_matches = _motor_catalog_matches_dicts(matches)
+        need = _need_label()
+        if catalog_matches:
+            catalog_gap = f"El motor vinculado ({sku}) ya no cubre el hueco de diseño ({need})."
+        else:
+            catalog_gap = (
+                f"El motor vinculado ({sku}) ya no cubre el hueco de diseño ({need}); "
+                "no tengo otro motor en el catálogo que cubra ese espacio."
+            )
+        gap_evidence_fact = f"bound_sku_underspec:{sku}"
+        return catalog_gap, catalog_matches, gap_evidence_fact
+
     if thrust_per is not None or kv_hint is not None:
         matches = default_library.find_motors_for_requirements(
             min_thrust_n=thrust_per,
             kv=kv_hint,
             prop_inch=prop_inch,
         )
-        catalog_matches = [
-            {
-                "name": m.name,
-                "thrust_n": m.thrust_n,
-                "kv_rating": m.kv_rating,
-                "weight_g": m.weight_g,
-                "is_generic": m.is_generic,
-            }
-            for m in matches[:5]
-        ]
+        catalog_matches = _motor_catalog_matches_dicts(matches)
         if not catalog_matches:
-            parts = []
-            if thrust_per is not None:
-                parts.append(f"empuje ≥ {thrust_per:.1f} N/motor")
-            if kv_hint is not None:
-                parts.append(f"~{kv_hint}KV")
-            if prop_inch is not None:
-                parts.append(f"hélice ~{prop_inch:.0f}\"")
-            need = ", ".join(parts) or "requisitos de motor"
+            need = _need_label()
             catalog_gap = (
                 f"Necesitas {need}; no tengo un motor en el catálogo que cubra ese espacio."
             )
+            gap_evidence_fact = "catalog_matches.empty"
 
-    return catalog_gap, catalog_matches
+    return catalog_gap, catalog_matches, gap_evidence_fact
 
 
 # ── §6.2 — shared helper: architecture progress ─────────────────────────────
@@ -368,14 +426,24 @@ def derive_architecture_progress(project_state: Any) -> dict[str, Any]:
 def _motor_catalog_gaps(
     physical_requirements: dict[str, Any],
     catalog_gap: str | None,
+    *,
+    gap_evidence_fact: str = "catalog_matches.empty",
 ) -> list[Gap]:
-    """§6.3 GAP-MOTOR-CATALOG-UNRESOLVED."""
+    """§6.3 GAP-MOTOR-CATALOG-UNRESOLVED.
+
+    G9-A: ``gap_evidence_fact`` distinguishes *why* the gap fired — a plain
+    empty search (``catalog_matches.empty``) vs. a bound SKU that no longer
+    covers requirements (``bound_sku_underspec:{sku}``) vs. a bound SKU that
+    vanished from the library (``bound_sku_missing:{sku}``) — without adding
+    a new gap type (the message text carries the same distinction for humans;
+    this carries it for evidence inspection).
+    """
     if catalog_gap is None:
         return []
     evidence = [
         GapEvidence(
             source="engineering_readiness.resolve_motor_catalog_surface",
-            fact="catalog_matches.empty",
+            fact=gap_evidence_fact,
         )
     ]
     thrust_per = physical_requirements.get("thrust_per_motor_needed_n")
@@ -1017,12 +1085,16 @@ def build_engineering_readiness(project_state: Any) -> EngineeringReadinessResul
     calc = latest.get("calculations") or {}
     sim_status = (sim.get("status") or "").lower()
     params = getattr(project_state, "current_parameters", None) or {}
-    catalog_gap, catalog_matches = resolve_motor_catalog_surface(project_state, req)
+    catalog_gap, catalog_matches, catalog_gap_fact = resolve_motor_catalog_surface(
+        project_state, req
+    )
     arch_progress = derive_architecture_progress(project_state)
     compatibility = evaluate_electrical_compatibility(project_state)
 
     gaps: list[Gap] = []
-    gaps += _motor_catalog_gaps(req, catalog_gap)
+    gaps += _motor_catalog_gaps(
+        req, catalog_gap, gap_evidence_fact=catalog_gap_fact or "catalog_matches.empty"
+    )
     gaps += _architecture_gaps(arch_progress)
     gaps += _bom_missing_gaps(bom)
     gaps += _bom_incomplete_gaps(bom)
@@ -1063,4 +1135,7 @@ def build_engineering_readiness(project_state: Any) -> EngineeringReadinessResul
         top_gap=top_gap,
         subsystems=subsystems,
         overall=overall,
+        motor_catalog_gap=catalog_gap,
+        motor_catalog_matches=catalog_matches,
+        motor_catalog_gap_fact=catalog_gap_fact,
     )

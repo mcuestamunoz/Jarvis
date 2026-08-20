@@ -17,8 +17,10 @@ from jarvis.core.engineering_readiness import (
     RecommendedNextStep,
     build_engineering_readiness,
     prioritize_gaps,
+    resolve_motor_catalog_surface,
 )
-from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
+from jarvis.core.project_closure import derive_physical_requirements
+from jarvis.schemas.action_schema import CatalogRef, ComponentSpec, PropertyValue
 
 
 def _design_properties(**kwargs):
@@ -103,6 +105,88 @@ def test_gap_motor_catalog_unresolved_absent_when_matches_found():
     result = build_engineering_readiness(state)
     catalog_gaps = [g for g in result.gaps if g.gap_type == "GAP-MOTOR-CATALOG-UNRESOLVED"]
     assert catalog_gaps == []
+
+
+# ── G9-A: bound catalog_ref awareness ───────────────────────────────────────
+# brotherhobby_avenger_2500: thrust_n=9.5, max_thrust_n=11.5, kv 2300-2700,
+# compatible_prop_inch=(5,) — real library fixture, not invented.
+
+_BOUND_SKU = "brotherhobby_avenger_2500"
+
+
+def _bound_state(*, required_thrust_n: float, sku: str = _BOUND_SKU):
+    return _project_state(
+        current_parameters={
+            "vehicle_type": "dron",
+            "motor_count": 6,
+            "propeller_diameter_in": 5.0,
+        },
+        latest_results={
+            "simulation": {"status": "pass", "safety_margin_ratio": 1.2},
+            "calculations": {"required_thrust_n": required_thrust_n, "total_mass_kg": 1.5},
+        },
+        design_properties=_design_properties(
+            components={
+                "motors": _motor_spec(
+                    kv=2500,
+                    catalog_ref=CatalogRef(family="motor", sku=sku),
+                ),
+            },
+        ),
+    )
+
+
+def test_gap_motor_catalog_unresolved_absent_when_bound_sku_covers():
+    # required_thrust_n=60 / motor_count=6 = 10.0 N/motor — within
+    # brotherhobby_avenger_2500's [9.5, 11.5] N envelope; prop_inch=5.0 matches
+    # its (5,) compatible list; kv=2500 within its [2300, 2700] band.
+    state = _bound_state(required_thrust_n=60.0)
+    req = derive_physical_requirements(state)
+
+    catalog_gap, catalog_matches, gap_fact = resolve_motor_catalog_surface(state, req)
+    assert catalog_gap is None
+    assert gap_fact is None
+    assert any(m["name"] == _BOUND_SKU for m in catalog_matches)
+
+    result = build_engineering_readiness(state)
+    catalog_gaps = [g for g in result.gaps if g.gap_type == "GAP-MOTOR-CATALOG-UNRESOLVED"]
+    assert catalog_gaps == []
+    assert result.subsystems["catalog"].verdict == "PASS"
+
+
+def test_gap_motor_catalog_unresolved_bound_sku_underspec():
+    # required_thrust_n=90 / motor_count=6 = 15.0 N/motor — past the bound
+    # SKU's 11.5 N ceiling.
+    state = _bound_state(required_thrust_n=90.0)
+    req = derive_physical_requirements(state)
+
+    catalog_gap, _catalog_matches, gap_fact = resolve_motor_catalog_surface(state, req)
+    assert catalog_gap is not None
+    assert _BOUND_SKU in catalog_gap
+    assert "no tengo un motor en el catálogo" not in catalog_gap
+    assert gap_fact == f"bound_sku_underspec:{_BOUND_SKU}"
+
+    result = build_engineering_readiness(state)
+    catalog_gaps = [g for g in result.gaps if g.gap_type == "GAP-MOTOR-CATALOG-UNRESOLVED"]
+    assert len(catalog_gaps) == 1
+    assert catalog_gaps[0].evidence[0].fact == f"bound_sku_underspec:{_BOUND_SKU}"
+
+
+def test_gap_motor_catalog_unresolved_bound_sku_missing_from_library():
+    state = _bound_state(required_thrust_n=60.0, sku="deleted_motor_xyz")
+    req = derive_physical_requirements(state)
+
+    catalog_gap, catalog_matches, gap_fact = resolve_motor_catalog_surface(state, req)
+    assert catalog_gap is not None
+    assert "deleted_motor_xyz" in catalog_gap
+    assert "ya no está en el catálogo" in catalog_gap
+    assert catalog_matches == []
+    assert gap_fact == "bound_sku_missing:deleted_motor_xyz"
+
+    result = build_engineering_readiness(state)
+    catalog_gaps = [g for g in result.gaps if g.gap_type == "GAP-MOTOR-CATALOG-UNRESOLVED"]
+    assert len(catalog_gaps) == 1
+    assert catalog_gaps[0].evidence[0].fact == "bound_sku_missing:deleted_motor_xyz"
 
 
 # ── GAP-ARCH-BLOCK-INCOMPLETE ────────────────────────────────────────────────

@@ -63,6 +63,29 @@ class MotorSpec:
     source_url: str | None = None
 
 
+def _motor_covers_requirements(
+    m: MotorSpec,
+    *,
+    min_thrust_n: float | None,
+    kv: int | None,
+    prop_inch: float | None,
+) -> bool:
+    """Design-space predicate (D8) for a single motor — the per-candidate filter
+    ``find_motors_for_requirements`` applies during a full scan, factored out so
+    G9-A can run the same check against one already-bound ``MotorSpec`` without
+    re-scanning the whole library."""
+    if min_thrust_n is not None:
+        if m.max_thrust_n < min_thrust_n and m.thrust_n < min_thrust_n:
+            return False
+    if kv is not None:
+        if not (m.kv_min <= kv <= m.kv_max):
+            return False
+    if prop_inch is not None and m.compatible_prop_inch:
+        if not any(abs(p - prop_inch) <= 1.0 for p in m.compatible_prop_inch):
+            return False
+    return True
+
+
 @dataclass(frozen=True)
 class BatterySpec:
     """Catalog v1 (Impl A) entry: a real battery pack.
@@ -249,18 +272,13 @@ class ComponentLibrary:
 
         Never auto-apply — suggestion / gap reporting only.
         """
-        results: list[MotorSpec] = []
-        for m in self._load_motors().values():
-            if min_thrust_n is not None:
-                if m.max_thrust_n < min_thrust_n and m.thrust_n < min_thrust_n:
-                    continue
-            if kv is not None:
-                if not (m.kv_min <= kv <= m.kv_max):
-                    continue
-            if prop_inch is not None and m.compatible_prop_inch:
-                if not any(abs(p - prop_inch) <= 1.0 for p in m.compatible_prop_inch):
-                    continue
-            results.append(m)
+        results = [
+            m
+            for m in self._load_motors().values()
+            if _motor_covers_requirements(
+                m, min_thrust_n=min_thrust_n, kv=kv, prop_inch=prop_inch
+            )
+        ]
         return sorted(
             results,
             key=lambda m: (
