@@ -1,5 +1,13 @@
 # Cycle Close — FN-015
 
+> ⛔ **SUPERSEDED by G23 (2026-08-20)** — the feature closed here was
+> removed in full. See
+> [`.jes/artifacts/implementation_contract_g23_remove_fn015.md`](implementation_contract_g23_remove_fn015.md)
+> and [`.jes/artifacts/implementation_report_g23_remove_fn015.md`](implementation_report_g23_remove_fn015.md).
+> `tests/test_fn015_pending_help.py` (referenced below) was deleted;
+> replaced by `tests/test_g23_fn015_removed.py`. Kept as historical audit
+> trail only.
+
 **Closed:** 2026-08-08T13:56:38Z
 **Verdict:** PASS WITH NOTES
 

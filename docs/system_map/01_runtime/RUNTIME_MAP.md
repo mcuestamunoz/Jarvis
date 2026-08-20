@@ -4,7 +4,7 @@
 
 **Inbound:** C-002/C-003 (from Entry). **Outbound:** virtually everything — C-020 (Intent), C-030-C-038 (Acquisition), C-040 (Engineering), C-050 (Iteration), C-092 (State), C-100/C-104 (LLM).
 
-## The 25-checkpoint order (current `main`, re-derived 2026-08-10)
+## The 24-checkpoint order (current `main`, re-derived 2026-08-20 — G23 removed the FN-015/C-032 checkpoint)
 
 | # | Checkpoint | Anchor | C-xxx |
 |---|---|---|---|
@@ -13,7 +13,7 @@
 | 3 | Bug 54 pending_define_missing consume | `pending_define_missing` | C-012 |
 | 4 | FN-005 "ayúdame a elegir" (IDLE) | `_try_start_assisted_motor_help` | C-030 |
 | 5 | FN-014 acquisition mention (IDLE) | `_try_start_acquisition_from_mention` | C-031 |
-| 6 | FN-015 bare help-define (IDLE) | `_try_help_define_pending_idle` | C-032 |
+| 6 | G23 confusion phrase (IDLE) → `project_status` (no wizard open) | `is_define_missing_confusion_phrase` → `_handle_project_status` | — |
 | 7 | Global component intercept (any mode) | `_interceptable_component_specs` | C-013 |
 | 8 | Mode: `CREATE_PROJECT_INTERACTIVE` | `self.handle({"action": CREATE_PROJECT, ...})` | C-014, C-016 |
 | 9 | Mode: `ITERATE_INTERACTIVE` (nested, see below) | — | C-014, C-050-C-054 |
@@ -34,6 +34,8 @@
 | 24 | Bug 52 guard (`unknown` + LLM said `iterate` → analyze) | — | — |
 | 25 | Final dispatch | `self.handle(action_request)` | C-103 |
 
+> Note: G21/G22 (motors catalog bind in component sub-mode + IDLE re-bind) and G9-A (readiness-first catalog surface) also landed since this table was last fully re-derived (2026-08-10) and are not yet reflected checkpoint-by-checkpoint here — only the G23 removal (this table's specific mandate) has been applied. A full re-derivation is due.
+
 ### Nested — `ITERATE_INTERACTIVE`
 ```text
 resolve_intent → "project_status"/"analyze" → soft-interrupt (wizard_reprompt attached)   C-051
@@ -46,7 +48,8 @@ else → self.handle(ITERATE)                                                   
 ```text
 resolve_intent → "project_status" → _handle_project_status (mode preserved)                 C-035
 FN-013 _try_reprompt_active_block_declaration                                                C-033
-FN-015 is_help_define_pending_phrase → _help_current_pending_acquisition                     C-032
+G23 is_define_missing_confusion_phrase → _define_missing_confusion_reask (short re-ask,
+  no Brief, no catalog, no LLM — replaces removed FN-015/C-032)                              —
 "analyze" (not help-choose) → _handle_analyze
 "calculate"/"simulate" → self.handle(...)
 FN-016 is_navigation_back_phrase → clear_runtime_session, cancelled                          C-034

@@ -10,7 +10,10 @@ defining, what Jarvis already knows about this project, why it matters (only
 when a requirement number is cheaply available), and how to answer
 (COMPONENT_PROMPTS, unchanged from FN-017). One function, called from every
 entry point that currently shows a component-key question (FN-013 reprompt,
-FN-015 pending-help, Phase A open, low-completeness re-prompt).
+Phase A open, low-completeness re-prompt). G23: no longer called from a
+"pending-help" entry point — that acquisition-help feature (FN-015) was
+removed entirely; the anti-LLM confusion gate that survives it returns a
+one-line re-ask, not this Brief.
 
 Not a dialogue manager, not LLM-authored, not a new subsystem: no state is
 kept here and no new calculation is introduced — the "why" line reuses
@@ -77,7 +80,13 @@ def build_acquisition_brief(key: str, project_state: Any | None) -> dict[str, st
     lines.append("")
     lines.append("Puedes:")
     lines.append(f"  • {question}")
-    lines.append("  • decir 'ayúdame a definir' para repetir esta guía")
+    if key == "motors":
+        # G21 ★4: motors is the only component-sub-mode key with a catalog
+        # bind entry point today (Impl B) — advertise it here, not on
+        # battery/frame/propellers, which have no bind path to point to yet.
+        lines.append(
+            "  • decir 'ayúdame a elegir' para ver candidatos numerados del catálogo"
+        )
 
     return {"message": "\n".join(lines), "question": question}
 

@@ -164,9 +164,9 @@ def test_bare_siguiente_paso_still_project_status(tmp_path: Path):
     assert result["action"] == "project_status"
 
 
-# 4. FN-015 help-define not stolen ──────────────────────────────────────────
+# 4. G23 confusion gate (in-wizard) not stolen by GUIDANCE ─────────────────
 
-def test_fn015_help_define_not_stolen(tmp_path: Path):
+def test_define_missing_confusion_reask_not_stolen(tmp_path: Path):
     orch = _project_propulsion_pending(tmp_path)
     orch.handle_user_text("ayúdame a declarar propulsión", _RefuseLLM())
 

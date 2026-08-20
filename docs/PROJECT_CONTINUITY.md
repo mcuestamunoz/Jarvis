@@ -207,13 +207,21 @@ Review: suite **1496** (1485 pre-FN-016 baseline + 11 new tests, exact). Field-n
 1. `¿Cuál es el valor de X?` generic first-turn copy for component keys remains — deferred to Corte 4 unless it still hurts after FN-016.
 2. Wrong-named-block-while-wizard-open LLM leak (FN-011/013/015 residual) remains unfixed.
 
-## Field note FN-015 — Generic pending-help phrase ("ayúdame a definir") (closed)
+## Field note FN-015 — REMOVED (G23)
 
-| ID | Symptom | Fix | Status |
-|----|---------|-----|--------|
-| FN-015 | `"ayúdame a definir"` / `"ayúdame a definir el valor"` (no named block/component) during `DEFINE_MISSING` → intent `analyze` (`\bayudame\b`) → LLM invents `battery_capacity_wh`/energy talk unrelated to the real pending item (`propellers`) | New `acquisition_target.is_help_define_pending_phrase` (excludes FN-005 help-choose and FN-011/013/014 named-block requests) + `orchestrator._help_current_pending_acquisition` — branches on `pending[0]`: FN-005 catalog help for assisted motor params, `_COMPONENT_PROMPTS` hint for component keys, generic re-ask otherwise. Wired in `DEFINE_MISSING` (after FN-013, before analyze→LLM) and in IDLE (opens the Bug54/FN-011/FN-014 bridge, then returns the help in the same turn) | ✅ |
+FN-015 ("ayúdame a definir" as a generic acquisition-help feature — Brief
+replay in-wizard, IDLE auto-open of `DEFINE_MISSING`) was **deleted in
+full** by G23 (`.jes/artifacts/implementation_contract_g23_remove_fn015.md`):
+zero product value (re-showed a Brief already on screen), and its IDLE
+bridge duplicated Continuity/FN-011/014/023. It is not a live user-facing
+verb — do not teach or reference it as one.
 
-Review: suite **1485** (1476 pre-FN-015 baseline + 9 new tests, exact). Field-note path: **0 LLM**, `collected_params` and `pending` preserved (no session restart), battery/energy never mentioned when pending is propulsion-side. FN-005 (motor catalog), FN-013 (block re-prompt), and FN-014 (mention gate) regressions verified green. Real analysis questions (`"analiza el margen de seguridad"`) still reach the LLM — the detector requires either an exact catch-phrase or `"ayudame"` + a narrow marker set (`definir`/`valor`/`poner`), so it does not swallow all `ayudame*` input.
+What survives: the original anti-LLM bug the feature was built on top of
+was real, so a narrow confusion-phrase gate remains — inside
+`DEFINE_MISSING` it returns a one-line re-ask of the current pending item
+(no Brief, no catalog offer); at IDLE it resolves to `project_status`
+(same authority as FN-023), never opening a wizard. See G23's report for
+details.
 
 ### Deferred notes (FN-016 — next contract, not implemented here)
 

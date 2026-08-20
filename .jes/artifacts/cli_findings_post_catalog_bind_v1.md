@@ -998,6 +998,121 @@ With dynamic composite labels and aligned progress hints, the `"si"` handoff rem
 
 ---
 
+## G21 🔴 — Motors component wizard: `ayúdame a elegir` re-shows Brief (no catalog bind)
+
+**Severity:** 🔴 UX honesty / acquisition asymmetry  
+**Status:** ⬜ Pendiente — registered 2026-08-20 during G9-A CLI probe (post `checkpoint-g9a`)  
+**Category:** DEFINE_MISSING / `MISSING_COMPONENT_DEFINITION` vs FN-005 assisted catalog  
+**Depends on catalog:** Yes (Impl B bind path exists; entry point missing in this sub-mode)  
+**Source:** Engineer CLI 2026-08-20 — proyecto nuevo `dron de prueba G9-A` → architecture A → `definir propulsion`
+
+### Observed
+
+```text
+Jarvis > Vamos a definir los motores.
+         …
+         Puedes:
+           • Describe los motores. Ej: '4x 2306 2400KV 50W'
+           • decir 'ayúdame a definir' para repetir esta guía
+         Siguiente paso:
+         Describe los motores. Ej: '4x 2306 2400KV 50W'
+User > ayúdame a elegir
+Jarvis > (mismo Brief otra vez — sin lista numerada, sin bind)
+```
+
+User expects catalog candidates + pick → `catalog_ref` (same as Continuity / FN-005 copy elsewhere: *"Di 'ayúdame a elegir'"*).
+
+### Expected
+
+In motors acquisition (including Phase A / `definir propulsion` component sub-mode), `ayúdame a elegir` (and peers in `HELP_CHOOSE_PHRASES`) must either:
+
+1. open the same deterministic catalog list + pick bridge as FN-005 (`offer_catalog_help` → `_apply_catalog_motor_pick` → `catalog_ref`), **or**
+2. refuse honestly with a CTA that names the real path (e.g. potencia/empuje asistido) — never silent Brief re-show.
+
+### Root
+
+| Layer | Behavior |
+|---|---|
+| Brief (`acquisition_brief`) | Only advertises freeform describe + `ayúdame a definir` (repeat guide) — does **not** advertise catalog choose, yet Continuity elsewhere still says `ayúdame a elegir` |
+| FN-005 | `is_help_choose_phrase` → `offer_catalog_help` only when `pending[0] in ASSISTED_MOTOR_PARAMS` (`motor_power_w`, `per_motor_max_thrust_n`) |
+| Component sub-mode | `MISSING_COMPONENT_DEFINITION` → `_handle_component_description`; help-choose is **not** handled → falls through as unrecognized → Brief / low-completeness re-prompt |
+
+Asymmetry by design of FN-005 scope, but **dishonest UX**: first motors entry (propulsion) is where the user naturally asks for catalog help; the only bind path today is the later energy/power param wizard.
+
+### Separate from
+
+| ID | Why distinct |
+|---|---|
+| **G9-A** | Closed — honesty of gap *after* bind; G21 is inability to bind from the motors component wizard |
+| **G15 / G16** | Mid-wizard list-motors / analyze bypass on *assisted* thrust/power path — catalog help already exists there |
+| **G17** | Force-motors for freeform phrases — does not set `catalog_ref` |
+| **FN-015** | `ayúdame a definir` = re-Brief for pending component (at time of filing); **not** a substitute for choose. *Removed in full by G23 (2026-08-20) — the "re-Brief" behavior described here no longer exists; see `implementation_contract_g23_remove_fn015.md`.* |
+
+### Impact
+
+- Blocks natural G9-A / Impl B CLI validation from propulsion-first flow.
+- User must `cancelar` → energy / `motor_power_w` → `ayúdame a elegir` to get a SKU — non-obvious and contradicts product copy.
+- Freeform `4x 2306…` defines motors **without** `catalog_ref`, so catalog-honesty surfaces stay blind by construction.
+
+### Next step
+
+Investigation / small IC (do **not** fold into Impl C). Candidate options:
+
+- **A** — Wire help-choose in component motors sub-mode to `offer_catalog_help` + bind (preferred if Engineer wants propulsion-first catalog identity).
+- **B** — Fix Brief + Continuity copy only (honest CTA: catalog choose only when defining potencia/empuje) — cheaper, leaves asymmetry.
+
+**Do not implement without IC.** Queue after Impl C/D only if Engineer deprioritizes; otherwise can cut before Impl C if probe CLI is blocked.
+
+### Addendum 2026-08-20 — IDLE after freeform declare (same session)
+
+```text
+# motors already declared as "4x 2306 2400KV 50W" → motor_power_w=50 set, no catalog_ref
+User > que motores tenemos   → list of 5 SKUs ✅
+User > ayúdame a elegir      → project_status / Continuity (same as estado) ❌ no picker
+User > ayúdame a elegir motor → same ❌
+```
+
+**Root:** `_try_start_assisted_motor_help` returns `None` when `params.get("motor_power_w") is not None` (`orchestrator.py` ~1351). Help-choose then falls through to bare-help → Continuity. So once freeform declare fills W, **there is no CLI path left to bind a SKU** without clearing params or a new IC entry point.
+
+G21 covers both: (1) component wizard Brief loop, (2) IDLE dead-end after unbound declare with power already set.
+
+---
+
+## G22 🔴 — Catalog gap says "no motor" while `list_motors` shows candidates
+
+**Severity:** 🔴 honesty / dual catalog surface  
+**Status:** ⬜ Pendiente — registered 2026-08-20 during G9-A CLI probe  
+**Category:** Continuity / readiness `resolve_motor_catalog_surface` vs `build_motor_catalog_suggestions`  
+**Depends on catalog:** Yes  
+**Source:** Same CLI session as G21 addendum — proyecto `dron-de-prueba-g9-a`
+
+### Observed
+
+```text
+estado → Catálogo: Necesitas empuje ≥ 6.9 N/motor, ~2400KV, hélice ~10";
+                   no tengo un motor en el catálogo que cubra ese espacio.
+qué motores tenemos → 5 motors listed (t-motor_f80_2400, hobbywing_…, …)
+```
+
+### Root
+
+| Surface | Behavior when thrust+KV+prop filters return empty |
+|---|---|
+| `resolve_motor_catalog_surface` (gap / Continuity) | Emits honest-looking "no tengo un motor…" — **no fallback** |
+| `build_motor_catalog_suggestions` (`list_motors` / FN-005) | If empty and `kv_hint` set → **falls back to `find_motors_by_kv`** (ignores prop/thrust tight miss) |
+
+With `propeller_diameter_in ≈ 10` and ~2400KV motors that only declare `compatible_prop_inch` of 5–6", the strict search is empty (correct for prop filter) but list softens to KV-only and still shows SKUs → user sees a contradiction.
+
+### Separate from G9-A / G21
+
+G9-A = ignore bound `catalog_ref`. G21 = no bind entry. G22 = **two authorities disagree** on "is there a catalog motor for this space."
+
+### Next step
+
+Investigation: either remove KV fallback from suggestions, or teach gap surface the same fallback + wording ("ninguno cubre hélice ~10"; candidatos por KV: …"), or relax/honest-label prop filter. **IC required; do not silent-patch.**
+
+---
+
 ## F-2 🟡 — Diámetro de hélices no llega a iterate
 
 **Severity:** 🟡 known gap  

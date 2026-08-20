@@ -7,7 +7,7 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`checkpoint-g9a`** (post-commit).  
-> **PRIORIDAD AHORA:** **Impl C** — catalog-aware DSE (candidates constrained to catalog, identity through apply).
+> **PRIORIDAD AHORA:** **G21/G22 commit** → **G23 review** (FN-015 eliminado — implementado, awaiting review) → CLI probe → **Impl C**.
 
 ### ✅ COMPLETADO — G9-A Catalog-Ref Blind Spot + checkpoint (2026-08-20)
 
@@ -97,7 +97,10 @@
 ### 🟡 REGISTRADOS — Tier 2/3 (post R3)
 
 > **G9-A** — catalog_ref blind spot — **CLOSED**  
-> **Impl C** — catalog-aware DSE ← **PRIORIDAD**  
+> **G21** 🔴 — motors component / IDLE: `ayúdame a elegir` no abre catalog bind — **review PASS** · [implementation_contract_g21_g22_catalog_bind_ux.md](../.jes/artifacts/implementation_contract_g21_g22_catalog_bind_ux.md)  
+> **G22** 🔴 — `estado` vs `list_motors` dual authority (KV fallback) — **same IC** · review PASS  
+> **G23** ✅ — feature FN-015 (`ayúdame a definir`) eliminada por completo — **implementado, awaiting review** · [implementation_contract_g23_remove_fn015.md](../.jes/artifacts/implementation_contract_g23_remove_fn015.md) · [implementation_report_g23_remove_fn015.md](../.jes/artifacts/implementation_report_g23_remove_fn015.md)  
+> **Impl C** — catalog-aware DSE ← **after G21/G22 commit + G23 review + CLI probe**  
 > **Impl D** — Create → BOM / SKU BOM  
 > **G6 / F-2 / F-5** — later
 
@@ -116,6 +119,12 @@
 ✅ checkpoint-r3b
 ✅ G9-A (catalog_ref blind spot + readiness-first hygiene)
 ✅ checkpoint-g9a
+        ↓
+G21 + G22 (review PASS — commit pending)
+        ↓
+G23 remove FN-015 feature (implemented — awaiting review)
+        ↓
+CLI probe (bind path)
         ↓
 Impl C · Impl D
         ↓
@@ -339,7 +348,7 @@ Phase 2 — Physical Propulsion Engine
 1. [x] Nuevo `core/acquisition_brief.py::build_acquisition_brief(key, project_state) -> {message, question}` — blurb estático + hecho determinista de componentes hermanos ya declarados (`BLOCK_TO_COMPONENTS`) + línea "why" opcional (reutiliza `derive_physical_requirements`, sin cálculo nuevo) para `propellers`/`motors`/`battery`/`frame`; degrada a solo `COMPONENT_PROMPTS[key]` para cualquier otra clave (igual que FN-017)
 2. [x] `ParamDefinitionSession.start()` — pregunta de apertura de Fase A usa el Brief cuando existe
 3. [x] `_try_reprompt_active_block_declaration` (FN-013) — **fix C0**: deja de llamar `_question_for_param` sin condición para claves de componente
-4. [x] `_help_current_pending_acquisition` (FN-015) — usa el mismo builder en vez del hint plano de `_COMPONENT_PROMPTS`
+4. [x] `_help_current_pending_acquisition` (FN-015) — usa el mismo builder en vez del hint plano de `_COMPONENT_PROMPTS` *(método y feature eliminados por G23 — ver sección FN-015 SUPERSEDED más abajo)*
 5. [x] `_handle_component_description`, rama `elif expected_keys` (baja completitud) — usa el builder; la rama propia de frame (material/masa) queda intacta
 6. [x] Tests: `test_fn018_acquisition_brief.py` (8) + regresión FN-011/013/014/015/016/017 (61) verdes
 
@@ -373,15 +382,21 @@ Phase 2 — Physical Propulsion Engine
 
 **Siguiente:** Corte 4 (copy de `¿Cuál es el valor de X?`) — solo si sigue doliendo tras este corte. Wrong-block-while-wizard LLM leak sigue como residual conocido, no corregido aquí.
 
-### ✅ COMPLETADO — FN-015: ayuda genérica al pendiente ("ayúdame a definir")
+### ⛔ SUPERSEDED / REMOVED by G23 — FN-015: ayuda genérica al pendiente ("ayúdame a definir")
 
-> `DEFINE_MISSING` (y IDLE con hueco conocido): `"ayúdame a definir"` / `"ayúdame a definir el valor"` sin nombrar bloque/componente → ayuda determinista para `pending[0]` real (nunca energía/batería si lo pendiente es propulsión). 0 LLM, sesión no se reinicia.
+> **G23** (`.jes/artifacts/implementation_contract_g23_remove_fn015.md`) eliminó esta feature por completo: cero valor de producto (re-mostraba un Brief ya visible en pantalla) y su bridge en IDLE duplicaba Continuity/FN-011/014/023. `"ayúdame a definir"` **no es un verbo de producto vigente** — no enseñar ni documentar como capacidad actual.
+>
+> Lo que sí sigue vivo: el bug anti-LLM original que motivó esta feature era real, así que queda un gate de confusión mínimo — dentro de `DEFINE_MISSING` responde con una re-pregunta de una línea (sin Brief, sin catálogo); en IDLE resuelve a `project_status` (misma autoridad que FN-023), sin abrir wizard. `tests/test_fn015_pending_help.py` fue **eliminado**; su reemplazo es `tests/test_g23_fn015_removed.py`.
 
-**Plan:**
+<details>
+<summary>Plan original (histórico — ya no es el comportamiento vigente)</summary>
+
 1. [x] `acquisition_target.is_help_define_pending_phrase` — excluye help-choose (FN-005) y targets nombrados vía bloque (FN-011/013/014); reutiliza el mismo verbo de adquisición, sin duplicar vocabulario
 2. [x] `orchestrator._help_current_pending_acquisition` — rama por `pending[0]`: catálogo asistido (FN-005) / hint de `_COMPONENT_PROMPTS` / re-pregunta genérica; sin mutar `collected_params`
 3. [x] Wiring en `DEFINE_MISSING` (tras FN-013, antes de analyze→LLM) y en IDLE (abre el bridge de Bug54/FN-011/014 y devuelve la ayuda en el mismo turno)
 4. [x] Tests: `test_fn015_pending_help.py` (9) + regresión FN-005/011/013/014 verdes
+
+</details>
 
 **Siguiente:** FN-016 (navegación `atrás` / parse safety) — próximo contrato, no incluido aquí.
 

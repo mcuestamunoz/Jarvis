@@ -5,14 +5,12 @@
  * To open live in Cursor beside chat, copy/sync to the project canvases folder:
  *   ~/.cursor/projects/<workspace>/canvases/jarvis-system-map.canvas.tsx
  *
- * Counts: 63 canonical registry edges (CONNECTIONS.md) + 10 forbidden (not C-xxx).
- * Updated 2026-08-10 by FN-024: C-042 fixed (BROKEN → CONNECTED), C-105/C-106 added.
- * Updated 2026-08-12 by FN-025: C-025/C-044 fixed (BROKEN → CONNECTED).
- * Updated 2026-08-12 by FN-026: C-043 fixed (BROKEN → CONNECTED) — H1-H4 all
- * closed.
- * Updated 2026-08-18 ERF-1: C-107–C-110 added (engineering_readiness aggregator).
- * Non-green: C-081 (H5) + C-108 (catalog-gap handoff only, Slice 4b deferred).
- * Never report "65 connections" — that counted derived-table duplicates.
+ * Counts: 65 unique C-xxx in ID space (CONNECTIONS.md canonical registry):
+ *   63 connected · 1 removed (C-032 G23) · 2 partial (C-081, C-108) · 10 forbidden.
+ * Updated 2026-08-10 FN-024 · 2026-08-12 FN-025/026 · 2026-08-18 ERF-1 · 2026-08-19 ERF-2.
+ * Updated 2026-08-20 G21/G22 (C-030 catalog bind UX) · G23 (C-032 REMOVED — FN-015 deleted).
+ * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
+ * Internal G23 anti-LLM gate (confusion phrase → re-ask / project_status) is not a C-xxx edge.
  */
 import {
   Button,
@@ -39,7 +37,7 @@ import {
   useHostTheme,
 } from "cursor/canvas";
 
-type Status = "connected" | "partial" | "broken";
+type Status = "connected" | "partial" | "broken" | "removed";
 type Filter = "all" | Status | "forbidden";
 
 type Conn = {
@@ -73,12 +71,12 @@ const CONNECTIONS: Conn[] = [
   { id: "C-024", from: "intent", to: "dismiss", fromLabel: "Intent dismiss", toLabel: "_handle_dismiss_suggestion", status: "connected", band: "02 Intent" },
   { id: "C-025", from: "help_goal", to: "h_analyze", fromLabel: "ayúdame + named goal", toLabel: "Intent → engineering_intent (was analyze)", status: "connected", band: "02 Intent" },
 
-  { id: "C-030", from: "orch", to: "motor", fromLabel: "Runtime IDLE", toLabel: "FN-005 motor help", status: "connected", band: "03 Acquisition" },
+  { id: "C-030", from: "orch", to: "motor", fromLabel: "Runtime IDLE + DEFINE_MISSING motors", toLabel: "FN-005/G21 catalog bind (elegir)", status: "connected", band: "03 Acquisition" },
   { id: "C-031", from: "orch", to: "acq", fromLabel: "Runtime IDLE", toLabel: "FN-014 acquisition wizard", status: "connected", band: "03 Acquisition" },
-  { id: "C-032", from: "orch", to: "pend_help", fromLabel: "Runtime IDLE", toLabel: "FN-015 pending-help", status: "connected", band: "03 Acquisition" },
+  { id: "C-032", from: "orch", to: "acq", fromLabel: "Runtime IDLE", toLabel: "FN-015 pending-help (DELETED)", status: "removed", band: "03 Acquisition" },
   { id: "C-033", from: "orch", to: "acq_reprompt", fromLabel: "Runtime DEFINE_MISSING", toLabel: "FN-013 reprompt", status: "connected", band: "03 Acquisition" },
   { id: "C-034", from: "orch", to: "acq_nav", fromLabel: "Runtime DEFINE_MISSING", toLabel: "FN-016 cancel/nav", status: "connected", band: "03 Acquisition" },
-  { id: "C-035", from: "intent", to: "h_status", fromLabel: "Intent FN-023 phrasing", toLabel: "_handle_project_status Continuity", status: "connected", band: "03 Acquisition" },
+  { id: "C-035", from: "intent", to: "h_status", fromLabel: "FN-023 + G23 IDLE confusion", toLabel: "_handle_project_status Continuity", status: "connected", band: "03 Acquisition" },
   { id: "C-036", from: "continuity", to: "acq", fromLabel: "Continuity", toLabel: "Acquisition _next_pending_block", status: "connected", band: "03 Acquisition" },
   { id: "C-037", from: "acq", to: "pend_next", fromLabel: "Acquisition complete", toLabel: "_set_pending_next_block", status: "connected", band: "03 Acquisition" },
   { id: "C-038", from: "acq", to: "acq_brief", fromLabel: "Acquisition open", toLabel: "acquisition_brief", status: "connected", band: "03 Acquisition" },
@@ -114,6 +112,8 @@ const CONNECTIONS: Conn[] = [
   { id: "C-108", from: "readiness", to: "continuity", fromLabel: "EngineeringReadinessResult", toLabel: "Continuity catalog-gap ranking", status: "partial", band: "08 Continuity" },
   { id: "C-109", from: "orch", to: "readiness", fromLabel: "build_startup_context", toLabel: "readiness field in context dict", status: "connected", band: "08 Continuity" },
   { id: "C-110", from: "cli", to: "read_ui", fromLabel: "render_startup_context", toLabel: "ENGINEERING READINESS block", status: "connected", band: "08 Continuity" },
+  { id: "C-111", from: "elec_compat", to: "readiness", fromLabel: "electrical_compatibility checks", toLabel: "readiness gap generation (ERF-2)", status: "connected", band: "08 Continuity" },
+  { id: "C-112", from: "orch", to: "writers", fromLabel: "_handle_component_description", toLabel: "ESC out-of-scope explicit save", status: "connected", band: "09 Components/State" },
 
   { id: "C-090", from: "free_text", to: "infer", fromLabel: "Free text", toLabel: "component_inference", status: "connected", band: "09 Components/State" },
   { id: "C-091", from: "infer", to: "writers", fromLabel: "ComponentSpec", toLabel: "component_writers", status: "connected", band: "09 Components/State" },
@@ -160,7 +160,6 @@ const NODE_LABELS: Record<string, string> = {
   help_goal: "ayúdame+goal",
   motor: "Motor help",
   acq: "Acquisition",
-  pend_help: "Pending help",
   acq_reprompt: "Acq reprompt",
   acq_nav: "Acq nav/cancel",
   acq_brief: "Acq brief",
@@ -181,6 +180,7 @@ const NODE_LABELS: Record<string, string> = {
   state_mgr: "StateManager",
   continuity: "Continuity",
   readiness: "Eng. Readiness",
+  elec_compat: "Electrical compat",
   read_ui: "READINESS UI",
   classify: "classify_comp",
   bom: "BOM",
@@ -234,6 +234,7 @@ const NODE_H = 32;
 
 function statusOfEdge(from: string, to: string, visible: Conn[]): Status | "bridge" {
   const hits = visible.filter((c) => c.from === from && c.to === to);
+  if (hits.some((c) => c.status === "removed")) return "bridge";
   if (hits.some((c) => c.status === "broken")) return "broken";
   if (hits.some((c) => c.status === "partial")) return "partial";
   if (hits.length) return "connected";
@@ -383,10 +384,15 @@ function ConnectionGraph({ visible }: { visible: Conn[] }) {
   );
 }
 
-function toneFor(status: Status): "success" | "warning" | "danger" {
+function toneFor(status: Status): "success" | "warning" | "danger" | "neutral" {
+  if (status === "removed") return "neutral";
   if (status === "broken") return "danger";
   if (status === "partial") return "warning";
   return "success";
+}
+
+function isGraphEdge(c: Conn): boolean {
+  return c.status !== "removed";
 }
 
 export default function JarvisSystemMapCanvas() {
@@ -395,11 +401,15 @@ export default function JarvisSystemMapCanvas() {
   const connected = CONNECTIONS.filter((c) => c.status === "connected").length;
   const partial = CONNECTIONS.filter((c) => c.status === "partial").length;
   const broken = CONNECTIONS.filter((c) => c.status === "broken").length;
+  const removed = CONNECTIONS.filter((c) => c.status === "removed").length;
+  const graphEdges = CONNECTIONS.filter(isGraphEdge);
 
   const visible =
     filter === "all" || filter === "forbidden"
       ? CONNECTIONS
       : CONNECTIONS.filter((c) => c.status === filter);
+
+  const graphVisible = visible.filter(isGraphEdge);
 
   const tableRows =
     filter === "forbidden"
@@ -416,23 +426,25 @@ export default function JarvisSystemMapCanvas() {
       <Stack gap={6}>
         <H1>Jarvis System Map — all connections</H1>
         <Text tone="secondary">
-          SYS-MAP-002 · {CONNECTIONS.length} registry edges +{" "}
-          {FORBIDDEN.length} forbidden · docs/system_map/CONNECTIONS.md
+          SYS-MAP-002 · {CONNECTIONS.length} registry IDs · {graphEdges.length}{" "}
+          graphed · {removed} removed · {FORBIDDEN.length} forbidden ·
+          docs/system_map/CONNECTIONS.md
         </Text>
       </Stack>
 
-      <Grid columns={5} gap={12}>
-        <Stat value={String(CONNECTIONS.length)} label="Registry edges" />
+      <Grid columns={6} gap={12}>
+        <Stat value={String(CONNECTIONS.length)} label="Registry IDs" />
+        <Stat value={String(graphEdges.length)} label="Graphed edges" />
         <Stat value={String(connected)} label="Connected" tone="success" />
+        <Stat value={String(removed)} label="Removed" tone="neutral" />
         <Stat value={String(broken)} label="Broken" tone="danger" />
         <Stat value={String(partial)} label="Partial" tone="warning" />
-        <Stat value={`+${FORBIDDEN.length}`} label="Forbidden (not C-xxx)" />
       </Grid>
 
       <UsageBar
-        total={CONNECTIONS.length}
-        topLeftLabel="Registry status"
-        topRightLabel={`${connected} ok · ${partial} partial · ${broken} broken`}
+        total={graphEdges.length}
+        topLeftLabel="Active registry (excl. removed)"
+        topRightLabel={`${connected} ok · ${partial} partial · ${broken} broken · ${removed} removed`}
         segments={[
           { id: "connected", value: connected, color: "green" },
           { id: "partial", value: partial, color: "yellow" },
@@ -466,6 +478,12 @@ export default function JarvisSystemMapCanvas() {
           Connected ({connected})
         </Button>
         <Button
+          variant={filter === "removed" ? "primary" : "secondary"}
+          onClick={() => setFilter("removed")}
+        >
+          Removed ({removed})
+        </Button>
+        <Button
           variant={filter === "forbidden" ? "primary" : "secondary"}
           onClick={() => setFilter("forbidden")}
         >
@@ -475,9 +493,11 @@ export default function JarvisSystemMapCanvas() {
 
       <Callout tone="warning" title="Authority">
         ProjectState / Acquisition own acquisition targets. Gap registry +
-        assembly rollup: engineering_readiness (ERF-1, C-107). Human next-step
-        copy: Continuity (C-108 partial for catalog gap only). LLM narrates
-        only. ActionPolicy = CREATE_PROJECT | ITERATE | CALCULATE | SIMULATE.
+        assembly rollup: engineering_readiness (ERF-1/2, C-107/C-111). Human
+        next-step copy: Continuity (C-108 partial for catalog gap only). LLM
+        narrates only. ActionPolicy = CREATE_PROJECT | ITERATE | CALCULATE |
+        SIMULATE. G23: FN-015 deleted — no `ayúdame a definir` product path;
+        confusion phrases → short re-ask (wizard) or Continuity (IDLE).
       </Callout>
 
       {filter !== "forbidden" ? (
@@ -492,7 +512,7 @@ export default function JarvisSystemMapCanvas() {
             Full connection graph
           </CardHeader>
           <CardBody>
-            <ConnectionGraph visible={visible} />
+            <ConnectionGraph visible={graphVisible} />
             <Spacer height={8} />
             <Text tone="secondary" size="small">
               Edge labels = C-xxx ids (comma-joined if parallel). Red dashed =
@@ -564,17 +584,28 @@ export default function JarvisSystemMapCanvas() {
         })}
       </Stack>
 
-      <H3>Intent precedence (post FN-025)</H3>
+      <H3>Intent precedence (post FN-025 / G23)</H3>
       <Text size="small" tone="secondary">
         GUIDANCE (FN-023) → ANALYZE (verb vs help split) → … → EXPLORE →
-        ITERATE. Help + named goal now reaches engineering intent via the
-        orchestrator refine (C-025 / C-044 🟢). Bare help → Continuity.
+        ITERATE. Help + named goal → engineering intent (C-025/C-044). Bare
+        orientation → Continuity (C-035). G23: `ayúdame a definir` at IDLE uses
+        dedicated Runtime check → Continuity (not GUIDANCE_PATTERNS — mid-wizard
+        collision); in DEFINE_MISSING → one-line re-ask only (not C-032/C-038).
+        Catalog bind: `ayúdame a elegir` only (G21/C-030).
       </Text>
 
-      <Callout tone="info" title="ERF-1 (2026-08-18)">
-        Engineering Readiness Foundation shipped: C-107–C-110. 63 registry edges,
-        62 green, 2 partial (C-081 H5 + C-108 catalog handoff). Slice 4b
-        (full Continuity ranking) deferred. Report: .jes/artifacts/
+      <Callout tone="info" title="G23 (2026-08-20)">
+        C-032 REMOVED — FN-015 pending-help feature deleted. Replacement is an
+        internal anti-LLM confusion gate only (not a new C-xxx). C-038 callers
+        no longer include the deleted help path. Report: .jes/artifacts/
+        implementation_report_g23_remove_fn015.md
+      </Callout>
+
+      <Callout tone="info" title="ERF-2 + ERF-1">
+        ERF-2: C-111 (electrical_compatibility → readiness gaps), C-112 (ESC
+        explicit save). ERF-1: C-107–C-110. Registry: 63 connected · 1 removed
+        (C-032) · 2 partial (C-081 H5 + C-108 catalog handoff). Reports:
+        .jes/artifacts/implementation_report_erf2.md ·
         implementation_report_erf1.md
       </Callout>
     </Stack>

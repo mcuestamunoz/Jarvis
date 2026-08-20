@@ -8,7 +8,7 @@
 
 | Path | Role |
 |---|---|
-| `core/acquisition_target.py` | Mention/phrase resolution (FN-011…016, FN-ESC): `resolve_acquisition_mention`, `is_mention_on_active_gap`, `is_help_define_pending_phrase`, `is_navigation_back_phrase`, `COMPONENT_TERM_ALIASES` (includes `esc`), `COMPONENT_PROMPTS` (includes `esc`) |
+| `core/acquisition_target.py` | Mention/phrase resolution (FN-011…016, FN-ESC): `resolve_acquisition_mention`, `is_mention_on_active_gap`, `is_define_missing_confusion_phrase` (G23 — anti-LLM confusion gate only; formerly `is_help_define_pending_phrase`/FN-015, the acquisition-help *feature* built on it was removed in full), `is_navigation_back_phrase`, `COMPONENT_TERM_ALIASES` (includes `esc`), `COMPONENT_PROMPTS` (includes `esc`) |
 | `core/acquisition_brief.py` | Thin Brief composer (FN-018): `build_acquisition_brief` |
 | `core/param_definition_session.py` | `ParamDefinitionSession` — the numeric-param **and** component-definition wizard (`start`, `answer`, `try_ingest`, `apply_and_recalculate`) |
 | `core/system_definition_session.py` | `SystemDefinitionSession` — architecture-block selection wizard, bridges into `param_definition_session` on completion |

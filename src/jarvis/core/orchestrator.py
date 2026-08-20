@@ -13,7 +13,7 @@ from jarvis.core.acquisition_brief import build_acquisition_brief
 from jarvis.core.acquisition_target import (
     COMPONENT_PROMPTS,
     OUT_OF_SCOPE_EXPLICIT_SAVE_KEYS,
-    is_help_define_pending_phrase,
+    is_define_missing_confusion_phrase,
     is_mention_on_active_gap,
     is_navigation_back_phrase,
     resolve_acquisition_mention,
@@ -814,15 +814,28 @@ class JarvisOrchestrator:
                 self._track_turn(user_input, acquisition_help)
                 return acquisition_help
         # ─────────────────────────────────────────────────────────────────────
-        # ── FN-015: bare "ayúdame a definir" while IDLE, known next gap ────────
-        # Opens the same Bug54/FN-011/FN-014 bridge, then immediately returns
-        # deterministic help for the real pending item — one turn, 0 LLM. Never
-        # invents a soft open without a real _next_pending_block.
-        if current_session.mode == OrchestratorMode.IDLE:
-            pending_help_idle = self._try_help_define_pending_idle(user_input)
-            if pending_help_idle is not None:
-                self._track_turn(user_input, pending_help_idle)
-                return pending_help_idle
+        # ── G23: bare "ayúdame a definir" / confusion phrases while IDLE ───────
+        # FN-015 — the acquisition-help feature that used to open a
+        # DEFINE_MISSING wizard for these phrases — was removed entirely
+        # (.jes/artifacts/implementation_contract_g23_remove_fn015.md): it
+        # duplicated Continuity/FN-011/014/023 and its own in-wizard path had
+        # zero value (re-showed the Brief that was already on screen). These
+        # phrases must still never reach the LLM (the original bug was real),
+        # so they now resolve to the same orientation authority FN-023
+        # already owns — project_status/Continuity — without inventing a
+        # second acquisition entry point. Kept as its own narrow IDLE check
+        # rather than folded into IntentResolver.GUIDANCE_PATTERNS: that
+        # table is shared with DEFINE_MISSING_PARAMETERS's own project_status
+        # intercept (Bug 56, checked further down), which would otherwise
+        # swallow these same phrases mid-wizard and show a full Continuity
+        # dump instead of ★2's short re-ask.
+        if (
+            current_session.mode == OrchestratorMode.IDLE
+            and is_define_missing_confusion_phrase(user_input)
+        ):
+            result = self._handle_project_status()
+            self._track_turn(user_input, result)
+            return result
         # ─────────────────────────────────────────────────────────────────────
         # ── Global component intercept ────────────────────────────────────────
         # Fires in any mode where the user might describe a physical component.
@@ -945,16 +958,22 @@ class JarvisOrchestrator:
             if _block_reprompt is not None:
                 self._track_turn(user_input, _block_reprompt)
                 return _block_reprompt
-            # FN-015: bare "ayúdame a definir (el valor)" — no named block/component
-            # — must get deterministic help for the real pending item, never the
-            # LLM. Must run before the analyze→LLM branch below. Named-target
-            # phrases (FN-011/013/014's territory) are excluded by the detector
-            # itself, so this never steals a real declare-block request.
-            if is_help_define_pending_phrase(user_input):
-                _pending_help = self._help_current_pending_acquisition(current_session)
-                if _pending_help is not None:
-                    self._track_turn(user_input, _pending_help)
-                    return _pending_help
+            # G23 ★2: bare "ayúdame a definir (el valor)" / confusion phrases
+            # — no named block/component — must never reach the LLM (the
+            # original FN-015 bug was real) and must never re-show the
+            # Acquisition Brief or offer the catalog as if this were help
+            # (the FN-015 *feature* built on top of that bug is removed:
+            # .jes/artifacts/implementation_contract_g23_remove_fn015.md).
+            # Returns a single-line re-ask of the current pending item only.
+            # Must run before the analyze→LLM branch below. Named-target
+            # phrases (FN-011/013/014's territory) are excluded by the
+            # detector itself, so this never steals a real declare-block
+            # request.
+            if is_define_missing_confusion_phrase(user_input):
+                _reask = self._define_missing_confusion_reask(current_session)
+                if _reask is not None:
+                    self._track_turn(user_input, _reask)
+                    return _reask
             # FN-005: "ayúdame a elegir" matches analyze patterns — keep it in the
             # assisted acquisition wizard instead of LLM analyze.
             from jarvis.core.motor_catalog_assist import is_help_choose_phrase
@@ -1349,7 +1368,27 @@ class JarvisOrchestrator:
                     return self.param_definition_session.offer_catalog_help()
 
         if params.get("motor_power_w") is not None:
-            return None
+            motors_comp = (project_state.design_properties.components or {}).get("motors")
+            catalog_ref = (
+                getattr(motors_comp, "catalog_ref", None) if motors_comp is not None else None
+            )
+            if catalog_ref is not None:
+                # Already bound — G9-A already handles catalog honesty
+                # post-bind; no picker noise, help-choose is a no-op here.
+                return None
+            # G21 addendum: freeform-declared motor (power already set, no
+            # catalog_ref yet) — open the same catalog picker via the motors
+            # COMPONENT sub-mode so a numbered pick re-binds motors directly,
+            # instead of dead-ending into project_status/Continuity.
+            session = self.state_manager.get_runtime_session()
+            updated = session.model_copy(update={
+                "mode": OrchestratorMode.DEFINE_MISSING_PARAMETERS,
+                "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
+                "pending_missing_params": ["motors"],
+                "pending_define_missing": False,
+            })
+            self.state_manager.set_runtime_session(updated)
+            return self._offer_component_motor_catalog(updated, ["motors"])
         missing = ["motor_power_w"]
         if params.get("battery_capacity_wh") is None:
             constraints = project_state.parsed_constraints or {}
@@ -1551,8 +1590,8 @@ class JarvisOrchestrator:
         # _question_for_param unconditionally for a component key, producing
         # "¿Cuál es el valor de propellers?" instead of the harmonized
         # COMPONENT_PROMPTS/Brief text every other entry point already uses
-        # (FN-017 B5/B3, FN-015 help). Route component keys through the same
-        # Brief builder; non-component params keep the original path.
+        # (FN-017 B5/B3). Route component keys through the same Brief
+        # builder; non-component params keep the original path.
         if first in COMPONENT_PROMPTS:
             brief = build_acquisition_brief(first, project_state)
             if brief["message"]:
@@ -1572,88 +1611,45 @@ class JarvisOrchestrator:
             "block_declaration_reprompt": True,
         }
 
-    def _help_current_pending_acquisition(self, session: Any) -> dict | None:
-        """FN-015: deterministic help for the current pending acquisition item.
+    def _define_missing_confusion_reask(self, session: Any) -> dict | None:
+        """G23 ★2: anti-LLM confusion gate inside DEFINE_MISSING_PARAMETERS —
+        NOT acquisition help (FN-015, removed in full — see
+        .jes/artifacts/implementation_contract_g23_remove_fn015.md). Returns
+        a single-line re-ask of the current pending item only:
 
-        No session mutation beyond what the delegated bridge already does
-        (offer_catalog_help only refreshes motor_suggestions) — collected_params
-        and pending are otherwise untouched, unlike start_define_missing_params.
+          - component sub-mode → _component_prompt_for_first_missing (the
+            same one-line prompt FN-013's reprompt uses) — no Acquisition
+            Brief, no "Vamos a definir..."/"Puedes:" wrapper.
+          - numeric sub-mode → _question_for_param(pending[0]) only — no
+            catalog offer, even when pending[0] is an assisted motor param.
 
-        Branches on pending[0]:
-          - assisted motor param (motor_power_w / per_motor_max_thrust_n) →
-            the existing FN-005 catalog-help bridge (offer_catalog_help()).
-          - known component key → _COMPONENT_PROMPTS hint (never mentions
-            energy/battery unless the pending key genuinely is "battery").
-          - any other pending param → re-ask via the existing
-            _question_for_param, with a short clarifying line.
-
-        Returns None when there is nothing pending (caller falls through).
+        No session mutation. Returns None when nothing is pending (caller
+        falls through).
         """
-        pending = list(session.pending_param_definitions or [])
-        if not pending:
-            return None
-        current = pending[0]
-
-        from jarvis.core.motor_catalog_assist import ASSISTED_MOTOR_PARAMS
-
-        if current in ASSISTED_MOTOR_PARAMS:
-            return self.param_definition_session.offer_catalog_help()
-
-        if current in _COMPONENT_PROMPTS:
-            # FN-018 C0b: same Brief builder as Phase A open / FN-013 reprompt
-            # — never a bare "Seguimos definiendo {key}." with no guidance.
-            brief = build_acquisition_brief(current, self._safe_active_project())
-            message = brief["message"] or f"Seguimos definiendo {current}."
+        is_component_submode = (
+            session.pending_missing_reason == MISSING_COMPONENT_DEFINITION
+            or session.param_definition_reason == MISSING_COMPONENT_DEFINITION
+        )
+        if is_component_submode:
+            keys = list(session.pending_missing_params or session.pending_param_definitions or [])
+            if not keys:
+                return None
             return {
                 "status": "interactive",
                 "action": "define_missing_params",
-                "message": message,
-                "question": brief["question"],
-                "pending": pending,
-                "pending_help": True,
+                "question": self._component_prompt_for_first_missing(keys),
+                "pending": keys,
             }
 
-        question = self.param_definition_session._question_for_param(current)
+        pending = list(session.pending_param_definitions or [])
+        if not pending:
+            return None
         return {
             "status": "interactive",
             "action": "define_missing_params",
-            "message": "Te ayudo con el valor pendiente.",
-            "question": question,
+            "question": self.param_definition_session._question_for_param(pending[0]),
             "pending": pending,
-            "pending_help": True,
         }
-
-    def _try_help_define_pending_idle(self, user_input: str) -> dict | None:
-        """FN-015 §4.4: IDLE + bare "ayúdame a definir" with a known next gap.
-
-        Opens the same deterministic bridge as Bug54/FN-011/FN-014
-        (_set_pending_next_block + start_define_missing_params) and then
-        immediately returns help for the real pending item — one turn, 0 LLM.
-        Never opens a Continuity-only soft prompt without a real
-        _next_pending_block; returns None (existing routing unchanged) when
-        there is no active/system-defined project or no pending block at all.
-        """
-        if not is_help_define_pending_phrase(user_input):
-            return None
-        project_state = self._safe_active_project()
-        if project_state is None:
-            return None
-        if not project_state.design_properties.system_defined:
-            return None
-        pending_block = self._next_pending_block(project_state)
-        if pending_block is None:
-            return None
-
-        self._set_pending_next_block()
-        session = self.state_manager.get_runtime_session()
-        if not session.pending_define_missing:
-            return None
-        self.start_define_missing_params(
-            session.pending_missing_params, reason=session.pending_missing_reason
-        )
-        return self._help_current_pending_acquisition(
-            self.state_manager.get_runtime_session()
-        )
 
     def _track_turn(self, user_input: str, result: dict) -> None:
         """Append user + assistant turns to conversation history (idle mode only)."""
@@ -1845,8 +1841,8 @@ class JarvisOrchestrator:
         completion and steal the next unrelated turn (e.g. an iterate-class
         phrase gets answered with a leftover component_description_prompt).
         Gated on mode so callers that only pre-load from IDLE (Bug54/FN-011/
-        FN-014/FN-015 bridges — none of them are ever inside
-        DEFINE_MISSING_PARAMETERS when they call this) keep working unchanged:
+        FN-014 bridges — none of them are ever inside DEFINE_MISSING_PARAMETERS
+        when they call this) keep working unchanged:
         "nothing left to pre-load" there is a true no-op, not a wizard finish.
         """
         try:
@@ -2356,6 +2352,111 @@ class JarvisOrchestrator:
             return self.param_definition_session._question_for_param(pending[0], suggestions)
         return "Indica el valor del parámetro pendiente."
 
+    def _offer_component_motor_catalog(
+        self, session: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """G21 ★3: catalog list bridge for the motors COMPONENT sub-mode
+        (MISSING_COMPONENT_DEFINITION) — same design-space filters and
+        formatting ``ParamDefinitionSession._offer_catalog_help`` uses for
+        the numeric energy wizard, but populates ``motor_suggestions`` for
+        THIS sub-mode's pick-matching (``_handle_component_description``),
+        not the numeric one.
+        """
+        from jarvis.core.motor_catalog_assist import (
+            build_motor_catalog_suggestions,
+            derive_kv_prop_filters,
+            format_motor_catalog_suggestions,
+            format_no_thrust_candidate_message,
+        )
+
+        project_state = self._safe_active_project()
+        suggestions = (
+            build_motor_catalog_suggestions(project_state) if project_state is not None else []
+        )
+        updated = session.model_copy(update={"motor_suggestions": suggestions})
+        self.state_manager.set_runtime_session(updated)
+        if not suggestions:
+            from jarvis.core.project_closure import derive_physical_requirements
+
+            kv_hint, prop_inch = derive_kv_prop_filters(project_state)
+            thrust_hint = (
+                derive_physical_requirements(project_state).get("thrust_per_motor_needed_n")
+                if project_state is not None
+                else None
+            )
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": format_no_thrust_candidate_message(
+                    required_n=thrust_hint, kv=kv_hint, prop_inch=prop_inch
+                ),
+            }
+        return {
+            "status": "interactive",
+            "action": "component_description_prompt",
+            "message": format_motor_catalog_suggestions(
+                suggestions, param="per_motor_max_thrust_n"
+            ),
+            "motor_suggestions": suggestions,
+        }
+
+    def _apply_component_motor_catalog_pick(
+        self, suggestion: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """G21 ★3: bind a catalog pick in the motors COMPONENT sub-mode and
+        advance the wizard to the next expected key. Reuses the same writers
+        the numeric sub-mode's ``ParamDefinitionSession._apply_catalog_motor_pick``
+        uses (``bind_motor_from_catalog`` + ``set_motor_component`` — Impl B's
+        only bind path, no parallel identity path here) but advances
+        ``design_properties.components``/``expected_keys`` the way
+        ``_handle_component_description``'s freeform-save path does, since
+        there is no numeric ``pending_param_definitions`` list in this
+        sub-mode.
+        """
+        from jarvis.core.catalog_bind import bind_motor_from_catalog
+
+        watts = float(suggestion["max_watts"])
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": "No hay proyecto activo. Crea uno primero.",
+            }
+        spec = bind_motor_from_catalog(suggestion)
+        updated_state = set_motor_component(project_state, spec, watts)
+        self.workspace_manager.save_state(updated_state)
+
+        cleared = self.state_manager.get_runtime_session().model_copy(
+            update={"motor_suggestions": []}
+        )
+        self.state_manager.set_runtime_session(cleared)
+
+        saved_msg = (
+            f"Motor elegido: {suggestion['name']} (~{int(watts)}W, {suggestion['thrust_n']}N)."
+        )
+        components = updated_state.design_properties.components
+        still_missing = [
+            k for k in expected_keys
+            if components.get(k) is None or components[k].completeness == "low"
+        ]
+        if not still_missing:
+            self._set_pending_next_block()
+            result: dict[str, Any] = {
+                "status": "ok",
+                "action": "component_description_saved",
+                "message": saved_msg,
+            }
+            return self._append_arch_progress_hint(result)
+
+        follow_up = self._component_prompt_for_first_missing(still_missing)
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": f"{saved_msg} {follow_up}",
+        }
+
     def _handle_component_description(
         self,
         user_input: str,
@@ -2404,6 +2505,27 @@ class JarvisOrchestrator:
             refusal = self._maybe_refuse_different_target(user_input, expected_keys)
             if refusal is not None:
                 return refusal
+
+        # G21 ★3: motors catalog help-choose / pick bridge in COMPONENT
+        # sub-mode — runs before infer_components so a numbered pick ("1")
+        # or a help-choose phrase is never mistaken for a freeform component
+        # description. Help-choose always (re)shows the list; a pick is only
+        # attempted once suggestions are actually on the table.
+        if "motors" in expected_keys:
+            from jarvis.core.motor_catalog_assist import (
+                is_help_choose_phrase,
+                match_suggestion_by_input,
+                resolve_motor_from_text,
+            )
+
+            if is_help_choose_phrase(user_input):
+                return self._offer_component_motor_catalog(session, expected_keys)
+            if session.motor_suggestions:
+                picked = match_suggestion_by_input(user_input, session.motor_suggestions)
+                if picked is None:
+                    picked = resolve_motor_from_text(user_input)
+                if picked is not None:
+                    return self._apply_component_motor_catalog_pick(picked, expected_keys)
 
         # ── Affirmative: user confirmed — emit context-specific prompt ────────
         if self._is_affirmative(user_input):

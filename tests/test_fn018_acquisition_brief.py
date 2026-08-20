@@ -129,9 +129,9 @@ def test_unclear_input_still_propellers_brief(tmp_path: Path):
     assert "hélices" in blob.lower() or "helices" in blob.lower()
 
 
-# 4. FN-015 generic help path uses the Brief/COMPONENT_PROMPTS ─────────────
+# 4. G23 confusion-gate re-ask still names the right component (COMPONENT_PROMPTS) ─
 
-def test_fn015_help_uses_brief_or_component_prompt(tmp_path: Path):
+def test_g23_confusion_reask_names_right_component(tmp_path: Path):
     orch = _project_with_active_propulsion(tmp_path)
     _open_component_acquisition(orch)
 

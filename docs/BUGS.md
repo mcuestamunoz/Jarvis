@@ -1,7 +1,8 @@
 # Jarvis — Bug Tracker (fase CLI real)
 
-> **Living CLI findings (G9–G20, post-catalog):** [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md) — authoritative for routing/Continuity UX gaps outside numbered bugs below.  
-> **Roadmap / queue:** [`docs/IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md) · **Checkpoint:** `checkpoint-continuity-polish` (`15aa503`).
+> **Living CLI findings (G9–G23, post-catalog):** [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md) — authoritative for routing/Continuity UX gaps outside numbered bugs below.  
+> **Status (2026-08-20):** **G21/G22** — motors catalog bind (component wizard + IDLE) + single strict catalog authority — **review PASS, commit pending**. **G23** — FN-015 acquisition-help feature removed in full (anti-LLM confusion gate kept, minimal) — **implemented, awaiting review**.  
+> **Roadmap / queue:** [`docs/IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md) · **Checkpoint:** `checkpoint-g9a`.
 
 > Fecha de apertura: 15 abril 2026  
 > Revisado: 29 abril 2026 (Fase K — primera sesión de validación end-to-end proyecto nuevo)  

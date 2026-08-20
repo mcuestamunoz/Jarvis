@@ -1,10 +1,17 @@
-"""FN-015 — Generic "help me define the current pending value" phrases.
+"""G23 — FN-015 removed as a user-facing acquisition feature.
 
-Field-note case: DEFINE_MISSING with pending=["propellers"] (or motors then
-propellers), "ayudame a definir el valor" / "ayudame a definir" today resolve
-to intent "analyze" (\\bayudame\\b) and reach the LLM, which invents energy
-talk (battery_capacity_wh) unrelated to the real pending item. Target: 0 LLM,
-deterministic help for pending[0] only, no session restart.
+Replaces tests/test_fn015_pending_help.py (deleted). The original FN-015 bug
+was real (confusion phrases leaking to the LLM) and the anti-LLM gate that
+fixed it survives — but the *feature* built on top of it (Brief replay,
+IDLE wizard auto-open, catalog offer under "definir") is gone. This file
+proves the new, minimal behavior:
+
+  - DEFINE_MISSING: confusion phrases get a short one-line re-ask, never a
+    Brief replay, never a catalog offer, never the LLM.
+  - IDLE: confusion phrases resolve to project_status (Continuity), never a
+    wizard auto-open, never the LLM.
+  - Regressions: ayúdame a elegir (G21), FN-013 named-block reprompt, real
+    analyze questions, and collected_params preservation are all unaffected.
 """
 from __future__ import annotations
 
@@ -59,7 +66,6 @@ def _project_with_active_propulsion(
         },
     })
     ps = orch.state_manager.load_active_project(orch.workspace_manager)
-    components = {}
     motors_spec = ComponentSpec(
         name="4 motores 920kv",
         component_type="propulsion_active",
@@ -79,9 +85,6 @@ def _project_with_active_propulsion(
         source="declared",
         properties={"diameter_in": PropertyValue(value=10.0)},
     )
-    # ERF-2 ★5: esc is now part of BLOCK_TO_COMPONENTS["propulsion"] — declared
-    # from the start in both cases so this file's own target (propellers
-    # pending) stays the only thing under test, not co-mingled with esc.
     esc_spec = ComponentSpec(
         name="ESC 30A",
         component_type="propulsion_active",
@@ -113,9 +116,25 @@ def _open_component_acquisition(orch: JarvisOrchestrator) -> None:
     assert session.pending_param_definitions == ["propellers"]
 
 
-# ── A/B) generic help-define inside DEFINE_MISSING ─────────────────────────
+# ── Brief no longer advertises the removed feature ──────────────────────────
 
-def test_ayudame_definir_el_valor_helps_propellers_no_llm(tmp_path: Path):
+def test_g23_brief_does_not_advertise_help_define():
+    from jarvis.core.acquisition_brief import build_acquisition_brief
+    from types import SimpleNamespace
+
+    project_state = SimpleNamespace(
+        design_properties=SimpleNamespace(components={}),
+        current_parameters={},
+    )
+    for key in ("motors", "battery"):
+        brief = build_acquisition_brief(key, project_state)
+        assert "ayúdame a definir" not in brief["message"]
+        assert "repetir esta guía" not in brief["message"]
+
+
+# ── DEFINE_MISSING: short re-ask only, no Brief, no LLM ─────────────────────
+
+def test_g23_define_missing_confusion_no_llm_short_reask(tmp_path: Path):
     orch = _project_with_active_propulsion(tmp_path)
     _open_component_acquisition(orch)
 
@@ -124,12 +143,15 @@ def test_ayudame_definir_el_valor_helps_propellers_no_llm(tmp_path: Path):
     assert result["status"] == "interactive"
     assert result["action"] == "define_missing_params"
     assert result.get("question")
+    blob = f"{result.get('message') or ''}"
+    assert "Vamos a definir" not in blob
+    assert "Puedes:" not in blob
     session = orch.state_manager.get_runtime_session()
     assert session.mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS
     assert session.pending_param_definitions == ["propellers"]
 
 
-def test_ayudame_definir_bare_helps_propellers_no_llm(tmp_path: Path):
+def test_g23_define_missing_confusion_bare_no_llm(tmp_path: Path):
     orch = _project_with_active_propulsion(tmp_path)
     _open_component_acquisition(orch)
 
@@ -141,9 +163,30 @@ def test_ayudame_definir_bare_helps_propellers_no_llm(tmp_path: Path):
     assert session.pending_param_definitions == ["propellers"]
 
 
-# ── proof: battery/energy never suggested when pending is propellers ───────
+def test_g23_define_missing_confusion_does_not_open_catalog(tmp_path: Path):
+    """Assisted numeric param pending (per_motor_max_thrust_n) — confusion
+    phrase must NOT offer the catalog anymore (that was the FN-015 feature's
+    'catalog-help family' branch, removed). Catalog stays ayúdame a elegir."""
+    orch = _project_with_active_propulsion(tmp_path, components_done=True)
+    orch.start_define_missing_params(
+        ["per_motor_max_thrust_n"], reason=MISSING_PROPULSION_PARAMETERS
+    )
+    # start() itself may pre-populate motor_suggestions (assisted param) —
+    # the confusion re-ask must not ADD to or otherwise mutate that; only
+    # its own response shape must not surface a catalog offer.
+    before = list(orch.state_manager.get_runtime_session().motor_suggestions)
 
-def test_help_does_not_mention_battery_when_pending_propellers(tmp_path: Path):
+    result = orch.handle_user_text("ayudame a definir", _RefuseLLM())
+
+    assert result["status"] == "interactive"
+    assert result["action"] == "define_missing_params"
+    assert "motor_suggestions" not in result
+    assert "Candidatos del catálogo" not in (result.get("message") or "")
+    session = orch.state_manager.get_runtime_session()
+    assert session.motor_suggestions == before
+
+
+def test_g23_help_does_not_mention_battery_when_pending_propellers(tmp_path: Path):
     orch = _project_with_active_propulsion(tmp_path)
     _open_component_acquisition(orch)
 
@@ -157,73 +200,7 @@ def test_help_does_not_mention_battery_when_pending_propellers(tmp_path: Path):
     assert "energia" not in blob
 
 
-# ── C) assisted motor param pending → catalog help family ──────────────────
-
-def test_ayudame_definir_with_assisted_param_pending_uses_catalog_help(tmp_path: Path):
-    orch = _project_with_active_propulsion(tmp_path, components_done=True)
-    # Start the wizard directly with only the assisted param pending
-    # (per_motor_max_thrust_n) — same pattern as test_assisted_acquisition.py's
-    # _energy_project fixture, where pending[0] is genuinely an assisted param.
-    orch.start_define_missing_params(
-        ["per_motor_max_thrust_n"], reason=MISSING_PROPULSION_PARAMETERS
-    )
-    session = orch.state_manager.get_runtime_session()
-    assert session.pending_param_definitions == ["per_motor_max_thrust_n"]
-
-    result = orch.handle_user_text("ayudame a definir", _RefuseLLM())
-
-    assert result["status"] == "interactive"
-    assert result["action"] == "define_missing_params"
-    # Catalog-help family response shape (FN-005/FN-006's offer_catalog_help).
-    assert "motor_suggestions" in result
-
-
-# ── D) FN-005 regression — motor catalog help unaffected ───────────────────
-
-def test_ayudame_elegir_motor_still_catalog(tmp_path: Path):
-    orch = _project_with_active_propulsion(tmp_path, components_done=True)
-    orch.start_define_missing_params(
-        ["per_motor_max_thrust_n"], reason=MISSING_PROPULSION_PARAMETERS
-    )
-
-    result = orch.handle_user_text("ayúdame a elegir el motor", _RefuseLLM())
-
-    assert result["status"] == "interactive"
-    assert result["action"] == "define_missing_params"
-    assert result.get("motor_suggestions") is not None
-
-
-# ── E) FN-013 regression — named block re-prompt unaffected ────────────────
-
-def test_definir_propulsion_still_fn013(tmp_path: Path):
-    orch = _project_with_active_propulsion(tmp_path)
-    _open_component_acquisition(orch)
-
-    result = orch.handle_user_text("definir propulsión", _RefuseLLM())
-
-    assert result.get("block_declaration_reprompt") is True
-    assert result["action"] == "define_missing_params"
-
-
-# ── F) real analyze phrase still may reach the LLM ──────────────────────────
-
-def test_real_analyze_phrase_still_may_use_llm(tmp_path: Path):
-    """Proves FN-015 does not swallow every 'ayudame*'/analyze-shaped input —
-    a genuine analysis question must still be allowed to reach the LLM."""
-    orch = _project_with_active_propulsion(tmp_path)
-    _open_component_acquisition(orch)
-
-    result = orch.handle_user_text("analiza el margen de seguridad", _StubLLM())
-
-    assert result.get("action") != "define_missing_params" or result.get("status") == "ok"
-    # The defining proof: this specific phrase is NOT claimed as pending-help.
-    assert result.get("pending_help") is not True
-    assert result.get("block_declaration_reprompt") is not True
-
-
-# ── H) collected_params preserved across help (no session restart) ─────────
-
-def test_collected_params_preserved_on_help(tmp_path: Path):
+def test_g23_collected_params_preserved_on_confusion_reask(tmp_path: Path):
     orch = _project_with_active_propulsion(tmp_path)
     _open_component_acquisition(orch)
     session = orch.state_manager.get_runtime_session()
@@ -238,16 +215,62 @@ def test_collected_params_preserved_on_help(tmp_path: Path):
     assert after.pending_param_definitions == ["propellers"]
 
 
-# ── G) IDLE bare help-define opens acquisition + help, not iterate ─────────
+# ── IDLE: collapses into project_status, never a wizard auto-open ──────────
 
-def test_idle_ayudame_definir_opens_acquisition_help(tmp_path: Path):
+def test_g23_idle_help_define_is_project_status_not_wizard(tmp_path: Path):
     orch = _project_with_active_propulsion(tmp_path)
 
     result = orch.handle_user_text("ayudame a definir", _RefuseLLM())
 
+    assert result["status"] == "ok"
+    assert result["action"] == "project_status"
+    session = orch.state_manager.get_runtime_session()
+    assert session.mode != OrchestratorMode.DEFINE_MISSING_PARAMETERS
+    assert session.mode != OrchestratorMode.ITERATE_INTERACTIVE
+
+
+def test_g23_idle_help_define_el_valor_is_project_status(tmp_path: Path):
+    orch = _project_with_active_propulsion(tmp_path)
+
+    result = orch.handle_user_text("ayudame a definir el valor", _RefuseLLM())
+
+    assert result["status"] == "ok"
+    assert result["action"] == "project_status"
+
+
+# ── Regressions ───────────────────────────────────────────────────────────
+
+def test_g23_help_choose_still_works(tmp_path: Path):
+    """G21/FN-005 catalog path is untouched by the FN-015 removal."""
+    orch = _project_with_active_propulsion(tmp_path, components_done=True)
+    orch.start_define_missing_params(
+        ["per_motor_max_thrust_n"], reason=MISSING_PROPULSION_PARAMETERS
+    )
+
+    result = orch.handle_user_text("ayúdame a elegir el motor", _RefuseLLM())
+
     assert result["status"] == "interactive"
     assert result["action"] == "define_missing_params"
-    session = orch.state_manager.get_runtime_session()
-    assert session.mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS
-    assert session.mode != OrchestratorMode.ITERATE_INTERACTIVE
-    assert "propellers" in session.pending_param_definitions
+    assert result.get("motor_suggestions") is not None
+
+
+def test_g23_definir_propulsion_still_fn013(tmp_path: Path):
+    orch = _project_with_active_propulsion(tmp_path)
+    _open_component_acquisition(orch)
+
+    result = orch.handle_user_text("definir propulsión", _RefuseLLM())
+
+    assert result.get("block_declaration_reprompt") is True
+    assert result["action"] == "define_missing_params"
+
+
+def test_g23_real_analyze_still_may_use_llm(tmp_path: Path):
+    """Proves the confusion gate does not swallow every 'ayudame*'/analyze-
+    shaped input — a genuine analysis question must still reach the LLM."""
+    orch = _project_with_active_propulsion(tmp_path)
+    _open_component_acquisition(orch)
+
+    result = orch.handle_user_text("analiza el margen de seguridad", _StubLLM())
+
+    assert result.get("action") != "define_missing_params" or result.get("status") == "ok"
+    assert result.get("block_declaration_reprompt") is not True

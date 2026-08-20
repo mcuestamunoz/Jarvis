@@ -189,7 +189,7 @@ def test_frame_pending_10x45_not_stolen_as_propellers(tmp_path: Path):
     assert saved.design_properties.components.get("frame") is None
 
 
-# F. Brief / FN-015 help still 0 LLM (regression smoke) ─────────────────────
+# F. Brief / G23 confusion re-ask still 0 LLM (regression smoke) ───────────
 
 def test_brief_and_help_still_zero_llm(tmp_path: Path):
     orch = _project_with_active_propulsion(tmp_path)

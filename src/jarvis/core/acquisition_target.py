@@ -3,10 +3,14 @@ acquisition_target
 ===================
 FN-014 — unified block ∪ component mention resolution for the IDLE acquisition
 gate.
-FN-015 — generic "help me define the pending value" phrase detection, added
-here (rather than motor_catalog_assist.py) because it needs to cross-check
-against the same block-alias/declare-verb machinery this module already
-owns, and it is not motor-specific.
+G23 — ``is_define_missing_confusion_phrase`` (formerly the FN-015 "help me
+define the pending value" acquisition-help feature, removed entirely by G23:
+see .jes/artifacts/implementation_contract_g23_remove_fn015.md). What
+survives is a narrow anti-LLM-leak gate only — it detects the same catch-
+phrases, but no longer opens a wizard, replays the Acquisition Brief, or
+offers the catalog. Added here (rather than motor_catalog_assist.py) because
+it needs to cross-check against the same block-alias/declare-verb machinery
+this module already owns, and it is not motor-specific.
 FN-016 — navigation-back phrase detection ("atrás"/"volver"), added here for
 the same reason: this module is already the shared phrase-classification
 helper consumed by both orchestrator.py and param_definition_session.py, so
@@ -217,22 +221,27 @@ def is_mention_on_active_gap(
     return (getattr(spec, "completeness", "low") or "low") == "low"
 
 
-# FN-015: fixed catch-phrases that mean "help me define the pending value"
-# on their own, with no "ayudame" prefix required.
-_EXACT_HELP_DEFINE_PHRASES: frozenset[str] = frozenset({
+# G23: fixed catch-phrases that signal confusion about the current pending
+# value, on their own, with no "ayudame" prefix required. Same phrase set the
+# removed FN-015 feature used — only the behavior attached to detecting them
+# changed (see is_define_missing_confusion_phrase).
+_EXACT_CONFUSION_PHRASES: frozenset[str] = frozenset({
     "como lo defino",
     "no se que poner",
 })
 
-# FN-015: markers that, combined with "ayudame", mean generic define-help
-# (not a real analysis/explanation question). Deliberately narrow — see
-# is_help_define_pending_phrase for the full gate.
-_HELP_DEFINE_MARKERS: tuple[str, ...] = ("definir", "valor", "poner")
+# G23: markers that, combined with "ayudame", mean generic confusion about
+# what to answer (not a real analysis/explanation question). Deliberately
+# narrow — see is_define_missing_confusion_phrase for the full gate.
+_CONFUSION_MARKERS: tuple[str, ...] = ("definir", "valor", "poner")
 
 
-def is_help_define_pending_phrase(user_input: str) -> bool:
-    """FN-015: generic "help me define the current pending value" phrase —
-    no named block/component/model. Distinct from:
+def is_define_missing_confusion_phrase(user_input: str) -> bool:
+    """G23: anti-LLM-leak gate — text that signals the user is confused about
+    what to answer right now, with no named block/component/model. This is
+    NOT an acquisition-help feature (FN-015 was removed in full — no wizard
+    open, no Brief replay, no catalog offer attached to this detector
+    anymore); callers decide the (now minimal) response. Distinct from:
 
     - FN-005 ``is_help_choose_phrase`` (motor catalog help: "elegir"/
       "escoger"/"motor"/"opcion") — explicitly excluded first.
@@ -242,8 +251,7 @@ def is_help_define_pending_phrase(user_input: str) -> bool:
       FN-013/014's territory, right block or wrong. Component-only mentions
       (e.g. "definir propellers" with no "ayudame") are NOT excluded here —
       nothing else currently handles a bare component name inside an active
-      DEFINE_MISSING wizard, and the outcome (help for that pending item) is
-      identical to the generic pending-help path anyway.
+      DEFINE_MISSING wizard.
     - Real analysis/explanation questions ("analiza el margen de
       seguridad") — never match (no "ayudame", not a fixed catch-phrase).
     """
@@ -255,11 +263,11 @@ def is_help_define_pending_phrase(user_input: str) -> bool:
         return False
 
     normalized = _normalize(user_input)
-    if normalized in _EXACT_HELP_DEFINE_PHRASES:
+    if normalized in _EXACT_CONFUSION_PHRASES:
         return True
     if "ayudame" not in normalized:
         return False
-    return any(marker in normalized for marker in _HELP_DEFINE_MARKERS)
+    return any(marker in normalized for marker in _CONFUSION_MARKERS)
 
 
 def is_navigation_back_phrase(user_input: str) -> bool:

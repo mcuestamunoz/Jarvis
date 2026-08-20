@@ -244,7 +244,7 @@ def test_bare_float_not_assigned_to_component_key_pending(tmp_path: Path):
     assert saved.current_parameters.get("propellers") is None
 
 
-# ── F/G) FN-013/FN-015 regressions ──────────────────────────────────────────
+# ── F/G) FN-013 / G23 confusion-gate regressions ────────────────────────────
 
 def test_definir_propulsion_still_fn013(tmp_path: Path):
     orch = _project_with_active_propulsion(tmp_path)
@@ -254,7 +254,10 @@ def test_definir_propulsion_still_fn013(tmp_path: Path):
     assert result["action"] == "define_missing_params"
 
 
-def test_ayudame_definir_still_fn015(tmp_path: Path):
+def test_ayudame_definir_still_short_reask(tmp_path: Path):
+    """G23: the acquisition-help feature (FN-015) was removed, but the
+    anti-LLM confusion gate that fixed the original bug survives — a short
+    re-ask, still 0 LLM, still no session mutation."""
     orch = _project_with_active_propulsion(tmp_path)
     _open_component_acquisition(orch)
     result = orch.handle_user_text("ayudame a definir", _RefuseLLM())

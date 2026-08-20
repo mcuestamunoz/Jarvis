@@ -196,7 +196,7 @@ def test_declarar_motores_aerial_does_not_open_torque_wizard(tmp_path: Path):
     assert "propellers" in (session.pending_param_definitions or [])
 
 
-# ── G) regressions — FN-013 / FN-015 / FN-016 ───────────────────────────────
+# ── G) regressions — FN-013 / G23 confusion gate / FN-016 ──────────────────
 
 def test_definir_propulsion_still_fn013(tmp_path: Path):
     orch = _project_with_active_propulsion(tmp_path)
@@ -205,7 +205,7 @@ def test_definir_propulsion_still_fn013(tmp_path: Path):
     assert result.get("block_declaration_reprompt") is True
 
 
-def test_ayudame_definir_still_fn015(tmp_path: Path):
+def test_ayudame_definir_still_short_reask(tmp_path: Path):
     orch = _project_with_active_propulsion(tmp_path)
     _open_component_acquisition(orch)
     result = orch.handle_user_text("ayudame a definir", _RefuseLLM())

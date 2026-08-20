@@ -9,7 +9,7 @@ CONNECTIONS.md
 │
 ├── Canonical registry  ← THIS SECTION ONLY defines the connection count
 │   └── 65 unique C-xxx  (ID space sparse through C-112)
-│         64 🟢 connected · 0 🔴 broken · 2 🟡 partial
+│         63 🟢 connected · 1 ⛔ removed (C-032) · 2 🟡 partial
 │
 ├── Derived / detail views  ← may repeat C-xxx for readability
 │   └── "Detail — NN …" sections below; NOT additional connections
@@ -26,6 +26,8 @@ CONNECTIONS.md
 **ERF-1 (2026-08-18):** Four new connections added — **C-107** (authorities → `build_engineering_readiness`), **C-108** (readiness → Continuity catalog-gap ranking, 🟡 PARTIAL), **C-109** (startup context exposes `"readiness"`), **C-110** (CLI renders `ENGINEERING READINESS` block). Registry count moved **59 → 63**; **62🟢 · 0🔴 · 2🟡** (C-081 + C-108). Two forbidden absences added (Continuity→Readiness; persist `readiness.json`). Report: [`.jes/artifacts/implementation_report_erf1.md`](../../.jes/artifacts/implementation_report_erf1.md).
 
 **ERF-2 (2026-08-19):** Two new connections added — **C-111** (`electrical_compatibility` pure checks → `build_engineering_readiness` gap generation), **C-112** (ESC acquisition routing in `orchestrator._handle_component_description` — out-of-scope explicit save). C-107 updated (9 subsystems, `electronics` added). C-110 updated (9 readiness lines). Registry count moved **63 → 65**; **64🟢 · 0🔴 · 2🟡** (C-081 + C-108). Report: [`.jes/artifacts/implementation_report_erf2.md`](../../.jes/artifacts/implementation_report_erf2.md).
+
+**G23 (2026-08-20):** **C-032** flipped 🟢→⛔ **REMOVED** — FN-015 pending-help feature deleted in full (Brief replay, IDLE wizard auto-open). Replacement is **not** a new C-xxx: `is_define_missing_confusion_phrase` + `_define_missing_confusion_reask` (anti-LLM gate only; short re-ask in `DEFINE_MISSING`, `project_status` at IDLE). **C-038** callers updated (FN-015's `_help_current_pending_acquisition` removed). Registry: **63🟢 · 1⛔ · 2🟡** (C-032 removed; C-081 + C-108 partial). Report: [`.jes/artifacts/implementation_report_g23_remove_fn015.md`](../../.jes/artifacts/implementation_report_g23_remove_fn015.md).
 
 **Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables. The only authoritative count is the length of **Canonical registry** below.
 
@@ -65,7 +67,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-025 | "ayúdame" + named goal | Intent → engineering_intent (was analyze) | 🟢 (FN-025) |
 | C-030 | Runtime (IDLE) | FN-005 assisted motor help | 🟢 |
 | C-031 | Runtime (IDLE) | FN-014 acquisition mention → wizard open | 🟢 |
-| C-032 | Runtime (IDLE) | FN-015 pending-help → deterministic help | 🟢 |
+| C-032 | ~~Runtime (IDLE) FN-015 pending-help~~ | REMOVED (G23) | ⛔ |
 | C-033 | Runtime (DEFINE_MISSING) | FN-013 reprompt active block | 🟢 |
 | C-034 | Runtime (DEFINE_MISSING) | FN-016 navigation cancel | 🟢 |
 | C-035 | Intent (`project_status`, FN-023 phrasing) | `_handle_project_status` (Continuity) | 🟢 |
@@ -321,13 +323,17 @@ Evidence: `core/orchestrator.py:846,850,864,906`.
 ## Detail — 03 Acquisition
 
 ### C-030 — Runtime (IDLE) → FN-005 assisted motor help
-| Field | Value | | Field | Value |
-|---|---|---|---|---|
-| Kind | CONTROL | | Mutation | YES (opens wizard) |
-| Mechanism | phrase match + bridge | | LLM | NO |
-| Symbols | `is_help_choose_phrase`, `_try_start_assisted_motor_help` | | Status | 🟢 CONNECTED |
-| Payload | "ayúdame a elegir" | | Evidence | `core/orchestrator.py:613-623` |
-| Authority | `motor_catalog_assist.py` | | | |
+| Field | Value |
+|---|---|
+| Kind | CONTROL |
+| Mechanism | phrase match + bridge |
+| Symbols | `is_help_choose_phrase`, `_try_start_assisted_motor_help`; G21 also `_offer_component_motor_catalog` / `_apply_component_motor_catalog_pick` in component sub-mode |
+| Payload | "ayúdame a elegir" |
+| Authority | `motor_catalog_assist.py` |
+| Mutation | YES (opens wizard or offers catalog list) |
+| LLM | NO |
+| Status | 🟢 CONNECTED (G21 extended bind to motors component wizard + IDLE unbound re-bind) |
+| Evidence | `core/orchestrator.py:~797-804` (IDLE choose), `~1351-1372` (IDLE unbound re-bind), `~2533-2552` (component-wizard choose/pick) |
 
 ### C-031 — Runtime (IDLE) → FN-014 acquisition mention → wizard open
 | Field | Value |
@@ -342,18 +348,28 @@ Evidence: `core/orchestrator.py:846,850,864,906`.
 | Status | 🟢 CONNECTED |
 | Evidence | `core/orchestrator.py:630-634`, `core/acquisition_target.py` (FN-011/013/014) |
 
-### C-032 — Runtime (IDLE) → FN-015 pending-help → deterministic help
+### C-032 — REMOVED (G23)
+
+The FN-015 pending-help feature this connection described (IDLE bare-help
+phrase → auto-open `DEFINE_MISSING` wizard → deterministic help / Brief
+replay) was **deleted in full** by G23
+(`.jes/artifacts/implementation_contract_g23_remove_fn015.md`) — zero
+product value; duplicated Continuity/FN-011/014/023.
+
+**Deleted symbols:** `_try_help_define_pending_idle`, `_help_current_pending_acquisition`, `is_help_define_pending_phrase` (product framing).
+
+**Replacement (not a new C-xxx — Runtime-internal anti-LLM gate only):**
+
+| Mode | Mechanism | Symbols |
+|---|---|---|
+| IDLE | confusion phrase → Continuity, no wizard | `is_define_missing_confusion_phrase` → `_handle_project_status` (`orchestrator.py:~832-838`) |
+| DEFINE_MISSING | confusion phrase → one-line re-ask, no Brief/catalog | `is_define_missing_confusion_phrase` → `_define_missing_confusion_reask` (`orchestrator.py:~972-976`, method ~1614-1652) |
+
+**Why not folded into C-035 `GUIDANCE_PATTERNS`:** that table is resolved globally; mid-wizard it would collide with Bug-56's `project_status` intercept and dump full Continuity instead of the short re-ask (G23 report §4).
+
 | Field | Value |
 |---|---|
-| Kind | CONTROL, DATA |
-| Mechanism | bare-help phrase detector + same Bug54 bridge |
-| Symbols | `_try_help_define_pending_idle`, `is_help_define_pending_phrase`, `_help_current_pending_acquisition` |
-| Payload | "ayúdame a definir" (no named target) |
-| Authority | `acquisition_target.py` |
-| Mutation | YES (opens wizard) |
-| LLM | NO |
-| Status | 🟢 CONNECTED |
-| Evidence | `core/orchestrator.py:636-644`, `1165-1195` |
+| Status | ⛔ REMOVED |
 
 ### C-033 — Runtime (DEFINE_MISSING) → FN-013 reprompt active block
 | Field | Value |
@@ -366,7 +382,7 @@ Evidence: `core/orchestrator.py:846,850,864,906`.
 | Mutation | NO (re-reads, doesn't reset `collected_params`) |
 | LLM | NO |
 | Status | 🟢 CONNECTED |
-| Evidence | `core/orchestrator.py:730-737,1061-1108` |
+| Evidence | `core/orchestrator.py:~957-960` (FN-013 reprompt gate), `~1550-1612` (`_try_reprompt_active_block_declaration`) |
 
 ### C-034 — Runtime (DEFINE_MISSING) → FN-016 navigation cancel
 | Field | Value |
@@ -387,12 +403,12 @@ Evidence: `core/orchestrator.py:846,850,864,906`.
 | Kind | CONTROL, DATA |
 | Mechanism | `GUIDANCE_PATTERNS` (checked before `ANALYZE_PATTERNS`) |
 | Symbols | `intent_resolver.GUIDANCE_PATTERNS` (FN-023's 3 additions), `_handle_project_status` |
-| Payload | "ayúdame con el siguiente paso" |
+| Payload | "ayúdame con el siguiente paso"; also bare `"ayúdame a definir"` / confusion phrases at **IDLE only** (G23 — dedicated check, **not** `GUIDANCE_PATTERNS`; see C-032 replacement) |
 | Authority | Continuity (via `build_startup_context`) |
 | Mutation | NO (read-only; may set Bug54 `pending_define_missing` as an existing side effect, IDLE only) |
 | LLM | NO |
-| Status | 🟢 CONNECTED (FN-023) |
-| Evidence | `core/intent_resolver.py` (GUIDANCE_PATTERNS FN-023 block), `core/orchestrator.py:846-849,1952-1979`; also reachable mid-wizard via C-014's DEFINE_MISSING branch (`_dm_intent == "project_status"`) |
+| Status | 🟢 CONNECTED (FN-023; G23 IDLE confusion phrases share this authority) |
+| Evidence | `core/intent_resolver.py` (GUIDANCE_PATTERNS FN-023 block), `core/orchestrator.py:~832-838` (G23 IDLE confusion → `_handle_project_status`), `~972-976` (DEFINE_MISSING confusion re-ask — **not** this connection); mid-wizard `"siguiente paso"` family still via C-014's `_dm_intent == "project_status"` (Bug 56) |
 
 ### C-036 — Continuity → Acquisition (`_next_pending_block` shared read)
 | Field | Value |
@@ -431,7 +447,7 @@ Evidence: `core/orchestrator.py:846,850,864,906`.
 | Mutation | NO |
 | LLM | NO |
 | Status | 🟢 CONNECTED |
-| Evidence | `core/acquisition_brief.py`, called from `param_definition_session.start`, `orchestrator._try_reprompt_active_block_declaration`, `_help_current_pending_acquisition`, `_handle_component_description` |
+| Evidence | `core/acquisition_brief.py::build_acquisition_brief`. **Live callers only** (G23 removed FN-015 help path): `param_definition_session.start` (wizard open), `orchestrator._try_reprompt_active_block_declaration` (FN-013 reprompt), `orchestrator._handle_component_description` (low-completeness re-prompt). **Not** called from confusion re-ask (`_define_missing_confusion_reask` returns one-line `question` only). Motors Brief advertises `ayúdame a elegir` (G21); no `ayúdame a definir` bullet. |
 
 ---
 

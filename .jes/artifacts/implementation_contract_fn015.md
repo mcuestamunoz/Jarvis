@@ -1,5 +1,12 @@
 # Implementation Contract — FN-015
 
+> ⛔ **SUPERSEDED by G23 (2026-08-20)** — the FN-015 feature this contract
+> implemented was removed in full. See
+> [`.jes/artifacts/implementation_contract_g23_remove_fn015.md`](implementation_contract_g23_remove_fn015.md)
+> and [`.jes/artifacts/implementation_report_g23_remove_fn015.md`](implementation_report_g23_remove_fn015.md).
+> This document is kept as historical audit trail only — do not implement
+> or reference it as current behavior.
+
 **Project:** Jarvis  
 **Date:** 2026-08-08  
 **Author:** JES / Cursor (Engineer Interface)  

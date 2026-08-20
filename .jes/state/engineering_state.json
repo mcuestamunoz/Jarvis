@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "G9-A — Catalog-ref blind spot fix (Option B + readiness-first hygiene)",
-  "scope": "Slice 1: bound-SKU-aware resolve_motor_catalog_surface (Scenarios B/C/D). Slice 2: orchestrator readiness-first (single catalog resolve per turn). Slice 3: G9-B/G5 regressions + full suite.",
+  "cycle_intent": "G23 — Eliminate FN-015 (\"ayúdame a definir\") as a user-facing acquisition feature, total removal + documentation purge",
+  "scope": "Delete _try_help_define_pending_idle + _help_current_pending_acquisition (product help). Keep a renamed, minimal anti-LLM confusion gate (is_define_missing_confusion_phrase -> short re-ask in DEFINE_MISSING, project_status at IDLE). Remove Brief 'repetir esta guia' bullet. Purge living docs (PROJECT_CONTINUITY, IMPLEMENTATION_TASKS, system_map/*). Banner historical FN-015 artifacts SUPERSEDED, not delete.",
   "execution_status": "active",
   "current_mode": "Review",
   "movement_trigger": {
     "type": "implementation_complete",
-    "note": "All 3 slices + readiness-first hygiene. 8 new tests, full suite green (1885). Scenario B catalog_matches deviation documented. Review PASS; not committed."
+    "note": "Feature removed in full, 11 new tests, full suite green (1894), docs purged per contract table + BUGS.md/canvas.tsx touched for consistency (not explicitly named but directly contradicted current state). One documented deviation: IDLE routing kept as a narrow dedicated check instead of folding into GUIDANCE_PATTERNS, which would have caused DEFINE_MISSING's pre-existing Bug-56 project_status check to swallow the phrase mid-wizard and show a full Continuity dump instead of the mandated short re-ask. Awaiting Engineer/Cursor review; not committed."
   },
   "relevant_workflow_phases": [
     "Implement",
@@ -14,65 +14,68 @@
     "Checkpoint"
   ],
   "applicable_rules": [
-    "Never fabricate a catalog match — honest failure on SKU lookup miss",
-    "Bound SKU with valid catalog_ref must not show 'no tengo un motor en el catálogo' when it meets current requirements (Scenario B)",
-    "G9-B demotion behavior must not regress",
-    "G5 invalidation contract unchanged",
-    "Single authority — build_engineering_readiness owns catalog surface; orchestrator consumes readiness output",
-    "Zero weakened tests"
+    "Zero weakened tests solely to pass - rewrite/delete FN-015 tests to match new behavior",
+    "Do not reintroduce catalog under 'definir' (catalog = 'ayudame a elegir' / G21)",
+    "Do not start Impl C in this IC",
+    "Historical .jes/artifacts/*fn015* contracts/cycle-close: mark SUPERSEDED by G23, do not silently delete audit trail"
   ],
   "required_artifacts": [
-    ".jes/artifacts/investigation_contract_g9a_catalog_ref_blind_spot.md",
-    ".jes/artifacts/investigation_g9a_catalog_ref_blind_spot.md",
-    ".jes/artifacts/implementation_contract_g9a_catalog_ref_blind_spot.md",
-    ".jes/artifacts/implementation_report_g9a_catalog_ref_blind_spot.md"
+    ".jes/artifacts/implementation_contract_g23_remove_fn015.md",
+    ".jes/artifacts/implementation_report_g23_remove_fn015.md"
   ],
   "open_questions": [
-    "R3b's define_params-preempt open question (from R3b's implementation_report) is still unresolved and untracked by any dedicated artifact — carried forward, not part of this cycle.",
-    "Option C's typed bound_sku_status field remains unimplemented (deferred to Impl C per contract) — still open for a future investigation."
+    "R3b's define_params-preempt open question - still unresolved, untracked, carried forward across cycles.",
+    "Option C's typed bound_sku_status field (G9-A) - still deferred to Impl C.",
+    "Control-wizard retarget loop (Definir sensors) and G17 force-motors bare phrases - explicitly out of scope for G21/G22/G23, still need their own findings/ICs.",
+    "docs/system_map/01_runtime/RUNTIME_MAP.md flagged as stale beyond this IC's specific fix (G21/G22/G9-A not reflected checkpoint-by-checkpoint) - a full re-derivation is due, not done here (out of scope)."
   ],
-  "active_operation": "G9-A implementation complete (Slices 1-3) — awaiting Engineer/Cursor review of implementation_report_g9a_catalog_ref_blind_spot.md",
+  "active_operation": "G23 implementation complete - awaiting Engineer/Cursor review of implementation_report_g23_remove_fn015.md. G21/G22 still pending commit (review PASS, same working tree).",
   "authority_gates": [
-    "Option B only (investigation §7, Engineer ratified)",
-    "Single authority: resolve_motor_catalog_surface — orchestrator inline duplicate deleted",
-    "Reuse GAP-MOTOR-CATALOG-UNRESOLVED for Scenarios C/D — no new gap type",
-    "Scenario C = gap, not silence, not INCOMPATIBLE",
-    "gap_evidence_fact third return value distinguishes catalog_matches.empty / bound_sku_underspec:{sku} / bound_sku_missing:{sku}",
-    "Motor-only scope — no battery/propeller catalog-gap logic added"
+    "Total feature removal - no dead code, no hidden bridge (Engineer locked decision)",
+    "Anti-LLM confusion gate survives, renamed is_define_missing_confusion_phrase, minimal short re-ask only",
+    "IDLE collapses to project_status (FN-023 family), never opens DEFINE_MISSING from this phrase alone",
+    "Catalog never under 'definir' - G21 owns 'elegir' exclusively",
+    "Documentation purge is a mandatory deliverable, not optional"
   ],
   "coherence_checklist": [
-    "Scenario B clears gap, catalog subsystem verdict PASS ✅",
-    "Scenario C names bound SKU, does not say generic false message ✅",
-    "Scenario D honest missing-SKU message, no exception ✅",
-    "Scenario A/F unchanged (existing tests pass byte-for-byte) ✅",
-    "orchestrator readiness-first: one resolve_motor_catalog_surface call per build_startup_context ✅",
-    "G9-B demotion survives Scenario C (WARNING/CATALOG-GAP-DEMOTED-POST-PASS) ✅",
-    "G5 divergence test unchanged and passing ✅",
-    "test_cli_polish.py G9-B tests unchanged and passing ✅",
-    "full suite green: 1885 (1877 baseline + 8 new) ✅"
+    "No Brief advertises ayudame a definir (all keys) ✅",
+    "_try_help_define_pending_idle and _help_current_pending_acquisition deleted, zero grep hits ✅",
+    "DEFINE_MISSING confusion phrase -> 0 LLM, short one-line re-ask, no Brief, no catalog offer ✅",
+    "IDLE confusion phrase -> project_status, no wizard auto-open ✅",
+    "ayudame a elegir (G21) unchanged ✅",
+    "FN-013 named-block reprompt unchanged ✅",
+    "Real analyze questions still reach LLM ✅",
+    "C-032 REMOVED in CONNECTIONS.md/DIAGRAMS.md/RUNTIME_MAP.md/canvas.tsx ✅",
+    "PROJECT_CONTINUITY.md + IMPLEMENTATION_TASKS.md FN-015 sections marked REMOVED/SUPERSEDED, not taught as current ✅",
+    "Historical implementation_contract_fn015.md + cycle_close_fn015.md bannered SUPERSEDED ✅",
+    "full suite green: 1894 (1892 post-G21/G22 baseline - 9 deleted + 11 new) ✅"
   ],
   "outcome": "IMPLEMENTATION_COMPLETE",
   "updated_at": "2026-08-20T00:00:00Z",
   "phase": "Review",
   "status": "active",
-  "active_gate": "G9A-EngineerReview",
-  "active_artifact": ".jes/artifacts/implementation_report_g9a_catalog_ref_blind_spot.md",
+  "active_gate": "G23-EngineerReview",
+  "active_artifact": ".jes/artifacts/implementation_report_g23_remove_fn015.md",
   "blocking_reason": null,
-  "next_required_action": "Engineer/Cursor review of implementation_report_g9a_catalog_ref_blind_spot.md (incl. the Scenario B catalog_matches deviation). Checkpoint only if Engineer asks.",
+  "next_required_action": "Engineer/Cursor review of implementation_report_g23_remove_fn015.md (incl. the IDLE-mechanism deviation from GUIDANCE_PATTERNS). G21/G22 + G23 both need commit. Then Engineer's manual CLI probe (bind path), then Impl C investigation may proceed per contract prerequisite chain.",
   "evidence_refs": [
     "tag:checkpoint-erf1",
     "tag:checkpoint-erf2",
     "tag:checkpoint-cli-routing-residuals",
     "tag:checkpoint-r3a",
-    "tag:checkpoint-r3b (4608eed)",
-    ".jes/artifacts/investigation_contract_g9a_catalog_ref_blind_spot.md",
-    ".jes/artifacts/investigation_g9a_catalog_ref_blind_spot.md",
-    ".jes/artifacts/implementation_contract_g9a_catalog_ref_blind_spot.md",
-    ".jes/artifacts/implementation_report_g9a_catalog_ref_blind_spot.md"
+    "tag:checkpoint-r3b",
+    "tag:checkpoint-g9a (ea3d47d)",
+    ".jes/artifacts/implementation_contract_g21_g22_catalog_bind_ux.md",
+    ".jes/artifacts/implementation_report_g21_g22_catalog_bind_ux.md",
+    ".jes/artifacts/implementation_review_g21_g22_catalog_bind_ux.md (PASS)",
+    ".jes/artifacts/implementation_contract_g23_remove_fn015.md",
+    ".jes/artifacts/implementation_report_g23_remove_fn015.md",
+    ".jes/artifacts/implementation_contract_fn015.md (SUPERSEDED banner added)",
+    ".jes/artifacts/cycle_close_fn015.md (SUPERSEDED banner added)"
   ],
   "open_decisions": [],
   "risks": [
-    "Battery/propeller catalog_ref: confirmed no equivalent gap computation exists yet — motor-only by design, unchanged from investigation.",
-    "Option C's typed bound_sku_status field still unimplemented — any future consumer wanting to branch on bound-SKU state programmatically still has to string-match the message."
+    "G21/G22 and G23 are both uncommitted in the same working tree - three logical cycles stacked without a checkpoint tag yet. Recommend Engineer decide commit granularity (one combined commit vs. separate) before further cycles land on top.",
+    "docs/system_map/01_runtime/RUNTIME_MAP.md's checkpoint table is now only partially current (G23 fix applied, G21/G22/G9-A still not reflected) - flagged in the report, not silently left implying full accuracy."
   ]
 }

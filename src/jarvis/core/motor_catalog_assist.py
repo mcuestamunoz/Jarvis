@@ -238,13 +238,17 @@ def build_motor_catalog_suggestions(
         # Fall back: list a few motors near a light aerial thrust band
         matches = lib.find_motors_for_requirements(min_thrust_n=4.0)
     else:
+        # G22: no KV-only fallback when the strict thrust/kv/prop search comes
+        # back empty. The old fallback (find_motors_by_kv, ignoring the
+        # thrust/prop miss) made this function disagree with
+        # resolve_motor_catalog_surface's honest "no tengo un motor" gap —
+        # list_motors would show candidates the gap said didn't exist. Empty
+        # strict search now means empty everywhere, consistently.
         matches = lib.find_motors_for_requirements(
             min_thrust_n=min_thrust,
             kv=kv_hint,
             prop_inch=prop_inch,
         )
-        if not matches and kv_hint is not None:
-            matches = lib.find_motors_by_kv(kv_hint)
 
     return [
         motor_spec_to_suggestion(m, idx=i + 1)

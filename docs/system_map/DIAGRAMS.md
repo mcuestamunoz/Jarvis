@@ -131,7 +131,7 @@ Detail and evidence stay in `CONNECTIONS.md`. This index is for scanning.
 |---|---|---|
 | C-030 | Runtime IDLE → FN-005 motor help | 🟢 |
 | C-031 | Runtime IDLE → FN-014 acquisition wizard | 🟢 |
-| C-032 | Runtime IDLE → FN-015 pending-help | 🟢 |
+| C-032 | ~~Runtime IDLE → FN-015 pending-help~~ REMOVED (G23) | ⛔ |
 | C-033 | DEFINE_MISSING → FN-013 reprompt | 🟢 |
 | C-034 | DEFINE_MISSING → FN-016 nav/cancel | 🟢 |
 | C-035 | Intent FN-023 phrasing → Continuity status | 🟢 |
