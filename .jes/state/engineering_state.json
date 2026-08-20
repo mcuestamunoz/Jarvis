@@ -1,57 +1,77 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "ERF-2 Dependency Hardening — CLOSED. checkpoint-erf2 tagged and pushed.",
-  "scope": "ERF-2 complete. electrical_compatibility.py, 4 gap types, 9 subsystems, ESC acquisition UX.",
-  "execution_status": "closed",
-  "current_mode": "Checkpoint",
+  "cycle_intent": "R3b — Real preempt for DEFINE_MISSING_PARAMETERS (closes R3 residual G7/G11 after R3a)",
+  "scope": "Sub-mode-aware preempt: component sub-mode clear-and-redispatch (Slice 1); numeric sub-mode partial-apply-then-preempt (Slice 2). orchestrator.py only (param_definition_session.py only if a read-only helper is strictly needed).",
+  "execution_status": "active",
+  "current_mode": "Review",
   "movement_trigger": {
     "type": "implementation_complete",
-    "note": "ERF-2 Slices 1–4 implemented, reviewed, Energy verdict fix applied, suite 1851 passed, tag checkpoint-erf2 (9af0cc9)."
+    "note": "Slices 1-2 implemented, 10 new tests added, full suite green (1877). One contract deviation (define_params dropped from preempt set — would have regressed R3a + an existing FN-013 test) documented in implementation_report_r3b_preempt_real.md. Awaiting Engineer review; checkpoint only if Engineer asks (contract workflow)."
   },
   "relevant_workflow_phases": [
     "Implement",
     "Review",
     "Checkpoint"
   ],
-  "applicable_rules": [],
-  "required_artifacts": [
-    "docs/ENGINEERING_READINESS_VISION.md",
-    ".jes/artifacts/investigation_erf2_dependency_hardening.md",
-    ".jes/artifacts/design_erf2_dependency_hardening.md",
-    ".jes/artifacts/implementation_contract_erf2.md",
-    ".jes/artifacts/implementation_report_erf2.md"
+  "applicable_rules": [
+    "Do not regress R3a soft-interrupts/refuse paths",
+    "No Option C (confirm-before-discard)",
+    "design_properties.components already saved must never be reverted",
+    "collected_params must not be silently lost in numeric sub-mode",
+    "Zero weakened tests"
   ],
-  "open_questions": [],
-  "active_operation": null,
+  "required_artifacts": [
+    ".jes/artifacts/investigation_r3_preempt_policy.md",
+    ".jes/artifacts/implementation_contract_r3a_preempt_refuse.md",
+    ".jes/artifacts/implementation_report_r3a_preempt_refuse.md",
+    ".jes/artifacts/implementation_contract_r3b_preempt_real.md",
+    ".jes/artifacts/implementation_report_r3b_preempt_real.md"
+  ],
+  "open_questions": [
+    "define_params (declare-different-block) preempt was dropped from scope — see implementation_report_r3b_preempt_real.md deviation #1. Does Engineer want a separate follow-up investigation for the narrow case, or is FN-013's existing park behavior sufficient long-term?"
+  ],
+  "active_operation": "R3b implementation complete (Slices 1-2) — awaiting Engineer review of implementation_report_r3b_preempt_real.md",
   "authority_gates": [
-    "INCOMPATIBLE only with deterministic evidence (★3)",
-    "1 motor ↔ 1 ESC per-motor compare (★4)",
-    "electrical_compatibility.py pure module",
-    "nine subsystems including electronics",
-    "Continuity and Slice 4b out of MVP",
-    "no KV/voltage gaps",
-    "Energy verdict narrowed via _INCOMPATIBLE_VERDICT_SUBSYSTEMS"
+    "Option B only (investigation §6) — Option A already shipped as R3a",
+    "Sub-mode-aware execution: blind clear safe for component, lossy for numeric with collected_params",
+    "Partial apply before clear in numeric sub-mode via existing apply_and_recalculate (no duplicated logic)",
+    "Abort preempt on FN-004 structural confirm — do not bypass with preempt",
+    "Preempt set excludes explore_design_space / calculate / simulate (already inline soft-interrupt)",
+    "Mirror C-052 structure, not its ownership guards — DEFINE_MISSING has no strategy-selection ambiguity",
+    "preempted_define_missing flag on result, parallel to preempted_iterate"
   ],
   "coherence_checklist": [
-    "tests ✅ 1851",
-    "ux ✅ CLI walk",
-    "docs ✅ updated"
+    "gate ordering: R3a soft-interrupts/refuses run before R3b preempt",
+    "numeric partial-apply notice appears iff collected_params was non-empty and apply succeeded",
+    "FN-004 structural confirm blocks preempt",
+    "component sub-mode preempt does not revert saved components",
+    "detector does not fire on real component specs or numeric floats",
+    "tests/test_r3a_preempt_refuse.py unchanged and passing",
+    "full suite green (1867+ baseline)"
   ],
-  "outcome": "CHECKPOINT_COMPLETE",
-  "updated_at": "2026-08-19T09:37:00Z",
-  "phase": "Checkpoint",
-  "status": "closed",
-  "active_gate": null,
-  "active_artifact": null,
+  "outcome": "IMPLEMENTATION_COMPLETE",
+  "updated_at": "2026-08-20T00:00:00Z",
+  "phase": "Review",
+  "status": "active",
+  "active_gate": "R3b-EngineerReview",
+  "active_artifact": ".jes/artifacts/implementation_report_r3b_preempt_real.md",
   "blocking_reason": null,
-  "next_required_action": "Post-ERF-2 queue: G17 · G14 · G13 · R3 · Impl C. No further ERF-2 changes unless real bugs.",
+  "next_required_action": "Engineer/Cursor review of implementation_report_r3b_preempt_real.md (incl. the define_params deviation). Checkpoint only if Engineer asks, per contract workflow.",
   "evidence_refs": [
     "tag:checkpoint-erf1",
     "tag:checkpoint-erf2",
-    ".jes/artifacts/design_erf2_dependency_hardening.md",
-    ".jes/artifacts/implementation_contract_erf2.md",
-    ".jes/artifacts/implementation_report_erf2.md"
+    "tag:checkpoint-cli-routing-residuals",
+    "tag:checkpoint-r3a",
+    "commit:0044868 (iterate material operation=None fix + handoff_context preservation, post checkpoint-r3a, uncheckpointed)",
+    "commit:a918a96 (Phase 2 Physical Propulsion Engine vision doc, post checkpoint-r3a, uncheckpointed)",
+    ".jes/artifacts/investigation_r3_preempt_policy.md",
+    ".jes/artifacts/implementation_contract_r3a_preempt_refuse.md",
+    ".jes/artifacts/implementation_report_r3a_preempt_refuse.md",
+    ".jes/artifacts/implementation_contract_r3b_preempt_real.md"
   ],
   "open_decisions": [],
-  "risks": []
+  "risks": [
+    "Numeric sub-mode partial apply is a side effect the user did not explicitly request — notice text is mandatory whenever it fires, per contract §Slice 2.",
+    "FN-004 structural confirm must abort preempt cleanly, not merge with clear-and-redispatch."
+  ]
 }

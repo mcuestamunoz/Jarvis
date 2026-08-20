@@ -563,6 +563,76 @@ class JarvisOrchestrator:
             return existing
         return f"{notice}\n\n{existing}"
 
+    # R3b: strong intents that mutate project state or switch orchestrator mode,
+    # trapped mid-DEFINE_MISSING as silent Brief re-show (component sub-mode) or
+    # honest refuse (R3a, numeric sub-mode). Mirrors _ITERATE_PREEMPT_INTENTS but
+    # excludes explore_design_space/calculate/simulate — those already execute
+    # inline as soft-interrupts within the DEFINE_MISSING branch (R3a Slice 2 and
+    # the pre-existing calculate/simulate gates), so clearing the wizard for them
+    # would be a regression, not a fix. Also excludes define_params (unlike
+    # C-052's iterate set): the contract's own gate-ordering hard rule requires
+    # R3a's refuse to run first (see the caller), and R3a's refuse already owns
+    # 100% of the cases where a declare-different-block phrase would be safe to
+    # act on — every case it does NOT refuse is a component genuinely shared
+    # between blocks (e.g. "motors" in both propulsion and energy, per
+    # BLOCK_TO_COMPONENTS), where FN-013's existing "park, don't jump" behavior
+    # is the deliberately-tested outcome (test_fn013_active_block_declare_routing
+    # ::test_definir_energia_while_propulsion_active_does_not_jump) — adding
+    # define_params here would silently override that test's intent instead of
+    # closing a real residual.
+    _DEFINE_MISSING_PREEMPT_INTENTS: frozenset[str] = frozenset({
+        "apply_exploration_result",
+        "iterate",
+        "dismiss_suggestion",
+        "create_project",
+    })
+
+    def _should_preempt_define_missing_wizard(self, user_input: str, session: Any) -> bool:
+        """True when input should close the DEFINE_MISSING wizard and be handled as idle.
+
+        Reuses the same strong-intent resolver C-052's iterate preempt uses.
+        """
+        normalized = self.intent_resolver._normalize_text(user_input)
+        strong = self.intent_resolver._resolve_strong_action_intent(normalized)
+        return strong in self._DEFINE_MISSING_PREEMPT_INTENTS
+
+    def _clear_runtime_session_preserving_dse(self, session: Any) -> None:
+        """clear_runtime_session(), but carry ``last_exploration_result`` forward.
+
+        It is runtime-only (never persisted to disk, unlike accepted components),
+        so a blind clear would silently make ``apply_exploration_result`` fail
+        with "no hay resultados de exploración recientes" right after the
+        preempt that was supposed to execute it — defeating the intent set's
+        own inclusion of that intent. Same precedent as the existing
+        ``handoff_context`` forwarding in ``ParamDefinitionSession.start()``.
+        """
+        exploration = session.last_exploration_result
+        self.state_manager.clear_runtime_session()
+        if exploration is not None:
+            cleared = self.state_manager.get_runtime_session()
+            self.state_manager.set_runtime_session(
+                cleared.model_copy(update={"last_exploration_result": exploration})
+            )
+
+    @staticmethod
+    def _preempt_define_missing_message(result: dict, *, partial_apply: bool = False) -> str:
+        """Prefix a short notice when a DEFINE_MISSING wizard was aborted for a stronger intent.
+
+        ``partial_apply=True`` marks the numeric sub-mode case where the wizard
+        held typed-but-unsaved ``collected_params`` that were applied as a side
+        effect before the preempt — the notice MUST say so (contract §Slice 2:
+        "Do not silent-apply").
+        """
+        notice = "He cerrado la definición en curso para atender esta instrucción."
+        if partial_apply:
+            notice += "\n(Se aplicaron los parámetros que ya habías indicado.)"
+        existing = (result.get("message") or "").strip()
+        if not existing:
+            return notice
+        if existing.startswith(notice):
+            return existing
+        return f"{notice}\n\n{existing}"
+
     def _consume_structural_confirm(self, user_input: str) -> dict:
         """FN-004: apply, resume original path, cancel, or re-prompt."""
         from jarvis.core.param_definition_session import (
@@ -942,6 +1012,73 @@ class JarvisOrchestrator:
                     result["wizard_reprompt"] = self._get_define_missing_reprompt(current_session)
                     self._track_turn(user_input, result)
                     return result
+            # R3b: real preempt — strong intents that mutate project state or
+            # switch orchestrator mode close the wizard for real instead of a
+            # silent Brief re-show (component sub-mode) or a refuse that never
+            # executes (R3a, numeric sub-mode). Sub-mode-aware per investigation
+            # §3.1: component sub-mode is safe to blind-clear (accepted
+            # components are already on disk); numeric sub-mode must
+            # partial-apply collected_params first so typed-but-unsaved values
+            # are not silently lost.
+            #
+            # Hard rule (contract §0 / review checklist #1): R3a's refuse must
+            # still win for inputs it already owns. "reducir payload" resolves
+            # to strong-intent "iterate" (ITERATE_PATTERNS' bare "reducir")
+            # AND to an R3a engineering-intent refuse — same collision shape
+            # ★3 (G11-B) already documents for the iterate wizard. R3a's own
+            # refuse check (whichever the active sub-mode uses) runs first;
+            # only when it does NOT fire does the preempt intent get a turn.
+            _dm_is_component_submode = (
+                current_session.pending_missing_reason == MISSING_COMPONENT_DEFINITION
+                or current_session.param_definition_reason == MISSING_COMPONENT_DEFINITION
+            )
+            if _dm_is_component_submode:
+                _dm_expected_keys = list(
+                    current_session.pending_missing_params
+                    or current_session.pending_param_definitions
+                    or []
+                )
+                _dm_r3a_refusal = self._maybe_refuse_different_target(user_input, _dm_expected_keys)
+            else:
+                _dm_r3a_refusal = self._maybe_refuse_numeric_submode(user_input, current_session)
+            if _dm_r3a_refusal is not None:
+                self._track_turn(user_input, _dm_r3a_refusal)
+                return _dm_r3a_refusal
+
+            if self._should_preempt_define_missing_wizard(user_input, current_session):
+                _dm_partial_apply = False
+                if _dm_is_component_submode:
+                    self._clear_runtime_session_preserving_dse(current_session)
+                else:
+                    _dm_collected = current_session.collected_params or {}
+                    if _dm_collected:
+                        # Apply on the still-active wizard session (not yet
+                        # cleared) so that if this triggers FN-004's structural
+                        # confirm, begin_structural_confirm layers
+                        # pending_structural_change onto the intact wizard
+                        # state instead of onto an already-cleared IDLE
+                        # session — that is what lets the abort below actually
+                        # preserve the wizard for the confirm/resume flow.
+                        _dm_apply_result = self.param_definition_session.apply_and_recalculate(
+                            _dm_collected
+                        )
+                        if _dm_apply_result.get("action") == "structural_confirm":
+                            # FN-004 owns the turn — abort the preempt. Do not
+                            # clear or redispatch; wizard state stays intact.
+                            self._track_turn(user_input, _dm_apply_result)
+                            return _dm_apply_result
+                        _dm_partial_apply = True
+                    self._clear_runtime_session_preserving_dse(current_session)
+                result = self._handle_user_text_inner(user_input, llm_interface)
+                if isinstance(result, dict):
+                    result = {
+                        **result,
+                        "preempted_define_missing": True,
+                        "message": self._preempt_define_missing_message(
+                            result, partial_apply=_dm_partial_apply
+                        ),
+                    }
+                return result
             # UX-C: intercept component-driven blocks before numeric wizard
             # FN-016: pending_missing_reason is the "about to open" signal set by
             # _set_pending_next_block BEFORE start_define_missing_params runs —
@@ -960,7 +1097,9 @@ class JarvisOrchestrator:
                 current_session.pending_missing_reason == MISSING_COMPONENT_DEFINITION
                 or current_session.param_definition_reason == MISSING_COMPONENT_DEFINITION
             ):
-                result = self._handle_component_description(user_input, current_session)
+                result = self._handle_component_description(
+                    user_input, current_session, refuse_checked=True,
+                )
                 self._track_turn(user_input, result)
                 return result
             # Component-intent intercept: user describes a component (e.g. "bateria 5000mAh")
@@ -2223,6 +2362,7 @@ class JarvisOrchestrator:
         session: Any,
         *,
         structural_confirmed: bool = False,
+        refuse_checked: bool = False,
     ) -> dict[str, Any]:
         """Handle user input when mode is DEFINE_MISSING_PARAMETERS and reason is MISSING_COMPONENT_DEFINITION.
 
@@ -2258,10 +2398,12 @@ class JarvisOrchestrator:
         # Continuity Hardening ★2 (G12/G8): refuse before anything else gets
         # a chance to silently re-show this wizard's own brief as if the
         # user's "definir <other>" / engineering-intent / explore phrase had
-        # not been understood.
-        refusal = self._maybe_refuse_different_target(user_input, expected_keys)
-        if refusal is not None:
-            return refusal
+        # not been understood. Skipped when the DEFINE_MISSING R3b gate already
+        # ran the same check (refuse_checked=True) — same inputs, same result.
+        if not refuse_checked:
+            refusal = self._maybe_refuse_different_target(user_input, expected_keys)
+            if refusal is not None:
+                return refusal
 
         # ── Affirmative: user confirmed — emit context-specific prompt ────────
         if self._is_affirmative(user_input):
