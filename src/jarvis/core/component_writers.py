@@ -37,9 +37,11 @@ el DesignExplorer necesita llamar a estos writers sin crear un import circular
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from jarvis.domains.aerial import _frame_completeness
+from jarvis.knowledge.library import default_library, resolve_operating_point
 from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
 from jarvis.tools.electricity import estimate_battery_mass_kg
 
@@ -238,12 +240,94 @@ def set_motor_component(
         updated_params["motor_kv_rating"] = float(kv_prop.value)
     else:
         updated_params.pop("motor_kv_rating", None)
-    # Impl C follow-up (thrust bridge, ★1): thrust_n on the spec is the sole
-    # source for per_motor_max_thrust_n — never invented, never popped when
-    # absent (see docstring above for why no-pop is deliberate here).
-    thrust_prop = spec.properties.get("thrust_n")
-    if thrust_prop is not None and thrust_prop.value is not None:
-        updated_params["per_motor_max_thrust_n"] = float(thrust_prop.value)
+    # Phase 2 P2-1 (Lookup Operating Point): when the motor is catalog-bound,
+    # resolve a real (motor[, propeller][, voltage]) operating point instead
+    # of mirroring the bare SKU peak thrust_n 1:1 (the pre-P2-1 Impl C bridge
+    # behavior, kept unchanged below for freeform/unbound motors — ★-locked
+    # regression contract: OP-miss must reproduce today's exact numeric
+    # behavior). resolve_operating_point always returns a typed resolution
+    # for a known SKU (exact / fallback / legacy) — never a bare float.
+    resolved_op = None
+    if spec.catalog_ref is not None and spec.catalog_ref.family == "motor":
+        components = getattr(project_state.design_properties, "components", {}) or {}
+        propellers = components.get("propellers")
+        prop_catalog_ref = getattr(propellers, "catalog_ref", None) if propellers is not None else None
+        propeller_sku = (
+            prop_catalog_ref.sku
+            if (prop_catalog_ref is not None and prop_catalog_ref.family == "propeller")
+            else None
+        )
+
+        voltage_v = None
+        battery = components.get("battery")
+        battery_catalog_ref = getattr(battery, "catalog_ref", None) if battery is not None else None
+        if battery_catalog_ref is not None and battery_catalog_ref.family == "battery":
+            try:
+                battery_spec = default_library.get_battery(battery_catalog_ref.sku)
+            except KeyError:
+                battery_spec = None
+            if battery_spec is not None:
+                if battery_spec.nominal_voltage is not None:
+                    voltage_v = float(battery_spec.nominal_voltage)
+                elif battery_spec.cells is not None:
+                    voltage_v = float(battery_spec.cells) * 3.7
+        if voltage_v is None:
+            cell_count = (project_state.current_parameters or {}).get("battery_cell_count")
+            if cell_count is not None:
+                try:
+                    voltage_v = float(cell_count) * 3.7
+                except (TypeError, ValueError):
+                    voltage_v = None
+
+        resolved_op = resolve_operating_point(
+            spec.catalog_ref.sku, propeller_sku=propeller_sku, voltage_v=voltage_v,
+        )
+
+    if resolved_op is not None:
+        updated_params["per_motor_max_thrust_n"] = resolved_op.thrust_n
+        # Stored as a JSON string, not a nested dict: current_parameters
+        # values must stay hashable — design_explorer.py's per-candidate
+        # evaluation cache keys on frozenset(params.items()), and a dict
+        # value there raises TypeError (silently swallowed by that loop's
+        # broad except, which made every catalog DSE candidate vanish
+        # during this slice's own regression testing). A JSON string is
+        # still fully inspectable by callers via json.loads.
+        updated_params["propulsion_resolution"] = json.dumps({
+            "resolution_type": resolved_op.resolution_type,
+            "thrust_n": resolved_op.thrust_n,
+            "source_type": resolved_op.source_type,
+            "confidence": resolved_op.confidence,
+            "selection_reason": resolved_op.selection_reason,
+            "voltage_v": resolved_op.voltage_v,
+            "propeller_sku": resolved_op.propeller_sku,
+            "fallback_only": resolved_op.fallback_only,
+            "source_reference": resolved_op.source_reference,
+            "motor_sku": resolved_op.motor_sku,
+        }, sort_keys=True)
+        # Keep the component property coherent with the resolved thrust for
+        # exact/fallback resolutions (a real operating point) — never for
+        # legacy_estimate, where the bare spec.properties["thrust_n"] set by
+        # bind_motor_from_catalog already equals resolved_op.thrust_n anyway.
+        # catalog_ref is never touched here — only PropertyValue mutated.
+        if resolved_op.resolution_type in ("exact_operating_point", "fallback_operating_point"):
+            spec = spec.model_copy(update={"properties": {
+                **spec.properties,
+                "thrust_n": PropertyValue(
+                    value=resolved_op.thrust_n, unit="N",
+                    confidence=resolved_op.confidence, source="declared",
+                ),
+            }})
+            updated_components = {**updated_components, "motors": spec}
+            updated_dp = updated_dp.model_copy(update={"components": updated_components})
+    else:
+        # Impl C follow-up (thrust bridge, ★1): thrust_n on the spec is the
+        # sole source for per_motor_max_thrust_n — never invented, never
+        # popped when absent (see docstring above for why no-pop is
+        # deliberate here). Unchanged for freeform/unbound motors.
+        thrust_prop = spec.properties.get("thrust_n")
+        if thrust_prop is not None and thrust_prop.value is not None:
+            updated_params["per_motor_max_thrust_n"] = float(thrust_prop.value)
+        updated_params.pop("propulsion_resolution", None)
     # Catalog v1 (Impl B, 2A): motor mass enters calc ONLY when the component
     # is SKU-bound (catalog_ref set) — free-text-declared motors keep today's
     # physics unchanged (no motor_mass_kg mirror at all, same as before this

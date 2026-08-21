@@ -6,9 +6,16 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`checkpoint-impl-d`**.  
-> **PRIORIDAD AHORA:** Engineer decide siguiente corte — deuda G24–G27 · Create-handoff · `req_lines` gate · Phase 2 physics.  
-> **No bump de versión** hasta Phase 2 / corrección de bugs listados (queda en `0.2.0`).
+> **Base:** tag **`checkpoint-phase2-p2-1`**.  
+> **PRIORIDAD AHORA:** Engineer decide — propeller-bind UX (unlock exact OP in CLI) · G27 · G26 · G24 · Phase 2.x (current-aware OP).  
+> **Versión:** sigue en `0.2.0` hasta decisión explícita de bump (P2-1 ya es candidato válido).
+
+### ✅ COMPLETADO — Phase 2 P2-1 Lookup Operating Point + checkpoint (2026-08-21)
+
+> Tag **`checkpoint-phase2-p2-1`** · `resolve_operating_point` + seeds `emax_rs2205s_2300` / `sunnysky_r2205_2500` · bridge + `estado` evidence · suite **1939 passed**.  
+> Investigation / ★6 / IC / reviews: `.jes/artifacts/*phase2*` — **CLOSED**  
+> Probe 5/5 · Manual CLI: bind S → `fallback_operating_point · 10.042 N` PASS. Exact path via probe (no live prop pick UX yet).  
+> **P2-1 congelado.** Deferred: propeller-bind UX · `v1_max_thrust`→current-aware · G24–G27 · hashability note for future params.
 
 ### ✅ COMPLETADO — Impl D Create → BOM / SKU BOM + checkpoint (2026-08-21)
 

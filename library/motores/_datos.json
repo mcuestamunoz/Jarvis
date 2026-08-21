@@ -161,5 +161,95 @@
     "max_watts": 260,
     "compatible_prop_inch": [5],
     "design_space": {"min_thrust_n": 8.0, "max_thrust_n": 12.0, "kv_min": 2500, "kv_max": 2900}
+  },
+  "emax_rs2205s_2300": {
+    "thrust_n": 10.042,
+    "kv_rating": 2300,
+    "weight_g": 30,
+    "max_watts": 400,
+    "compatible_prop_inch": [5],
+    "design_space": {"min_thrust_n": 8.0, "max_thrust_n": 12.0, "kv_min": 2100, "kv_max": 2500},
+    "manufacturer": "EMAX",
+    "model": "RS2205S 2300KV",
+    "source_url": "https://shop.emaxmodel.com/products/emax-rs2205-racespec-motor-cooling-series",
+    "operating_points": [
+      {
+        "propeller_sku": null,
+        "voltage_v": 16.8,
+        "rpm": null,
+        "thrust_n": 10.042,
+        "current_a": null,
+        "power_w": null,
+        "efficiency_gf_per_w": null,
+        "fallback_only": true,
+        "source_type": "manufacturer_test",
+        "confidence": 0.95,
+        "source_reference": "https://shop.emaxmodel.com/products/emax-rs2205-racespec-motor-cooling-series",
+        "source_note": "FALLBACK ONLY. Headline 1024 gf max at 4S with HQ5045 BN. Not propeller-independent physics.",
+        "approved_by": "Engineer research pass",
+        "approved_date": "2026-08-21"
+      },
+      {
+        "propeller_sku": "hq_5045_bn",
+        "voltage_v": 16.0,
+        "rpm": 23080,
+        "thrust_n": 9.1986,
+        "current_a": 25.0,
+        "power_w": 400.0,
+        "efficiency_gf_per_w": 2.35,
+        "fallback_only": false,
+        "source_type": "manufacturer_test",
+        "confidence": 0.98,
+        "source_reference": "https://www.getfpv.com/emax-rs2205s-2300kv-racespec-motor-cw.html",
+        "source_note": "EMAX RS2205S sample test (GetFPV). 16 V, 5045, 25 A, 938 g, 400 W, 23080 RPM.",
+        "approved_by": "Engineer research pass",
+        "approved_date": "2026-08-21"
+      },
+      {
+        "propeller_sku": "hq_5045_bn",
+        "voltage_v": 16.0,
+        "rpm": 23560,
+        "thrust_n": 9.7086,
+        "current_a": 27.0,
+        "power_w": 432.0,
+        "efficiency_gf_per_w": 2.29,
+        "fallback_only": false,
+        "source_type": "manufacturer_test",
+        "confidence": 0.98,
+        "source_reference": "https://www.getfpv.com/emax-rs2205s-2300kv-racespec-motor-cw.html",
+        "source_note": "Same table, higher load: 27 A, 990 g, 432 W, 23560 RPM.",
+        "approved_by": "Engineer research pass",
+        "approved_date": "2026-08-21"
+      }
+    ]
+  },
+  "sunnysky_r2205_2500": {
+    "thrust_n": 12.5525,
+    "kv_rating": 2500,
+    "weight_g": 30,
+    "max_watts": 592,
+    "compatible_prop_inch": [5],
+    "design_space": {"min_thrust_n": 10.0, "max_thrust_n": 15.5, "kv_min": 2300, "kv_max": 2700},
+    "manufacturer": "SunnySky",
+    "model": "R2205 2500KV",
+    "source_url": "https://img.banggood.com/file/products/20181018062904ER22052500KV.pdf",
+    "operating_points": [
+      {
+        "propeller_sku": "gf_5045x3",
+        "voltage_v": 14.8,
+        "rpm": 27082,
+        "thrust_n": 12.5525,
+        "current_a": 40.0,
+        "power_w": 592.0,
+        "efficiency_gf_per_w": 2.16,
+        "fallback_only": false,
+        "source_type": "manufacturer_test",
+        "confidence": 0.97,
+        "source_reference": "https://img.banggood.com/file/products/20181018062904ER22052500KV.pdf",
+        "source_note": "R2205 KV2500 table: GF5045x3, 14.8 V, 40 A, 1280 gf, 592 W, 27082 RPM. Also listed on SunnySky USA product page.",
+        "approved_by": "Engineer research pass",
+        "approved_date": "2026-08-21"
+      }
+    ]
   }
 }

@@ -14,7 +14,7 @@ import json
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 # Root of the knowledge base relative to this file:
 # src/jarvis/knowledge/ → ../../../../library/
@@ -496,6 +496,165 @@ class ComponentLibrary:
         if motor.compatible_prop_inch:
             return any(abs(p_in - prop.diameter_in) <= 1.0 for p_in in motor.compatible_prop_inch)
         return False
+
+
+# ── Phase 2 P2-1 — Operating Point lookup ────────────────────────────────────
+
+_OP_VOLTAGE_EPSILON_V = 0.05
+
+
+@dataclass(frozen=True)
+class ResolvedOperatingPoint:
+    """Result of resolve_operating_point — always typed, never a bare float.
+
+    ``resolution_type`` tells the caller (and, ultimately, the CLI/estado
+    surface) exactly how trustworthy ``thrust_n`` is:
+      - ``exact_operating_point``    — real motor+propeller[+voltage] combo
+        matched a curated ``operating_points[]`` row (fallback_only=False).
+      - ``fallback_operating_point`` — a ``fallback_only=True`` row matched
+        (motor-only headline point; NOT propeller-independent physics).
+      - ``legacy_estimate``          — no operating_points match; falls back
+        to the bare ``MotorSpec.thrust_n`` catalog peak, exactly today's
+        pre-Phase-2 numeric behavior.
+    """
+
+    thrust_n: float
+    resolution_type: Literal[
+        "exact_operating_point", "fallback_operating_point", "legacy_estimate"
+    ]
+    source_type: str
+    confidence: float
+    selection_reason: str | None
+    voltage_v: float | None
+    rpm: float | None
+    current_a: float | None
+    power_w: float | None
+    efficiency_gf_per_w: float | None
+    propeller_sku: str | None
+    fallback_only: bool
+    source_reference: str | None
+    source_note: str | None
+    motor_sku: str
+
+
+def _resolved_from_op_row(
+    motor_sku: str,
+    row: dict[str, Any],
+    resolution_type: Literal["exact_operating_point", "fallback_operating_point"],
+    selection_reason: str | None,
+) -> ResolvedOperatingPoint:
+    return ResolvedOperatingPoint(
+        thrust_n=float(row["thrust_n"]),
+        resolution_type=resolution_type,
+        source_type=str(row.get("source_type") or "estimated"),
+        confidence=float(row.get("confidence") or 0.0),
+        selection_reason=selection_reason,
+        voltage_v=(float(row["voltage_v"]) if row.get("voltage_v") is not None else None),
+        rpm=(float(row["rpm"]) if row.get("rpm") is not None else None),
+        current_a=(float(row["current_a"]) if row.get("current_a") is not None else None),
+        power_w=(float(row["power_w"]) if row.get("power_w") is not None else None),
+        efficiency_gf_per_w=(
+            float(row["efficiency_gf_per_w"]) if row.get("efficiency_gf_per_w") is not None else None
+        ),
+        propeller_sku=row.get("propeller_sku"),
+        fallback_only=bool(row.get("fallback_only", False)),
+        source_reference=row.get("source_reference"),
+        source_note=row.get("source_note"),
+        motor_sku=motor_sku,
+    )
+
+
+def resolve_operating_point(
+    motor_sku: str,
+    *,
+    propeller_sku: str | None = None,
+    voltage_v: float | None = None,
+    library: ComponentLibrary | None = None,
+) -> ResolvedOperatingPoint | None:
+    """Resolve real thrust for a catalog motor from curated ``operating_points[]``.
+
+    Priority (★6 resolver contract, locked):
+      1. Exact match: a ``fallback_only=False`` row whose ``propeller_sku``
+         equals *propeller_sku* AND (``voltage_v`` is None on either side, or
+         both are present and within ``_OP_VOLTAGE_EPSILON_V``). Multiple
+         exact matches → the one with the highest ``thrust_n`` wins,
+         ``selection_reason="v1_max_thrust"`` (v1 provisional policy).
+      2. Fallback: any ``fallback_only=True`` row for the motor. If
+         *voltage_v* is given and at least one fallback row's voltage is
+         within epsilon, prefer that subset; otherwise any fallback row is
+         eligible. Highest ``thrust_n`` wins among the eligible set.
+      3. Legacy: no operating_points match at all → the bare
+         ``MotorSpec.thrust_n`` catalog peak, labeled ``legacy_estimate`` /
+         ``source_type="estimated"`` — numerically identical to today's
+         pre-Phase-2 behavior (regression contract).
+
+    Returns ``None`` only when *motor_sku* itself isn't in the library —
+    every known motor always resolves to at least a ``legacy_estimate``.
+    """
+    lib = library or default_library
+    try:
+        motor = lib.get_motor(motor_sku)
+    except KeyError:
+        return None
+
+    canonical_prop = _normalize_name(propeller_sku) if propeller_sku else None
+
+    exact_matches: list[dict[str, Any]] = []
+    fallback_matches: list[dict[str, Any]] = []
+    for row in motor.operating_points:
+        row_voltage = row.get("voltage_v")
+        voltage_matches = (
+            voltage_v is None
+            or row_voltage is None
+            or abs(float(row_voltage) - voltage_v) <= _OP_VOLTAGE_EPSILON_V
+        )
+        if bool(row.get("fallback_only", False)):
+            fallback_matches.append(row)
+            continue
+        row_prop = row.get("propeller_sku")
+        if canonical_prop is None or row_prop is None:
+            continue
+        if _normalize_name(str(row_prop)) != canonical_prop:
+            continue
+        if not voltage_matches:
+            continue
+        exact_matches.append(row)
+
+    if exact_matches:
+        best = max(exact_matches, key=lambda r: float(r["thrust_n"]))
+        reason = "v1_max_thrust" if len(exact_matches) > 1 else None
+        return _resolved_from_op_row(motor_sku, best, "exact_operating_point", reason)
+
+    if fallback_matches:
+        if voltage_v is not None:
+            voltage_matched = [
+                r for r in fallback_matches
+                if r.get("voltage_v") is not None
+                and abs(float(r["voltage_v"]) - voltage_v) <= _OP_VOLTAGE_EPSILON_V
+            ]
+            pool = voltage_matched or fallback_matches
+        else:
+            pool = fallback_matches
+        best = max(pool, key=lambda r: float(r["thrust_n"]))
+        return _resolved_from_op_row(motor_sku, best, "fallback_operating_point", None)
+
+    return ResolvedOperatingPoint(
+        thrust_n=motor.thrust_n,
+        resolution_type="legacy_estimate",
+        source_type="estimated",
+        confidence=0.5,
+        selection_reason=None,
+        voltage_v=None,
+        rpm=None,
+        current_a=None,
+        power_w=None,
+        efficiency_gf_per_w=None,
+        propeller_sku=None,
+        fallback_only=False,
+        source_reference=None,
+        source_note="Bare catalog peak thrust_n; no operating_points[] match on file.",
+        motor_sku=motor_sku,
+    )
 
 
 # Shared singleton — safe for single-process use (tests override via constructor)

@@ -1,62 +1,54 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Impl D CLOSED — checkpoint-impl-d; version stays 0.2.0 until Phase 2 / listed bugs",
-  "scope": "SKU-aware BOM projection + D4 estado visibility checkpointed. Debt G24–G27, Create-handoff, req_lines gate, Phase 2 deferred.",
+  "cycle_intent": "Phase 2 P2-1 CLOSED — checkpoint-phase2-p2-1; await Engineer next cut",
+  "scope": "Lookup Operating Point shipped. Version remains 0.2.0. Next: propeller-bind UX or G27/G26/G24 or Phase 2.x — Engineer decides.",
   "execution_status": "checkpointed",
   "current_mode": "Idle",
   "movement_trigger": {
     "type": "checkpoint",
-    "note": "Impl D product-complete: D1–D4 + review PASS + probe 4/4 + manual CLI walk PASS. Tag checkpoint-impl-d."
+    "note": "P2-1 product-validated (fallback CLI walk + probe exact). Tag checkpoint-phase2-p2-1."
   },
   "relevant_workflow_phases": [
     "Checkpoint"
   ],
   "applicable_rules": [
-    "Do not reopen Impl D ★1–★6",
-    "No version bump until Phase 2 / G24–G27 corrections",
-    "Engineer decides next cut order"
+    "Do not reopen P2-1 ★ locks",
+    "current_parameters values must stay hashable",
+    "Version bump only on explicit Engineer call"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_impl_d_create_bom_sku.md",
-    ".jes/artifacts/implementation_report_impl_d_create_bom_sku.md",
-    ".jes/artifacts/implementation_review_impl_d_create_bom_sku.md"
+    ".jes/artifacts/implementation_review_phase2_lookup_operating_point.md"
   ],
   "open_questions": [
-    "Next cut: G24–G27 vs Create-handoff vs req_lines gate vs Phase 2 — Engineer decision",
-    "Optional Scenario C unit test — non-blocking residual"
+    "Next cut: propeller-bind UX vs G27 vs G26 vs G24 vs Phase 2.x current-aware OP",
+    "Version bump 0.2.0 → 0.3.0 now or later?"
   ],
-  "active_operation": "Idle after checkpoint-impl-d. Await Engineer next priority.",
-  "authority_gates": [
-    "★1–★5 RATIFIED and implemented",
-    "★6 D4 shipped presentation-local"
-  ],
+  "active_operation": "Idle after checkpoint-phase2-p2-1. Await Engineer next priority.",
+  "authority_gates": [],
   "coherence_checklist": [
-    "D1–D4 shipped ✅",
-    "implementation review PASS WITH NOTES ✅",
-    "cli_probe_impl_d 4/4 ✅",
-    "manual CLI walk PASS (SKU+qty+D4+4/4+sim) ✅",
-    "version remains 0.2.0 ✅"
+    "P2-1 review PASS WITH NOTES ✅",
+    "CLI fallback walk PASS ✅",
+    "probe exact 5/5 ✅",
+    "tag checkpoint-phase2-p2-1 ✅"
   ],
   "outcome": "CHECKPOINTED",
-  "updated_at": "2026-08-21T10:15:00Z",
+  "updated_at": "2026-08-21T11:15:00Z",
   "phase": "Checkpoint",
   "status": "idle",
   "active_gate": null,
-  "active_artifact": ".jes/artifacts/implementation_review_impl_d_create_bom_sku.md",
+  "active_artifact": ".jes/artifacts/implementation_review_phase2_lookup_operating_point.md",
   "blocking_reason": null,
-  "next_required_action": "Engineer chooses next cut (debt G24–G27 / Create-handoff / req_lines / Phase 2). No version bump yet.",
+  "next_required_action": "Engineer chooses next cut (propeller UX / G27 / G26 / G24 / Phase 2.x).",
   "evidence_refs": [
-    "tag:checkpoint-impl-c",
     "tag:checkpoint-impl-d",
-    ".jes/artifacts/investigation_report_impl_d_create_bom_sku.md",
-    ".jes/artifacts/investigation_review_impl_d_create_bom_sku.md",
-    ".jes/artifacts/implementation_contract_impl_d_create_bom_sku.md",
-    ".jes/artifacts/implementation_report_impl_d_create_bom_sku.md",
-    ".jes/artifacts/implementation_review_impl_d_create_bom_sku.md"
+    "tag:checkpoint-phase2-p2-1",
+    ".jes/artifacts/implementation_contract_phase2_lookup_operating_point.md",
+    ".jes/artifacts/implementation_report_phase2_lookup_operating_point.md",
+    ".jes/artifacts/implementation_review_phase2_lookup_operating_point.md"
   ],
   "open_decisions": [],
   "risks": [
-    "req_lines still suppressed when Continuity evidence present",
-    "G24–G27 still open product debt"
+    "Exact OP not reachable via live CLI propeller pick yet",
+    "G27 still corrupts free-text battery Wh"
   ]
 }

@@ -77,5 +77,15 @@
     "diameter_in": 24.0,
     "pitch_in": 7.2,
     "mass_g": 190
+  },
+  "hq_5045_bn": {
+    "diameter_in": 5.0,
+    "pitch_in": 4.5,
+    "tags": ["hq5045", "bn", "5inch", "bi-blade"]
+  },
+  "gf_5045x3": {
+    "diameter_in": 5.0,
+    "pitch_in": 4.5,
+    "tags": ["gf5045", "tri-blade", "5inch"]
   }
 }

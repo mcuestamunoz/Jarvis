@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import json
 import re
 from pathlib import Path
 from typing import Any
@@ -95,6 +96,19 @@ def _get_frame_material_display(design_properties) -> str:
     Usa el Single Read Point de Fase 3 en lugar del mirror legacy structure.material.
     """
     return get_frame_material(design_properties)
+
+
+def _parse_propulsion_resolution(raw: str | None) -> dict[str, Any] | None:
+    """Phase 2 P2-1: current_parameters["propulsion_resolution"] is stored as
+    a JSON string (must stay hashable for design_explorer's candidate cache
+    — see component_writers.set_motor_component). Parsed back to a dict only
+    here, for the estado/CLI surface."""
+    if not raw:
+        return None
+    try:
+        return json.loads(raw)
+    except (TypeError, ValueError):
+        return None
 
 
 # ── Component description prompts (keyed by component suggested_key) ──────────
@@ -3764,6 +3778,15 @@ class JarvisOrchestrator:
             "physical_requirements_lines": format_requirements_lines(physical_requirements),
             "component_bom": bom,
             "component_bom_lines": format_bom_lines(bom),
+            # Phase 2 P2-1 (Lookup Operating Point) — provenance of the current
+            # per_motor_max_thrust_n, when the motor is catalog-bound. None
+            # for freeform/unbound motors (no resolution to show). Stored as
+            # a JSON string in current_parameters (component_writers.py —
+            # must stay hashable for design_explorer's candidate cache);
+            # parsed back to a dict here for the CLI/estado surface only.
+            "propulsion_resolution": _parse_propulsion_resolution(
+                (project_state.current_parameters or {}).get("propulsion_resolution")
+            ),
             "energy_model_note": energy_note,
             "motor_catalog_matches": catalog_matches,
             "motor_catalog_gap": catalog_gap,

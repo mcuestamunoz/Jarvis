@@ -267,6 +267,23 @@ def render_startup_context(ctx: dict) -> str:
         for line in bom_lines:
             lines.append(f"   {line}")
 
+    # Phase 2 P2-1 (Lookup Operating Point) — honest evidence label for the
+    # current per_motor_max_thrust_n. Never claims exact/manufacturer_test
+    # for a fallback or legacy resolution (★6 resolver contract).
+    propulsion_resolution = ctx.get("propulsion_resolution")
+    if propulsion_resolution:
+        resolution_type = propulsion_resolution.get("resolution_type")
+        source_type = propulsion_resolution.get("source_type")
+        thrust_n = propulsion_resolution.get("thrust_n")
+        suffix = ""
+        if resolution_type == "fallback_operating_point":
+            suffix = " (sin hélice de catálogo)"
+        lines.append("")
+        label = f"Propulsión (evidencia): {resolution_type} · {source_type}"
+        if thrust_n is not None:
+            label += f" · {thrust_n} N"
+        lines.append(label + suffix)
+
     # ERF-1 Slice 5 — Engineering Readiness block (8 subsystems + overall + top gaps)
     readiness = ctx.get("readiness")
     if readiness:
