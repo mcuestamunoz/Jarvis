@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.2.0**
+**v0.3.0**
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -41,8 +41,12 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
-## What v0.2 includes
+## What v0.3 includes
 
+- Everything in v0.2, plus:
+- Catalog-bound motors with lookup operating points (`exact` / `fallback` / `legacy`)
+- Propeller catalog bind UX (`ayúdame a elegir` → SKU) that upgrades fallback → exact OP in CLI
+- SKU-aware BOM / Continuity visibility for catalog-bound components
 - Guided / direct `create_project`
 - Component definition in natural language (motors, frame, battery, propellers, …)
 - Deterministic `calculate` and `simulate` with history + Markdown views
@@ -50,7 +54,7 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 - Engineering intent → Goal Plan → Handoff Context (Plan → DSE / Iterate, FN-024…026)
 - Living System Map (`docs/system_map/`) — 59 connections, 0 RED
 - CLI and MCP adapters
-- Curated material & motor library (small; Physical Catalog v1 is the next engineering leap)
+- Curated motor/propeller library (still thin; Physical Catalog v1 continues)
 
 ## Docs
 
@@ -67,7 +71,8 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 
 ## Tags
 
-`v0.2.0` — H1–H4 handoffs closed; System Map at 0 RED. Still not a production CAD/FEM tool; physical catalogs remain thin.  
-`checkpoint-continuity-polish` — Continuity Hardening + G10 materials/frame + CLI polish S1–S7 (G9-B, G16, G18, G17 partial, G12, G19); commit `15aa503`.  
-`checkpoint-fn026-h4` — architectural checkpoint for the handoff stack.  
+`v0.3.0` — Phase 2 P2-1 lookup OP + Propeller Catalog Bind UX (fallback→exact in live CLI).  
+`checkpoint-propeller-catalog-bind` — propeller help-choose / bind unlocks exact OP.  
+`checkpoint-phase2-p2-1` — `resolve_operating_point` + OP seed data.  
+`v0.2.0` — H1–H4 handoffs closed; System Map at 0 RED.  
 `v0.1.0-prototype` — first functional cut.

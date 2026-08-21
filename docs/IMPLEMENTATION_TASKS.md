@@ -6,10 +6,16 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`checkpoint-phase2-p2-1`**.  
-> **PRIORIDAD AHORA:** Engineer decide — propeller-bind UX (unlock exact OP in CLI) · G27 · G26 · G24 · Phase 2.x (current-aware OP).  
-> **Versión:** sigue en `0.2.0` hasta decisión explícita de bump (P2-1 ya es candidato válido).
+> **Base:** tag **`v0.3.0`** / **`checkpoint-propeller-catalog-bind`**.  
+> **PRIORIDAD AHORA:** G27 · G26 · G24 · Phase 2.x current-aware OP (Engineer ranking).  
+> **Versión:** `0.3.0`.
 
+### ✅ COMPLETADO — Propeller Catalog Bind UX + v0.3.0 (2026-08-21)
+
+> Tag **`checkpoint-propeller-catalog-bind`** · **`v0.3.0`** · live propeller catalog bind → exact OP in CLI.  
+> Review: [implementation_review…](../.jes/artifacts/implementation_review_propeller_catalog_bind_ux.md) — **PASS WITH NOTES**  
+> Probe **6/6** · suite **1947** · Engineer CLI walk PASS (`fallback 10.042` → `hq_5045_bn` → `exact 9.7086`).  
+> **Congelado.** Deferred: G24–G27 · battery/ESC catalog UX · sim/calc auto-refresh after bind.
 ### ✅ COMPLETADO — Phase 2 P2-1 Lookup Operating Point + checkpoint (2026-08-21)
 
 > Tag **`checkpoint-phase2-p2-1`** · `resolve_operating_point` + seeds `emax_rs2205s_2300` / `sunnysky_r2205_2500` · bridge + `estado` evidence · suite **1939 passed**.  

@@ -80,10 +80,11 @@ def build_acquisition_brief(key: str, project_state: Any | None) -> dict[str, st
     lines.append("")
     lines.append("Puedes:")
     lines.append(f"  • {question}")
-    if key == "motors":
-        # G21 ★4: motors is the only component-sub-mode key with a catalog
-        # bind entry point today (Impl B) — advertise it here, not on
-        # battery/frame/propellers, which have no bind path to point to yet.
+    if key in ("motors", "propellers"):
+        # G21 ★4 / Prop-6: motors and propellers are the component-sub-mode
+        # keys with a live catalog bind entry point (Impl B + Prop-3) —
+        # advertise it here, not on battery/frame, which still have no bind
+        # path to point to yet.
         lines.append(
             "  • decir 'ayúdame a elegir' para ver candidatos numerados del catálogo"
         )

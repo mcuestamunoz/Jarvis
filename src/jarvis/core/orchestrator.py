@@ -98,6 +98,24 @@ def _get_frame_material_display(design_properties) -> str:
     return get_frame_material(design_properties)
 
 
+def _is_stub_or_absent(spec: Any) -> bool:
+    """Prop-3 ★4: a component that still needs definition — absent, or
+    completeness == "low"."""
+    return spec is None or (getattr(spec, "completeness", None) or "low") == "low"
+
+
+def _wants_catalog_help(spec: Any) -> bool:
+    """Prop-3 ★4: "wants catalog help" predicate for help-choose / pick
+    dispatch — true when the component is a stub/absent (needs definition)
+    OR when it's freeform-declared without a catalog_ref (the G21
+    upgrade-to-SKU case). Deliberately NOT bare key membership in
+    expected_keys, which starves a later branch in a composite wizard once
+    an earlier key is done (see investigation_report_propeller_catalog_bind_ux.md §4)."""
+    if _is_stub_or_absent(spec):
+        return True
+    return getattr(spec, "catalog_ref", None) is None
+
+
 def _parse_propulsion_resolution(raw: str | None) -> dict[str, Any] | None:
     """Phase 2 P2-1: current_parameters["propulsion_resolution"] is stored as
     a JSON string (must stay hashable for design_explorer's candidate cache
@@ -813,6 +831,11 @@ class JarvisOrchestrator:
             and is_help_choose_phrase(user_input)
         ):
             assist = self._try_start_assisted_motor_help()
+            if assist is None:
+                # Prop-5 (★6 B): motor didn't want help (bound, or nothing to
+                # do there) — try the propeller IDLE re-bind next, same IDLE
+                # help-choose phrase, no separate dispatch needed.
+                assist = self._try_start_assisted_propeller_help()
             if assist is not None:
                 self._track_turn(user_input, assist)
                 return assist
@@ -1415,6 +1438,39 @@ class JarvisOrchestrator:
                 missing.append("battery_capacity_wh")
         self.start_define_missing_params(missing, reason=MISSING_ENERGY_PARAMETERS)
         return self.param_definition_session.offer_catalog_help()
+
+    def _try_start_assisted_propeller_help(self) -> dict | None:
+        """Prop-5 (★6 B): IDLE help-choose → assisted propeller acquisition,
+        the propeller-side counterpart to ``_try_start_assisted_motor_help``.
+        Only ever reached as its fallback (called when that function
+        returned None) — in practice that happens only when motors is
+        already catalog-bound, which also satisfies the "motors not stub"
+        guard below trivially. The explicit guard stays anyway so this
+        function is correct standalone, not just by call-order accident.
+
+        Returns None when there is no active project, motors is still a
+        stub (motor IDLE path should claim that turn instead), or
+        propellers doesn't want catalog help (already bound, or nothing to
+        offer — no picker noise).
+        """
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", {}) or {}
+        if _is_stub_or_absent(components.get("motors")):
+            return None
+        if not _wants_catalog_help(components.get("propellers")):
+            return None
+
+        session = self.state_manager.get_runtime_session()
+        updated = session.model_copy(update={
+            "mode": OrchestratorMode.DEFINE_MISSING_PARAMETERS,
+            "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
+            "pending_missing_params": ["propellers"],
+            "pending_define_missing": False,
+        })
+        self.state_manager.set_runtime_session(updated)
+        return self._offer_component_propeller_catalog(updated, ["propellers"])
 
     def _try_declare_active_block_help(self, user_input: str) -> dict | None:
         """FN-011: 'ayúdame a declarar/completar <bloque>' → deterministic acquisition.
@@ -2387,7 +2443,10 @@ class JarvisOrchestrator:
         suggestions = (
             build_motor_catalog_suggestions(project_state) if project_state is not None else []
         )
-        updated = session.model_copy(update={"motor_suggestions": suggestions})
+        # Prop-3 ★4/§2: offering a fresh motor list retires any pending
+        # propeller pick to avoid cross-pick ambiguity (symmetric with
+        # _offer_component_propeller_catalog clearing motor_suggestions).
+        updated = session.model_copy(update={"motor_suggestions": suggestions, "propeller_suggestions": []})
         self.state_manager.set_runtime_session(updated)
         if not suggestions:
             from jarvis.core.project_closure import derive_physical_requirements
@@ -2471,6 +2530,106 @@ class JarvisOrchestrator:
             "message": f"{saved_msg} {follow_up}",
         }
 
+    def _offer_component_propeller_catalog(
+        self, session: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """Prop-3: catalog list bridge for the propellers COMPONENT sub-mode
+        — mirrors ``_offer_component_motor_catalog``. ★1: suggestions come
+        only from ``build_propeller_catalog_suggestions`` (motor-compatibility
+        filter, no full-catalog dump when no motor is bound yet). Clears
+        ``motor_suggestions`` (★4/§2: offering a new list retires the other
+        family's pending pick to avoid cross-pick ambiguity).
+        """
+        from jarvis.core.propeller_catalog_assist import (
+            build_propeller_catalog_suggestions,
+            format_propeller_catalog_suggestions,
+        )
+
+        project_state = self._safe_active_project()
+        suggestions = (
+            build_propeller_catalog_suggestions(project_state) if project_state is not None else []
+        )
+        updated = session.model_copy(update={
+            "propeller_suggestions": suggestions,
+            "motor_suggestions": [],
+        })
+        self.state_manager.set_runtime_session(updated)
+        return {
+            "status": "interactive",
+            "action": "component_description_prompt",
+            "message": format_propeller_catalog_suggestions(suggestions),
+            "propeller_suggestions": suggestions,
+        }
+
+    def _apply_component_propeller_catalog_pick(
+        self, suggestion: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """Prop-3: bind a catalog pick in the propellers COMPONENT sub-mode
+        and advance the wizard — mirrors ``_apply_component_motor_catalog_pick``.
+
+        ★5 (locked): after ``set_propeller_component``, when motors is
+        already catalog-bound, explicitly re-calls ``set_motor_component``
+        with the existing motor spec so ``resolve_operating_point`` re-runs
+        with the now-available propeller ``catalog_ref`` context (nothing
+        else does this automatically — investigation_report_propeller_
+        catalog_bind_ux.md §5). No new refresh helper — same writer, called
+        again, same as the already-proven pattern in
+        ``scripts/cli_probe_phase2_lookup_op.py``.
+        """
+        from jarvis.core.catalog_bind import bind_propeller_from_catalog
+
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": "No hay proyecto activo. Crea uno primero.",
+            }
+        spec = bind_propeller_from_catalog(suggestion["name"])
+        updated_state = set_propeller_component(project_state, spec)
+
+        # ★5: re-resolve motor OP now that a propeller catalog_ref exists.
+        motors_spec = updated_state.design_properties.components.get("motors")
+        motors_catalog_ref = getattr(motors_spec, "catalog_ref", None)
+        if motors_catalog_ref is not None and motors_catalog_ref.family == "motor":
+            power_prop = motors_spec.properties.get("power_w")
+            power_w = (
+                float(power_prop.value)
+                if power_prop is not None and power_prop.value is not None
+                else (updated_state.current_parameters or {}).get("motor_power_w")
+            )
+            updated_state = set_motor_component(updated_state, motors_spec, power_w)
+
+        self.workspace_manager.save_state(updated_state)
+
+        cleared = self.state_manager.get_runtime_session().model_copy(
+            update={"propeller_suggestions": []}
+        )
+        self.state_manager.set_runtime_session(cleared)
+
+        saved_msg = f"Hélice elegida: {suggestion['name']} ({suggestion['diameter_in']}x{suggestion['pitch_in']})."
+        components = updated_state.design_properties.components
+        still_missing = [
+            k for k in expected_keys
+            if components.get(k) is None or components[k].completeness == "low"
+        ]
+        if not still_missing:
+            self._set_pending_next_block()
+            result: dict[str, Any] = {
+                "status": "ok",
+                "action": "component_description_saved",
+                "message": saved_msg,
+            }
+            return self._append_arch_progress_hint(result)
+
+        follow_up = self._component_prompt_for_first_missing(still_missing)
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": f"{saved_msg} {follow_up}",
+        }
+
     def _handle_component_description(
         self,
         user_input: str,
@@ -2520,19 +2679,37 @@ class JarvisOrchestrator:
             if refusal is not None:
                 return refusal
 
-        # G21 ★3: motors catalog help-choose / pick bridge in COMPONENT
-        # sub-mode — runs before infer_components so a numbered pick ("1")
-        # or a help-choose phrase is never mistaken for a freeform component
-        # description. Help-choose always (re)shows the list; a pick is only
-        # attempted once suggestions are actually on the table.
-        if "motors" in expected_keys:
+        # G21 ★3 / Prop-3 ★4: motors + propellers catalog help-choose / pick
+        # bridge in COMPONENT sub-mode — runs before infer_components so a
+        # numbered pick ("1") or a help-choose phrase is never mistaken for a
+        # freeform component description. Help-choose always (re)shows the
+        # list; a pick is only attempted once suggestions are actually on
+        # the table.
+        #
+        # ★4 (Prop-3, locked): gated on _wants_catalog_help (still
+        # incomplete OR freeform-without-catalog_ref) — NOT bare
+        # `"motors" in expected_keys`. A composite ["motors","propellers"]
+        # wizard keeps expected_keys static for the whole session, so a bare
+        # membership check would starve the propeller branch forever once
+        # motors is bound (investigation_report_propeller_catalog_bind_ux.md
+        # §4). Motors wins when both want help — existing Continuity
+        # motors-first precedent (Continuity Hardening ★4/G14), unchanged.
+        gate_project_state = self._safe_active_project()
+        gate_components = (
+            (getattr(gate_project_state.design_properties, "components", {}) or {})
+            if gate_project_state is not None else {}
+        )
+        motors_want_help = "motors" in expected_keys and _wants_catalog_help(gate_components.get("motors"))
+        propellers_want_help = "propellers" in expected_keys and _wants_catalog_help(gate_components.get("propellers"))
+
+        if motors_want_help or ("motors" in expected_keys and session.motor_suggestions):
             from jarvis.core.motor_catalog_assist import (
                 is_help_choose_phrase,
                 match_suggestion_by_input,
                 resolve_motor_from_text,
             )
 
-            if is_help_choose_phrase(user_input):
+            if motors_want_help and is_help_choose_phrase(user_input):
                 return self._offer_component_motor_catalog(session, expected_keys)
             if session.motor_suggestions:
                 picked = match_suggestion_by_input(user_input, session.motor_suggestions)
@@ -2540,6 +2717,19 @@ class JarvisOrchestrator:
                     picked = resolve_motor_from_text(user_input)
                 if picked is not None:
                     return self._apply_component_motor_catalog_pick(picked, expected_keys)
+
+        if propellers_want_help or ("propellers" in expected_keys and session.propeller_suggestions):
+            from jarvis.core.propeller_catalog_assist import (
+                is_help_choose_phrase as propeller_is_help_choose_phrase,
+                match_suggestion_by_input as propeller_match_suggestion_by_input,
+            )
+
+            if propellers_want_help and propeller_is_help_choose_phrase(user_input):
+                return self._offer_component_propeller_catalog(session, expected_keys)
+            if session.propeller_suggestions:
+                picked = propeller_match_suggestion_by_input(user_input, session.propeller_suggestions)
+                if picked is not None:
+                    return self._apply_component_propeller_catalog_pick(picked, expected_keys)
 
         # ── Affirmative: user confirmed — emit context-specific prompt ────────
         if self._is_affirmative(user_input):

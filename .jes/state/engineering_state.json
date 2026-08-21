@@ -1,54 +1,50 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Phase 2 P2-1 CLOSED — checkpoint-phase2-p2-1; await Engineer next cut",
-  "scope": "Lookup Operating Point shipped. Version remains 0.2.0. Next: propeller-bind UX or G27/G26/G24 or Phase 2.x — Engineer decides.",
+  "cycle_intent": "Propeller Catalog Bind UX + v0.3.0 released — checkpoint closed",
+  "scope": "Live propeller catalog bind unlocks P2-1 exact OP in CLI. Version 0.3.0.",
   "execution_status": "checkpointed",
   "current_mode": "Idle",
   "movement_trigger": {
     "type": "checkpoint",
-    "note": "P2-1 product-validated (fallback CLI walk + probe exact). Tag checkpoint-phase2-p2-1."
+    "note": "v0.3.0 + checkpoint-propeller-catalog-bind. Engineer CLI walk PASS."
   },
-  "relevant_workflow_phases": [
-    "Checkpoint"
-  ],
+  "relevant_workflow_phases": [],
   "applicable_rules": [
-    "Do not reopen P2-1 ★ locks",
-    "current_parameters values must stay hashable",
+    "Commit only when Engineer asks",
     "Version bump only on explicit Engineer call"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_phase2_lookup_operating_point.md"
+    ".jes/artifacts/implementation_review_propeller_catalog_bind_ux.md"
   ],
-  "open_questions": [
-    "Next cut: propeller-bind UX vs G27 vs G26 vs G24 vs Phase 2.x current-aware OP",
-    "Version bump 0.2.0 → 0.3.0 now or later?"
+  "open_questions": [],
+  "active_operation": "Idle — next Engineer ranking: G27 / G26 / G24 / current-aware OP.",
+  "authority_gates": [
+    "★1–★7 implemented",
+    "Definitive CLI fallback→exact PASS",
+    "Prop-5 IDLE matrix PASS",
+    "v0.3.0 released"
   ],
-  "active_operation": "Idle after checkpoint-phase2-p2-1. Await Engineer next priority.",
-  "authority_gates": [],
   "coherence_checklist": [
-    "P2-1 review PASS WITH NOTES ✅",
-    "CLI fallback walk PASS ✅",
-    "probe exact 5/5 ✅",
-    "tag checkpoint-phase2-p2-1 ✅"
+    "Probe 6/6 ✅",
+    "Engineer CLI walk ✅",
+    "Commit + push + tags ✅"
   ],
-  "outcome": "CHECKPOINTED",
-  "updated_at": "2026-08-21T11:15:00Z",
-  "phase": "Checkpoint",
+  "outcome": "CHECKPOINT_CLOSED",
+  "updated_at": "2026-08-21T11:50:00Z",
+  "phase": "Idle",
   "status": "idle",
   "active_gate": null,
-  "active_artifact": ".jes/artifacts/implementation_review_phase2_lookup_operating_point.md",
+  "active_artifact": null,
   "blocking_reason": null,
-  "next_required_action": "Engineer chooses next cut (propeller UX / G27 / G26 / G24 / Phase 2.x).",
+  "next_required_action": "Engineer ranks next cut (G27 / G26 / G24 / Phase 2.x).",
   "evidence_refs": [
-    "tag:checkpoint-impl-d",
+    "tag:v0.3.0",
+    "tag:checkpoint-propeller-catalog-bind",
     "tag:checkpoint-phase2-p2-1",
-    ".jes/artifacts/implementation_contract_phase2_lookup_operating_point.md",
-    ".jes/artifacts/implementation_report_phase2_lookup_operating_point.md",
-    ".jes/artifacts/implementation_review_phase2_lookup_operating_point.md"
+    ".jes/artifacts/implementation_review_propeller_catalog_bind_ux.md"
   ],
   "open_decisions": [],
   "risks": [
-    "Exact OP not reachable via live CLI propeller pick yet",
-    "G27 still corrupts free-text battery Wh"
+    "G27 still open parallel debt"
   ]
 }

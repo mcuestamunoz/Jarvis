@@ -151,6 +151,17 @@ def test_g21_idle_help_choose_when_power_set_unbound_motor(tmp_path: Path):
 
 
 def test_g21_idle_help_choose_noop_when_catalog_ref_set(tmp_path: Path):
+    """Regression guard: a catalog-bound motor must never reopen the MOTOR
+    picker (the original G21 dead-end bug this test was written for).
+
+    Prop-3/Prop-5 (★6 B, post P2-1): this fixture's project has no
+    ``propellers`` component at all (a genuine stub), and motors is already
+    catalog-bound — so the IDLE help-choose fallback now legitimately opens
+    the PROPELLER picker instead of falling through to nothing. That is the
+    intended P2-1-unlock behavior (investigation_report_propeller_catalog_
+    bind_ux.md §5/§7), not a regression. What this test must still guard
+    against is a false MOTOR re-bind — asserted directly below.
+    """
     from jarvis.schemas.action_schema import CatalogRef
 
     o = _project_with_unbound_freeform_motor(
@@ -159,15 +170,16 @@ def test_g21_idle_help_choose_noop_when_catalog_ref_set(tmp_path: Path):
 
     result = o.handle_user_text("ayúdame a elegir", _FakeLLM())
 
-    # Regression guard: bound motor does not reopen the picker — falls
-    # through to ordinary IDLE routing (project_status/analyze), never a
-    # false re-bind offer.
-    assert result.get("action") != "component_description_prompt"
     session = o.state_manager.runtime_state.session
+    # The actual G21 regression this test guards: never a false motor re-bind.
     assert not (
         session.mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS
         and session.pending_missing_params == ["motors"]
     )
+    # If a picker opened at all, it must be the legitimate propeller one —
+    # never a stray/misrouted motor prompt.
+    if result.get("action") == "component_description_prompt":
+        assert session.pending_missing_params == ["propellers"]
 
 
 # ── Slice 2 (G22): single strict catalog authority ──────────────────────────
