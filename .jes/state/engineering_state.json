@@ -1,59 +1,62 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Impl D investigation — Create→BOM / SKU BOM (audit only)",
-  "scope": "Investigation Contract ready for Claude. G25 finding artifact landed. Debt G24–G27 out of Impl D investigation scope.",
-  "execution_status": "in_progress",
-  "current_mode": "Investigate",
+  "cycle_intent": "Impl D CLOSED — checkpoint-impl-d; version stays 0.2.0 until Phase 2 / listed bugs",
+  "scope": "SKU-aware BOM projection + D4 estado visibility checkpointed. Debt G24–G27, Create-handoff, req_lines gate, Phase 2 deferred.",
+  "execution_status": "checkpointed",
+  "current_mode": "Idle",
   "movement_trigger": {
-    "type": "investigation_contract",
-    "note": "G25 artifact created; investigation_contract_impl_d_create_bom_sku.md READY FOR CLAUDE."
+    "type": "checkpoint",
+    "note": "Impl D product-complete: D1–D4 + review PASS + probe 4/4 + manual CLI walk PASS. Tag checkpoint-impl-d."
   },
   "relevant_workflow_phases": [
-    "Investigate",
-    "Review"
+    "Checkpoint"
   ],
   "applicable_rules": [
-    "No production fix in investigation contract",
-    "Do not reopen Impl C",
-    "Do not design G24–G27 fixes inside Impl D investigation",
-    "Prefer extending build_component_bom over parallel BOM authority",
-    "Never present catalog_ref=None as resolved purchasable SKU"
+    "Do not reopen Impl D ★1–★6",
+    "No version bump until Phase 2 / G24–G27 corrections",
+    "Engineer decides next cut order"
   ],
   "required_artifacts": [
-    ".jes/artifacts/investigation_contract_impl_d_create_bom_sku.md",
-    ".jes/artifacts/investigation_report_impl_d_create_bom_sku.md",
-    ".jes/artifacts/investigation_review_impl_d_create_bom_sku.md"
+    ".jes/artifacts/implementation_contract_impl_d_create_bom_sku.md",
+    ".jes/artifacts/implementation_report_impl_d_create_bom_sku.md",
+    ".jes/artifacts/implementation_review_impl_d_create_bom_sku.md"
   ],
   "open_questions": [
-    "Impl D v1: SKU BOM surface only (A) vs + Continuity CTA (B) vs parallel build_sku_bom (C) — Engineer ★ after report",
-    "Scoring/ranking observation from Impl C (catalog vs abstract params) — deferred, not Impl D",
-    "C3 battery catalog pick UX — deferred",
-    "R3b define_params-preempt — still unresolved, untracked"
+    "Next cut: G24–G27 vs Create-handoff vs req_lines gate vs Phase 2 — Engineer decision",
+    "Optional Scenario C unit test — non-blocking residual"
   ],
-  "active_operation": "Claude: produce investigation_report_impl_d_create_bom_sku.md from investigation_contract_impl_d_create_bom_sku.md. Then Cursor investigation review.",
-  "authority_gates": [],
+  "active_operation": "Idle after checkpoint-impl-d. Await Engineer next priority.",
+  "authority_gates": [
+    "★1–★5 RATIFIED and implemented",
+    "★6 D4 shipped presentation-local"
+  ],
   "coherence_checklist": [
-    "G25 finding file exists and is linked from IMPLEMENTATION_TASKS ✅",
-    "Impl D investigation contract READY FOR CLAUDE ✅",
-    "checkpoint-impl-c remains base ✅"
+    "D1–D4 shipped ✅",
+    "implementation review PASS WITH NOTES ✅",
+    "cli_probe_impl_d 4/4 ✅",
+    "manual CLI walk PASS (SKU+qty+D4+4/4+sim) ✅",
+    "version remains 0.2.0 ✅"
   ],
-  "outcome": null,
-  "updated_at": "2026-08-21T09:15:00Z",
-  "phase": "Investigate",
-  "status": "active",
+  "outcome": "CHECKPOINTED",
+  "updated_at": "2026-08-21T10:15:00Z",
+  "phase": "Checkpoint",
+  "status": "idle",
   "active_gate": null,
-  "active_artifact": ".jes/artifacts/investigation_contract_impl_d_create_bom_sku.md",
+  "active_artifact": ".jes/artifacts/implementation_review_impl_d_create_bom_sku.md",
   "blocking_reason": null,
-  "next_required_action": "Claude: write investigation_report_impl_d_create_bom_sku.md. Then Cursor review → Engineer ★ → IC Impl D.",
+  "next_required_action": "Engineer chooses next cut (debt G24–G27 / Create-handoff / req_lines / Phase 2). No version bump yet.",
   "evidence_refs": [
     "tag:checkpoint-impl-c",
-    ".jes/artifacts/engineer_verdict_post_impl_c_cli_walk.md",
-    ".jes/artifacts/cli_finding_g25_sistema_llm_leak.md",
-    ".jes/artifacts/investigation_contract_impl_d_create_bom_sku.md"
+    "tag:checkpoint-impl-d",
+    ".jes/artifacts/investigation_report_impl_d_create_bom_sku.md",
+    ".jes/artifacts/investigation_review_impl_d_create_bom_sku.md",
+    ".jes/artifacts/implementation_contract_impl_d_create_bom_sku.md",
+    ".jes/artifacts/implementation_report_impl_d_create_bom_sku.md",
+    ".jes/artifacts/implementation_review_impl_d_create_bom_sku.md"
   ],
   "open_decisions": [],
   "risks": [
-    "Create→BOM historically ambiguous (SKU BOM surface vs Continuity handoff) — investigation must force Engineer ★",
-    "Frankenstein post-G24 (name set, catalog_ref None) must not be treated as resolved SKU in BOM"
+    "req_lines still suppressed when Continuity evidence present",
+    "G24–G27 still open product debt"
   ]
 }

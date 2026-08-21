@@ -251,8 +251,17 @@ def render_startup_context(ctx: dict) -> str:
         for line in req_lines:
             lines.append(f"   • {line}")
 
+    # Impl D ★6/D4: BOM lines render whenever present, independent of
+    # Continuity's own evidence state — previously this section was
+    # suppressed any time Continuity had *any* evidence queued (physics
+    # gaps, catalog gaps, the energy-model honesty note — all common
+    # states), which meant a SKU-aware BOM (this IC's whole point) could be
+    # correct and still invisible in `estado`. Presentation-only change: no
+    # Continuity ranking/next_useful_step/evidence-block edit (★3 stays
+    # untouched). The sibling `req_lines` gate above is deliberately left
+    # as-is — out of this IC's ★6 scope.
     bom_lines = ctx.get("component_bom_lines") or []
-    if bom_lines and not continuity.get("evidence"):
+    if bom_lines:
         lines.append("")
         lines.append("Componentes / gaps:")
         for line in bom_lines:

@@ -6,8 +6,17 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`checkpoint-impl-c`**.  
-> **PRIORIDAD AHORA:** **Impl D (Create→BOM)**. Debt G24–G27 queued, do not polish before Impl D.
+> **Base:** tag **`checkpoint-impl-d`**.  
+> **PRIORIDAD AHORA:** Engineer decide siguiente corte — deuda G24–G27 · Create-handoff · `req_lines` gate · Phase 2 physics.  
+> **No bump de versión** hasta Phase 2 / corrección de bugs listados (queda en `0.2.0`).
+
+### ✅ COMPLETADO — Impl D Create → BOM / SKU BOM + checkpoint (2026-08-21)
+
+> Tag **`checkpoint-impl-d`** · `build_component_bom` + `format_bom_lines` consumen `catalog_ref` / `sku_resolved` / `quantity` · D4 `estado` BOM visible con Continuity evidence · suite **1923 passed**.  
+> Investigation / IC / reviews: `.jes/artifacts/*impl_d*` — **CLOSED**  
+> Probe: `scripts/cli_probe_impl_d_sku_bom.py` 4/4 · Manual CLI walk PASS (create→arch→bind→4/4→BOM `[sku] qty=4`→sim PASS; NOT ASSEMBLY READY = Requirements INCOMPLETE, expected).  
+> Deferred (explicit): Create-handoff · `req_lines` gate · Scenario C unit test · `catalog_bound`→verdict · G24–G27 · Phase 2.  
+> **Impl D congelado.**
 
 ### ✅ COMPLETADO — Impl C Catalog-Aware DSE + thrust bridge + checkpoint (2026-08-21)
 
@@ -15,18 +24,18 @@
 > Investigation / IC / reviews: `.jes/artifacts/*impl_c*` — **CLOSED**  
 > Engineer verdict: [`.jes/artifacts/engineer_verdict_post_impl_c_cli_walk.md`](../.jes/artifacts/engineer_verdict_post_impl_c_cli_walk.md)  
 > CLI walk: `autonomia-5540bda0ac16` — full create→arch→catalog→DSE→apply→iterate→4/4→energy tradeoffs→15 min PASS risky; ASSEMBLY READY blocked by Requirements (G26).  
-> **Impl C congelado** — next **Impl D (Create→BOM)**.  
-> Debt (explicit, do not polish before Impl D): **G24** apply-only-#1 · **G26** requirements/constraints · **G27** 6S→6Wh · G25 `sistema`→LLM · DSE ranking with prior thrust.
+> **Impl C congelado.**
 
-### 🟡 SIGUIENTE — Impl D Create → BOM (investigation)
+### 🟡 DEUDA POST–Impl D (Engineer decide orden)
 
-> Consume SKU identity into BOM / Create→BOM handoff.  
-> Base: tag **`checkpoint-impl-c`**.  
-> Investigation: [`.jes/artifacts/investigation_contract_impl_d_create_bom_sku.md`](../.jes/artifacts/investigation_contract_impl_d_create_bom_sku.md) — **READY FOR CLAUDE**  
-> Output (pending): `.jes/artifacts/investigation_report_impl_d_create_bom_sku.md`  
-> Do **not** reopen Impl C. Debt G24–G27 out of scope for this investigation.
+> **G24 🔴** — DSE apply only `#1`; catalog row unselectable: [cli_finding_g24…](../.jes/artifacts/cli_finding_g24_dse_apply_only_top1_catalog_unselectable.md)  
+> **G25 🟡** — bare `sistema` → LLM: [cli_finding_g25…](../.jes/artifacts/cli_finding_g25_sistema_llm_leak.md)  
+> **G26 🟡** — restrictions/objective → loose `autonomia=15`, not constraint: [cli_finding_g26…](../.jes/artifacts/cli_finding_g26_restrictions_not_parsed.md)  
+> **G27 🔴** — `LiPo 6S 10000mAh` → `6 Wh`: [cli_finding_g27…](../.jes/artifacts/cli_finding_g27_battery_6s_parsed_as_6wh.md)  
+> Also: `req_lines` suppression gate (sibling of D4) · Create→BOM Continuity handoff · optional Scenario C test · `catalog_bound`→verdict.
 
 ### ✅ COMPLETADO — G9-A Catalog-Ref Blind Spot + checkpoint (2026-08-20)
+
 
 > Tag **`checkpoint-g9a`** · suite **1885 passed**.  
 > Investigation: [`.jes/artifacts/investigation_g9a_catalog_ref_blind_spot.md`](../.jes/artifacts/investigation_g9a_catalog_ref_blind_spot.md) — **CLOSED**  
@@ -44,14 +53,6 @@
 > Report R3b: [`.jes/artifacts/implementation_report_r3b_preempt_real.md`](../.jes/artifacts/implementation_report_r3b_preempt_real.md)  
 > Delivered: honest refuse + DSE soft-interrupt (R3a) · sub-mode-aware real preempt with partial-apply + FN-004 abort (R3b) · closes G7/G8/G11 residual.  
 > **R3 congelado** — no further changes unless real bugs post-tag.
-
-### 🟡 DEUDA POST–Impl C (no bloquear Impl D)
-
-> **G24 🔴** — DSE apply only `#1`; catalog row unselectable: [cli_finding_g24…](../.jes/artifacts/cli_finding_g24_dse_apply_only_top1_catalog_unselectable.md)  
-> **G25 🟡** — bare `sistema` → LLM: [cli_finding_g25…](../.jes/artifacts/cli_finding_g25_sistema_llm_leak.md)  
-> **G26 🟡** — restrictions/objective → loose `autonomia=15`, not constraint: [cli_finding_g26…](../.jes/artifacts/cli_finding_g26_restrictions_not_parsed.md)  
-> **G27 🔴** — `LiPo 6S 10000mAh` → `6 Wh`: [cli_finding_g27…](../.jes/artifacts/cli_finding_g27_battery_6s_parsed_as_6wh.md)  
-> Engineer: do **not** polish these before Impl D.
 
 ### ✅ COMPLETADO — ERF-2 Dependency Hardening + FN-ESC + checkpoint (2026-08-19)
 

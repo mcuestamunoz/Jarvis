@@ -188,6 +188,83 @@ def classify_component(key: str, spec: Any, project_state: Any) -> str:
     return "declared"
 
 
+def _bom_catalog_ref_dict(spec: Any) -> dict[str, str] | None:
+    """Impl D ★2: plain-dict projection of spec.catalog_ref, or None.
+
+    No new schema — a straight passthrough of the existing CatalogRef.
+    """
+    catalog_ref = getattr(spec, "catalog_ref", None)
+    if catalog_ref is None:
+        return None
+    if hasattr(catalog_ref, "model_dump"):
+        return catalog_ref.model_dump()
+    return {"family": catalog_ref.family, "sku": catalog_ref.sku}
+
+
+def _bom_sku_resolved(catalog_ref: dict[str, str] | None) -> bool:
+    """Impl D ★2/§2.2 (non-negotiable): computed from ``catalog_ref`` +
+    a live library re-check — NEVER from ``.name`` shape. This is the one
+    rule that closes Scenario D (frankenstein): after G5's
+    ``invalidate_diverged_catalog_refs`` clears ``catalog_ref`` but leaves
+    ``.name`` as the old SKU string, this function sees ``catalog_ref is
+    None`` and returns False regardless of what ``.name`` looks like — the
+    caller never even passes ``.name`` in here to be tempted by it. Scenario
+    C (SKU removed from the library after binding) also resolves False, via
+    the same ``has_motor``/``has_battery`` re-check G9-A already uses
+    elsewhere — no second catalog reader.
+    """
+    if catalog_ref is None:
+        return False
+    sku = catalog_ref.get("sku")
+    if not sku:
+        return False
+    from jarvis.knowledge.library import default_library
+
+    family = catalog_ref.get("family")
+    if family == "motor":
+        return default_library.has_motor(sku)
+    if family == "battery":
+        return default_library.has_battery(sku)
+    return False  # no v1 resolve path for other families (★2)
+
+
+def _bom_quantity(key: str, spec: Any, project_state: Any) -> int | None:
+    """Impl D §2.3: minimal, non-invented per-family quantity.
+
+    - motors / propellers: ``current_parameters["motor_count"]`` (the same
+      single source of truth ``set_motor_component``'s own Bug78/FN-007
+      fallback already uses), falling back to the motors component's own
+      ``motor_count`` property when the params-side value is absent.
+      Propellers reuses this number as a documented *convention* (1
+      propeller per motor for the aerial domain) — no independent
+      ``propeller_count`` field exists anywhere in this codebase.
+    - esc: ``None`` — honest unknown. A 4-in-1 ESC vs. one-per-motor is a
+      real design choice this codebase has no data to distinguish; guessing
+      would violate "never invent quantities".
+    - everything else (battery, frame, flight_controller, sensors, ...):
+      ``1`` — every other family this codebase tracks is a singleton; no
+      count field is ever collected for them, so 1 is not an invention.
+    """
+    if key in ("motors", "propellers"):
+        params = getattr(project_state, "current_parameters", None) or {}
+        count = params.get("motor_count")
+        if count is None:
+            dp = getattr(project_state, "design_properties", None)
+            components = getattr(dp, "components", None) or {}
+            motors_spec = components.get("motors")
+            count_prop = (getattr(motors_spec, "properties", None) or {}).get("motor_count")
+            count = count_prop.value if count_prop is not None else None
+        if count is None:
+            return None
+        try:
+            return int(count)
+        except (TypeError, ValueError):
+            return None
+    if key == "esc":
+        return None
+    return 1
+
+
 def build_component_bom(project_state: Any) -> dict[str, Any]:
     """Light BOM: defined / incomplete / missing / declarative-only components.
 
@@ -196,6 +273,12 @@ def build_component_bom(project_state: Any) -> dict[str, Any]:
     genuinely low/stub (a real acquisition target), never a merely-medium-but-
     measurable component (that lands in "declarative", matching what
     architecture progress already treats as present).
+
+    Impl D (★1/★2): each entry additionally carries ``catalog_ref``,
+    ``sku_resolved``, and ``quantity`` — the BOM projection now consumes SKU
+    identity instead of only completeness buckets. Pure additive fields; no
+    existing key removed or renamed (``name`` stays ``name`` — not
+    ``display_name``).
     """
     from jarvis.core.system_architecture_catalog import BLOCK_TO_COMPONENTS
 
@@ -218,12 +301,16 @@ def build_component_bom(project_state: Any) -> dict[str, Any]:
 
     def _entry(key: str, spec: Any) -> dict[str, Any]:
         _, missing_fields = _measurable_and_missing_fields(key, spec, project_state)
+        catalog_ref = _bom_catalog_ref_dict(spec)
         return {
             "key": key,
             "name": getattr(spec, "name", key),
             "completeness": getattr(spec, "completeness", "low") or "low",
             "missing_fields": missing_fields,
             "component_type": getattr(spec, "component_type", None),
+            "catalog_ref": catalog_ref,
+            "sku_resolved": _bom_sku_resolved(catalog_ref),
+            "quantity": _bom_quantity(key, spec, project_state),
         }
 
     def _classify(key: str, spec: Any) -> None:
@@ -305,15 +392,45 @@ def format_requirements_lines(requirements: dict[str, Any]) -> list[str]:
     return lines
 
 
+def _bom_identity_suffix(entry: dict[str, Any]) -> str:
+    """Impl D §3.1: ``[sku]`` only when actually resolved. A bound-but-
+    unresolved SKU (Scenario C) gets an honest "sin resolver" marker instead
+    of silently looking identical to a resolved one; an unbound/frankenstein
+    entry (``catalog_ref is None``) gets neither — never inferred from
+    ``.name`` shape."""
+    catalog_ref = entry.get("catalog_ref")
+    if catalog_ref is None:
+        return ""
+    if entry.get("sku_resolved"):
+        return f" [{catalog_ref.get('sku')}]"
+    return " (SKU sin resolver)"
+
+
+def _bom_quantity_suffix(entry: dict[str, Any]) -> str:
+    """Impl D §2.3: ``qty=N`` only when a real quantity is known — never for
+    ESC (honest unknown, quantity is None)."""
+    qty = entry.get("quantity")
+    return "" if qty is None else f" qty={qty}"
+
+
 def format_bom_lines(bom: dict[str, Any]) -> list[str]:
     lines: list[str] = []
     for entry in bom.get("defined") or []:
-        lines.append(f"✓ {entry['key']}: {entry.get('name') or entry['key']} ({entry.get('completeness')})")
+        lines.append(
+            f"✓ {entry['key']}: {entry.get('name') or entry['key']}"
+            f"{_bom_identity_suffix(entry)}{_bom_quantity_suffix(entry)} ({entry.get('completeness')})"
+        )
     for entry in bom.get("incomplete") or []:
         miss = ", ".join(entry.get("missing_fields") or []) or "incompleto"
-        lines.append(f"… {entry['key']}: {entry.get('name') or entry['key']} — falta {miss}")
+        lines.append(
+            f"… {entry['key']}: {entry.get('name') or entry['key']}"
+            f"{_bom_identity_suffix(entry)}{_bom_quantity_suffix(entry)} — falta {miss}"
+        )
     for entry in bom.get("declarative") or []:
-        lines.append(f"◇ {entry['key']}: {entry.get('name') or entry['key']} (declarativo)")
+        lines.append(
+            f"◇ {entry['key']}: {entry.get('name') or entry['key']}"
+            f"{_bom_identity_suffix(entry)}{_bom_quantity_suffix(entry)} (declarativo)"
+        )
     for key in bom.get("missing") or []:
         lines.append(f"✗ {key}: no definido")
     return lines
