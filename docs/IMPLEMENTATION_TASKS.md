@@ -18,10 +18,13 @@
 > **Impl C congelado** — next **Impl D (Create→BOM)**.  
 > Debt (explicit, do not polish before Impl D): **G24** apply-only-#1 · **G26** requirements/constraints · **G27** 6S→6Wh · G25 `sistema`→LLM · DSE ranking with prior thrust.
 
-### 🟡 SIGUIENTE — Impl D Create → BOM
+### 🟡 SIGUIENTE — Impl D Create → BOM (investigation)
 
 > Consume SKU identity into BOM / Create→BOM handoff.  
-> Do **not** reopen Impl C architecture. NL/requirements debt stays queued (G24–G27).
+> Base: tag **`checkpoint-impl-c`**.  
+> Investigation: [`.jes/artifacts/investigation_contract_impl_d_create_bom_sku.md`](../.jes/artifacts/investigation_contract_impl_d_create_bom_sku.md) — **READY FOR CLAUDE**  
+> Output (pending): `.jes/artifacts/investigation_report_impl_d_create_bom_sku.md`  
+> Do **not** reopen Impl C. Debt G24–G27 out of scope for this investigation.
 
 ### ✅ COMPLETADO — G9-A Catalog-Ref Blind Spot + checkpoint (2026-08-20)
 
@@ -45,7 +48,7 @@
 ### 🟡 DEUDA POST–Impl C (no bloquear Impl D)
 
 > **G24 🔴** — DSE apply only `#1`; catalog row unselectable: [cli_finding_g24…](../.jes/artifacts/cli_finding_g24_dse_apply_only_top1_catalog_unselectable.md)  
-> **G25 🟡** — bare `sistema` → LLM  
+> **G25 🟡** — bare `sistema` → LLM: [cli_finding_g25…](../.jes/artifacts/cli_finding_g25_sistema_llm_leak.md)  
 > **G26 🟡** — restrictions/objective → loose `autonomia=15`, not constraint: [cli_finding_g26…](../.jes/artifacts/cli_finding_g26_restrictions_not_parsed.md)  
 > **G27 🔴** — `LiPo 6S 10000mAh` → `6 Wh`: [cli_finding_g27…](../.jes/artifacts/cli_finding_g27_battery_6s_parsed_as_6wh.md)  
 > Engineer: do **not** polish these before Impl D.

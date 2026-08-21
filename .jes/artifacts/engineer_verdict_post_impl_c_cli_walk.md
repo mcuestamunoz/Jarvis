@@ -34,7 +34,7 @@
 4. UX: `ayúdame a elegir` under simulation blocker (IDLE no-op vs enter motors block — acceptable gate, weak recovery)  
 5. **G24** — DSE ranking / apply-by-index when thrust already declared  
 
-Also noted: G25 (`sistema` → LLM); readiness UX when all PASS except Requirements; autonomy calc ignores mass (v1 model limit, not architecture flaw).
+Also noted: G25 (`sistema` → LLM) — [cli_finding_g25_sistema_llm_leak.md](cli_finding_g25_sistema_llm_leak.md); readiness UX when all PASS except Requirements; autonomy calc ignores mass (v1 model limit, not architecture flaw).
 
 ## Decision
 

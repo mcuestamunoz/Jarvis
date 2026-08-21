@@ -1,87 +1,59 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Impl C CLOSED — checkpoint-impl-c; next Impl D Create→BOM",
-  "scope": "Catalog-aware DSE (generation + thrust bridge) checkpointed. Explicit debt G24–G27 queued; do not polish before Impl D.",
-  "execution_status": "checkpointed",
-  "current_mode": "Idle",
+  "cycle_intent": "Impl D investigation — Create→BOM / SKU BOM (audit only)",
+  "scope": "Investigation Contract ready for Claude. G25 finding artifact landed. Debt G24–G27 out of Impl D investigation scope.",
+  "execution_status": "in_progress",
+  "current_mode": "Investigate",
   "movement_trigger": {
-    "type": "checkpoint",
-    "note": "Impl C product-complete: generation + thrust bridge + Engineer CLI walk PASS. Tag checkpoint-impl-c."
+    "type": "investigation_contract",
+    "note": "G25 artifact created; investigation_contract_impl_d_create_bom_sku.md READY FOR CLAUDE."
   },
   "relevant_workflow_phases": [
-    "Implement",
-    "Review",
-    "Checkpoint"
+    "Investigate",
+    "Review"
   ],
   "applicable_rules": [
-    "Do not commit the generation cut alone - single combined Impl C commit only",
-    "Do not reopen Impl C ★1-★7 (parent IC)",
-    "Do not redesign DSE, add ranking preference for catalog candidates, or change _score_candidate",
-    "Minimum change that closes the thrust gap - STOP on any contradiction with locked surfaces",
-    "Bridge must propagate SKU's real thrust_n only - never calculate/estimate/invent/re-lookup",
-    "CLI probe must not force a non-viable candidate into viable[0] to fake a pass"
+    "No production fix in investigation contract",
+    "Do not reopen Impl C",
+    "Do not design G24–G27 fixes inside Impl D investigation",
+    "Prefer extending build_component_bom over parallel BOM authority",
+    "Never present catalog_ref=None as resolved purchasable SKU"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_impl_c_catalog_aware_dse.md",
-    ".jes/artifacts/implementation_report_impl_c_catalog_aware_dse.md",
-    ".jes/artifacts/implementation_review_impl_c_catalog_aware_dse.md",
-    ".jes/artifacts/implementation_contract_impl_c_catalog_dse_thrust_bridge.md",
-    ".jes/artifacts/implementation_report_impl_c_catalog_dse_thrust_bridge.md"
+    ".jes/artifacts/investigation_contract_impl_d_create_bom_sku.md",
+    ".jes/artifacts/investigation_report_impl_d_create_bom_sku.md",
+    ".jes/artifacts/investigation_review_impl_d_create_bom_sku.md"
   ],
   "open_questions": [
-    "Scoring/ranking observation (still real, not fixed, ★3/★8 locked): on an ALREADY-declared-thrust project, abstract params-grid entries still out-score real catalog candidates (unbounded cost-free thrust upside vs bounded real SKUs). Only the no-prior-thrust fixture shape naturally surfaces catalog candidates in top-5. Flagged for a future Engineer ranking-policy decision, does not block Impl C product-complete per this contract's exit criterion.",
-    "C3 battery catalog (mejorar_autonomia) - still deferred, needs its own extension IC.",
-    "R3b's define_params-preempt open question - still unresolved, untracked, carried forward across cycles.",
-    "Commit sequencing: three uncommitted logical pieces now stacked (G21/G22/G23 at checkpoint-g21-g23 already tagged/committed per this contract's base; Impl C generation cut + this thrust-bridge follow-up both uncommitted, intended as ONE combined commit) - Engineer must decide when/how to commit."
+    "Impl D v1: SKU BOM surface only (A) vs + Continuity CTA (B) vs parallel build_sku_bom (C) — Engineer ★ after report",
+    "Scoring/ranking observation from Impl C (catalog vs abstract params) — deferred, not Impl D",
+    "C3 battery catalog pick UX — deferred",
+    "R3b define_params-preempt — still unresolved, untracked"
   ],
-  "active_operation": "Impl C follow-up implementation complete - awaiting Engineer/Cursor review of implementation_report_impl_c_catalog_dse_thrust_bridge.md. Ready for single combined Impl C commit per contract §10 exit criterion.",
-  "authority_gates": [
-    "★1 thrust_n on applied spec is sole source for per_motor_max_thrust_n - implemented",
-    "★2 component-driven path only; params-only DSE unchanged - implemented",
-    "★3 _score_candidate untouched - confirmed",
-    "★4 ExplorationCandidate schema unchanged - confirmed",
-    "★5 G9-A untouched - confirmed",
-    "★6 G5 order/logic untouched, no STOP needed - confirmed",
-    "★7 catalog_bind.py untouched, no STOP needed - confirmed",
-    "★8 no scoring/ranking preference for catalog candidates - confirmed"
-  ],
+  "active_operation": "Claude: produce investigation_report_impl_d_create_bom_sku.md from investigation_contract_impl_d_create_bom_sku.md. Then Cursor investigation review.",
+  "authority_gates": [],
   "coherence_checklist": [
-    "bridge lands in set_motor_component only ✅",
-    "explore evaluation uses candidate SKU thrust (test_catalog_dse_evaluation_uses_candidate_thrust) ✅",
-    "SKU-switch apply preserves catalog_ref + new thrust; survives iterate ✅",
-    "≥1 fixture proves a catalog candidate ∈ .viable via correct thrust, no forcing (5/5 in demonstrated fixture) ✅",
-    "params-only diverge + G5 + G9-A + generation-cut tests all green ✅",
-    "CLI probe respects §8 - no fake viable[0], natural top-5 100% real SKUs in this run ✅",
-    "no scoring/schema/forbidden-file drift - git diff --stat confirms only component_writers.py new ✅",
-    "full suite green: 1917 passed, 0 skipped ✅"
+    "G25 finding file exists and is linked from IMPLEMENTATION_TASKS ✅",
+    "Impl D investigation contract READY FOR CLAUDE ✅",
+    "checkpoint-impl-c remains base ✅"
   ],
-  "outcome": "CHECKPOINTED",
-  "updated_at": "2026-08-21T08:56:00Z",
-  "phase": "Checkpoint",
-  "status": "idle",
+  "outcome": null,
+  "updated_at": "2026-08-21T09:15:00Z",
+  "phase": "Investigate",
+  "status": "active",
   "active_gate": null,
-  "active_artifact": ".jes/artifacts/engineer_verdict_post_impl_c_cli_walk.md",
+  "active_artifact": ".jes/artifacts/investigation_contract_impl_d_create_bom_sku.md",
   "blocking_reason": null,
-  "next_required_action": "Start Impl D investigation/IC (Create→BOM). Debt G24–G27 explicit, do not block Impl D.",
+  "next_required_action": "Claude: write investigation_report_impl_d_create_bom_sku.md. Then Cursor review → Engineer ★ → IC Impl D.",
   "evidence_refs": [
-    "tag:checkpoint-erf1",
-    "tag:checkpoint-erf2",
-    "tag:checkpoint-cli-routing-residuals",
-    "tag:checkpoint-r3a",
-    "tag:checkpoint-r3b",
-    "tag:checkpoint-g9a",
-    "tag:checkpoint-g21-g23 (8dcc151)",
-    ".jes/artifacts/implementation_contract_impl_c_catalog_aware_dse.md",
-    ".jes/artifacts/implementation_report_impl_c_catalog_aware_dse.md",
-    ".jes/artifacts/implementation_review_impl_c_catalog_aware_dse.md (PASS WITH NOTES, Note A)",
-    ".jes/artifacts/implementation_contract_impl_c_catalog_dse_thrust_bridge.md",
-    ".jes/artifacts/implementation_report_impl_c_catalog_dse_thrust_bridge.md",
     "tag:checkpoint-impl-c",
-    ".jes/artifacts/engineer_verdict_post_impl_c_cli_walk.md"
+    ".jes/artifacts/engineer_verdict_post_impl_c_cli_walk.md",
+    ".jes/artifacts/cli_finding_g25_sistema_llm_leak.md",
+    ".jes/artifacts/investigation_contract_impl_d_create_bom_sku.md"
   ],
   "open_decisions": [],
   "risks": [
-    "Scoring-dominance observation (still open, ★3/★8 locked): catalog candidates only reliably reach top-5 on no-prior-thrust projects; an already-bound-motor project still favors abstract params-grid entries. Real product-visibility gap for the common 'already have a motor, want to explore alternatives' user path, deferred to a future ranking-policy decision by design.",
-    "generation cut + thrust bridge are two separate diffs in the working tree pending ONE combined commit - do not let a future cycle commit them separately or out of order."
+    "Create→BOM historically ambiguous (SKU BOM surface vs Continuity handoff) — investigation must force Engineer ★",
+    "Frankenstein post-G24 (name set, catalog_ref None) must not be treated as resolved SKU in BOM"
   ]
 }

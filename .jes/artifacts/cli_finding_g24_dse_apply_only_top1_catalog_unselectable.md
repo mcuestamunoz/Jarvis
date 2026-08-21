@@ -65,7 +65,7 @@ power_w: 220 / kv_rating: 2500             ← leftover from old SKU (frankenste
 
 ### Related — `sistema` → LLM leak (same turn)
 
-Engineer typed `sistema` to inspect components; turn fell through to **LLM** (undesired). Not the same root as G24 apply UX; register as follow-up routing residual (**G25** candidate) — prefer `estado` / `qué motores tenemos` until fixed. Do not use bare `sistema` as Continuity verb today.
+Engineer typed `sistema` to inspect components; turn fell through to **LLM** (undesired). Not the same root as G24 apply UX — dedicated finding: [cli_finding_g25_sistema_llm_leak.md](cli_finding_g25_sistema_llm_leak.md). Prefer `estado` / `qué motores tenemos` until fixed. Do not use bare `sistema` as Continuity verb today.
 
 ---
 
