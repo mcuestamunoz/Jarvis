@@ -6,8 +6,22 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`checkpoint-g9a`** (post-commit).  
-> **PRIORIDAD AHORA:** **G21/G22 commit** → **G23 review** (FN-015 eliminado — implementado, awaiting review) → CLI probe → **Impl C**.
+> **Base:** tag **`checkpoint-impl-c`**.  
+> **PRIORIDAD AHORA:** **Impl D (Create→BOM)**. Debt G24–G27 queued, do not polish before Impl D.
+
+### ✅ COMPLETADO — Impl C Catalog-Aware DSE + thrust bridge + checkpoint (2026-08-21)
+
+> Tag **`checkpoint-impl-c`** · generation + `thrust_n`→`per_motor_max_thrust_n` bridge · suite **1917 passed**.  
+> Investigation / IC / reviews: `.jes/artifacts/*impl_c*` — **CLOSED**  
+> Engineer verdict: [`.jes/artifacts/engineer_verdict_post_impl_c_cli_walk.md`](../.jes/artifacts/engineer_verdict_post_impl_c_cli_walk.md)  
+> CLI walk: `autonomia-5540bda0ac16` — full create→arch→catalog→DSE→apply→iterate→4/4→energy tradeoffs→15 min PASS risky; ASSEMBLY READY blocked by Requirements (G26).  
+> **Impl C congelado** — next **Impl D (Create→BOM)**.  
+> Debt (explicit, do not polish before Impl D): **G24** apply-only-#1 · **G26** requirements/constraints · **G27** 6S→6Wh · G25 `sistema`→LLM · DSE ranking with prior thrust.
+
+### 🟡 SIGUIENTE — Impl D Create → BOM
+
+> Consume SKU identity into BOM / Create→BOM handoff.  
+> Do **not** reopen Impl C architecture. NL/requirements debt stays queued (G24–G27).
 
 ### ✅ COMPLETADO — G9-A Catalog-Ref Blind Spot + checkpoint (2026-08-20)
 
@@ -28,10 +42,13 @@
 > Delivered: honest refuse + DSE soft-interrupt (R3a) · sub-mode-aware real preempt with partial-apply + FN-004 abort (R3b) · closes G7/G8/G11 residual.  
 > **R3 congelado** — no further changes unless real bugs post-tag.
 
-### 🟡 SIGUIENTE — Impl C catalog-aware DSE
+### 🟡 DEUDA POST–Impl C (no bloquear Impl D)
 
-> DSE candidates constrained to catalog; SKU identity preserved through apply.  
-> Prerequisite: G9-A (catalog honesty on bound motors) — **DONE**.
+> **G24 🔴** — DSE apply only `#1`; catalog row unselectable: [cli_finding_g24…](../.jes/artifacts/cli_finding_g24_dse_apply_only_top1_catalog_unselectable.md)  
+> **G25 🟡** — bare `sistema` → LLM  
+> **G26 🟡** — restrictions/objective → loose `autonomia=15`, not constraint: [cli_finding_g26…](../.jes/artifacts/cli_finding_g26_restrictions_not_parsed.md)  
+> **G27 🔴** — `LiPo 6S 10000mAh` → `6 Wh`: [cli_finding_g27…](../.jes/artifacts/cli_finding_g27_battery_6s_parsed_as_6wh.md)  
+> Engineer: do **not** polish these before Impl D.
 
 ### ✅ COMPLETADO — ERF-2 Dependency Hardening + FN-ESC + checkpoint (2026-08-19)
 

@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "G23 — Eliminate FN-015 (\"ayúdame a definir\") as a user-facing acquisition feature, total removal + documentation purge",
-  "scope": "Delete _try_help_define_pending_idle + _help_current_pending_acquisition (product help). Keep a renamed, minimal anti-LLM confusion gate (is_define_missing_confusion_phrase -> short re-ask in DEFINE_MISSING, project_status at IDLE). Remove Brief 'repetir esta guia' bullet. Purge living docs (PROJECT_CONTINUITY, IMPLEMENTATION_TASKS, system_map/*). Banner historical FN-015 artifacts SUPERSEDED, not delete.",
-  "execution_status": "active",
-  "current_mode": "Review",
+  "cycle_intent": "Impl C CLOSED — checkpoint-impl-c; next Impl D Create→BOM",
+  "scope": "Catalog-aware DSE (generation + thrust bridge) checkpointed. Explicit debt G24–G27 queued; do not polish before Impl D.",
+  "execution_status": "checkpointed",
+  "current_mode": "Idle",
   "movement_trigger": {
-    "type": "implementation_complete",
-    "note": "Feature removed in full, 11 new tests, full suite green (1894), docs purged per contract table + BUGS.md/canvas.tsx touched for consistency (not explicitly named but directly contradicted current state). One documented deviation: IDLE routing kept as a narrow dedicated check instead of folding into GUIDANCE_PATTERNS, which would have caused DEFINE_MISSING's pre-existing Bug-56 project_status check to swallow the phrase mid-wizard and show a full Continuity dump instead of the mandated short re-ask. Awaiting Engineer/Cursor review; not committed."
+    "type": "checkpoint",
+    "note": "Impl C product-complete: generation + thrust bridge + Engineer CLI walk PASS. Tag checkpoint-impl-c."
   },
   "relevant_workflow_phases": [
     "Implement",
@@ -14,68 +14,74 @@
     "Checkpoint"
   ],
   "applicable_rules": [
-    "Zero weakened tests solely to pass - rewrite/delete FN-015 tests to match new behavior",
-    "Do not reintroduce catalog under 'definir' (catalog = 'ayudame a elegir' / G21)",
-    "Do not start Impl C in this IC",
-    "Historical .jes/artifacts/*fn015* contracts/cycle-close: mark SUPERSEDED by G23, do not silently delete audit trail"
+    "Do not commit the generation cut alone - single combined Impl C commit only",
+    "Do not reopen Impl C ★1-★7 (parent IC)",
+    "Do not redesign DSE, add ranking preference for catalog candidates, or change _score_candidate",
+    "Minimum change that closes the thrust gap - STOP on any contradiction with locked surfaces",
+    "Bridge must propagate SKU's real thrust_n only - never calculate/estimate/invent/re-lookup",
+    "CLI probe must not force a non-viable candidate into viable[0] to fake a pass"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_g23_remove_fn015.md",
-    ".jes/artifacts/implementation_report_g23_remove_fn015.md"
+    ".jes/artifacts/implementation_contract_impl_c_catalog_aware_dse.md",
+    ".jes/artifacts/implementation_report_impl_c_catalog_aware_dse.md",
+    ".jes/artifacts/implementation_review_impl_c_catalog_aware_dse.md",
+    ".jes/artifacts/implementation_contract_impl_c_catalog_dse_thrust_bridge.md",
+    ".jes/artifacts/implementation_report_impl_c_catalog_dse_thrust_bridge.md"
   ],
   "open_questions": [
+    "Scoring/ranking observation (still real, not fixed, ★3/★8 locked): on an ALREADY-declared-thrust project, abstract params-grid entries still out-score real catalog candidates (unbounded cost-free thrust upside vs bounded real SKUs). Only the no-prior-thrust fixture shape naturally surfaces catalog candidates in top-5. Flagged for a future Engineer ranking-policy decision, does not block Impl C product-complete per this contract's exit criterion.",
+    "C3 battery catalog (mejorar_autonomia) - still deferred, needs its own extension IC.",
     "R3b's define_params-preempt open question - still unresolved, untracked, carried forward across cycles.",
-    "Option C's typed bound_sku_status field (G9-A) - still deferred to Impl C.",
-    "Control-wizard retarget loop (Definir sensors) and G17 force-motors bare phrases - explicitly out of scope for G21/G22/G23, still need their own findings/ICs.",
-    "docs/system_map/01_runtime/RUNTIME_MAP.md flagged as stale beyond this IC's specific fix (G21/G22/G9-A not reflected checkpoint-by-checkpoint) - a full re-derivation is due, not done here (out of scope)."
+    "Commit sequencing: three uncommitted logical pieces now stacked (G21/G22/G23 at checkpoint-g21-g23 already tagged/committed per this contract's base; Impl C generation cut + this thrust-bridge follow-up both uncommitted, intended as ONE combined commit) - Engineer must decide when/how to commit."
   ],
-  "active_operation": "G23 implementation complete - awaiting Engineer/Cursor review of implementation_report_g23_remove_fn015.md. G21/G22 still pending commit (review PASS, same working tree).",
+  "active_operation": "Impl C follow-up implementation complete - awaiting Engineer/Cursor review of implementation_report_impl_c_catalog_dse_thrust_bridge.md. Ready for single combined Impl C commit per contract §10 exit criterion.",
   "authority_gates": [
-    "Total feature removal - no dead code, no hidden bridge (Engineer locked decision)",
-    "Anti-LLM confusion gate survives, renamed is_define_missing_confusion_phrase, minimal short re-ask only",
-    "IDLE collapses to project_status (FN-023 family), never opens DEFINE_MISSING from this phrase alone",
-    "Catalog never under 'definir' - G21 owns 'elegir' exclusively",
-    "Documentation purge is a mandatory deliverable, not optional"
+    "★1 thrust_n on applied spec is sole source for per_motor_max_thrust_n - implemented",
+    "★2 component-driven path only; params-only DSE unchanged - implemented",
+    "★3 _score_candidate untouched - confirmed",
+    "★4 ExplorationCandidate schema unchanged - confirmed",
+    "★5 G9-A untouched - confirmed",
+    "★6 G5 order/logic untouched, no STOP needed - confirmed",
+    "★7 catalog_bind.py untouched, no STOP needed - confirmed",
+    "★8 no scoring/ranking preference for catalog candidates - confirmed"
   ],
   "coherence_checklist": [
-    "No Brief advertises ayudame a definir (all keys) ✅",
-    "_try_help_define_pending_idle and _help_current_pending_acquisition deleted, zero grep hits ✅",
-    "DEFINE_MISSING confusion phrase -> 0 LLM, short one-line re-ask, no Brief, no catalog offer ✅",
-    "IDLE confusion phrase -> project_status, no wizard auto-open ✅",
-    "ayudame a elegir (G21) unchanged ✅",
-    "FN-013 named-block reprompt unchanged ✅",
-    "Real analyze questions still reach LLM ✅",
-    "C-032 REMOVED in CONNECTIONS.md/DIAGRAMS.md/RUNTIME_MAP.md/canvas.tsx ✅",
-    "PROJECT_CONTINUITY.md + IMPLEMENTATION_TASKS.md FN-015 sections marked REMOVED/SUPERSEDED, not taught as current ✅",
-    "Historical implementation_contract_fn015.md + cycle_close_fn015.md bannered SUPERSEDED ✅",
-    "full suite green: 1894 (1892 post-G21/G22 baseline - 9 deleted + 11 new) ✅"
+    "bridge lands in set_motor_component only ✅",
+    "explore evaluation uses candidate SKU thrust (test_catalog_dse_evaluation_uses_candidate_thrust) ✅",
+    "SKU-switch apply preserves catalog_ref + new thrust; survives iterate ✅",
+    "≥1 fixture proves a catalog candidate ∈ .viable via correct thrust, no forcing (5/5 in demonstrated fixture) ✅",
+    "params-only diverge + G5 + G9-A + generation-cut tests all green ✅",
+    "CLI probe respects §8 - no fake viable[0], natural top-5 100% real SKUs in this run ✅",
+    "no scoring/schema/forbidden-file drift - git diff --stat confirms only component_writers.py new ✅",
+    "full suite green: 1917 passed, 0 skipped ✅"
   ],
-  "outcome": "IMPLEMENTATION_COMPLETE",
-  "updated_at": "2026-08-20T00:00:00Z",
-  "phase": "Review",
-  "status": "active",
-  "active_gate": "G23-EngineerReview",
-  "active_artifact": ".jes/artifacts/implementation_report_g23_remove_fn015.md",
+  "outcome": "CHECKPOINTED",
+  "updated_at": "2026-08-21T08:56:00Z",
+  "phase": "Checkpoint",
+  "status": "idle",
+  "active_gate": null,
+  "active_artifact": ".jes/artifacts/engineer_verdict_post_impl_c_cli_walk.md",
   "blocking_reason": null,
-  "next_required_action": "Engineer/Cursor review of implementation_report_g23_remove_fn015.md (incl. the IDLE-mechanism deviation from GUIDANCE_PATTERNS). G21/G22 + G23 both need commit. Then Engineer's manual CLI probe (bind path), then Impl C investigation may proceed per contract prerequisite chain.",
+  "next_required_action": "Start Impl D investigation/IC (Create→BOM). Debt G24–G27 explicit, do not block Impl D.",
   "evidence_refs": [
     "tag:checkpoint-erf1",
     "tag:checkpoint-erf2",
     "tag:checkpoint-cli-routing-residuals",
     "tag:checkpoint-r3a",
     "tag:checkpoint-r3b",
-    "tag:checkpoint-g9a (ea3d47d)",
-    ".jes/artifacts/implementation_contract_g21_g22_catalog_bind_ux.md",
-    ".jes/artifacts/implementation_report_g21_g22_catalog_bind_ux.md",
-    ".jes/artifacts/implementation_review_g21_g22_catalog_bind_ux.md (PASS)",
-    ".jes/artifacts/implementation_contract_g23_remove_fn015.md",
-    ".jes/artifacts/implementation_report_g23_remove_fn015.md",
-    ".jes/artifacts/implementation_contract_fn015.md (SUPERSEDED banner added)",
-    ".jes/artifacts/cycle_close_fn015.md (SUPERSEDED banner added)"
+    "tag:checkpoint-g9a",
+    "tag:checkpoint-g21-g23 (8dcc151)",
+    ".jes/artifacts/implementation_contract_impl_c_catalog_aware_dse.md",
+    ".jes/artifacts/implementation_report_impl_c_catalog_aware_dse.md",
+    ".jes/artifacts/implementation_review_impl_c_catalog_aware_dse.md (PASS WITH NOTES, Note A)",
+    ".jes/artifacts/implementation_contract_impl_c_catalog_dse_thrust_bridge.md",
+    ".jes/artifacts/implementation_report_impl_c_catalog_dse_thrust_bridge.md",
+    "tag:checkpoint-impl-c",
+    ".jes/artifacts/engineer_verdict_post_impl_c_cli_walk.md"
   ],
   "open_decisions": [],
   "risks": [
-    "G21/G22 and G23 are both uncommitted in the same working tree - three logical cycles stacked without a checkpoint tag yet. Recommend Engineer decide commit granularity (one combined commit vs. separate) before further cycles land on top.",
-    "docs/system_map/01_runtime/RUNTIME_MAP.md's checkpoint table is now only partially current (G23 fix applied, G21/G22/G9-A still not reflected) - flagged in the report, not silently left implying full accuracy."
+    "Scoring-dominance observation (still open, ★3/★8 locked): catalog candidates only reliably reach top-5 on no-prior-thrust projects; an already-bound-motor project still favors abstract params-grid entries. Real product-visibility gap for the common 'already have a motor, want to explore alternatives' user path, deferred to a future ranking-policy decision by design.",
+    "generation cut + thrust bridge are two separate diffs in the working tree pending ONE combined commit - do not let a future cycle commit them separately or out of order."
   ]
 }

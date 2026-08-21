@@ -3090,9 +3090,16 @@ class JarvisOrchestrator:
         goal_label = GOAL_LABELS.get(goal_key, goal_key)
         viable_count = len(exploration.viable)
 
+        # Impl C, Slice C4: honest one-line note when a catalog-eligible goal's
+        # motor search (build_motor_catalog_suggestions) found zero matches —
+        # the listed candidates are params/other-component variations only,
+        # not real SKUs. Sourced from exploration.catalog_motor_note itself
+        # (already the exact _CATALOG_MOTOR_FALLBACK_NOTE string set in
+        # design_explorer.py) — no separate import, no drift risk.
         if viable_count == 0:
+            note_prefix = f"{exploration.catalog_motor_note}\n\n" if exploration.catalog_motor_note else ""
             message = (
-                f"He explorado {len(exploration.candidates)} variaciones para «{goal_label}» "
+                f"{note_prefix}He explorado {len(exploration.candidates)} variaciones para «{goal_label}» "
                 f"pero ninguna produce un diseño viable (can_fly=True) con los parámetros actuales. "
                 f"Considera aumentar el empuje por motor o revisar la masa estructural antes de explorar."
             )
@@ -3100,6 +3107,9 @@ class JarvisOrchestrator:
             lines = [
                 f"Exploración completada para «{goal_label}» — {viable_count} configuración(es) viable(s) encontrada(s):\n"
             ]
+            if exploration.catalog_motor_note:
+                lines.append(exploration.catalog_motor_note)
+                lines.append("")
             baseline_sim = exploration.baseline_simulation
             lines.append(
                 f"  Línea base → autonomía={baseline_sim.autonomy_min or '—'} min, "

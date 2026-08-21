@@ -206,6 +206,99 @@ COMPONENT_VARIATION_RULES: dict[str, list[dict]] = {
 }
 
 
+# Impl C (Catalog-aware DSE v1): goals that get a motor-catalog candidate branch.
+_CATALOG_MOTOR_GOAL_KEYS: frozenset[str] = frozenset({
+    "aumentar_payload",
+    "mejorar_estabilidad",
+})
+
+# Slice C4: appended to explore message when Strategy 3 catalog search is empty.
+_CATALOG_MOTOR_FALLBACK_NOTE: str = (
+    "Nota: no hay motores del catálogo que cubran el espacio de diseño actual; "
+    "las opciones listadas son variaciones paramétricas o de otros componentes."
+)
+
+
+def _get_bound_motor_sku(project_state: Any) -> str | None:
+    """Impl C: currently bound motor SKU, if any (★4 exclusion input). Pure."""
+    dp = getattr(project_state, "design_properties", None)
+    motors = (getattr(dp, "components", None) or {}).get("motors")
+    catalog_ref = getattr(motors, "catalog_ref", None) if motors is not None else None
+    if catalog_ref is not None and catalog_ref.family == "motor":
+        return catalog_ref.sku
+    return None
+
+
+def _build_catalog_motor_spec(suggestion: Any, *, base: ComponentSpec | None) -> ComponentSpec:
+    """Impl C: project a catalog MotorSuggestion into a bound ComponentSpec.
+
+    Wraps ``catalog_bind.bind_motor_from_catalog`` (the one shared bind path —
+    no parallel identity logic). Data-hygiene fix (investigation §10):
+    ``bind_motor_from_catalog``'s ``base=`` merge preserves the base spec's
+    ``.name`` (an old freeform description or prior SKU), never updating it to
+    the new SKU — harmless for DSE labels (``_build_label_components`` reads
+    ``.properties``/``.catalog_ref``, never ``.name``) but a stale field for
+    any other future consumer that displays ``.name`` directly. Set explicitly
+    here rather than in ``catalog_bind.py`` (out of scope — §0).
+    """
+    from jarvis.core.catalog_bind import bind_motor_from_catalog
+
+    spec = bind_motor_from_catalog(suggestion, base=base)
+    if base is not None:
+        spec = spec.model_copy(update={"name": str(suggestion["name"])})
+    return spec
+
+
+def _build_catalog_motor_candidates_for_goal(
+    goal_key: str,
+    project_state: Any,
+    *,
+    normalized_state: Any,
+) -> tuple[list[dict[str, ComponentSpec]], bool]:
+    """Impl C ★1/★2: catalog-native motor candidates for one explore call.
+
+    Reuses ``motor_catalog_assist.build_motor_catalog_suggestions`` — the G22
+    single search authority — never a new motor search/ranking function.
+
+    Returns ``(candidate_deltas, had_library_matches)``. ``had_library_matches``
+    is True iff the search returned >=1 suggestion *before* the ★4 bound-SKU
+    exclusion — it answers "was the catalog search itself empty" (Strategy 3's
+    only fallback trigger), independent of whether every match happened to be
+    the already-bound SKU.
+    """
+    if goal_key not in _CATALOG_MOTOR_GOAL_KEYS:
+        return [], False
+
+    from jarvis.core.motor_catalog_assist import build_motor_catalog_suggestions
+
+    suggestions = build_motor_catalog_suggestions(project_state, limit=5)
+    if not suggestions:
+        return [], False
+
+    bound_sku = _get_bound_motor_sku(project_state)
+    dp = getattr(normalized_state, "design_properties", None)
+    base_motor = (getattr(dp, "components", None) or {}).get("motors")
+
+    deltas: list[dict[str, ComponentSpec]] = []
+    for suggestion in suggestions:
+        if bound_sku is not None and suggestion["name"] == bound_sku:
+            continue  # ★4 — never re-offer the SKU already bound
+        spec = _build_catalog_motor_spec(suggestion, base=base_motor)
+        deltas.append({"motors": spec})
+
+    return deltas, True
+
+
+def _is_synthetic_motor_component_delta(comp_delta: dict[str, ComponentSpec]) -> bool:
+    """Impl C: True when *comp_delta* is a synthetic (non-catalog) motors
+    variation — today's COMPONENT_VARIATION_RULES motor entries, which carry
+    invented property values and no catalog_ref. Used only to skip those
+    entries (Strategy 3) once the real catalog branch already produced
+    candidates for this goal — never to filter any other component key."""
+    spec = comp_delta.get("motors")
+    return spec is not None and spec.catalog_ref is None
+
+
 def _build_component_candidates_for_goal(goal_key: str) -> list[dict[str, ComponentSpec]]:
     """Generates component grid entries for a goal from COMPONENT_VARIATION_RULES.
 
@@ -249,6 +342,11 @@ class ExplorationResult(BaseModel):
     baseline_simulation: SimulationResult
     candidates: list[ExplorationCandidate] = Field(default_factory=list)
     viable: list[ExplorationCandidate] = Field(default_factory=list)
+    # Impl C, Slice C4: set when a catalog-eligible goal's motor search
+    # (build_motor_catalog_suggestions) returned zero matches — orchestrator
+    # surfaces this as one honest line in the explore message. None for every
+    # other goal / when the search found candidates.
+    catalog_motor_note: str | None = None
 
 
 # ── Scoring ───────────────────────────────────────────────────────────────────
@@ -317,16 +415,26 @@ def _build_label(delta: dict[str, Any], applied: dict[str, Any]) -> str:
 
 
 def _build_label_components(components_delta: dict[str, Any]) -> str:
-    """Genera una etiqueta legible para un candidato component-driven."""
+    """Genera una etiqueta legible para un candidato component-driven.
+
+    Impl C ★6: when a spec carries a bound ``catalog_ref`` (real SKU), the
+    SKU is shown in brackets — ``motors [sku]: thrust_n=..., ...`` — so a
+    catalog-native candidate is distinguishable from a synthetic one in the
+    explore list. ``_score_candidate`` is unchanged (★6 locks scoring).
+    """
     parts = []
     for comp_key, spec in components_delta.items():
+        label_key = comp_key
+        catalog_ref = getattr(spec, "catalog_ref", None)
+        if catalog_ref is not None:
+            label_key = f"{comp_key} [{catalog_ref.sku}]"
         if not spec.properties:
-            parts.append(comp_key)
+            parts.append(label_key)
             continue
         prop_summary = ", ".join(
             f"{k}={v.value}" for k, v in spec.properties.items() if v.value is not None
         )
-        parts.append(f"{comp_key}: {prop_summary}" if prop_summary else comp_key)
+        parts.append(f"{label_key}: {prop_summary}" if prop_summary else label_key)
     return " | ".join(parts) if parts else str(components_delta)
 
 
@@ -433,6 +541,44 @@ class DesignExplorer:
                 _cache[key] = (calc_, sim_)
             return _cache[key]
 
+        # ── Catalog motor grid (Impl C ★1/★2) ─────────────────────────────────
+        # Runs before the params/component grids so its skip guard
+        # (skip_synthetic_motor_component_grid) is known by the time the
+        # existing component grid loop reaches its own motor entries.
+        catalog_motor_note: str | None = None
+        skip_synthetic_motor_component_grid = False
+        if goal_key in _CATALOG_MOTOR_GOAL_KEYS:
+            catalog_deltas, had_library_matches = _build_catalog_motor_candidates_for_goal(
+                goal_key, project_state, normalized_state=normalized_state,
+            )
+            if had_library_matches:
+                skip_synthetic_motor_component_grid = True
+            else:
+                catalog_motor_note = _CATALOG_MOTOR_FALLBACK_NOTE
+
+            for comp_delta in catalog_deltas:
+                try:
+                    temp_state = apply_components_delta(normalized_state, comp_delta)
+                    applied = dict(temp_state.current_parameters or {})
+                    calc, sim = _evaluate(applied)
+                except Exception:
+                    continue
+
+                score = _score_candidate(sim, calc, goal_key)
+                improvement = round(score - baseline_score, 4)
+                candidate = ExplorationCandidate(
+                    params_delta={},
+                    components_delta=comp_delta,
+                    calculations=calc,
+                    simulation=sim,
+                    score=score,
+                    label=_build_label_components(comp_delta),
+                    improvement=improvement,
+                )
+                candidates.append(candidate)
+                if sim.can_fly:
+                    viable.append(candidate)
+
         # ── Params-only grid ─────────────────────────────────────────────────
         for delta in EXPLORATION_GRIDS.get(goal_key, []):
             # Guard: mixed deltas not supported yet (DA2 keeps them separate)
@@ -464,6 +610,8 @@ class DesignExplorer:
         for comp_delta in _build_component_candidates_for_goal(goal_key):
             if not comp_delta:
                 continue  # skip empty (vacío no aporta)
+            if skip_synthetic_motor_component_grid and _is_synthetic_motor_component_delta(comp_delta):
+                continue  # Impl C Strategy 3: real catalog motor candidates already generated
 
             try:
                 temp_state = apply_components_delta(normalized_state, comp_delta)
@@ -497,4 +645,5 @@ class DesignExplorer:
             baseline_simulation=baseline_sim,
             candidates=candidates,
             viable=viable[:MAX_VIABLE],
+            catalog_motor_note=catalog_motor_note,
         )

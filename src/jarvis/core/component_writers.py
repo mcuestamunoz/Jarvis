@@ -178,6 +178,22 @@ def set_motor_component(
       1. components["motors"].properties (canónico)
       2. current_parameters["motor_power_w"] (bridge al calculation engine)
 
+    Impl C follow-up (thrust bridge, 2026-08-21): when the spec carries a
+    ``thrust_n`` property (catalog-bound motors always do —
+    ``bind_motor_from_catalog`` sets it with ``output_magnitude="thrust_n"``),
+    that value is the sole source for
+    ``current_parameters["per_motor_max_thrust_n"]``. Never invented from
+    power_w/KV/a library re-lookup — only ever the number already on the spec
+    (★1). Absent when ``thrust_n`` is missing (synthetic/freeform motors) —
+    deliberately NOT popped in that case, unlike ``motor_kv_rating`` below:
+    a freeform re-declare (e.g. updating just power_w) must not silently
+    erase a numeric-wizard-declared thrust value that has nothing to do with
+    this write. Closes the gap traced in
+    .jes/artifacts/implementation_report_impl_c_catalog_aware_dse.md §4 /
+    implementation_review_impl_c_catalog_aware_dse.md Note A — catalog-DSE
+    candidate evaluation and SKU-switch apply both read this field and had
+    no other way to see a bound spec's real thrust before this fix.
+
     Bug 78: preserves motor_count from the existing component when the new spec
     does not include it. Prevents double-write scenarios (first write declares count,
     second declares KV+power) from losing the count in component properties.
@@ -222,6 +238,12 @@ def set_motor_component(
         updated_params["motor_kv_rating"] = float(kv_prop.value)
     else:
         updated_params.pop("motor_kv_rating", None)
+    # Impl C follow-up (thrust bridge, ★1): thrust_n on the spec is the sole
+    # source for per_motor_max_thrust_n — never invented, never popped when
+    # absent (see docstring above for why no-pop is deliberate here).
+    thrust_prop = spec.properties.get("thrust_n")
+    if thrust_prop is not None and thrust_prop.value is not None:
+        updated_params["per_motor_max_thrust_n"] = float(thrust_prop.value)
     # Catalog v1 (Impl B, 2A): motor mass enters calc ONLY when the component
     # is SKU-bound (catalog_ref set) — free-text-declared motors keep today's
     # physics unchanged (no motor_mass_kg mirror at all, same as before this
