@@ -16,6 +16,31 @@ _WEIGHT_CONSTRAINT_RE = _re.compile(
     _re.IGNORECASE,
 )
 
+# ★3(b) — Requirements Closure IC: closed list of "no constraint" statements.
+# Whole-string match only (never a substring check) — a string that also
+# carries a parseable numeric constraint never lands here, since it won't
+# equal one of these literal tokens after normalization.
+_EXPLICIT_NONE_RESTRICTIONS: frozenset[str] = frozenset({
+    "no", "ninguna", "ninguno", "ningun", "none", "n/a", "na",
+    "sin restricciones", "sin restriccion", "no restrictions", "without restrictions",
+})
+
+
+def restrictions_explicitly_none(restrictions: str | None) -> bool:
+    """★3(b): True when *restrictions* is an explicit, closed-list statement
+    that the project has no constraint — distinct from "not yet asked"
+    (``None``/empty) and from a declared-but-unparseable constraint (neither
+    of which satisfy ``requirements.defined``, see ``engineering_readiness.
+    _requirements_declared``). Never fabricates or infers — a string outside
+    the closed list (including ambiguous free text) returns False.
+    """
+    if restrictions is None:
+        return False
+    normalized = restrictions.strip().lower()
+    if not normalized:
+        return False
+    return normalized in _EXPLICIT_NONE_RESTRICTIONS
+
 
 def _parse_constraints(current_parameters: dict, objective: str | None = None) -> dict[str, float]:
     """Derive parsed_constraints from current_parameters["restrictions"], falling

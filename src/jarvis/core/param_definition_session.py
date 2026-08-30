@@ -29,7 +29,9 @@ from jarvis.core.motor_catalog_assist import (
 from jarvis.core.parameter_requirements import (
     DEFAULT_MISSING_FORCE_REASON,
     MISSING_COMPONENT_DEFINITION,
+    PARAMETER_REQUIREMENTS,
     all_parameter_names,
+    get_derived_message,
     keywords_for_param,
     missing_force_reason_from_warnings,
     missing_params_for_reason,
@@ -37,7 +39,7 @@ from jarvis.core.parameter_requirements import (
 )
 from jarvis.core.state_manager import StateManager
 from jarvis.schemas.action_schema import ActionName, ComponentSpec, InteractiveSessionState, OrchestratorMode, PropertyValue
-from jarvis.schemas.state_schema import HistoryEntry
+from jarvis.schemas.state_schema import HistoryEntry, restrictions_explicitly_none
 from jarvis.simulation.simulator import FlightSimulator
 from jarvis.core.system_architecture_catalog import BLOCK_TO_COMPONENTS, COMPONENT_MIRRORED_PARAMS
 from jarvis.workspace.workspace_manager import WorkspaceManager
@@ -66,6 +68,45 @@ _STRUCTURAL_AFFIRMATIVES = frozenset({
 _STRUCTURAL_NEGATIVES = frozenset({
     "no", "n", "cancelar", "cancela", "cancel", "mejor no", "salir", "abortar", "abort", "exit",
 })
+
+# Req-3 (Requirements Closure IC, ★2 — G26 write path): recognize a
+# mid-session update to the project-level current_parameters["restrictions"]
+# string. Deliberately narrow — requires the literal "restricci*"/
+# "restriction*" keyword in the utterance, so this never collides with the
+# numeric opportunistic-ingestion path (try_ingest/parse_params_bidir) or
+# with unrelated turns. A bare "ninguna"/"no" with no restrictions keyword
+# is out of scope here (investigation_report_project_closure_assembly_ready.md
+# §3 / IC §3.1) — ★3(b)'s explicit-none semantics already cover the common
+# case of a restrictions value stored at project creation (interactive_
+# session.py's own wizard step).
+_RESTRICTIONS_KEYWORD_RE = re.compile(r"restricci\w*|restrictions?", re.IGNORECASE)
+_RESTRICTIONS_PAYLOAD_RE = re.compile(
+    r"(?:restricci\w*|restrictions?)\s*(?:es|son)?\s*:?\s*a?\s*:?\s*(?P<payload>.+)",
+    re.IGNORECASE,
+)
+
+
+def extract_restrictions_update(user_input: str) -> str | None:
+    """Return the new ``restrictions`` text to persist, or ``None`` when
+    *user_input* is not recognizable as a restrictions-update utterance.
+
+    Two shapes recognized:
+      - Whole-string explicit-none ("sin restricciones") — persists the
+        phrase verbatim (state_schema.restrictions_explicitly_none already
+        recognizes it on re-parse).
+      - "<verb> restricciones a|: <payload>" — persists <payload> verbatim,
+        letting state_schema._parse_constraints regex-parse it as usual.
+    """
+    text = (user_input or "").strip()
+    if not text or not _RESTRICTIONS_KEYWORD_RE.search(text):
+        return None
+    if restrictions_explicitly_none(text):
+        return text
+    match = _RESTRICTIONS_PAYLOAD_RE.search(text)
+    if not match:
+        return None
+    payload = match.group("payload").strip()
+    return payload or None
 
 
 def begin_structural_confirm(
@@ -661,6 +702,51 @@ class ParamDefinitionSession:
         self.state_manager.clear_runtime_session()
         return self.apply_and_recalculate(collected)
 
+    def try_update_restrictions(self, user_input: str) -> dict | None:
+        """Req-3 (Requirements Closure IC, ★2 — G26 write path).
+
+        Persists a mid-session restatement of the project-level
+        ``current_parameters["restrictions"]`` string directly, re-deriving
+        ``parsed_constraints`` via ``ProjectState.model_copy``'s existing
+        override (state_schema.py). Deliberately mirrors
+        ``orchestrator._apply_catalog_motor_pick``'s direct ``save_state``
+        (no ``record_action``, no history entry, no recalculation) —
+        replacing ``latest_results`` here (as ``record_action`` would)
+        would wipe the project's existing calculations/simulation and
+        regress every other subsystem's evidence, which a constraint
+        restatement alone must never do.
+
+        Must run before ``try_ingest`` in the caller (orchestrator.py) —
+        ``try_ingest``'s opportunistic numeric parser has no concept of this
+        string field and would otherwise silently misinterpret any numeric
+        keyword the sentence happens to contain (the original G26 symptom).
+        """
+        new_restrictions = extract_restrictions_update(user_input)
+        if new_restrictions is None:
+            return None
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return None
+
+        updated_params = dict(project_state.current_parameters or {})
+        updated_params["restrictions"] = new_restrictions
+        updated_state = project_state.model_copy(update={"current_parameters": updated_params})
+        self.workspace_manager.save_state(updated_state)
+
+        parsed = updated_state.parsed_constraints
+        if parsed:
+            detail = ", ".join(f"{k}={v}" for k, v in sorted(parsed.items()))
+            message = f"Restricciones actualizadas: {new_restrictions}. ({detail})"
+        else:
+            message = f"Restricciones actualizadas: {new_restrictions}."
+        return {
+            "status": "ok",
+            "action": "update_restrictions",
+            "message": message,
+            "project_id": updated_state.project_id,
+        }
+
     def try_ingest(self, user_input: str) -> dict | None:
         try:
             project_state = self.state_manager.load_active_project(self.workspace_manager)
@@ -718,6 +804,28 @@ class ParamDefinitionSession:
         if "motors" in param_updates and "motor_count" not in param_updates:
             param_updates = dict(param_updates)
             param_updates["motor_count"] = param_updates.pop("motors")
+
+        # Req-4 (Requirements Closure IC, ★2 defense-in-depth): this
+        # free-text/opportunistic ingestion path (try_ingest -> parse_params_bidir
+        # -> here) has no concept of derived variables the way
+        # semantic_intent_adapter.adapt() does (semantic_intent_adapter.py:151-159)
+        # — reject any key the registry marks is_derived (e.g. "autonomia",
+        # "empuje") before it is ever written to current_parameters. This is
+        # the exact G26 symptom (silent loose current_parameters["autonomia"]).
+        derived_key = next(
+            (k for k in param_updates if (PARAMETER_REQUIREMENTS.get(k) or None) and PARAMETER_REQUIREMENTS[k].is_derived),
+            None,
+        )
+        if derived_key is not None:
+            message = get_derived_message(derived_key) or (
+                f"'{derived_key}' es una variable derivada y no se puede modificar directamente."
+            )
+            return {
+                "status": "error",
+                "action": "define_missing_params",
+                "message": message,
+            }
+
         try:
             project_state = self.state_manager.load_active_project(self.workspace_manager)
         except FileNotFoundError:

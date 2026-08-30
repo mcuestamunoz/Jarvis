@@ -7,8 +7,27 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.0`** / **`checkpoint-propeller-catalog-bind`**.  
-> **PRIORIDAD AHORA:** G27 · G26 · G24 · Phase 2.x current-aware OP (Engineer ranking).  
+> **PRIORIDAD AHORA:** **IC 1 Requirements Closure** — READY FOR CLAUDE.  
+> ★3 **(b) ratificado** · secuencia: IC1 → IC2 (battery+G27) → IC3 (policy+sku_resolved).  
 > **Versión:** `0.3.0`.
+
+### ✅ COMPLETADO — IC 1 Requirements Closure (2026-08-30)
+
+> Review: [implementation_review…](../.jes/artifacts/implementation_review_requirements_closure.md) — **PASS WITH NOTES**  
+> Fixture `1-324107ef7006` → **ASSEMBLY READY** · probe **5/5** · suite **1960** · P2-1 untouched  
+> Deviation disclosed: §2.2 objective-fallback suppression not implemented (FN-010 tests) — accepted  
+> **Congelado.** Await Engineer commit/checkpoint → **IC 2** Battery UX + G27.
+
+### 🟡 SIGUIENTE — IC 2 Battery Catalog UX + G27 (after IC 1 checkpoint)
+
+### ✅ INVESTIGACIÓN CERRADA — Project Closure / Assembly Ready
+
+> Report: [investigation_report…](../.jes/artifacts/investigation_report_project_closure_assembly_ready.md)  
+> Review: [investigation_review…](../.jes/artifacts/investigation_review_project_closure_assembly_ready.md) — **PASS WITH NOTES**  
+> **Headline:** Fixture `1-324107ef7006` = 8/9 PASS, 0 gaps — solo `requirements` INCOMPLETE bloquea ASSEMBLY READY.  
+> **Nuevo bug live:** propeller bound muestra `(SKU sin resolver)` — `_bom_sku_resolved` omite `has_propeller`.  
+> **Secuencia:** Option D — Requirements first (no G27→G26→battery lineal). G24 **no** es prerequisito de cierre.  
+> **Gate:** ★3 (¿constraint explícito siempre requerido?) antes de redactar IC 1.
 
 ### ✅ COMPLETADO — Propeller Catalog Bind UX + v0.3.0 (2026-08-21)
 

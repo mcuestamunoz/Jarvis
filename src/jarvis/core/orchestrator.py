@@ -1204,6 +1204,16 @@ class JarvisOrchestrator:
                     return param_result
             return result
 
+        # ── Requirements Closure IC (G26 write path) ────────────────────────────
+        # Must come BEFORE try_ingest: try_ingest's opportunistic numeric parser
+        # has no concept of the project-level `restrictions` string and would
+        # otherwise silently misinterpret a numeric keyword the sentence happens
+        # to contain (the original G26 symptom — a loose current_parameters["autonomia"]).
+        restrictions_update = self.param_definition_session.try_update_restrictions(user_input)
+        if restrictions_update is not None:
+            self._track_turn(user_input, restrictions_update)
+            return restrictions_update
+
         # ── Parameter ingestion layer ──────────────────────────────────────────
         # Intercept direct param inputs (e.g. "4 motores") when physics are incomplete.
         # Must come BEFORE the intent resolver so these never fall into iterate_interactive.

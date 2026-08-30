@@ -37,6 +37,7 @@ from jarvis.core.system_architecture_catalog import (
     get_param_reason_for_block,
 )
 from jarvis.core.parameter_requirements import params_for_reason
+from jarvis.schemas.state_schema import restrictions_explicitly_none
 
 # ── DTOs (contract §3) ──────────────────────────────────────────────────────
 
@@ -877,9 +878,24 @@ class _Context:
     catalog_matches: list[dict[str, Any]]
 
 
+def _requirements_declared(project_state: Any) -> bool:
+    """★3(b) — Requirements Closure IC: "declared" means either a numeric
+    constraint was parsed, OR the user explicitly stated no constraint
+    applies (closed list, ``state_schema.restrictions_explicitly_none``).
+    Absent/empty restrictions, or restrictions text that fails to parse and
+    isn't an explicit-none statement, both remain "not declared" —
+    investigation_report_project_closure_assembly_ready.md §2.1/§3. Never
+    fabricates a numeric key for the explicit-none branch.
+    """
+    constraints = getattr(project_state, "parsed_constraints", None) or {}
+    if constraints:
+        return True
+    params = getattr(project_state, "current_parameters", None) or {}
+    return restrictions_explicitly_none(params.get("restrictions"))
+
+
 def _requirements_evidence(ctx: _Context) -> SubsystemEvidence:
-    constraints = getattr(ctx.project_state, "parsed_constraints", None) or {}
-    defined = bool(constraints)
+    defined = _requirements_declared(ctx.project_state)
     calculated = any(
         ctx.req.get(k) is not None
         for k in ("thrust_needed_n", "current_mass_kg", "current_autonomy_min")

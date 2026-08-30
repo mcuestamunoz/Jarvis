@@ -1,50 +1,55 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Propeller Catalog Bind UX + v0.3.0 released — checkpoint closed",
-  "scope": "Live propeller catalog bind unlocks P2-1 exact OP in CLI. Version 0.3.0.",
-  "execution_status": "checkpointed",
-  "current_mode": "Idle",
+  "cycle_intent": "IC 1 Requirements Closure — IMPLEMENTATION PASS WITH NOTES; await checkpoint / IC 2",
+  "scope": "★3(b) explicit-none + G26 write path + is_derived gate. Fixture 2 → ASSEMBLY READY.",
+  "execution_status": "implementation_complete",
+  "current_mode": "Review",
   "movement_trigger": {
-    "type": "checkpoint",
-    "note": "v0.3.0 + checkpoint-propeller-catalog-bind. Engineer CLI walk PASS."
+    "type": "implementation_review",
+    "note": "PASS WITH NOTES. 1960 tests, probe 5/5, live fixture verified."
   },
-  "relevant_workflow_phases": [],
+  "relevant_workflow_phases": [
+    "Review",
+    "Checkpoint",
+    "Contract"
+  ],
   "applicable_rules": [
-    "Commit only when Engineer asks",
-    "Version bump only on explicit Engineer call"
+    "FN-010 deviation disclosed and accepted",
+    "IC 2 next: battery UX + G27 same checkpoint window"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_propeller_catalog_bind_ux.md"
+    ".jes/artifacts/implementation_review_requirements_closure.md"
   ],
-  "open_questions": [],
-  "active_operation": "Idle — next Engineer ranking: G27 / G26 / G24 / current-aware OP.",
+  "open_questions": [
+    "Optional: new ★ to suppress objective fallback when restrictions explicit-none?"
+  ],
+  "active_operation": "Engineer: optional commit/checkpoint-requirements-closure → IC 2 contract.",
   "authority_gates": [
-    "★1–★7 implemented",
-    "Definitive CLI fallback→exact PASS",
-    "Prop-5 IDLE matrix PASS",
-    "v0.3.0 released"
+    "Fixture ASSEMBLY READY ✅",
+    "Probe 5/5 ✅",
+    "1960 suite ✅"
   ],
   "coherence_checklist": [
-    "Probe 6/6 ✅",
-    "Engineer CLI walk ✅",
-    "Commit + push + tags ✅"
+    "IC 1 review PASS WITH NOTES ✅",
+    "Deviation disclosed ✅",
+    "P2-1 untouched ✅"
   ],
-  "outcome": "CHECKPOINT_CLOSED",
-  "updated_at": "2026-08-21T11:50:00Z",
-  "phase": "Idle",
-  "status": "idle",
+  "outcome": "IMPLEMENTATION_PASS_WITH_NOTES",
+  "updated_at": "2026-08-30T18:15:00Z",
+  "phase": "Checkpoint",
+  "status": "active",
   "active_gate": null,
-  "active_artifact": null,
+  "active_artifact": ".jes/artifacts/implementation_review_requirements_closure.md",
   "blocking_reason": null,
-  "next_required_action": "Engineer ranks next cut (G27 / G26 / G24 / Phase 2.x).",
+  "next_required_action": "Engineer commit/checkpoint (optional) → Cursor drafts IC 2 Battery Catalog UX + G27.",
   "evidence_refs": [
     "tag:v0.3.0",
-    "tag:checkpoint-propeller-catalog-bind",
-    "tag:checkpoint-phase2-p2-1",
-    ".jes/artifacts/implementation_review_propeller_catalog_bind_ux.md"
+    ".jes/artifacts/implementation_report_requirements_closure.md",
+    ".jes/artifacts/implementation_review_requirements_closure.md",
+    "workspace/1-324107ef7006/state.json"
   ],
   "open_decisions": [],
   "risks": [
-    "G27 still open parallel debt"
+    "FN-010 + explicit-none edge case at create — documented, not blocking"
   ]
 }
