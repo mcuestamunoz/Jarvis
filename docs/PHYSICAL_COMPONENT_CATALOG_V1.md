@@ -1,6 +1,6 @@
 # Physical Component Catalog v1 — Architectural Design
 
-**Status:** DESIGN CLOSED (Engineer 2026-08-12)  
+**Status:** DESIGN CLOSED (Engineer 2026-08-12) — **implementation status:** §13 below (sync 2026-08-31)  
 **Date:** 2026-08-12  
 **Author:** JES / Cursor (Engineer Interface)  
 **Authority:** Engineer confirmation after Catalog v1 connection audit  
@@ -296,6 +296,28 @@ After a final skim for contradictions with code, Engineer asks Cursor to emit:
 **Implementation Contract — Physical Component Catalog v1 — Impl A (Foundation).**
 
 Until that IC exists, **no Catalog Foundation coding**.
+
+---
+
+## 13. Implementation status (as of `checkpoint-closure-policy`)
+
+> **This section is timeline hygiene only.** Design locks (§Decision log, §6 phase plan, 1A–5A) are unchanged. For as-is behavior see `docs/ARCHITECTURE.md` and `docs/system_map/*`.
+
+| Deliverable | Status | Checkpoint (reference) |
+|---|---|---|
+| Impl A — Catalog Foundation | ✅ Complete | catalog foundation v1 |
+| Impl B — Catalog Bind | ✅ Complete | bind + identity persist |
+| Impl C — Catalog-aware DSE | ✅ Complete | `checkpoint-impl-c` |
+| Impl D — Create → BOM / SKU BOM | ✅ Complete | `checkpoint-impl-d` |
+| Motor catalog pick UX | ✅ Complete | G21 / assisted acquisition |
+| Propeller catalog pick UX | ✅ Complete | `v0.3.0` / `checkpoint-propeller-catalog-bind` |
+| Battery catalog pick UX | ✅ Complete | IC 2 / `checkpoint-battery-catalog-bind-ux` |
+| G27 battery Wh hardening | ✅ Complete | IC 2 (same checkpoint) |
+| Project Closure / Assembly Ready policy | ✅ Complete | IC 1–3 / `checkpoint-closure-policy` — product contract in `ENGINEERING_READINESS_VISION.md` §11 |
+
+**Still deferred (unchanged from §6 / §10):** H5 ESC catalog · frame SKU catalog · Conversation Engine / Step D · wiring `catalog_bound` into subsystem verdicts · G24 DSE apply-by-index.
+
+Historical §0 checkpoint sketch ("Next: Impl A ← READY") reflects the **2026-08-12 design gate**, not current code state.
 
 ---
 

@@ -12,7 +12,7 @@
 
 ### 🟢 SIGUIENTE — Post–Project Closure
 
-> Arco cerrado (IC 1–3 checkpointed). **As-is docs synced** (vision protocol step 4).  
+> Arco cerrado (IC 1–3 checkpointed). As-is docs synced (vision protocol step 4 + design-doc hygiene 2026-08-31).  
 > Version bump: decisión Engineer.
 
 ### ✅ COMPLETADO — IC 3 Closure Policy + propeller sku_resolved + checkpoint (2026-08-31)

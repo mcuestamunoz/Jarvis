@@ -180,19 +180,28 @@ Out of scope (deferred):
 - Slice 4b full Continuity handoff,
 - dedupe gaps BOM/ESC.
 
-### Catalog/BOM Expansion (Impl C-aligned)
+### ✅ Catalog / BOM expansion (Impl C + Impl D + pick UX) — CLOSED
 
-Scope:
+> Tags: `checkpoint-impl-c`, `checkpoint-impl-d`, `checkpoint-propeller-catalog-bind` (`v0.3.0`), `checkpoint-battery-catalog-bind-ux`.
 
-- stronger SKU-resolution tracking across subsystems,
-- BOM readiness (resolution, quantity, unresolved blockers).
+Delivered:
 
-### System-level Optimization
+- catalog-aware DSE + thrust bridge (Impl C),
+- BOM `[sku]` / `sku_resolved` / quantity (Impl D; propeller `has_propeller` branch IC 3),
+- live catalog pick UX for motor, propeller, battery.
+
+Out of scope (deferred): G24 DSE apply-by-index · H5 ESC catalog · frame SKU catalog.
+
+### ✅ Project Closure / Assembly Ready v1 — CLOSED
+
+> Tag: `checkpoint-closure-policy`. Product contract: **§11** (same document). IC 1 Requirements · IC 2 Battery/G27 · IC 3 policy sync + propeller display fix.
+
+### System-level Optimization — OPEN
 
 Scope:
 
 - objective-aware configuration scoring tied to readiness closure,
-- safe "aplica la mejor" at system level.
+- safe "aplica la mejor" at system level (§7 target semantics).
 
 ---
 
@@ -200,8 +209,8 @@ Scope:
 
 - No new source of truth replaces ProjectState.
 - No LLM authority over engineering next-step decisions.
-- No implicit rewrite of existing acquisition/continuity contracts.
-- No immediate changes to active roadmap priorities until an approved implementation contract exists.
+- No implicit rewrite of existing acquisition/continuity contracts — Continuity remains next-step copy authority; see [`PROJECT_CONTINUITY.md`](./PROJECT_CONTINUITY.md).
+- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. Delivered phases (ERF-1/2, Catalog Impl C/D, Project Closure §11) are closed; new work requires a new investigation/IC, not edits to §11 without Engineer approval.
 
 ---
 

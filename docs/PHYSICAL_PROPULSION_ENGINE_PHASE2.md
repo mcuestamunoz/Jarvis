@@ -1,10 +1,12 @@
 # Phase 2 — Physical Propulsion Engine
 
-**Status:** VISION (not started)  
-**Date:** 2026-08-19  
+**Status:** **P2-1 delivered** (`checkpoint-phase2-p2-1`); **P2-2+ open** (vision below)  
+**Date:** 2026-08-19 (implementation status sync: 2026-08-31)  
 **Author:** Engineer  
-**Depends on:** Physical Component Catalog V1 (Impl A ✅ → B ✅ → C → D)  
+**Depends on:** Physical Component Catalog V1 — Impl A–D ✅ (see [`PHYSICAL_COMPONENT_CATALOG_V1.md`](./PHYSICAL_COMPONENT_CATALOG_V1.md) §13)  
 **Related:** [`PHYSICAL_COMPONENT_CATALOG_V1.md`](./PHYSICAL_COMPONENT_CATALOG_V1.md), [`ENGINEERING_READINESS_VISION.md`](./ENGINEERING_READINESS_VISION.md)
+
+> **Document role:** Forward-looking vision for Phase 2 physics (operating points, power model, real-world validation). **P2-1 lookup operating point is implemented** — see §12.1. Sections 1–11 and 14–15 remain the design target for work not yet started.
 
 ---
 
@@ -22,7 +24,7 @@ Compatibility checks    →  Full electro-mechanical validation
 Catalog V1 answers: **"what components exist and how are they linked to the project?"**  
 Phase 2 answers: **"what does this combination of components actually produce?"**
 
-Phase 2 cannot begin until Catalog V1 Impl B is stable (catalog_ref must persist across project lifecycle). Impl C (catalog-aware DSE) and Impl D (BOM) may overlap or follow.
+**Prerequisites met:** Catalog V1 Impl B+ (bind + identity persist) and Impl D (BOM SKU display) are delivered. **P2-1** (lookup operating point from bound motor + propeller + voltage) is live — see §12.1. Remaining Phase 2 scope (§14–15) is still open.
 
 ---
 
@@ -338,7 +340,20 @@ Motor → fixed thrust     Motor + KV + estimates    Motor + Prop + Battery + ES
 
 ## 12. Implementation strategy
 
-### First validation: Real World Validation Case
+### 12.1 P2-1 — Lookup Operating Point ✅ (delivered)
+
+> Tag: **`checkpoint-phase2-p2-1`**. Propeller catalog pick UX: **`v0.3.0`** / **`checkpoint-propeller-catalog-bind`**.
+
+**Delivered (as-is, not re-specified here):**
+
+- `resolve_operating_point` — exact / fallback OP from bound motor SKU + propeller SKU + voltage
+- Curated seeds in `library/` (e.g. `emax_rs2205s_2300`, `sunnysky_r2305_2500` + propeller rows)
+- Bridge into calc/sim via `component_writers` / propulsion resolution evidence
+- Live CLI: motor bind → propeller pick → `exact_operating_point` or `fallback_operating_point` with honest thrust evidence
+
+**Not delivered by P2-1 (still §14–15 vision):** full power model, Ct/Cp curves, Real World Validation Case, system-level OP optimization.
+
+### 12.2 First validation: Real World Validation Case (P2-2+)
 
 Do NOT introduce a massive component catalog immediately.
 
@@ -378,16 +393,18 @@ Correct the physical model before scaling the catalog.
 
 ---
 
-## 13. Infrastructure prerequisites (from Catalog V1)
+## 13. Infrastructure prerequisites (from Catalog V1 + readiness)
 
 | Prerequisite | Source | Status |
 |---|---|---|
 | Components as typed entities with identity | Impl A | ✅ |
 | catalog_ref binding (SKU ↔ project) | Impl B | ✅ |
 | Electrical compatibility (ESC ↔ motor) | ERF-2 | ✅ |
-| catalog_ref visible in gaps/continuity | G9-A | 🟡 pending |
-| Catalog-aware DSE | Impl C | 🟡 pending |
-| BOM consumes SKU identity | Impl D | 🟡 pending |
+| Catalog-aware DSE + thrust bridge | Impl C | ✅ (`checkpoint-impl-c`) |
+| BOM consumes SKU identity (`[sku]`, `sku_resolved`) | Impl D + IC 3 | ✅ (`checkpoint-impl-d`, propeller branch `checkpoint-closure-policy`) |
+| Live catalog pick UX (motor / propeller / battery) | G21, v0.3.0, IC 2 | ✅ |
+| catalog_ref visible in gaps/continuity ranking | G9-A / C-108 | 🟡 partial (catalog-gap demotion only; full handoff deferred) |
+| Lookup operating point from bound combo | **P2-1** | ✅ (`checkpoint-phase2-p2-1`) |
 
 ---
 

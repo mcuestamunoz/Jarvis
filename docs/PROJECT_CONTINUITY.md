@@ -5,6 +5,18 @@
 
 **Updated:** 2026-08-18 — CLI polish checkpoint `checkpoint-continuity-polish` (`15aa503`). Living CLI findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md).
 
+## Scope and related documents
+
+This file documents the **Continuity / Project Coherence product contract** and the **FN field-note register** (acquisition fluency, session hygiene, G9-B, etc.). It is **not** the authority for Engineering Readiness rollup or Assembly Ready policy.
+
+| Topic | Authority |
+|---|---|
+| Situation / Evidence / Next useful step | `project_continuity.build_project_continuity` (this doc) |
+| Gap registry + `ASSEMBLY READY` rollup + snapshots A/B | [`ENGINEERING_READINESS_VISION.md`](./ENGINEERING_READINESS_VISION.md) **§11** |
+| As-is wiring | [`ARCHITECTURE.md`](./ARCHITECTURE.md), [`system_map/`](./system_map/README.md) |
+
+Continuity may **consume** `readiness=` for catalog-gap ranking (C-108, partial) but does not define readiness rules. Do not duplicate §11 family matrix or closure snapshots here.
+
 ## Product contract (A')
 
 Whenever the engineer **reopens** a project, Jarvis must answer:
