@@ -40,8 +40,8 @@
   "checkpoints": {
     "v0.3.1": "30c9aec",
     "checkpoint-next-engineering-block": "30c9aec",
-    "v0.3.2": "53831b0855ac29ff7c999f1479d45dd70cd80ab1",
-    "checkpoint-deferred-queue-cd": "53831b0855ac29ff7c999f1479d45dd70cd80ab1"
+    "v0.3.2": "ca1659c9b2fb1c482218d2c35205a4f5413285bb",
+    "checkpoint-deferred-queue-cd": "ca1659c9b2fb1c482218d2c35205a4f5413285bb"
   },
   "arc": {
     "deferred_queue_investigation": "COMPLETE",
