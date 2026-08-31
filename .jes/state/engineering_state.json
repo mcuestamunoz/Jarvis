@@ -39,8 +39,8 @@
     "checkpoint-next-engineering-block": "30c9aec",
     "v0.3.2": "ca1659c9b2fb1c482218d2c35205a4f5413285bb",
     "checkpoint-deferred-queue-cd": "ca1659c9b2fb1c482218d2c35205a4f5413285bb",
-    "v0.3.3": "e006bb1ef13fb0dc5b3633c52622290bd06ec993",
-    "checkpoint-validation-case-regression-gate": "e006bb1ef13fb0dc5b3633c52622290bd06ec993"
+    "v0.3.3": "ceb44b49cf44bd1bc9141f735f1e37907f9e98ab",
+    "checkpoint-validation-case-regression-gate": "ceb44b49cf44bd1bc9141f735f1e37907f9e98ab"
   },
   "arc": {
     "validation_case_investigation": "COMPLETE",
