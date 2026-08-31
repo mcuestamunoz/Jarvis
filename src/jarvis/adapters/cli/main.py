@@ -284,6 +284,24 @@ def render_startup_context(ctx: dict) -> str:
             label += f" · {thrust_n} N"
         lines.append(label + suffix)
 
+    # P2-2 (Operating Point Bridge) — distinct line for the OP's real
+    # electrical measurement (power/current/rpm), never conflated with the
+    # catalog rating shown via motor_power_w elsewhere. Only rendered when
+    # an operating point was actually resolved (exact/fallback) — absent
+    # for legacy_estimate/freeform, same honesty discipline as the
+    # propulsion_resolution block above.
+    op_electrical = ctx.get("motor_operating_point_electrical")
+    if op_electrical:
+        op_bits = []
+        if op_electrical.get("power_w") is not None:
+            op_bits.append(f"power={op_electrical['power_w']} W")
+        if op_electrical.get("current_a") is not None:
+            op_bits.append(f"current={op_electrical['current_a']} A")
+        if op_electrical.get("rpm") is not None:
+            op_bits.append(f"rpm={op_electrical['rpm']}")
+        if op_bits:
+            lines.append(f"Propulsión (OP eléctrico): {' · '.join(op_bits)}")
+
     # ERF-1 Slice 5 — Engineering Readiness block (8 subsystems + overall + top gaps)
     readiness = ctx.get("readiness")
     if readiness:

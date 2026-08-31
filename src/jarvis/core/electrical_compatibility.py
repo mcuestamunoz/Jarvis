@@ -130,6 +130,20 @@ def _per_motor_current_a(project_state: Any) -> float | None:
     components = _components(project_state)
     motors = components.get("motors")
 
+    # P2-2 (Operating Point Bridge, ★ locked order): the resolved operating
+    # point's real current (component_writers.set_motor_component, exact/
+    # fallback only) is the most specific measured value for this exact
+    # motor+propeller+voltage combo — preferred over the catalog peak
+    # rating and the power/voltage estimate below, both of which are
+    # coarser fallbacks for when no operating point was resolved.
+    params = getattr(project_state, "current_parameters", None) or {}
+    op_current_a = params.get("motor_op_current_a")
+    if op_current_a is not None:
+        try:
+            return float(op_current_a)
+        except (TypeError, ValueError):
+            pass
+
     catalog_ref = getattr(motors, "catalog_ref", None) if motors is not None else None
     if catalog_ref is not None and getattr(catalog_ref, "family", None) == "motor":
         try:
@@ -147,7 +161,6 @@ def _per_motor_current_a(project_state: Any) -> float | None:
         except (TypeError, ValueError):
             pass
 
-    params = getattr(project_state, "current_parameters", None) or {}
     motor_power_w = params.get("motor_power_w")
     if motor_power_w is not None:
         v_nom = _nominal_pack_voltage_v(project_state)

@@ -7,7 +7,10 @@ Covers .jes/artifacts/implementation_contract_erf2.md §9 Slice 1 test matrix:
 """
 from __future__ import annotations
 
+from dataclasses import replace
 from types import SimpleNamespace
+
+import pytest
 
 from jarvis.core.electrical_compatibility import evaluate_electrical_compatibility
 from jarvis.knowledge.library import default_library
@@ -98,6 +101,89 @@ def test_esc_actually_undersized_per_motor():
     )
     result = evaluate_electrical_compatibility(state)
     assert result.esc_vs_motor == "undersized"
+
+
+# ── P2-2 — Operating Point Bridge: motor_op_current_a preference order ─────
+
+def test_i_motor_a_uses_motor_op_current_when_present():
+    """§2.3 locked order: motor_op_current_a (resolved OP) wins over the
+    motor_power_w/voltage estimate — proves the ESC-vs-motor check uses the
+    more specific, curated value when a real operating point was resolved."""
+    state = _project_state(
+        current_parameters={
+            "vehicle_type": "dron",
+            "motor_count": 4,
+            "motor_power_w": 400.0,      # would estimate 400/16=25A without OP
+            "battery_cell_count": 4.32,  # ~16V
+            "motor_op_current_a": 27.0,  # resolved OP — the honest measured value
+        },
+        design_properties=_design_properties(
+            components={
+                "motors": _motor_spec_declared(),
+                "battery": _battery_spec_declared(battery_capacity_wh=100.0),
+                "esc": _esc_spec(current_a=30.0),
+            },
+        ),
+    )
+    result = evaluate_electrical_compatibility(state)
+    assert result.i_motor_a == 27.0  # not 25.0 (the power/voltage estimate)
+
+
+def test_i_motor_a_falls_back_when_no_motor_op_current():
+    """Regression: absent motor_op_current_a -> unchanged pre-P2-2 estimate
+    chain (motor_power_w / voltage)."""
+    state = _project_state(
+        current_parameters={
+            "vehicle_type": "dron",
+            "motor_count": 4,
+            "motor_power_w": 222.0,
+            "battery_cell_count": 2,
+        },
+        design_properties=_design_properties(
+            components={
+                "motors": _motor_spec_declared(),
+                "battery": _battery_spec_declared(battery_capacity_wh=50.0),
+                "esc": _esc_spec(current_a=90.0),
+            },
+        ),
+    )
+    result = evaluate_electrical_compatibility(state)
+    assert result.i_motor_a == 30.0  # 222/7.4 — unchanged from the existing test above
+
+
+def test_i_motor_a_prefers_motor_op_current_over_catalog_max_current_a(monkeypatch):
+    """§2.3 locked order: motor_op_current_a outranks even a catalog-bound
+    motor's own max_current_a — the OP is a more specific measurement of
+    this exact combo than the SKU's flat peak rating. No seed motor
+    currently declares max_current_a (confirmed live), so this ordering is
+    proven via a monkeypatched MotorSpec — same pattern as
+    test_prop_motor_mismatch_calls_library above."""
+    sku = "brotherhobby_avenger_2500"
+    real_spec = default_library.get_motor(sku)
+    fake_spec = replace(real_spec, max_current_a=20.0)
+    monkeypatch.setattr(default_library, "get_motor", lambda name: fake_spec if name == sku else real_spec)
+
+    motor_with_catalog_ref = ComponentSpec(
+        suggested_key="motors", completeness="high", source="declared",
+        properties={"motor_count": PropertyValue(value=4)},
+        catalog_ref=CatalogRef(family="motor", sku=sku),
+    )
+    state = _project_state(
+        current_parameters={
+            "vehicle_type": "dron",
+            "motor_count": 4,
+            "motor_op_current_a": 27.0,  # deliberately != fake catalog max_current_a (20.0)
+        },
+        design_properties=_design_properties(
+            components={
+                "motors": motor_with_catalog_ref,
+                "battery": _battery_spec_declared(battery_capacity_wh=100.0),
+                "esc": _esc_spec(current_a=200.0),
+            },
+        ),
+    )
+    result = evaluate_electrical_compatibility(state)
+    assert result.i_motor_a == pytest.approx(27.0)
 
 
 def test_esc_compatible_at_boundary():

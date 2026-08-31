@@ -457,6 +457,47 @@ class TestApplyPatterns:
         assert resolver.resolve_intent("optimiza para autonomia") != "apply_exploration_result"
 
 
+# ── Tests: resolve_apply_exploration_index (G24-1) ────────────────────────────
+
+class TestApplyExplorationIndex:
+    @pytest.fixture
+    def resolver(self):
+        from jarvis.core.intent_resolver import IntentResolver
+        return IntentResolver()
+
+    @pytest.mark.parametrize("text,expected", [
+        ("aplica la 5", 5),
+        ("aplicar la 3", 3),
+        ("aplica #5", 5),
+        ("aplica #2", 2),
+        ("aplica el 4", 4),
+        ("aplica la opcion 2", 2),
+        ("aplica la opción 2", 2),
+        ("aplica la quinta", 5),
+        ("aplica la primera", 1),
+    ])
+    def test_indexed_apply_phrases(self, resolver, text, expected):
+        assert resolver.resolve_apply_exploration_index(text) == expected
+
+    @pytest.mark.parametrize("text", [
+        "aplica la mejor",
+        "aplica la optima",
+        "aplica",
+        "aplica el resultado",
+        "usa esta",
+        "optimiza para autonomia",
+        "aplica #0",
+        "aplica la 0",
+    ])
+    def test_unqualified_or_nonpositive_apply_returns_none(self, resolver, text):
+        """None means 'no index' -> caller defaults to 1 (today's viable[0])."""
+        assert resolver.resolve_apply_exploration_index(text) is None
+
+    def test_intent_still_apply_exploration_result_for_indexed_phrase(self, resolver):
+        """G24-1 only extracts an index — it must not change intent classification."""
+        assert resolver.resolve_intent("aplica la 5") == "apply_exploration_result"
+
+
 # ── Tests: _handle_apply_exploration edge cases ───────────────────────────────
 
 class TestHandleApplyExploration:
@@ -553,6 +594,48 @@ class TestHandleApplyExploration:
         result = orch._handle_apply_exploration()
         assert result["status"] == "error"
         assert "proyecto activo" in result["message"].lower()
+
+    # ── G24-1: index parameter ──────────────────────────────────────────────
+
+    def test_default_index_applies_viable_zero(self):
+        """Unqualified call (index=1 default) selects viable[0] — byte-identical
+        to pre-G24-1 behavior."""
+        exploration = self._make_exploration()
+        project_state = self._make_project_state_mock()
+        orch = self._make_orchestrator_stub(exploration=exploration, project_state=project_state)
+        orch.state_manager.record_action.return_value = MagicMock()
+        orch.workspace_manager.save_state.return_value = None
+
+        result = orch._handle_apply_exploration()
+        assert result["status"] == "ok"
+        assert result["applied_index"] == 1
+        assert result["applied_candidate"]["label"] == exploration.viable[0].label
+
+    def test_apply_index_out_of_range_returns_error_no_mutation(self):
+        exploration = self._make_exploration()
+        project_state = self._make_project_state_mock()
+        orch = self._make_orchestrator_stub(exploration=exploration, project_state=project_state)
+        orch.state_manager.record_action.return_value = MagicMock()
+        orch.workspace_manager.save_state.return_value = None
+
+        result = orch._handle_apply_exploration(index=99)
+        assert result["status"] == "error"
+        assert "99" in result["message"]
+        orch.workspace_manager.save_state.assert_not_called()
+        orch.state_manager.record_action.assert_not_called()
+
+    def test_apply_index_zero_or_negative_returns_error_no_mutation(self):
+        """Reaching the orchestrator with index<1 (e.g. a future caller bug)
+        must still refuse cleanly — resolve_apply_exploration_index itself
+        never returns <1 to the normal call site, but the bounds check here
+        is the authoritative guard regardless of caller."""
+        exploration = self._make_exploration()
+        project_state = self._make_project_state_mock()
+        orch = self._make_orchestrator_stub(exploration=exploration, project_state=project_state)
+
+        result = orch._handle_apply_exploration(index=0)
+        assert result["status"] == "error"
+        orch.workspace_manager.save_state.assert_not_called()
 
     def test_successful_apply_returns_ok(self):
         exploration = self._make_exploration()

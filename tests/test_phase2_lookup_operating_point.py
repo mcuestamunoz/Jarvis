@@ -285,3 +285,173 @@ def test_regression_brotherhobby_bind_still_works(tmp_path: Path):
     updated = set_motor_component(ps, motor_spec, default_library.get_motor(sku).max_watts)
     assert updated.design_properties.components["motors"].catalog_ref.sku == sku
     assert updated.current_parameters["per_motor_max_thrust_n"] == pytest.approx(9.5)
+
+
+# ── 5. P2-2 — Operating Point Bridge (motor_op_* calc-bridge keys) ──────────
+
+
+def _bound_exact_op_state(tmp_path: Path):
+    """emax_rs2205s_2300 + hq_5045_bn @ ~16V -> exact_operating_point,
+    thrust=9.7086, power_w=432.0, current_a=27.0 — the contract's own
+    validated example."""
+    orch = _fresh_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    prop_spec = bind_propeller_from_catalog("hq_5045_bn")
+    ps = set_propeller_component(ps, prop_spec)
+    ps = ps.model_copy(update={
+        "current_parameters": {**ps.current_parameters, "battery_cell_count": 4.32},  # ~16.0V
+    })
+    motor_spec = bind_motor_from_catalog(_suggestion_for("emax_rs2205s_2300"))
+    updated = set_motor_component(ps, motor_spec, default_library.get_motor("emax_rs2205s_2300").max_watts)
+    return orch, updated
+
+
+def test_bridge_writes_motor_op_keys_exact(tmp_path: Path):
+    _, updated = _bound_exact_op_state(tmp_path)
+    raw = updated.current_parameters.get("propulsion_resolution")
+    assert json.loads(raw)["resolution_type"] == "exact_operating_point"
+
+    assert updated.current_parameters["motor_power_w"] == pytest.approx(400.0)
+    assert updated.current_parameters["motor_op_power_w"] == pytest.approx(432.0)
+    assert updated.current_parameters["motor_op_current_a"] == pytest.approx(27.0)
+    assert updated.current_parameters["motor_op_rpm"] == pytest.approx(23560.0)
+
+
+def test_bridge_writes_motor_op_keys_fallback(tmp_path: Path):
+    """fallback_operating_point still runs the write gate (resolution_type
+    in {exact, fallback}), but this SKU's fallback-only seed row happens to
+    carry power_w=current_a=rpm=None — so every motor_op_* key is correctly
+    popped rather than written as a fabricated 0/None value. This proves the
+    per-field None-check (§2.1), not just the top-level resolution_type gate
+    (already covered by the exact-match test)."""
+    orch = _fresh_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    motor_spec = bind_motor_from_catalog(_suggestion_for("emax_rs2205s_2300"))
+    updated = set_motor_component(ps, motor_spec, default_library.get_motor("emax_rs2205s_2300").max_watts)
+
+    resolution = json.loads(updated.current_parameters["propulsion_resolution"])
+    assert resolution["resolution_type"] == "fallback_operating_point"
+    assert updated.current_parameters["motor_power_w"] == pytest.approx(400.0)
+    assert "motor_op_power_w" not in updated.current_parameters
+    assert "motor_op_current_a" not in updated.current_parameters
+    assert "motor_op_rpm" not in updated.current_parameters
+
+
+def test_bridge_legacy_estimate_no_motor_op_keys(tmp_path: Path):
+    """legacy_estimate (no operating_points match at all) must carry zero
+    motor_op_* keys — motor_power_w stays the catalog rating, unaffected."""
+    orch = _fresh_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    sku = "brotherhobby_avenger_2500"
+    motor_spec = bind_motor_from_catalog(_suggestion_for(sku))
+    updated = set_motor_component(ps, motor_spec, default_library.get_motor(sku).max_watts)
+
+    resolution = json.loads(updated.current_parameters["propulsion_resolution"])
+    assert resolution["resolution_type"] == "legacy_estimate"
+    assert "motor_op_power_w" not in updated.current_parameters
+    assert "motor_op_current_a" not in updated.current_parameters
+    assert "motor_op_rpm" not in updated.current_parameters
+    assert updated.current_parameters["motor_power_w"] == pytest.approx(
+        default_library.get_motor(sku).max_watts
+    )
+
+
+def test_bridge_freeform_motor_no_motor_op_keys(tmp_path: Path):
+    """Unbound/freeform motor -> resolved_op is None entirely -> zero
+    motor_op_* keys, same as the pre-existing freeform regression test."""
+    from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
+
+    orch = _fresh_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    freeform_spec = ComponentSpec(
+        name="4x 2306 2400KV 50W", component_type="propulsion_active", suggested_key="motors",
+        completeness="high", source="declared",
+        properties={
+            "thrust_n": PropertyValue(value=6.3, unit="N", confidence=0.7, source="declared"),
+            "motor_count": PropertyValue(value=4, confidence=0.9, source="declared"),
+        },
+    )
+    updated = set_motor_component(ps, freeform_spec, 50.0)
+    assert "motor_op_power_w" not in updated.current_parameters
+    assert "motor_op_current_a" not in updated.current_parameters
+    assert "motor_op_rpm" not in updated.current_parameters
+
+
+def test_bridge_pops_stale_motor_op_keys_on_divergence_to_legacy(tmp_path: Path):
+    """A prior exact/fallback bind's motor_op_* keys must not survive a
+    later write that resolves to legacy_estimate (e.g. switching to a SKU
+    with no operating_points data) — regression for the ★-locked "pop when
+    absent" rule."""
+    _, exact_state = _bound_exact_op_state(tmp_path)
+    assert "motor_op_power_w" in exact_state.current_parameters
+
+    legacy_sku = "brotherhobby_avenger_2500"
+    legacy_spec = bind_motor_from_catalog(_suggestion_for(legacy_sku))
+    diverged = set_motor_component(
+        exact_state, legacy_spec, default_library.get_motor(legacy_sku).max_watts
+    )
+    resolution = json.loads(diverged.current_parameters["propulsion_resolution"])
+    assert resolution["resolution_type"] == "legacy_estimate"
+    assert "motor_op_power_w" not in diverged.current_parameters
+    assert "motor_op_current_a" not in diverged.current_parameters
+    assert "motor_op_rpm" not in diverged.current_parameters
+
+
+def test_autonomy_uses_motor_op_power_when_present(tmp_path: Path):
+    """P2-2 §2.2: autonomy must reflect the resolved OP power (432W), not
+    the flat catalog rating (400W) — lower autonomy since power is higher."""
+    from jarvis.core.calculation_engine import CalculationEngine
+
+    _, updated = _bound_exact_op_state(tmp_path)
+    params = dict(updated.current_parameters)
+    params.update({
+        "vehicle_type": "dron", "payload_kg": 1.0, "structure_mass_factor": 0.5,
+        "safety_factor": 1.2, "motor_count": 4, "battery_capacity_wh": 100.0,
+    })
+    bundle = CalculationEngine().build(params)
+
+    params_rating_only = dict(params)
+    params_rating_only.pop("motor_op_power_w", None)
+    bundle_rating_only = CalculationEngine().build(params_rating_only)
+
+    assert bundle.autonomy_min is not None and bundle_rating_only.autonomy_min is not None
+    assert bundle.autonomy_min < bundle_rating_only.autonomy_min  # 432W drains faster than 400W
+
+
+def test_autonomy_unchanged_when_no_motor_op_power(tmp_path: Path):
+    """Regression: a project with only motor_power_w (no OP keys) computes
+    autonomy identically to pre-P2-2 behavior."""
+    from jarvis.core.calculation_engine import CalculationEngine
+
+    params = {
+        "vehicle_type": "dron", "payload_kg": 1.0, "structure_mass_factor": 0.5,
+        "safety_factor": 1.2, "motor_count": 4, "battery_capacity_wh": 100.0,
+        "motor_power_w": 220.0, "per_motor_max_thrust_n": 9.5,
+    }
+    bundle = CalculationEngine().build(params)
+    assert bundle.autonomy_min == pytest.approx((100.0 / (220.0 * 4)) * 60.0, abs=1e-3)
+
+
+def test_estado_shows_op_electrical_line_when_resolved(tmp_path: Path):
+    from jarvis.adapters.cli.main import render_startup_context
+
+    orch, updated = _bound_exact_op_state(tmp_path)
+    orch.workspace_manager.save_state(updated)
+    ctx = orch.build_startup_context()
+    rendered = render_startup_context(ctx)
+    assert "Propulsión (OP eléctrico): power=432.0 W · current=27.0 A · rpm=23560.0" in rendered
+
+
+def test_estado_hides_op_electrical_line_for_legacy(tmp_path: Path):
+    from jarvis.adapters.cli.main import render_startup_context
+
+    orch = _fresh_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    sku = "brotherhobby_avenger_2500"
+    motor_spec = bind_motor_from_catalog(_suggestion_for(sku))
+    updated = set_motor_component(ps, motor_spec, default_library.get_motor(sku).max_watts)
+    orch.workspace_manager.save_state(updated)
+
+    ctx = orch.build_startup_context()
+    rendered = render_startup_context(ctx)
+    assert "Propulsión (OP eléctrico)" not in rendered

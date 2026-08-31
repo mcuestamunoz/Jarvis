@@ -1,44 +1,40 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Investigation — Next Engineering Block (P2-2 vs G24 vs H5)",
-  "scope": "Comparative investigation on baseline 73bd9fa. No implementation. Version bump deferred.",
-  "execution_status": "investigation_contract_ready",
-  "current_mode": "Investigation",
+  "cycle_intent": "Deferred queue frozen — await next investigation",
+  "scope": "Next Engineering Block checkpointed at v0.3.1. No scheduled implementation.",
+  "execution_status": "checkpointed_v0_3_1",
+  "current_mode": "Frozen",
   "movement_trigger": {
-    "type": "clean_baseline",
-    "note": "Project Closure complete; doc hygiene 73bd9fa; next block selection."
+    "type": "checkpoint_v0_3_1",
+    "note": "Engineer 2026-08-31: single tag checkpoint-next-engineering-block + v0.3.1; deferred frozen."
   },
   "relevant_workflow_phases": [
-    "Investigation",
-    "Review",
-    "Contract"
+    "Investigation"
   ],
   "applicable_rules": [
-    "Code + tests first — vision docs are context only",
-    "One primary recommendation — no mega-IC",
-    "Version bump after Engineer ratifies direction",
-    "Do not reopen Project Closure without regression proof"
+    "No new IC without investigation",
+    "Deferred queue frozen: H5, G24-B/C, Validation Case, frankenstein .name",
+    "Do not reopen Next Engineering Block without regression proof"
   ],
-  "required_artifacts": [
-    ".jes/artifacts/investigation_contract_next_engineering_block.md"
-  ],
-  "open_questions": [
-    "Primary next block: P2-2 vs G24 vs H5",
-    "Version bump timing and target (post-investigation)"
-  ],
-  "active_operation": "Claude: investigate → report → Cursor review → Engineer ★.",
+  "required_artifacts": [],
+  "open_questions": [],
+  "active_operation": "None — next cycle starts with comparative investigation when Engineer prioritizes.",
   "authority_gates": [
-    "checkpoint-closure-policy ✅",
-    "doc hygiene 73bd9fa ✅",
-    "1976 suite baseline ✅"
+    "checkpoint-next-engineering-block ✅",
+    "v0.3.1 ✅",
+    "2013 suite at checkpoint ✅",
+    "probes G24 6/6 + P2-2 6/6 ✅"
   ],
   "checkpoints": {
     "v0.3.0": "2efe1c2",
     "checkpoint-closure-policy": "8728a85",
-    "clean_baseline_docs": "73bd9fa"
+    "clean_baseline_docs": "73bd9fa",
+    "checkpoint-next-engineering-block": "f27f64b",
+    "v0.3.1": "f27f64b"
   },
   "arc": {
     "project_closure": "COMPLETE",
-    "next_block": "INVESTIGATION_PENDING"
+    "next_engineering_block": "CHECKPOINTED_v0_3_1",
+    "deferred_frozen": ["H5_ESC_CATALOG", "P2-2_VALIDATION_CASE", "G24_B_RANKING", "G24_C_CTA", "G5_FRANKENSTEIN_NAME"]
   }
 }

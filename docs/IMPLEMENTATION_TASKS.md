@@ -7,14 +7,40 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** `main` @ **`73bd9fa`** · tag **`checkpoint-closure-policy`**. **CLEAN BASELINE.**  
-> **PRIORIDAD AHORA:** Investigation — Next Engineering Block (P2-2 vs G24 vs H5). **No IC. No version bump yet.**  
-> **Versión:** `0.3.0` (tag names propeller-bind only; bump deferred post-investigation).
+> **Base:** tag **`v0.3.1`** / **`checkpoint-next-engineering-block`**. **CONGELADO.**  
+> **PRIORIDAD AHORA:** Ninguna implementación — cola **deferred congelada** hasta nueva investigación.  
+> **Versión:** **`0.3.1`** (G24-A apply-by-index + P2-2 OP electrical bridge).
 
-### 🟡 EN CURSO — Investigation: Next Engineering Block
+### 🟢 CONGELADO — Next Engineering Block @ 0.3.1 (2026-08-31)
 
-> Contract: [investigation_contract_next_engineering_block.md](../.jes/artifacts/investigation_contract_next_engineering_block.md) — **READY FOR CLAUDE**  
-> Compare **P2-2** · **G24** · **H5** on baseline `73bd9fa` — code/tests first, matrix, one primary recommendation.  
-> Version decision **after** Engineer ★. Do not implement in investigation.
+> Tag **`checkpoint-next-engineering-block`** · **`v0.3.1`**  
+> **IC 1 G24-A:** apply-by-index · probe **6/6** · [review](../.jes/artifacts/implementation_review_g24_a_apply_by_index.md)  
+> **IC 2 P2-2:** `motor_op_*` bridge · Option A · probe **6/6** · suite **2013** · [review](../.jes/artifacts/implementation_review_p2_2_operating_point_bridge.md)  
+> **Deferred (sin schedule):** H5 · G24-B/C · Validation Case · frankenstein `.name` — requiere investigación.
+
+### ✅ CERRADO — Next Engineering Block (implementación)
+
+> **IC 1 G24-A:** [review PASS WITH NOTES](../.jes/artifacts/implementation_review_g24_a_apply_by_index.md) — aceptado  
+> **IC 2 P2-2:** [review PASS WITH NOTES](../.jes/artifacts/implementation_review_p2_2_operating_point_bridge.md) — **implementación aceptada, sin findings bloqueantes**  
+> Suite **2013** · probes G24 **6/6** + P2-2 **6/6** · Closure **5/5** · zero `library.py` diff  
+> **Deferred (no schedule):** H5 · G24-B/C · Validation Case · frankenstein `.name`
+
+### ✅ ACEPTADO — IC 2 P2-2 Operating Point Bridge (2026-08-31)
+
+> Contract · report · [review PASS WITH NOTES](../.jes/artifacts/implementation_review_p2_2_operating_point_bridge.md)  
+> **★ Option A:** `motor_power_w`=400 (rating) · `motor_op_*`=432/27 A · autonomy OP-aware · Bat-0 PASS  
+> **Congelado** pending optional checkpoint / version tag.
+
+> Contract · report · [review PASS WITH NOTES](../.jes/artifacts/implementation_review_g24_a_apply_by_index.md) — **implementación aceptada, sin findings bloqueantes**  
+> Probe **6/6** · suite **2001** · Closure **5/5 + 4/4** · zero `design_explorer.py` diff  
+> **Congelado.** Checkpoint `checkpoint-g24-apply-by-index` opcional; no más trabajo G24-A salvo tag/commit.
+
+### ✅ INVESTIGACIÓN CERRADA — Next Engineering Block (P2-2 vs G24 vs H5)
+
+> Report: [investigation_report…](../.jes/artifacts/investigation_report_next_engineering_block.md)  
+> Review: [investigation_review…](../.jes/artifacts/investigation_review_next_engineering_block.md) — **PASS WITH NOTES**  
+> **Headline:** G24-A primary; P2-2 bridge secondary; H5 deferred (schema lock 1A).  
+> **Engineer ratification (2026-08-31):** ★1–★5 locked — see IC 1 contract §0.
 
 ### 🟢 COMPLETADO — Documentation hygiene + Closure arc
 

@@ -310,6 +310,23 @@ def set_motor_component(
         # bind_motor_from_catalog already equals resolved_op.thrust_n anyway.
         # catalog_ref is never touched here — only PropertyValue mutated.
         if resolved_op.resolution_type in ("exact_operating_point", "fallback_operating_point"):
+            # P2-2 (Operating Point Bridge, ★ locked Option A): additive
+            # OP-electrical calc-bridge keys — never overwrite motor_power_w
+            # (catalog max_watts rating keeps its own meaning; a resolved
+            # operating point is a distinct, more specific measurement of
+            # the SAME motor at THIS combo/voltage, not a replacement
+            # rating). Written only here (a real OP row matched); popped in
+            # both the legacy_estimate and unbound/freeform branches below
+            # so a stale OP from a prior bind never survives a divergence.
+            for _key, _value in (
+                ("motor_op_power_w", resolved_op.power_w),
+                ("motor_op_current_a", resolved_op.current_a),
+                ("motor_op_rpm", resolved_op.rpm),
+            ):
+                if _value is not None:
+                    updated_params[_key] = _value
+                else:
+                    updated_params.pop(_key, None)
             spec = spec.model_copy(update={"properties": {
                 **spec.properties,
                 "thrust_n": PropertyValue(
@@ -319,6 +336,10 @@ def set_motor_component(
             }})
             updated_components = {**updated_components, "motors": spec}
             updated_dp = updated_dp.model_copy(update={"components": updated_components})
+        else:
+            updated_params.pop("motor_op_power_w", None)
+            updated_params.pop("motor_op_current_a", None)
+            updated_params.pop("motor_op_rpm", None)
     else:
         # Impl C follow-up (thrust bridge, ★1): thrust_n on the spec is the
         # sole source for per_motor_max_thrust_n — never invented, never
@@ -328,6 +349,11 @@ def set_motor_component(
         if thrust_prop is not None and thrust_prop.value is not None:
             updated_params["per_motor_max_thrust_n"] = float(thrust_prop.value)
         updated_params.pop("propulsion_resolution", None)
+        # P2-2: no operating point resolved at all (unbound/freeform motor)
+        # -> no OP-electrical data to bridge.
+        updated_params.pop("motor_op_power_w", None)
+        updated_params.pop("motor_op_current_a", None)
+        updated_params.pop("motor_op_rpm", None)
     # Catalog v1 (Impl B, 2A): motor mass enters calc ONLY when the component
     # is SKU-bound (catalog_ref set) — free-text-declared motors keep today's
     # physics unchanged (no motor_mass_kg mirror at all, same as before this

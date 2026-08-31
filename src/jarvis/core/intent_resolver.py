@@ -372,6 +372,58 @@ class IntentResolver:
         from jarvis.core.goal_planner import detect_goal
         return detect_goal(user_input)
 
+    # G24-1 (DSE Apply By Index): 1-based index the user names in an apply
+    # phrase (e.g. "aplica la 5"), or None when unqualified ("aplica la
+    # mejor", bare "aplica", ...) — the caller (orchestrator._handle_apply_
+    # exploration) treats None as index 1, byte-identical to today's
+    # viable[0] behavior. APPLY_PATTERNS already resolves all of these
+    # phrasings to intent "apply_exploration_result" — this method only
+    # extracts the optional index on top, it does not change intent
+    # classification.
+    _APPLY_INDEX_ORDINALS: dict[str, int] = {
+        "primera": 1, "primer": 1,
+        "segunda": 2,
+        "tercera": 3,
+        "cuarta": 4,
+        "quinta": 5,
+    }
+    _APPLY_INDEX_RE = re.compile(
+        r"\bapl(?:ica|icar)\b.*?"
+        r"(?:#\s*(?P<hash_num>\d+)"
+        r"|(?:la|el)\s+opcion\s+(?P<opt_num>\d+)"
+        r"|(?:la|el)\s+(?P<plain_num>\d+)(?:\s*-?\s*esima)?"
+        r"|\b(?P<ordinal>primera|primer|segunda|tercera|cuarta|quinta)\b"
+        r")"
+    )
+
+    def resolve_apply_exploration_index(self, user_input: str) -> int | None:
+        """G24-1: extract the 1-based candidate index from an apply phrase.
+
+        Returns ``None`` for unqualified apply ("aplica la mejor"/"aplica la
+        optima"/bare "aplica") and for a non-positive or unparseable index
+        (e.g. "aplica #0") — both fall back to the caller's default (index
+        1), never an error: a nonsensical explicit index is treated the same
+        as "no index given", not as a distinct failure mode (locked choice,
+        contract §2.3 — out-of-range-but-positive indices are the
+        orchestrator's bounds-check job, not this method's).
+        """
+        normalized = self._normalize_text(user_input)
+        match = self._APPLY_INDEX_RE.search(normalized)
+        if not match:
+            return None
+        for group_name in ("hash_num", "opt_num", "plain_num"):
+            value = match.group(group_name)
+            if value is not None:
+                try:
+                    idx = int(value)
+                except ValueError:
+                    return None
+                return idx if idx >= 1 else None
+        ordinal = match.group("ordinal")
+        if ordinal is not None:
+            return self._APPLY_INDEX_ORDINALS.get(ordinal)
+        return None
+
     def resolve_action_request(self, user_input: str, intent: IntentType | None = None) -> dict | None:
         resolved_intent = intent or self.resolve_intent(user_input)
         normalized = self._normalize_text(user_input)

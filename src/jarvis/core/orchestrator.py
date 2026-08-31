@@ -129,6 +129,21 @@ def _parse_propulsion_resolution(raw: str | None) -> dict[str, Any] | None:
         return None
 
 
+def _motor_op_electrical_from_params(params: dict[str, Any]) -> dict[str, Any] | None:
+    """P2-2 (Operating Point Bridge): estado/CLI surface for the OP-electrical
+    calc-bridge keys (component_writers.set_motor_component, exact/fallback
+    only) — None when no operating point was resolved (legacy_estimate or
+    unbound/freeform motor), so the caller can render a distinct "OP
+    eléctrico" line only when there is real OP evidence to show, never a
+    fabricated one alongside the catalog rating."""
+    power_w = params.get("motor_op_power_w")
+    current_a = params.get("motor_op_current_a")
+    rpm = params.get("motor_op_rpm")
+    if power_w is None and current_a is None and rpm is None:
+        return None
+    return {"power_w": power_w, "current_a": current_a, "rpm": rpm}
+
+
 # ── Component description prompts (keyed by component suggested_key) ──────────
 # Used by _handle_component_description affirmative path and follow-up messages.
 # FN-017: moved to acquisition_target.COMPONENT_PROMPTS (single source of truth,
@@ -1366,8 +1381,12 @@ class JarvisOrchestrator:
             return result
 
         # DSE v1.1: apply the best candidate from the last exploration.
+        # G24-1: an indexed apply phrase ("aplica la 5") selects that
+        # candidate directly; unqualified ("aplica la mejor", bare "aplica")
+        # keeps today's default index 1 == viable[0], byte-identical.
         if intent == "apply_exploration_result":
-            result = self._handle_apply_exploration()
+            apply_index = self.intent_resolver.resolve_apply_exploration_index(user_input) or 1
+            result = self._handle_apply_exploration(index=apply_index)
             self._track_turn(user_input, result)
             return result
 
@@ -3531,16 +3550,24 @@ class JarvisOrchestrator:
             "workspace_path": project_state.workspace_path,
         }
 
-    def _handle_apply_exploration(self) -> dict:
-        """DSE v1.1: aplica el mejor candidato de la última exploración al proyecto.
+    def _handle_apply_exploration(self, *, index: int = 1) -> dict:
+        """DSE v1.1 / G24-1: aplica un candidato de la última exploración al proyecto.
 
-        Usa viable[0] (mayor score) de last_exploration_result en session.
-        Escribe directamente en state (equivalente al physical iterate path):
-          current_parameters ← merged, corre calculate + simulate, guarda.
+        Usa viable[index - 1] (1-based, default 1 == mayor score) de
+        last_exploration_result en session. Escribe directamente en state
+        (equivalente al physical iterate path): current_parameters ←
+        merged, corre calculate + simulate, guarda.
+
+        G24-1 (locked, does not change ranking/scoring): ``index`` only
+        selects WHICH row of the already-computed, already-ordered
+        ``viable[]`` gets applied — "aplica la mejor" / bare "aplica" keep
+        calling this with the default ``index=1``, byte-identical to the
+        pre-G24-1 ``viable[0]`` behavior.
 
         Edge cases:
           - Sin exploración previa → mensaje informativo
           - viable vacío → mensaje informativo
+          - index fuera de rango (1..len(viable)) → mensaje informativo, sin mutar estado
           - best.score <= baseline_score → avisa pero aplica de todas formas
           - _apply_delta falla (param ausente) → fallback manual
         """
@@ -3564,6 +3591,16 @@ class JarvisOrchestrator:
                 ),
             }
 
+        if index < 1 or index > len(exploration.viable):
+            return {
+                "status": "error",
+                "action": "apply_exploration_result",
+                "message": (
+                    f"No hay una configuración #{index}. Elige un número entre 1 y "
+                    f"{len(exploration.viable)}, o di «aplica la mejor»."
+                ),
+            }
+
         try:
             project_state = self.state_manager.load_active_project(self.workspace_manager)
         except FileNotFoundError:
@@ -3573,7 +3610,7 @@ class JarvisOrchestrator:
                 "message": "No hay proyecto activo. Crea un proyecto antes de aplicar una configuración.",
             }
 
-        best = exploration.viable[0]
+        best = exploration.viable[index - 1]
 
         # Resolve delta → canonical param dict + updated state
         base_params = dict(project_state.current_parameters or {})
@@ -3704,8 +3741,13 @@ class JarvisOrchestrator:
         change_lines = [f"  - {k}: {base_params.get(k)} → {v}" for k, v in changed.items()]
         change_desc = "\n".join(change_lines) if change_lines else "  (sin cambios detectados)"
 
+        applied_header = (
+            f"Aplicando mejor configuración de «{exploration.goal_label}»:"
+            if index == 1
+            else f"Aplicando configuración #{index} de «{exploration.goal_label}»:"
+        )
         message_parts = [
-            f"Aplicando mejor configuración de «{exploration.goal_label}»:",
+            applied_header,
             "",
             change_desc,
             "",
@@ -3732,6 +3774,7 @@ class JarvisOrchestrator:
             "action": "apply_exploration_result",
             "goal_key": exploration.goal_key,
             "goal_label": exploration.goal_label,
+            "applied_index": index,
             "applied_candidate": best.model_dump(),
             "calculations": calculations.model_dump(),
             "simulation": simulation.model_dump(),
@@ -4134,6 +4177,14 @@ class JarvisOrchestrator:
             # parsed back to a dict here for the CLI/estado surface only.
             "propulsion_resolution": _parse_propulsion_resolution(
                 (project_state.current_parameters or {}).get("propulsion_resolution")
+            ),
+            # P2-2 (Operating Point Bridge) — distinct from propulsion_resolution
+            # (thrust/provenance metadata): the OP's real electrical measurement
+            # (power/current/rpm) at this exact combo, when resolved. None when
+            # no operating point was resolved — additive evidence, not a
+            # replacement for the catalog rating shown elsewhere.
+            "motor_operating_point_electrical": _motor_op_electrical_from_params(
+                project_state.current_parameters or {}
             ),
             "energy_model_note": energy_note,
             "motor_catalog_matches": catalog_matches,

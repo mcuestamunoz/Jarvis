@@ -31,6 +31,22 @@ _PROPELLER_HINT_PARAMS: frozenset[str] = frozenset({
 })
 
 
+def effective_motor_power_w(parameters: Mapping[str, Any]) -> float | None:
+    """P2-2 (Operating Point Bridge, ★ locked Option A) — single authority
+    for "what power draw should autonomy use": the resolved operating
+    point's real power (``motor_op_power_w``, set only for an exact/
+    fallback OP match — component_writers.set_motor_component) when
+    present, else the catalog/declared rating (``motor_power_w``).
+    ``motor_power_w`` itself is never overwritten anywhere — this helper is
+    the one place that picks between the two for a calc consumer.
+    """
+    op_power_w = parameters.get("motor_op_power_w")
+    if op_power_w is not None:
+        return float(op_power_w)
+    rating_power_w = parameters.get("motor_power_w")
+    return float(rating_power_w) if rating_power_w is not None else None
+
+
 class CalculationEngine:
     def build(self, parameters: Mapping[str, Any]) -> CalculationBundle:
         payload_kg = float(parameters["payload_kg"])
@@ -162,11 +178,14 @@ class CalculationEngine:
         available_total_thrust_n = round(motors * per_motor_max_thrust_n, 4) if (motors is not None and per_motor_max_thrust_n is not None) else None
 
         # Resolve energy autonomy — requires battery_capacity_wh + motor_power_w
+        # (P2-2: prefers motor_op_power_w — the resolved operating point's
+        # real power draw — over the bare catalog rating when present).
         autonomy_min: float | None = None
         battery_capacity_wh = parameters.get("battery_capacity_wh")
         motor_power_w = parameters.get("motor_power_w")
-        if battery_capacity_wh is not None and motor_power_w is not None and motors is not None:
-            total_power_w = float(motor_power_w) * motors
+        effective_power_w = effective_motor_power_w(parameters)
+        if battery_capacity_wh is not None and effective_power_w is not None and motors is not None:
+            total_power_w = effective_power_w * motors
             energy_result = calculate_autonomy_min(float(battery_capacity_wh), total_power_w)
             tool_results.append(energy_result)
             autonomy_min = energy_result.outputs["autonomy_min"]
