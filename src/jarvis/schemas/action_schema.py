@@ -240,6 +240,9 @@ class InteractiveSessionState(BaseModel):
     # Prop-1: symmetric with motor_suggestions — runtime-only (see
     # state_manager._PERSISTED_SESSION_FIELDS comment), not persisted.
     propeller_suggestions: list[dict] = Field(default_factory=list)
+    # Bat-1: same tier as motor_suggestions/propeller_suggestions —
+    # runtime-only (see state_manager._PERSISTED_SESSION_FIELDS comment).
+    battery_suggestions: list[dict] = Field(default_factory=list)
     pending_param_definitions: list[str] = Field(default_factory=list)
     collected_params: dict[str, float] = Field(default_factory=dict)
     param_definition_reason: str = ""

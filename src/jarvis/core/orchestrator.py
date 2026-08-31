@@ -836,6 +836,10 @@ class JarvisOrchestrator:
                 # do there) — try the propeller IDLE re-bind next, same IDLE
                 # help-choose phrase, no separate dispatch needed.
                 assist = self._try_start_assisted_propeller_help()
+            if assist is None:
+                # Bat-3: same fallback chain, one step further — battery
+                # IDLE re-bind once motor/propeller both have nothing to do.
+                assist = self._try_start_assisted_battery_help()
             if assist is not None:
                 self._track_turn(user_input, assist)
                 return assist
@@ -1481,6 +1485,35 @@ class JarvisOrchestrator:
         })
         self.state_manager.set_runtime_session(updated)
         return self._offer_component_propeller_catalog(updated, ["propellers"])
+
+    def _try_start_assisted_battery_help(self) -> dict | None:
+        """Bat-3 (IDLE fallback, mirrors ``_try_start_assisted_propeller_help``):
+        IDLE help-choose -> assisted battery acquisition. Only ever reached as
+        the third fallback (motor -> propeller -> battery), in practice
+        reached once motors AND propellers are both catalog-bound (or have
+        nothing left to offer) — energy comes after propulsion in the
+        architecture block order (investigation_report_project_closure_
+        assembly_ready.md §1.10 S0->S1, IC §5 "battery after propulsion block
+        complete"). Returns None when there is no active project or battery
+        doesn't want catalog help (already bound, or nothing to offer — no
+        picker noise).
+        """
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", {}) or {}
+        if not _wants_catalog_help(components.get("battery")):
+            return None
+
+        session = self.state_manager.get_runtime_session()
+        updated = session.model_copy(update={
+            "mode": OrchestratorMode.DEFINE_MISSING_PARAMETERS,
+            "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
+            "pending_missing_params": ["battery"],
+            "pending_define_missing": False,
+        })
+        self.state_manager.set_runtime_session(updated)
+        return self._offer_component_battery_catalog(updated, ["battery"])
 
     def _try_declare_active_block_help(self, user_input: str) -> dict | None:
         """FN-011: 'ayúdame a declarar/completar <bloque>' → deterministic acquisition.
@@ -2453,10 +2486,13 @@ class JarvisOrchestrator:
         suggestions = (
             build_motor_catalog_suggestions(project_state) if project_state is not None else []
         )
-        # Prop-3 ★4/§2: offering a fresh motor list retires any pending
-        # propeller pick to avoid cross-pick ambiguity (symmetric with
-        # _offer_component_propeller_catalog clearing motor_suggestions).
-        updated = session.model_copy(update={"motor_suggestions": suggestions, "propeller_suggestions": []})
+        # Prop-3 ★4/§2 (Bat-3: extended to battery): offering a fresh motor
+        # list retires any pending propeller/battery pick to avoid
+        # cross-pick ambiguity (symmetric with _offer_component_propeller_
+        # catalog / _offer_component_battery_catalog clearing motor_suggestions).
+        updated = session.model_copy(update={
+            "motor_suggestions": suggestions, "propeller_suggestions": [], "battery_suggestions": [],
+        })
         self.state_manager.set_runtime_session(updated)
         if not suggestions:
             from jarvis.core.project_closure import derive_physical_requirements
@@ -2562,6 +2598,7 @@ class JarvisOrchestrator:
         updated = session.model_copy(update={
             "propeller_suggestions": suggestions,
             "motor_suggestions": [],
+            "battery_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -2619,6 +2656,99 @@ class JarvisOrchestrator:
         self.state_manager.set_runtime_session(cleared)
 
         saved_msg = f"Hélice elegida: {suggestion['name']} ({suggestion['diameter_in']}x{suggestion['pitch_in']})."
+        components = updated_state.design_properties.components
+        still_missing = [
+            k for k in expected_keys
+            if components.get(k) is None or components[k].completeness == "low"
+        ]
+        if not still_missing:
+            self._set_pending_next_block()
+            result: dict[str, Any] = {
+                "status": "ok",
+                "action": "component_description_saved",
+                "message": saved_msg,
+            }
+            return self._append_arch_progress_hint(result)
+
+        follow_up = self._component_prompt_for_first_missing(still_missing)
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": f"{saved_msg} {follow_up}",
+        }
+
+    def _offer_component_battery_catalog(
+        self, session: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """Bat-3: catalog list bridge for the battery COMPONENT sub-mode —
+        mirrors ``_offer_component_propeller_catalog``. ★1 (Bat-2): suggestions
+        come only from ``build_battery_catalog_suggestions`` (``ComponentLibrary.
+        list_batteries()``, no hardcode). Clears ``motor_suggestions``/
+        ``propeller_suggestions`` (★4/§2: offering a new list retires any other
+        family's pending pick to avoid cross-pick ambiguity — same rule the
+        motor/propeller offers already apply to each other).
+        """
+        from jarvis.core.battery_catalog_assist import (
+            build_battery_catalog_suggestions,
+            format_battery_catalog_suggestions,
+        )
+
+        project_state = self._safe_active_project()
+        suggestions = (
+            build_battery_catalog_suggestions(project_state) if project_state is not None else []
+        )
+        updated = session.model_copy(update={
+            "battery_suggestions": suggestions,
+            "motor_suggestions": [],
+            "propeller_suggestions": [],
+        })
+        self.state_manager.set_runtime_session(updated)
+        return {
+            "status": "interactive",
+            "action": "component_description_prompt",
+            "message": format_battery_catalog_suggestions(suggestions),
+            "battery_suggestions": suggestions,
+        }
+
+    def _apply_component_battery_catalog_pick(
+        self, suggestion: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """Bat-3: bind a catalog pick in the battery COMPONENT sub-mode and
+        advance the wizard — mirrors ``_apply_component_propeller_catalog_pick``.
+
+        Apply path locked by the contract (§5): ``bind_battery_from_catalog``
+        + ``set_battery_component`` — the same bind→writer chain the
+        investigation proved sufficient (test-callable, zero production call
+        sites before this IC). No new refresh helper — unlike the propeller
+        pick, a battery bind does not need to re-trigger
+        ``resolve_operating_point`` (P2-1's OP resolution reads the battery's
+        catalog_ref for voltage, but that read happens inside
+        ``set_motor_component`` itself, not here — a battery-only bind with
+        no motor re-write leaves any already-resolved OP as-is until the next
+        motor/propeller write, same as today's unbound-battery behavior).
+        """
+        from jarvis.core.catalog_bind import bind_battery_from_catalog
+
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": "No hay proyecto activo. Crea uno primero.",
+            }
+        spec = bind_battery_from_catalog(suggestion["name"])
+        updated_state = set_battery_component(
+            project_state, spec, spec.properties["battery_capacity_wh"].value
+        )
+        self.workspace_manager.save_state(updated_state)
+
+        cleared = self.state_manager.get_runtime_session().model_copy(
+            update={"battery_suggestions": []}
+        )
+        self.state_manager.set_runtime_session(cleared)
+
+        saved_msg = f"Batería elegida: {suggestion['name']} ({suggestion['energy_wh']}Wh)."
         components = updated_state.design_properties.components
         still_missing = [
             k for k in expected_keys
@@ -2740,6 +2870,24 @@ class JarvisOrchestrator:
                 picked = propeller_match_suggestion_by_input(user_input, session.propeller_suggestions)
                 if picked is not None:
                     return self._apply_component_propeller_catalog_pick(picked, expected_keys)
+
+        # Bat-3/4: battery catalog help-choose / pick bridge — same ★4 gate
+        # shape as motors/propellers (_wants_catalog_help, not bare key
+        # membership) so a composite energy wizard ["battery","motors"]
+        # doesn't starve this branch once motors is bound.
+        battery_wants_help = "battery" in expected_keys and _wants_catalog_help(gate_components.get("battery"))
+        if battery_wants_help or ("battery" in expected_keys and session.battery_suggestions):
+            from jarvis.core.battery_catalog_assist import (
+                is_help_choose_phrase as battery_is_help_choose_phrase,
+                match_suggestion_by_input as battery_match_suggestion_by_input,
+            )
+
+            if battery_wants_help and battery_is_help_choose_phrase(user_input):
+                return self._offer_component_battery_catalog(session, expected_keys)
+            if session.battery_suggestions:
+                picked = battery_match_suggestion_by_input(user_input, session.battery_suggestions)
+                if picked is not None:
+                    return self._apply_component_battery_catalog_pick(picked, expected_keys)
 
         # ── Affirmative: user confirmed — emit context-specific prompt ────────
         if self._is_affirmative(user_input):

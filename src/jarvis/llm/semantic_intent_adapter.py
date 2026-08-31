@@ -52,6 +52,57 @@ _UNGROUNDED_CONFIDENCE_CAP: float = CONFIDENCE_THRESHOLD - 0.01
 _MIN_GROUNDING_TOKEN_LEN: int = 4
 _USER_NUMBER_RE = re.compile(r"-?\d+(?:[.,]\d+)?")
 
+# G27 — battery chemistry/cell-count-aware Wh resolution (battery_capacity_wh
+# only, ★5 locked — never applied to any other variable). Same nominal
+# per-cell voltage convention the codebase already uses elsewhere for LiPo
+# packs (electrical_compatibility._nominal_pack_voltage_v,
+# component_writers' battery_cell_count bridge): 3.7 V/cell.
+_BATTERY_CELLS_RE = re.compile(r"\b(\d+)\s*s\b", re.IGNORECASE)
+_BATTERY_MAH_RE = re.compile(r"(\d+(?:[.,]\d+)?)\s*mah\b", re.IGNORECASE)
+_BATTERY_AH_RE = re.compile(r"(\d+(?:[.,]\d+)?)\s*ah\b", re.IGNORECASE)
+_LIPO_NOMINAL_CELL_VOLTAGE: float = 3.7
+
+
+def _resolve_battery_capacity_wh_from_text(text: str) -> tuple[float | None, bool]:
+    """G27: returns ``(wh, cell_count_signal_present)``.
+
+    ``cell_count_signal_present`` is the discriminator the caller needs: a
+    cell-count marker (e.g. ``"6S"``) was seen in *text*, so the generic
+    first-number regex must never be trusted for this value even when a Wh
+    figure can't be computed (no accompanying mAh) — the exact G27 defect
+    was reading the "6" in "6S" as 6.0 Wh. When no cell-count marker is
+    present at all, ``(None, False)`` tells the caller this is ordinary text
+    (e.g. a bare Wh number) and the generic parse is safe to keep.
+    """
+    cells_match = _BATTERY_CELLS_RE.search(text)
+    if cells_match is None:
+        return None, False
+    try:
+        cells = int(cells_match.group(1))
+    except ValueError:
+        return None, True
+
+    mah_match = _BATTERY_MAH_RE.search(text)
+    capacity_mah: float | None = None
+    if mah_match is not None:
+        try:
+            capacity_mah = float(mah_match.group(1).replace(",", "."))
+        except ValueError:
+            capacity_mah = None
+    else:
+        ah_match = _BATTERY_AH_RE.search(text)
+        if ah_match is not None:
+            try:
+                capacity_mah = float(ah_match.group(1).replace(",", ".")) * 1000.0
+            except ValueError:
+                capacity_mah = None
+
+    if capacity_mah is None:
+        return None, True
+
+    wh = round((capacity_mah / 1000.0) * cells * _LIPO_NOMINAL_CELL_VOLTAGE, 2)
+    return wh, True
+
 # Normalised alias → canonical name (built once at import time — PARAMETER_REQUIREMENTS is static)
 _ALIAS_MAP: dict[str, str] = build_alias_map()
 _CONCEPT_MAP: dict[str, str] = build_normalization_map()
@@ -165,6 +216,22 @@ class SemanticIntentAdapter:
 
         raw_value = params.get("valor") or params.get("value")
         value = self._parse_value(raw_value)
+        raw_user_input = str(llm_output.get("raw_user_input") or "").strip()
+
+        # G27 (Battery Catalog UX + G27 Hardening IC, ★5 — narrow to
+        # battery_capacity_wh only): the generic first-number regex above
+        # reads "6" out of "LiPo 6S 10000mAh" as if it were Wh — a cell-count
+        # digit, not an energy value. Chemistry-aware resolution takes
+        # priority over the bare digit whenever a cell-count marker ("6S")
+        # is present; if a Wh figure can't be deterministically computed
+        # (no mAh alongside the cell count), the value is suppressed
+        # entirely rather than falling back to the naive digit grab — the
+        # wizard then re-asks instead of silently persisting a wrong number.
+        if canonical == "battery_capacity_wh":
+            search_text = " ".join(t for t in (str(raw_value or ""), raw_user_input) if t)
+            battery_wh, cell_signal_present = _resolve_battery_capacity_wh_from_text(search_text)
+            if cell_signal_present:
+                value = f"{battery_wh}" if battery_wh is not None else None
 
         try:
             confidence = float(params.get("confidence", 0.0))
@@ -174,7 +241,6 @@ class SemanticIntentAdapter:
 
         # Calibration 2026-08-05: do not trust LLM confidence / invented values
         # when the user text does not name the proposed Action Space variable.
-        raw_user_input = str(llm_output.get("raw_user_input") or "").strip()
         if raw_user_input:
             if not self._is_variable_grounded(raw_user_input, canonical):
                 confidence = min(confidence, _UNGROUNDED_CONFIDENCE_CAP)

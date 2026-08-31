@@ -6,19 +6,27 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.0`** / **`checkpoint-propeller-catalog-bind`**.  
-> **PRIORIDAD AHORA:** **IC 1 Requirements Closure** — READY FOR CLAUDE.  
-> ★3 **(b) ratificado** · secuencia: IC1 → IC2 (battery+G27) → IC3 (policy+sku_resolved).  
+> **Base:** tag **`checkpoint-requirements-closure`** (IC 2 implemented locally — await checkpoint tag).  
+> **PRIORIDAD AHORA:** commit/checkpoint IC 2 → **IC 3** Closure policy + propeller `sku_resolved`.  
 > **Versión:** `0.3.0`.
 
-### ✅ COMPLETADO — IC 1 Requirements Closure (2026-08-30)
+### 🟢 SIGUIENTE — IC 3 Closure Policy + propeller sku_resolved
 
+> After Engineer commit/tag `checkpoint-battery-catalog-bind-ux` (recommended).
+
+### ✅ COMPLETADO — IC 2 Battery Catalog UX + G27 (2026-08-31)
+
+> Review: [implementation_review…](../.jes/artifacts/implementation_review_battery_catalog_bind_ux_g27.md) — **PASS WITH NOTES**  
+> Probe **6/6** · suite **1973** · pick `lipo_6s_10000mah` → 222 Wh → autonomy coherent · G27 never 6 Wh  
+> Bat-0 finding: battery bind must **not** re-call motor writer (OP downgrade risk) — regression locked  
+> **Congelado.** Await commit/checkpoint → IC 3.
+
+### ✅ COMPLETADO — IC 1 Requirements Closure + checkpoint (2026-08-30)
+
+> Tag **`checkpoint-requirements-closure`** · commit `e986a58`  
 > Review: [implementation_review…](../.jes/artifacts/implementation_review_requirements_closure.md) — **PASS WITH NOTES**  
-> Fixture `1-324107ef7006` → **ASSEMBLY READY** · probe **5/5** · suite **1960** · P2-1 untouched  
-> Deviation disclosed: §2.2 objective-fallback suppression not implemented (FN-010 tests) — accepted  
-> **Congelado.** Await Engineer commit/checkpoint → **IC 2** Battery UX + G27.
-
-### 🟡 SIGUIENTE — IC 2 Battery Catalog UX + G27 (after IC 1 checkpoint)
+> Fixture `1-324107ef7006` → **ASSEMBLY READY** · probe **5/5** · suite **1960**  
+> **Congelado.**
 
 ### ✅ INVESTIGACIÓN CERRADA — Project Closure / Assembly Ready
 

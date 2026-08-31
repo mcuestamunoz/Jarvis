@@ -12,6 +12,7 @@ MAX_HISTORY_TURNS = 6
 # Excluidos: dismissed_suggestions ("not persisted", doc), last_exploration_result
 # (no serializable), project_draft / iteration_draft (wizards reinician solos),
 # motor_suggestions, propeller_suggestions (Prop-1: same tier as motor_suggestions),
+# battery_suggestions (Bat-1: same tier as motor_suggestions/propeller_suggestions),
 # semantic_state, memory_context, handoff_context (FN-024:
 # operation-scoped, runtime-only by design — same tier as last_exploration_result,
 # must never survive a process restart or be readable from a different project).
