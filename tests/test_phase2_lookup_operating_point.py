@@ -103,6 +103,38 @@ def test_sunnysky_r2205_2500_exact_match():
     assert r.selection_reason is None  # only one exact match here
 
 
+def test_sunnysky_r2205_2500_op3_full_tuple_matches_star6(tmp_path: Path):
+    """Validation Case ★6 Regression Gate (VC-2): the fields
+    test_sunnysky_r2205_2500_exact_match doesn't cover (power_w/current_a/
+    source_type/confidence), plus the P2-2 bridge for this SKU — OP-2
+    already has this level of coverage via _bound_exact_op_state; OP-3
+    didn't until this test."""
+    r = resolve_operating_point(
+        "sunnysky_r2205_2500", propeller_sku="gf_5045x3", voltage_v=14.8,
+    )
+    assert r.power_w == pytest.approx(592.0)
+    assert r.current_a == pytest.approx(40.0)
+    assert r.source_type == "manufacturer_test"
+    assert r.confidence == pytest.approx(0.97)
+
+    orch = _fresh_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    prop_spec = bind_propeller_from_catalog("gf_5045x3")
+    ps = set_propeller_component(ps, prop_spec)
+    ps = ps.model_copy(update={
+        "current_parameters": {**ps.current_parameters, "battery_cell_count": 4},  # 4*3.7=14.8V
+    })
+    motor_spec = bind_motor_from_catalog(_suggestion_for("sunnysky_r2205_2500"))
+    updated = set_motor_component(ps, motor_spec, default_library.get_motor("sunnysky_r2205_2500").max_watts)
+
+    assert updated.current_parameters["motor_op_power_w"] == pytest.approx(592.0)
+    assert updated.current_parameters["motor_op_current_a"] == pytest.approx(40.0)
+    assert updated.current_parameters["motor_op_rpm"] == pytest.approx(27082.0)
+    assert updated.current_parameters["motor_power_w"] == pytest.approx(
+        default_library.get_motor("sunnysky_r2205_2500").max_watts
+    )  # catalog rating — unaffected by P2-2, same Option A discipline as OP-2
+
+
 def test_fallback_only_row_never_classified_as_exact():
     """★6 hard rule: a fallback_only row must never resolve as exact, even
     when a propeller_sku happens to be passed (OP-0 has propeller_sku=None,

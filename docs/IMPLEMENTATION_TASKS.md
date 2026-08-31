@@ -6,9 +6,27 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.2`** / **`checkpoint-deferred-queue-cd`**.  
-> **PRIORIDAD AHORA:** Deferred Queue **cerrada**. **No implementar** hasta nueva investigación + ★.  
-> **Versión:** **`0.3.2`** (patch incremental sobre `0.3.1`).
+> **Base:** tag **`v0.3.3`** / **`checkpoint-validation-case-regression-gate`**.  
+> **PRIORIDAD AHORA:** Arco Validation Case **cerrado**. **No implementar** hasta nueva investigación + ★.  
+> **Versión:** **`v0.3.3`**.
+
+### 🟢 COMPLETADO — Validation Case arc @ 0.3.3 (2026-08-31)
+
+> Tag **`checkpoint-validation-case-regression-gate`** · **`v0.3.3`**  
+> **Investigación:** [report](../.jes/artifacts/investigation_report_validation_case_post_v032.md) · [review PASS WITH NOTES](../.jes/artifacts/investigation_review_validation_case_post_v032.md)  
+> **IC:** probe **6/6** · suite **2029** · **zero `src/` diff** · [review](../.jes/artifacts/implementation_review_validation_case_regression_gate.md)  
+> **Congelado.** Candidatos siguientes (sin schedule): **H5** · **G24-B** · **battery/ESC data curation** (Engineer).
+
+### 🟢 COMPLETADO — Validation Case ★6 Regression Gate (implementación)
+
+> **IC:** [contract](../.jes/artifacts/implementation_contract_validation_case_regression_gate.md) · [review PASS WITH NOTES](../.jes/artifacts/implementation_review_validation_case_regression_gate.md)  
+> **Zero `src/` diff** · probe **6/6** · suite **2029** · [comparison doc](../.jes/artifacts/validation_case_op_dataset_comparison.md)  
+> **Siguiente:** Engineer checkpoint/version (★6) · nueva investigación antes de H5 o data curation
+
+### 🟡 CERRADO — Validation Case Investigation (post-v0.3.2)
+
+> **Report:** [investigation_report_validation_case_post_v032.md](../.jes/artifacts/investigation_report_validation_case_post_v032.md)  
+> **Review:** [investigation_review_validation_case_post_v032.md](../.jes/artifacts/investigation_review_validation_case_post_v032.md) — **PASS WITH NOTES** · Engineer ★1–★5 ratificado
 
 ### 🟢 COMPLETADO — Deferred Queue C+D @ 0.3.2 (2026-08-31)
 

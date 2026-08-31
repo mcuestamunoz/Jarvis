@@ -1,54 +1,51 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Deferred Queue arc C+D checkpointed @ v0.3.2",
-  "scope": "G24 viable selection + honest CTA (IC C) and Frankenstein .name clear (IC D). Engineer \u26051-\u26056 ratified and delivered.",
+  "cycle_intent": "Validation Case \u26056 Regression Gate checkpointed @ v0.3.3",
+  "scope": "Probe + doc + 1 unit test. Zero src/ diff. Permanent regression gate for shipped \u26056 OP dataset.",
   "execution_status": "checkpointed",
   "current_mode": "Idle",
   "movement_trigger": {
     "type": "checkpoint",
-    "note": "checkpoint-deferred-queue-cd @ v0.3.2 \u2014 suite 2028; probes C 6/6 + D 5/5 + G24-A 6/6."
+    "note": "checkpoint-validation-case-regression-gate @ v0.3.3 \u2014 suite 2029; probe 6/6; src/ zero diff."
   },
   "relevant_workflow_phases": [
     "Review",
     "Checkpoint"
   ],
   "engineer_ratification": {
-    "star1": "C G24 viable selection + honest CTA \u2014 DELIVERED",
-    "star2": "A Validation Case defer",
-    "star3": "a viable-slot reservation \u2014 NOT _score_candidate rewrite",
-    "star4": "B H5 defer",
-    "star5": "D frankenstein .name micro-IC \u2014 DELIVERED",
-    "star6": "v0.3.2 after C+D PASS"
+    "star1": "Validation Case probe IC \u2014 DELIVERED",
+    "star2": "b probe + a doc; NOT c estado; NOT d data \u2014 RATIFIED",
+    "star3": "Battery/ESC data \u2014 future Engineer decision \u2014 RATIFIED",
+    "star4": "H5 defer \u2014 RATIFIED",
+    "star5": "G24-B freeze \u2014 RATIFIED",
+    "star6": "v0.3.3 checkpoint"
   },
   "required_artifacts": [
-    ".jes/artifacts/investigation_report_deferred_queue_post_v031.md",
-    ".jes/artifacts/investigation_review_deferred_queue_post_v031.md",
-    ".jes/artifacts/implementation_contract_g24_viable_selection_honest_cta.md",
-    ".jes/artifacts/implementation_report_g24_viable_selection_honest_cta.md",
-    ".jes/artifacts/implementation_review_g24_viable_selection_honest_cta.md",
-    ".jes/artifacts/implementation_contract_frankenstein_name_clear.md",
-    ".jes/artifacts/implementation_report_frankenstein_name_clear.md",
-    ".jes/artifacts/implementation_review_frankenstein_name_clear.md"
+    ".jes/artifacts/investigation_contract_validation_case_post_v032.md",
+    ".jes/artifacts/investigation_report_validation_case_post_v032.md",
+    ".jes/artifacts/investigation_review_validation_case_post_v032.md",
+    ".jes/artifacts/implementation_contract_validation_case_regression_gate.md",
+    ".jes/artifacts/implementation_report_validation_case_regression_gate.md",
+    ".jes/artifacts/implementation_review_validation_case_regression_gate.md",
+    ".jes/artifacts/validation_case_op_dataset_comparison.md"
   ],
-  "active_operation": "Deferred queue closed. Next: new investigation before implementation (Validation Case primary candidate; H5 defer; G24-B frozen).",
+  "active_operation": "Validation Case arc closed. Next: new investigation before H5 or battery/ESC data curation \u2014 no implementation until investigation + \u2605.",
   "authority_gates": [
-    "v0.3.2 checkpoint \u2705",
-    "IC C review PASS WITH NOTES \u2705",
-    "IC D review PASS WITH NOTES \u2705",
-    "Engineer \u26051-\u26056 \u2705"
+    "v0.3.3 checkpoint \u2705",
+    "Validation Case IC review PASS WITH NOTES \u2705"
   ],
   "checkpoints": {
     "v0.3.1": "30c9aec",
     "checkpoint-next-engineering-block": "30c9aec",
     "v0.3.2": "ca1659c9b2fb1c482218d2c35205a4f5413285bb",
-    "checkpoint-deferred-queue-cd": "ca1659c9b2fb1c482218d2c35205a4f5413285bb"
+    "checkpoint-deferred-queue-cd": "ca1659c9b2fb1c482218d2c35205a4f5413285bb",
+    "v0.3.3": "e006bb1ef13fb0dc5b3633c52622290bd06ec993",
+    "checkpoint-validation-case-regression-gate": "e006bb1ef13fb0dc5b3633c52622290bd06ec993"
   },
   "arc": {
-    "deferred_queue_investigation": "COMPLETE",
-    "ic_c_g24_viable_selection": "CHECKPOINTED",
-    "ic_d_frankenstein_name": "CHECKPOINTED",
-    "deferred": [
-      "VALIDATION_CASE",
+    "validation_case_investigation": "COMPLETE",
+    "validation_case_regression_gate_ic": "CHECKPOINTED",
+    "frozen": [
       "H5_ESC_CATALOG",
       "G24_B_SCORING_REWRITE"
     ]
