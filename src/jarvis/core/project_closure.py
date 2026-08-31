@@ -210,8 +210,19 @@ def _bom_sku_resolved(catalog_ref: dict[str, str] | None) -> bool:
     None`` and returns False regardless of what ``.name`` looks like — the
     caller never even passes ``.name`` in here to be tempted by it. Scenario
     C (SKU removed from the library after binding) also resolves False, via
-    the same ``has_motor``/``has_battery`` re-check G9-A already uses
-    elsewhere — no second catalog reader.
+    the same ``has_motor``/``has_battery``/``has_propeller`` re-check G9-A
+    already uses elsewhere — no second catalog reader.
+
+    IC 3 (★6): propeller branch added post-v0.3.0 propeller-bind UX
+    (`checkpoint-propeller-catalog-bind`), which shipped after this
+    function's original ★2 comment ("no v1 resolve path for other
+    families") was written — nothing updated it when propeller binding went
+    live, so a genuinely bound, resolving propeller displayed the
+    "SKU sin resolver" honest-uncertainty marker as if it were unresolved
+    (investigation_report_project_closure_assembly_ready.md §6.1). Display-
+    only: `sku_resolved` is never read by gap builders or subsystem verdict
+    derivation (confirmed in the Impl D investigation and unchanged by this
+    fix) — only `format_bom_lines`/`_bom_identity_suffix` consume it.
     """
     if catalog_ref is None:
         return False
@@ -225,6 +236,8 @@ def _bom_sku_resolved(catalog_ref: dict[str, str] | None) -> bool:
         return default_library.has_motor(sku)
     if family == "battery":
         return default_library.has_battery(sku)
+    if family == "propeller":
+        return default_library.has_propeller(sku)
     return False  # no v1 resolve path for other families (★2)
 
 

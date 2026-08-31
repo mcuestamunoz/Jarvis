@@ -6,20 +6,29 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`checkpoint-requirements-closure`** (IC 2 implemented locally — await checkpoint tag).  
-> **PRIORIDAD AHORA:** commit/checkpoint IC 2 → **IC 3** Closure policy + propeller `sku_resolved`.  
+> **Base:** tag **`checkpoint-closure-policy`** · IC 3 checkpointed. **Project Closure arc COMPLETE.**  
+> **PRIORIDAD AHORA:** decidir version bump (`v0.3.0` unchanged) → siguiente bloque de trabajo.  
 > **Versión:** `0.3.0`.
 
-### 🟢 SIGUIENTE — IC 3 Closure Policy + propeller sku_resolved
+### 🟢 SIGUIENTE — Post–Project Closure
 
-> After Engineer commit/tag `checkpoint-battery-catalog-bind-ux` (recommended).
+> Arco **Project Closure / Assembly Ready** cerrado (IC 1–3 checkpointed).  
+> Version bump: decisión Engineer. `ARCHITECTURE.md` / `system_map` sync (vision protocol step 4): opcional.
 
-### ✅ COMPLETADO — IC 2 Battery Catalog UX + G27 (2026-08-31)
+### ✅ COMPLETADO — IC 3 Closure Policy + propeller sku_resolved + checkpoint (2026-08-31)
 
+> Tag **`checkpoint-closure-policy`**  
+> Review: [implementation_review…](../.jes/artifacts/implementation_review_closure_policy_propeller_sku_resolved.md) — **PASS WITH NOTES**  
+> **A:** `ENGINEERING_READINESS_VISION.md` §11 · **B:** `has_propeller` display fix · Probe **4/4 (+1 optional)** · suite **1976**  
+> **Congelado.**
+
+### ✅ COMPLETADO — IC 2 Battery Catalog UX + G27 + checkpoint (2026-08-31)
+
+> Tag **`checkpoint-battery-catalog-bind-ux`** · commit `5581b51`  
 > Review: [implementation_review…](../.jes/artifacts/implementation_review_battery_catalog_bind_ux_g27.md) — **PASS WITH NOTES**  
 > Probe **6/6** · suite **1973** · pick `lipo_6s_10000mah` → 222 Wh → autonomy coherent · G27 never 6 Wh  
 > Bat-0 finding: battery bind must **not** re-call motor writer (OP downgrade risk) — regression locked  
-> **Congelado.** Await commit/checkpoint → IC 3.
+> **Congelado.**
 
 ### ✅ COMPLETADO — IC 1 Requirements Closure + checkpoint (2026-08-30)
 

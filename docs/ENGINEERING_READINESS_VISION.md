@@ -1,8 +1,8 @@
 # Engineering Readiness Vision
 
-**Status:** Active (ERF-1 ✅, ERF-2 ✅, remaining phases open)  
+**Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure arc ✅ — IC 1/2/3 closed, §11)  
 **Type:** Vision / To-be  
-**Date:** 2026-08-19 (updated post-ERF-2 checkpoint)
+**Date:** 2026-08-31 (updated post-IC-3 policy sync — Project Closure / Assembly Ready v1)
 
 ---
 
@@ -215,4 +215,129 @@ When this vision is updated, keep docs aligned with this order:
 4. Only after code + tests land, update `docs/ARCHITECTURE.md` and `docs/system_map/*`.
 
 This preserves clean separation between target and as-is.
+
+---
+
+## 11) Project Closure — Assembly Ready v1 (IC 3 policy sync, 2026-08-31)
+
+> Ratifies, into this vision doc, the product-level closure contract established by
+> `.jes/artifacts/investigation_report_project_closure_assembly_ready.md` and implemented
+> across **IC 1** (Requirements Closure), **IC 2** (Battery Catalog UX + G27 Hardening), and
+> **IC 3** (this sync + the propeller `sku_resolved` display fix). This section documents a
+> **ratified product contract** — distinguish it from "code changed in IC 3," which was only
+> the one-line `_bom_sku_resolved` propeller branch (§11.7) plus this doc. No readiness rollup,
+> gap, or verdict logic changed in IC 3.
+
+### 11.1 Rollup rule (as-implemented reference, unchanged by this arc)
+
+`build_engineering_readiness` (`engineering_readiness.py` → `_derive_overall`) computes
+`ASSEMBLY_READY` from exactly two conditions, both still true post-arc:
+
+```text
+ASSEMBLY_READY  ⟺  zero HIGH-severity gaps anywhere
+                AND every one of the 9 subsystems is PASS,
+                    or the single accepted WARNING type
+                    (CATALOG-GAP-DEMOTED-POST-PASS, catalog/propulsion only — ★8, unchanged)
+```
+
+9 subsystems: `requirements`, `architecture`, `structure`, `propulsion`, `energy`,
+`electronics`, `control`, `catalog`, `bom`. This arc closed real blockers reachable under that
+rule — it never widened or narrowed the rule itself.
+
+### 11.2 Snapshots A / B
+
+Two ratified, honestly-reachable target shapes for a closed project — neither requires
+inventing a component or fabricating a catalog claim (★1):
+
+| | **Snapshot A — Freeform-tolerant v1** | **Snapshot B — Catalog-evidence-strong** |
+|---|---|---|
+| Rollup | All 9 subsystems PASS (or accepted WARNING) | Same rollup rule |
+| Motors / propellers / battery | May be honestly freeform (`catalog_ref=None`, non-low completeness) | Catalog-bound where the library supports it (motor + propeller + battery) |
+| ESC / frame / flight_controller / sensors | Freeform only in both snapshots — no catalog exists for these families (§11.3) | Same |
+| Requirements | Satisfied via a numeric constraint **or** ★3(b) explicit-none (§11.4) | Same |
+| Reachable today | Yes — zero code prerequisites beyond this arc | Yes — IC 2's battery-bind UX is the last piece that made this fully live-reachable via CLI, not just test-callable |
+
+Snapshot B is strictly **evidence-stronger**, never **rollup-stronger** — the same 9-subsystem
+PASS rule governs both; Snapshot B simply has more `catalog_bound` truth behind it. Battery
+catalog binding is **optional** for Snapshot A (★7) — a freeform battery with real declared
+`battery_capacity_wh` already satisfies the `energy` subsystem.
+
+### 11.3 Family policy matrix (★7, ratified)
+
+| Family | Catalog data | Bind API | Live pick UX | Policy |
+|---|---|---|---|---|
+| motors | `library/motores/_datos.json` (22) | `bind_motor_from_catalog` | Yes | catalog-strong **optional** |
+| propellers | `library/helices/_datos.json` (16) | `bind_propeller_from_catalog` | Yes (v0.3.0) | catalog-strong **optional** |
+| battery | `library/baterias/_datos.json` (10) | `bind_battery_from_catalog` | Yes (IC 2) | catalog-strong **optional** |
+| esc | none | none | none | **freeform_ok only** — `CatalogRef.family` schema doesn't even include `"esc"`; H5 ESC catalog is a separate, deferred effort |
+| frame | materials density only, not a SKU catalog | none | none | **freeform_ok only** — frame SKU catalog deferred |
+| flight_controller | none | none | none | **freeform_ok only** |
+| sensors | none | none | none | **freeform_ok only** |
+
+No family in the "freeform_ok only" row blocks `ASSEMBLY_READY` by being freeform — a
+non-low-completeness declared component is sufficient for its subsystem to reach PASS
+(`classify_component` tier `declared` or `defined`, never gated on `catalog_ref`).
+
+### 11.4 Requirements semantics (IC 1)
+
+- `requirements.defined` is satisfied by **either** a parsed numeric constraint
+  (`autonomy_min` / `max_weight_kg`) **or** an explicit, closed-list "no constraint" statement
+  (★3(b) — `"no"`, `"ninguna"`, `"sin restricciones"`, etc.). Never by a fabricated numeric
+  key — the explicit-none branch leaves `parsed_constraints == {}`.
+- An unachievable stated constraint surfaces an honest `GAP-REQUIREMENTS-UNMET` (HIGH) instead
+  of silently passing or silently failing to update — `NOT_ASSEMBLY_READY` for the right,
+  visible reason.
+- Mid-session restatement of the project-level `restrictions` string (G26) is a live, working
+  write path — it re-derives `parsed_constraints` on every update.
+
+### 11.5 Energy / battery (IC 2)
+
+- `bind_battery_from_catalog` + `set_battery_component` is the sole battery bind path — live
+  in the CLI (component wizard "ayúdame a elegir", IDLE fallback after motor/propeller) since
+  IC 2, not just test-callable.
+- Catalog bind is **evidence-strong, not required** — freeform battery declaration already
+  satisfies `energy` subsystem PASS (§11.2 Snapshot A).
+- G27 (free-text `"LiPo 6S 10000mAh"` → silent `6 Wh`) is hardened: `semantic_intent_adapter`
+  resolves chemistry/cell-count text deterministically (`mAh × cells × 3.7V`) or refuses,
+  scoped to `battery_capacity_wh` only — every other iterate variable's parsing is unchanged.
+- **Ratified, not to be changed without a new contract:** a battery-only catalog pick does
+  **not** re-invoke `set_motor_component`. Verified in IC 2 that doing so can *downgrade* an
+  already-resolved `exact_operating_point` to `fallback_operating_point` when the real battery
+  voltage falls outside a curated exact row's tolerance — an energy-domain action must never
+  silently regress propulsion evidence the user didn't touch.
+
+### 11.6 S0 → S1 → S2 (investigation §10, summary)
+
+```text
+S0: PHYSICS PASS + BOM INCOMPLETE + NOT ASSEMBLY READY   (stub components remain)
+S1: PHYSICS PASS + BOM COMPLETE  + NOT ASSEMBLY READY    (declare/bind remaining components;
+                                                            zero catalog required)
+S2: PHYSICS PASS + BOM COMPLETE  + ASSEMBLY READY        (+ requirements satisfied — §11.4)
+```
+
+S0→S1 (component completeness) and S1→S2 (requirements) are **independent levers** — neither
+reads the other's state. They can be closed in either order or in parallel.
+
+### 11.7 Propeller `sku_resolved` (IC 3, ★6 — the only code change in this cut)
+
+`project_closure._bom_sku_resolved` re-checks a bound SKU against the live library before
+ever claiming `[sku]` in a BOM line (motor/battery via `has_motor`/`has_battery`) — the
+propeller branch (`has_propeller`) was missing since before the v0.3.0 propeller-bind UX
+shipped, so a genuinely bound, resolving propeller displayed the honest-uncertainty marker
+`(SKU sin resolver)` as if it were unresolved. Fixed as a one-line addition; **display-only** —
+`sku_resolved` is never read by gap builders or subsystem verdict derivation, confirmed
+unchanged by this fix.
+
+### 11.8 Deferred (explicit, not silently dropped)
+
+| Item | Status |
+|---|---|
+| **G24** — DSE apply-by-index / catalog-row scoring | Deferred. Confirmed not a closure prerequisite — identity-display debt (stale `.name` after `catalog_ref` clears), not a rollup blocker. |
+| **H5 — ESC catalog** | Deferred. Requires a `CatalogRef.family` schema change (currently `Literal["motor","battery","propeller"]`) before any bind path is even possible. |
+| **Frame SKU catalog** | Deferred. Materials density (`library/materiales/`) is a different mechanism than a frame-as-SKU bind and was never in scope for this arc. |
+| **Conversation Engine / Step D** | Deferred. Out of scope for the entire closure arc per the original investigation contract. |
+| **`catalog_bound` → subsystem verdict wiring** | Deferred, not rejected. `SubsystemEvidence.catalog_bound` remains write-only (computed, never read by `_derive_subsystem_verdict`). Would be a rollup-semantics change requiring its own ★ decision — not assumed by this arc. |
+
+**Project Closure arc status: COMPLETE** as of IC 3 (this section). ERF-1/ERF-2 remain ✅
+unchanged; this section is additive, not a revision of §8's phase history.
 

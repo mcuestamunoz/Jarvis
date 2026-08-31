@@ -17,6 +17,7 @@ from types import SimpleNamespace
 from jarvis.core.catalog_bind import (
     bind_battery_from_catalog,
     bind_motor_from_catalog,
+    bind_propeller_from_catalog,
     invalidate_diverged_catalog_refs,
 )
 from jarvis.core.component_writers import set_motor_component
@@ -25,7 +26,7 @@ from jarvis.core.motor_catalog_assist import MotorSuggestion
 from jarvis.core.orchestrator import JarvisOrchestrator
 from jarvis.core.project_closure import build_component_bom, format_bom_lines
 from jarvis.knowledge.library import default_library
-from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
+from jarvis.schemas.action_schema import CatalogRef, ComponentSpec, PropertyValue
 
 _SKU = "brotherhobby_avenger_2500"  # thrust_n=9.5, kv 2300-2700, prop (5,)
 
@@ -261,3 +262,79 @@ def test_battery_catalog_ref_entry_shape_matches_motors_pattern():
     lines = format_bom_lines(bom)
     battery_line = next(l for l in lines if "battery" in l)
     assert f"[{sku}]" in battery_line
+
+
+# ── 7. IC 3 (★6): bound propeller → sku_resolved, [sku], no false "sin
+#      resolver" — closes the live bug found in the investigation ──────────
+
+def test_bound_propeller_entry_has_resolved_catalog_ref_and_quantity():
+    spec = bind_propeller_from_catalog("hq_5045_bn")
+    state = _state(
+        current_parameters={"motor_count": 4},
+        design_properties=SimpleNamespace(
+            components={"propellers": spec}, system_blocks=["propulsion"], system_defined=True,
+            system_priority=["propulsion"],
+        ),
+    )
+
+    bom = build_component_bom(state)
+    entry = next(e for e in bom["defined"] if e["key"] == "propellers")
+
+    assert entry["catalog_ref"] == {"family": "propeller", "sku": "hq_5045_bn"}
+    assert entry["sku_resolved"] is True
+
+    lines = format_bom_lines(bom)
+    propeller_line = next(l for l in lines if l.startswith("✓ propellers"))
+    assert "[hq_5045_bn]" in propeller_line
+    assert "SKU sin resolver" not in propeller_line
+
+
+def test_bound_propeller_sku_removed_from_library_resolves_false():
+    """Mirrors motor/battery Scenario C: catalog_ref survives, but the SKU
+    no longer resolves in the library (removed/renamed after binding) — the
+    live re-check must say so, never trust a stale catalog_ref blindly."""
+    spec = bind_propeller_from_catalog("hq_5045_bn")
+    diverged = spec.model_copy(update={
+        "catalog_ref": CatalogRef(family="propeller", sku="discontinued_propeller_sku")
+    })
+    state = _state(
+        current_parameters={"motor_count": 4},
+        design_properties=SimpleNamespace(
+            components={"propellers": diverged}, system_blocks=["propulsion"], system_defined=True,
+            system_priority=["propulsion"],
+        ),
+    )
+
+    bom = build_component_bom(state)
+    entry = next(e for e in bom["defined"] if e["key"] == "propellers")
+    assert entry["catalog_ref"] == {"family": "propeller", "sku": "discontinued_propeller_sku"}
+    assert entry["sku_resolved"] is False
+
+    lines = format_bom_lines(bom)
+    propeller_line = next(l for l in lines if l.startswith("✓ propellers"))
+    assert "SKU sin resolver" in propeller_line
+    assert "[discontinued_propeller_sku]" not in propeller_line
+
+
+def test_motor_battery_sku_resolved_unaffected_by_propeller_fix():
+    """IC 3 (★6) regression guard: the propeller branch added to
+    _bom_sku_resolved must not perturb motor/battery resolution — both
+    still resolve via their own has_motor/has_battery branches, checked
+    before the new propeller branch is ever reached."""
+    motor_spec = bind_motor_from_catalog(_suggestion_for(_SKU))
+    battery_sku = _real_battery_sku()
+    battery_spec = bind_battery_from_catalog(battery_sku)
+    state = _state(
+        current_parameters={"motor_count": 4},
+        design_properties=SimpleNamespace(
+            components={"motors": motor_spec, "battery": battery_spec},
+            system_blocks=["propulsion", "energy"], system_defined=True,
+            system_priority=["propulsion", "energy"],
+        ),
+    )
+
+    bom = build_component_bom(state)
+    motor_entry = next(e for e in bom["defined"] if e["key"] == "motors")
+    battery_entry = next(e for e in bom["defined"] + bom["declarative"] if e["key"] == "battery")
+    assert motor_entry["sku_resolved"] is True
+    assert battery_entry["sku_resolved"] is True

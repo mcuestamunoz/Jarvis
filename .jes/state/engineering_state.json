@@ -1,52 +1,47 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "IC 2 Battery Catalog UX + G27 — IMPLEMENTATION PASS WITH NOTES; await checkpoint / IC 3",
-  "scope": "Live battery pick/bind + G27 6S→222Wh. Propulsion OP not regressed on battery bind.",
-  "execution_status": "implementation_complete",
-  "current_mode": "Review",
+  "cycle_intent": "Project Closure arc COMPLETE — checkpoint-closure-policy",
+  "scope": "IC 1–3 delivered: requirements, battery/G27, closure policy + propeller sku_resolved.",
+  "execution_status": "checkpointed",
+  "current_mode": "Release",
   "movement_trigger": {
-    "type": "implementation_review",
-    "note": "PASS WITH NOTES. Probe 6/6, suite 1973, OP downgrade finding locked."
+    "type": "checkpoint",
+    "note": "checkpoint-closure-policy — final arc tag. Version bump deferred to Engineer."
   },
   "relevant_workflow_phases": [
-    "Review",
-    "Checkpoint",
+    "Release",
     "Contract"
   ],
   "applicable_rules": [
-    "Commit checkpoint-battery-catalog-bind-ux before IC 3",
-    "Do not re-call set_motor_component after battery bind"
+    "Project Closure arc closed — no further IC cuts without new investigation",
+    "Version bump is Engineer decision (currently v0.3.0)",
+    "ARCHITECTURE/system_map sync optional"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_battery_catalog_bind_ux_g27.md"
+    ".jes/artifacts/implementation_review_closure_policy_propeller_sku_resolved.md"
   ],
-  "open_questions": [],
-  "active_operation": "Engineer: commit + tag IC 2 → Cursor drafts IC 3.",
+  "open_questions": [
+    "Version bump timing and target (v0.3.x vs v0.4.0)"
+  ],
+  "active_operation": "Engineer: version bump decision → next work block.",
   "authority_gates": [
-    "Probe 6/6 ✅",
-    "1973 suite ✅",
-    "G27 never 6 Wh ✅",
-    "OP regression test ✅"
+    "IC 3 checkpoint-closure-policy ✅",
+    "1976 suite ✅",
+    "Arc IC 1–3 all checkpointed ✅"
   ],
-  "coherence_checklist": [
-    "IC 2 review PASS WITH NOTES ✅",
-    "Bat-0 OP finding documented ✅"
-  ],
-  "outcome": "IMPLEMENTATION_PASS_WITH_NOTES",
-  "updated_at": "2026-08-31T13:05:00Z",
-  "phase": "Checkpoint",
-  "status": "active",
-  "active_gate": null,
-  "active_artifact": ".jes/artifacts/implementation_review_battery_catalog_bind_ux_g27.md",
-  "blocking_reason": null,
-  "next_required_action": "Engineer commit/tag checkpoint-battery-catalog-bind-ux → IC 3 contract.",
-  "evidence_refs": [
-    "tag:checkpoint-requirements-closure",
-    ".jes/artifacts/implementation_report_battery_catalog_bind_ux_g27.md",
-    ".jes/artifacts/implementation_review_battery_catalog_bind_ux_g27.md"
-  ],
-  "open_decisions": [],
-  "risks": [
-    "IC 2 changes uncommitted on disk until Engineer tags"
-  ]
+  "checkpoints": {
+    "v0.3.0": "2efe1c2",
+    "checkpoint-propeller-catalog-bind": "2efe1c2",
+    "checkpoint-requirements-closure": "e986a58",
+    "checkpoint-battery-catalog-bind-ux": "5581b51",
+    "checkpoint-closure-policy": "checkpoint-closure-policy"
+  },
+  "arc": {
+    "name": "Project Closure / Assembly Ready",
+    "sequence": "Option D",
+    "ic1": "CLOSED",
+    "ic2": "CLOSED",
+    "ic3": "CLOSED",
+    "status": "COMPLETE"
+  }
 }
