@@ -16,7 +16,7 @@
 | `core/component_writers.py` | `set_frame_material`, `set_control_component`, `set_battery_component`, `set_motor_component`, `set_propeller_component`, `apply_components_delta` — **the only** legal writers of `design_properties.components[key]` |
 | `core/component_rules.py` | `ComponentRule`, `ComponentRuleRegistry` — the domain-agnostic matching primitive |
 | `domains/aerial.py`, `domains/ground.py` | Data: keyword tables + property extractors per domain |
-| `schemas/action_schema.py`, `schemas/state_schema.py` | `ProjectState`, `InteractiveSessionState`, `OrchestratorMode`, `ComponentSpec`, `PropertyValue`, `RuntimeState` |
+| `schemas/action_schema.py`, `schemas/state_schema.py` | `ProjectState`, `InteractiveSessionState`, `OrchestratorMode`, `ComponentSpec`, `PropertyValue`, `RuntimeState`, `CatalogRef` |
 
 ## `OrchestratorMode` (5 values, no more)
 
@@ -36,6 +36,10 @@ mode == DEFINE_MISSING_PARAMETERS and _next_pending_block(project_state) is None
 ```
 Implemented at `orchestrator._set_pending_next_block`'s gate (calls `StateManager.clear_runtime_session`), not inside `state_manager.py` itself — `StateManager` only provides the mechanism (`clear_runtime_session`), the orchestrator owns *when* to invoke it. See `MISMATCHES.md`'s "sticky-state lesson" section for why this distinction matters for future handoff-context design.
 
+## `parsed_constraints` + requirements (IC 1)
+
+`ProjectState.parsed_constraints` is derived on every load/save from `current_parameters["restrictions"]` and `objective` via `state_schema._parse_constraints`. **Explicit-none:** closed phrases (`"no"`, `"ninguna"`, `"sin restricciones"`, …) satisfy `requirements_declared()` without adding fake numeric keys — `parsed_constraints` stays `{}`. **G26:** mid-session updates to `restrictions` go through `param_definition_session.apply_and_recalculate` (or orchestrator routing into it); save via `ProjectState.model_copy` re-derives `parsed_constraints`. Derived params (`autonomia`, etc.) must not be written directly — `is_derived` gate in param session mirrors `semantic_intent_adapter`.
+
 ## Mirrored parameters (invariant, documented in `system_architecture_catalog.py`)
 
 `battery_capacity_wh`, `battery_mass_kg`, `battery_cell_count`, `motor_power_w`, `motor_kv_rating`, `propeller_diameter_in`, `propeller_pitch_in` must **never** be written directly to `current_parameters` — only via their designated `component_writers` function. `motor_count` is the one deliberate exception (settable by both component and numeric wizard). Enforced by convention + `tests/test_d4_param_gatekeeper.py`, not by a runtime guard.
@@ -50,4 +54,4 @@ None currently open (FN-021 closed the one open issue this subsystem had).
 
 ## Tests
 
-`tests/test_d4_param_gatekeeper.py`, `tests/test_project_closure_v1.py`, `tests/test_project_coherence.py`, `tests/test_fn020_completeness_coherence.py`, component-writer-specific tests (`test_frame_component.py`, `test_battery_component.py`, `test_motor_component.py`, `test_control_component.py`), `tests/test_fn021_session_hygiene.py`.
+`tests/test_d4_param_gatekeeper.py`, `tests/test_project_closure_v1.py`, `tests/test_project_coherence.py`, `tests/test_fn020_completeness_coherence.py`, component-writer-specific tests (`test_frame_component.py`, `test_battery_component.py`, `test_motor_component.py`, `test_control_component.py`), `tests/test_fn021_session_hygiene.py`, **`tests/test_requirements_closure.py`**, **`tests/test_catalog_bind_v1.py`**.

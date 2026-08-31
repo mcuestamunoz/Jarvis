@@ -6,14 +6,14 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`checkpoint-closure-policy`** · IC 3 checkpointed. **Project Closure arc COMPLETE.**  
+> **Base:** tag **`checkpoint-closure-policy`** · commit `8728a85`. **Project Closure arc COMPLETE.**  
 > **PRIORIDAD AHORA:** decidir version bump (`v0.3.0` unchanged) → siguiente bloque de trabajo.  
 > **Versión:** `0.3.0`.
 
 ### 🟢 SIGUIENTE — Post–Project Closure
 
-> Arco **Project Closure / Assembly Ready** cerrado (IC 1–3 checkpointed).  
-> Version bump: decisión Engineer. `ARCHITECTURE.md` / `system_map` sync (vision protocol step 4): opcional.
+> Arco cerrado (IC 1–3 checkpointed). **As-is docs synced** (vision protocol step 4).  
+> Version bump: decisión Engineer.
 
 ### ✅ COMPLETADO — IC 3 Closure Policy + propeller sku_resolved + checkpoint (2026-08-31)
 

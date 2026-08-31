@@ -214,7 +214,7 @@ When this vision is updated, keep docs aligned with this order:
 3. If implementation contracts are approved, update `.jes/state/engineering_state.json`.
 4. Only after code + tests land, update `docs/ARCHITECTURE.md` and `docs/system_map/*`.
 
-This preserves clean separation between target and as-is.
+**Project Closure arc (2026-08-31):** step 4 completed post-`checkpoint-closure-policy` — see `ARCHITECTURE.md` Project Closure note, `system_map/` deltas (C-030/C-082/C-107 detail, acquisition/continuity/state/authority/LLM maps).
 
 ---
 

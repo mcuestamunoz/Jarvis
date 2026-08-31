@@ -1,7 +1,7 @@
 # Jarvis System Map — Navigation Guide
 
 **Version:** SYS-MAP-002 (split/navigability delta of SYS-MAP-001, reviewed PASS WITH NOTES)  
-**Date:** 2026-08-10 (subsystem deltas: 2026-08-18 post-ERF-1 — C-107–C-110; 2026-08-19 post-ERF-2 — C-111–C-112, `electrical_compatibility.py`, 9 subsystems)  
+**Date:** 2026-08-10 (subsystem deltas: 2026-08-18 post-ERF-1 — C-107–C-110; 2026-08-19 post-ERF-2 — C-111–C-112; 2026-08-31 post–Project Closure — IC 1–3 doc sync, C-030/C-082/C-107 detail updates, no new C-xxx)  
 **Type:** As-is architecture documentation. Zero product behavior changes.
 
 ## How to navigate
@@ -64,7 +64,7 @@ No other taxonomy changes were needed — the provisional 01–10 split matched 
 | `00_entry` | CLI/MCP adapters, dual-dispatch seam | `adapters/cli/main.py`, `adapters/mcp/*.py`, `orchestrator.handle` vs `handle_user_text` |
 | `01_runtime` | The turn dispatcher itself: `_handle_user_text_inner`'s checkpoint chain, `ActionRouter` | `core/orchestrator.py`, `core/action_router.py` |
 | `02_intent` | Regex-based intent classification | `core/intent_resolver.py` |
-| `03_acquisition` | "What's the next gap to declare" — mention resolution, Brief, wizards | `core/acquisition_target.py`, `core/acquisition_brief.py`, `core/param_definition_session.py`, `core/system_definition_session.py`, `core/motor_catalog_assist.py` |
+| `03_acquisition` | "What's the next gap to declare" — mention resolution, Brief, wizards, catalog pick UX | `core/acquisition_target.py`, `core/acquisition_brief.py`, `core/param_definition_session.py`, `core/system_definition_session.py`, `core/motor_catalog_assist.py`, `core/battery_catalog_assist.py`, `core/catalog_bind.py` (via orchestrator pick handlers) |
 | `04_engineering` | "What design goal is the user naming" + DSE | `core/goal_planner.py`, `core/design_explorer.py` |
 | `05_iteration` | Free-text → concrete parameter mutation | `core/iterate_interactive_session.py`, `core/iterate_domain.py`, `core/mutation_engine.py`, `core/semantic_interpreter.py`, `core/interactive_session.py` (new-project wizard, same shape) |
 | `06_calculation` | `current_parameters` → physical results | `core/calculation_engine.py`, `core/component_resolver.py`, `tools/*.py` |

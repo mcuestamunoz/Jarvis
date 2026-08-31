@@ -15,7 +15,7 @@
   "applicable_rules": [
     "Project Closure arc closed — no further IC cuts without new investigation",
     "Version bump is Engineer decision (currently v0.3.0)",
-    "ARCHITECTURE/system_map sync optional"
+    "ARCHITECTURE + system_map synced (vision protocol step 4, 2026-08-31)"
   ],
   "required_artifacts": [
     ".jes/artifacts/implementation_review_closure_policy_propeller_sku_resolved.md"

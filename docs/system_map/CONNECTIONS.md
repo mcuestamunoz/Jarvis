@@ -94,7 +94,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-071 | `SimulationResult` | `state_manager.record_action` → persisted `latest_results` | 🟢 |
 | C-080 | ProjectState + BOM + requirements | `project_continuity.build_project_continuity` | 🟢 |
 | C-081 | Sim (`safety_margin_ratio`) | Continuity `next_useful_step` (PASS+risky thread) | 🟡 PARTIAL (WEAK) |
-| C-082 | `classify_component` | BOM buckets (`build_component_bom`) | 🟢 (FN-020) |
+| C-082 | `classify_component` | BOM buckets (`build_component_bom`) + `sku_resolved` display | 🟢 (FN-020, IC 3 propeller branch) |
 | C-083 | `classify_component` (via `component_presence_tier`) | `_block_progress_status` (architecture presence) | 🟢 (FN-020, same classifier as C-082) |
 | C-084 | ProjectState | `PhaseLayer.infer` | 🟢 |
 | C-085 | Context (incl. C-084) | `ReasoningLayer.build` | 🟢 |
@@ -108,7 +108,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-102 | Raw LLM response | `LLMResponseParser.parse/validate_for_runtime` (`ActionPolicy`) | 🟢 |
 | C-103 | Validated `action_request` | `orchestrator.handle` (closed 4-verb set) | 🟢 |
 | C-104 | `orchestrator` | `llm_interface.analyze` → narration string | 🟢 |
-| C-107 | `ProjectState` + closure/arch/sim/electrical authorities | `engineering_readiness.build_engineering_readiness` (9 subsystems, ERF-2) | 🟢 (ERF-1, updated ERF-2) |
+| C-107 | `ProjectState` + closure/arch/sim/electrical authorities | `engineering_readiness.build_engineering_readiness` (9 subsystems, ERF-2; IC 1 requirements explicit-none) | 🟢 (ERF-1, updated ERF-2 + IC 1) |
 | C-108 | `EngineeringReadinessResult` | `project_continuity.build_project_continuity(readiness=…)` — catalog-gap ranking only | 🟡 PARTIAL (ERF-1) |
 | C-109 | `orchestrator.build_startup_context` | startup context `"readiness"` field | 🟢 (ERF-1) |
 | C-110 | CLI `render_startup_context` | `ENGINEERING READINESS` block (9 lines, ERF-2) | 🟢 (ERF-1, updated ERF-2) |
@@ -322,18 +322,18 @@ Evidence: `core/orchestrator.py:846,850,864,906`.
 
 ## Detail — 03 Acquisition
 
-### C-030 — Runtime (IDLE) → FN-005 assisted motor help
+### C-030 — Runtime (IDLE + DEFINE_MISSING) → catalog pick UX (motor / propeller / battery)
 | Field | Value |
 |---|---|
 | Kind | CONTROL |
-| Mechanism | phrase match + bridge |
-| Symbols | `is_help_choose_phrase`, `_try_start_assisted_motor_help`; G21 also `_offer_component_motor_catalog` / `_apply_component_motor_catalog_pick` in component sub-mode |
-| Payload | "ayúdame a elegir" |
-| Authority | `motor_catalog_assist.py` |
-| Mutation | YES (opens wizard or offers catalog list) |
+| Mechanism | phrase match + numbered list + pick index |
+| Symbols | `is_help_choose_phrase`, `_try_start_assisted_motor_help`; `_offer/_apply_component_{motor,propeller,battery}_catalog*`; `catalog_bind.bind_*_from_catalog` → `component_writers.set_*` |
+| Payload | `"ayúdame a elegir"`, pick `N` |
+| Authority | `motor_catalog_assist.py`, `battery_catalog_assist.py`, `catalog_bind.py`, orchestrator pick handlers |
+| Mutation | YES (bind + component writer; battery path must **not** re-call `set_motor_component` — IC 2) |
 | LLM | NO |
-| Status | 🟢 CONNECTED (G21 extended bind to motors component wizard + IDLE unbound re-bind) |
-| Evidence | `core/orchestrator.py:~797-804` (IDLE choose), `~1351-1372` (IDLE unbound re-bind), `~2533-2552` (component-wizard choose/pick) |
+| Status | 🟢 CONNECTED (G21 motor; v0.3.0 propeller; IC 2 battery + G27 hardening) |
+| Evidence | `core/orchestrator.py`, `core/motor_catalog_assist.py`, `core/battery_catalog_assist.py`, `core/catalog_bind.py`, `tests/test_propeller_catalog_bind_ux.py`, `tests/test_battery_catalog_bind_ux.py` |
 
 ### C-031 — Runtime (IDLE) → FN-014 acquisition mention → wizard open
 | Field | Value |
@@ -721,7 +721,7 @@ Same underlying phrase and root cause as **C-025** — listed under both Intent 
 | Kind | DATA |
 | Mechanism | pure projection over `ProjectState` + existing authority helpers + `electrical_compatibility` (ERF-2, C-111) |
 | Symbols | `engineering_readiness.build_engineering_readiness` |
-| Payload | `EngineeringReadinessResult` — gap registry (primary), nine subsystem lines (ERF-2: +`electronics`), `overall`, `top_gap`. ERF-2 adds 4 electrical gap types and `INCOMPATIBLE` verdicts (★3 gate). |
+| Payload | `EngineeringReadinessResult` — gap registry (primary), nine subsystem lines (ERF-2: +`electronics`), `overall`, `top_gap`. ERF-2 adds 4 electrical gap types and `INCOMPATIBLE` verdicts (★3 gate). **IC 1:** `requirements.defined` via `requirements_declared()` (numeric `parsed_constraints` or explicit-none `restrictions`). Product contract: `ENGINEERING_READINESS_VISION.md` §11. |
 | Authority | `engineering_readiness.py` — authoritative over **gap aggregation and assembly-ready rollup**, not over physics/BOM/sim truth |
 | Mutation | NO |
 | LLM | NO |
@@ -797,14 +797,14 @@ Same underlying phrase and root cause as **C-025** — listed under both Intent 
 | Field | Value |
 |---|---|
 | Kind | DATA |
-| Mechanism | pure classifier, routes into 4 buckets |
-| Symbols | `project_closure.classify_component`, `build_component_bom` |
-| Payload | `"missing"/"stub"/"declared"/"defined"` → `{defined, incomplete, missing, declarative}` |
-| Authority | `project_closure.py` (FN-020) |
+| Mechanism | pure classifier, routes into 4 buckets; each entry adds `catalog_ref`, `sku_resolved`, `quantity` |
+| Symbols | `project_closure.classify_component`, `build_component_bom`, `_bom_sku_resolved`, `format_bom_lines` |
+| Payload | `"missing"/"stub"/"declared"/"defined"` → `{defined, incomplete, missing, declarative}`; `[sku]` suffix when `sku_resolved` (motor/battery/**propeller** via `has_*` re-check — IC 3) |
+| Authority | `project_closure.py` (FN-020, Impl D, IC 3 display fix) |
 | Mutation | NO |
 | LLM | NO |
-| Status | 🟢 CONNECTED |
-| Evidence | `core/project_closure.py` |
+| Status | 🟢 CONNECTED — `sku_resolved` is **display-only** (C-094 views); never consumed by C-107 gap/verdict derivation |
+| Evidence | `core/project_closure.py`, `tests/test_impl_d_sku_bom.py` |
 
 ### C-083 — `classify_component` (via `component_presence_tier`) → `_block_progress_status`
 | Field | Value |

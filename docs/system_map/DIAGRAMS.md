@@ -36,6 +36,8 @@ CONNECTIONS.md
 
 **ERF-2 (2026-08-19):** C-111–C-112 added (`electrical_compatibility` pure checks → readiness gap generation; ESC acquisition routing). C-107 updated (9 subsystems, +`electronics`). C-110 updated (9 readiness lines). `INCOMPATIBLE` verdicts with ★3 gate. Tag `checkpoint-erf2` (`9af0cc9`).
 
+**Project Closure (2026-08-31):** IC 1–3 doc sync — C-030 expanded (motor/propeller/battery catalog pick); C-082/C-107 detail updated (`sku_resolved` propeller branch display-only; `requirements_declared` explicit-none). **No new C-xxx.** Tags: `checkpoint-requirements-closure` → `checkpoint-battery-catalog-bind-ux` → `checkpoint-closure-policy` (`8728a85`). As-is sync: `ARCHITECTURE.md`, `system_map/*`. Product contract: `ENGINEERING_READINESS_VISION.md` §11.
+
 Canvas / this file manually mirror the registry (known drift risk). When adding a connection: update Canonical registry first, then Detail, then DIAGRAMS + canvas.
 
 ---

@@ -111,7 +111,7 @@ Los contratos viven en `schemas/`.
   Campos clave de `ProjectState`:
   - `current_parameters: dict` — parámetros de entrada del usuario (payload, motores, restricciones, material como etiqueta).
   - `design_properties: DesignProperties` — propiedades estructurales del diseño. `structure.density` y `structure.volume` son la **fuente canónica** de las propiedades físicas del material; `_build_mutable_state` las lee aquí con fallback a `current_parameters` para compatibilidad con estado antiguo.
-  - `parsed_constraints: dict[str, float]` — restricciones parseadas a tipo. Clave actual: `autonomy_min`. Poblado automáticamente en carga vía `@model_validator` que extrae minutos de la cadena libre `restrictions`. El simulador recibe `autonomy_threshold: float | None` — nunca el string crudo.
+  - `parsed_constraints: dict[str, float]` — restricciones parseadas a tipo. Clave actual: `autonomy_min` / `max_weight_kg`. Poblado automáticamente en carga vía `@model_validator` que extrae minutos/peso de la cadena libre `restrictions`/`objective`. **IC 1:** `restrictions_explicitly_none()` + `requirements_declared()` permiten `"no"` / `"ninguna"` como requisito satisfecho sin fabricar claves numéricas — `parsed_constraints` sigue `{}`. Mid-session: actualizar `current_parameters["restrictions"]` vía `ParamDefinitionSession` (G26) re-deriva `parsed_constraints` en cada save. El simulador recibe `autonomy_threshold: float | None` — nunca el string crudo.
 - `tool_schema.py`
   Define `ToolResult`, `CalculationBundle` y el contrato rico de simulación.
 
@@ -217,7 +217,10 @@ Módulos deterministas; el LLM no elige el siguiente target de adquisición.
 | `core/project_continuity.py` | `build_project_continuity` → situation / evidence / `next_useful_step` |
 | `core/engineering_readiness.py` | ERF-1/ERF-2 — `build_engineering_readiness` → Gap Registry + 9-subsystem rollup (derived on read; C-107). ERF-2 adds `electronics` subsystem, `INCOMPATIBLE` verdicts, `electrical_compatibility.py` checks |
 | `core/electrical_compatibility.py` | ERF-2 — pure deterministic checks: ESC presence, per-motor ESC vs motor current, battery discharge, prop↔motor match. No I/O, no LLM |
-| `core/project_closure.py` | BOM + `classify_component` / `component_presence_tier` (FN-020: una clasificación para arch↔BOM↔Continuity) |
+| `core/project_closure.py` | BOM + `classify_component` / `component_presence_tier` (FN-020); `build_component_bom` / `format_bom_lines` con `catalog_ref` / `sku_resolved` / `quantity` (Impl D + IC 3). `_bom_sku_resolved` re-checks motor/battery/**propeller** SKUs vía `has_motor` / `has_battery` / `has_propeller` — **display-only** (BOM/`estado`), no gaps ni verdicts |
+| `core/catalog_bind.py` | `bind_motor_from_catalog` / `bind_propeller_from_catalog` / `bind_battery_from_catalog` — única fuente de `ComponentSpec` + `catalog_ref` desde library |
+| `core/motor_catalog_assist.py` | Lista/sugerencias motor; pick UX en orchestrator (G21) |
+| `core/battery_catalog_assist.py` | Lista/sugerencias batería; pick UX en orchestrator (IC 2) |
 | `config.NAVIGATION_BACK_WORDS` | `atras`/`volver`/`vuelve` — solo wizards de adquisición (FN-016), no escape global |
 
 Orquestador (IDLE / DEFINE_MISSING): gates FN-014…018, bare propeller vía `infer_component_for_key` (FN-019), clear a IDLE al cerrar arquitectura (FN-021). Detalle de field notes: `docs/PROJECT_CONTINUITY.md`.
@@ -528,6 +531,8 @@ Estructura de retorno:
 ```
 
 **ERF-1/ERF-2 authority note:** `readiness` is authoritative over **gap aggregation and assembly-ready rollup**, not over physics/BOM/sim truth. ERF-2 adds `INCOMPATIBLE` verdicts (★3 deterministic-evidence gate) and `electrical_compatibility.py` as a pure fact provider for ESC/battery/prop-motor checks. See `docs/system_map/AUTHORITY.md` and `docs/system_map/CONNECTIONS.md` C-107–C-112.
+
+**Project Closure arc (IC 1–3, `checkpoint-closure-policy`):** product contract ratified in `ENGINEERING_READINESS_VISION.md` §11 (snapshots A/B, family matrix, deferred G24/H5). **IC 1** — `requirements_declared()` / explicit-none semantics + G26 mid-session `restrictions` write + `is_derived` gate in `param_definition_session`. **IC 2** — live battery catalog pick (`battery_catalog_assist` + `bind_battery_from_catalog`); G27 battery Wh parsing scoped to `semantic_intent_adapter` (`battery_capacity_wh` only); battery bind **does not** re-call `set_motor_component` (OP downgrade regression locked). **IC 3** — `_bom_sku_resolved` propeller branch only (code); rollup rule unchanged. `ASSEMBLY_READY` = zero HIGH gaps + 9 subsystems PASS (or single accepted WARNING `CATALOG-GAP-DEMOTED-POST-PASS` on catalog/propulsion only).
 
 ### Startup display
 
@@ -1488,7 +1493,8 @@ Implementado:
 - **Fase 5 (wizard dinámico composite)**: `_set_pending_next_block` rama composite genérica; supresión de `missing_energy_parameters` en Phase A; `_BLOCK_COMPONENT_HINTS["energy"]` Phase A hint
 - **Fase 6 (propulsion composite)**: `BLOCK_TYPE["propulsion"] = "composite"` (motors + propellers + params); DA-MOTORS-3 resuelto (`workspace_manager` remap `motors` → `motor_count`); `_set_propeller_component()` + routing en `_handle_component_description`; `_COMPONENT_PROMPTS["propellers"]` + `_BLOCK_COMPONENT_HINTS["propulsion"]`; `motor_count` key canónico en `parameter_requirements.py` con aliases `("motores", "num_motores", "motors")`; `calculation_engine` lee `motor_count` (con fallback `actuator_count`); DA-MOTORS-2 implementada (Opción B: componente compartido)
 - **CLI Polish (checkpoint-continuity-polish, 2026-08-18)**: `project_continuity` G9-B catalog-gap demotion; `LIST_MOTORS_PATTERNS` + `_handle_list_motors`; aerial `definir motores` orchestrator gate (G18); force-motors when completeness `high` (G17 partial); `_fresh_pending_keys_for_block` (FN-013/G12 partial); reasoning label bridge to list-motors/DSE (G19). 1768 tests. Post-checkpoint micro-fix `d224dc1` closed G20/G20-B with dynamic composite in-progress labels. Residual: G17 IDLE bare phrase, G14 propeller routing — see `.jes/artifacts/cli_findings_post_catalog_bind_v1.md`.
-- **1216 tests passing** (sin regresiones)
+- **Project Closure arc (IC 1–3, `checkpoint-closure-policy`, 2026-08-31)**: Requirements explicit-none + G26 write path (`checkpoint-requirements-closure`); battery catalog pick + G27 hardening (`checkpoint-battery-catalog-bind-ux`); closure policy doc sync + propeller `sku_resolved` display fix (`checkpoint-closure-policy`). Suite **1976**. Product contract: `ENGINEERING_READINESS_VISION.md` §11. Deferred: G24, H5 ESC catalog, frame SKU catalog, `catalog_bound`→verdict wiring.
+- **1976 tests passing** (sin regresiones)
 
 Pendiente:
 
