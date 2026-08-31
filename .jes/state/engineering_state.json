@@ -34,7 +34,7 @@
     "checkpoint-propeller-catalog-bind": "2efe1c2",
     "checkpoint-requirements-closure": "e986a58",
     "checkpoint-battery-catalog-bind-ux": "5581b51",
-    "checkpoint-closure-policy": "checkpoint-closure-policy"
+    "checkpoint-closure-policy": "8728a85"
   },
   "arc": {
     "name": "Project Closure / Assembly Ready",
