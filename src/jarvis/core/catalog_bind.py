@@ -171,6 +171,16 @@ def bind_propeller_from_catalog(
     )
 
 
+# G24D (Frankenstein .name clear, ★ locked §2.4): fixed, honest label for a
+# motor whose catalog_ref was just cleared by divergence — replaces the
+# stale SKU string so a BOM/estado reader never mistakes a no-longer-bound
+# motor for a still-bound one just because its .name still looks like a
+# product code. Deliberately not SKU-shaped (no snake_case product-name
+# pattern) and never a live library key — see
+# test_impl_d_sku_bom.py::test_frankenstein_motor_name_is_never_a_real_sku.
+_DIVERGED_MOTOR_NAME: str = "motor (parámetros divergentes)"
+
+
 def invalidate_diverged_catalog_refs(
     components: dict[str, ComponentSpec],
     params: dict[str, Any],
@@ -199,8 +209,11 @@ def invalidate_diverged_catalog_refs(
 
     Motor: compares ``components["motors"].properties["thrust_n"]`` against
     ``params["per_motor_max_thrust_n"]``. On divergence, clears
-    ``catalog_ref`` and drops ``motor_mass_kg`` — falls back to no
-    motor-mass contribution, identical to today's unbound behavior.
+    ``catalog_ref``, drops ``motor_mass_kg`` — falls back to no
+    motor-mass contribution, identical to today's unbound behavior — and
+    (G24D) replaces ``.name`` with ``_DIVERGED_MOTOR_NAME`` so a stale
+    SKU-shaped string never survives next to a cleared ``catalog_ref``
+    (investigation_report_deferred_queue_post_v031.md §6.1).
 
     Battery: compares ``components["battery"].properties["battery_capacity_wh"]``
     against ``params["battery_capacity_wh"]``. On divergence, clears
@@ -222,7 +235,10 @@ def invalidate_diverged_catalog_refs(
             and new_value is not None
             and abs(float(old_value) - float(new_value)) > epsilon
         ):
-            updated_components["motors"] = motor.model_copy(update={"catalog_ref": None})
+            updated_components["motors"] = motor.model_copy(update={
+                "catalog_ref": None,
+                "name": _DIVERGED_MOTOR_NAME,
+            })
             updated_params.pop("motor_mass_kg", None)
             changed = True
 

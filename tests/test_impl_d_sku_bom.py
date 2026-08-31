@@ -4,7 +4,11 @@ BOM entries now carry catalog_ref / sku_resolved / quantity (★1/★2) — the
 BOM projection consumes SKU identity instead of only completeness buckets.
 sku_resolved is computed from catalog_ref (+ a live library re-check),
 NEVER from `.name` shape — this is the rule that closes Scenario D
-(frankenstein: `.name` still looks like a SKU after G5 clears catalog_ref).
+(frankenstein). As of IC D (Frankenstein .name Clear,
+investigation_report_deferred_queue_post_v031.md §6), `.name` itself is
+also no longer left SKU-shaped after G5 clears a motor's catalog_ref on
+divergence — see invalidate_diverged_catalog_refs / _DIVERGED_MOTOR_NAME in
+catalog_bind.py.
 
 No new gap type (★4), no Continuity/ranking changes (★3), no ERF verdict
 wiring (★5) — covered here only as "unchanged" regression proof.
@@ -117,8 +121,10 @@ def test_unbound_freeform_motor_entry_has_no_catalog_identity():
 
 def test_frankenstein_entry_after_g5_divergence_is_not_resolved(tmp_path: Path):
     """Real G5 divergence path (catalog_bind.invalidate_diverged_catalog_refs)
-    clears catalog_ref but never touches .name — the BOM entry must not
-    present this as a resolved SKU."""
+    clears catalog_ref AND (G24D) replaces .name with an honest,
+    non-SKU-shaped label — the BOM entry must not present this as a
+    resolved SKU, and the display name itself must no longer read like one
+    either (investigation_report_deferred_queue_post_v031.md §6.1)."""
     orch = JarvisOrchestrator(workspace_root=tmp_path)
     orch.handle({"action": "create_project", "parameters": {
         "vehicle_type": "dron", "objective": "x", "payload_kg": 1.0,
@@ -147,7 +153,11 @@ def test_frankenstein_entry_after_g5_divergence_is_not_resolved(tmp_path: Path):
 
     frankenstein = ps.design_properties.components["motors"]
     assert frankenstein.catalog_ref is None  # G5 cleared it
-    assert frankenstein.name == _SKU  # .name untouched — still looks like a SKU
+    # G24D: .name is no longer the stale SKU string — an honest, non-SKU-
+    # shaped label instead (was `assert frankenstein.name == _SKU` before
+    # this IC; that assertion encoded the exact trust gap G24D closes).
+    assert frankenstein.name != _SKU
+    assert not default_library.has_motor(frankenstein.name)
 
     bom = build_component_bom(ps)
     entry = next(e for e in bom["defined"] if e["key"] == "motors")
@@ -159,6 +169,51 @@ def test_frankenstein_entry_after_g5_divergence_is_not_resolved(tmp_path: Path):
     motor_line = next(l for l in lines if l.startswith("✓ motors"))
     assert f"[{_SKU}]" not in motor_line, "frankenstein must not present as a resolved SKU"
     assert "(SKU sin resolver)" not in motor_line  # catalog_ref is None, not just unresolved
+    assert _SKU not in motor_line, "the old SKU string must not appear as the displayed name either"
+
+
+# ── 3b. G24D — divergence rename: scope and non-scope ───────────────────────
+
+def test_frankenstein_motor_name_is_never_a_real_sku():
+    """§2.4 (locked): the honest label must not itself collide with a live
+    library SKU — never trade one false claim for another."""
+    from jarvis.core.catalog_bind import _DIVERGED_MOTOR_NAME
+    assert not default_library.has_motor(_DIVERGED_MOTOR_NAME)
+
+
+def test_motor_name_unchanged_when_catalog_ref_preserved():
+    """No divergence -> invalidate_diverged_catalog_refs is a pure no-op,
+    .name (and everything else) stays exactly as bound."""
+    spec = bind_motor_from_catalog(_suggestion_for(_SKU))
+    components = {"motors": spec}
+    params = {"per_motor_max_thrust_n": default_library.get_motor(_SKU).thrust_n}  # matches bound value
+
+    updated_components, updated_params = invalidate_diverged_catalog_refs(components, params)
+
+    assert updated_components is components  # pure no-op: same object, not just equal
+    assert updated_components["motors"].name == _SKU
+    assert updated_components["motors"].catalog_ref == CatalogRef(family="motor", sku=_SKU)
+
+
+def test_battery_divergence_does_not_rename_motor():
+    """The motor .name rename is scoped to the motor divergence branch only
+    — a battery-only divergence must never touch the motor component at
+    all, name included."""
+    motor_spec = bind_motor_from_catalog(_suggestion_for(_SKU))
+    battery_sku = _real_battery_sku()
+    battery_spec = bind_battery_from_catalog(battery_sku)
+    components = {"motors": motor_spec, "battery": battery_spec}
+    params = {
+        "per_motor_max_thrust_n": default_library.get_motor(_SKU).thrust_n,  # motor: no divergence
+        "battery_capacity_wh": default_library.get_battery(battery_sku).energy_wh * 2,  # battery: diverges
+    }
+
+    updated_components, updated_params = invalidate_diverged_catalog_refs(components, params)
+
+    assert updated_components["battery"].catalog_ref is None  # battery diverged, correctly cleared
+    assert updated_components["motors"] is motor_spec  # untouched — same object
+    assert updated_components["motors"].name == _SKU
+    assert updated_components["motors"].catalog_ref == CatalogRef(family="motor", sku=_SKU)
 
 
 # ── 4. Architecture-complete + bound motor → bucket/gap behavior unchanged ──

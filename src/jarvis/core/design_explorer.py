@@ -479,6 +479,56 @@ def _apply_delta(
     return result
 
 
+def _is_catalog_native_motor_candidate(candidate: ExplorationCandidate) -> bool:
+    """G24C §2.1 (locked): a candidate is catalog-native (motor) when its
+    components_delta carries a bound motors spec — never a params-only
+    delta. Single predicate reused by _finalize_viable_list so "catalog-
+    native" has exactly one definition."""
+    motors_spec = candidate.components_delta.get("motors")
+    if motors_spec is None:
+        return False
+    catalog_ref = getattr(motors_spec, "catalog_ref", None)
+    return catalog_ref is not None and catalog_ref.family == "motor"
+
+
+def _finalize_viable_list(viable: list[ExplorationCandidate]) -> list[ExplorationCandidate]:
+    """G24C (★3a — investigation_report_deferred_queue_post_v031.md §5.3):
+    viable-list SELECTION, not scoring. Guarantees the best-scoring
+    catalog-native motor candidate survives truncation to MAX_VIABLE when
+    Impl C generated at least one flyable one — closing the gap the
+    investigation reproduced live (0 of 4 real catalog candidates reaching
+    .viable for "aumentar_payload"/"mejorar_estabilidad" on a bound-motor
+    project). ``_score_candidate`` is never called here and no candidate's
+    ``.score`` is ever mutated — only which already-scored candidates make
+    the cut, and their order, may change. G24-B (a scoring-formula
+    preference) remains explicitly out of scope (contract §0/§5 non-goals).
+
+    Locked algorithm (contract §2.2):
+      1. sort by score desc (same key as before this function existed)
+      2. no catalog-native candidate at all -> sorted[:MAX_VIABLE], no-op
+      3. best-scoring catalog-native already in the top MAX_VIABLE -> no-op
+      4. otherwise: keep the best MAX_VIABLE-1 non-catalog-native entries,
+         append the best catalog-native as the reserved final slot
+    """
+    ranked = sorted(viable, key=lambda c: c.score, reverse=True)
+
+    catalog_native = [c for c in ranked if _is_catalog_native_motor_candidate(c)]
+    if not catalog_native:
+        return ranked[:MAX_VIABLE]
+
+    best_catalog = catalog_native[0]
+    head = ranked[:MAX_VIABLE]
+    # Identity, not equality (`in`/`==`): ExplorationCandidate is a pydantic
+    # BaseModel, whose default __eq__ compares field values — two distinct
+    # candidates could legitimately carry identical values. All membership/
+    # exclusion checks here must track the exact same object every step.
+    if any(c is best_catalog for c in head):
+        return head
+
+    others = [c for c in ranked if c is not best_catalog][: MAX_VIABLE - 1]
+    return others + [best_catalog]
+
+
 # ── Explorer ──────────────────────────────────────────────────────────────────
 
 class DesignExplorer:
@@ -635,8 +685,6 @@ class DesignExplorer:
             if sim.can_fly:
                 viable.append(candidate)
 
-        viable.sort(key=lambda c: c.score, reverse=True)
-
         return ExplorationResult(
             goal_key=goal_key,
             goal_label=goal_label,
@@ -644,6 +692,6 @@ class DesignExplorer:
             baseline_calculations=baseline_calc,
             baseline_simulation=baseline_sim,
             candidates=candidates,
-            viable=viable[:MAX_VIABLE],
+            viable=_finalize_viable_list(viable),
             catalog_motor_note=catalog_motor_note,
         )

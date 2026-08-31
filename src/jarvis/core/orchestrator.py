@@ -56,7 +56,7 @@ from jarvis.core.component_writers import (
     set_motor_component,
     set_propeller_component,
 )
-from jarvis.core.design_explorer import DesignExplorer, _apply_delta
+from jarvis.core.design_explorer import DesignExplorer, _apply_delta, _is_catalog_native_motor_candidate
 from jarvis.core.system_architecture_catalog import (
     BLOCK_TO_COMPONENTS,
     SYSTEM_ARCHITECTURES,
@@ -3505,6 +3505,30 @@ class JarvisOrchestrator:
                 )
             lines.append("")
             lines.append("  Di «aplica la mejor» para aplicar la configuración #1 al proyecto.")
+            # G24C §2.4 (honest CTA): selection (design_explorer._finalize_
+            # viable_list) already guarantees a catalog-native candidate
+            # survives when one was generated — this only tells the user
+            # WHERE it landed, or honestly says none did. Never mutates
+            # exploration.viable itself; pure message copy.
+            catalog_indices = [
+                i for i, c in enumerate(exploration.viable, start=1)
+                if _is_catalog_native_motor_candidate(c)
+            ]
+            if catalog_indices and not _is_catalog_native_motor_candidate(exploration.viable[0]):
+                idx = catalog_indices[0]
+                lines.append(
+                    f"  ⚠ La configuración #1 es abstracta (sin SKU de catálogo) — aplicarla "
+                    f"puede perder el motor vinculado. La opción #{idx} sí usa un motor de "
+                    f"catálogo: di «aplica la {idx}» para conservarlo."
+                )
+            elif not catalog_indices and exploration.candidates and any(
+                _is_catalog_native_motor_candidate(c) for c in exploration.candidates
+            ):
+                lines.append(
+                    f"  Ningún candidato de catálogo entró en las {viable_count} opciones "
+                    "principales para este objetivo (perdió por puntuación frente a las "
+                    "variaciones abstractas)."
+                )
             message = "\n".join(lines)
 
         # DSE v1.1: persist exploration result in session so _handle_apply_exploration can use it.

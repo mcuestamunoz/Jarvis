@@ -1,40 +1,56 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Deferred queue frozen — await next investigation",
-  "scope": "Next Engineering Block checkpointed at v0.3.1. No scheduled implementation.",
-  "execution_status": "checkpointed_v0_3_1",
-  "current_mode": "Frozen",
+  "cycle_intent": "Deferred Queue arc C+D checkpointed @ v0.3.2",
+  "scope": "G24 viable selection + honest CTA (IC C) and Frankenstein .name clear (IC D). Engineer \u26051-\u26056 ratified and delivered.",
+  "execution_status": "checkpointed",
+  "current_mode": "Idle",
   "movement_trigger": {
-    "type": "checkpoint_v0_3_1",
-    "note": "Engineer 2026-08-31: single tag checkpoint-next-engineering-block + v0.3.1; deferred frozen."
+    "type": "checkpoint",
+    "note": "checkpoint-deferred-queue-cd @ v0.3.2 \u2014 suite 2028; probes C 6/6 + D 5/5 + G24-A 6/6."
   },
   "relevant_workflow_phases": [
-    "Investigation"
+    "Review",
+    "Checkpoint"
   ],
-  "applicable_rules": [
-    "No new IC without investigation",
-    "Deferred queue frozen: H5, G24-B/C, Validation Case, frankenstein .name",
-    "Do not reopen Next Engineering Block without regression proof"
+  "engineer_ratification": {
+    "star1": "C G24 viable selection + honest CTA \u2014 DELIVERED",
+    "star2": "A Validation Case defer",
+    "star3": "a viable-slot reservation \u2014 NOT _score_candidate rewrite",
+    "star4": "B H5 defer",
+    "star5": "D frankenstein .name micro-IC \u2014 DELIVERED",
+    "star6": "v0.3.2 after C+D PASS"
+  },
+  "required_artifacts": [
+    ".jes/artifacts/investigation_report_deferred_queue_post_v031.md",
+    ".jes/artifacts/investigation_review_deferred_queue_post_v031.md",
+    ".jes/artifacts/implementation_contract_g24_viable_selection_honest_cta.md",
+    ".jes/artifacts/implementation_report_g24_viable_selection_honest_cta.md",
+    ".jes/artifacts/implementation_review_g24_viable_selection_honest_cta.md",
+    ".jes/artifacts/implementation_contract_frankenstein_name_clear.md",
+    ".jes/artifacts/implementation_report_frankenstein_name_clear.md",
+    ".jes/artifacts/implementation_review_frankenstein_name_clear.md"
   ],
-  "required_artifacts": [],
-  "open_questions": [],
-  "active_operation": "None — next cycle starts with comparative investigation when Engineer prioritizes.",
+  "active_operation": "Deferred queue closed. Next: new investigation before implementation (Validation Case primary candidate; H5 defer; G24-B frozen).",
   "authority_gates": [
-    "checkpoint-next-engineering-block ✅",
-    "v0.3.1 ✅",
-    "2013 suite at checkpoint ✅",
-    "probes G24 6/6 + P2-2 6/6 ✅"
+    "v0.3.2 checkpoint \u2705",
+    "IC C review PASS WITH NOTES \u2705",
+    "IC D review PASS WITH NOTES \u2705",
+    "Engineer \u26051-\u26056 \u2705"
   ],
   "checkpoints": {
-    "v0.3.0": "2efe1c2",
-    "checkpoint-closure-policy": "8728a85",
-    "clean_baseline_docs": "73bd9fa",
-    "checkpoint-next-engineering-block": "f27f64b",
-    "v0.3.1": "f27f64b"
+    "v0.3.1": "30c9aec",
+    "checkpoint-next-engineering-block": "30c9aec",
+    "v0.3.2": "53831b0855ac29ff7c999f1479d45dd70cd80ab1",
+    "checkpoint-deferred-queue-cd": "53831b0855ac29ff7c999f1479d45dd70cd80ab1"
   },
   "arc": {
-    "project_closure": "COMPLETE",
-    "next_engineering_block": "CHECKPOINTED_v0_3_1",
-    "deferred_frozen": ["H5_ESC_CATALOG", "P2-2_VALIDATION_CASE", "G24_B_RANKING", "G24_C_CTA", "G5_FRANKENSTEIN_NAME"]
+    "deferred_queue_investigation": "COMPLETE",
+    "ic_c_g24_viable_selection": "CHECKPOINTED",
+    "ic_d_frankenstein_name": "CHECKPOINTED",
+    "deferred": [
+      "VALIDATION_CASE",
+      "H5_ESC_CATALOG",
+      "G24_B_SCORING_REWRITE"
+    ]
   }
 }

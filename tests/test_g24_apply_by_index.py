@@ -177,8 +177,11 @@ def test_bound_motor_aplica_la_mejor_clears_catalog_ref(tmp_path: Path):
     motors = saved.design_properties.components["motors"]
     if motors.catalog_ref is None:
         # Abstract #1 applied and diverged params -> G5 cleared identity (the
-        # documented, unchanged-by-this-IC behavior).
-        assert motors.name == _BOUND_SKU  # .name stays stale, also unchanged
+        # documented, unchanged-by-this-IC behavior). IC D (Frankenstein
+        # .name clear, landed after this test was first written) additionally
+        # replaces .name with an honest, non-SKU-shaped label instead of
+        # leaving it stale — updated here, disclosed in that IC's report.
+        assert motors.name != _BOUND_SKU
     else:
         # If #1 happened to be catalog-native in this run, identity survives
         # trivially — either outcome is consistent with "unchanged from
@@ -198,3 +201,40 @@ def test_apply_index_out_of_range_via_real_turn_errors_no_mutation(tmp_path: Pat
     after = orch.state_manager.load_active_project(orch.workspace_manager)
     assert after.current_parameters == before.current_parameters
     assert after.design_properties.components == before.design_properties.components
+
+
+# ── G24C-4: G24-A composes with real (G24C-fixed) viable output, no G24-TF ──
+
+def test_apply_by_index_on_real_viable_output_no_hand_built_reorder(tmp_path: Path):
+    """G24C's own fix (design_explorer._finalize_viable_list) means a real,
+    unmodified explore() call now naturally surfaces a catalog-native
+    candidate — this test picks its real index straight from the real
+    session state and applies it, with zero G24-TF-style list surgery
+    (contrast test_apply_by_index_preserves_catalog_ref_when_catalog_not_
+    at_one above, which still constructs its own list explicitly and
+    remains valid as a standalone unit-level proof of the apply mechanism)."""
+    orch = _project_with_bound_motor(tmp_path)
+    llm = _RefuseLLM()
+
+    explore_result = orch.handle_user_text("optimiza para aumentar payload", llm)
+    assert explore_result["status"] == "ok"
+
+    exploration = orch.state_manager.get_runtime_session().last_exploration_result
+    assert exploration is not None
+    catalog_idx = next(
+        (i + 1 for i, c in enumerate(exploration.viable)
+         if c.components_delta.get("motors") is not None
+         and c.components_delta["motors"].catalog_ref is not None),
+        None,
+    )
+    assert catalog_idx is not None, "G24C regression: no catalog candidate in real .viable output"
+    picked_sku = exploration.viable[catalog_idx - 1].components_delta["motors"].catalog_ref.sku
+
+    apply_result = orch.handle_user_text(f"aplica la {catalog_idx}", llm)
+    assert apply_result["status"] == "ok"
+    assert apply_result["applied_index"] == catalog_idx
+
+    saved = orch.state_manager.load_active_project(orch.workspace_manager)
+    motors = saved.design_properties.components["motors"]
+    assert motors.catalog_ref is not None
+    assert motors.catalog_ref.sku == picked_sku

@@ -6,10 +6,21 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** `main` @ **`73bd9fa`** · tag **`checkpoint-closure-policy`**. **CLEAN BASELINE.**  
-> **Base:** tag **`v0.3.1`** / **`checkpoint-next-engineering-block`**. **CONGELADO.**  
-> **PRIORIDAD AHORA:** Ninguna implementación — cola **deferred congelada** hasta nueva investigación.  
-> **Versión:** **`0.3.1`** (G24-A apply-by-index + P2-2 OP electrical bridge).
+> **Base:** tag **`v0.3.2`** / **`checkpoint-deferred-queue-cd`**.  
+> **PRIORIDAD AHORA:** Deferred Queue **cerrada**. **No implementar** hasta nueva investigación + ★.  
+> **Versión:** **`0.3.2`** (patch incremental sobre `0.3.1`).
+
+### 🟢 COMPLETADO — Deferred Queue C+D @ 0.3.2 (2026-08-31)
+
+> Tag **`checkpoint-deferred-queue-cd`** · **`v0.3.2`**  
+> **IC C G24C:** viable-slot reservation + honest CTA · probe **6/6** · [review PASS WITH NOTES](../.jes/artifacts/implementation_review_g24_viable_selection_honest_cta.md)  
+> **IC D G24D:** Frankenstein `.name` clear on G5 divergence · probe **5/5** · [review PASS WITH NOTES](../.jes/artifacts/implementation_review_frankenstein_name_clear.md)  
+> Suite **2028** · G24-A probe **6/6** · `_score_candidate` zero diff · G5 semantics unchanged  
+> **Congelado.** Candidatos siguientes (sin schedule): **Validation Case** · H5 · G24-B scoring rewrite.
+
+### ✅ INVESTIGACIÓN CERRADA — Deferred Queue post-v0.3.1
+
+> Report · [review PASS WITH NOTES](../.jes/artifacts/investigation_review_deferred_queue_post_v031.md) · Engineer ★ ratificado · arco implementado y checkpointed
 
 ### 🟢 CONGELADO — Next Engineering Block @ 0.3.1 (2026-08-31)
 
