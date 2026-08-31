@@ -1,47 +1,44 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Project Closure arc COMPLETE — checkpoint-closure-policy",
-  "scope": "IC 1–3 delivered: requirements, battery/G27, closure policy + propeller sku_resolved.",
-  "execution_status": "checkpointed",
-  "current_mode": "Release",
+  "cycle_intent": "Investigation — Next Engineering Block (P2-2 vs G24 vs H5)",
+  "scope": "Comparative investigation on baseline 73bd9fa. No implementation. Version bump deferred.",
+  "execution_status": "investigation_contract_ready",
+  "current_mode": "Investigation",
   "movement_trigger": {
-    "type": "checkpoint",
-    "note": "checkpoint-closure-policy — final arc tag. Version bump deferred to Engineer."
+    "type": "clean_baseline",
+    "note": "Project Closure complete; doc hygiene 73bd9fa; next block selection."
   },
   "relevant_workflow_phases": [
-    "Release",
+    "Investigation",
+    "Review",
     "Contract"
   ],
   "applicable_rules": [
-    "Project Closure arc closed — no further IC cuts without new investigation",
-    "Version bump is Engineer decision (currently v0.3.0)",
-    "ARCHITECTURE + system_map synced (vision protocol step 4, 2026-08-31)"
+    "Code + tests first — vision docs are context only",
+    "One primary recommendation — no mega-IC",
+    "Version bump after Engineer ratifies direction",
+    "Do not reopen Project Closure without regression proof"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_closure_policy_propeller_sku_resolved.md"
+    ".jes/artifacts/investigation_contract_next_engineering_block.md"
   ],
   "open_questions": [
-    "Version bump timing and target (v0.3.x vs v0.4.0)"
+    "Primary next block: P2-2 vs G24 vs H5",
+    "Version bump timing and target (post-investigation)"
   ],
-  "active_operation": "Engineer: version bump decision → next work block.",
+  "active_operation": "Claude: investigate → report → Cursor review → Engineer ★.",
   "authority_gates": [
-    "IC 3 checkpoint-closure-policy ✅",
-    "1976 suite ✅",
-    "Arc IC 1–3 all checkpointed ✅"
+    "checkpoint-closure-policy ✅",
+    "doc hygiene 73bd9fa ✅",
+    "1976 suite baseline ✅"
   ],
   "checkpoints": {
     "v0.3.0": "2efe1c2",
-    "checkpoint-propeller-catalog-bind": "2efe1c2",
-    "checkpoint-requirements-closure": "e986a58",
-    "checkpoint-battery-catalog-bind-ux": "5581b51",
-    "checkpoint-closure-policy": "8728a85"
+    "checkpoint-closure-policy": "8728a85",
+    "clean_baseline_docs": "73bd9fa"
   },
   "arc": {
-    "name": "Project Closure / Assembly Ready",
-    "sequence": "Option D",
-    "ic1": "CLOSED",
-    "ic2": "CLOSED",
-    "ic3": "CLOSED",
-    "status": "COMPLETE"
+    "project_closure": "COMPLETE",
+    "next_block": "INVESTIGATION_PENDING"
   }
 }

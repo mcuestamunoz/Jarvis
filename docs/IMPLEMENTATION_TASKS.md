@@ -6,14 +6,17 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`checkpoint-closure-policy`** · commit `8728a85`. **Project Closure arc COMPLETE.**  
-> **PRIORIDAD AHORA:** decidir version bump (`v0.3.0` unchanged) → siguiente bloque de trabajo.  
-> **Versión:** `0.3.0`.
+> **Base:** `main` @ **`73bd9fa`** · tag **`checkpoint-closure-policy`**. **CLEAN BASELINE.**  
+> **PRIORIDAD AHORA:** Investigation — Next Engineering Block (P2-2 vs G24 vs H5). **No IC. No version bump yet.**  
+> **Versión:** `0.3.0` (tag names propeller-bind only; bump deferred post-investigation).
 
-### 🟢 SIGUIENTE — Post–Project Closure
+### 🟡 EN CURSO — Investigation: Next Engineering Block
 
-> Arco cerrado (IC 1–3 checkpointed). As-is docs synced (vision protocol step 4 + design-doc hygiene 2026-08-31).  
-> Version bump: decisión Engineer.
+> Contract: [investigation_contract_next_engineering_block.md](../.jes/artifacts/investigation_contract_next_engineering_block.md) — **READY FOR CLAUDE**  
+> Compare **P2-2** · **G24** · **H5** on baseline `73bd9fa` — code/tests first, matrix, one primary recommendation.  
+> Version decision **after** Engineer ★. Do not implement in investigation.
+
+### 🟢 COMPLETADO — Documentation hygiene + Closure arc
 
 ### ✅ COMPLETADO — IC 3 Closure Policy + propeller sku_resolved + checkpoint (2026-08-31)
 
