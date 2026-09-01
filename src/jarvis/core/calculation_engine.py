@@ -9,7 +9,7 @@ from jarvis.knowledge.library import resolve_operating_point_at_thrust
 from jarvis.schemas.tool_schema import CalculationBundle, ToolResult
 
 from jarvis.tools.aerodynamics import calculate_thrust_from_propeller
-from jarvis.tools.electricity import calculate_autonomy_min
+from jarvis.tools.electricity import calculate_autonomy_min, estimate_loaded_endurance_sweep
 from jarvis.tools.mechanics import (
     calculate_required_thrust,
     calculate_thrust_per_motor,
@@ -136,6 +136,58 @@ def _resolve_hover_energy(
         "motor_hover_current_a": hover_op.current_a,
         "hover_energy_resolution": resolution_json,
     }
+
+
+_ENDURANCE_PASSTHROUGH_KEYS = ("i_load_label", "capacity_source", "capacity_source_ref")
+
+
+def _resolve_battery_endurance_envelope(
+    parameters: Mapping[str, Any],
+) -> tuple[list[dict[str, Any]] | None, str | None, list[ToolResult]]:
+    """Phase 2.7-B (Parametric / Estimative Battery Endurance Sweep,
+    ★★1-★★13 locked) — OPT-IN ONLY, unlike ``_resolve_hover_energy`` above.
+    Runs only when the caller explicitly supplies
+    ``parameters["battery_endurance_sweep"]`` (a JSON string or
+    ``list[dict]``); every point is the caller's own ASSUMED hypothesis,
+    never derived from ``ProjectState``/catalog identity, never given a
+    built-in default grid or default V_oc/R/I (implementation_contract_
+    phase27b_parametric_battery_estimate.md §3.2-§3.3). Missing/null/empty
+    -> ``(None, None, [])`` — no envelope, no assumption record, L1 and the
+    rest of ``build()`` are entirely unaffected.
+    """
+    raw = parameters.get("battery_endurance_sweep")
+    if not raw:
+        return None, None, []
+    if isinstance(raw, str):
+        try:
+            points = json.loads(raw)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return None, None, []
+    else:
+        points = raw
+    if not isinstance(points, list) or not points:
+        return None, None, []
+
+    results = estimate_loaded_endurance_sweep(points)
+    envelope: list[dict[str, Any]] = []
+    for point, result in zip(points, results):
+        row: dict[str, Any] = dict(result.inputs)
+        row.update(result.outputs)
+        row["source_type"] = "assumed"
+        for key in _ENDURANCE_PASSTHROUGH_KEYS:
+            if key in point:
+                row[key] = point[key]
+        envelope.append(row)
+
+    assumption = json.dumps({
+        "model_class": "E-SWEEP",
+        "source_type": "assumed",
+        "label": "ESTIMATIVE — not validated, not flight time, not manufacturer usable energy",
+        "ocv_note": "linear V_oc(SOC) is a mathematical hypothesis, not a SKU characterization",
+        "n_points": len(envelope),
+    }, sort_keys=True)
+
+    return envelope, assumption, results
 
 
 class CalculationEngine:
@@ -316,6 +368,11 @@ class CalculationEngine:
                     outputs={"reason": "battery_capacity_wh and/or motor_power_w not in parameters"},
                 ))
 
+        battery_endurance_envelope, battery_endurance_assumption, endurance_tool_results = (
+            _resolve_battery_endurance_envelope(parameters)
+        )
+        tool_results.extend(endurance_tool_results)
+
         return CalculationBundle(
             vehicle_type=str(parameters["vehicle_type"]),
             payload_kg=payload_kg,
@@ -332,5 +389,7 @@ class CalculationEngine:
             motor_hover_current_a=hover["motor_hover_current_a"],
             hover_energy_autonomy_min=hover_energy_autonomy_min,
             hover_energy_resolution=hover["hover_energy_resolution"],
+            battery_endurance_envelope=battery_endurance_envelope,
+            battery_endurance_assumption=battery_endurance_assumption,
             tool_results=tool_results,
         )

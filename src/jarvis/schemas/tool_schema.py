@@ -37,6 +37,13 @@ class CalculationBundle(BaseModel):
     motor_hover_current_a: float | None = None
     hover_energy_autonomy_min: float | None = None
     hover_energy_resolution: str | None = None
+    # Phase 2.7-B (Parametric / Estimative Battery Endurance Sweep, ★★1-★★13
+    # locked) — opt-in only (populated only when the caller passes
+    # parameters["battery_endurance_sweep"]; None otherwise, never derived
+    # automatically like the hover fields above). Every row is an ASSUMED
+    # hypothesis, never SKU truth — see tools/electricity.py.
+    battery_endurance_envelope: list[dict[str, Any]] | None = None
+    battery_endurance_assumption: str | None = None
     tool_results: list[ToolResult] = Field(default_factory=list)
 
     # Generic aliases

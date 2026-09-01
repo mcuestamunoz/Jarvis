@@ -7,8 +7,40 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.5`** / **`checkpoint-phase25-hover-energy`**.  
-> **PRIORIDAD AHORA:** Nueva investigación física — **una pieza a la vez** (no mezclar): ESC efficiency · battery discharge/sag · flight regime → `P_battery`.  
-> **Versión:** **`v0.3.5`**. Suite **2058/2058** · probes green.
+> **PRIORIDAD AHORA:** **Phase 2.7-B implementación revisada** — Cursor **PASS WITH NOTES**. Checkpoint solo si Engineer lo pide.  
+> **Versión:** **`v0.3.5`**. P26 + P27-A (autonomía *validada* bajo carga) siguen congelados.
+
+### 🔴 IC LISTO — Phase 2.7-B Parametric / Estimative Battery Endurance (2026-09-01)
+
+> **★:** [engineer_ratification_phase27b_parametric_battery_estimate.md](../.jes/artifacts/engineer_ratification_phase27b_parametric_battery_estimate.md) — ★1–★5 locked  
+> **IC:** [implementation_contract_phase27b_parametric_battery_estimate.md](../.jes/artifacts/implementation_contract_phase27b_parametric_battery_estimate.md) **v0.2**  
+> **Report:** [implementation_report_phase27b_parametric_battery_estimate.md](../.jes/artifacts/implementation_report_phase27b_parametric_battery_estimate.md)  
+> **Review:** [implementation_review_phase27b_parametric_battery_estimate.md](../.jes/artifacts/implementation_review_phase27b_parametric_battery_estimate.md) — **PASS WITH NOTES**  
+> **Suite:** **2071** · probe P27-B **4/4** · probe P25 **4/4** (L1 Combo A = 1.3237)  
+> **Nota:** L2 no aparece en CLI hasta que un caller escriba `battery_endurance_sweep` (opt-in, sin grid por defecto).  
+> **Siguiente:** Engineer decide checkpoint. P26 / P27-A siguen congelados.
+
+### 🟡 PARALELO — P27-M3 C-rate derating (`lipo_4s_1500mah` @ ~45 C) (2026-09-01)
+
+> **Contract:** [data_acquisition_contract_phase27_m3_crate_derating.md](../.jes/artifacts/data_acquisition_contract_phase27_m3_crate_derating.md)  
+> **Objetivo:** tabla T1/T2 `{C-rate → % capacidad usable}` que cubra hover Combo A (~45 C). Sin eso, autonomía sigue siendo **1.32 min motor-input**.  
+> **No es IC.** No editar catálogo ni `src/` hasta datos + investigation delta + ★.  
+> **Paralelo:** bench ESC aislado (`hobbywing_xrotor_40a_6s`) — no bloquea.  
+> **Aparcado:** Block Closure B-PROP-ENERGY (producto, no este arco). **G27 wizard está cerrado** (`LiPo 6S 10000mAh` → ~222 Wh, nunca 6 Wh).
+
+### 🟢 CERRADO — Phase 2.7 Battery Voltage / Sag / SOC (2026-09-01) · ★ RATIFICADO
+
+> **Report:** [investigation_report_phase27_battery_voltage_sag.md](../.jes/artifacts/investigation_report_phase27_battery_voltage_sag.md) — **INSUFFICIENT DATA**  
+> **Review:** [investigation_review_phase27_battery_voltage_sag.md](../.jes/artifacts/investigation_review_phase27_battery_voltage_sag.md) — **ACCEPT**  
+> **★:** [engineer_ratification_phase27_battery_voltage_sag.md](../.jes/artifacts/engineer_ratification_phase27_battery_voltage_sag.md) — ★1–★10 locked  
+> **Boundary:** `PHASE27_LOADED_BATTERY_BOUNDARY` — **NO IC** · I2 con `P_motor_input` prohibido  
+> **`hover_energy_autonomy_min`** ≈ 1.32 min = nameplate Wh / potencia de entrada de motor. **No** es predicción de vuelo ni cota inferior física.
+
+### 🟡 CERRADO — Phase 2.6 ESC / System Electrical Losses (2026-09-01)
+
+> **Report:** [investigation_report_phase26_esc_system_losses.md](../.jes/artifacts/investigation_report_phase26_esc_system_losses.md) — **INSUFFICIENT DATA** · **★ RATIFICADO**  
+> **Boundary congelado:** `PHASE26_P_BATTERY_BOUNDARY` — NO IC · campaña bench ESC = track paralelo  
+> **`hover_energy_autonomy_min`** = motor-input-only · válido e interino
 
 ### 🟢 COMPLETADO — Phase 2.5 Hover Energy @ 0.3.5 (2026-09-01)
 

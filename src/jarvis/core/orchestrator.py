@@ -166,6 +166,26 @@ def _hover_energy_from_calculations(calculations: dict[str, Any] | None) -> dict
     return resolution
 
 
+def _battery_endurance_from_calculations(calculations: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Phase 2.7-B (Parametric / Estimative Battery Endurance Sweep,
+    ★★1-★★13): estado/CLI surface for the OPT-IN endurance envelope —
+    distinct from ``hover_energy`` above (motor-input, always-on when
+    identity permits) and never merged with it. None whenever the caller
+    didn't supply a sweep for this calculation (the common case) — no
+    envelope, no ESTIMATIVE line, nothing to show."""
+    if not calculations:
+        return None
+    envelope = calculations.get("battery_endurance_envelope")
+    if not envelope:
+        return None
+    assumption_raw = calculations.get("battery_endurance_assumption")
+    try:
+        assumption = json.loads(assumption_raw) if assumption_raw else None
+    except (TypeError, ValueError):
+        assumption = None
+    return {"envelope": envelope, "assumption": assumption}
+
+
 # ── Component description prompts (keyed by component suggested_key) ──────────
 # Used by _handle_component_description affirmative path and follow-up messages.
 # FN-017: moved to acquisition_target.COMPONENT_PROMPTS (single source of truth,
@@ -4256,6 +4276,12 @@ class JarvisOrchestrator:
             # all (calc_engine's honest-absence case, ★2.5 preserved
             # semantics — not shown as a false "unverifiable").
             "hover_energy": _hover_energy_from_calculations(
+                project_state.latest_results.get("calculations")
+            ),
+            # Phase 2.7-B — opt-in only, None unless the caller supplied a
+            # battery_endurance_sweep for this calculation (★1: ESTIMATIVE
+            # sweep only, never a default single-number result).
+            "battery_endurance": _battery_endurance_from_calculations(
                 project_state.latest_results.get("calculations")
             ),
             "energy_model_note": energy_note,

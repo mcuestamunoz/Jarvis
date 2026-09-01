@@ -1,38 +1,49 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Phase 2.5 Hover Energy checkpointed — next physical investigations separate (ESC η, battery sag, flight regime)",
-  "scope": "Hover-regime autonomy via resolve_operating_point_at_thrust · P25-D dataset · P25-H calc bridge · hygiene green",
-  "execution_status": "checkpointed",
-  "current_mode": "Review",
+  "cycle_intent": "Phase 2.7-B implemented — Cursor review PASS WITH NOTES; awaiting Engineer checkpoint decision",
+  "scope": "L2 E-SWEEP opt-in · L1 unchanged · P26 frozen · P27-A validated frozen",
+  "execution_status": "implemented_pending_validation",
+  "current_mode": "Validation",
   "movement_trigger": {
     "type": "implementation_review",
-    "note": "implementation_review_phase25_hover_autonomy.md PASS WITH NOTES + hygiene green → v0.3.5 checkpoint"
+    "note": "P27-B IC v0.2 PASS WITH NOTES. Suite 2071. Probe 4/4. L1 probe 4/4. No checkpoint unless Engineer asks."
   },
   "relevant_workflow_phases": [
-    "Review",
-    "Investigation"
+    "Validation"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
-    "next_physical_esc_efficiency": "NOT_STARTED — separate investigation",
-    "next_physical_battery_sag": "NOT_STARTED — separate investigation",
-    "next_physical_flight_regime": "NOT_STARTED — separate investigation"
+    "phase26_p_battery_boundary": "★ RATIFICADO — UNVERIFIABLE — NO IC",
+    "phase26_esc_system_losses": "INVESTIGATED CLOSED",
+    "phase27_battery_voltage_sag": "★ RATIFICADO — INSUFFICIENT DATA — NO IC (validated L3)",
+    "phase27_loaded_battery_boundary": "FROZEN for unlabeled/validated loaded autonomy",
+    "phase27b_parametric_estimate": "★ RATIFICADO ★1–★5 — IC READY",
+    "esc_bench_data_campaign": "PARALLEL",
+    "m3_crate_derating_campaign": "PARALLEL OPEN",
+    "hover_energy_autonomy_min": "L1 MOTOR-INPUT — nameplate Wh / P_motor_input; not flight time; not a physical lower bound"
   },
   "required_artifacts": [
-    ".jes/artifacts/investigation_contract_phase25_hover_autonomy.md",
-    ".jes/artifacts/investigation_report_phase25_hover_autonomy.md",
-    ".jes/artifacts/implementation_contract_phase25_hover_autonomy.md",
-    ".jes/artifacts/implementation_report_phase25_hover_autonomy.md",
-    ".jes/artifacts/implementation_review_phase25_hover_autonomy.md"
+    ".jes/artifacts/engineer_ratification_phase27_battery_voltage_sag.md",
+    ".jes/artifacts/investigation_contract_phase27b_parametric_battery_estimate.md",
+    ".jes/artifacts/investigation_report_phase27b_parametric_battery_estimate.md",
+    ".jes/artifacts/investigation_review_phase27b_parametric_battery_estimate.md",
+    ".jes/artifacts/engineer_ratification_phase27b_parametric_battery_estimate.md",
+    ".jes/artifacts/implementation_contract_phase27b_parametric_battery_estimate.md",
+    ".jes/artifacts/implementation_contract_review_phase27b_parametric_battery_estimate.md",
+    ".jes/artifacts/implementation_report_phase27b_parametric_battery_estimate.md",
+    ".jes/artifacts/implementation_review_phase27b_parametric_battery_estimate.md"
   ],
-  "active_operation": "Phase 2.5 @ v0.3.5 checkpointed. Architecture frozen: bind resolve_operating_point (bench-max) vs calc resolve_operating_point_at_thrust (hover). Do NOT mix ESC efficiency, battery discharge/sag, or flight-regime P_battery in one slice.",
+  "active_operation": "P27-B implementation review PASS WITH NOTES. Engineer may checkpoint.",
   "authority_gates": [
-    "v0.3.4 checkpoint ✅",
-    "Phase 2.5 investigation ★ ✅",
-    "Phase 2.5 IC implement ✅",
-    "Phase 2.5 review PASS WITH NOTES ✅",
-    "Hygiene suite + probes green ✅",
-    "v0.3.5 checkpoint ✅"
+    "v0.3.5 checkpoint ✅",
+    "Phase 2.6 boundary ★ RATIFICADO ✅",
+    "Phase 2.7-A ★ INSUFFICIENT DATA ✅",
+    "Phase 2.7-B investigation ✅ PASS WITH NOTES",
+    "Phase 2.7-B Engineer ★1–★5 ✅",
+    "Phase 2.7-B IC v0.2 ✅",
+    "Phase 2.7-B implementation ✅",
+    "Phase 2.7-B implementation review ✅ PASS WITH NOTES",
+    "Checkpoint ⏳ Engineer"
   ],
   "checkpoints": {
     "v0.3.1": "30c9aec",
@@ -52,12 +63,20 @@
     "dse_motor_op_dual_truth_investigation": "CHECKPOINTED",
     "motor_op_voltage_coherence_ic": "CHECKPOINTED",
     "phase25_hover_energy_ic": "CHECKPOINTED",
+    "phase26_esc_system_losses_investigation": "INVESTIGATED_NO_IC",
+    "phase27_battery_voltage_sag_investigation": "INVESTIGATED_NO_IC",
+    "phase27b_parametric_battery_estimate_investigation": "RATIFIED",
+    "phase27b_parametric_battery_estimate_ic": "IMPLEMENTED_REVIEWED",
+    "m3_crate_derating_campaign": "OPEN",
+    "esc_bench_data_campaign": "NOT_STARTED",
     "block_closure_investigation": "INVESTIGATED",
     "catalog_foundation_investigation": "CHECKPOINTED",
     "frozen": [
       "H5_ESC_CATALOG",
       "G24_B_SCORING_REWRITE",
-      "PHASE25_HOVER_ENERGY_ARCHITECTURE"
+      "PHASE25_HOVER_ENERGY_ARCHITECTURE",
+      "PHASE26_P_BATTERY_BOUNDARY",
+      "PHASE27_LOADED_BATTERY_BOUNDARY"
     ]
   }
 }

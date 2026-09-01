@@ -326,6 +326,33 @@ def render_startup_context(ctx: dict) -> str:
                 bits.append(f"hover_energy_autonomy_min≈{round(autonomy_min, 2)} min")
             lines.append(f"Energía hover (evidencia): {' · '.join(bits)}")
 
+    # Phase 2.7-B (Parametric / Estimative Battery Endurance Sweep,
+    # ★1-★5/★★1-★★13) — OPT-IN, absent unless the caller supplied an
+    # explicit assumption sweep for this calculation. Every row is a
+    # labeled hypothesis (source_type=assumed), never SKU truth, never a
+    # single number, never conflated with hover_energy or autonomy_min
+    # above (rendered as its own, separately-headed block).
+    battery_endurance = ctx.get("battery_endurance")
+    if battery_endurance and battery_endurance.get("envelope"):
+        lines.append("")
+        lines.append("Autonomía estimada (ESTIMATIVO — no validado, no es tiempo de vuelo):")
+        for row in battery_endurance["envelope"]:
+            outcome = row.get("outcome")
+            r_mohm = round(row["r_internal_ohm"] * 1000, 2) if row.get("r_internal_ohm") is not None else None
+            r_scope = row.get("r_internal_scope") or "?"
+            i_load = row.get("i_load_a")
+            v_cutoff = row.get("v_cutoff_v")
+            v_scope = row.get("voltage_scope") or "?"
+            descriptor = f"R={r_mohm} mΩ {r_scope} (asumido) · I={i_load} A (hipótesis) · Vcut={v_cutoff} V {v_scope}"
+            if outcome == "sustainable":
+                stopping = row.get("stopping_condition")
+                note = " · corte no alcanzado (capacidad nominal)" if stopping == "nameplate_exhausted" else ""
+                lines.append(f"  {descriptor} → {row.get('endurance_min')} min{note}")
+            elif outcome == "infeasible":
+                lines.append(f"  {descriptor} → INVIABLE")
+            else:
+                lines.append(f"  {descriptor} → entrada inválida ({row.get('reason')})")
+
     # ERF-1 Slice 5 — Engineering Readiness block (8 subsystems + overall + top gaps)
     readiness = ctx.get("readiness")
     if readiness:
