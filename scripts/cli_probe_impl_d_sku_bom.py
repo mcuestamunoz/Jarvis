@@ -6,8 +6,8 @@ Steps:
   2. estado -> BOM line shows [sku] + qty=N (D1/D2), and the BOM section
      actually renders even though Continuity has evidence queued (D4/★6 —
      before this IC, the section would have been silently suppressed).
-  3. Force a G5 divergence (frankenstein: catalog_ref cleared, .name kept)
-     -> estado BOM line no longer shows [sku] (Scenario D honesty).
+  3. Force a G5 divergence (frankenstein: catalog_ref cleared, .name honest
+     per G24D) -> estado BOM line no longer shows [sku] (Scenario D honesty).
   4. Confirm no new gap type was introduced (★4) and readiness is otherwise
      unaffected.
 """
@@ -118,7 +118,12 @@ def main() -> int:
 
         frankenstein = project2.design_properties.components["motors"]
         assert frankenstein.catalog_ref is None
-        assert frankenstein.name == sku  # .name still looks like a SKU
+        assert frankenstein.name != sku, (
+            f"step3 FAIL: .name still the old SKU after G24D: {frankenstein.name!r}"
+        )
+        assert not default_library.has_motor(frankenstein.name), (
+            f"step3 FAIL: diverged .name is itself a real SKU: {frankenstein.name!r}"
+        )
 
         status2 = _say(orch, "estado", llm)
         ctx2 = status2.get("startup_context") or {}
@@ -127,6 +132,9 @@ def main() -> int:
         assert motor_line2 is not None
         assert f"[{sku}]" not in motor_line2, (
             f"step3 FAIL: frankenstein presented as resolved SKU: {motor_line2!r}"
+        )
+        assert sku not in motor_line2, (
+            f"step3 FAIL: old SKU string leaked into BOM line: {motor_line2!r}"
         )
         print(f"✓ Step 3 PASS: frankenstein motor line does not claim a resolved SKU: {motor_line2!r}")
 
