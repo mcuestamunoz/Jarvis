@@ -80,6 +80,15 @@ def _bind_op_motor(o: JarvisOrchestrator) -> None:
     o.workspace_manager.save_state(ps)
 
 
+def _bind_rated_motor(o: JarvisOrchestrator, sku: str = "sunnysky_r2205_2500") -> None:
+    """Catalog motor with a nominal max_watts — required when IDLE help-choose
+    must reach propeller (motor branch wins while motor_power_w is missing)."""
+    ps = o.state_manager.load_active_project(o.workspace_manager)
+    spec = bind_motor_from_catalog(_suggestion_for(sku))
+    ps = set_motor_component(ps, spec, default_library.get_motor(sku).max_watts)
+    o.workspace_manager.save_state(ps)
+
+
 # ── 1. Component wizard help-choose after motors bound → propeller list ────
 
 
@@ -143,7 +152,7 @@ def test_propeller_pick_sets_catalog_ref_and_reresolves_op(tmp_path: Path):
 
 def test_propeller_idle_help_choose_when_freeform_unbound(tmp_path: Path):
     o = _fresh(tmp_path)
-    _bind_op_motor(o)
+    _bind_rated_motor(o)
     # Freeform propeller declare — no catalog_ref.
     o.handle_user_text("hélices 5x4.5", _FakeLLM())
     project = o.state_manager.load_active_project(o.workspace_manager)

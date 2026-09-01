@@ -144,6 +144,28 @@ def _motor_op_electrical_from_params(params: dict[str, Any]) -> dict[str, Any] |
     return {"power_w": power_w, "current_a": current_a, "rpm": rpm}
 
 
+def _hover_energy_from_calculations(calculations: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Phase 2.5 (Hover Flight Energy Model, ★★10/§2.4): estado/CLI surface
+    for the hover-regime resolution — distinct from both propulsion_resolution
+    (bind-time feasibility/max-thrust) and motor_operating_point_electrical
+    (that same bench-max OP's raw numbers). Lives in latest_results
+    ["calculations"] (CalculationBundle output), not current_parameters —
+    it is a calc-time derivation, not a component-bind mirror. None when no
+    calculation has run yet, or the bound motor has no Discrete OP Dataset
+    for its exact identity at all (calc_engine's honest-absence case)."""
+    if not calculations:
+        return None
+    resolution_raw = calculations.get("hover_energy_resolution")
+    if not resolution_raw:
+        return None
+    try:
+        resolution = json.loads(resolution_raw)
+    except (TypeError, ValueError):
+        return None
+    resolution["hover_energy_autonomy_min"] = calculations.get("hover_energy_autonomy_min")
+    return resolution
+
+
 # ── Component description prompts (keyed by component suggested_key) ──────────
 # Used by _handle_component_description affirmative path and follow-up messages.
 # FN-017: moved to acquisition_target.COMPONENT_PROMPTS (single source of truth,
@@ -4226,6 +4248,15 @@ class JarvisOrchestrator:
             # replacement for the catalog rating shown elsewhere.
             "motor_operating_point_electrical": _motor_op_electrical_from_params(
                 project_state.current_parameters or {}
+            ),
+            # Phase 2.5 (Hover Flight Energy Model) — honest hover-regime
+            # motor input power/current, distinct from the bench-max OP
+            # line above. None until a calculation has run, or when the
+            # bound motor has no Discrete OP Dataset for its identity at
+            # all (calc_engine's honest-absence case, ★2.5 preserved
+            # semantics — not shown as a false "unverifiable").
+            "hover_energy": _hover_energy_from_calculations(
+                project_state.latest_results.get("calculations")
             ),
             "energy_model_note": energy_note,
             "motor_catalog_matches": catalog_matches,

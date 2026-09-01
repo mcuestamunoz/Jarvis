@@ -804,5 +804,191 @@ def resolve_operating_point(
     )
 
 
+# ── Phase 2.5 — Hover Flight Energy Model (★★4-★★6/★★9 locked) ──────────────
+#
+# resolve_operating_point (above) answers "what is this motor's feasibility/
+# max-thrust bench point" — it is the bind-time, thrust-demand-blind resolver
+# and stays untouched (regression contract, ★9 of the investigation). This
+# section answers a DIFFERENT question, at a DIFFERENT moment (calc time,
+# once a hover thrust DEMAND is known): "what does this motor+propeller+
+# voltage combo draw at a SPECIFIC target thrust" — via bounded linear
+# interpolation over the same operating_points[] rows, never proportional
+# scaling or extrapolation. See investigation_report_phase25_hover_autonomy.md
+# Gate D/I and implementation_contract_phase25_hover_autonomy.md §2.2-§2.3.
+
+_THRUST_EXACT_EPSILON_N = 0.01
+
+
+@dataclass(frozen=True)
+class ResolvedHoverOperatingPoint:
+    """Result of resolve_operating_point_at_thrust — always typed, never a
+    bare float. Deliberately NOT ResolvedOperatingPoint (different Literal
+    space — "interpolated"/"unverifiable" have no meaning for the bind-time
+    feasibility resolver, and reusing that dataclass would risk a schema
+    migration touching the Motor OP Voltage Coherence regression contract).
+
+    ``source_type``:
+      - ``manufacturer_test`` / ``measured_test`` — target_thrust_n matched
+        (within ``_THRUST_EXACT_EPSILON_N``) a single curated row's own
+        thrust_n; power_w/current_a are that row's real values, unchanged.
+      - ``interpolated``      — target_thrust_n fell strictly between two
+        eligible rows; power_w/current_a are bounded linear interpolations
+        on the thrust_n axis (★★4); ``source_points`` names both.
+      - ``unverifiable``      — no honest answer exists: zero eligible rows
+        for this exact (motor, propeller, voltage) identity, only one
+        eligible row and no exact match, or target_thrust_n outside
+        [min, max] of the eligible set (★★5 — no extrapolation, ever).
+        power_w/current_a are None.
+    """
+
+    target_thrust_n: float
+    thrust_n: float | None
+    current_a: float | None
+    power_w: float | None
+    source_type: Literal[
+        "manufacturer_test", "measured_test", "interpolated", "unverifiable"
+    ]
+    interpolation_axis: str | None
+    method: str | None
+    bounded: bool
+    source_points: tuple[dict[str, float], ...] | None
+    motor_sku: str
+    propeller_sku: str | None
+    voltage_v: float | None
+    selection_reason: Literal[
+        "exact_thrust", "bracket_interpolate", "below_min", "above_max",
+        "insufficient_rows", "no_matching_rows", "unknown_motor",
+    ]
+
+
+def _eligible_hover_rows(
+    motor: "MotorSpec", *, propeller_sku: str | None, voltage_v: float | None,
+) -> list[dict[str, Any]]:
+    """Rows usable for hover-thrust resolution (★★4 preconditions): real
+    motor+propeller+voltage identity match, never a fallback headline point,
+    never a HOLD-staged row, and only sourced ("manufacturer_test" /
+    "measured_test") electrical data — a row missing power_w/current_a
+    cannot anchor an interpolation regardless of its source_type label."""
+    canonical_prop = _normalize_name(propeller_sku) if propeller_sku else None
+    eligible: list[dict[str, Any]] = []
+    for row in motor.operating_points:
+        if row.get("evidence_status") == "hold":
+            continue
+        if bool(row.get("fallback_only", False)):
+            continue
+        if str(row.get("source_type") or "") not in ("manufacturer_test", "measured_test"):
+            continue
+        row_prop = row.get("propeller_sku")
+        if canonical_prop is None or row_prop is None:
+            continue
+        if _normalize_name(str(row_prop)) != canonical_prop:
+            continue
+        row_voltage = row.get("voltage_v")
+        if (
+            voltage_v is None
+            or row_voltage is None
+            or abs(float(row_voltage) - voltage_v) > _OP_VOLTAGE_EPSILON_V
+        ):
+            continue
+        if row.get("power_w") is None or row.get("current_a") is None or row.get("thrust_n") is None:
+            continue
+        eligible.append(row)
+    return eligible
+
+
+def resolve_operating_point_at_thrust(
+    motor_sku: str,
+    *,
+    propeller_sku: str | None = None,
+    voltage_v: float | None = None,
+    target_thrust_n: float,
+    library: ComponentLibrary | None = None,
+) -> ResolvedHoverOperatingPoint:
+    """Phase 2.5 (★★4-★★6/★★9/★★12): resolve honest motor input power/
+    current at a SPECIFIC target thrust — exact match, bounded linear
+    interpolation between two bracketing rows, or an honest
+    ``unverifiable`` when neither is possible. Never extrapolates (★★5),
+    never proportionally scales (★★11), never returns a bare float.
+    """
+    lib = library or default_library
+
+    def _unverifiable(reason: Literal[
+        "below_min", "above_max", "insufficient_rows", "no_matching_rows", "unknown_motor",
+    ]) -> ResolvedHoverOperatingPoint:
+        return ResolvedHoverOperatingPoint(
+            target_thrust_n=target_thrust_n, thrust_n=None, current_a=None,
+            power_w=None, source_type="unverifiable", interpolation_axis=None,
+            method=None, bounded=False, source_points=None, motor_sku=motor_sku,
+            propeller_sku=propeller_sku, voltage_v=voltage_v, selection_reason=reason,
+        )
+
+    try:
+        motor = lib.get_motor(motor_sku)
+    except KeyError:
+        return _unverifiable("unknown_motor")
+
+    eligible = _eligible_hover_rows(motor, propeller_sku=propeller_sku, voltage_v=voltage_v)
+    if not eligible:
+        # Distinct from "insufficient_rows" (a dataset exists for this exact
+        # identity but can't bracket this target): here there is NO Discrete
+        # Operating Point Dataset at all for this (motor, propeller, voltage)
+        # combo — calc-time callers use this to fall back to the pre-Phase-
+        # 2.5 bench-rating autonomy path rather than reporting a hover claim
+        # this motor was never curated to support (investigation §Gate D/H).
+        return _unverifiable("no_matching_rows")
+
+    eligible.sort(key=lambda r: float(r["thrust_n"]))
+
+    for row in eligible:
+        if abs(float(row["thrust_n"]) - target_thrust_n) <= _THRUST_EXACT_EPSILON_N:
+            return ResolvedHoverOperatingPoint(
+                target_thrust_n=target_thrust_n, thrust_n=target_thrust_n,
+                current_a=float(row["current_a"]), power_w=float(row["power_w"]),
+                source_type=str(row.get("source_type")),  # type: ignore[arg-type]
+                interpolation_axis=None, method=None, bounded=False,
+                source_points=None, motor_sku=motor_sku, propeller_sku=propeller_sku,
+                voltage_v=voltage_v, selection_reason="exact_thrust",
+            )
+
+    min_thrust = float(eligible[0]["thrust_n"])
+    max_thrust = float(eligible[-1]["thrust_n"])
+    if target_thrust_n < min_thrust:
+        return _unverifiable("below_min")
+    if target_thrust_n > max_thrust:
+        return _unverifiable("above_max")
+
+    if len(eligible) < 2:
+        # A single eligible row covers exactly one thrust point (handled by
+        # the exact-match loop above) — anything else in [min, max] for a
+        # one-row set has no second point to bracket against (★★4).
+        return _unverifiable("insufficient_rows")
+
+    row_low = max((r for r in eligible if float(r["thrust_n"]) <= target_thrust_n), key=lambda r: float(r["thrust_n"]))
+    row_high = min((r for r in eligible if float(r["thrust_n"]) >= target_thrust_n), key=lambda r: float(r["thrust_n"]))
+    if row_low is row_high:
+        # target_thrust_n landed exactly on a row already covered above —
+        # unreachable in practice (exact-match loop returns first), kept as
+        # a defensive no-op-interpolation guard.
+        return _unverifiable("insufficient_rows")
+
+    t_low, t_high = float(row_low["thrust_n"]), float(row_high["thrust_n"])
+    frac = (target_thrust_n - t_low) / (t_high - t_low)
+    power_w = float(row_low["power_w"]) + frac * (float(row_high["power_w"]) - float(row_low["power_w"]))
+    current_a = float(row_low["current_a"]) + frac * (float(row_high["current_a"]) - float(row_low["current_a"]))
+
+    return ResolvedHoverOperatingPoint(
+        target_thrust_n=target_thrust_n, thrust_n=target_thrust_n,
+        current_a=round(current_a, 4), power_w=round(power_w, 4),
+        source_type="interpolated", interpolation_axis="thrust_n", method="linear",
+        bounded=True,
+        source_points=(
+            {"thrust_n": t_low, "power_w": float(row_low["power_w"]), "current_a": float(row_low["current_a"])},
+            {"thrust_n": t_high, "power_w": float(row_high["power_w"]), "current_a": float(row_high["current_a"])},
+        ),
+        motor_sku=motor_sku, propeller_sku=propeller_sku, voltage_v=voltage_v,
+        selection_reason="bracket_interpolate",
+    )
+
+
 # Shared singleton — safe for single-process use (tests override via constructor)
 default_library = ComponentLibrary()

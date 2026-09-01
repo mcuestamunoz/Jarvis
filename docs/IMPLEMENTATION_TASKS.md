@@ -6,9 +6,30 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.4`** / **`checkpoint-motor-op-voltage-coherence`**.  
-> **PRIORIDAD AHORA:** Arco Motor OP **cerrado**. **No implementar** hasta nueva investigación + ★.  
-> **Versión:** **`v0.3.4`**. Suite **2036/2036**.
+> **Base:** tag **`v0.3.5`** / **`checkpoint-phase25-hover-energy`**.  
+> **PRIORIDAD AHORA:** Nueva investigación física — **una pieza a la vez** (no mezclar): ESC efficiency · battery discharge/sag · flight regime → `P_battery`.  
+> **Versión:** **`v0.3.5`**. Suite **2058/2058** · probes green.
+
+### 🟢 COMPLETADO — Phase 2.5 Hover Energy @ 0.3.5 (2026-09-01)
+
+> Tag **`checkpoint-phase25-hover-energy`** · **`v0.3.5`**  
+> **Investigación:** [contract](../.jes/artifacts/investigation_contract_phase25_hover_autonomy.md) · [report PASS WITH NOTES](../.jes/artifacts/investigation_report_phase25_hover_autonomy.md)  
+> **IC:** [contract](../.jes/artifacts/implementation_contract_phase25_hover_autonomy.md) · [report](../.jes/artifacts/implementation_report_phase25_hover_autonomy.md) · [review PASS WITH NOTES](../.jes/artifacts/implementation_review_phase25_hover_autonomy.md)  
+> **Arquitectura congelada:** bind `resolve_operating_point` (bench-max) ≠ calc `resolve_operating_point_at_thrust` (hover) · `hover_energy_autonomy_min` · sin extrapolación · Combo A 7.063N→251.559W→1.3237min  
+> **Suite:** **2058** · probe Phase 2.5 **4/4** · combo **3/3** · DSE **6/6** · P2-2 **6/6**  
+> **Hygiene:** 2 pytest + 2 stale probes + `effective_motor_power_w` docstring — **done**  
+> **Congelado.** Siguiente escalón físico requiere investigación separada — **no mezclar** ESC η + battery sag + flight regime en un solo slice.
+
+### 🟡 INVESTIGADO — Post-v0.3.4 Block Closure (2026-09-01)
+
+> **Contract:** [investigation_contract_post_v034_block_closure.md](../.jes/artifacts/investigation_contract_post_v034_block_closure.md)  
+> **Report:** [investigation_report_post_v034_block_closure.md](../.jes/artifacts/investigation_report_post_v034_block_closure.md)  
+> **Review:** [investigation_review_post_v034_block_closure.md](../.jes/artifacts/investigation_review_post_v034_block_closure.md) — **PASS WITH NOTES**  
+> **Headline:** `ASSEMBLY_READY` ≠ block closed · Hypothesis (A) derivable rollup · Gate D none BLOCKING · Gate F Block Closure before Catalog Foundation  
+> **New regression:** `define_missing_params` battery SKU phrase destroys `catalog_ref` (G27-class, distinct path)  
+> **Siguiente:** Engineer ★ → IC Block Closure B-PROP-ENERGY (battery re-bind fix as prerequisite)
+
+### 🔴 INVESTIGACIÓN — Post-v0.3.4 Block Closure Capability (2026-09-01)
 
 ### 🟢 COMPLETADO — Motor OP Voltage Coherence @ 0.3.4 (2026-09-01)
 

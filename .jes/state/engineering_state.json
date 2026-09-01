@@ -1,40 +1,38 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Motor OP Voltage Coherence checkpointed @ v0.3.4",
-  "scope": "MOP-1 resolver gate · MOP-2 conditional battery re-resolve · MOP-3 DSE live-params · suite 2036 · probe 6/6",
+  "cycle_intent": "Phase 2.5 Hover Energy checkpointed — next physical investigations separate (ESC η, battery sag, flight regime)",
+  "scope": "Hover-regime autonomy via resolve_operating_point_at_thrust · P25-D dataset · P25-H calc bridge · hygiene green",
   "execution_status": "checkpointed",
-  "current_mode": "Idle",
+  "current_mode": "Review",
   "movement_trigger": {
-    "type": "checkpoint",
-    "note": "checkpoint-motor-op-voltage-coherence @ v0.3.4 — Engineer approved; suite 2036; probe 6/6."
+    "type": "implementation_review",
+    "note": "implementation_review_phase25_hover_autonomy.md PASS WITH NOTES + hygiene green → v0.3.5 checkpoint"
   },
   "relevant_workflow_phases": [
     "Review",
-    "Checkpoint"
+    "Investigation"
   ],
   "engineer_ratification": {
-    "star1": "No exact_operating_point from voltage_v=None — RATIFIED",
-    "star2": "Option D explore/apply coherence (acotado) — RATIFIED",
-    "star3": "CASE C — A+B sufficient — RATIFIED",
-    "star4": "Extend P2-2 test; do not weaken battery_pick regression — RATIFIED",
-    "star5": "H5 defer — unchanged",
-    "star6": "G24-B freeze — unchanged",
-    "star7": "Battery/ESC data curation — future Engineer decision — unchanged"
+    "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
+    "next_physical_esc_efficiency": "NOT_STARTED — separate investigation",
+    "next_physical_battery_sag": "NOT_STARTED — separate investigation",
+    "next_physical_flight_regime": "NOT_STARTED — separate investigation"
   },
   "required_artifacts": [
-    ".jes/artifacts/investigation_contract_dse_motor_op_dual_truth.md",
-    ".jes/artifacts/investigation_report_dse_motor_op_dual_truth.md",
-    ".jes/artifacts/investigation_review_dse_motor_op_dual_truth.md",
-    ".jes/artifacts/engineer_ratification_dse_motor_op_dual_truth.md",
-    ".jes/artifacts/implementation_contract_motor_op_voltage_coherence.md",
-    ".jes/artifacts/implementation_report_motor_op_voltage_coherence.md",
-    ".jes/artifacts/implementation_review_motor_op_voltage_coherence.md"
+    ".jes/artifacts/investigation_contract_phase25_hover_autonomy.md",
+    ".jes/artifacts/investigation_report_phase25_hover_autonomy.md",
+    ".jes/artifacts/implementation_contract_phase25_hover_autonomy.md",
+    ".jes/artifacts/implementation_report_phase25_hover_autonomy.md",
+    ".jes/artifacts/implementation_review_phase25_hover_autonomy.md"
   ],
-  "active_operation": "Motor OP Voltage Coherence arc closed @ v0.3.4. Next: new investigation before H5, G24-B, or battery/ESC curation. Optional hygiene: cli_probe_impl_d_sku_bom.py (G24D drift, separate).",
+  "active_operation": "Phase 2.5 @ v0.3.5 checkpointed. Architecture frozen: bind resolve_operating_point (bench-max) vs calc resolve_operating_point_at_thrust (hover). Do NOT mix ESC efficiency, battery discharge/sag, or flight-regime P_battery in one slice.",
   "authority_gates": [
     "v0.3.4 checkpoint ✅",
-    "Motor OP IC review PASS WITH NOTES ✅",
-    "Engineer checkpoint approval ✅"
+    "Phase 2.5 investigation ★ ✅",
+    "Phase 2.5 IC implement ✅",
+    "Phase 2.5 review PASS WITH NOTES ✅",
+    "Hygiene suite + probes green ✅",
+    "v0.3.5 checkpoint ✅"
   ],
   "checkpoints": {
     "v0.3.1": "30c9aec",
@@ -44,16 +42,22 @@
     "v0.3.3": "ceb44b49cf44bd1bc9141f735f1e37907f9e98ab",
     "checkpoint-validation-case-regression-gate": "ceb44b49cf44bd1bc9141f735f1e37907f9e98ab",
     "v0.3.4": "a563fe789f1cd22313152714926a4fca0e54d3e5",
-    "checkpoint-motor-op-voltage-coherence": "a563fe789f1cd22313152714926a4fca0e54d3e5"
+    "checkpoint-motor-op-voltage-coherence": "a563fe789f1cd22313152714926a4fca0e54d3e5",
+    "v0.3.5": "PENDING_COMMIT",
+    "checkpoint-phase25-hover-energy": "PENDING_COMMIT"
   },
   "arc": {
     "validation_case_investigation": "CHECKPOINTED",
     "validation_case_regression_gate_ic": "CHECKPOINTED",
     "dse_motor_op_dual_truth_investigation": "CHECKPOINTED",
     "motor_op_voltage_coherence_ic": "CHECKPOINTED",
+    "phase25_hover_energy_ic": "CHECKPOINTED",
+    "block_closure_investigation": "INVESTIGATED",
+    "catalog_foundation_investigation": "CHECKPOINTED",
     "frozen": [
       "H5_ESC_CATALOG",
-      "G24_B_SCORING_REWRITE"
+      "G24_B_SCORING_REWRITE",
+      "PHASE25_HOVER_ENERGY_ARCHITECTURE"
     ]
   }
 }

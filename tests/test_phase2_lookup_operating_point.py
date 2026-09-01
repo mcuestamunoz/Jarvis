@@ -124,7 +124,12 @@ def test_sunnysky_r2205_2500_exact_match():
     assert r.resolution_type == "exact_operating_point"
     assert r.thrust_n == pytest.approx(12.5525)
     assert r.rpm == pytest.approx(27082)
-    assert r.selection_reason is None  # only one exact match here
+    # Phase 2.5 (P25-D curation): 9 more manufacturer_test rows now share
+    # this exact (gf_5045x3, 14.8V) identity — v1_max_thrust selection among
+    # multiple exact matches is the documented, correct behavior
+    # (library.py resolve_operating_point docstring); this row (12.5525N)
+    # still wins because it remains the highest-thrust row on file.
+    assert r.selection_reason == "v1_max_thrust"
 
 
 def test_sunnysky_r2205_2500_op3_full_tuple_matches_star6(tmp_path: Path):
@@ -476,9 +481,16 @@ def test_bridge_pops_stale_motor_op_keys_on_divergence_to_legacy(tmp_path: Path)
     assert "motor_op_rpm" not in diverged.current_parameters
 
 
-def test_autonomy_uses_motor_op_power_when_present(tmp_path: Path):
-    """P2-2 §2.2: autonomy must reflect the resolved OP power (485.3W), not
-    a absent catalog rating — lower autonomy when OP electrical load is present."""
+def test_autonomy_none_when_hover_dataset_exists_but_out_of_range(tmp_path: Path):
+    """Phase 2.5 (★★3/★★12 locked, supersedes the old P2-2 §2.2 premise
+    that OP power is always a safe autonomy proxy): emax_rs2205s_2300 +
+    gemfan_5045_hbn @ ~16V has exactly ONE curated bench point (13.4841N,
+    485.3W) — this fixture's honest hover demand (payload=1.0kg, 4 motors)
+    is ~3.68N, nowhere near that bench-max point. Silently using 485.3W for
+    autonomy here would be the SAME wrong-regime dishonesty this arc exists
+    to fix for Combo A (592W is correct for 12.55N, not a ~7N hover) — so
+    autonomy_min must be honestly None, never a bench-power fallback
+    (implementation_contract_phase25_hover_autonomy.md §2.4)."""
     from jarvis.core.calculation_engine import CalculationEngine
 
     _, updated = _bound_exact_op_state(tmp_path)
@@ -489,13 +501,22 @@ def test_autonomy_uses_motor_op_power_when_present(tmp_path: Path):
     })
     bundle = CalculationEngine().build(params)
 
-    params_no_op = dict(params)
-    params_no_op.pop("motor_op_power_w", None)
-    params_no_op["motor_power_w"] = 250.0
-    bundle_no_op = CalculationEngine().build(params_no_op)
+    assert bundle.t_hover_motor_n == pytest.approx(3.6787, abs=1e-3)
+    assert bundle.motor_hover_power_w is None
+    assert bundle.hover_energy_autonomy_min is None
+    assert bundle.autonomy_min is None
+    resolution = json.loads(bundle.hover_energy_resolution)
+    assert resolution["source_type"] == "unverifiable"
+    assert resolution["selection_reason"] == "below_min"
 
-    assert bundle.autonomy_min is not None and bundle_no_op.autonomy_min is not None
-    assert bundle.autonomy_min < bundle_no_op.autonomy_min
+    # A vehicle/motor with NO Discrete OP Dataset at all for its identity
+    # (e.g. non-aerial, or a legacy-estimate motor) is a DIFFERENT honest
+    # outcome (§2.4) — it keeps the pre-Phase-2.5 bench/nominal-rating
+    # autonomy path unchanged, not None. Ground-vehicle sanity check:
+    params_ground = dict(params)
+    params_ground["vehicle_type"] = "ground"
+    bundle_ground = CalculationEngine().build(params_ground)
+    assert bundle_ground.autonomy_min is not None
 
 
 def test_autonomy_unchanged_when_no_motor_op_power(tmp_path: Path):
@@ -535,3 +556,129 @@ def test_estado_hides_op_electrical_line_for_legacy(tmp_path: Path):
     ctx = orch.build_startup_context()
     rendered = render_startup_context(ctx)
     assert "Propulsión (OP eléctrico)" not in rendered
+
+
+# ── Phase 2.5 — resolve_operating_point_at_thrust (★★4-★★6/★★9 locked) ──────
+#
+# investigation_report_phase25_hover_autonomy.md Gate D/I ·
+# implementation_contract_phase25_hover_autonomy.md §2.2-§2.3, P25-H1.
+
+
+class TestResolveOperatingPointAtThrust:
+    def test_combo_a_bracket_interpolate(self):
+        from jarvis.knowledge.library import resolve_operating_point_at_thrust
+
+        r = resolve_operating_point_at_thrust(
+            "sunnysky_r2205_2500", propeller_sku="gf_5045x3", voltage_v=14.8,
+            target_thrust_n=7.0632,
+        )
+        assert r.source_type == "interpolated"
+        assert r.selection_reason == "bracket_interpolate"
+        assert r.power_w == pytest.approx(251.559, abs=0.5)
+        assert r.current_a is not None
+        assert r.source_points == (
+            {"thrust_n": 6.864, "power_w": 241.0, "current_a": 16.3},
+            {"thrust_n": 7.845, "power_w": 293.0, "current_a": 19.8},
+        )
+        assert r.interpolation_axis == "thrust_n"
+        assert r.method == "linear"
+        assert r.bounded is True
+
+    def test_exact_hit_on_curated_row(self):
+        from jarvis.knowledge.library import resolve_operating_point_at_thrust
+
+        r = resolve_operating_point_at_thrust(
+            "sunnysky_r2205_2500", propeller_sku="gf_5045x3", voltage_v=14.8,
+            target_thrust_n=12.5525,
+        )
+        assert r.source_type == "manufacturer_test"
+        assert r.selection_reason == "exact_thrust"
+        assert r.power_w == pytest.approx(592.0)
+        assert r.current_a == pytest.approx(40.0)
+        assert r.source_points is None
+
+    def test_below_min_thrust_is_unverifiable_never_extrapolated(self):
+        from jarvis.knowledge.library import resolve_operating_point_at_thrust
+
+        r = resolve_operating_point_at_thrust(
+            "sunnysky_r2205_2500", propeller_sku="gf_5045x3", voltage_v=14.8,
+            target_thrust_n=1.0,
+        )
+        assert r.source_type == "unverifiable"
+        assert r.selection_reason == "below_min"
+        assert r.power_w is None and r.current_a is None
+
+    def test_above_max_thrust_is_unverifiable_never_extrapolated(self):
+        from jarvis.knowledge.library import resolve_operating_point_at_thrust
+
+        r = resolve_operating_point_at_thrust(
+            "sunnysky_r2205_2500", propeller_sku="gf_5045x3", voltage_v=14.8,
+            target_thrust_n=20.0,
+        )
+        assert r.source_type == "unverifiable"
+        assert r.selection_reason == "above_max"
+        assert r.power_w is None and r.current_a is None
+
+    def test_single_row_motor_cannot_bracket_interpolate(self):
+        """Combo B (emax_rs2205s_2300 + gemfan_5045_hbn @ 16V) has exactly
+        ONE eligible row (13.4841N) — any target other than that exact
+        thrust has no second point to bracket against; ★★4's ≥2-row
+        precondition is hard, not soft."""
+        from jarvis.knowledge.library import resolve_operating_point_at_thrust
+
+        off_exact = resolve_operating_point_at_thrust(
+            "emax_rs2205s_2300", propeller_sku="gemfan_5045_hbn", voltage_v=16.0,
+            target_thrust_n=7.0,
+        )
+        assert off_exact.source_type == "unverifiable"
+        assert off_exact.power_w is None
+
+        on_exact = resolve_operating_point_at_thrust(
+            "emax_rs2205s_2300", propeller_sku="gemfan_5045_hbn", voltage_v=16.0,
+            target_thrust_n=13.4841,
+        )
+        assert on_exact.source_type == "measured_test"
+        assert on_exact.power_w == pytest.approx(485.3)
+
+    def test_no_dataset_for_identity_is_no_matching_rows(self):
+        """A motor+propeller identity with zero curated rows at all (not
+        even a fallback headline) is a DIFFERENT honest outcome from
+        below_min/above_max/insufficient_rows — calc_engine uses this
+        specific reason to fall back to pre-Phase-2.5 behavior instead of
+        reporting a hover claim this identity was never curated for."""
+        from jarvis.knowledge.library import resolve_operating_point_at_thrust
+
+        r = resolve_operating_point_at_thrust(
+            "emax_rs2205s_2300", propeller_sku="hq_5045_bn", voltage_v=22.2,
+            target_thrust_n=5.0,
+        )
+        assert r.source_type == "unverifiable"
+        assert r.selection_reason == "no_matching_rows"
+
+    def test_unknown_motor_is_unverifiable_not_a_crash(self):
+        from jarvis.knowledge.library import resolve_operating_point_at_thrust
+
+        r = resolve_operating_point_at_thrust(
+            "does_not_exist", propeller_sku="gf_5045x3", voltage_v=14.8,
+            target_thrust_n=5.0,
+        )
+        assert r.source_type == "unverifiable"
+        assert r.selection_reason == "unknown_motor"
+
+    def test_hold_rows_excluded_from_hover_resolution(self):
+        """emax_rs2205s_2300's two evidence_status='hold' rows must never
+        participate — same discipline as resolve_operating_point's bind-time
+        resolver (library.py:743-744)."""
+        from jarvis.knowledge.library import default_library, resolve_operating_point_at_thrust
+
+        motor = default_library.get_motor("emax_rs2205s_2300")
+        hold_rows = [r for r in motor.operating_points if r.get("evidence_status") == "hold"]
+        assert hold_rows, "precondition: fixture must have at least one HOLD row"
+        for row in hold_rows:
+            r = resolve_operating_point_at_thrust(
+                "emax_rs2205s_2300", propeller_sku=row.get("propeller_sku"),
+                voltage_v=row.get("voltage_v"), target_thrust_n=float(row["thrust_n"]),
+            )
+            assert r.source_type == "unverifiable", (
+                f"HOLD row {row} must not resolve — got {r}"
+            )

@@ -163,14 +163,41 @@ def probe_combo_a(tmp_root: Path) -> None:
     assert bundle.available_total_thrust_n is not None
     _assert_close(bundle.available_total_thrust_n, 4 * 12.5525, "combo_a total thrust")
     assert bundle.total_mass_kg is not None and bundle.total_mass_kg > 0
+    # Bind-time bench-max bridge (feasibility path, ★9 untouched) still
+    # reports the motor's single highest-thrust curated point — unchanged
+    # by Phase 2.5 curation/resolver-split.
     eff = effective_motor_power_w(params)
-    _assert_close(eff, 592.0, "combo_a effective power for autonomy")
-    assert bundle.autonomy_min is not None
-    expected_autonomy = (22.2 / (592.0 * 4)) * 60.0
-    _assert_close(bundle.autonomy_min, expected_autonomy, "combo_a autonomy_min", tol=0.05)
+    _assert_close(eff, 592.0, "combo_a bench-max effective power (bind bridge)")
 
+    # Phase 2.5 (★★3/★★12): autonomy now MIRRORS the honest hover-regime
+    # resolution — bounded interpolation at T_hover_motor=weight_n/motors,
+    # never the bench-max 592 W point (which is the wrong regime for this
+    # airframe's actual hover thrust demand). See
+    # scripts/cli_probe_phase25_hover_energy.py for the full Gate A/C
+    # reference-case trace (payload_kg=1.718 -> ~7.06N/~251.6W/~1.32min);
+    # this probe's own payload_kg=1.0 fixture lands at a different, still
+    # honest, bracket.
+    assert bundle.t_hover_motor_n is not None
+    _assert_close(bundle.t_hover_motor_n, bundle.weight_n / 4, "combo_a T_hover_motor")
+    assert bundle.motor_hover_power_w is not None
+    assert bundle.motor_hover_power_w < 592.0, (
+        "combo_a hover power must be below the bench-max bridge for this airframe"
+    )
+    assert bundle.autonomy_min is not None
+    assert bundle.autonomy_min == bundle.hover_energy_autonomy_min
+    expected_autonomy = (22.2 / (bundle.motor_hover_power_w * 4)) * 60.0
+    _assert_close(bundle.autonomy_min, expected_autonomy, "combo_a hover autonomy_min", tol=0.01)
+    resolution = json.loads(bundle.hover_energy_resolution)
+    assert resolution["source_type"] == "interpolated", resolution
+
+    old_bench_autonomy_min = (22.2 / (592.0 * 4)) * 60.0
     print("✓ Combo A PASS: SunnySky + gf_5045x3 + CNHL 4S @14.8V")
-    print("  OP exact manufacturer_test · motor_power_w=756 vs motor_op_power_w=592")
+    print("  OP exact manufacturer_test · motor_power_w=756 vs motor_op_power_w=592 (bench-max bind bridge)")
+    print(
+        f"  hover energy (Phase 2.5): T_hover_motor={bundle.t_hover_motor_n}N · "
+        f"P_motor_input={bundle.motor_hover_power_w}W/motor · autonomy={bundle.autonomy_min}min "
+        f"(interpolated; was {old_bench_autonomy_min:.4f}min via bench-max, pre-Phase-2.5)"
+    )
     print("  battery discharge exceeded: 160A > 150A · GAP-BATTERY-DISCHARGE-EXCEEDED present")
 
 

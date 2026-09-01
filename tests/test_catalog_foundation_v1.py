@@ -60,6 +60,29 @@ def test_sunnysky_r2205_2500_verified_motor_identity():
     assert spec.voltage_max == pytest.approx(16.8)
 
 
+def test_sunnysky_r2205_2500_full_combo_a_dataset_curated():
+    """Phase 2.5 (P25-D, investigation_report_phase25_hover_autonomy.md
+    Gate A/H): the full 10-point SunnySky R2205 2500KV + GF5045x3 @ 14.8V
+    manufacturer PDF table must be curated — not just the 1280gf bench-max
+    row (pre-P25-D state). Thrust strictly increasing (sanity)."""
+    spec = _LIB.get_motor("sunnysky_r2205_2500")
+    rows = [
+        r for r in spec.operating_points
+        if r.get("propeller_sku") == "gf_5045x3" and r.get("voltage_v") == pytest.approx(14.8)
+    ]
+    assert len(rows) == 10, [r.get("thrust_n") for r in rows]
+    for row in rows:
+        assert row.get("source_type") == "manufacturer_test", row
+        assert row.get("fallback_only") is False, row
+        assert row.get("thrust_n") is not None
+        assert row.get("power_w") is not None
+        assert row.get("current_a") is not None
+    thrusts = [float(r["thrust_n"]) for r in rows]
+    assert thrusts == sorted(thrusts), "curated rows must be strictly increasing on thrust_n"
+    assert thrusts[0] == pytest.approx(1.961)
+    assert thrusts[-1] == pytest.approx(12.5525)
+
+
 def test_emax_rs2205s_2300_verified_motor_identity_no_nominal_power():
     spec = _LIB.get_motor("emax_rs2205s_2300")
     assert spec.identity_status == "verified"

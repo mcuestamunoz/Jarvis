@@ -166,7 +166,9 @@ def test_idle_help_choose_offers_battery_once_propulsion_bound(tmp_path):
         "kv_rating": default_library.get_motor("emax_rs2205s_2300").kv_rating,
         "weight_g": default_library.get_motor("emax_rs2205s_2300").weight_g,
     })
-    state = set_motor_component(state, motor_spec, motor_spec.properties["power_w"].value)
+    state = set_motor_component(
+        state, motor_spec, default_library.get_motor("emax_rs2205s_2300").max_watts,
+    )
 
     propeller_spec = ComponentSpec(
         name="hq_5045_bn", component_type="propulsion_passive", suggested_key="propellers",

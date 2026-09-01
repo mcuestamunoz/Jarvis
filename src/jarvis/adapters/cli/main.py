@@ -302,6 +302,30 @@ def render_startup_context(ctx: dict) -> str:
         if op_bits:
             lines.append(f"Propulsión (OP eléctrico): {' · '.join(op_bits)}")
 
+    # Phase 2.5 (Hover Flight Energy Model, ★★10/§2.4) — honest hover-regime
+    # motor input power, distinct from the bench-max OP line above. Never
+    # rendered as "real flight time" (Engineer naming lock) — always states
+    # this is bench motor input power, not pack/system draw. Absent when no
+    # calculation has run, or the bound motor has no Discrete OP Dataset for
+    # its identity at all (honest omission, not a false "unverifiable").
+    hover_energy = ctx.get("hover_energy")
+    if hover_energy:
+        source_type = hover_energy.get("source_type")
+        power_w = hover_energy.get("power_w")
+        autonomy_min = hover_energy.get("hover_energy_autonomy_min")
+        if source_type == "unverifiable":
+            lines.append(
+                "Energía hover (evidencia): unverifiable · fuera del rango del dataset "
+                f"({hover_energy.get('selection_reason')}) · sin hover_energy_autonomy_min"
+            )
+        else:
+            bits = [source_type]
+            if power_w is not None:
+                bits.append(f"P_motor_input={power_w} W/motor (bench, no incluye ESC/sistema)")
+            if autonomy_min is not None:
+                bits.append(f"hover_energy_autonomy_min≈{round(autonomy_min, 2)} min")
+            lines.append(f"Energía hover (evidencia): {' · '.join(bits)}")
+
     # ERF-1 Slice 5 — Engineering Readiness block (8 subsystems + overall + top gaps)
     readiness = ctx.get("readiness")
     if readiness:

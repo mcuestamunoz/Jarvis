@@ -2,14 +2,14 @@
 """CLI probe — P2-2 Operating Point Bridge (contract §3 P2-6).
 
 Steps:
-  1. Bind motor emax_rs2205s_2300 + propeller hq_5045_bn + ~16V (battery
-     cell count) -> motor_power_w == 400.0 (catalog rating, unchanged).
-  2. Inspect current_parameters -> motor_op_power_w == 432.0,
-     motor_op_current_a == 27.0 (the resolved operating point).
-  3. "calcular" -> autonomy_min reflects the OP power (lower than a
-     rating-only calc would give).
+  1. Bind motor emax_rs2205s_2300 + propeller gemfan_5045_hbn + ~16V ->
+     verified motor has no motor_power_w; exact OP keys written instead.
+  2. Inspect current_parameters -> motor_op_power_w == 485.3,
+     motor_op_current_a == 30.3 (the resolved operating point).
+  3. "calcular" -> autonomy_min honestly None (Phase 2.5: hover dataset
+     exists but bench point is out of hover range — no wrong-regime fallback).
   4. "estado" -> shows a distinct OP-electrical line, never conflated with
-     the catalog rating line.
+     a catalog rating line.
   5. Bind a legacy-estimate SKU (emax_rs2205_2300, no operating_points
      data) -> zero motor_op_* keys, motor_power_w unchanged/honest.
   6. Closure smoke: cli_probe_requirements_closure.py still 5/5.
@@ -70,7 +70,7 @@ def main() -> int:
         })
         ps = orch.state_manager.load_active_project(orch.workspace_manager)
 
-        prop_spec = bind_propeller_from_catalog("hq_5045_bn")
+        prop_spec = bind_propeller_from_catalog("gemfan_5045_hbn")
         ps = set_propeller_component(ps, prop_spec)
         ps = ps.model_copy(update={
             "current_parameters": {**ps.current_parameters, "battery_cell_count": 4.32},  # ~16.0V
@@ -88,16 +88,17 @@ def main() -> int:
 
         # ── Step 1 ───────────────────────────────────────────────────────
         ps = orch.state_manager.load_active_project(orch.workspace_manager)
-        assert ps.current_parameters.get("motor_power_w") == 400.0, (
-            f"step1 FAIL: motor_power_w={ps.current_parameters.get('motor_power_w')}"
+        assert "motor_power_w" not in ps.current_parameters, (
+            f"step1 FAIL: verified motor must not carry a fabricated motor_power_w, "
+            f"got {ps.current_parameters.get('motor_power_w')}"
         )
-        print(f"✓ Step 1 PASS: motor_power_w={ps.current_parameters['motor_power_w']} (catalog rating, unchanged)")
+        print("✓ Step 1 PASS: verified motor bound — no motor_power_w, OP keys only")
 
         # ── Step 2 ───────────────────────────────────────────────────────
         op_power = ps.current_parameters.get("motor_op_power_w")
         op_current = ps.current_parameters.get("motor_op_current_a")
-        assert op_power == 432.0, f"step2 FAIL: motor_op_power_w={op_power}"
-        assert op_current == 27.0, f"step2 FAIL: motor_op_current_a={op_current}"
+        assert op_power == 485.3, f"step2 FAIL: motor_op_power_w={op_power}"
+        assert op_current == 30.3, f"step2 FAIL: motor_op_current_a={op_current}"
         print(f"✓ Step 2 PASS: motor_op_power_w={op_power}, motor_op_current_a={op_current}")
 
         # ── Step 3 ───────────────────────────────────────────────────────
@@ -105,20 +106,16 @@ def main() -> int:
         assert calc["status"] == "ok"
         ps3 = orch.state_manager.load_active_project(orch.workspace_manager)
         autonomy_with_op = ps3.latest_results["calculations"]["autonomy_min"]
-
-        from jarvis.core.calculation_engine import CalculationEngine
-        params_rating_only = dict(ps3.current_parameters)
-        params_rating_only.pop("motor_op_power_w", None)
-        bundle_rating_only = CalculationEngine().build(params_rating_only)
-        assert autonomy_with_op < bundle_rating_only.autonomy_min, (
-            f"step3 FAIL: OP autonomy {autonomy_with_op} not lower than rating-only {bundle_rating_only.autonomy_min}"
+        assert autonomy_with_op is None, (
+            f"step3 FAIL: Phase 2.5 hover gate must yield honest None, not bench OP fallback, "
+            f"got autonomy_min={autonomy_with_op}"
         )
-        print(f"✓ Step 3 PASS: autonomy_min={autonomy_with_op} (< rating-only {bundle_rating_only.autonomy_min})")
+        print("✓ Step 3 PASS: autonomy_min=None (hover dataset out of range — no bench fallback)")
 
         # ── Step 4 ───────────────────────────────────────────────────────
         status = _say(orch, "estado", llm)
         text = render_startup_context(status.get("startup_context") or {})
-        assert "Propulsión (OP eléctrico): power=432.0 W · current=27.0 A" in text, (
+        assert "Propulsión (OP eléctrico): power=485.3 W · current=30.3 A" in text, (
             f"step4 FAIL: OP electrical line missing: {text[:800]!r}"
         )
         assert "Propulsión (evidencia): exact_operating_point" in text

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping
 from typing import Any
 
 from jarvis.core.parameter_requirements import MISSING_PROPELLER_PARAMETERS
+from jarvis.knowledge.library import resolve_operating_point_at_thrust
 from jarvis.schemas.tool_schema import CalculationBundle, ToolResult
 
 from jarvis.tools.aerodynamics import calculate_thrust_from_propeller
@@ -32,19 +34,108 @@ _PROPELLER_HINT_PARAMS: frozenset[str] = frozenset({
 
 
 def effective_motor_power_w(parameters: Mapping[str, Any]) -> float | None:
-    """P2-2 (Operating Point Bridge, ★ locked Option A) — single authority
-    for "what power draw should autonomy use": the resolved operating
-    point's real power (``motor_op_power_w``, set only for an exact/
-    fallback OP match — component_writers.set_motor_component) when
-    present, else the catalog/declared rating (``motor_power_w``).
-    ``motor_power_w`` itself is never overwritten anywhere — this helper is
-    the one place that picks between the two for a calc consumer.
+    """P2-2 bench/nominal bridge for the **non-hover** autonomy path only.
+
+    When ``_resolve_hover_energy`` marks the motor ``hover_applicable``,
+    ``CalculationEngine.build()`` uses hover-regime power instead — never
+    this helper (Phase 2.5, investigation_report_phase25_hover_autonomy.md).
+
+    For all other cases: prefer the bind-time bench OP
+    (``motor_op_power_w``) when present, else catalog/declared
+    ``motor_power_w``. ``motor_power_w`` is never overwritten; this helper
+    is the single place that picks between the two for calc consumers.
     """
     op_power_w = parameters.get("motor_op_power_w")
     if op_power_w is not None:
         return float(op_power_w)
     rating_power_w = parameters.get("motor_power_w")
     return float(rating_power_w) if rating_power_w is not None else None
+
+
+def _resolve_hover_energy(
+    parameters: Mapping[str, Any], weight_n: float, motors: int | None,
+) -> dict[str, Any]:
+    """Phase 2.5 (Hover Flight Energy Model, ★★3/★★12 locked): honest
+    hover-regime motor input power via bounded linear interpolation over the
+    Discrete Operating Point Dataset at ``T_hover_motor = weight_n /
+    motor_count`` — never the bind-time bench-max ``motor_op_power_w``
+    bridge (``effective_motor_power_w``), which is the wrong physical
+    regime for anything but the motor's single highest-thrust bench point
+    (investigation_report_phase25_hover_autonomy.md Gate A/C: 592 W is
+    correct for 12.55 N, wrong regime for a ~7 N hover demand).
+
+    Runs only for aerial multirotors whose bound motor has a resolvable
+    catalog identity (``current_parameters["propulsion_resolution"]``,
+    written by ``component_writers.set_motor_component`` — NOT re-derived
+    here, single-writer discipline preserved) — never re-touches
+    ``resolve_operating_point``'s own bind-time resolution (★9: Motor OP
+    Voltage Coherence stays untouched).
+
+    Two distinct "no hover claim" outcomes, deliberately NOT interchangeable
+    (implementation_contract_phase25_hover_autonomy.md §2.4):
+      - No identity, no dataset at all for this exact (motor, propeller,
+        voltage) combo (``no_matching_rows``; also ground vehicles,
+        freeform/unbound motors) -> ``hover_applicable=False``. The caller
+        falls back to the pre-Phase-2.5 bench-rating autonomy path
+        unchanged (§2.5 preserved semantics) — this motor was never
+        curated for an hover claim to omit.
+      - A Discrete OP Dataset EXISTS for this combo but doesn't cover the
+        demanded thrust (``below_min``/``above_max``/``insufficient_rows``)
+        -> ``hover_applicable=True`` with ``motor_hover_power_w=None``. The
+        caller must NOT fall back to bench power here (§2.4 locked: "when
+        unverifiable: None — do not fall back to motor_op_power_w /
+        effective_motor_power_w").
+    """
+    empty: dict[str, Any] = {
+        "hover_applicable": False, "t_hover_motor_n": None,
+        "motor_hover_power_w": None, "motor_hover_current_a": None,
+        "hover_energy_resolution": None,
+    }
+    vehicle_type = str(parameters.get("vehicle_type") or "").lower()
+    if vehicle_type not in AERIAL_VEHICLE_TYPES or not motors:
+        return empty
+
+    propulsion_resolution_raw = parameters.get("propulsion_resolution")
+    if not propulsion_resolution_raw:
+        return empty
+    try:
+        propulsion_resolution = json.loads(propulsion_resolution_raw)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return empty
+    motor_sku = propulsion_resolution.get("motor_sku")
+    if not motor_sku:
+        return empty
+    propeller_sku = propulsion_resolution.get("propeller_sku")
+    voltage_v = propulsion_resolution.get("resolved_at_voltage_v")
+
+    t_hover_motor_n = round(weight_n / motors, 4)
+    hover_op = resolve_operating_point_at_thrust(
+        motor_sku, propeller_sku=propeller_sku, voltage_v=voltage_v,
+        target_thrust_n=t_hover_motor_n,
+    )
+    if hover_op.selection_reason == "no_matching_rows":
+        return empty
+
+    resolution_json = json.dumps({
+        "source_type": hover_op.source_type,
+        "target_thrust_n": hover_op.target_thrust_n,
+        "t_hover_motor_n": t_hover_motor_n,
+        "power_w": hover_op.power_w,
+        "current_a": hover_op.current_a,
+        "selection_reason": hover_op.selection_reason,
+        "source_points": list(hover_op.source_points) if hover_op.source_points else None,
+        "motor_sku": motor_sku,
+        "propeller_sku": propeller_sku,
+        "voltage_v": voltage_v,
+    }, sort_keys=True)
+
+    return {
+        "hover_applicable": True,
+        "t_hover_motor_n": t_hover_motor_n,
+        "motor_hover_power_w": hover_op.power_w,
+        "motor_hover_current_a": hover_op.current_a,
+        "hover_energy_resolution": resolution_json,
+    }
 
 
 class CalculationEngine:
@@ -180,21 +271,50 @@ class CalculationEngine:
         # Resolve energy autonomy — requires battery_capacity_wh + motor_power_w
         # (P2-2: prefers motor_op_power_w — the resolved operating point's
         # real power draw — over the bare catalog rating when present).
-        autonomy_min: float | None = None
+        #
+        # Phase 2.5 (★★3/★★12 locked, §2.4): when the bound motor has a
+        # Discrete OP Dataset for its exact (motor, propeller, voltage)
+        # combo, autonomy MIRRORS the honest hover-regime resolution instead
+        # — never the bind-time bench-max motor_op_power_w bridge. When that
+        # dataset exists but doesn't cover this thrust demand, autonomy_min
+        # is honestly None (no bench-power fallback) — see
+        # _resolve_hover_energy's docstring for the two-outcome split.
         battery_capacity_wh = parameters.get("battery_capacity_wh")
         motor_power_w = parameters.get("motor_power_w")
-        effective_power_w = effective_motor_power_w(parameters)
-        if battery_capacity_wh is not None and effective_power_w is not None and motors is not None:
-            total_power_w = effective_power_w * motors
-            energy_result = calculate_autonomy_min(float(battery_capacity_wh), total_power_w)
-            tool_results.append(energy_result)
-            autonomy_min = energy_result.outputs["autonomy_min"]
+        hover = _resolve_hover_energy(parameters, weight_n, motors)
+
+        autonomy_min: float | None = None
+        hover_energy_autonomy_min: float | None = None
+        if hover["hover_applicable"]:
+            if hover["motor_hover_power_w"] is not None and battery_capacity_wh is not None:
+                hover_energy_result = calculate_autonomy_min(
+                    float(battery_capacity_wh), hover["motor_hover_power_w"] * motors,
+                )
+                tool_results.append(hover_energy_result)
+                hover_energy_autonomy_min = hover_energy_result.outputs["autonomy_min"]
+            else:
+                tool_results.append(ToolResult(
+                    tool_name="hover_energy_unverifiable",
+                    inputs={
+                        "t_hover_motor_n": hover["t_hover_motor_n"],
+                        "battery_capacity_wh": battery_capacity_wh,
+                    },
+                    outputs={"reason": "no honest hover-thrust OP resolution, or battery_capacity_wh missing"},
+                ))
+            autonomy_min = hover_energy_autonomy_min
         else:
-            tool_results.append(ToolResult(
-                tool_name="missing_energy_parameters",
-                inputs={"battery_capacity_wh": battery_capacity_wh, "motor_power_w": motor_power_w},
-                outputs={"reason": "battery_capacity_wh and/or motor_power_w not in parameters"},
-            ))
+            effective_power_w = effective_motor_power_w(parameters)
+            if battery_capacity_wh is not None and effective_power_w is not None and motors is not None:
+                total_power_w = effective_power_w * motors
+                energy_result = calculate_autonomy_min(float(battery_capacity_wh), total_power_w)
+                tool_results.append(energy_result)
+                autonomy_min = energy_result.outputs["autonomy_min"]
+            else:
+                tool_results.append(ToolResult(
+                    tool_name="missing_energy_parameters",
+                    inputs={"battery_capacity_wh": battery_capacity_wh, "motor_power_w": motor_power_w},
+                    outputs={"reason": "battery_capacity_wh and/or motor_power_w not in parameters"},
+                ))
 
         return CalculationBundle(
             vehicle_type=str(parameters["vehicle_type"]),
@@ -207,5 +327,10 @@ class CalculationEngine:
             thrust_per_motor_required_n=thrust_per_motor_required_n,
             available_total_thrust_n=available_total_thrust_n,
             autonomy_min=autonomy_min,
+            t_hover_motor_n=hover["t_hover_motor_n"],
+            motor_hover_power_w=hover["motor_hover_power_w"],
+            motor_hover_current_a=hover["motor_hover_current_a"],
+            hover_energy_autonomy_min=hover_energy_autonomy_min,
+            hover_energy_resolution=hover["hover_energy_resolution"],
             tool_results=tool_results,
         )

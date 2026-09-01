@@ -22,6 +22,21 @@ class CalculationBundle(BaseModel):
     thrust_per_motor_required_n: float | None
     available_total_thrust_n: float | None
     autonomy_min: float | None = None
+    # Phase 2.5 (Hover Flight Energy Model, ★★3/★★9/★★12 locked) — honest
+    # hover-regime motor input power/current, resolved via bounded linear
+    # interpolation over the Discrete Operating Point Dataset at
+    # t_hover_motor_n (weight_n / motor_count), never the bind-time
+    # bench-max motor_op_power_w bridge. hover_energy_autonomy_min mirrors
+    # into autonomy_min when the bound motor has a resolvable OP dataset for
+    # its exact (motor, propeller, voltage) combo; None (not a bench
+    # fallback) when that dataset can't cover the demanded thrust; unset
+    # entirely for vehicles/motors with no such dataset at all (calc_engine
+    # falls back to the pre-Phase-2.5 autonomy path unchanged for those).
+    t_hover_motor_n: float | None = None
+    motor_hover_power_w: float | None = None
+    motor_hover_current_a: float | None = None
+    hover_energy_autonomy_min: float | None = None
+    hover_energy_resolution: str | None = None
     tool_results: list[ToolResult] = Field(default_factory=list)
 
     # Generic aliases
