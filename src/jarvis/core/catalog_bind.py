@@ -36,11 +36,10 @@ def bind_motor_from_catalog(
       whatever properties were already collected (e.g. ``motor_count``) —
       the iterate wizard's mid-session pick shape.
     """
-    watts = float(suggestion["max_watts"])
+    watts_raw = suggestion.get("max_watts")
     sku = str(suggestion["name"])
     catalog_ref = CatalogRef(family="motor", sku=sku)
     projected = {
-        "power_w": PropertyValue(value=watts, unit="W", confidence=0.9, source="declared"),
         "thrust_n": PropertyValue(
             value=float(suggestion["thrust_n"]), unit="N", confidence=0.9, source="declared"
         ),
@@ -51,6 +50,10 @@ def bind_motor_from_catalog(
             value=float(suggestion["weight_g"]), unit="g", confidence=0.9, source="declared"
         ),
     }
+    if watts_raw is not None:
+        projected["power_w"] = PropertyValue(
+            value=float(watts_raw), unit="W", confidence=0.9, source="declared"
+        )
     if base is not None:
         merged_properties = {**(base.properties or {}), **projected}
         return base.model_copy(update={
@@ -163,6 +166,53 @@ def bind_propeller_from_catalog(
         name=sku,
         component_type="propulsion_passive",
         suggested_key="propellers",
+        inference_confidence=0.95,
+        completeness="high",
+        source="declared",
+        properties=projected,
+        catalog_ref=catalog_ref,
+    )
+
+
+def bind_esc_from_catalog(
+    sku: str,
+    *,
+    library: ComponentLibrary | None = None,
+    base: ComponentSpec | None = None,
+) -> ComponentSpec:
+    """Project a catalog ESC SKU into a ``ComponentSpec`` with ``catalog_ref`` set.
+
+    Projects ``continuous_current_a`` from the catalog into ``current_a`` —
+    the property ``electrical_compatibility`` already reads for per-channel
+    ESC-vs-motor comparison. No CLI/UX entry point calls this yet; exposed as
+    a deterministic, test-callable API mirroring ``bind_battery_from_catalog``.
+    """
+    lib = library or default_library
+    spec = lib.get_esc(sku)
+    catalog_ref = CatalogRef(family="esc", sku=sku)
+    projected = {
+        "current_a": PropertyValue(
+            value=spec.continuous_current_a,
+            unit="A",
+            confidence=0.95,
+            source="declared",
+        ),
+    }
+    if spec.mass_g is not None:
+        projected["mass_g"] = PropertyValue(
+            value=spec.mass_g, unit="g", confidence=0.9, source="declared"
+        )
+    if base is not None:
+        merged_properties = {**(base.properties or {}), **projected}
+        return base.model_copy(update={
+            "properties": merged_properties,
+            "completeness": "high",
+            "catalog_ref": catalog_ref,
+        })
+    return ComponentSpec(
+        name=sku,
+        component_type="power_control",
+        suggested_key="esc",
         inference_confidence=0.95,
         completeness="high",
         source="declared",

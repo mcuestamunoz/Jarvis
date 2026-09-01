@@ -12,6 +12,15 @@
     "mass_g": 7,
     "compatible_kv_band": [1550, 2600]
   },
+  "gemfan_5045_hbn": {
+    "diameter_in": 5.0,
+    "pitch_in": 4.5,
+    "manufacturer": "Gemfan",
+    "model": "5045 HBN",
+    "identity_status": "verified",
+    "source_url": "https://oscarliang.com/emax-rs2205s-2300kv-motors/",
+    "tags": ["gf5045", "hbn", "5inch", "tri-blade", "bullnose"]
+  },
   "dal_7040": {
     "diameter_in": 7.0,
     "pitch_in": 4.0,
@@ -81,11 +90,20 @@
   "hq_5045_bn": {
     "diameter_in": 5.0,
     "pitch_in": 4.5,
-    "tags": ["hq5045", "bn", "5inch", "bi-blade"]
+    "manufacturer": "HQProp",
+    "model": "5045 BN",
+    "identity_status": "partially_verified",
+    "source_url": "https://shop.emaxmodel.com/products/emax-rs2205-racespec-motor-cooling-series",
+    "tags": ["hq5045", "bn", "5inch", "bi-blade", "bullnose"]
   },
   "gf_5045x3": {
     "diameter_in": 5.0,
     "pitch_in": 4.5,
-    "tags": ["gf5045", "tri-blade", "5inch"]
+    "mass_g": 4.5,
+    "manufacturer": "Gemfan",
+    "model": "5045 3-Blade",
+    "part_number": "PMAB5045-3",
+    "source_url": "https://shop.emaxmodel.com/collections/all/products/2-pairs-5045-3-blade-propeller-abs-cw-ccw-for-mini-quadcopter",
+    "tags": ["gf5045", "tri-blade", "5inch", "abs", "pmab5045-3"]
   }
 }

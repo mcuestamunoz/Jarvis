@@ -67,6 +67,9 @@ class _RefuseLLM:
 _MOTOR_SKU = "emax_rs2205s_2300"
 _PROP_SKU = "hq_5045_bn"
 _BATTERY_SKU = "lipo_6s_10000mah"  # 6S / 22.2V nominal
+_SUNNYSKY_MOTOR_SKU = "sunnysky_r2205_2500"
+_SUNNYSKY_PROP_SKU = "gf_5045x3"
+_SUNNYSKY_BATTERY_SKU = "lipo_4s_1500mah"  # 4S / 14.8V — exact OP + motor_op_power_w
 
 
 def _project_with_motor_bound_before_battery(tmp_path: Path) -> JarvisOrchestrator:
@@ -116,6 +119,38 @@ def _project_with_motor_bound_before_battery(tmp_path: Path) -> JarvisOrchestrat
     return orch
 
 
+def _project_sunnysky_exact_op_for_autonomy_explore(tmp_path: Path) -> JarvisOrchestrator:
+    """Separate fixture for CASE B: catalog motor with known max_watts AND a
+    voltage-matched exact OP that supplies motor_op_power_w — required now
+    that EMAX carries no nominal max_watts and its fallback OP has no
+    electrical fields, so mejorar_autonomia cannot score candidates without
+    a power-draw model."""
+    orch = JarvisOrchestrator(workspace_root=tmp_path)
+    orch.handle({
+        "action": "create_project",
+        "parameters": {
+            "vehicle_type": "dron", "objective": "dse autonomy explore fixture",
+            "payload_kg": 1.0, "restrictions": "autonomia minima 15 min",
+            "detail_level": "conceptual", "motors": 4,
+            "structure_mass_factor": 0.5, "safety_factor": 1.2,
+        },
+    })
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    ps = set_propeller_component(ps, bind_propeller_from_catalog(_SUNNYSKY_PROP_SKU))
+    m = default_library.get_motor(_SUNNYSKY_MOTOR_SKU)
+    motor_spec = bind_motor_from_catalog({
+        "name": m.name, "max_watts": m.max_watts, "thrust_n": m.thrust_n,
+        "kv_rating": m.kv_rating, "weight_g": m.weight_g,
+    })
+    ps = set_motor_component(ps, motor_spec, m.max_watts)
+    battery_spec = bind_battery_from_catalog(_SUNNYSKY_BATTERY_SKU)
+    ps = set_battery_component(
+        ps, battery_spec, battery_spec.properties["battery_capacity_wh"].value,
+    )
+    orch.workspace_manager.save_state(ps)
+    return orch
+
+
 def test_motor_bound_before_battery_resolves_honestly_not_stale_exact(tmp_path: Path):
     """Sanity precondition: the fixture that used to produce a stale,
     voltage-incoherent exact_operating_point (pre-fix) now produces a
@@ -155,7 +190,7 @@ def test_case_b_apply_delivers_explore_promise(tmp_path: Path):
     """CASE B (contract §3, now flipped to PASS): applying explore's own
     top-scored candidate for mejorar_autonomia must produce exactly the
     autonomy explore's message promised for it."""
-    orch = _project_with_motor_bound_before_battery(tmp_path)
+    orch = _project_sunnysky_exact_op_for_autonomy_explore(tmp_path)
     ps = orch.state_manager.load_active_project(orch.workspace_manager)
 
     exploration = orch.design_explorer.explore(ps, "mejorar_autonomia")

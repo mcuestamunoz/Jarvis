@@ -45,7 +45,7 @@ _CREATE_PARAMS = {
 }
 
 _OP_MOTOR_SKU = "emax_rs2205s_2300"  # P2-1 seed: OP-0/OP-1/OP-2
-_OP_PROP_SKU = "hq_5045_bn"          # OP-1/OP-2 exact match
+_OP_PROP_SKU = "hq_5045_bn"          # legacy SKU; exact OP now via gemfan_5045_hbn
 
 
 def _fresh(tmp_path) -> JarvisOrchestrator:

@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from jarvis.knowledge.library import BatterySpec, ComponentLibrary, MotorSpec, PropellerSpec
+from jarvis.knowledge.library import BatterySpec, ComponentLibrary, EscSpec, MotorSpec, PropellerSpec
 from jarvis.schemas.action_schema import CatalogRef, ComponentSpec
 
 _LIB = ComponentLibrary()
@@ -46,6 +46,29 @@ def test_motor_optional_enrichment_fields_default_none():
     assert spec.compatible_prop_ids == ()
     assert spec.operating_points == ()
     assert spec.source_url is None
+    assert spec.identity_status is None
+
+
+def test_sunnysky_r2205_2500_verified_motor_identity():
+    spec = _LIB.get_motor("sunnysky_r2205_2500")
+    assert spec.identity_status == "verified"
+    assert spec.manufacturer == "SunnySky"
+    assert spec.part_number == "2205R25CW / 2205G25CW"
+    assert spec.max_watts == pytest.approx(756.0)
+    assert spec.max_current_a == pytest.approx(45.0)
+    assert spec.voltage_min == pytest.approx(9.0)
+    assert spec.voltage_max == pytest.approx(16.8)
+
+
+def test_emax_rs2205s_2300_verified_motor_identity_no_nominal_power():
+    spec = _LIB.get_motor("emax_rs2205s_2300")
+    assert spec.identity_status == "verified"
+    assert spec.part_number == "0101008001"
+    assert spec.model == "RS2205 RaceSpec"
+    assert spec.max_watts is None
+    assert spec.max_current_a is None
+    assert spec.voltage_min == pytest.approx(12.6)
+    assert spec.voltage_max == pytest.approx(16.8)
 
 
 def test_motor_optional_enrichment_fields_load_when_present(tmp_path: Path):
@@ -87,8 +110,37 @@ def test_batteries_load_and_get_by_id():
     assert isinstance(spec, BatterySpec)
     assert spec.chemistry == "lipo"
     assert spec.energy_wh == 74.0
-    assert spec.mass_g == 490.0
+    assert spec.mass_g == 498.0
     assert spec.cells == 4
+
+
+def test_lipo_4s_1500mah_cnhl_verified_identity():
+    spec = _LIB.get_battery("lipo_4s_1500mah")
+    assert spec.identity_status == "verified"
+    assert spec.manufacturer == "CNHL"
+    assert spec.part_number == "1501004BK"
+    assert spec.mass_g == pytest.approx(183.0)
+    assert spec.max_continuous_current_a == pytest.approx(150.0)
+    assert spec.max_continuous_current_source == "derived_from_c_rating"
+
+
+def test_lipo_4s_5000mah_spektrum_verified_identity():
+    spec = _LIB.get_battery("lipo_4s_5000mah")
+    assert spec.identity_status == "verified"
+    assert spec.manufacturer == "Spektrum"
+    assert spec.part_number == "SPMX50004S100HT"
+    assert spec.c_rating == pytest.approx(100.0)
+    assert spec.max_continuous_current_a == pytest.approx(500.0)
+    assert spec.max_continuous_current_source == "derived_from_c_rating"
+
+
+def test_lipo_6s_6000mah_gnb_verified_identity():
+    spec = _LIB.get_battery("lipo_6s_6000mah")
+    assert spec.identity_status == "verified"
+    assert spec.manufacturer == "GNB"
+    assert spec.pack_configuration == "6S2P"
+    assert spec.mass_g == pytest.approx(793.0)
+    assert spec.max_continuous_current_a == pytest.approx(600.0)
 
 
 def test_all_seed_batteries_have_required_fields():
@@ -161,6 +213,31 @@ def test_propellers_load_and_get_by_id():
     assert spec.pitch_in == 4.5
 
 
+def test_gf_5045x3_curated_identity_and_mass():
+    spec = _LIB.get_propeller("gf_5045x3")
+    assert spec.mass_g == pytest.approx(4.5)
+    assert spec.manufacturer == "Gemfan"
+    assert spec.model == "5045 3-Blade"
+    assert spec.part_number == "PMAB5045-3"
+    assert spec.source_url is not None
+
+
+def test_hq_5045_bn_partially_verified_identity():
+    spec = _LIB.get_propeller("hq_5045_bn")
+    assert spec.identity_status == "partially_verified"
+    assert spec.manufacturer == "HQProp"
+    assert spec.model == "5045 BN"
+    assert spec.mass_g is None
+
+
+def test_gemfan_5045_hbn_verified_identity():
+    spec = _LIB.get_propeller("gemfan_5045_hbn")
+    assert spec.identity_status == "verified"
+    assert spec.manufacturer == "Gemfan"
+    assert spec.model == "5045 HBN"
+    assert spec.mass_g is None
+
+
 def test_all_seed_propellers_have_required_fields():
     for p in _LIB.list_propellers():
         assert p.diameter_in > 0
@@ -199,18 +276,75 @@ def test_propeller_missing_required_field_raises(tmp_path: Path):
         lib.list_propellers()
 
 
+# ── 5b. ESCs load; get_esc by id; verified HOBBYWING seed ───────────────────
+
+def test_escs_load_and_get_by_id():
+    spec = _LIB.get_esc("hobbywing_xrotor_40a_6s")
+    assert isinstance(spec, EscSpec)
+    _assert_esc_hobbywing(spec)
+
+
+def _assert_esc_hobbywing(spec: EscSpec) -> None:
+    assert spec.identity_status == "verified"
+    assert spec.manufacturer == "HOBBYWING"
+    assert spec.model == "XRotor 40A 6S BLDC"
+    assert spec.part_number == "30901001"
+    assert spec.esc_topology == "individual"
+    assert spec.channels == 1
+    assert spec.continuous_current_a == pytest.approx(40.0)
+    assert spec.burst_current_a == pytest.approx(60.0)
+    assert spec.continuous_current_source == "manufacturer_spec"
+    assert spec.cells_min == 2
+    assert spec.cells_max == 6
+    assert spec.mass_g == pytest.approx(26.0)
+
+
+def test_has_esc():
+    assert _LIB.has_esc("hobbywing_xrotor_40a_6s") is True
+    assert _LIB.has_esc("no_existe_xyz") is False
+
+
+def test_esc_missing_required_field_raises(tmp_path: Path):
+    (tmp_path / "motores").mkdir()
+    (tmp_path / "materiales").mkdir()
+    (tmp_path / "baterias").mkdir()
+    (tmp_path / "helices").mkdir()
+    (tmp_path / "esc").mkdir()
+    for name in ("motores", "materiales", "baterias", "helices"):
+        (tmp_path / name / "_datos.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "esc" / "_datos.json").write_text(
+        '{"broken": {"burst_current_a": 60}}', encoding="utf-8"
+    )
+    lib = ComponentLibrary(library_root=tmp_path)
+    with pytest.raises(ValueError, match="continuous_current_a"):
+        lib.list_escs()
+
+
+def test_bind_esc_from_catalog_projects_continuous_current():
+    from jarvis.core.catalog_bind import bind_esc_from_catalog
+
+    spec = bind_esc_from_catalog("hobbywing_xrotor_40a_6s")
+    assert spec.catalog_ref == CatalogRef(family="esc", sku="hobbywing_xrotor_40a_6s")
+    assert spec.suggested_key == "esc"
+    assert spec.properties["current_a"].value == pytest.approx(40.0)
+    assert spec.properties["mass_g"].value == pytest.approx(26.0)
+
+
 # ── 6. Unknown SKU → not-found deterministic (cross-family, no fabrication) ─
 
 def test_unknown_sku_never_fabricated():
     assert _LIB.has_motor("phantom_motor_9000") is False
     assert _LIB.has_battery("phantom_battery_9000") is False
     assert _LIB.has_propeller("phantom_prop_9000") is False
+    assert _LIB.has_esc("phantom_esc_9000") is False
     with pytest.raises(KeyError):
         _LIB.get_motor("phantom_motor_9000")
     with pytest.raises(KeyError):
         _LIB.get_battery("phantom_battery_9000")
     with pytest.raises(KeyError):
         _LIB.get_propeller("phantom_prop_9000")
+    with pytest.raises(KeyError):
+        _LIB.get_esc("phantom_esc_9000")
 
 
 # ── 7. match_motor_propeller — explicit + fallback + honest False ──────────

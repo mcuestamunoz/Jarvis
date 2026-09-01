@@ -19,7 +19,7 @@ class MotorSuggestion(TypedDict):
     thrust_n: float
     kv_rating: int
     weight_g: float
-    max_watts: float
+    max_watts: float | None
     is_generic: bool
 
 HELP_CHOOSE_PHRASES: frozenset[str] = frozenset({

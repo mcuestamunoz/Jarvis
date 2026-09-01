@@ -41,7 +41,6 @@ class MotorSpec:
     thrust_n: float
     kv_rating: int
     weight_g: float
-    max_watts: float
     compatible_prop_inch: tuple[int, ...]
     # Design-space region this product satisfies (defaults derived from point values).
     min_thrust_n: float = 0.0
@@ -51,6 +50,7 @@ class MotorSpec:
     is_generic: bool = False
     # Catalog v1 (Impl A) — optional enrichment fields. Absent in existing rows;
     # loader defaults keep every pre-existing motor loading unchanged.
+    max_watts: float | None = None
     manufacturer: str | None = None
     model: str | None = None
     max_current_a: float | None = None
@@ -61,6 +61,9 @@ class MotorSpec:
     # Impl A/B — present only so the shape exists before it's needed.
     operating_points: tuple[dict[str, Any], ...] = ()
     source_url: str | None = None
+    part_number: str | None = None
+    identity_status: str | None = None
+    source_note: str | None = None
 
 
 def _motor_covers_requirements(
@@ -107,6 +110,38 @@ class BatterySpec:
     c_rating: float | None = None
     design_space: dict[str, float] | None = None
     operating_points: tuple[dict[str, Any], ...] = ()
+    # Optional identity / provenance — absent in legacy rows; loader defaults unchanged.
+    manufacturer: str | None = None
+    model: str | None = None
+    part_number: str | None = None
+    source_url: str | None = None
+    identity_status: str | None = None
+    pack_configuration: str | None = None
+    max_continuous_current_source: str | None = None
+    source_note: str | None = None
+
+
+@dataclass(frozen=True)
+class EscSpec:
+    """Catalog entry: a real ESC (electronic speed controller)."""
+
+    name: str
+    continuous_current_a: float
+    burst_current_a: float | None = None
+    continuous_current_source: str | None = None
+    voltage_min: float | None = None
+    voltage_max: float | None = None
+    cells_min: int | None = None
+    cells_max: int | None = None
+    esc_topology: str | None = None
+    channels: int | None = None
+    mass_g: float | None = None
+    manufacturer: str | None = None
+    model: str | None = None
+    part_number: str | None = None
+    source_url: str | None = None
+    identity_status: str | None = None
+    source_note: str | None = None
 
 
 @dataclass(frozen=True)
@@ -122,6 +157,12 @@ class PropellerSpec:
     compatible_kv_band: tuple[int, int] | None = None
     tags: tuple[str, ...] = ()
     operating_points: tuple[dict[str, Any], ...] = ()
+    # Optional identity enrichment — absent in legacy rows; loader defaults unchanged.
+    manufacturer: str | None = None
+    model: str | None = None
+    part_number: str | None = None
+    source_url: str | None = None
+    identity_status: str | None = None
 
 
 class ComponentLibrary:
@@ -133,6 +174,7 @@ class ComponentLibrary:
         self._motors: dict[str, MotorSpec] | None = None
         self._batteries: dict[str, BatterySpec] | None = None
         self._propellers: dict[str, PropellerSpec] | None = None
+        self._escs: dict[str, EscSpec] | None = None
 
     # ── Materials ────────────────────────────────────────────────────────────
 
@@ -198,7 +240,9 @@ class ComponentLibrary:
             thrust_n=thrust,
             kv_rating=kv,
             weight_g=float(data["weight_g"]),
-            max_watts=float(data["max_watts"]),
+            max_watts=(
+                float(data["max_watts"]) if data.get("max_watts") is not None else None
+            ),
             compatible_prop_inch=props,
             min_thrust_n=min_thrust,
             max_thrust_n=max_thrust,
@@ -219,6 +263,9 @@ class ComponentLibrary:
             compatible_prop_ids=tuple(data.get("compatible_prop_ids") or ()),
             operating_points=tuple(data.get("operating_points") or ()),
             source_url=data.get("source_url"),
+            part_number=data.get("part_number"),
+            identity_status=data.get("identity_status"),
+            source_note=data.get("source_note"),
         )
 
     def _load_motors(self) -> dict[str, MotorSpec]:
@@ -334,6 +381,14 @@ class ComponentLibrary:
             c_rating=float(data["c_rating"]) if data.get("c_rating") is not None else None,
             design_space=dict(design_space) if design_space is not None else None,
             operating_points=tuple(data.get("operating_points") or ()),
+            manufacturer=data.get("manufacturer"),
+            model=data.get("model"),
+            part_number=data.get("part_number"),
+            source_url=data.get("source_url"),
+            identity_status=data.get("identity_status"),
+            pack_configuration=data.get("pack_configuration"),
+            max_continuous_current_source=data.get("max_continuous_current_source"),
+            source_note=data.get("source_note"),
         )
 
     def _load_batteries(self) -> dict[str, BatterySpec]:
@@ -417,6 +472,11 @@ class ComponentLibrary:
             ),
             tags=tuple(data.get("tags") or ()),
             operating_points=tuple(data.get("operating_points") or ()),
+            manufacturer=data.get("manufacturer"),
+            model=data.get("model"),
+            part_number=data.get("part_number"),
+            source_url=data.get("source_url"),
+            identity_status=data.get("identity_status"),
         )
 
     def _load_propellers(self) -> dict[str, PropellerSpec]:
@@ -475,6 +535,75 @@ class ComponentLibrary:
             results,
             key=lambda p: (abs(p.diameter_in - (diameter_in or p.diameter_in)), p.name),
         )
+
+    # ── ESCs (Catalog v1 — Phase 2 foundation) ───────────────────────────────
+
+    @staticmethod
+    def _esc_from_raw(name: str, data: dict) -> EscSpec:
+        continuous = data.get("continuous_current_a")
+        if continuous is None:
+            raise ValueError(
+                f"ESC '{name}' está incompleto en la biblioteca: "
+                "continuous_current_a es obligatorio."
+            )
+        return EscSpec(
+            name=name,
+            continuous_current_a=float(continuous),
+            burst_current_a=(
+                float(data["burst_current_a"]) if data.get("burst_current_a") is not None else None
+            ),
+            continuous_current_source=data.get("continuous_current_source"),
+            voltage_min=float(data["voltage_min"]) if data.get("voltage_min") is not None else None,
+            voltage_max=float(data["voltage_max"]) if data.get("voltage_max") is not None else None,
+            cells_min=int(data["cells_min"]) if data.get("cells_min") is not None else None,
+            cells_max=int(data["cells_max"]) if data.get("cells_max") is not None else None,
+            esc_topology=data.get("esc_topology"),
+            channels=int(data["channels"]) if data.get("channels") is not None else None,
+            mass_g=float(data["mass_g"]) if data.get("mass_g") is not None else None,
+            manufacturer=data.get("manufacturer"),
+            model=data.get("model"),
+            part_number=data.get("part_number"),
+            source_url=data.get("source_url"),
+            identity_status=data.get("identity_status"),
+            source_note=data.get("source_note"),
+        )
+
+    def _load_escs(self) -> dict[str, EscSpec]:
+        if self._escs is not None:
+            return self._escs
+        path = self._root / "esc" / "_datos.json"
+        if not path.exists():
+            self._escs = {}
+            return self._escs
+        raw: dict[str, dict] = json.loads(path.read_text(encoding="utf-8"))
+        self._escs = {
+            _normalize_name(name): self._esc_from_raw(name, data)
+            for name, data in raw.items()
+        }
+        return self._escs
+
+    def get_esc(self, name: str) -> EscSpec:
+        """Return exact ESC by name. KeyError if not found."""
+        canonical = _normalize_name(name)
+        escs = self._load_escs()
+        if canonical not in escs:
+            available = ", ".join(sorted(escs)) or "(vacío)"
+            raise KeyError(
+                f"ESC '{name}' no está en la biblioteca. Disponibles: {available}"
+            )
+        return escs[canonical]
+
+    def list_escs(self) -> list[EscSpec]:
+        """Return all ESCs sorted by name."""
+        return sorted(self._load_escs().values(), key=lambda e: e.name)
+
+    def has_esc(self, name: str) -> bool:
+        """Return True if *name* is in the ESC library (no exception)."""
+        try:
+            self.get_esc(name)
+            return True
+        except KeyError:
+            return False
 
     # ── Motor ↔ propeller compatibility (Catalog v1 — Impl A) ────────────────
 
@@ -609,6 +738,10 @@ def resolve_operating_point(
     exact_matches: list[dict[str, Any]] = []
     fallback_matches: list[dict[str, Any]] = []
     for row in motor.operating_points:
+        # Curated rows on HOLD (evidence_status) stay on file for audit but
+        # must never participate in exact or fallback resolution.
+        if row.get("evidence_status") == "hold":
+            continue
         row_voltage = row.get("voltage_v")
         # ★1 (Motor OP Voltage Coherence IC): an unknown query voltage no
         # longer auto-matches every row — only a KNOWN, compatible voltage

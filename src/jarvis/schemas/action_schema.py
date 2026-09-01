@@ -136,7 +136,7 @@ class CatalogRef(BaseModel):
     docs/PHYSICAL_COMPONENT_CATALOG_V1.md, decision 1A.
     """
 
-    family: Literal["motor", "battery", "propeller"]
+    family: Literal["motor", "battery", "propeller", "esc"]
     sku: str
 
 

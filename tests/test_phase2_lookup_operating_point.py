@@ -9,9 +9,10 @@ bridges the resolution into current_parameters["per_motor_max_thrust_n"] +
 design_explorer's candidate cache, see ★-locked note in that file).
 
 ★6 dataset (.jes/artifacts/phase2_star6_operating_point_validation_case.md):
-  emax_rs2205s_2300  — OP-0 (fallback, 16.8V, 10.042N), OP-1 (16V/hq_5045_bn,
-                       9.1986N), OP-2 (16V/hq_5045_bn, 9.7086N)
-  sunnysky_r2205_2500 — OP-3 (14.8V/gf_5045x3, 12.5525N, rpm=27082)
+  emax_rs2205s_2300  — OP-0 (fallback, 16.8V, 10.042N, HQ5045 BN headline),
+                       OP-1/OP-2 (HOLD — excluded from resolver),
+                       OP-3 (16V/gemfan_5045_hbn measured_test, 13.4841N)
+  sunnysky_r2205_2500 — OP-4 (14.8V/gf_5045x3, 12.5525N, rpm=27082)
   emax_rs2205_2300    — UNCHANGED legacy (no OP data; do not confuse with S)
   sunnysky_r2305_2500 — UNCHANGED legacy (untouched)
 """
@@ -58,14 +59,24 @@ def _fresh_project(tmp_path: Path) -> JarvisOrchestrator:
 
 def test_exact_match_single_row():
     r = resolve_operating_point(
+        "emax_rs2205s_2300", propeller_sku="gemfan_5045_hbn", voltage_v=16.0,
+    )
+    assert r.resolution_type == "exact_operating_point"
+    assert r.thrust_n == pytest.approx(13.4841)
+    assert r.selection_reason is None
+    assert r.source_type == "measured_test"
+    assert r.fallback_only is False
+
+
+def test_hold_rows_never_participate_in_resolution():
+    motor = default_library.get_motor("emax_rs2205s_2300")
+    hold_rows = [row for row in motor.operating_points if row.get("evidence_status") == "hold"]
+    assert len(hold_rows) == 2
+    r = resolve_operating_point(
         "emax_rs2205s_2300", propeller_sku="hq_5045_bn", voltage_v=16.0,
     )
-    # Two exact rows exist at this (prop, voltage) — max-thrust policy applies.
-    assert r.resolution_type == "exact_operating_point"
-    assert r.thrust_n == pytest.approx(9.7086)
-    assert r.selection_reason == "v1_max_thrust"
-    assert r.source_type == "manufacturer_test"
-    assert r.fallback_only is False
+    assert r.resolution_type == "fallback_operating_point"
+    assert r.thrust_n == pytest.approx(10.042)
 
 
 def test_unknown_voltage_never_matches_exact_row(tmp_path: Path):
@@ -204,7 +215,7 @@ def test_bridge_writes_exact_resolution_with_matching_voltage(tmp_path: Path):
     orch = _fresh_project(tmp_path)
     ps = orch.state_manager.load_active_project(orch.workspace_manager)
 
-    prop_spec = bind_propeller_from_catalog("hq_5045_bn")
+    prop_spec = bind_propeller_from_catalog("gemfan_5045_hbn")
     ps = set_propeller_component(ps, prop_spec)
     ps = ps.model_copy(update={
         "current_parameters": {**ps.current_parameters, "battery_cell_count": 4.32},  # 4.32*3.7~=16.0V
@@ -216,12 +227,10 @@ def test_bridge_writes_exact_resolution_with_matching_voltage(tmp_path: Path):
     raw = updated.current_parameters.get("propulsion_resolution")
     resolution = json.loads(raw)
     assert resolution["resolution_type"] == "exact_operating_point"
-    assert resolution["selection_reason"] == "v1_max_thrust"
-    assert updated.current_parameters["per_motor_max_thrust_n"] == pytest.approx(9.7086)
-    # Component property stays coherent with the resolved thrust; catalog_ref preserved.
+    assert resolution["source_type"] == "measured_test"
+    assert updated.current_parameters["per_motor_max_thrust_n"] == pytest.approx(13.4841)
     motors_component = updated.design_properties.components["motors"]
-    assert motors_component.properties["thrust_n"].value == pytest.approx(9.7086)
-    assert motors_component.catalog_ref == CatalogRef(family="motor", sku="emax_rs2205s_2300")
+    assert motors_component.properties["thrust_n"].value == pytest.approx(13.4841)
 
 
 def test_bridge_motor_bind_before_battery_does_not_set_motor_op_power_w_from_exact_row(tmp_path: Path):
@@ -362,12 +371,11 @@ def test_regression_brotherhobby_bind_still_works(tmp_path: Path):
 
 
 def _bound_exact_op_state(tmp_path: Path):
-    """emax_rs2205s_2300 + hq_5045_bn @ ~16V -> exact_operating_point,
-    thrust=9.7086, power_w=432.0, current_a=27.0 — the contract's own
-    validated example."""
+    """emax_rs2205s_2300 + gemfan_5045_hbn @ ~16V -> exact_operating_point,
+    thrust=13.4841, power_w=485.3, current_a=30.3 — measured_test evidence."""
     orch = _fresh_project(tmp_path)
     ps = orch.state_manager.load_active_project(orch.workspace_manager)
-    prop_spec = bind_propeller_from_catalog("hq_5045_bn")
+    prop_spec = bind_propeller_from_catalog("gemfan_5045_hbn")
     ps = set_propeller_component(ps, prop_spec)
     ps = ps.model_copy(update={
         "current_parameters": {**ps.current_parameters, "battery_cell_count": 4.32},  # ~16.0V
@@ -382,10 +390,10 @@ def test_bridge_writes_motor_op_keys_exact(tmp_path: Path):
     raw = updated.current_parameters.get("propulsion_resolution")
     assert json.loads(raw)["resolution_type"] == "exact_operating_point"
 
-    assert updated.current_parameters["motor_power_w"] == pytest.approx(400.0)
-    assert updated.current_parameters["motor_op_power_w"] == pytest.approx(432.0)
-    assert updated.current_parameters["motor_op_current_a"] == pytest.approx(27.0)
-    assert updated.current_parameters["motor_op_rpm"] == pytest.approx(23560.0)
+    assert "motor_power_w" not in updated.current_parameters
+    assert updated.current_parameters["motor_op_power_w"] == pytest.approx(485.3)
+    assert updated.current_parameters["motor_op_current_a"] == pytest.approx(30.3)
+    assert "motor_op_rpm" not in updated.current_parameters
 
 
 def test_bridge_writes_motor_op_keys_fallback(tmp_path: Path):
@@ -402,7 +410,7 @@ def test_bridge_writes_motor_op_keys_fallback(tmp_path: Path):
 
     resolution = json.loads(updated.current_parameters["propulsion_resolution"])
     assert resolution["resolution_type"] == "fallback_operating_point"
-    assert updated.current_parameters["motor_power_w"] == pytest.approx(400.0)
+    assert "motor_power_w" not in updated.current_parameters
     assert "motor_op_power_w" not in updated.current_parameters
     assert "motor_op_current_a" not in updated.current_parameters
     assert "motor_op_rpm" not in updated.current_parameters
@@ -469,8 +477,8 @@ def test_bridge_pops_stale_motor_op_keys_on_divergence_to_legacy(tmp_path: Path)
 
 
 def test_autonomy_uses_motor_op_power_when_present(tmp_path: Path):
-    """P2-2 §2.2: autonomy must reflect the resolved OP power (432W), not
-    the flat catalog rating (400W) — lower autonomy since power is higher."""
+    """P2-2 §2.2: autonomy must reflect the resolved OP power (485.3W), not
+    a absent catalog rating — lower autonomy when OP electrical load is present."""
     from jarvis.core.calculation_engine import CalculationEngine
 
     _, updated = _bound_exact_op_state(tmp_path)
@@ -481,12 +489,13 @@ def test_autonomy_uses_motor_op_power_when_present(tmp_path: Path):
     })
     bundle = CalculationEngine().build(params)
 
-    params_rating_only = dict(params)
-    params_rating_only.pop("motor_op_power_w", None)
-    bundle_rating_only = CalculationEngine().build(params_rating_only)
+    params_no_op = dict(params)
+    params_no_op.pop("motor_op_power_w", None)
+    params_no_op["motor_power_w"] = 250.0
+    bundle_no_op = CalculationEngine().build(params_no_op)
 
-    assert bundle.autonomy_min is not None and bundle_rating_only.autonomy_min is not None
-    assert bundle.autonomy_min < bundle_rating_only.autonomy_min  # 432W drains faster than 400W
+    assert bundle.autonomy_min is not None and bundle_no_op.autonomy_min is not None
+    assert bundle.autonomy_min < bundle_no_op.autonomy_min
 
 
 def test_autonomy_unchanged_when_no_motor_op_power(tmp_path: Path):
@@ -510,7 +519,7 @@ def test_estado_shows_op_electrical_line_when_resolved(tmp_path: Path):
     orch.workspace_manager.save_state(updated)
     ctx = orch.build_startup_context()
     rendered = render_startup_context(ctx)
-    assert "Propulsión (OP eléctrico): power=432.0 W · current=27.0 A · rpm=23560.0" in rendered
+    assert "Propulsión (OP eléctrico): power=485.3 W · current=30.3 A" in rendered
 
 
 def test_estado_hides_op_electrical_line_for_legacy(tmp_path: Path):

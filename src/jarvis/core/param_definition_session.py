@@ -420,8 +420,11 @@ class ParamDefinitionSession:
         Only params actually pending are removed from the wizard queue —
         ASSISTED_MOTOR_PARAMS is exactly the set a single pick can satisfy.
         """
-        watts = float(suggestion["max_watts"])
-        collected = {**session.collected_params, "motor_power_w": watts}
+        watts_raw = suggestion.get("max_watts")
+        watts = float(watts_raw) if watts_raw is not None else None
+        collected = dict(session.collected_params)
+        if watts is not None:
+            collected["motor_power_w"] = watts
         remaining = [p for p in pending if p not in ASSISTED_MOTOR_PARAMS]
 
         # Persist rich motor component (power/thrust/kv/weight + preserved

@@ -2553,7 +2553,8 @@ class JarvisOrchestrator:
         """
         from jarvis.core.catalog_bind import bind_motor_from_catalog
 
-        watts = float(suggestion["max_watts"])
+        watts_raw = suggestion.get("max_watts")
+        watts = float(watts_raw) if watts_raw is not None else None
         try:
             project_state = self.state_manager.load_active_project(self.workspace_manager)
         except FileNotFoundError:
@@ -2571,8 +2572,9 @@ class JarvisOrchestrator:
         )
         self.state_manager.set_runtime_session(cleared)
 
+        power_bit = f"~{int(watts)}W, " if watts is not None else ""
         saved_msg = (
-            f"Motor elegido: {suggestion['name']} (~{int(watts)}W, {suggestion['thrust_n']}N)."
+            f"Motor elegido: {suggestion['name']} ({power_bit}{suggestion['thrust_n']}N)."
         )
         components = updated_state.design_properties.components
         still_missing = [

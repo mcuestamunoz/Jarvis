@@ -1,0 +1,20 @@
+{
+  "hobbywing_xrotor_40a_6s": {
+    "manufacturer": "HOBBYWING",
+    "model": "XRotor 40A 6S BLDC",
+    "part_number": "30901001",
+    "identity_status": "verified",
+    "esc_topology": "individual",
+    "channels": 1,
+    "continuous_current_a": 40,
+    "burst_current_a": 60,
+    "continuous_current_source": "manufacturer_spec",
+    "voltage_min": 6.0,
+    "voltage_max": 25.2,
+    "cells_min": 2,
+    "cells_max": 6,
+    "mass_g": 26,
+    "source_url": "https://a.hobbywing.com/en/products/xrotor-40a122",
+    "source_note": "HOBBYWING official: 40A continuous / 60A peak, 2-6S LiPo, no BEC, 26g. Individual ESC for multicopters (550/650 class quads)."
+  }
+}

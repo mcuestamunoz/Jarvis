@@ -182,12 +182,20 @@ def _esc_current_a(project_state: Any) -> float | None:
         return None
     props = getattr(esc, "properties", None) or {}
     current_prop = props.get("current_a")
-    if current_prop is None or getattr(current_prop, "value", None) is None:
-        return None
-    try:
-        return float(current_prop.value)
-    except (TypeError, ValueError):
-        return None
+    if current_prop is not None and getattr(current_prop, "value", None) is not None:
+        try:
+            return float(current_prop.value)
+        except (TypeError, ValueError):
+            pass
+    catalog_ref = getattr(esc, "catalog_ref", None) if esc is not None else None
+    if catalog_ref is not None and getattr(catalog_ref, "family", None) == "esc":
+        try:
+            spec = default_library.get_esc(catalog_ref.sku)
+        except KeyError:
+            spec = None
+        if spec is not None and spec.continuous_current_a is not None:
+            return float(spec.continuous_current_a)
+    return None
 
 
 # ── §5.5 — battery pack continuous limit I_pack_limit ───────────────────────

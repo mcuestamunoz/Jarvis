@@ -29,21 +29,36 @@
   "lipo_4s_1500mah": {
     "chemistry": "lipo",
     "energy_wh": 22.2,
-    "mass_g": 175,
+    "mass_g": 183,
     "cells": 4,
     "nominal_voltage": 14.8,
     "capacity_mah": 1500,
-    "c_rating": 100
+    "c_rating": 100,
+    "max_continuous_current_a": 150,
+    "max_continuous_current_source": "derived_from_c_rating",
+    "manufacturer": "CNHL",
+    "model": "Black Series 4S 1500mAh 100C XT60",
+    "part_number": "1501004BK",
+    "identity_status": "verified",
+    "source_url": "https://balticdrones.eu/products/battery-cnhl-black-series-lipo-4s-14-8v-1500mah-100c-xt60",
+    "source_note": "CNHL Black Series stock 1501004BK; 4S1P, 14.8V, 1500mAh, 100C continuous, 183g. Burst 200C not used."
   },
   "lipo_4s_5000mah": {
     "chemistry": "lipo",
     "energy_wh": 74.0,
-    "mass_g": 490,
+    "mass_g": 498,
     "cells": 4,
     "nominal_voltage": 14.8,
     "capacity_mah": 5000,
-    "max_continuous_current_a": 50,
-    "c_rating": 10
+    "c_rating": 100,
+    "max_continuous_current_a": 500,
+    "max_continuous_current_source": "derived_from_c_rating",
+    "manufacturer": "Spektrum",
+    "model": "Smart Standard LiPo 5000mAh 4S 100C",
+    "part_number": "SPMX50004S100HT",
+    "identity_status": "verified",
+    "source_url": "https://my.spektrumrc.com/Products/Default.aspx?ProdID=SPMX50004S100HT",
+    "source_note": "Spektrum official spec: 4S1P hardcase Smart LiPo, 14.8V, 5000mAh, 100C continuous, 498g."
   },
   "lipo_4s_10000mah": {
     "chemistry": "lipo",
@@ -58,12 +73,19 @@
   "lipo_6s_6000mah": {
     "chemistry": "lipo",
     "energy_wh": 133.2,
-    "mass_g": 850,
+    "mass_g": 793,
     "cells": 6,
     "nominal_voltage": 22.2,
     "capacity_mah": 6000,
-    "max_continuous_current_a": 90,
-    "c_rating": 15
+    "c_rating": 100,
+    "max_continuous_current_a": 600,
+    "max_continuous_current_source": "derived_from_c_rating",
+    "pack_configuration": "6S2P",
+    "manufacturer": "GNB",
+    "model": "6000mAh 6S2P 100C XT60",
+    "identity_status": "verified",
+    "source_url": "https://www.rotorama.com/product/gnb-6000mah-6s2p-100c",
+    "source_note": "GNB 6000mAh 6S2P pack; 22.2V, 100C continuous, 793g, XT60. Two cells in parallel per series group."
   },
   "lipo_6s_10000mah": {
     "chemistry": "lipo",

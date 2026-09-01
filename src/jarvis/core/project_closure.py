@@ -238,6 +238,8 @@ def _bom_sku_resolved(catalog_ref: dict[str, str] | None) -> bool:
         return default_library.has_battery(sku)
     if family == "propeller":
         return default_library.has_propeller(sku)
+    if family == "esc":
+        return default_library.has_esc(sku)
     return False  # no v1 resolve path for other families (★2)
 
 
