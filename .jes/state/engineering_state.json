@@ -43,8 +43,8 @@
     "checkpoint-deferred-queue-cd": "ca1659c9b2fb1c482218d2c35205a4f5413285bb",
     "v0.3.3": "ceb44b49cf44bd1bc9141f735f1e37907f9e98ab",
     "checkpoint-validation-case-regression-gate": "ceb44b49cf44bd1bc9141f735f1e37907f9e98ab",
-    "v0.3.4": "PENDING_COMMIT",
-    "checkpoint-motor-op-voltage-coherence": "PENDING_COMMIT"
+    "v0.3.4": "a563fe789f1cd22313152714926a4fca0e54d3e5",
+    "checkpoint-motor-op-voltage-coherence": "a563fe789f1cd22313152714926a4fca0e54d3e5"
   },
   "arc": {
     "validation_case_investigation": "CHECKPOINTED",
