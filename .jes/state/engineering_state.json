@@ -43,8 +43,8 @@
     "checkpoint-validation-case-regression-gate": "ceb44b49cf44bd1bc9141f735f1e37907f9e98ab",
     "v0.3.4": "a563fe789f1cd22313152714926a4fca0e54d3e5",
     "checkpoint-motor-op-voltage-coherence": "a563fe789f1cd22313152714926a4fca0e54d3e5",
-    "v0.3.5": "062dca4b8c3314243d0638a519ee3b18677c8e87",
-    "checkpoint-phase25-hover-energy": "062dca4b8c3314243d0638a519ee3b18677c8e87"
+    "v0.3.5": "fc46938b64c757bc9e1ab7f5e69e91bde30ad174",
+    "checkpoint-phase25-hover-energy": "fc46938b64c757bc9e1ab7f5e69e91bde30ad174"
   },
   "arc": {
     "validation_case_investigation": "CHECKPOINTED",
