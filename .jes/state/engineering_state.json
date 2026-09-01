@@ -1,38 +1,40 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Validation Case \u26056 Regression Gate checkpointed @ v0.3.3",
-  "scope": "Probe + doc + 1 unit test. Zero src/ diff. Permanent regression gate for shipped \u26056 OP dataset.",
+  "cycle_intent": "Motor OP Voltage Coherence checkpointed @ v0.3.4",
+  "scope": "MOP-1 resolver gate · MOP-2 conditional battery re-resolve · MOP-3 DSE live-params · suite 2036 · probe 6/6",
   "execution_status": "checkpointed",
   "current_mode": "Idle",
   "movement_trigger": {
     "type": "checkpoint",
-    "note": "checkpoint-validation-case-regression-gate @ v0.3.3 \u2014 suite 2029; probe 6/6; src/ zero diff."
+    "note": "checkpoint-motor-op-voltage-coherence @ v0.3.4 — Engineer approved; suite 2036; probe 6/6."
   },
   "relevant_workflow_phases": [
     "Review",
     "Checkpoint"
   ],
   "engineer_ratification": {
-    "star1": "Validation Case probe IC \u2014 DELIVERED",
-    "star2": "b probe + a doc; NOT c estado; NOT d data \u2014 RATIFIED",
-    "star3": "Battery/ESC data \u2014 future Engineer decision \u2014 RATIFIED",
-    "star4": "H5 defer \u2014 RATIFIED",
-    "star5": "G24-B freeze \u2014 RATIFIED",
-    "star6": "v0.3.3 checkpoint"
+    "star1": "No exact_operating_point from voltage_v=None — RATIFIED",
+    "star2": "Option D explore/apply coherence (acotado) — RATIFIED",
+    "star3": "CASE C — A+B sufficient — RATIFIED",
+    "star4": "Extend P2-2 test; do not weaken battery_pick regression — RATIFIED",
+    "star5": "H5 defer — unchanged",
+    "star6": "G24-B freeze — unchanged",
+    "star7": "Battery/ESC data curation — future Engineer decision — unchanged"
   },
   "required_artifacts": [
-    ".jes/artifacts/investigation_contract_validation_case_post_v032.md",
-    ".jes/artifacts/investigation_report_validation_case_post_v032.md",
-    ".jes/artifacts/investigation_review_validation_case_post_v032.md",
-    ".jes/artifacts/implementation_contract_validation_case_regression_gate.md",
-    ".jes/artifacts/implementation_report_validation_case_regression_gate.md",
-    ".jes/artifacts/implementation_review_validation_case_regression_gate.md",
-    ".jes/artifacts/validation_case_op_dataset_comparison.md"
+    ".jes/artifacts/investigation_contract_dse_motor_op_dual_truth.md",
+    ".jes/artifacts/investigation_report_dse_motor_op_dual_truth.md",
+    ".jes/artifacts/investigation_review_dse_motor_op_dual_truth.md",
+    ".jes/artifacts/engineer_ratification_dse_motor_op_dual_truth.md",
+    ".jes/artifacts/implementation_contract_motor_op_voltage_coherence.md",
+    ".jes/artifacts/implementation_report_motor_op_voltage_coherence.md",
+    ".jes/artifacts/implementation_review_motor_op_voltage_coherence.md"
   ],
-  "active_operation": "Validation Case arc closed. Next: new investigation before H5 or battery/ESC data curation \u2014 no implementation until investigation + \u2605.",
+  "active_operation": "Motor OP Voltage Coherence arc closed @ v0.3.4. Next: new investigation before H5, G24-B, or battery/ESC curation. Optional hygiene: cli_probe_impl_d_sku_bom.py (G24D drift, separate).",
   "authority_gates": [
-    "v0.3.3 checkpoint \u2705",
-    "Validation Case IC review PASS WITH NOTES \u2705"
+    "v0.3.4 checkpoint ✅",
+    "Motor OP IC review PASS WITH NOTES ✅",
+    "Engineer checkpoint approval ✅"
   ],
   "checkpoints": {
     "v0.3.1": "30c9aec",
@@ -40,11 +42,15 @@
     "v0.3.2": "ca1659c9b2fb1c482218d2c35205a4f5413285bb",
     "checkpoint-deferred-queue-cd": "ca1659c9b2fb1c482218d2c35205a4f5413285bb",
     "v0.3.3": "ceb44b49cf44bd1bc9141f735f1e37907f9e98ab",
-    "checkpoint-validation-case-regression-gate": "ceb44b49cf44bd1bc9141f735f1e37907f9e98ab"
+    "checkpoint-validation-case-regression-gate": "ceb44b49cf44bd1bc9141f735f1e37907f9e98ab",
+    "v0.3.4": "PENDING_COMMIT",
+    "checkpoint-motor-op-voltage-coherence": "PENDING_COMMIT"
   },
   "arc": {
-    "validation_case_investigation": "COMPLETE",
+    "validation_case_investigation": "CHECKPOINTED",
     "validation_case_regression_gate_ic": "CHECKPOINTED",
+    "dse_motor_op_dual_truth_investigation": "CHECKPOINTED",
+    "motor_op_voltage_coherence_ic": "CHECKPOINTED",
     "frozen": [
       "H5_ESC_CATALOG",
       "G24_B_SCORING_REWRITE"

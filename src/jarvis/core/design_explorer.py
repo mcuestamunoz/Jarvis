@@ -557,12 +557,21 @@ class DesignExplorer:
             ExplorationResult con baseline, todos los candidatos evaluados y
             los viables (can_fly=True) ordenados por score descendente (top MAX_VIABLE).
         """
-        # ── Baseline normalizado ──────────────────────────────────────────────
-        # apply_components_delta con delta vacío re-deriva params desde los
-        # componentes ya presentes — garantiza que baseline y candidatos sean
-        # comparables (mismo pipeline de derivación).
+        # ── Baseline ────────────────────────────────────────────────────────
+        # Motor OP Voltage Coherence IC (MOP-3, ★2 acotado): the params-only
+        # baseline/grid use LIVE current_parameters directly, not a
+        # re-normalized copy — apply_components_delta({}) re-derives motor
+        # OP from the CURRENT battery on every call, which used to disagree
+        # with live state whenever a stale, never-voltage-validated OP
+        # resolution was still sitting in current_parameters (MOP-1/MOP-2
+        # now keep that from happening going forward, but the baseline
+        # itself must also stop re-deriving so explore never promises a
+        # number "calcular" wouldn't already show for the same state).
+        # normalized_state is still computed and still used, unchanged, as
+        # the substrate for catalog/component-delta candidates below (§2.4
+        # rule 2) — apply_components_delta(normalized_state, comp_delta).
         normalized_state = apply_components_delta(project_state, {})
-        base_params = dict(normalized_state.current_parameters or {})
+        base_params = dict(project_state.current_parameters or {})
         goal_label = GOAL_LABELS.get(goal_key, goal_key)
 
         baseline_calc = self._engine.build(base_params)

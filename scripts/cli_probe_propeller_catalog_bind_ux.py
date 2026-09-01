@@ -10,7 +10,11 @@ Steps:
   2. estado -> fallback_operating_point · 10.042 N.
   3. "ayúdame a elegir" (propellers pending) -> list includes hq_5045_bn.
   4. Pick by number -> catalog_ref set.
-  5. estado -> exact_operating_point · 9.7086 N (no battery step, ★7).
+  5. estado -> fallback_operating_point · 10.042 N (still no battery step —
+     Motor OP Voltage Coherence IC MOP-1: an unknown voltage no longer
+     auto-matches an exact row, so this stays honest fallback until a real
+     battery is bound, unlike the pre-MOP-1 ★7 "exact without voltage"
+     behavior this step used to assert).
   6. Spot-check: G21 motor help-choose still works on a fresh project.
 """
 from __future__ import annotations
@@ -102,13 +106,17 @@ def main() -> int:
         assert propellers.catalog_ref.sku == "hq_5045_bn"
         print("✓ Step 4 PASS: propellers.catalog_ref = hq_5045_bn")
 
-        # ── Step 5: estado -> exact resolution (no battery step, ★7) ────────
+        # ── Step 5: estado -> still honest fallback, no battery bound ───────
+        # Motor OP Voltage Coherence IC (MOP-1): voltage unknown -> no exact
+        # match, even with a real propeller re-resolve firing (★5/★7 still
+        # re-fires on propeller pick; it just can't produce "exact" without
+        # a known voltage anymore).
         status2 = _say(orch, "estado", llm)
         ctx2 = status2.get("startup_context") or {}
         rendered2 = render_startup_context(ctx2)
-        assert "exact_operating_point" in rendered2, f"step5 FAIL:\n{rendered2}"
-        assert "9.7086" in rendered2, f"step5 FAIL: expected max-thrust 9.7086 N:\n{rendered2}"
-        print("✓ Step 5 PASS: estado shows exact_operating_point / 9.7086 N (no battery step)")
+        assert "fallback_operating_point" in rendered2, f"step5 FAIL:\n{rendered2}"
+        assert "10.042" in rendered2, f"step5 FAIL: expected fallback thrust 10.042 N:\n{rendered2}"
+        print("✓ Step 5 PASS: estado shows fallback_operating_point / 10.042 N (still no battery step)")
 
         # ── Step 6: G21 motor help-choose still works on a fresh project ───
         orch2 = JarvisOrchestrator(workspace_root=Path(tmp) / "second")

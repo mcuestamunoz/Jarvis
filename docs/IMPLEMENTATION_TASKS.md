@@ -6,9 +6,33 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.3`** / **`checkpoint-validation-case-regression-gate`**.  
-> **PRIORIDAD AHORA:** Arco Validation Case **cerrado**. **No implementar** hasta nueva investigación + ★.  
-> **Versión:** **`v0.3.3`**.
+> **Base:** tag **`v0.3.4`** / **`checkpoint-motor-op-voltage-coherence`**.  
+> **PRIORIDAD AHORA:** Arco Motor OP **cerrado**. **No implementar** hasta nueva investigación + ★.  
+> **Versión:** **`v0.3.4`**. Suite **2036/2036**.
+
+### 🟢 COMPLETADO — Motor OP Voltage Coherence @ 0.3.4 (2026-09-01)
+
+> Tag **`checkpoint-motor-op-voltage-coherence`** · **`v0.3.4`**  
+> **Investigación:** [report](../.jes/artifacts/investigation_report_dse_motor_op_dual_truth.md) · [review PASS WITH NOTES](../.jes/artifacts/investigation_review_dse_motor_op_dual_truth.md)  
+> **IC:** [contract](../.jes/artifacts/implementation_contract_motor_op_voltage_coherence.md) · [report](../.jes/artifacts/implementation_report_motor_op_voltage_coherence.md) · [review PASS WITH NOTES](../.jes/artifacts/implementation_review_motor_op_voltage_coherence.md)  
+> **Suite:** **2036** · probe **6/6** · P2-2 + Validation Case **6/6** · cliff DSE cerrado (8.325=8.325, 12.8077=12.8077)  
+> **Hygiene pendiente (fuera de arc):** `cli_probe_impl_d_sku_bom.py` step 3 — drift G24D  
+> **Congelado.** Candidatos siguientes (sin schedule): **H5** · **G24-B** · **battery/ESC curation** · **FN-R** — requiere investigación nueva.
+
+### 🟢 COMPLETADO — Motor OP Voltage Coherence implementación (2026-09-01)
+
+### 🟡 INVESTIGADO + ★ RATIFICADO — DSE Motor OP Dual-Truth @ 0.3.3 (2026-08-31)
+
+> **Origen:** field walk `autonomía-15-min` (`7efc98205ee6`) @ v0.3.3  
+> **Contract:** [investigation_contract_dse_motor_op_dual_truth.md](../.jes/artifacts/investigation_contract_dse_motor_op_dual_truth.md)  
+> **Report:** [investigation_report_dse_motor_op_dual_truth.md](../.jes/artifacts/investigation_report_dse_motor_op_dual_truth.md)  
+> **Review:** [investigation_review_dse_motor_op_dual_truth.md](../.jes/artifacts/investigation_review_dse_motor_op_dual_truth.md) — **PASS WITH NOTES**  
+> **Ratification:** [engineer_ratification_dse_motor_op_dual_truth.md](../.jes/artifacts/engineer_ratification_dse_motor_op_dual_truth.md) — **★1–★4 locked**  
+> **Repro:** `tests/test_dse_motor_op_dual_truth.py` — CASE A+B **fail on baseline** (expected); CASE C skipped  
+> **Headline:** stale `exact_operating_point` from `voltage_v=None` + P2-2 no re-call on battery bind → explore honest / live stale → DSE broken promises  
+> **★1:** no exact OP lock-in without known battery voltage  
+> **★2:** Option D explore/apply coherence (acotado) — parallel slice OK  
+> **Siguiente:** ~~IC draft~~ → Engineer IC approval → implement → v0.3.4
 
 ### 🟢 COMPLETADO — Validation Case arc @ 0.3.3 (2026-08-31)
 

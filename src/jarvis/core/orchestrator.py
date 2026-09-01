@@ -3503,6 +3503,21 @@ class JarvisOrchestrator:
                 lines.append(
                     f"  {i}. {c.label} → score={round(c.score, 3)} ({sign}{round(c.improvement, 3)})"
                 )
+            # MOP-4 (optional, Motor OP Voltage Coherence IC): honest note
+            # when the live motor OP resolution has never been voltage-
+            # validated (e.g. motor/propeller bound before any battery) —
+            # read-only, parses the same propulsion_resolution JSON
+            # set_motor_component already writes; no new subsystem.
+            propulsion_resolution_raw = (project_state.current_parameters or {}).get("propulsion_resolution")
+            if propulsion_resolution_raw:
+                try:
+                    _pr = json.loads(propulsion_resolution_raw)
+                except (TypeError, ValueError, json.JSONDecodeError):
+                    _pr = None
+                if _pr is not None and not _pr.get("voltage_validated", False):
+                    lines.append(
+                        "  Línea base usa estimación — voltaje de batería pendiente de validación."
+                    )
             lines.append("")
             lines.append("  Di «aplica la mejor» para aplicar la configuración #1 al proyecto.")
             # G24C §2.4 (honest CTA): selection (design_explorer._finalize_

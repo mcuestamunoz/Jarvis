@@ -573,12 +573,19 @@ def resolve_operating_point(
 ) -> ResolvedOperatingPoint | None:
     """Resolve real thrust for a catalog motor from curated ``operating_points[]``.
 
-    Priority (★6 resolver contract, locked):
+    Priority (★6 resolver contract, locked; voltage gate tightened by the
+    Motor OP Voltage Coherence IC, ★1):
       1. Exact match: a ``fallback_only=False`` row whose ``propeller_sku``
-         equals *propeller_sku* AND (``voltage_v`` is None on either side, or
-         both are present and within ``_OP_VOLTAGE_EPSILON_V``). Multiple
-         exact matches → the one with the highest ``thrust_n`` wins,
-         ``selection_reason="v1_max_thrust"`` (v1 provisional policy).
+         equals *propeller_sku* AND ``voltage_v`` is known (not None) AND
+         (the row has no voltage_v of its own, or both are within
+         ``_OP_VOLTAGE_EPSILON_V``). An unknown query voltage
+         (``voltage_v=None`` — e.g. no battery bound yet) can never match an
+         exact row; it falls through to fallback/legacy below. This closes
+         the stale-lock-in bug where an exact resolution made before the
+         real battery voltage was known could survive un-revalidated
+         indefinitely (investigation_report_dse_motor_op_dual_truth.md).
+         Multiple exact matches → the one with the highest ``thrust_n``
+         wins, ``selection_reason="v1_max_thrust"`` (v1 provisional policy).
       2. Fallback: any ``fallback_only=True`` row for the motor. If
          *voltage_v* is given and at least one fallback row's voltage is
          within epsilon, prefer that subset; otherwise any fallback row is
@@ -603,10 +610,17 @@ def resolve_operating_point(
     fallback_matches: list[dict[str, Any]] = []
     for row in motor.operating_points:
         row_voltage = row.get("voltage_v")
+        # ★1 (Motor OP Voltage Coherence IC): an unknown query voltage no
+        # longer auto-matches every row — only a KNOWN, compatible voltage
+        # (or a row with no voltage_v of its own) qualifies for an exact
+        # match. This only gates the exact-match branch below; fallback
+        # matching (further down) keeps its own, separate voltage handling.
         voltage_matches = (
-            voltage_v is None
-            or row_voltage is None
-            or abs(float(row_voltage) - voltage_v) <= _OP_VOLTAGE_EPSILON_V
+            voltage_v is not None
+            and (
+                row_voltage is None
+                or abs(float(row_voltage) - voltage_v) <= _OP_VOLTAGE_EPSILON_V
+            )
         )
         if bool(row.get("fallback_only", False)):
             fallback_matches.append(row)

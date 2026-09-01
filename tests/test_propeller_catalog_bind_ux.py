@@ -104,7 +104,7 @@ def test_propeller_component_wizard_help_choose_after_motors_bound(tmp_path: Pat
 # ── 2. Pick → catalog_ref + exact OP re-resolve ─────────────────────────────
 
 
-def test_propeller_pick_sets_catalog_ref_and_reresolves_exact_op(tmp_path: Path):
+def test_propeller_pick_sets_catalog_ref_and_reresolves_op(tmp_path: Path):
     o = _fresh(tmp_path)
     _bind_op_motor(o)
     _open_component_wizard(o, ["motors", "propellers"])
@@ -122,13 +122,17 @@ def test_propeller_pick_sets_catalog_ref_and_reresolves_exact_op(tmp_path: Path)
     assert propellers.catalog_ref.family == "propeller"
     assert propellers.catalog_ref.sku == _OP_PROP_SKU
 
-    # ★5/★7: no battery step — propeller bind alone re-resolves exact OP.
+    # ★5/★7: no battery step — propeller bind alone re-resolves OP.
+    # Motor OP Voltage Coherence IC (MOP-1): with no battery bound, voltage
+    # is unknown, so this now HONESTLY resolves to fallback (10.042 N), not
+    # exact (9.7086 N would require a known, compatible voltage) — before
+    # MOP-1, voltage_v=None auto-matched the exact row, which was the bug.
     raw = project.current_parameters.get("propulsion_resolution")
     assert raw is not None
     resolution = json.loads(raw)
-    assert resolution["resolution_type"] == "exact_operating_point"
-    assert resolution["selection_reason"] == "v1_max_thrust"
-    assert project.current_parameters["per_motor_max_thrust_n"] == 9.7086
+    assert resolution["resolution_type"] == "fallback_operating_point"
+    assert resolution["voltage_validated"] is False
+    assert project.current_parameters["per_motor_max_thrust_n"] == 10.042
 
     session = o.state_manager.runtime_state.session
     assert session.propeller_suggestions == []

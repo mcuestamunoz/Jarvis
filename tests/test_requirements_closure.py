@@ -264,8 +264,10 @@ def test_extract_restrictions_update_ignores_unrelated_turns():
 
 
 def test_p2_propulsion_resolution_unchanged(tmp_path):
-    """Smoke: catalog-bound motor + propeller still resolve an exact
-    operating point — this IC touches only the requirements subsystem and
+    """Smoke: catalog-bound motor + propeller still resolve an operating
+    point (no battery bound → honest fallback per the Motor OP Voltage
+    Coherence IC's MOP-1, not exact — voltage_v=None no longer auto-matches
+    an exact row) — this IC touches only the requirements subsystem and
     the restrictions/derived-param write paths, never component_writers'
     propulsion bridge or the library/OP resolver."""
     import json
@@ -292,4 +294,5 @@ def test_p2_propulsion_resolution_unchanged(tmp_path):
     raw = updated.current_parameters.get("propulsion_resolution")
     assert raw is not None
     resolution = json.loads(raw)
-    assert resolution["resolution_type"] == "exact_operating_point"
+    assert resolution["resolution_type"] == "fallback_operating_point"
+    assert resolution["voltage_validated"] is False

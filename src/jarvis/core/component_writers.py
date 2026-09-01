@@ -41,7 +41,7 @@ import json
 from typing import Any
 
 from jarvis.domains.aerial import _frame_completeness
-from jarvis.knowledge.library import default_library, resolve_operating_point
+from jarvis.knowledge.library import _OP_VOLTAGE_EPSILON_V, default_library, resolve_operating_point
 from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
 from jarvis.tools.electricity import estimate_battery_mass_kg
 
@@ -119,6 +119,36 @@ def set_control_component(project_state: Any, spec: Any) -> Any:
     return project_state.model_copy(update={"design_properties": updated_dp})
 
 
+def _resolve_battery_voltage_v(components: dict[str, Any], current_parameters: dict[str, Any]) -> float | None:
+    """Derive the real pack voltage from the bound battery, if any.
+
+    Shared by ``set_motor_component`` (OP-resolution query voltage) and
+    ``set_battery_component``'s revalidation gate (Motor OP Voltage
+    Coherence IC, MOP-2) — single source for this derivation so both never
+    drift apart. Priority: catalog SKU's own ``nominal_voltage``/``cells``,
+    else ``current_parameters["battery_cell_count"]`` (3.7V/cell estimate).
+    """
+    battery = components.get("battery")
+    battery_catalog_ref = getattr(battery, "catalog_ref", None) if battery is not None else None
+    if battery_catalog_ref is not None and battery_catalog_ref.family == "battery":
+        try:
+            battery_spec = default_library.get_battery(battery_catalog_ref.sku)
+        except KeyError:
+            battery_spec = None
+        if battery_spec is not None:
+            if battery_spec.nominal_voltage is not None:
+                return float(battery_spec.nominal_voltage)
+            if battery_spec.cells is not None:
+                return float(battery_spec.cells) * 3.7
+    cell_count = current_parameters.get("battery_cell_count")
+    if cell_count is not None:
+        try:
+            return float(cell_count) * 3.7
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
 def set_battery_component(
     project_state: Any,
     spec: Any,
@@ -163,10 +193,56 @@ def set_battery_component(
     else:
         updated_params.pop("battery_cell_count", None)
 
-    return project_state.model_copy(update={
+    result = project_state.model_copy(update={
         "design_properties": updated_dp,
         "current_parameters": updated_params,
     })
+
+    # Motor OP Voltage Coherence IC (MOP-2, ★4 complement): a battery bind
+    # can be the FIRST time the motor's operating-point resolution ever
+    # learns the real pack voltage (motor/propeller are often bound before
+    # any battery). Re-resolve ONLY when the stored resolution was never
+    # voltage-validated, or was validated at a voltage the new battery no
+    # longer matches — NEVER unconditionally. An already voltage-validated,
+    # still-compatible exact match must not be re-triggered: re-running the
+    # resolver can legitimately downgrade it, and that specific stability is
+    # a locked P2-2/IC2 regression contract (see
+    # test_battery_pick_does_not_regress_already_resolved_propulsion_op).
+    # Single-writer locus (this hook, not duplicated per call site) —
+    # covers every set_battery_component caller uniformly (catalog pick,
+    # freeform description, DSE apply/iterate). Slightly redundant when
+    # reached via apply_components_delta's own _APPLY_ORDER loop (which
+    # unconditionally re-derives motors right after "battery" regardless),
+    # but harmless — see implementation report §MOP-2.
+    motors_spec = updated_components.get("motors")
+    motors_catalog_ref = getattr(motors_spec, "catalog_ref", None)
+    if motors_catalog_ref is not None and motors_catalog_ref.family == "motor":
+        stored_resolution_raw = updated_params.get("propulsion_resolution")
+        needs_revalidation = True
+        if stored_resolution_raw:
+            try:
+                stored_resolution = json.loads(stored_resolution_raw)
+            except (TypeError, ValueError, json.JSONDecodeError):
+                stored_resolution = None
+            if stored_resolution is not None and stored_resolution.get("voltage_validated", False):
+                prior_voltage = stored_resolution.get("resolved_at_voltage_v")
+                new_voltage = _resolve_battery_voltage_v(updated_components, updated_params)
+                if (
+                    prior_voltage is not None
+                    and new_voltage is not None
+                    and abs(float(prior_voltage) - float(new_voltage)) <= _OP_VOLTAGE_EPSILON_V
+                ):
+                    needs_revalidation = False
+        if needs_revalidation:
+            power_prop = motors_spec.properties.get("power_w")
+            power_w = (
+                float(power_prop.value)
+                if power_prop is not None and power_prop.value is not None
+                else updated_params.get("motor_power_w")
+            )
+            result = set_motor_component(result, motors_spec, power_w)
+
+    return result
 
 
 def set_motor_component(
@@ -258,26 +334,7 @@ def set_motor_component(
             else None
         )
 
-        voltage_v = None
-        battery = components.get("battery")
-        battery_catalog_ref = getattr(battery, "catalog_ref", None) if battery is not None else None
-        if battery_catalog_ref is not None and battery_catalog_ref.family == "battery":
-            try:
-                battery_spec = default_library.get_battery(battery_catalog_ref.sku)
-            except KeyError:
-                battery_spec = None
-            if battery_spec is not None:
-                if battery_spec.nominal_voltage is not None:
-                    voltage_v = float(battery_spec.nominal_voltage)
-                elif battery_spec.cells is not None:
-                    voltage_v = float(battery_spec.cells) * 3.7
-        if voltage_v is None:
-            cell_count = (project_state.current_parameters or {}).get("battery_cell_count")
-            if cell_count is not None:
-                try:
-                    voltage_v = float(cell_count) * 3.7
-                except (TypeError, ValueError):
-                    voltage_v = None
+        voltage_v = _resolve_battery_voltage_v(components, project_state.current_parameters or {})
 
         resolved_op = resolve_operating_point(
             spec.catalog_ref.sku, propeller_sku=propeller_sku, voltage_v=voltage_v,
@@ -303,6 +360,14 @@ def set_motor_component(
             "fallback_only": resolved_op.fallback_only,
             "source_reference": resolved_op.source_reference,
             "motor_sku": resolved_op.motor_sku,
+            # Motor OP Voltage Coherence IC (MOP-2): provenance of the QUERY
+            # voltage this resolution was made with — distinct from
+            # resolved_op.voltage_v (the matched row's own voltage). Lets a
+            # later battery bind tell "never voltage-validated" (this was
+            # None) apart from "validated at a voltage now incompatible with
+            # the real pack" without re-deriving anything.
+            "voltage_validated": voltage_v is not None,
+            "resolved_at_voltage_v": voltage_v,
         }, sort_keys=True)
         # Keep the component property coherent with the resolved thrust for
         # exact/fallback resolutions (a real operating point) — never for

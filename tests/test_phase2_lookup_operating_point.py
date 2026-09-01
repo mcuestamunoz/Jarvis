@@ -22,8 +22,8 @@ from pathlib import Path
 
 import pytest
 
-from jarvis.core.catalog_bind import bind_motor_from_catalog, bind_propeller_from_catalog
-from jarvis.core.component_writers import set_motor_component, set_propeller_component
+from jarvis.core.catalog_bind import bind_battery_from_catalog, bind_motor_from_catalog, bind_propeller_from_catalog
+from jarvis.core.component_writers import set_battery_component, set_motor_component, set_propeller_component
 from jarvis.core.orchestrator import JarvisOrchestrator
 from jarvis.knowledge.library import default_library, resolve_operating_point
 from jarvis.schemas.action_schema import CatalogRef
@@ -66,6 +66,19 @@ def test_exact_match_single_row():
     assert r.selection_reason == "v1_max_thrust"
     assert r.source_type == "manufacturer_test"
     assert r.fallback_only is False
+
+
+def test_unknown_voltage_never_matches_exact_row(tmp_path: Path):
+    """Motor OP Voltage Coherence IC (MOP-1, ★1): voltage_v=None must NOT
+    auto-match an exact row anymore — even with a real propeller_sku match
+    that WOULD be exact at a known, compatible voltage. This is the root
+    cause the dual-truth investigation traced: a motor/propeller bound
+    before any battery used to lock in an unvalidated exact_operating_point
+    (investigation_report_dse_motor_op_dual_truth.md §3.1)."""
+    r = resolve_operating_point("emax_rs2205s_2300", propeller_sku="hq_5045_bn", voltage_v=None)
+    assert r.resolution_type != "exact_operating_point"
+    assert r.resolution_type == "fallback_operating_point"
+    assert r.thrust_n == pytest.approx(10.042)
 
 
 def test_fallback_when_no_propeller_bound():
@@ -209,6 +222,32 @@ def test_bridge_writes_exact_resolution_with_matching_voltage(tmp_path: Path):
     motors_component = updated.design_properties.components["motors"]
     assert motors_component.properties["thrust_n"].value == pytest.approx(9.7086)
     assert motors_component.catalog_ref == CatalogRef(family="motor", sku="emax_rs2205s_2300")
+
+
+def test_bridge_motor_bind_before_battery_does_not_set_motor_op_power_w_from_exact_row(tmp_path: Path):
+    """Motor OP Voltage Coherence IC (MOP-1/MOP-2): motor+propeller bound
+    with NO battery at all (voltage unknown) must resolve honestly to
+    fallback — and since OP-0's fallback row has no electrical fields,
+    motor_op_power_w/current_a/rpm must be ABSENT, not silently carrying a
+    432W exact-row value that was never voltage-validated. This is the
+    exact lock-in this IC closes (investigation §3.1)."""
+    orch = _fresh_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+
+    prop_spec = bind_propeller_from_catalog("hq_5045_bn")
+    ps = set_propeller_component(ps, prop_spec)
+
+    motor_spec = bind_motor_from_catalog(_suggestion_for("emax_rs2205s_2300"))
+    updated = set_motor_component(ps, motor_spec, default_library.get_motor("emax_rs2205s_2300").max_watts)
+
+    raw = updated.current_parameters.get("propulsion_resolution")
+    resolution = json.loads(raw)
+    assert resolution["resolution_type"] == "fallback_operating_point"
+    assert resolution["voltage_validated"] is False
+    assert resolution["resolved_at_voltage_v"] is None
+    assert "motor_op_power_w" not in updated.current_parameters
+    assert "motor_op_current_a" not in updated.current_parameters
+    assert "motor_op_rpm" not in updated.current_parameters
 
 
 def test_bridge_battery_catalog_ref_voltage_takes_precedence(tmp_path: Path):
