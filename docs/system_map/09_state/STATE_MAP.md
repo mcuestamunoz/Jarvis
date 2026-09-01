@@ -13,7 +13,8 @@
 | `workspace/render_views.py` | `render_estado_actual`, `render_sistema` — `state.json` → markdown views (uses `project_closure`'s BOM, C-082) |
 | `workspace/file_writer.py` | Physical file I/O primitives |
 | `core/component_inference.py` | `infer_component[s]`, `infer_component_for_key` (FN-019) — free text → `ComponentSpec`, pure |
-| `core/component_writers.py` | `set_frame_material`, `set_control_component`, `set_battery_component`, `set_motor_component`, `set_propeller_component`, `apply_components_delta` — **the only** legal writers of `design_properties.components[key]` |
+| `core/component_writers.py` | `set_frame_material`, `set_control_component`, `set_battery_component`, `set_motor_component`, `set_propeller_component`, `apply_components_delta` — **the only** legal writers of `design_properties.components[key]`; motor OP bridge via `knowledge/library.resolve_operating_point` |
+| `knowledge/library.py` | `ComponentLibrary`, catalog rows, **`resolve_operating_point`** (P2-1/P2-2; v0.3.4 MOP-1 exact match requires explicit voltage) — consumed by `component_writers`, not by CalculationEngine directly |
 | `core/component_rules.py` | `ComponentRule`, `ComponentRuleRegistry` — the domain-agnostic matching primitive |
 | `domains/aerial.py`, `domains/ground.py` | Data: keyword tables + property extractors per domain |
 | `schemas/action_schema.py`, `schemas/state_schema.py` | `ProjectState`, `InteractiveSessionState`, `OrchestratorMode`, `ComponentSpec`, `PropertyValue`, `RuntimeState`, `CatalogRef` |
@@ -44,6 +45,16 @@ Implemented at `orchestrator._set_pending_next_block`'s gate (calls `StateManage
 
 `battery_capacity_wh`, `battery_mass_kg`, `battery_cell_count`, `motor_power_w`, `motor_kv_rating`, `propeller_diameter_in`, `propeller_pitch_in` must **never** be written directly to `current_parameters` — only via their designated `component_writers` function. `motor_count` is the one deliberate exception (settable by both component and numeric wizard). Enforced by convention + `tests/test_d4_param_gatekeeper.py`, not by a runtime guard.
 
+## Propulsion operating point + voltage coherence (P2-2 / v0.3.4 MOP)
+
+When motor (+ propeller) are catalog-bound, `set_motor_component` calls `library.resolve_operating_point(motor_sku, propeller_sku, voltage_v)` and mirrors results into `current_parameters` (`motor_op_power_w`, thrust, current, …) plus a JSON **`propulsion_resolution`** blob on the motor spec with `voltage_validated` and `resolved_at_voltage_v`.
+
+- **MOP-1:** `resolve_operating_point` exact match requires `voltage_v is not None` — motor+prop bind before battery cannot lock an exact row at an implicit voltage.
+- **MOP-2:** `set_battery_component`'s tail re-calls `set_motor_component` only when stored resolution was never voltage-validated, or validated voltage is incompatible with the new pack (within `_OP_VOLTAGE_EPSILON_V`). Already-validated same-voltage OP is left untouched (`test_battery_pick_does_not_regress_already_resolved_propulsion_op`).
+- **Voltage source:** shared `_resolve_battery_voltage_v()` reads bound battery nominal voltage from components/params.
+
+DSE explore/apply coherence for params-only candidates is owned by `04_engineering` (MOP-3/MOP-4); this subsystem supplies the live params + resolution metadata they read.
+
 ## LLM
 
 NO — zero LLM involvement anywhere in this subsystem.
@@ -54,4 +65,4 @@ None currently open (FN-021 closed the one open issue this subsystem had).
 
 ## Tests
 
-`tests/test_d4_param_gatekeeper.py`, `tests/test_project_closure_v1.py`, `tests/test_project_coherence.py`, `tests/test_fn020_completeness_coherence.py`, component-writer-specific tests (`test_frame_component.py`, `test_battery_component.py`, `test_motor_component.py`, `test_control_component.py`), `tests/test_fn021_session_hygiene.py`, **`tests/test_requirements_closure.py`**, **`tests/test_catalog_bind_v1.py`**.
+`tests/test_d4_param_gatekeeper.py`, `tests/test_project_closure_v1.py`, `tests/test_project_coherence.py`, `tests/test_fn020_completeness_coherence.py`, component-writer-specific tests (`test_frame_component.py`, `test_battery_component.py`, `test_motor_component.py`, `test_control_component.py`), `tests/test_fn021_session_hygiene.py`, **`tests/test_requirements_closure.py`**, **`tests/test_catalog_bind_v1.py`**, **`tests/test_phase2_lookup_operating_point.py`**, **`tests/test_dse_motor_op_dual_truth.py`**, **`tests/test_impl_d_sku_bom.py`**.

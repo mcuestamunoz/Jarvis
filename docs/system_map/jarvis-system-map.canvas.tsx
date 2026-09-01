@@ -9,6 +9,7 @@
  *   63 connected · 1 removed (C-032 G23) · 2 partial (C-081, C-108) · 10 forbidden.
  * Updated 2026-08-10 FN-024 · 2026-08-12 FN-025/026 · 2026-08-18 ERF-1 · 2026-08-19 ERF-2.
  * Updated 2026-08-20 G21/G22 (C-030 catalog bind UX) · G23 (C-032 REMOVED — FN-015 deleted).
+ * Updated 2026-09-01 v0.3.4 Motor OP Voltage Coherence — doc sync only (MOP-1…MOP-4); no new C-xxx.
  * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
  * Internal G23 anti-LLM gate (confusion phrase → re-ask / project_status) is not a C-xxx edge.
  */
@@ -599,6 +600,14 @@ export default function JarvisSystemMapCanvas() {
         internal anti-LLM confusion gate only (not a new C-xxx). C-038 callers
         no longer include the deleted help path. Report: .jes/artifacts/
         implementation_report_g23_remove_fn015.md
+      </Callout>
+
+      <Callout tone="info" title="v0.3.4 Motor OP Voltage Coherence (2026-09-01)">
+        Doc sync only — no new C-xxx. Exact OP requires explicit pack voltage
+        (MOP-1); battery bind may conditionally re-resolve motor OP when never
+        validated or voltage-incompatible (MOP-2); DSE baseline uses live params
+        (MOP-3). Registry unchanged: 63 connected · 1 removed · 2 partial.
+        Report: .jes/artifacts/implementation_report_motor_op_voltage_coherence.md
       </Callout>
 
       <Callout tone="info" title="ERF-2 + ERF-1">

@@ -20,7 +20,7 @@ CONNECTIONS.md
 | Set | Count | Notes |
 |---|---:|---|
 | Registry edges (canonical) | **65** | Only count this |
-| Connected 🟢 | **64** | of 65 |
+| Connected 🟢 | **63** | of 65 (C-032 ⛔ removed) |
 | Broken 🔴 | **0** | — |
 | Partial 🟡 | **2** | C-081, C-108 |
 | Forbidden transitions | **+10** | Not registry edges |
@@ -37,6 +37,8 @@ CONNECTIONS.md
 **ERF-2 (2026-08-19):** C-111–C-112 added (`electrical_compatibility` pure checks → readiness gap generation; ESC acquisition routing). C-107 updated (9 subsystems, +`electronics`). C-110 updated (9 readiness lines). `INCOMPATIBLE` verdicts with ★3 gate. Tag `checkpoint-erf2` (`9af0cc9`).
 
 **Project Closure (2026-08-31):** IC 1–3 doc sync — C-030 expanded (motor/propeller/battery catalog pick); C-082/C-107 detail updated (`sku_resolved` propeller branch display-only; `requirements_declared` explicit-none). **No new C-xxx.** Tags: `checkpoint-requirements-closure` → `checkpoint-battery-catalog-bind-ux` → `checkpoint-closure-policy` (`8728a85`). As-is sync: `ARCHITECTURE.md`, `system_map/*`. Product contract: `ENGINEERING_READINESS_VISION.md` §11.
+
+**Motor OP Voltage Coherence (2026-09-01):** MOP-1…MOP-4 doc sync — `library.resolve_operating_point` requires explicit voltage for exact match; `component_writers` stores `propulsion_resolution.voltage_validated` / conditional battery-bind re-resolve; `DesignExplorer.explore` baseline uses live `current_parameters`; explore message honesty when OP unvalidated. **No new C-xxx.** Tag: `checkpoint-motor-op-voltage-coherence` (`a563fe7` / `v0.3.4`). Detail: C-030 mutation note, C-091/`09_state`, `04_engineering`. Probe hygiene: `cli_probe_impl_d_sku_bom.py` G24D step 3 (`0db2d2b`).
 
 Canvas / this file manually mirror the registry (known drift risk). When adding a connection: update Canonical registry first, then Detail, then DIAGRAMS + canvas.
 

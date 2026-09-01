@@ -121,6 +121,8 @@ No other mismatches were found between `docs/ARCHITECTURE.md`/`docs/PROJECT_CONT
 
 **2026-08-18 addendum:** CLI polish S1–S7 landed at `15aa503` (`checkpoint-continuity-polish`). System map subsystem files `02_intent`, `03_acquisition`, `08_continuity` updated for `list_motors`, force-motors, G9-B demotion, FN-013 pending sync. Later same day, `d224dc1` closed M-006/G20 by introducing dynamic composite in-progress labels.
 
+**2026-09-01 addendum:** Motor OP Voltage Coherence @ `v0.3.4` closed doc drift where several map rows still said "battery bind must not re-call `set_motor_component`" (IC 2/P2-2 framing). Correct as-of v0.3.4: orchestrator battery pick still calls `set_battery_component` only; that writer **conditionally** re-resolves motor OP when `propulsion_resolution` was never voltage-validated or pack voltage is incompatible — unchanged when already validated at the same voltage. Updated: `CONNECTIONS.md` C-030, `AUTHORITY.md`, `03_acquisition`, `09_state`, `04_engineering`, `DIAGRAMS.md`, canvas.
+
 ---
 
 ## The FN-021 sticky-state lesson (why this matters for future handoff design)

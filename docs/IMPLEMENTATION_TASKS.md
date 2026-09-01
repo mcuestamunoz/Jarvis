@@ -16,7 +16,7 @@
 > **Investigación:** [report](../.jes/artifacts/investigation_report_dse_motor_op_dual_truth.md) · [review PASS WITH NOTES](../.jes/artifacts/investigation_review_dse_motor_op_dual_truth.md)  
 > **IC:** [contract](../.jes/artifacts/implementation_contract_motor_op_voltage_coherence.md) · [report](../.jes/artifacts/implementation_report_motor_op_voltage_coherence.md) · [review PASS WITH NOTES](../.jes/artifacts/implementation_review_motor_op_voltage_coherence.md)  
 > **Suite:** **2036** · probe **6/6** · P2-2 + Validation Case **6/6** · cliff DSE cerrado (8.325=8.325, 12.8077=12.8077)  
-> **Hygiene pendiente (fuera de arc):** `cli_probe_impl_d_sku_bom.py` step 3 — drift G24D  
+> **Hygiene:** `cli_probe_impl_d_sku_bom.py` step 3 G24D drift — **done** (`0db2d2b`)  
 > **Congelado.** Candidatos siguientes (sin schedule): **H5** · **G24-B** · **battery/ESC curation** · **FN-R** — requiere investigación nueva.
 
 ### 🟢 COMPLETADO — Motor OP Voltage Coherence implementación (2026-09-01)

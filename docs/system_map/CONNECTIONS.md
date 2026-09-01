@@ -29,6 +29,8 @@ CONNECTIONS.md
 
 **G23 (2026-08-20):** **C-032** flipped 🟢→⛔ **REMOVED** — FN-015 pending-help feature deleted in full (Brief replay, IDLE wizard auto-open). Replacement is **not** a new C-xxx: `is_define_missing_confusion_phrase` + `_define_missing_confusion_reask` (anti-LLM gate only; short re-ask in `DEFINE_MISSING`, `project_status` at IDLE). **C-038** callers updated (FN-015's `_help_current_pending_acquisition` removed). Registry: **63🟢 · 1⛔ · 2🟡** (C-032 removed; C-081 + C-108 partial). Report: [`.jes/artifacts/implementation_report_g23_remove_fn015.md`](../../.jes/artifacts/implementation_report_g23_remove_fn015.md).
 
+**Motor OP Voltage Coherence (2026-09-01, v0.3.4):** No registry change. **C-030** / **C-091** detail updated: battery catalog bind still routes through `set_battery_component` only at the orchestrator layer, but that writer now **conditionally** re-calls `set_motor_component` when stored `propulsion_resolution` was never `voltage_validated` or is validated at an incompatible pack voltage — preserving the P2-2/IC2 lock when already validated at the same voltage. `library.resolve_operating_point` exact match now requires `voltage_v is not None`. Report: [`.jes/artifacts/implementation_report_motor_op_voltage_coherence.md`](../../.jes/artifacts/implementation_report_motor_op_voltage_coherence.md).
+
 **Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables. The only authoritative count is the length of **Canonical registry** below.
 
 Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror this registry; if they diverge, **this file wins**.
@@ -330,10 +332,10 @@ Evidence: `core/orchestrator.py:846,850,864,906`.
 | Symbols | `is_help_choose_phrase`, `_try_start_assisted_motor_help`; `_offer/_apply_component_{motor,propeller,battery}_catalog*`; `catalog_bind.bind_*_from_catalog` → `component_writers.set_*` |
 | Payload | `"ayúdame a elegir"`, pick `N` |
 | Authority | `motor_catalog_assist.py`, `battery_catalog_assist.py`, `catalog_bind.py`, orchestrator pick handlers |
-| Mutation | YES (bind + component writer; battery path must **not** re-call `set_motor_component` — IC 2) |
+| Mutation | YES (bind + component writer). Battery pick calls `set_battery_component` only at orchestrator layer; that writer **conditionally** re-calls `set_motor_component` when OP was never voltage-validated or pack voltage changed beyond `_OP_VOLTAGE_EPSILON_V` (v0.3.4 MOP-2). Unconditional motor re-call on every battery bind remains forbidden (P2-2/IC2 lock). |
 | LLM | NO |
-| Status | 🟢 CONNECTED (G21 motor; v0.3.0 propeller; IC 2 battery + G27 hardening) |
-| Evidence | `core/orchestrator.py`, `core/motor_catalog_assist.py`, `core/battery_catalog_assist.py`, `core/catalog_bind.py`, `tests/test_propeller_catalog_bind_ux.py`, `tests/test_battery_catalog_bind_ux.py` |
+| Status | 🟢 CONNECTED (G21 motor; v0.3.0 propeller; IC 2 battery + G27 hardening; v0.3.4 MOP-2 conditional OP re-resolve) |
+| Evidence | `core/orchestrator.py`, `core/motor_catalog_assist.py`, `core/battery_catalog_assist.py`, `core/catalog_bind.py`, `core/component_writers.py` (`set_battery_component` tail), `tests/test_propeller_catalog_bind_ux.py`, `tests/test_battery_catalog_bind_ux.py`, `tests/test_dse_motor_op_dual_truth.py` |
 
 ### C-031 — Runtime (IDLE) → FN-014 acquisition mention → wizard open
 | Field | Value |
