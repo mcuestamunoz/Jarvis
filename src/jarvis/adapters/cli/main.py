@@ -158,6 +158,43 @@ def _render_readiness_block(readiness: dict) -> list[str]:
     return lines
 
 
+def _render_estimative_endurance_lines(envelope: list | None) -> list[str]:
+    """Shared ESTIMATIVO block for ``estado`` and the calculate/iterate reply.
+
+    Heading locked by P27-B §4.2. Empty/missing envelope → no lines.
+    """
+    if not envelope:
+        return []
+    lines = [
+        "",
+        "Autonomía estimada (ESTIMATIVO — no validado, no es tiempo de vuelo):",
+    ]
+    for row in envelope:
+        outcome = row.get("outcome")
+        r_mohm = round(row["r_internal_ohm"] * 1000, 2) if row.get("r_internal_ohm") is not None else None
+        r_scope = row.get("r_internal_scope") or "?"
+        i_load = row.get("i_load_a")
+        v_cutoff = row.get("v_cutoff_v")
+        v_scope = row.get("voltage_scope") or "?"
+        if row.get("i_load_label"):
+            i_bit = f"I={i_load} A (n×I_hover, no es I_pack)"
+        else:
+            i_bit = f"I={i_load} A (hipótesis)"
+        descriptor = (
+            f"R={r_mohm} mΩ {r_scope} (asumido) · {i_bit} · "
+            f"Vcut={v_cutoff} V {v_scope}"
+        )
+        if outcome == "sustainable":
+            stopping = row.get("stopping_condition")
+            note = " · corte no alcanzado (capacidad nominal)" if stopping == "nameplate_exhausted" else ""
+            lines.append(f"  {descriptor} → {row.get('endurance_min')} min{note}")
+        elif outcome == "infeasible":
+            lines.append(f"  {descriptor} → INVIABLE")
+        else:
+            lines.append(f"  {descriptor} → entrada inválida ({row.get('reason')})")
+    return lines
+
+
 def render_startup_context(ctx: dict) -> str:
     """Render a build_startup_context dict as a concise CLI block."""
     if not ctx.get("has_project"):
@@ -201,7 +238,13 @@ def render_startup_context(ctx: dict) -> str:
             for p in missing:
                 hint_text = param_hint(p)
                 lines.append(f"   • {p}  {hint_text}".rstrip())
-    elif status_type == "warning":
+    elif status_type == "warning" and not continuity.get("situation"):
+        # CLI fail-routing coherence (implementation_contract_cli_fail_
+        # routing_coherence.md §2.6): gate on continuity.situation exactly
+        # like the nominal/no_data siblings below — Continuity's situation
+        # line already names the raw sim status honestly (including "fail");
+        # printing a second, hardcoded "WARNING" line on top of it
+        # contradicted that line whenever sim.status was actually "fail".
         reason = ctx.get("status_reason") or ""
         short = WARNING_SHORT.get(reason, reason) if reason else "warning activo"
         lines.append(f"{icon}Última simulación: WARNING ({short})")
@@ -277,7 +320,21 @@ def render_startup_context(ctx: dict) -> str:
         thrust_n = propulsion_resolution.get("thrust_n")
         suffix = ""
         if resolution_type == "fallback_operating_point":
-            suffix = " (sin hélice de catálogo)"
+            # §2.7: the resolver's own fallback row may carry no
+            # propeller_sku (a resolver-identity fact) even when the BOM
+            # already has a real catalog propeller bound — check BOM
+            # identity, not the resolver row, before claiming "no catalog
+            # propeller" to the user.
+            _bom = ctx.get("component_bom") or {}
+            _propeller_catalog_bound = any(
+                entry.get("key") == "propellers" and entry.get("catalog_ref")
+                for bucket in ("defined", "incomplete", "declarative")
+                for entry in (_bom.get(bucket) or [])
+            )
+            if _propeller_catalog_bound:
+                suffix = " (fallback de fabricante — combo exacto no usable)"
+            else:
+                suffix = " (sin hélice de catálogo)"
         lines.append("")
         label = f"Propulsión (evidencia): {resolution_type} · {source_type}"
         if thrust_n is not None:
@@ -326,38 +383,60 @@ def render_startup_context(ctx: dict) -> str:
                 bits.append(f"hover_energy_autonomy_min≈{round(autonomy_min, 2)} min")
             lines.append(f"Energía hover (evidencia): {' · '.join(bits)}")
 
-    # Phase 2.7-B (Parametric / Estimative Battery Endurance Sweep,
-    # ★1-★5/★★1-★★13) — OPT-IN, absent unless the caller supplied an
-    # explicit assumption sweep for this calculation. Every row is a
-    # labeled hypothesis (source_type=assumed), never SKU truth, never a
-    # single number, never conflated with hover_energy or autonomy_min
-    # above (rendered as its own, separately-headed block).
-    battery_endurance = ctx.get("battery_endurance")
-    if battery_endurance and battery_endurance.get("envelope"):
-        lines.append("")
-        lines.append("Autonomía estimada (ESTIMATIVO — no validado, no es tiempo de vuelo):")
-        for row in battery_endurance["envelope"]:
-            outcome = row.get("outcome")
-            r_mohm = round(row["r_internal_ohm"] * 1000, 2) if row.get("r_internal_ohm") is not None else None
-            r_scope = row.get("r_internal_scope") or "?"
-            i_load = row.get("i_load_a")
-            v_cutoff = row.get("v_cutoff_v")
-            v_scope = row.get("voltage_scope") or "?"
-            descriptor = f"R={r_mohm} mΩ {r_scope} (asumido) · I={i_load} A (hipótesis) · Vcut={v_cutoff} V {v_scope}"
-            if outcome == "sustainable":
-                stopping = row.get("stopping_condition")
-                note = " · corte no alcanzado (capacidad nominal)" if stopping == "nameplate_exhausted" else ""
-                lines.append(f"  {descriptor} → {row.get('endurance_min')} min{note}")
-            elif outcome == "infeasible":
-                lines.append(f"  {descriptor} → INVIABLE")
-            else:
-                lines.append(f"  {descriptor} → entrada inválida ({row.get('reason')})")
+    # Phase 2.7-B / Option A — ESTIMATIVO block (same helper as calculate reply).
+    lines.extend(_render_estimative_endurance_lines(
+        (ctx.get("battery_endurance") or {}).get("envelope")
+    ))
 
     # ERF-1 Slice 5 — Engineering Readiness block (8 subsystems + overall + top gaps)
     readiness = ctx.get("readiness")
     if readiness:
         lines.append("")
         lines.extend(_render_readiness_block(readiness))
+
+    # Block Closure B-PROP-ENERGY IC §4 — one locked line, block-scoped.
+    # Never a synonym of PROJECT STATUS above (Finding B-3: the two answer
+    # different questions — a project can be block-closed and NOT
+    # assembly-ready at the same time — and must not be collapsed into one
+    # claim). Locked wording verbatim; no freelanced "closed" phrasing.
+    block_closure = ctx.get("prop_energy_block_closure")
+    if block_closure:
+        status = block_closure.get("status")
+        if status == "closed":
+            tier = block_closure.get("evidence_tier")
+            if tier == "manufacturer_test":
+                closure_line = (
+                    "BLOQUE PROPULSIÓN/ENERGÍA: CERRADO — evidencia manufacturer_test "
+                    "(punto de operación coincidente)"
+                )
+            elif tier == "fallback":
+                closure_line = (
+                    "BLOQUE PROPULSIÓN/ENERGÍA: CERRADO — evidencia fallback "
+                    "(combo exacto no usable; no es manufacturer_test)"
+                )
+            else:
+                closure_line = (
+                    "BLOQUE PROPULSIÓN/ENERGÍA: CERRADO — evidencia débil "
+                    "(no hay punto de operación de catálogo)"
+                )
+        else:
+            # N1 fix (implementation_review_block_closure_prop_energy.md):
+            # the "battery_discharge_exceeded" reason token also fires when
+            # discharge is merely unverifiable (compat != within_limit), not
+            # only when it is actually exceeded. The locked "descarga
+            # excedida" sentence is a specific claim — only print it when
+            # facts confirm "exceeded"; every other not_closed case gets the
+            # generic sentence (same discipline as "sin hélice de catálogo").
+            facts = block_closure.get("facts") or {}
+            if facts.get("battery_discharge") == "exceeded":
+                closure_line = "BLOQUE PROPULSIÓN/ENERGÍA: NO CERRADO — descarga de batería excedida"
+            else:
+                closure_line = (
+                    "BLOQUE PROPULSIÓN/ENERGÍA: NO CERRADO — el stack de propulsión/energía "
+                    "no está cerrado"
+                )
+        lines.append("")
+        lines.append(closure_line)
 
     return "\n".join(lines)
 
@@ -425,7 +504,17 @@ def render_response(result: dict) -> str:
             thrust_available = calculations.get("available_total_thrust_n")
             thrust_str = f"{thrust_available} N" if thrust_available is not None else "sin definir"
             autonomy_min = calculations.get("autonomy_min")
-            autonomy_str = f", autonomía={round(autonomy_min, 1)} min" if autonomy_min is not None else ""
+            if autonomy_min is not None:
+                autonomy_str = f", autonomía={round(autonomy_min, 1)} min"
+            elif any(
+                tr.get("tool_name") == "missing_energy_parameters"
+                for tr in (calculations.get("tool_results") or [])
+            ):
+                # §2.6: honest omission was silent — name the gap instead of
+                # saying nothing about the user's own autonomy objective.
+                autonomy_str = ", autonomía=no calculada (sin evidencia de potencia — no es tiempo de vuelo)"
+            else:
+                autonomy_str = ""
             parts.append(
                 "Cálculos: "
                 f"masa_total={calculations['total_mass_kg']} kg, "
@@ -434,6 +523,9 @@ def render_response(result: dict) -> str:
                 f"empuje_disponible={thrust_str}"
                 f"{autonomy_str}"
             )
+            parts.extend(_render_estimative_endurance_lines(
+                calculations.get("battery_endurance_envelope")
+            ))
 
         simulation = result.get("simulation")
         if simulation:
@@ -443,7 +535,13 @@ def render_response(result: dict) -> str:
             else:
                 raw_warnings = simulation.get("warnings", [])
                 autonomy_min = simulation.get("autonomy_min")
-                autonomy_str = f", autonomía={round(autonomy_min, 1)} min" if autonomy_min is not None else ""
+                if autonomy_min is not None:
+                    autonomy_str = f", autonomía={round(autonomy_min, 1)} min"
+                elif simulation.get("energy_status") == "missing_energy_parameters":
+                    # §2.6: same honest-omission fix as the calculate line above.
+                    autonomy_str = ", autonomía=no calculada (sin evidencia de potencia — no es tiempo de vuelo)"
+                else:
+                    autonomy_str = ""
                 parts.append(
                     "Simulación: "
                     f"status={simulation['status']}, "

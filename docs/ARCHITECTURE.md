@@ -677,6 +677,8 @@ El orden derivado reemplaza el antiguo `recommended_start` hardcodeado en el cat
 
 ### Riesgos conocidos (deuda técnica)
 
+Physics gated on lab/datasheet (ESC η, battery C-rate, sag) lives in [`docs/HARDWARE_DEBT.md`](HARDWARE_DEBT.md) — not in this software-debt list.
+
 1. `SYSTEM_DEPENDENCIES` es estático — no derivado de la física del proyecto
 2. `compute_priority_order` ignora `payload`, `restrictions` y parámetros actuales — el orden es el mismo para todo proyecto del mismo dominio
 3. `ReasoningLayer` no consume `system_priority` ni `DependencyGraph` — los insights causales ("no puedes mejorar autonomía sin tocar propulsión") están diferidos
@@ -988,7 +990,7 @@ en la regla correspondiente — sin modificar el resolver.
 ### Limitaciones actuales del modelo físico
 
 - El motor de cálculo soporta torque → fuerza, pero requiere `wheel_radius_m` + `gear_ratio` declarados explícitamente en `current_parameters`. Sin estos, `available_total_thrust_n` queda `None`.
-- Modelo energético parcial: `calculate_autonomy_min(battery_capacity_wh, total_power_w)` calcula autonomía en minutos (`(wh/w)×60`). `energy_status: EnergyStatus` y `autonomy_min: float | None` son campos independientes en `SimulationResult` — no entran en `warnings` para preservar la jerarquía `status_type`. Sin curva de descarga ni modelo de C-rating.
+- Modelo energético en tres capas (producto cerrado; lab = [`HARDWARE_DEBT.md`](HARDWARE_DEBT.md)): L1 `hover_energy_autonomy_min` = nameplate Wh / potencia de entrada de motor (Combo A ≈ 1.32 min — **no** es tiempo de vuelo ni cota inferior física). `calculate_autonomy_min` sigue siendo `(wh/w)×60` para el campo sim `autonomy_min`. Phase 2.6 (`P_battery`) y 2.7-A (autonomía *validada* bajo carga) **congelados**. L2 envelope **ESTIMATIVO** (4S, caller opt-in / product writer) es visible en `calcular`/`estado` — no SKU, no curva de descarga, no C-rate usable. `energy_status` / `autonomy_min` no entran en `warnings`.
 - No existe acoplamiento componente auxiliar ↔ actuador: hélice (aéreo) y transmisión (terrestre) no se modelan todavía como parámetros físicos derivados.
 
 El sistema soporta múltiples magnitudes vía `output_magnitude`. Para aéreo: conversión completa.
@@ -1018,6 +1020,7 @@ Funciones:
 
 - `calculate_autonomy_min(battery_capacity_wh, total_power_w)` → `autonomy_min` (minutos)
   Fórmula: `t = (wh / w) × 60`
+- `estimate_loaded_endurance(...)` — L2 **opt-in** (Phase 2.7-B). Fórmula parametrizada; **no** inventa Voc/R/I por defecto. El grid de producto 4S vive en `core/endurance_sweep_writer.py` (no en este archivo). DSE no llama al writer.
 
 ### Herramientas de aerodinámica
 
@@ -1471,10 +1474,11 @@ Implementado:
 - `IntentResolver` — `project_status` intent; `STATUS_PATTERNS` + `GUIDANCE_PATTERNS` (FN-023 next-step help) antes de `ANALYZE`; consultas de estado/orientación no entran por `analyze`
 - **Acquisition Fluency + Continuity (FN-014…023)** — `acquisition_target` / `acquisition_brief` / `project_continuity` / `classify_component`; IDLE Engineering Intent (`is_engineering_intention` → `goal_plan`); session hygiene a IDLE (FN-021). Field notes: `PROJECT_CONTINUITY.md`. Create→BOM y Step D: aún no en este mapa.
 - `knowledge/library.py` — capa de biblioteca determinista (no RAG): `ComponentLibrary` carga catálogos JSON de materiales y motores desde `library/`. Lookups exactos (`get_material`, `get_motor`), sugerencia por KV (`find_motors_by_kv`) y por **espacio de diseño** (`find_motors_for_requirements`: empuje/KV/hélice). Cada entrada declara la región que cubre (`design_space`). Sin match → hueco honesto, nunca inventar SKU.
-- `tools/mechanics.py` — `calculate_autonomy_min(battery_capacity_wh, total_power_w)` — dominio energético; fórmula `(wh/w)×60`
-- `tools/electricity.py` — `calculate_autonomy_min` — movida desde `mechanics.py` a su dominio correcto (energía/electricidad)
+- `tools/mechanics.py` — (histórico) `calculate_autonomy_min` vivió aquí; canónico ahora en `electricity.py`
+- `tools/electricity.py` — `calculate_autonomy_min` `(wh/w)×60`; `estimate_loaded_endurance` (L2 opt-in, sin Voc/R/I por defecto)
+- `core/endurance_sweep_writer.py` — writer de producto 4S ESTIMATIVO (`build_with_estimative_sweep`); no persiste el sweep; DSE / wizard / create no lo llaman
 - `schemas/tool_schema.py` — `EnergyStatus` type; `energy_status` + `autonomy_min` en `SimulationResult`; `autonomy_min: float | None` en `CalculationBundle`
-- `calculation_engine.py` — bloque energético: traza `missing_energy_parameters` cuando faltan params; calcula `autonomy_min` cuando ambos presentes
+- `calculation_engine.py` — bloque energético: `hover_energy_autonomy_min` (L1, siempre que aplique); `autonomy_min` `(wh/w)×60`; L2 envelope **solo** si el caller ya puso `battery_endurance_sweep` (el writer de producto no vive aquí)
 - `simulation/simulator.py` — `energy_status` derivado del trace; campo independiente (no entra en `warnings`)
 - `reasoning_layer.py` — señal `missing_energy_parameters`; insight + tradeoff + suggested action para energía; `_detect_missing_energy_params`; prioridad: `missing_physics_parameters` > `declarative_context` > `missing_energy_parameters`
 - `parameter_requirements.py` — metadata de `battery_capacity_wh` y `motor_power_w`; proactive question de energía sin restricción de fase

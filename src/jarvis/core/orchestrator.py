@@ -26,7 +26,12 @@ from jarvis.core.interactive_session import CreateProjectInteractiveSession
 from jarvis.core.intent_resolver import IntentResolver
 from jarvis.core.iterate_interactive_session import IterateInteractiveSession
 from jarvis.core.param_definition_session import ParamDefinitionSession
-from jarvis.core.project_closure import component_presence_tier
+from jarvis.core.project_closure import (
+    catalog_bound_motor_covers_power_w,
+    component_presence_tier,
+    derive_prop_energy_block_closure,
+    param_present_for_architecture,
+)
 from jarvis.core.system_definition_session import SystemDefinitionSession
 from jarvis.core.parameter_requirements import (
     DEFAULT_MISSING_FORCE_REASON,
@@ -1471,6 +1476,46 @@ class JarvisOrchestrator:
         params = project_state.current_parameters or {}
         simulation = project_state.latest_results.get("simulation") or {}
 
+        # Catalog-bound motor (possibly without nameplate W) is done on this
+        # surface — IDLE help-choose must fall through to propeller/battery,
+        # not open a motor_power_w wizard that cannot invent watts.
+        #
+        # T1 (implementation_contract_cli_catalog_assist_t1.md §2.2): "bound"
+        # alone is not "done" — a bound SKU that has drifted underspec (no
+        # longer covers current thrust) must reopen the motor catalog list
+        # instead of silently falling through to a dead-end estado reprint.
+        # G21's guarantee (a still-covering bound motor never gets re-offered)
+        # stays intact: this only adds a branch for the underspec case.
+        if catalog_bound_motor_covers_power_w(project_state.design_properties):
+            from jarvis.core.engineering_readiness import (
+                bound_motor_needs_watts_recovery,
+                bound_motor_sku_is_underspec,
+            )
+
+            if bound_motor_sku_is_underspec(project_state):
+                session = self.state_manager.get_runtime_session()
+                updated = session.model_copy(update={
+                    "mode": OrchestratorMode.DEFINE_MISSING_PARAMETERS,
+                    "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
+                    "pending_missing_params": ["motors"],
+                    "pending_define_missing": False,
+                })
+                self.state_manager.set_runtime_session(updated)
+                return self._offer_component_motor_catalog(updated, ["motors"])
+            if bound_motor_needs_watts_recovery(project_state):
+                session = self.state_manager.get_runtime_session()
+                updated = session.model_copy(update={
+                    "mode": OrchestratorMode.DEFINE_MISSING_PARAMETERS,
+                    "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
+                    "pending_missing_params": ["motors"],
+                    "pending_define_missing": False,
+                })
+                self.state_manager.set_runtime_session(updated)
+                return self._offer_component_motor_catalog(
+                    updated, ["motors"], watts_recovery=True
+                )
+            return None
+
         if simulation.get("physics_status") == "missing_parameters":
             reason = missing_force_reason_from_warnings(simulation.get("warnings") or [])
             if reason == MISSING_PROPULSION_PARAMETERS:
@@ -1719,7 +1764,12 @@ class JarvisOrchestrator:
         param_reason = get_param_reason_for_block(block_key)
         if not param_reason:
             return []
-        return missing_params_for_reason(param_reason, project_state.current_parameters or {})
+        current = project_state.current_parameters or {}
+        dp = project_state.design_properties
+        return [
+            p for p in params_for_reason(param_reason)
+            if not param_present_for_architecture(p, current, dp)
+        ]
 
     def _try_reprompt_active_block_declaration(self, user_input: str) -> dict | None:
         """FN-013: block-level help while DEFINE_MISSING is already active.
@@ -1913,7 +1963,10 @@ class JarvisOrchestrator:
             param_reason = get_param_reason_for_block(block)
             if param_reason:
                 required = params_for_reason(param_reason)
-                defined = [p for p in required if params.get(p) is not None] if required else []
+                defined = [
+                    p for p in required
+                    if param_present_for_architecture(p, params, design_properties)
+                ] if required else []
                 params_ok = bool(required) and len(defined) == len(required)
             else:
                 # No param side → params criterion is satisfied trivially.
@@ -1946,6 +1999,11 @@ class JarvisOrchestrator:
         if not non_low:
             return "not_started"
         if len(non_low) == len(component_keys):
+            if block == "structure":
+                from jarvis.core.project_closure import frame_size_blocks_structure_complete
+
+                if frame_size_blocks_structure_complete(design_properties, params):
+                    return "in_progress"
             return "complete"
         return "in_progress"
 
@@ -2035,7 +2093,12 @@ class JarvisOrchestrator:
         if block_type == "param":
             # Param-driven block: load the missing params for the numeric wizard.
             param_reason = get_param_reason_for_block(block_key)
-            missing = missing_params_for_reason(param_reason, project_state.current_parameters or {})
+            missing = [
+                p for p in params_for_reason(param_reason)
+                if not param_present_for_architecture(
+                    p, project_state.current_parameters or {}, project_state.design_properties
+                )
+            ]
             if not missing:
                 return
             updated_session = self.state_manager.runtime_state.session.model_copy(update={
@@ -2061,7 +2124,12 @@ class JarvisOrchestrator:
             else:
                 # Phase B: components OK → numeric param wizard.
                 param_reason = get_param_reason_for_block(block_key)
-                missing = missing_params_for_reason(param_reason, project_state.current_parameters or {})
+                missing = [
+                    p for p in params_for_reason(param_reason)
+                    if not param_present_for_architecture(
+                        p, project_state.current_parameters or {}, project_state.design_properties
+                    )
+                ]
                 if not missing:
                     return
                 updated_session = self.state_manager.runtime_state.session.model_copy(update={
@@ -2162,7 +2230,11 @@ class JarvisOrchestrator:
         if param_reason:
             required = params_for_reason(param_reason)
             current = project_state.current_parameters or {}
-            missing_params = [p for p in required if current.get(p) is None] if required else []
+            dp = project_state.design_properties
+            missing_params = [
+                p for p in required
+                if not param_present_for_architecture(p, current, dp)
+            ] if required else []
         else:
             missing_params = []
 
@@ -2198,10 +2270,29 @@ class JarvisOrchestrator:
         return f"{base} ({' + '.join(parts)})"
 
     def _component_prompt_for_first_missing(self, keys: list[str]) -> str:
-        """Return a context-specific description prompt for the first key in ``keys``."""
+        """Return a context-specific description prompt for the first key in ``keys``.
+
+        CLI fail-routing coherence (implementation_contract_cli_fail_routing_
+        coherence.md §2.1/§2.3): when the first missing key is "frame", ask
+        for whatever ``frame_next_missing_question`` says is actually still
+        missing (mass/material, size class, or class incompatibility) —
+        single source shared with Acquisition Brief so the two never
+        diverge. Static default (``_COMPONENT_PROMPTS``) is unchanged for
+        every other case — no new wizard subsystem, best-effort project
+        lookup only.
+        """
         if not keys:
             return "Describe el componente."
-        return _COMPONENT_PROMPTS.get(keys[0], f"Describe el componente: {keys[0]}")
+        default_prompt = _COMPONENT_PROMPTS.get(keys[0], f"Describe el componente: {keys[0]}")
+        if keys[0] == "frame":
+            from jarvis.core.project_closure import frame_next_missing_question
+
+            project_state = self._safe_active_project()
+            if project_state is not None:
+                specific_question = frame_next_missing_question(project_state)
+                if specific_question:
+                    return specific_question
+        return default_prompt
 
     def _apply_inferred_component_spec(
         self, project_state: ProjectState, spec: ComponentSpec
@@ -2210,9 +2301,11 @@ class JarvisOrchestrator:
         if spec.suggested_key == "frame":
             mass_prop = spec.properties.get("mass_kg")
             mat_prop = spec.properties.get("material")
+            size_prop = spec.properties.get("size_class_inch")
             mass_val: float | None = mass_prop.value if mass_prop else None
             material_val: str | None = mat_prop.value if mat_prop else None
-            updated_state = set_frame_material(project_state, mass_val, material_val)
+            size_val: float | None = size_prop.value if size_prop else None
+            updated_state = set_frame_material(project_state, mass_val, material_val, size_val)
             try:
                 params = updated_state.current_parameters or {}
                 calculations = self.calculation_engine.build(params)
@@ -2527,7 +2620,7 @@ class JarvisOrchestrator:
         return "Indica el valor del parámetro pendiente."
 
     def _offer_component_motor_catalog(
-        self, session: Any, expected_keys: list[str]
+        self, session: Any, expected_keys: list[str], *, watts_recovery: bool = False
     ) -> dict[str, Any]:
         """G21 ★3: catalog list bridge for the motors COMPONENT sub-mode
         (MISSING_COMPONENT_DEFINITION) — same design-space filters and
@@ -2538,15 +2631,30 @@ class JarvisOrchestrator:
         """
         from jarvis.core.motor_catalog_assist import (
             build_motor_catalog_suggestions,
+            build_nameplate_watts_motor_suggestions,
+            build_underspec_motor_offer,
             derive_kv_prop_filters,
             format_motor_catalog_suggestions,
             format_no_thrust_candidate_message,
+            format_underspec_relax_catalog,
+            format_watts_recovery_catalog,
         )
+        from jarvis.core.engineering_readiness import bound_motor_sku_is_underspec
 
         project_state = self._safe_active_project()
-        suggestions = (
-            build_motor_catalog_suggestions(project_state) if project_state is not None else []
+        underspec = (
+            project_state is not None and bound_motor_sku_is_underspec(project_state)
         )
+        if watts_recovery and project_state is not None:
+            suggestions = build_nameplate_watts_motor_suggestions(project_state)
+        elif underspec:
+            suggestions = build_underspec_motor_offer(project_state)
+        else:
+            suggestions = (
+                build_motor_catalog_suggestions(project_state)
+                if project_state is not None
+                else []
+            )
         # Prop-3 ★4/§2 (Bat-3: extended to battery): offering a fresh motor
         # list retires any pending propeller/battery pick to avoid
         # cross-pick ambiguity (symmetric with _offer_component_propeller_
@@ -2556,6 +2664,12 @@ class JarvisOrchestrator:
         })
         self.state_manager.set_runtime_session(updated)
         if not suggestions:
+            if watts_recovery:
+                return {
+                    "status": "interactive",
+                    "action": "component_description_prompt",
+                    "message": format_watts_recovery_catalog([]),
+                }
             from jarvis.core.project_closure import derive_physical_requirements
 
             kv_hint, prop_inch = derive_kv_prop_filters(project_state)
@@ -2571,12 +2685,22 @@ class JarvisOrchestrator:
                     required_n=thrust_hint, kv=kv_hint, prop_inch=prop_inch
                 ),
             }
+        if watts_recovery:
+            message = format_watts_recovery_catalog(
+                suggestions, param="per_motor_max_thrust_n"
+            )
+        elif underspec:
+            message = format_underspec_relax_catalog(
+                suggestions, param="per_motor_max_thrust_n"
+            )
+        else:
+            message = format_motor_catalog_suggestions(
+                suggestions, param="per_motor_max_thrust_n"
+            )
         return {
             "status": "interactive",
             "action": "component_description_prompt",
-            "message": format_motor_catalog_suggestions(
-                suggestions, param="per_motor_max_thrust_n"
-            ),
+            "message": message,
             "motor_suggestions": suggestions,
         }
 
@@ -2594,6 +2718,7 @@ class JarvisOrchestrator:
         sub-mode.
         """
         from jarvis.core.catalog_bind import bind_motor_from_catalog
+        from jarvis.core.motor_catalog_assist import format_motor_chosen_line
 
         watts_raw = suggestion.get("max_watts")
         watts = float(watts_raw) if watts_raw is not None else None
@@ -2614,10 +2739,11 @@ class JarvisOrchestrator:
         )
         self.state_manager.set_runtime_session(cleared)
 
-        power_bit = f"~{int(watts)}W, " if watts is not None else ""
-        saved_msg = (
-            f"Motor elegido: {suggestion['name']} ({power_bit}{suggestion['thrust_n']}N)."
-        )
+        saved_msg = format_motor_chosen_line(suggestion)
+        if suggestion.get("prop_mismatch"):
+            saved_msg += (
+                " Nota: la hélice vinculada puede no ser compatible; redefine propellers."
+            )
         components = updated_state.design_properties.components
         still_missing = [
             k for k in expected_keys
@@ -2902,7 +3028,29 @@ class JarvisOrchestrator:
             (getattr(gate_project_state.design_properties, "components", {}) or {})
             if gate_project_state is not None else {}
         )
-        motors_want_help = "motors" in expected_keys and _wants_catalog_help(gate_components.get("motors"))
+        # T1 (implementation_contract_cli_catalog_assist_t1.md §2.3): OR in
+        # underspec so a composite wizard re-shows the motor list when the
+        # bound SKU has drifted (no longer covers current thrust), even
+        # though _wants_catalog_help alone reads a bound catalog_ref as
+        # "done." Propeller/battery _wants_catalog_help stay untouched —
+        # underspec detection only exists for motors (see investigation
+        # report, Gate E Path 2).
+        from jarvis.core.engineering_readiness import bound_motor_sku_is_underspec
+        from jarvis.core.motor_catalog_assist import is_help_choose_phrase as _motors_help_choose
+
+        # G18 `definir motor` opens a motors-only COMPONENT wizard. Help-choose
+        # there is an explicit re-pick, even when the bound SKU still covers
+        # thrust (IDLE covering stays G21: no motor picker). Composite wizards
+        # keep the T1 covering rule (do not starve propellers).
+        _motors_only_redefine = expected_keys == ["motors"]
+        motors_want_help = "motors" in expected_keys and (
+            _wants_catalog_help(gate_components.get("motors"))
+            or (
+                gate_project_state is not None
+                and bound_motor_sku_is_underspec(gate_project_state)
+            )
+            or (_motors_only_redefine and _motors_help_choose(user_input))
+        )
         propellers_want_help = "propellers" in expected_keys and _wants_catalog_help(gate_components.get("propellers"))
 
         if motors_want_help or ("motors" in expected_keys and session.motor_suggestions):
@@ -3179,9 +3327,17 @@ class JarvisOrchestrator:
                     saved_msg += " ✓ Bloque completado: " + ", ".join(newly_complete) + "."
 
             components = updated_state.design_properties.components
+            # CLI fail-routing coherence (implementation_contract_cli_fail_
+            # routing_coherence.md §2.2): a "high"-completeness frame (mass +
+            # material declared) must still count as "missing" here when it
+            # still needs a size class or has an incompatible one — otherwise
+            # the wizard closes on class-missing instead of asking for it.
+            from jarvis.core.project_closure import frame_next_missing_datum
+
             still_missing = [
                 k for k in expected_keys
                 if components.get(k) is None or components[k].completeness == "low"
+                or (k == "frame" and frame_next_missing_datum(updated_state) is not None)
             ]
 
             if not still_missing:
@@ -3215,14 +3371,40 @@ class JarvisOrchestrator:
             not expected_keys and spec.suggested_key == "frame"
         ):
             # Frame's fine-grained probe stays intact — unbroken (criterion H).
-            has_mass = "mass_kg" in spec.properties
-            has_material = "material" in spec.properties
-            if has_material and not has_mass:
-                msg = "¿Cuánto pesa el frame? Ej: '450g' o '0.45kg'"
-            elif has_mass and not has_material:
-                msg = "¿De qué material es? Ej: 'fibra de carbono' o 'aluminio'"
+            # CLI fail-routing coherence (implementation_contract_cli_fail_
+            # routing_coherence.md §2.3): decide from PERSISTED frame
+            # properties merged with whatever this turn parsed, not from
+            # spec.properties (this turn's text) alone — that was the walk
+            # bug: "ayúdame a elegir" after "PVC 650g" was already saved
+            # re-asked for mass/material instead of the missing size class,
+            # because the fresh probe on "ayúdame a elegir" has neither.
+            probe_project_state = self._safe_active_project()
+            if probe_project_state is not None:
+                from types import SimpleNamespace
+
+                from jarvis.core.project_closure import frame_next_missing_question
+
+                existing_frame = probe_project_state.design_properties.components.get("frame")
+                merged_properties = dict(getattr(existing_frame, "properties", None) or {})
+                merged_properties.update(spec.properties or {})
+                probe_components = dict(probe_project_state.design_properties.components)
+                probe_components["frame"] = SimpleNamespace(properties=merged_properties)
+                probe_state = SimpleNamespace(
+                    design_properties=SimpleNamespace(components=probe_components),
+                    current_parameters=probe_project_state.current_parameters,
+                )
+                msg = frame_next_missing_question(probe_state) or (
+                    "Indica material y masa. Ej: 'fibra de carbono 450g'"
+                )
             else:
-                msg = "Indica material y masa. Ej: 'fibra de carbono 450g'"
+                has_mass = "mass_kg" in spec.properties
+                has_material = "material" in spec.properties
+                if has_material and not has_mass:
+                    msg = "¿Cuánto pesa el frame? Ej: '450g' o '0.45kg'"
+                elif has_mass and not has_material:
+                    msg = "¿De qué material es? Ej: 'fibra de carbono' o 'aluminio'"
+                else:
+                    msg = "Indica material y masa. Ej: 'fibra de carbono 450g'"
         elif expected_keys:
             # FN-018 C1c: same Brief builder as the other entry points —
             # degrades to the plain COMPONENT_PROMPTS text (via
@@ -3282,7 +3464,35 @@ class JarvisOrchestrator:
         progress = self._architecture_progress_str(project_state)
         pending = self._next_pending_block(project_state)
         if pending is None:
-            hint = f"\n\n✓ Arquitectura completa ({progress}) — puedes optimizar o simular."
+            from jarvis.core.project_closure import derive_physical_requirements
+            from jarvis.core.project_continuity import _autonomy_objective_undemonstrated
+
+            latest = project_state.latest_results or {}
+            req = derive_physical_requirements(project_state)
+            calc = latest.get("calculations") or {}
+            sim = latest.get("simulation") or {}
+            if _autonomy_objective_undemonstrated(req, calc, sim):
+                # §2.3 (implementation_contract_cli_stale_energy_recalc.md):
+                # architecture is complete but the autonomy objective is not
+                # demonstrated yet — Continuity's footer already owns the next
+                # step (recalc / watts-recovery / declare); don't compete with
+                # a generic "puedes optimizar o simular" on this turn.
+                return result
+            # CLI fail-routing coherence (implementation_contract_cli_fail_
+            # routing_coherence.md §2.5): a real simulation failure (fail
+            # status or can_fly False) — even with the autonomy objective
+            # itself met — must not be answered with "puedes optimizar o
+            # simular". Keep the evidence line ("Arquitectura completa")
+            # without the non-action suffix; Continuity's rank-2 branch
+            # (§2.4) owns the honest next step.
+            _sim_is_failing = (
+                (sim.get("status") or "").lower() not in ("pass", "", "ok")
+                or sim.get("can_fly") is False
+            )
+            if _sim_is_failing:
+                hint = f"\n\n✓ Arquitectura completa ({progress})."
+            else:
+                hint = f"\n\n✓ Arquitectura completa ({progress}) — puedes optimizar o simular."
         else:
             block_key, block_status = pending
             label = self._block_label_for(project_state, block_key)
@@ -3718,6 +3928,86 @@ class JarvisOrchestrator:
                 ),
             }
 
+        # DSE apply honesty (implementation_contract_dse_apply_honest.md),
+        # params-only candidates only: (§2.1) a bound catalog motor's real
+        # nameplate watts always wins over whatever motor_power_w_factor
+        # _apply_delta just wrote — never write invented consumption below a
+        # declared nameplate. (§2.2) when the applied battery_capacity_wh
+        # exactly matches one catalog pack, bind that SKU instead of leaving
+        # a stale name/catalog_ref next to a new parametric Wh; two-or-more
+        # matches refuse the apply outright rather than pick one in silence.
+        # Component-driven candidates (best.components_delta) already carry
+        # their own catalog identity via apply_components_delta — untouched.
+        _nameplate_forced_w: float | None = None
+        _nameplate_motor_sku: str | None = None
+        _battery_bound_sku: str | None = None
+        _battery_bound_wh: float | None = None
+        _battery_parametric_wh: float | None = None
+        if not best.components_delta:
+            from jarvis.core.catalog_bind import (
+                bind_battery_from_catalog,
+                catalog_motor_nameplate_watts,
+                find_battery_skus_for_energy_wh,
+            )
+            from jarvis.core.component_writers import set_battery_component
+            from jarvis.knowledge.library import default_library as _default_library
+
+            _base_components_pre = project_state.design_properties.components
+
+            nameplate_w = catalog_motor_nameplate_watts(_base_components_pre)
+            if nameplate_w is not None:
+                pre_delta_w = canonical_params.get("motor_power_w")
+                if pre_delta_w is None or abs(float(pre_delta_w) - float(nameplate_w)) > 1e-6:
+                    _nameplate_forced_w = float(nameplate_w)
+                    motor_catalog_ref = getattr(_base_components_pre.get("motors"), "catalog_ref", None)
+                    _nameplate_motor_sku = getattr(motor_catalog_ref, "sku", None)
+                canonical_params["motor_power_w"] = float(nameplate_w)
+
+            old_wh = base_params.get("battery_capacity_wh")
+            new_wh = canonical_params.get("battery_capacity_wh")
+            wh_changed = new_wh is not None and (
+                old_wh is None or abs(float(new_wh) - float(old_wh)) > 1e-6
+            )
+            if wh_changed:
+                matches = find_battery_skus_for_energy_wh(float(new_wh))
+                if len(matches) > 1:
+                    return {
+                        "status": "error",
+                        "action": "apply_exploration_result",
+                        "message": (
+                            f"Hay más de un pack de catálogo con {float(new_wh):g} Wh. "
+                            "No se aplica en silencio. Elige una batería del catálogo o "
+                            "un candidato sin ambigüedad."
+                        ),
+                    }
+                if len(matches) == 1:
+                    sku = matches[0]
+                    # No `base=`: this is a switch to a *different* SKU (the
+                    # old bound pack's Wh just diverged), so the spec must be
+                    # rebuilt fresh — merging onto the old spec would keep its
+                    # stale `.name` (walk lock: not "lipo_4s_5000mah" at 148
+                    # Wh) next to the new catalog_ref/properties.
+                    battery_spec = bind_battery_from_catalog(sku)
+                    lib_energy_wh = _default_library.get_battery(sku).energy_wh
+                    updated_project = set_battery_component(
+                        project_state, battery_spec, capacity_wh=lib_energy_wh
+                    )
+                    # Only refresh the battery-owned keys — preserve every
+                    # other _apply_delta/nameplate-derived param (§2.2.3):
+                    # catalog mass replaces the 150 Wh/kg heuristic, catalog
+                    # Wh replaces the parametric value (should already match
+                    # within epsilon), cell_count comes from the SKU.
+                    _battery_params = updated_project.current_parameters or {}
+                    for _k in ("battery_capacity_wh", "battery_mass_kg", "battery_cell_count"):
+                        if _k in _battery_params:
+                            canonical_params[_k] = _battery_params[_k]
+                        else:
+                            canonical_params.pop(_k, None)
+                    _battery_bound_sku = sku
+                    _battery_bound_wh = float(lib_energy_wh)
+                else:
+                    _battery_parametric_wh = float(new_wh)
+
         # Catalog v1 (Impl B): a params-only candidate scales physics directly
         # in current_parameters without ever touching the component spec — so
         # a SKU-bound motor/battery would otherwise keep a stale catalog_ref
@@ -3844,6 +4134,25 @@ class JarvisOrchestrator:
             message_parts.append(
                 "\n⚠️  Nota: este candidato no mejora la línea base del objetivo "
                 f"«{exploration.goal_label}». Configuración aplicada por solicitud explícita."
+            )
+
+        # DSE apply honesty (§2.4): disclose when nameplate W was kept over a
+        # would-be-lower delta value, and what happened to a Wh change vs the
+        # battery catalog (unique bind, or honestly parametric).
+        if _nameplate_forced_w is not None:
+            message_parts.append(
+                f"\nEl motor de catálogo {_nameplate_motor_sku} declara "
+                f"{_nameplate_forced_w:g} W de placa. No se ha escrito un consumo inferior."
+            )
+        if _battery_bound_sku is not None:
+            message_parts.append(
+                f"\nBatería vinculada a {_battery_bound_sku} ({_battery_bound_wh:g} Wh, "
+                "masa de catálogo)."
+            )
+        elif _battery_parametric_wh is not None:
+            message_parts.append(
+                f"\n{_battery_parametric_wh:g} Wh no coinciden con un pack del catálogo. "
+                "La capacidad es paramétrica; catalog_ref de batería no queda vinculado."
             )
 
         # Bug 79: check constraint violations after applying the candidate.
@@ -4095,6 +4404,12 @@ class JarvisOrchestrator:
                 ]
             if not _energy_missing_comps:
                 missing_params = missing_params_for_reason(MISSING_ENERGY_PARAMETERS, params)
+                # CLI feasibility vs readiness semantics IC (§2.4): a catalog-
+                # bound motor that honestly has no nameplate wattage is not a
+                # gap the user can close by "defining" motor_power_w — do not
+                # keep asking. Unbound motors (no catalog_ref) are unaffected.
+                if catalog_bound_motor_covers_power_w(_dp):
+                    missing_params = [p for p in missing_params if p != "motor_power_w"]
                 if missing_params:
                     param_list = " y ".join(missing_params)
                     proactive_question = f"¿Definimos {param_list} (energía) ahora?"
@@ -4141,7 +4456,20 @@ class JarvisOrchestrator:
                                     f"{arch_next_label} en progreso — define los parámetros que faltan."
                                 )
                         else:
-                            proactive_question = (
+                            # CLI fail-routing coherence (implementation_
+                            # contract_cli_fail_routing_coherence.md §2.3):
+                            # "structure" is a component-type block whose
+                            # only key is "frame" — when it's in_progress for
+                            # a class reason (not mass/material), name that
+                            # instead of the generic fallback.
+                            _frame_question = None
+                            if arch_next_block == "structure":
+                                from jarvis.core.project_closure import (
+                                    frame_next_missing_question,
+                                )
+
+                                _frame_question = frame_next_missing_question(project_state)
+                            proactive_question = _frame_question or (
                                 f"{arch_next_label} en progreso — define los parámetros que faltan."
                             )
                     else:
@@ -4182,7 +4510,19 @@ class JarvisOrchestrator:
                         else:
                             proactive_question = f"Siguiente bloque: {arch_next_label}"
             else:
-                if not proactive_question:
+                # CLI fail-routing coherence (implementation_contract_cli_
+                # fail_routing_coherence.md §2.5): architecture-complete is
+                # evidence, not a resolution action — do not suggest
+                # "optimizar o simular" while the last simulation is a real
+                # failure (fail status or can_fly False). Continuity's rank-2
+                # branch (§2.4) already owns the honest next step for that
+                # state; architecture progress fields themselves stay
+                # untouched either way.
+                _sim_is_failing = (
+                    (simulation.get("status") or "").lower() not in ("pass", "", "ok")
+                    or simulation.get("can_fly") is False
+                )
+                if not proactive_question and not _sim_is_failing:
                     proactive_question = (
                         f"Arquitectura completa ({arch_progress}) — "
                         f"puedes optimizar o simular."
@@ -4278,9 +4618,9 @@ class JarvisOrchestrator:
             "hover_energy": _hover_energy_from_calculations(
                 project_state.latest_results.get("calculations")
             ),
-            # Phase 2.7-B — opt-in only, None unless the caller supplied a
-            # battery_endurance_sweep for this calculation (★1: ESTIMATIVE
-            # sweep only, never a default single-number result).
+            # Phase 2.7-B / Option A — envelope from latest calculations
+            # (product writer on calculate/iterate, or an explicit sweep).
+            # Never a default single-number result. DSE apply does not write this.
             "battery_endurance": _battery_endurance_from_calculations(
                 project_state.latest_results.get("calculations")
             ),
@@ -4291,6 +4631,14 @@ class JarvisOrchestrator:
             "continuity": continuity,
             # ERF-1 — Engineering Readiness (Gap Registry + 8-subsystem rollup)
             "readiness": dataclasses.asdict(readiness),
+            # Block Closure B-PROP-ENERGY IC — block-scoped rollup, answers a
+            # DIFFERENT question than ASSEMBLY_READY above (Finding B-3: a
+            # project can be block-closed and NOT assembly-ready at the same
+            # time). Ephemeral ctx only — not persisted to a workspace file,
+            # not a new subsystem, does not touch `readiness`/`overall`.
+            "prop_energy_block_closure": derive_prop_energy_block_closure(
+                project_state, readiness=readiness
+            ),
         }
 
     def _build_analyze_context(self, project_state) -> dict[str, Any]:

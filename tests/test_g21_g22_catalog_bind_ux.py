@@ -94,6 +94,28 @@ def test_g21_component_wizard_pick_sets_catalog_ref(tmp_path: Path):
     assert session.motor_suggestions == []
 
 
+def test_g21_component_wizard_pick_verified_motor_without_nominal_watts(tmp_path: Path):
+    """Same SKU as the DEFINE_MISSING int(None) crash — component wizard
+    already omitted W in copy; lock that pick still binds."""
+    o = _fresh(tmp_path)
+    _open_component_wizard(o, ["motors", "propellers"])
+    listed = o.handle_user_text("ayúdame a elegir", _FakeLLM())
+    suggestions = listed["motor_suggestions"]
+    target = next((s for s in suggestions if s["name"] == "emax_rs2205s_2300"), None)
+    assert target is not None, "expected emax_rs2205s_2300 in the G21 shortlist"
+    assert target["max_watts"] is None
+
+    result = o.handle_user_text(str(target["idx"]), _FakeLLM())
+    assert result.get("status") == "ok"
+    assert "emax_rs2205s_2300" in (result.get("message") or "")
+    assert "~None" not in (result.get("message") or "")
+    project = o.state_manager.load_active_project(o.workspace_manager)
+    motors = project.design_properties.components["motors"]
+    assert motors.catalog_ref is not None
+    assert motors.catalog_ref.sku == "emax_rs2205s_2300"
+    assert "power_w" not in (motors.properties or {})
+
+
 def _project_with_unbound_freeform_motor(tmp_path: Path, *, catalog_ref=None):
     """Motor already declared (power AND thrust already answered — e.g. via a
     manual N value, not a catalog pick) so propulsion params are no longer
@@ -180,6 +202,98 @@ def test_g21_idle_help_choose_noop_when_catalog_ref_set(tmp_path: Path):
     # never a stray/misrouted motor prompt.
     if result.get("action") == "component_description_prompt":
         assert session.pending_missing_params == ["propellers"]
+
+
+def test_g21_idle_help_choose_reopens_motor_list_when_bound_sku_underspec(tmp_path: Path):
+    """T1 (implementation_contract_cli_catalog_assist_t1.md §2.2/§3): the
+    field walk fixture (inspección-autonomía-mínima-5-minutos/eb61a0ed6fe2)
+    — motor bound to ``sunnysky_r2305_2500``, propeller bound to
+    ``gf_5045x3``, battery re-bound to a heavy 6S pack — drifts the bound
+    motor underspec after ``calcular``/``simular``. IDLE 'ayúdame a elegir'
+    must reopen the numbered motor catalog list (or the honest empty-search
+    sentence), never a bare estado/project_status reprint — the genuine
+    G9-A-class stuck loop this IC fixes. Does not touch derive_prop_energy_
+    block_closure or _derive_overall (not exercised by this fixture/assert)."""
+    from jarvis.core.catalog_bind import (
+        bind_battery_from_catalog,
+        bind_motor_from_catalog,
+        bind_propeller_from_catalog,
+    )
+    from jarvis.core.component_writers import (
+        set_battery_component,
+        set_motor_component,
+        set_propeller_component,
+    )
+
+    o = _fresh(tmp_path)
+    ps = o.state_manager.load_active_project(o.workspace_manager)
+    ps = ps.model_copy(update={"current_parameters": {**ps.current_parameters, "motor_count": 2}})
+    m = default_library.get_motor("sunnysky_r2305_2500")
+    motor_spec = bind_motor_from_catalog({
+        "name": m.name, "max_watts": m.max_watts, "thrust_n": m.thrust_n,
+        "kv_rating": m.kv_rating, "weight_g": m.weight_g, "is_generic": m.is_generic,
+    })
+    ps = set_motor_component(ps, motor_spec, m.max_watts)
+    ps = set_propeller_component(ps, bind_propeller_from_catalog("gf_5045x3"))
+    battery_spec = bind_battery_from_catalog("lipo_6s_10000mah")
+    ps = set_battery_component(ps, battery_spec, battery_spec.properties["battery_capacity_wh"].value)
+    o.workspace_manager.save_state(ps)
+
+    o.handle_user_text("calcular", _FakeLLM())
+    o.handle_user_text("simular", _FakeLLM())
+
+    ps = o.state_manager.load_active_project(o.workspace_manager)
+    assert ps.latest_results["simulation"]["status"] == "fail"
+    readiness = build_engineering_readiness(ps)
+    assert (readiness.motor_catalog_gap_fact or "").startswith("bound_sku_underspec:")
+
+    result = o.handle_user_text("ayúdame a elegir", _FakeLLM())
+
+    assert result.get("action") != "project_status"
+    message = result.get("message", "")
+    assert (
+        "Candidatos del catálogo" in message
+        or "No tengo un motor" in message
+        or "Filtros relajados" in message
+    )
+    session = o.state_manager.runtime_state.session
+    assert session.mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS
+    assert session.pending_missing_params == ["motors"] or bool(session.motor_suggestions)
+
+    # Same phrase twice must not be a stuck loop — still a real list, not a
+    # dead-end (the exact bug this IC fixes).
+    result2 = o.handle_user_text("ayúdame a elegir", _FakeLLM())
+    assert result2.get("action") != "project_status"
+    message2 = result2.get("message", "")
+    assert (
+        "Candidatos del catálogo" in message2
+        or "No tengo un motor" in message2
+        or "Filtros relajados" in message2
+    )
+
+
+def test_idle_help_choose_catalog_bound_without_watts_opens_propellers_not_power_w(tmp_path: Path):
+    """Field: after binding emax_rs2205s_2300 (no nameplate W), IDLE
+    'ayúdame a elegir' opened a motor_power_w wizard. Must fall through to
+    propellers instead."""
+    from jarvis.core.catalog_bind import bind_motor_from_catalog
+    from jarvis.core.component_writers import set_motor_component
+    from jarvis.core.motor_catalog_assist import motor_spec_to_suggestion
+
+    o = _fresh(tmp_path)
+    motor = default_library.get_motor("emax_rs2205s_2300")
+    spec = bind_motor_from_catalog(motor_spec_to_suggestion(motor, idx=1))
+    ps = o.state_manager.load_active_project(o.workspace_manager)
+    o.workspace_manager.save_state(set_motor_component(ps, spec, None))
+    o.state_manager.clear_runtime_session()
+
+    result = o.handle_user_text("ayúdame a elegir", _FakeLLM())
+    session = o.state_manager.runtime_state.session
+    pending = session.pending_missing_params or []
+    assert "motor_power_w" not in pending
+    assert pending != ["motors"]
+    assert pending == ["propellers"]
+    assert result.get("action") != "project_status"
 
 
 # ── Slice 2 (G22): single strict catalog authority ──────────────────────────

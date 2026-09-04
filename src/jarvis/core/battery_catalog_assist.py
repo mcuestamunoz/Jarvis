@@ -31,6 +31,7 @@ __all__ = [
     "battery_spec_to_suggestion",
     "is_help_choose_phrase",
     "match_suggestion_by_input",
+    "detect_battery_sku_token",
 ]
 
 
@@ -82,6 +83,30 @@ def build_battery_catalog_suggestions(
         battery_spec_to_suggestion(b, idx=i + 1)
         for i, b in enumerate(matches[:limit])
     ]
+
+
+def detect_battery_sku_token(user_input: str, *, library: ComponentLibrary | None = None) -> str | None:
+    """Block Closure B-PROP-ENERGY IC §2 (battery re-bind prerequisite): does
+    free text name a live library battery SKU verbatim, e.g. "definir
+    bateria lipo_6s_10000mah" or "cambia la bateria a lipo_6s_10000mah"?
+
+    Distinct from ``match_suggestion_by_input`` (matches a whole reply
+    against a pre-offered numbered list, e.g. after "ayúdame a elegir") —
+    this scans arbitrary free text for an embedded SKU token, the shape
+    ``ParamDefinitionSession.try_ingest`` needs before it ever reaches its
+    opportunistic numeric parser (which would otherwise misparse the "6"
+    out of "..._6s_..." and destroy an existing ``catalog_ref`` — the
+    G27-class failure, on a distinct code path from G27's own wizard-path
+    fix). SKU names are snake_case and specific enough (e.g.
+    ``lipo_6s_10000mah``) that plain substring containment is safe — no
+    normalization beyond lowercasing is needed for these ASCII identifiers.
+    """
+    lib = library or default_library
+    normalized = user_input.lower()
+    for spec in lib.list_batteries():
+        if spec.name in normalized:
+            return spec.name
+    return None
 
 
 def _format_candidate_line(s: BatterySuggestion) -> str:

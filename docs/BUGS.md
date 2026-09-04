@@ -1,6 +1,7 @@
 # Jarvis — Bug Tracker (fase CLI real)
 
 > **Living CLI findings (G9–G23, post-catalog):** [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md) — authoritative for routing/Continuity UX gaps outside numbered bugs below.  
+> **Auditoría de código del núcleo (3 sep 2026, Fase O):** [`docs/CODE_AUDIT_CORE.md`](CODE_AUDIT_CORE.md) — authoritative for cross-cutting patterns, `orchestrator.py` size/complexity, and refactor recommendations outside Bugs 80–112 below. Todos ⬜ Pendiente — review en cola, ver `IMPLEMENTATION_TASKS.md`.  
 > **Status (2026-08-20):** **G21/G22** — motors catalog bind (component wizard + IDLE) + single strict catalog authority — **review PASS, commit pending**. **G23** — FN-015 acquisition-help feature removed in full (anti-LLM confusion gate kept, minimal) — **implemented, awaiting review**.  
 > **Roadmap / queue:** [`docs/IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md) · **Checkpoint:** `checkpoint-g9a`.
 
@@ -1237,3 +1238,474 @@ x] Bug 57 · `core/iterate_interactive_session.py` — `Siguiente paso recomenda
 
 **N4 — Escape suave en DEFINE_MISSING** (UX)
 - [x] Bug 77 · `core/param_definition_session.py` — `_SKIP_PHRASES` + rama de deferimiento antes del error numérico
+
+---
+
+## Fase O — Auditoría de código del núcleo (3 septiembre 2026)
+
+> Contexto: por petición directa del usuario ("los archivos core me preocupan"), no un walk manual de CLI como las fases anteriores. 5 investigaciones en paralelo, lectura completa (no fragmentos) de ~24.017 líneas en `core/` + `actions/`, `adapters/cli/main.py`, `knowledge/library.py`, `domains/`. Los 5 hallazgos de mayor severidad se verificaron con ejecución real, incluyendo reproducir end-to-end el crash de Bug 80.
+> **Informe completo (patrones transversales, métricas de `orchestrator.py`, recomendaciones de arquitectura):** [`docs/CODE_AUDIT_CORE.md`](CODE_AUDIT_CORE.md).
+> Último count antes de esta sesión: 79 bugs. Esta sesión abre 80–112. **Todos ⬜ Pendiente** — auditoría pura, cero código tocado.
+
+---
+
+## 🔴 Críticos (Fase O)
+
+### Bug 80 — `ZeroDivisionError` sin capturar con `motor_count=0` (Crítico)
+
+> Reproducido de extremo a extremo con la conversación real: "modifica el número de motores" → "sí" → "motores" → "0" → "sí" → "sí" → "sí" (confirmación estructural FN-004) → `ZeroDivisionError: float division by zero`, propagada hasta `orchestrator.handle_user_text`.
+
+- **Archivos afectados:** `tools/mechanics.py` (`calculate_force_per_actuator`), `core/calculation_engine.py` (`build`), `core/mutation_engine.py` (`apply_numeric_param_mutation`)
+- **Causa raíz:** `calculate_force_per_actuator` (`tools/mechanics.py:50`) hace `required_force_n / actuator_count` sin guard. `apply_numeric_param_mutation` no aplica ningún mínimo al patchear un parámetro numérico directo, y `motor_count` es `NUMERIC_DIRECT` con keywords `"motores"/"motors"/"actuadores"`.
+- **Matiz verificado:** el bucle principal del CLI (`adapters/cli/main.py:869`) tiene un `except Exception` genérico que evita que el proceso muera — el usuario ve `"Jarvis > Error interno: float division by zero"` y puede seguir. `motor_count` **no** queda persistido en 0 (el crash ocurre antes de `save_state`), así que no hay corrupción de estado — pero sí un mensaje crudo de Python por un input completamente razonable.
+- **Fix:** guard `if actuator_count < 1: raise` con mensaje claro en `calculate_force_per_actuator`, o validación de mínimo 1 en el punto de entrada del wizard numérico para `motor_count`/parámetros de conteo equivalentes.
+- **Riesgo impl.:** 🟢 Bajo — guard localizado, sin cambio de contrato
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 81 — `resolve_material_alias` fabrica material declarado desde texto no relacionado (Crítico)
+
+> Reproducido: `resolve_material_alias("el frame absorbe bien las vibraciones")` → `"plástico"` (vía `"abs"` dentro de "absorbe"). `extract_frame_properties` de la misma frase escribe `material="plástico"` con `confidence=0.9, source="declared"`.
+
+- **Archivos afectados:** `domains/materials.py` (`MATERIAL_ALIASES`, `resolve_material_alias`)
+- **Causa raíz:** alias de 2-3 letras (`"cf"`, `"alu"`, `"abs"`) comprobados con `alias in lower` — substring plano, sin límite de palabra (`\b`).
+- **Fix:** compilar cada alias como regex con `\b` (o filtrar candidatos de longitud &lt; 4 con un chequeo de límite de palabra explícito) antes de aceptar el match.
+- **Riesgo impl.:** 🟢 Bajo — cambio contenido a la función de resolución de alias
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+## 🟠 Altos (Fase O)
+
+### Bug 82 — Mutaciones de volumen/payload no actualizan `components["frame"].mass_kg`
+
+> `_apply_mutation_to_parameters` escribe `structure_mass_override_kg` directo desde `total_mass_kg` cuando el usuario hace "reducir volumen X%" o "aumentar/reducir carga" — sin pasar por `set_frame_material`.
+
+- **Archivos afectados:** `actions/iterate.py:498-518` (`_apply_mutation_to_parameters`)
+- **Causa raíz:** ruta de mutación física (no-DEFINE) escribe el mirror directamente; solo la ruta DEFINE (vía `_run_declarative_iteration`) pasa por el writer canónico desde el hotfix N1 de Structure A.
+- **Fix:** cuando `total_mass_kg` cambia por esta ruta y hay un frame declarado, recalcular `mass_kg` proporcional y pasarlo por `set_frame_material` (o documentar explícitamente por qué el componente no debe seguir a la física en este caso, si es la decisión de producto).
+- **Riesgo impl.:** 🟡 Medio — toca la ruta de mutación física genérica, requiere tests de regresión de volumen/payload
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 83 — `structure_mass_override_kg` fuera de `COMPONENT_MIRRORED_PARAMS`
+
+> `structure_mass_override_kg_factor` es una palanca DSE real y activa (`design_explorer.py:68-73`, grid `mejorar_autonomia`). Aplicarla diverge `current_parameters["structure_mass_override_kg"]` de `components["frame"].mass_kg` sin que nada lo detecte, porque el campo no está en el frozenset que protege contra escritura directa de mirrored params.
+
+- **Archivos afectados:** `core/system_architecture_catalog.py:241-256` (`COMPONENT_MIRRORED_PARAMS`), `core/design_explorer.py` (`_apply_delta`)
+- **Causa raíz:** el frame nunca tuvo un `sync_frame_component_from_params` equivalente al que sí existe para motores (`component_sync.py`) cuando se añadió Catalog v1/DSE.
+- **Fix:** registrar `structure_mass_override_kg` en `COMPONENT_MIRRORED_PARAMS`, y — igual que se hizo para batería/motor en DSE apply honesto — sincronizar `components["frame"].mass_kg` cuando el apply de un candidato DSE cambia la masa de estructura.
+- **Riesgo impl.:** 🟡 Medio — mismo patrón que ya existe para motor/batería, pero toca el pipeline de apply DSE
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 84 — Sin guardia de divergencia de catálogo para hélices (ni frame)
+
+> `invalidate_diverged_catalog_refs` compara `thrust_n`/`battery_capacity_wh` para motor y batería. Cero rama para `propellers` o `frame`. Un usuario que escribe "diámetro hélice 7" tras vincular una hélice de catálogo de 5" deja el `catalog_ref` vinculado sin limpiar, mientras `propeller_diameter_in()` (project_closure.py, Structure A) puede leer un valor distinto del que `calculation_engine.py` usa para el empuje.
+
+- **Archivos afectados:** `core/catalog_bind.py:234-311` (`invalidate_diverged_catalog_refs`)
+- **Causa raíz:** la función se escribió cubriendo solo motor y batería; nunca se extendió a hélice ni frame cuando `propeller_diameter_in`/`NUMERIC_DIRECT` se volvió patcheable directo.
+- **Fix:** añadir rama para `propellers` (comparar `diameter_in`) siguiendo el mismo patrón que motor/batería. Frame no necesita rama aquí — su propia divergencia es el objeto de los Bugs 82/83.
+- **Riesgo impl.:** 🟡 Medio — mismo patrón existente, pero interactúa con Structure A (screening de clase) recién cerrado
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 85 — `apply_components_delta` no propaga `size_class_inch` al frame
+
+> `component_writers.py:539-544` solo lee `mass_kg`/`material` del spec de frame al re-derivar — nunca `size_class_inch`.
+
+- **Archivos afectados:** `core/component_writers.py:539-544` (`apply_components_delta`)
+- **Causa raíz:** hueco en el contrato del writer, no actualizado cuando Structure A añadió `size_class_inch` a `set_frame_material`.
+- **Fix:** añadir `size_prop = spec.properties.get("size_class_inch")` y pasarlo a `set_frame_material`.
+- **Riesgo impl.:** 🟢 Bajo — latente hoy (ningún DSE/delta genera aún clase de frame nueva), cambio localizado
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 86 — 4× `except Exception: pass` sin justificar en `_apply_inferred_component_spec`
+
+> Cada rama (frame/batería/motor/hélice) de `orchestrator.py:2296-2420` envuelve escritura + `calculation_engine.build()` + `simulator.evaluate()` + `record_action()` en un `try/except Exception: pass` mudo — sin comentario, a diferencia de otro `except` del mismo archivo (línea 820) que sí documenta su razón.
+
+- **Archivos afectados:** `core/orchestrator.py:2324, 2354, 2381, 2406`
+- **Causa raíz:** manejo de error defensivo genérico, probablemente para no romper el flujo de guardado del componente si el recálculo falla — pero engulle también bugs reales del motor de cálculo.
+- **Fix:** capturar solo las excepciones esperables (o loguear antes de silenciar), y/o añadir un test que ejercite el camino de fallo de recálculo para confirmar que el mensaje al usuario sigue siendo honesto cuando esto ocurre.
+- **Riesgo impl.:** 🟡 Medio — toca 4 rutas de escritura de componente muy transitadas, requiere tests nuevos por rama
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 87 — `"par"` como substring enruta mal el dominio del vehículo
+
+> `get_registry(text="define los parámetros de la batería")` → 1 hit terrestre (de `"par"` dentro de "parámetros"), 0 hits aéreos → devuelve el registro terrestre para una frase de dron.
+
+- **Archivos afectados:** `domains/registry_selector.py:52-58, 98` (`_GROUND_KEYWORDS`)
+- **Causa raíz:** keyword de 3 letras comprobada con `kw in t` — substring plano, sin `\b`.
+- **Fix:** mismo tratamiento que Bug 81 — límite de palabra en la comprobación, o elevar el largo mínimo de keyword aceptado.
+- **Riesgo impl.:** 🟢 Bajo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 88 — "Ninguno" selecciona el proyecto #1 y muta disco
+
+> `_TEXT_ORDINAL_MAP` comprueba `"uno" in normalized` — "ninguno" lo contiene. Respuesta natural a "¿continuar con alguno de estos proyectos?" carga silenciosamente el proyecto #1 y ejecuta `.touch()` sobre su `state.json` antes incluso del try/except de lectura.
+
+- **Archivos afectados:** `adapters/cli/main.py:738-753`
+- **Causa raíz:** mismo patrón de substring sin `\b` que Bug 81/87, agravado por un efecto secundario en disco antes de validar la selección.
+- **Fix:** límite de palabra en la comprobación de tokens ordinales; mover el `.touch()` después de confirmar que la selección es válida.
+- **Riesgo impl.:** 🟢 Bajo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 95 — `reasoning_layer.py` lee un campo eliminado desde Fase 3
+
+> `material_defined = bool(design_properties.get("structure", {}).get("material"))` — `set_frame_material` nunca escribe ahí desde que Fase 3 eliminó ese mirror legacy (confirmado por el propio docstring del writer). El insight "El material estructural está definido en propiedades de diseño" casi nunca aparece aunque el usuario sí lo haya declarado.
+
+- **Archivos afectados:** `core/reasoning_layer.py:46, 53`
+- **Causa raíz:** el archivo nunca fue actualizado para usar `get_frame_material()` (el Single Read Point canónico de `design_utils.py`) tras el refactor de Fase 3.
+- **Fix:** sustituir la lectura directa de `structure.material` por `get_frame_material(design_properties)`.
+- **Riesgo impl.:** 🟢 Bajo — cambio de una lectura, mismo contrato de salida
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 97 — "Aplica opción 3" (sin artículo) aplica silenciosamente la opción 1
+
+> `_APPLY_INDEX_RE` exige `(?:la|el)\s+opcion\s+(\d+)`. La frase natural "aplica opción 3" no matchea nada → `resolve_apply_exploration_index` devuelve `None` → el orquestador aplica por defecto el índice 1 — una acción que muta el proyecto (DSE apply), sin que el usuario lo pidiera.
+
+- **Archivos afectados:** `core/intent_resolver.py:390-397, 411-421`
+- **Causa raíz:** regex del patrón de índice exige el artículo determinado.
+- **Fix:** hacer el artículo opcional en el patrón: `(?:(?:la|el)\s+)?opcion\s+(\d+)`.
+- **Riesgo impl.:** 🟢 Bajo — cambio de regex localizado
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 98 — `_esc_completeness` sin guarda de vacío, a diferencia de sus 6 hermanas
+
+> Las otras 5 funciones de completeness de `domains/aerial.py` (motor/hélice/batería/FC/sensor) y las 2 de `domains/ground.py` comprueban `if not props: return "low", ...`. `_esc_completeness` no — un ESC sin ningún dato extraído se clasifica `"medium"`, y por tanto "presente" en el progreso de arquitectura.
+
+- **Archivos afectados:** `domains/aerial.py:146-149` (`_esc_completeness`)
+- **Causa raíz:** inconsistencia aislada frente al patrón que sí siguen las funciones hermanas.
+- **Fix:** añadir el mismo guard `if not props: return "low", [...]` al principio de la función.
+- **Riesgo impl.:** 🟢 Bajo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 99 — El sweep ESTIMATIVO se pierde en las rutas de recálculo más transitadas
+
+> `build_with_estimative_sweep` (wrapper correcto sobre `calculation_engine.build()` que añade el sweep de autonomía P27-B/Option A) se usa en `actions/calculate.py`, `actions/simulate.py` y la ruta física de `actions/iterate.py`, pero **no** en `apply_and_recalculate` del wizard de parámetros (el camino más usado de la app), ni en `actions/create_project.py`, ni en el recálculo declarativo de Structure A (`actions/iterate.py:374`), ni en 5 sitios adicionales de `orchestrator.py`.
+
+- **Archivos afectados:** `core/param_definition_session.py:972`, `actions/create_project.py:45`, `actions/iterate.py:374`, más ≥5 sitios en `core/orchestrator.py`
+- **Causa raíz:** cada punto de recálculo nuevo se escribió llamando a `calculation_engine.build()` directo en vez del wrapper — inconsistencia de adopción, no un bug de un solo sitio.
+- **Fix:** candidato a investigación propia (no un parche puntual) — decidir si todo recálculo debe pasar por el wrapper, y si no, documentar explícitamente por qué cada excepción es honesta.
+- **Riesgo impl.:** 🟡 Medio — toca múltiples puntos de entrada, mejor como IC dedicado tras investigación
+- **Cambio arq.:** ⚠️ Posible — depende de qué decida la investigación
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 100 — `_try_declare_active_block_help` puede crashear con `project_state=None` (código muerto hoy)
+
+> Llama a `resolve_acquisition_mention(user_input, self._safe_active_project())` sin comprobar `None` — a diferencia de su método hermano inmediatamente anterior, que sí lo comprueba. Sin proyecto activo + "declarar motor" → `AttributeError` dentro de `_owning_block_for_component` (`acquisition_target.py:189`, acceso directo a `project_state.design_properties` sin `getattr`).
+
+- **Archivos afectados:** `core/orchestrator.py:1624-1636`, `core/acquisition_target.py:183-195`
+- **Causa raíz:** guard faltante, inconsistente con el método hermano.
+- **Nota:** confirmado por grep — este método **no tiene ningún llamador** en `orchestrator.py` hoy (su propio docstring dice que el punto de entrada de IDLE usa `_try_start_acquisition_from_mention` directamente). No explotable ahora, pero es una trampa si se reengancha o se copia el patrón.
+- **Fix:** borrar el método muerto, o añadirle el guard `if project_state is None: return None` que ya tiene su hermano.
+- **Riesgo impl.:** 🟢 Bajo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+## 🟡 Importantes (Fase O)
+
+### Bug 89 — Matching de SKU de batería por substring puro
+
+> `battery_catalog_assist.py:104-109` — `if spec.name in normalized: return spec.name`, iterando en orden alfabético. Sin colisión hoy (10 SKUs, ninguno substring de otro), pero es una garantía incidental del catálogo actual, no estructural.
+
+- **Archivos afectados:** `core/battery_catalog_assist.py:104-109`
+- **Fix:** requerir límite de palabra, o matching por token completo en vez de substring.
+- **Riesgo impl.:** 🟢 Bajo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 90 — `except Exception: continue` de espectro total en evaluación de candidatos DSE
+
+> 3 bucles idénticos (`design_explorer.py:619-624, 648-651, 675-680`) descartan **cualquier** excepción de `calculation_engine.build()`/`simulator.evaluate()` como "candidato no viable", sin log ni distinción entre un caso físicamente inviable y un bug real del motor de cálculo.
+
+- **Archivos afectados:** `core/design_explorer.py:619-624, 648-651, 675-680`
+- **Fix:** capturar solo las excepciones que hoy representan "parámetro ausente esperado"; loguear (aunque sea a nivel debug) cualquier otra antes de descartar el candidato.
+- **Riesgo impl.:** 🟡 Medio — toca el núcleo de `DesignExplorer.explore()`, requiere cuidado de no cambiar qué candidatos se descartan hoy
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 91 — Triplicación del flujo "catalog help-choose/pick" (motors/propellers/battery)
+
+> Tres bloques casi idénticos en `orchestrator.py` (líneas ~2621-3100), uno por familia de componente, cada uno con su propio import de submódulo casi calcado. Una corrección aplicada a uno (ya pasó con "watts recovery") corre el riesgo de no replicarse en los otros dos.
+
+- **Archivos afectados:** `core/orchestrator.py` (bloques `_offer_component_*_catalog`/`_apply_component_*_catalog_pick`, y su despacho en `_handle_component_description`)
+- **Fix:** helper genérico `_offer_or_apply_catalog_pick(family, offer_fn, apply_fn, expected_keys, session, user_input)` parametrizado por familia.
+- **Riesgo impl.:** 🟡 Medio — refactor de una ruta muy transitada, requiere suite de regresión completa de los 3 flujos
+- **Cambio arq.:** ❌ No — mismo comportamiento externo
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 92 — Extracción de "material+gramos+pulgadas" duplicada entre las dos ramas Gap-1
+
+> `iterate_interactive_session.py:295-338` y `:424-452` reimplementan el mismo parseo por separado — motivo directo de que el hotfix N1 de Structure A tuviera que tocar dos sitios para el mismo bug.
+
+- **Archivos afectados:** `core/iterate_interactive_session.py:295-338, 424-452`
+- **Fix:** extraer un helper único `_parse_frame_material_turn(text) -> (material_name, frame_patch)` usado por ambas ramas.
+- **Riesgo impl.:** 🟢 Bajo — las dos ramas ya llaman a las mismas funciones (`extract_frame_properties`, `_build_frame_patch_from_props`), solo falta consolidar el envoltorio
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 93 — Tres tablas de sinónimos de material mantenidas a mano por separado
+
+> `intent_resolver.py`, `semantic_interpreter._VARIABLE_KEYWORDS["material"]`, y `domains/aerial.py`'s `ComponentRule(keywords=...)` para frame mantienen listas de palabras de material independientes. Alto riesgo de que un material nuevo se añada a una y se olvide en las otras dos.
+
+- **Archivos afectados:** `core/intent_resolver.py`, `core/semantic_interpreter.py`, `domains/aerial.py`
+- **Fix:** derivar las tres listas de `domains/materials.MATERIAL_ALIASES` (la fuente única de verdad que ya usa `resolve_material_alias`) en vez de mantenerlas por separado.
+- **Riesgo impl.:** 🟡 Medio — toca 3 archivos, requiere confirmar que ninguna lista tenía un término no presente en `MATERIAL_ALIASES`
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 94 — 19 reimplementaciones inline de `_safe_active_project()`
+
+> `_safe_active_project()` (orchestrator.py:1638-1642) es exactamente `try: load_active_project() except FileNotFoundError: return None`. Al menos 19 sitios adicionales reimplementan el mismo patrón inline; ≥5 (líneas 1472, 1785, 2080, 4128, 4192) son copias literales del propio helper.
+
+- **Archivos afectados:** `core/orchestrator.py` — 19 sitios
+- **Fix:** reemplazar las reimplementaciones idénticas por llamadas a `_safe_active_project()`. Cosmético/mantenibilidad, sin cambio de comportamiento.
+- **Riesgo impl.:** 🟢 Bajo — sustitución mecánica en sitios funcionalmente idénticos
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 96 — "Ayúdame a X" nuevo puede mal-enrutarse a `analyze` sin que nadie lo note
+
+> `ANALYZE_HELP_PATTERNS` incluye `\bayudame\b` genérico, que colisiona con "ayúdame a elegir" (UX real y muy usada). Ya hay un parche puntual documentado (`orchestrator.py:1080`) que lo compensa, pero cualquier flujo nuevo "ayúdame a X" corre el mismo riesgo salvo que alguien recuerde replicar el parche.
+
+- **Archivos afectados:** `core/intent_resolver.py:113-119`, `core/orchestrator.py:1080`
+- **Fix:** generalizar el parche a una lista de excepciones `"ayúdame a {verbo conocido}"` en vez de un caso puntual, o mover la decisión a un chequeo explícito antes del patrón genérico.
+- **Riesgo impl.:** 🟡 Medio — toca clasificación de intención, requiere regresión amplia de frases "ayúdame"
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 112 — `iterate_interactive_session._definition_feedback_message` reinfiere con el registro por defecto
+
+> Se llama justo antes/después de construir el spec real con el registro correcto del proyecto (`self._registry_for_session`), pero internamente usa `get_registry(text=value)` **sin** `vehicle_type`. En un proyecto terrestre, el "Tipo inferido: X (confianza: Y)" mostrado puede no coincidir con lo realmente guardado.
+
+- **Archivos afectados:** `core/iterate_interactive_session.py:373-375, 1066-1067`
+- **Fix:** pasar `self._registry_for_session(session, normalized)` también a la llamada que genera el mensaje de feedback, en vez de dejar que reinfiera con el registro por defecto.
+- **Riesgo impl.:** 🟢 Bajo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 111 — "No sé" se interpreta como "saltar arquitectura" en el wizard de sistema
+
+> `_OPTION_C` (`system_definition_session.py:210-230`) incluye el token `"no"` comprobado como substring. Cualquier respuesta que contenga "no" — "no sé, ¿cuál recomiendas?", "no entiendo la pregunta" — cae en la opción C y salta silenciosamente la definición de arquitectura.
+
+- **Archivos afectados:** `core/system_definition_session.py:210-230`
+- **Fix:** exigir que la respuesta sea (tras normalizar) exactamente `"no"`/`"c"`/equivalentes cortos, no una comprobación de substring sobre frases largas.
+- **Riesgo impl.:** 🟢 Bajo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 101 — Indexado directo sin capturar en parámetros básicos de `CalculationEngine.build()`
+
+> `parameters["payload_kg"]`, `["structure_mass_factor"]`, `["safety_factor"]`, `["vehicle_type"]` — sin el mismo patrón de degradación honesta (ToolResult con reason code) que la función sí usa para parámetros de propulsión/energía. No se confirmó un caller real que lo dispare hoy (creación de proyecto probablemente los garantiza), pero es una inconsistencia interna de robustez.
+
+- **Archivos afectados:** `core/calculation_engine.py:195-377` (`build`)
+- **Fix:** aplicar el mismo patrón de `ToolResult`/reason code que ya usa el resto de la función para estos 4 parámetros básicos, o documentar explícitamente por qué se asume que siempre están presentes.
+- **Riesgo impl.:** 🟡 Medio — toca la función más central del motor de cálculo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 102 — Contrato "único punto de escritura" con excepciones no documentadas en la cabecera
+
+> `set_battery_component` puede llamar internamente a `set_motor_component` (revalidación MOP-2 de voltaje) — justificado en el código, pero contradice el encabezado del archivo ("cada función es el único punto de escritura para su componente") sin que ese encabezado mencione la excepción. `set_control_component` deliberadamente no escribe ningún mirror ("control no afecta cálculo"), tampoco aclarado en el "MIRRORED PARAM CONTRACT" de cabecera.
+
+- **Archivos afectados:** `core/component_writers.py:11-35` (cabecera/contrato), `:123-135` (`set_control_component`), `:217-261` (`set_battery_component`)
+- **Fix:** actualizar el comentario-ley de cabecera para nombrar explícitamente ambas excepciones (writer que llama a otro writer; writer sin mirror), así un futuro writer nuevo sabe cuándo aplica cada regla.
+- **Riesgo impl.:** 🟢 Bajo — solo documentación, cero cambio de comportamiento
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 103 — Candidatos de motor listados sin avisar que cubren solo por margen heurístico
+
+> `_motor_covers_requirements` (`library.py:69-89`) acepta un motor si `max_thrust_n` (heurística `thrust_n × 1.25`, "región de diseño", intencional y documentada) cubre el requisito, aunque `thrust_n` nominal no lo cubra. La línea de candidato que ve el usuario (`motor_catalog_assist.py:416-425`) no distingue ambos casos.
+
+- **Archivos afectados:** `core/motor_catalog_assist.py:416-425` (`_format_candidate_line`)
+- **Fix:** cuando `thrust_n < min_thrust_n <= max_thrust_n`, anotar la línea del candidato (p. ej. "cubre por margen de diseño, no por thrust nominal").
+- **Riesgo impl.:** 🟢 Bajo — cambio de formato de mensaje
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 105 — Detección de dirección de objetivo sin proximidad al término
+
+> `_detect_payload_goal` (`goal_planner.py:221-240`) se evalúa antes que la tabla genérica y usa bag-of-words sobre toda la frase. "Reducir peso pero mantener el payload" activa `reducir_payload` en vez de `reducir_masa` (que tiene "reducir peso" como keyword exacto, nunca alcanzado porque `_detect_payload_goal` corta el flujo antes).
+
+- **Archivos afectados:** `core/goal_planner.py:221-252`
+- **Fix:** exigir proximidad de la palabra de dirección al término de la dimensión (payload vs. masa), no un match global de bag-of-words sobre toda la frase.
+- **Riesgo impl.:** 🟡 Medio — toca detección de objetivo, requiere regresión de frases existentes
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 106 — Slots "valor" y "objetivo" capturan la misma cadena
+
+> `_extract_value_slot` (≥2 palabras) y `_extract_objective_slot` (≥3 palabras) capturan, para la mayoría de frases de 3+ palabras, el mismo texto completo — contradice la intención declarada de cada slot (valor técnico medible vs. descripción de objetivo). No produce un crash, es ambigüedad estructural del modelo de slots.
+
+- **Archivos afectados:** `core/semantic_interpreter.py:193-208`
+- **Fix:** candidato a investigación — decidir si los dos slots deben fusionarse o si el criterio de extracción de cada uno debe distinguirse (p. ej. "valor" exige un patrón numérico/técnico, "objetivo" el resto).
+- **Riesgo impl.:** 🟡 Medio — toca el modelo de slots semánticos, mejor evaluado en investigación propia
+- **Cambio arq.:** ⚠️ Posible
+- **Estado:** ⬜ Pendiente
+
+---
+
+## 🟢 Menores (Fase O)
+
+### Bug 104 — `component_inference._rule_for_key` accede a atributo privado de otro módulo
+
+> Itera `registry._rules` directamente — un atributo con guion bajo de `ComponentRuleRegistry`, que solo expone `register()`, `match()` y `__len__()`.
+
+- **Archivos afectados:** `core/component_inference.py:91-95`, `core/component_rules.py:87`
+- **Fix:** `ComponentRuleRegistry` expone `rules()` o `get_rule_for_key()` público.
+- **Riesgo impl.:** 🟢 Bajo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 107 — Tres normalizadores de texto independientes
+
+> `IntentResolver._normalize_text` (NFKD), `goal_planner._normalize` (NFKD), y `adapters/cli/main._handle_startup_selection` (solo `.lower()`, sin quitar diacríticos, obligando a listar variantes acentuadas y no acentuadas a mano).
+
+- **Archivos afectados:** `core/intent_resolver.py`, `core/goal_planner.py`, `adapters/cli/main.py:739-741`
+- **Fix:** consolidar en una única función de normalización compartida (p. ej. en `iterate_domain.py` o un módulo de utilidades de texto).
+- **Riesgo impl.:** 🟢 Bajo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 108 — `reasoning_layer._deduplicate` con orden interno que no tiene sentido aislado
+
+> Mezcla "sin `action_type`, en orden original" + "deduplicadas, en orden de inserción del dict". Solo funciona hoy porque el llamador aplica un `sorted()` después. Si se llama `_deduplicate` de forma aislada en el futuro, el orden será silenciosamente incorrecto.
+
+- **Archivos afectados:** `core/reasoning_layer.py:399-410`
+- **Fix:** documentar la dependencia del `sorted()` posterior en el docstring, o hacer que `_deduplicate` preserve un orden coherente por sí sola.
+- **Riesgo impl.:** 🟢 Bajo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 109 — `_NUMERIC_VALUE_RE` matchea cualquier dígito, no solo un valor con unidad
+
+> El grupo de unidad es enteramente opcional. Un número de modelo de motor (p. ej. "2205" en "definir hélice para el motor 2205") activaría el guard de "el texto ya trae valor numérico" y desviaría el texto sin razón real.
+
+- **Archivos afectados:** `core/intent_resolver.py:148-150`
+- **Fix:** exigir unidad o contexto numérico explícito antes de activar el guard, en vez de aceptar cualquier secuencia de dígitos.
+- **Riesgo impl.:** 🟢 Bajo
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+### Bug 110 — 4 símbolos sin ningún llamador (código muerto)
+
+> Confirmado por grep — ninguno se llama desde `src/` ni `tests/` (salvo el último, solo desde un test):
+
+| Símbolo | Ubicación |
+|---|---|
+| `MutationEngine._light_material_name` | `core/mutation_engine.py:350-358` |
+| `_KNOWN_MATERIALS` | `core/iterate_domain.py:101` — huérfano tras el refactor de Structure A (su único consumidor, `_extract_material_from_text`, fue eliminado en el hotfix N1) |
+| `CreateProjectInteractiveSession._parse_payload_kg` | `core/interactive_session.py:384-385` |
+| función-módulo `apply_mutation` | `core/mutation_engine.py:410-414` |
+
+- **Fix:** eliminar los 4 símbolos, o confirmar con el Engineer si alguno se reserva para un uso futuro planeado antes de borrarlo.
+- **Riesgo impl.:** 🟢 Bajo — código muerto confirmado, eliminación segura
+- **Cambio arq.:** ❌ No
+- **Estado:** ⬜ Pendiente
+
+---
+
+## Orden de implementación sugerido — Fase O
+
+> No implementar sin ratificación — candidatas a Investigation/Implementation Contract. Orden por impacto/costo, no por número de bug.
+
+**O1 — Crashes y fabricación de datos** (máxima prioridad, coste mínimo)
+- [ ] Bug 80 · `tools/mechanics.py` — guard `actuator_count ≥ 1`
+- [ ] Bug 81 · `domains/materials.py` — límite de palabra en `resolve_material_alias`
+
+**O2 — Patrón B restante** (mismo arreglo, 3 sitios más)
+- [ ] Bug 87 · `domains/registry_selector.py`
+- [ ] Bug 88 · `adapters/cli/main.py`
+- [ ] Bug 89 · `core/battery_catalog_assist.py`
+
+**O3 — Mirrored-param contract extendido a frame/hélices**
+- [ ] Bug 83 · `system_architecture_catalog.py` + sync de frame
+- [ ] Bug 84 · `catalog_bind.py` — rama de hélices
+- [ ] Bug 82 · `actions/iterate.py` — mutaciones físicas de masa de frame
+- [ ] Bug 85 · `component_writers.py` — `size_class_inch` en `apply_components_delta`
+
+**O4 — Enrutamiento/aplicación silenciosa**
+- [ ] Bug 97 · `intent_resolver.py` — "aplica opción N" sin artículo
+- [ ] Bug 98 · `domains/aerial.py` — `_esc_completeness`
+- [ ] Bug 95 · `reasoning_layer.py` — campo muerto
+- [ ] Bug 111 · `system_definition_session.py` — "no" como substring
+- [ ] Bug 112 · `iterate_interactive_session.py` — registro incorrecto en feedback
+
+**O5 — Investigaciones propias (no parches puntuales)**
+- [ ] Bug 99 · sweep ESTIMATIVO perdido en 7+ rutas de recálculo
+- [ ] Bug 106 · slots "valor"/"objetivo" solapados
+
+**O6 — Higiene / mantenibilidad (bajo riesgo, sin prisa)**
+- [ ] Bugs 86, 90 · silenciamiento de excepciones (orchestrator, design_explorer)
+- [ ] Bugs 91, 92, 93, 94 · duplicación estructural
+- [ ] Bugs 96, 100, 101, 102, 103, 104, 105, 107, 108, 109, 110 · resto

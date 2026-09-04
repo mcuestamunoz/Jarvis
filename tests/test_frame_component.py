@@ -200,6 +200,41 @@ def test_set_frame_material_mass_only_no_material_key(tmp_path):
            updated.design_properties.structure.material == project_state.design_properties.structure.material
 
 
+def test_set_frame_material_size_only_preserves_existing_mass_override(tmp_path):
+    """N1 hotfix (implementation_contract_structure_a_n1_hotfix.md): the
+    override must mirror from the MERGED props, not the mass_kg argument.
+    A size-only update (mass_kg=None) on a frame that already declares mass
+    must not delete structure_mass_override_kg — walk: 'pvc 5 pulgadas' on
+    a 0.65 kg frame must not drop total_mass_kg."""
+    orchestrator = JarvisOrchestrator(workspace_root=tmp_path)
+    _create_drone_project(orchestrator, tmp_path)
+
+    project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    state = set_frame_material(project_state, 0.65, "fibra de carbono")
+    assert state.current_parameters.get("structure_mass_override_kg") == 0.65
+
+    updated = set_frame_material(state, None, "pvc", 5.0)
+    assert updated.current_parameters.get("structure_mass_override_kg") == 0.65
+    frame = updated.design_properties.components["frame"]
+    assert frame.properties["mass_kg"].value == 0.65
+    assert frame.properties["size_class_inch"].value == 5.0
+    assert frame.properties["material"].value == "pvc"
+
+
+def test_set_frame_material_material_only_preserves_existing_mass_override(tmp_path):
+    """Same bug, material-only shape (no size)."""
+    orchestrator = JarvisOrchestrator(workspace_root=tmp_path)
+    _create_drone_project(orchestrator, tmp_path)
+
+    project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    state = set_frame_material(project_state, 0.45, "fibra de carbono")
+    assert state.current_parameters.get("structure_mass_override_kg") == 0.45
+
+    updated = set_frame_material(state, None, "aluminum")
+    assert updated.current_parameters.get("structure_mass_override_kg") == 0.45
+    assert updated.design_properties.components["frame"].properties["mass_kg"].value == 0.45
+
+
 def test_set_frame_material_completeness_high_when_both(tmp_path):
     """ComponentSpec.completeness must be 'high' when both mass and material are provided."""
     orchestrator = JarvisOrchestrator(workspace_root=tmp_path)
@@ -210,6 +245,30 @@ def test_set_frame_material_completeness_high_when_both(tmp_path):
 
     frame = updated.design_properties.components["frame"]
     assert frame.completeness == "high"
+
+
+def test_set_frame_material_size_class_inch_written_and_none_leaves_existing(tmp_path):
+    """Structure A (implementation_contract_structure_a.md §2.2):
+    size_class_inch is component-property-only (no current_parameters
+    mirror), None means "leave whatever is already declared" (same
+    convention as material), and completeness stays mass+material-only —
+    _frame_completeness is unchanged by this IC, so a frame with mass +
+    material but no size_class_inch is still "high"."""
+    orchestrator = JarvisOrchestrator(workspace_root=tmp_path)
+    _create_drone_project(orchestrator, tmp_path)
+
+    project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    updated = set_frame_material(project_state, 0.45, "carbon_fiber", 5.0)
+    frame = updated.design_properties.components["frame"]
+    assert frame.properties["size_class_inch"].value == 5.0
+    assert frame.completeness == "high"
+    # size_class_inch never mirrors into current_parameters.
+    assert "size_class_inch" not in updated.current_parameters
+
+    # A later call with size_class_inch=None must not erase the declared class.
+    updated2 = set_frame_material(updated, 0.5, "carbon_fiber")
+    frame2 = updated2.design_properties.components["frame"]
+    assert frame2.properties["size_class_inch"].value == 5.0
 
 
 def test_set_frame_material_does_not_mutate_original(tmp_path):

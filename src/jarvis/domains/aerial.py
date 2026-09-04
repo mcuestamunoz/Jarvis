@@ -204,17 +204,25 @@ MATERIAL_MAP: dict[str, str] = MATERIAL_ALIASES
 
 
 def extract_frame_properties(normalized: str) -> dict[str, PropertyValue]:
-    """Extract mass_kg and material from a free-text frame description.
+    """Extract mass_kg, material, and size_class_inch from a free-text frame description.
 
     Material values are the library's own canonical (Spanish) names — see
     ``jarvis.domains.materials`` — so they can be passed straight to
     ``ComponentLibrary.get_material()`` with no translation step.
+
+    Structure A (implementation_contract_structure_a.md §2.2): size_class_inch
+    is a frame-declared class for compatibility screening against the bound
+    propeller's diameter_in — never derived from mass, material, or the
+    propeller itself. No mm→inch conversion (a bare "250mm" is ignored, not
+    silently converted).
 
     Examples:
         "fibra de carbono 450g"  → {mass_kg: 0.45, material: "fibra de carbono"}
         "aluminio 0.6kg"         → {mass_kg: 0.6,  material: "aluminio"}
         "carbono"                → {material: "fibra de carbono"}
         "500g"                   → {mass_kg: 0.5}
+        "frame 5 pulgadas"       → {size_class_inch: 5.0}
+        "pvc 200g"               → {mass_kg: 0.2, material: "pvc"}  (no size)
     """
     props: dict[str, PropertyValue] = {}
 
@@ -234,6 +242,18 @@ def extract_frame_properties(normalized: str) -> dict[str, PropertyValue]:
     if found_material:
         props["material"] = PropertyValue(
             value=found_material, unit=None, confidence=0.9, source="declared"
+        )
+
+    # size class in inches: "5 pulgadas", "5 in", "5 inch"/"5 inches", or 5".
+    # Deliberately no mm pattern here — a bare "250mm" must not become a class.
+    size_match = re.search(
+        r"\b(\d+(?:\.\d+)?)\s*(?:pulgadas?|inch(?:es)?|in)\b", normalized, re.IGNORECASE
+    )
+    if not size_match:
+        size_match = re.search(r"\b(\d+(?:\.\d+)?)\s*\"", normalized)
+    if size_match:
+        props["size_class_inch"] = PropertyValue(
+            value=float(size_match.group(1)), unit="in", confidence=0.9, source="declared"
         )
 
     return props

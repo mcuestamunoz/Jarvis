@@ -86,11 +86,11 @@ A second, equally valid entry point into this same flow. **Pre-FN-025:** `resolv
 **User-visible steps:**
 1. `"calcula"` / `"simula"` (or implicit via iterate's final confirm) → physics recomputed, results persisted.
 
-**Modules/functions:** `orchestrator.handle`(CALCULATE/SIMULATE) → `ActionRouter.resolve` → `CalculateAction.run`/`SimulateAction.run` → `CalculationEngine.build` → `FeasibilitySimulator.evaluate` → `StateManager.record_action` → `WorkspaceManager.save_state`.
+**Modules/functions:** `orchestrator.handle`(CALCULATE/SIMULATE) → `ActionRouter.resolve` → `CalculateAction.run`/`SimulateAction.run` → `build_with_estimative_sweep` (user calculate/iterate/simulate-rebuild; 4S only) or bare `CalculationEngine.build` (DSE/create/wizard) → `FeasibilitySimulator.evaluate` → `StateManager.record_action` → `WorkspaceManager.save_state`. CLI: ESTIMATIVO block on calculate reply and `estado` when envelope present.
 
 **Connections:** C-016, C-060, C-061, C-070, C-071, C-093.
 
-**Notes:** Fully 🟢, pure physics chain, no LLM anywhere in this flow.
+**Notes:** Fully 🟢, pure physics chain, no LLM. L2 is labeled assumed, not SKU truth. **No new C-xxx** for Option A (same C-060; extra caller, not a new edge).
 
 ---
 

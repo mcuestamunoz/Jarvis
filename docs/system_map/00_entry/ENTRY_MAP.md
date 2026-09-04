@@ -14,7 +14,8 @@
 
 ## Important functions
 
-- `adapters/cli/main.py::render_response(result)` — the one place CLI output formatting happens; note it has a **dead branch** for `action == "define_missing_params"` at status other than `"interactive"` (unreachable because the generic `status == "interactive"` check above it already returns first) — harmless, not fixed here, flagged for a future cleanup pass.
+- `adapters/cli/main.py::render_response(result)` — the one place CLI action-result formatting happens. Option A: if `calculations.battery_endurance_envelope` is present, appends the same ESTIMATIVO block as `estado` (`_render_estimative_endurance_lines`). Note it has a **dead branch** for `action == "define_missing_params"` at status other than `"interactive"` (unreachable because the generic `status == "interactive"` check above it already returns first) — harmless, not fixed here, flagged for a future cleanup pass.
+- `adapters/cli/main.py::render_startup_context(ctx)` — `estado` / session startup; hover L1 line then ESTIMATIVO when envelope is on `latest_results`.
 - `orchestrator.handle_user_text(user_input, llm_interface)` (`core/orchestrator.py:559`) — public wrapper, persists a runtime snapshot after every turn.
 - `orchestrator.handle(request)` (`core/orchestrator.py:199`) — the structured-action entry, used directly by MCP and by `_handle_user_text_inner`'s own handoff for a subset of intents (C-016).
 

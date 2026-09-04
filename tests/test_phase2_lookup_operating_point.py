@@ -349,6 +349,31 @@ def test_estado_renders_honest_evidence_label(tmp_path: Path):
     assert "(sin hélice de catálogo)" in rendered
 
 
+def test_estado_fallback_suffix_when_propeller_catalog_bound(tmp_path: Path):
+    """CLI feasibility vs readiness semantics IC (§2.7): the fallback OP row
+    may carry no propeller_sku (resolver-identity fact) even when the BOM
+    already has a real catalog propeller bound — the suffix must reflect
+    BOM identity, not the resolver row, or it falsely tells the user "no
+    catalog propeller" while one is bound (verified field-fixture case,
+    hq_5045_bn)."""
+    from jarvis.adapters.cli.main import render_startup_context
+
+    orch = _fresh_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    prop_spec = bind_propeller_from_catalog("hq_5045_bn")
+    ps = set_propeller_component(ps, prop_spec)
+    motor_spec = bind_motor_from_catalog(_suggestion_for("emax_rs2205s_2300"))
+    ps = set_motor_component(ps, motor_spec, default_library.get_motor("emax_rs2205s_2300").max_watts)
+    orch.workspace_manager.save_state(ps)
+
+    ctx = orch.build_startup_context()
+    rendered = render_startup_context(ctx)
+
+    assert "Propulsión (evidencia): fallback_operating_point" in rendered
+    assert "(sin hélice de catálogo)" not in rendered
+    assert "(fallback de fabricante — combo exacto no usable)" in rendered
+
+
 def test_estado_hides_line_for_freeform_motor(tmp_path: Path):
     from jarvis.adapters.cli.main import render_startup_context
 

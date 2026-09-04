@@ -457,6 +457,28 @@ class TestBlockLabelForG20:
         assert "potencia motores" in label.lower() or "motor" in label.lower()
         assert "batería" not in label.lower() or "motores" in label.lower()
 
+    def test_energy_complete_when_catalog_bound_motor_has_no_nameplate_watts(self, tmp_path: Path):
+        """Verified SKU without max_watts must not keep energy in_progress."""
+        from jarvis.schemas.action_schema import CatalogRef
+
+        orch = self._orchestrator(tmp_path)
+        dp = _make_design_props(components={
+            "battery": _medium_stub(),
+            "motors": ComponentSpec(
+                component_type="propulsion_active",
+                completeness="high",
+                source="declared",
+                catalog_ref=CatalogRef(family="motor", sku="emax_rs2205s_2300"),
+            ),
+        })
+        status = JarvisOrchestrator._block_progress_status(
+            "energy", dp, {"battery_capacity_wh": 488.4}
+        )
+        assert status == "complete"
+        ps = self._project_state({"battery_capacity_wh": 488.4}, dp)
+        label = orch._block_label_for(ps, "energy")
+        assert "potencia" not in label.lower()
+
     def test_t2_energy_missing_battery_component(self, tmp_path: Path):
         """Motors component OK + both energy params present but battery
         component missing → label must mention 'batería'."""

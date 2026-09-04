@@ -45,6 +45,36 @@ def _make_energy_project(tmp_path: Path) -> tuple[JarvisOrchestrator, str]:
     return orchestrator, result["workspace_path"]
 
 
+def _make_energy_project_catalog_bound_no_watts(tmp_path: Path) -> tuple[JarvisOrchestrator, str]:
+    """CLI feasibility vs readiness semantics IC (§2.4): catalog-bound motor
+    (emax_rs2205s_2300, no nameplate max_watts) + battery Wh set — the
+    remaining energy gap is honestly unsatisfiable by "defining"
+    motor_power_w, not a param the proactive question should keep asking
+    for."""
+    from jarvis.core.catalog_bind import bind_battery_from_catalog, bind_motor_from_catalog
+    from jarvis.core.component_writers import set_battery_component, set_motor_component
+    from jarvis.knowledge.library import default_library
+
+    orchestrator = JarvisOrchestrator(workspace_root=tmp_path)
+    result = orchestrator.handle({"action": "create_project", "parameters": {**_BASE_PARAMS, "motors": 4}})
+    workspace_path = result["workspace_path"]
+
+    ps = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    m = default_library.get_motor("emax_rs2205s_2300")
+    assert m.max_watts is None, "fixture assumes this SKU has no nameplate wattage"
+    motor_spec = bind_motor_from_catalog({
+        "name": m.name, "max_watts": m.max_watts, "thrust_n": m.thrust_n,
+        "kv_rating": m.kv_rating, "weight_g": m.weight_g, "is_generic": m.is_generic,
+    })
+    ps = set_motor_component(ps, motor_spec, m.max_watts)
+    battery_spec = bind_battery_from_catalog("lipo_4s_10000mah")
+    ps = set_battery_component(
+        ps, battery_spec, battery_spec.properties["battery_capacity_wh"].value
+    )
+    orchestrator.workspace_manager.save_state(ps)
+    return orchestrator, workspace_path
+
+
 def _make_energy_complete_project(tmp_path: Path) -> tuple[JarvisOrchestrator, str]:
     """Project with both force AND energy params defined."""
     orchestrator = JarvisOrchestrator(workspace_root=tmp_path)
@@ -223,6 +253,91 @@ def test_reasoning_missing_energy_adds_insight():
     assert any("autonomía" in i for i in output.insights)
 
 
+def test_reasoning_missing_energy_catalog_bound_motor_no_watts_label():
+    """CLI feasibility vs readiness semantics IC (§2.3): when the motor is
+    catalog-bound and honestly has no nameplate wattage, the CTA must not
+    tell the user to "declare" motor_power_w — that invites an invented
+    number feeding (Wh/W)x60 as if it were real evidence."""
+    layer = ReasoningLayer()
+    context = {
+        "last_simulation": {"energy_status": "missing_energy_parameters"},
+        "current_parameters": {"battery_capacity_wh": 148.0},
+        "design_properties": {
+            "components": {
+                "motors": {"catalog_ref": {"family": "motor", "sku": "emax_rs2205s_2300"}}
+            }
+        },
+    }
+    output = layer.build(context)
+    labels = [s.label for s in output.suggested_actions]
+    assert not any("Declarar motor_power_w" in l for l in labels)
+    assert any("no declara vatios" in l.lower() for l in labels)
+    assert any("no inventes motor_power_w" in i.lower() for i in output.insights)
+
+
+def test_reasoning_missing_energy_catalog_bound_motor_with_watts_no_cta():
+    """T1 (implementation_contract_cli_catalog_assist_t1.md §2.6): a bound
+    SKU that DOES declare nameplate watts (sunnysky_r2305_2500, 220W) must
+    never see the "no declara vatios" CTA — that copy is now gated on
+    catalog_bound_motor_lacks_nameplate_watts, not the identity-only
+    catalog_bound_motor_covers_power_w. The old CTA (from the identity
+    predicate) previously fired here — this reproduces the walk's reported
+    bug where the CLI showed the CTA for a SKU whose real wattage was on
+    screen elsewhere."""
+    layer = ReasoningLayer()
+    context = {
+        "last_simulation": {"energy_status": "missing_energy_parameters"},
+        "current_parameters": {"battery_capacity_wh": 148.0},
+        "design_properties": {
+            "components": {
+                "motors": {"catalog_ref": {"family": "motor", "sku": "sunnysky_r2305_2500"}}
+            }
+        },
+    }
+    output = layer.build(context)
+    labels = [s.label for s in output.suggested_actions]
+    assert not any("no declara vatios" in l.lower() for l in labels)
+    assert not any("no declara vatios" in i.lower() for i in output.insights)
+
+
+def test_reasoning_missing_energy_stale_signal_with_both_params_present_no_declare():
+    """implementation_contract_cli_stale_energy_recalc.md §2.2: a bound SKU
+    that declares nameplate watts, with both battery_capacity_wh and
+    motor_power_w already in current_parameters, must not be told to
+    "declare" those params just because the stale
+    energy_status=missing_energy_parameters signal (from a pre-pick
+    simulation) has not been recalculated yet."""
+    layer = ReasoningLayer()
+    context = {
+        "last_simulation": {"energy_status": "missing_energy_parameters"},
+        "current_parameters": {"battery_capacity_wh": 148.0, "motor_power_w": 220.0},
+        "design_properties": {
+            "components": {
+                "motors": {"catalog_ref": {"family": "motor", "sku": "sunnysky_r2305_2500"}}
+            }
+        },
+    }
+    output = layer.build(context)
+    labels = [s.label for s in output.suggested_actions]
+    assert not any("Declarar battery_capacity_wh" in l for l in labels)
+    assert not any("Declarar battery_capacity_wh" in i for i in output.insights)
+
+
+def test_reasoning_missing_energy_unbound_motor_still_asks_to_declare():
+    """Same signal, but the motor has no catalog_ref at all — the original
+    "Declarar motor_power_w" CTA must be unchanged for a genuinely unbound
+    motor (this is the honest gap the CTA exists for)."""
+    layer = ReasoningLayer()
+    context = {
+        "last_simulation": {"energy_status": "missing_energy_parameters"},
+        "current_parameters": {"battery_capacity_wh": 148.0},
+        "design_properties": {"components": {}},
+    }
+    output = layer.build(context)
+    labels = [s.label for s in output.suggested_actions]
+    assert any("Declarar motor_power_w" in l for l in labels)
+
+
 def test_reasoning_missing_energy_does_not_pre_empt_declarative_context():
     """declarative_context suggestions have higher priority than energy suggestions."""
     layer = ReasoningLayer()
@@ -274,6 +389,16 @@ def test_build_startup_context_energy_returns_param_definition_reason(tmp_path: 
     orchestrator, workspace_path = _make_energy_project(tmp_path)
     ctx = orchestrator.build_startup_context(workspace_path=workspace_path)
     assert ctx.get("param_definition_reason") == "missing_energy_parameters"
+
+
+def test_build_startup_context_catalog_bound_motor_no_watts_no_proactive(tmp_path: Path):
+    """CLI feasibility vs readiness semantics IC (§2.4): catalog-bound motor
+    with no nameplate wattage + battery Wh set -> no proactive question
+    asking to "define" motor_power_w (nothing left to declare)."""
+    orchestrator, workspace_path = _make_energy_project_catalog_bound_no_watts(tmp_path)
+    ctx = orchestrator.build_startup_context(workspace_path=workspace_path)
+    assert ctx.get("proactive_question") is None
+    assert "motor_power_w" not in (ctx.get("missing_params") or [])
 
 
 def test_build_startup_context_transmission_returns_param_definition_reason(tmp_path: Path):

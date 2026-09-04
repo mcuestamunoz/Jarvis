@@ -9,7 +9,10 @@
  *   63 connected · 1 removed (C-032 G23) · 2 partial (C-081, C-108) · 10 forbidden.
  * Updated 2026-08-10 FN-024 · 2026-08-12 FN-025/026 · 2026-08-18 ERF-1 · 2026-08-19 ERF-2.
  * Updated 2026-08-20 G21/G22 (C-030 catalog bind UX) · G23 (C-032 REMOVED — FN-015 deleted).
- * Updated 2026-09-01 v0.3.4 Motor OP Voltage Coherence — doc sync only (MOP-1…MOP-4); no new C-xxx.
+ * Updated 2026-09-04 v0.3.6 — experimental prop/energy/Structure A/fail-routing closed;
+ * knowledge/block parity agenda active. Prior: 2026-09-01 v0.3.4 MOP doc sync.
+ * Updated 2026-09-01 Phase 2.5–2.7-B + Option A — C-060 detail only (product writer); no new C-xxx.
+ * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's software queue.
  * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
  * Internal G23 anti-LLM gate (confusion phrase → re-ask / project_status) is not a C-xxx edge.
  */
@@ -433,11 +436,19 @@ export default function JarvisSystemMapCanvas() {
         </Text>
       </Stack>
 
+      <Callout tone="neutral" title="Product queue — knowledge / block parity (2026-09-04)">
+        Baseline v0.3.6. PRIORIDAD AHORA is the knowledge/block parity phase —
+        Engineer names the next thread before any IC. Prop/energy/Structure A /
+        fail-routing construction is closed; do not open polish ICs on that stack
+        by default. C-081 H5 and C-108 remain deferred map debt. Hardware HD-*
+        lives in docs/HARDWARE_DEBT.md — never PRIORIDAD AHORA without lab.
+      </Callout>
+
       <Grid columns={6} gap={12}>
         <Stat value={String(CONNECTIONS.length)} label="Registry IDs" />
         <Stat value={String(graphEdges.length)} label="Graphed edges" />
         <Stat value={String(connected)} label="Connected" tone="success" />
-        <Stat value={String(removed)} label="Removed" tone="neutral" />
+        <Stat value={String(removed)} label="Removed" />
         <Stat value={String(broken)} label="Broken" tone="danger" />
         <Stat value={String(partial)} label="Partial" tone="warning" />
       </Grid>
@@ -608,6 +619,21 @@ export default function JarvisSystemMapCanvas() {
         validated or voltage-incompatible (MOP-2); DSE baseline uses live params
         (MOP-3). Registry unchanged: 63 connected · 1 removed · 2 partial.
         Report: .jes/artifacts/implementation_report_motor_op_voltage_coherence.md
+      </Callout>
+
+      <Callout tone="success" title="Closed — Phase 2.5–2.7-B + Option A (2026-09-01)">
+        Shipped, not the queue. C-060 detail only — no new C-xxx. User
+        calculate/iterate wrap build() via endurance_sweep_writer (4S labeled
+        L2 ESTIMATIVO, ephemeral). Engine stays opt-in; DSE stays a bare
+        build(). L1 hover energy unchanged. Registry unchanged: 63 connected ·
+        1 removed · 2 partial (C-081, C-108) — those partials are deferred,
+        not PRIORIDAD AHORA.
+      </Callout>
+
+      <Callout tone="success" title="Closed — v0.3.6 experimental construction (2026-09-04)">
+        Catalog-assist, DSE apply honest, Structure A, CLI fail-routing reviewed.
+        Phase = knowledge / block parity (agenda only — no IC until Engineer
+        names a thread). Tag checkpoint-experimental-prop-energy-closed.
       </Callout>
 
       <Callout tone="info" title="ERF-2 + ERF-1">

@@ -256,6 +256,163 @@ def build_motor_catalog_suggestions(
     ]
 
 
+def _bound_propeller_sku(project_state: Any) -> str | None:
+    components = getattr(
+        getattr(project_state, "design_properties", None), "components", None
+    ) or {}
+    propellers = components.get("propellers")
+    ref = getattr(propellers, "catalog_ref", None) if propellers is not None else None
+    sku = getattr(ref, "sku", None)
+    return str(sku) if sku else None
+
+
+def build_underspec_motor_offer(
+    project_state: Any,
+    *,
+    library: ComponentLibrary | None = None,
+    t1_limit: int = 5,
+    relax_limit: int = 5,
+) -> list[MotorSuggestion]:
+    """T1 G22 list plus a **named** thrust-only second pass (T1+2).
+
+    Does not change ``build_motor_catalog_suggestions``. Drop inherited KV
+    and prop inch together; same ``find_motors_for_requirements`` sort.
+    """
+    lib = library or default_library
+    t1 = [
+        {**s, "relaxed": False, "prop_mismatch": False}
+        for s in build_motor_catalog_suggestions(
+            project_state, library=lib, limit=t1_limit
+        )
+    ]
+    from jarvis.core.project_closure import derive_physical_requirements
+
+    min_thrust = (
+        derive_physical_requirements(project_state).get("thrust_per_motor_needed_n")
+        if project_state is not None
+        else None
+    )
+    matches = lib.find_motors_for_requirements(
+        min_thrust_n=min_thrust, kv=None, prop_inch=None
+    )
+    t1_names = {s["name"] for s in t1}
+    prop_sku = _bound_propeller_sku(project_state) if project_state is not None else None
+    extras: list[MotorSuggestion] = []
+    for motor in matches:
+        if motor.name in t1_names:
+            continue
+        mismatch = False
+        if prop_sku:
+            mismatch = not lib.match_motor_propeller(motor.name, prop_sku)
+        extras.append({
+            **motor_spec_to_suggestion(motor),
+            "relaxed": True,
+            "prop_mismatch": mismatch,
+        })
+        if len(extras) >= relax_limit:
+            break
+    combined = t1 + extras
+    for i, row in enumerate(combined, start=1):
+        row["idx"] = i
+    return combined
+
+
+_WATTS_RECOVERY_HEADER = (
+    "Este motor no declara vatios, por eso no hay autonomía. "
+    "Solo candidatos con W de placa:"
+)
+_WATTS_RECOVERY_EMPTY = (
+    "Este motor no declara vatios, por eso no hay autonomía. "
+    "No hay otro motor en el catálogo con KV/hélice actuales que declare W. "
+    "No inventes motor_power_w."
+)
+_WATTS_RECOVERY_CTA = "Elegir no garantiza cumplir el objetivo de autonomía."
+
+
+def build_nameplate_watts_motor_suggestions(
+    project_state: Any,
+    *,
+    library: ComponentLibrary | None = None,
+    limit: int = 5,
+) -> list[MotorSuggestion]:
+    """G22 list filtered to catalog motors that declare ``max_watts``.
+
+    Watts-recovery IC: same ``find_motors_for_requirements`` as
+    ``build_motor_catalog_suggestions``; drop SKUs with no nameplate W.
+    """
+    raw = build_motor_catalog_suggestions(
+        project_state, library=library, limit=max(limit * 2, 10)
+    )
+    kept: list[MotorSuggestion] = []
+    for row in raw:
+        if row.get("max_watts") is None:
+            continue
+        kept.append({**row})
+        if len(kept) >= limit:
+            break
+    for i, row in enumerate(kept, start=1):
+        row["idx"] = i
+    return kept
+
+
+def format_watts_recovery_catalog(
+    suggestions: list[MotorSuggestion], *, param: str = "per_motor_max_thrust_n"
+) -> str:
+    if not suggestions:
+        return _WATTS_RECOVERY_EMPTY
+    body = format_motor_catalog_suggestions(
+        suggestions, param=param, include_cta=True
+    )
+    # Replace the generic G22 header with the recovery header.
+    if body.startswith("Candidatos del catálogo para este espacio de diseño:"):
+        body = _WATTS_RECOVERY_HEADER + body[len("Candidatos del catálogo para este espacio de diseño:"):]
+    else:
+        body = _WATTS_RECOVERY_HEADER + "\n" + body
+    return body + "\n" + _WATTS_RECOVERY_CTA
+
+
+_RELAX_SECTION_HEADER = (
+    "Filtros relajados (sin KV ni pulgadas de hélice del combo actual) — "
+    "no es un combo motor+hélice+batería:"
+)
+_PROP_MISMATCH_SUFFIX = (
+    "  ⚠ la hélice vinculada puede no encajar; habría que redefinir propellers"
+)
+_PICK_NOT_PASS = "Elegir no garantiza sim PASS."
+
+
+def format_underspec_relax_catalog(
+    suggestions: list[MotorSuggestion], *, param: str = "per_motor_max_thrust_n"
+) -> str:
+    """Two-section numbered list for T1+2. Callers must pass the combined offer."""
+    t1 = [s for s in suggestions if not s.get("relaxed")]
+    extras = [s for s in suggestions if s.get("relaxed")]
+    lines: list[str] = []
+    if t1:
+        lines.append("Candidatos del catálogo para este espacio de diseño:")
+        for s in t1:
+            lines.append(_format_candidate_line(s, detailed=True))
+    else:
+        lines.append("Ninguno con KV/hélice actuales.")
+    if extras:
+        lines.append("")
+        lines.append(_RELAX_SECTION_HEADER)
+        for s in extras:
+            line = _format_candidate_line(s, detailed=True)
+            if s.get("prop_mismatch"):
+                line += _PROP_MISMATCH_SUFFIX
+            lines.append(line)
+    if param == "per_motor_max_thrust_n":
+        lines.append(
+            "Elige un número, indica empuje en N (de una combinación motor-hélice), "
+            "o di 'no' para omitir."
+        )
+    else:
+        lines.append("Elige un número, indica W a mano, o di 'no' para omitir.")
+    lines.append(_PICK_NOT_PASS)
+    return "\n".join(lines)
+
+
 def _format_candidate_line(s: MotorSuggestion, *, detailed: bool) -> str:
     """Shared candidate-line formatting for the full list and the inline quick menu."""
     tag = " [genérico]" if s.get("is_generic") else ""
@@ -266,6 +423,28 @@ def _format_candidate_line(s: MotorSuggestion, *, detailed: bool) -> str:
     else:
         body = f"{s['thrust_n']}N{watts_bit}"
     return f"  {s['idx']}. {s['name']}{tag}  →  {body}"
+
+
+def format_motor_chosen_line(suggestion: MotorSuggestion, *, recalculated: bool = False) -> str:
+    """Confirmation copy after a numbered catalog pick.
+
+    ``max_watts`` is optional (verified SKUs such as ``emax_rs2205s_2300`` have
+    none). Never call ``int(watts)`` when it is missing.
+    """
+    watts = suggestion.get("max_watts")
+    power_bit = f"~{int(watts)}W, " if watts is not None else ""
+    suffix = " Sistema recalculado." if recalculated else ""
+    return (
+        f"Motor elegido: {suggestion['name']} "
+        f"({power_bit}{suggestion['thrust_n']}N).{suffix}"
+    )
+
+
+def format_motor_change_summary(suggestion: MotorSuggestion) -> str:
+    watts = suggestion.get("max_watts")
+    if watts is None:
+        return f"motor → {suggestion['name']}"
+    return f"motor → {suggestion['name']} (~{int(watts)}W)"
 
 
 def format_motor_catalog_suggestions(

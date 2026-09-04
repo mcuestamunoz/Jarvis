@@ -2,7 +2,7 @@
 
 **Purpose.** Free-text → concrete parameter mutation, via a multi-step confirmation wizard. Also hosts the new-project wizard (`interactive_session.py`), which follows the same "draft + step + confirm" shape.
 
-**Inbound:** C-050 (from Runtime). **Outbound:** C-060 (to Calculation, via `apply_and_recalculate`/`MutationEngine`), C-091 (component-shaped mutations go through the same writers).
+**Inbound:** C-050 (from Runtime). **Outbound:** C-060 (to Calculation, via `apply_and_recalculate`/`MutationEngine`; physical `IterateAction` uses `build_with_estimative_sweep`, same as user calculate — DSE does not), C-091 (component-shaped mutations go through the same writers).
 
 ## Key modules
 

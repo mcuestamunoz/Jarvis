@@ -98,6 +98,10 @@ def _assembly_ready_shape_state(restrictions: str, *, autonomy_min: float = 5.04
     })
     frame = _spec("frame", "structure", properties={
         "material": PropertyValue(value="carbono", source="declared"),
+        # Structure A (implementation_contract_structure_a.md §2.2): the
+        # propeller below declares diameter_in=5.0, so this "assembly ready
+        # shape" fixture must also declare a compatible size_class_inch.
+        "size_class_inch": PropertyValue(value=5.0, unit="in", source="declared"),
     })
     flight_controller = _spec("flight_controller", "control")
     sensors = _spec("sensors", "control")

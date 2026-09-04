@@ -54,7 +54,14 @@ def _full_dron_state(*, battery_completeness="medium", sensors_completeness="med
         "frame": ComponentSpec(
             name="frame", suggested_key="frame", component_type="structure",
             completeness="high",
-            properties={"mass_kg": PropertyValue(value=0.5), "material": PropertyValue(value="fibra")},
+            # Structure A (implementation_contract_structure_a.md §2.2): the
+            # propeller above declares diameter_in=10.0, so this "fully
+            # closed" fixture must also declare a compatible size_class_inch.
+            properties={
+                "mass_kg": PropertyValue(value=0.5),
+                "material": PropertyValue(value="fibra"),
+                "size_class_inch": PropertyValue(value=10.0, unit="in"),
+            },
         ),
         "sensors": ComponentSpec(
             name="GPS", suggested_key="sensors", component_type="control",

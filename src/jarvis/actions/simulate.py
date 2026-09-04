@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from jarvis.core.calculation_engine import CalculationEngine
+from jarvis.core.endurance_sweep_writer import build_with_estimative_sweep
 from jarvis.core.reasoning_layer import ReasoningLayer
 from jarvis.core.state_manager import StateManager
 from jarvis.schemas.action_schema import ActionName
@@ -101,4 +102,6 @@ class SimulateAction:
         stored = project_state.latest_results.get("calculations")
         if stored:
             return CalculationBundle.model_validate(stored)
-        return self.calculation_engine.build(project_state.current_parameters)
+        return build_with_estimative_sweep(
+            self.calculation_engine, project_state.current_parameters,
+        )

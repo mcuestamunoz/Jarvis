@@ -8,8 +8,9 @@ from pathlib import Path
 from jarvis.config import ESCAPE_WORDS
 from jarvis.core.acquisition_brief import build_acquisition_brief
 from jarvis.core.acquisition_target import COMPONENT_PROMPTS, is_navigation_back_phrase
+from jarvis.core.battery_catalog_assist import detect_battery_sku_token
 from jarvis.core.calculation_engine import CalculationEngine
-from jarvis.core.catalog_bind import bind_motor_from_catalog
+from jarvis.core.catalog_bind import bind_battery_from_catalog, bind_motor_from_catalog
 from jarvis.core.component_resolver import resolve_propulsion_parameters
 from jarvis.core.component_writers import set_battery_component, set_motor_component, set_propeller_component
 from jarvis.core.motor_catalog_assist import (
@@ -18,6 +19,8 @@ from jarvis.core.motor_catalog_assist import (
     build_motor_catalog_suggestions,
     derive_kv_prop_filters,
     format_motor_catalog_suggestions,
+    format_motor_change_summary,
+    format_motor_chosen_line,
     format_no_thrust_candidate_message,
     is_bare_watts_input,
     is_help_choose_phrase,
@@ -461,13 +464,10 @@ class ParamDefinitionSession:
             return {
                 "status": "interactive",
                 "action": "define_missing_params",
-                "message": (
-                    f"Motor elegido: {suggestion['name']} "
-                    f"(~{int(watts)}W, {suggestion['thrust_n']}N)."
-                ),
+                "message": format_motor_chosen_line(suggestion),
                 "question": self._question_for_param(remaining[0], next_suggestions),
                 "pending": remaining,
-                "project_change_summary": f"motor → {suggestion['name']} (~{int(watts)}W)",
+                "project_change_summary": format_motor_change_summary(suggestion),
             }
 
         self.state_manager.clear_runtime_session()
@@ -476,13 +476,8 @@ class ParamDefinitionSession:
         # output_magnitude-driven derivation and risk stale/duplicate writes).
         other_updates = {k: v for k, v in collected.items() if k not in ASSISTED_MOTOR_PARAMS}
         result = self.apply_and_recalculate(other_updates, confirmed=True)
-        result["project_change_summary"] = (
-            f"motor → {suggestion['name']} (~{int(watts)}W)"
-        )
-        result["message"] = (
-            f"Motor elegido: {suggestion['name']} (~{int(watts)}W, "
-            f"{suggestion['thrust_n']}N). Sistema recalculado."
-        )
+        result["project_change_summary"] = format_motor_change_summary(suggestion)
+        result["message"] = format_motor_chosen_line(suggestion, recalculated=True)
         return result
 
     def _answer_assisted_motor(
@@ -597,6 +592,43 @@ class ParamDefinitionSession:
             assisted_result = self._answer_assisted_motor(user_input, session, pending, suggestions)
             if assisted_result is not None:
                 return assisted_result
+
+        # N1 optional hygiene (implementation_review_block_closure_prop_energy.md):
+        # a live library battery SKU typed while the wizard is pending
+        # battery_capacity_wh must catalog-bind exactly like the IDLE
+        # try_ingest seam (§2 below) — otherwise parse_floats_from_input
+        # scrapes the "6" out of "..._6s_..." and zips it onto
+        # battery_capacity_wh as 6.0 Wh (G27-class bug, wizard-then-SKU path,
+        # distinct from the wizard/human-readable phrasing G27 already
+        # hardened).
+        if current == "battery_capacity_wh":
+            battery_sku = detect_battery_sku_token(user_input)
+            if battery_sku is not None:
+                battery_spec = bind_battery_from_catalog(battery_sku)
+                cap = battery_spec.properties["battery_capacity_wh"].value
+                collected = {**session.collected_params, "battery_capacity_wh": cap}
+                remaining = [p for p in pending if p != "battery_capacity_wh"]
+                if remaining:
+                    next_sugg = (
+                        self._catalog_suggestions_for_active_project()
+                        if remaining[0] in ASSISTED_MOTOR_PARAMS
+                        else []
+                    )
+                    updated_session = session.model_copy(
+                        update={
+                            "pending_param_definitions": remaining,
+                            "collected_params": collected,
+                            "motor_suggestions": next_sugg,
+                        }
+                    )
+                    self.state_manager.set_runtime_session(updated_session)
+                    return {
+                        "status": "interactive",
+                        "action": "define_missing_params",
+                        "question": self._question_for_param(remaining[0], next_sugg),
+                    }
+                self.state_manager.clear_runtime_session()
+                return self.apply_and_recalculate(collected, battery_catalog_spec=battery_spec)
 
         # FN-016: a component key (motors/propellers/battery/frame/…) is never
         # a numeric engineering parameter. Defense-in-depth: the normal path
@@ -756,6 +788,23 @@ class ParamDefinitionSession:
         except FileNotFoundError:
             return None
 
+        # Block Closure B-PROP-ENERGY IC §2 (battery re-bind prerequisite):
+        # a live library battery SKU named in free text ("definir bateria
+        # lipo_6s_10000mah", "cambia la bateria a lipo_6s_10000mah") must
+        # catalog-bind, never fall through to parse_params_bidir below — that
+        # opportunistic numeric parser has no SKU awareness and would
+        # misparse the "6" out of "..._6s_..." (G27-class, distinct path:
+        # G27 hardened the wizard/human-readable phrasing, not this
+        # try_ingest seam). Checked before both branches below — whichever
+        # would otherwise run the float scrape first.
+        battery_sku = detect_battery_sku_token(user_input)
+        if battery_sku is not None:
+            battery_spec = bind_battery_from_catalog(battery_sku)
+            cap = battery_spec.properties["battery_capacity_wh"].value
+            return self.apply_and_recalculate(
+                {"battery_capacity_wh": cap}, battery_catalog_spec=battery_spec
+            )
+
         simulation = project_state.latest_results.get("simulation") or {}
         physics_incomplete = simulation.get("physics_status") == "missing_parameters"
 
@@ -799,8 +848,18 @@ class ParamDefinitionSession:
         return None
 
     def apply_and_recalculate(
-        self, param_updates: dict[str, float], *, confirmed: bool = False
+        self,
+        param_updates: dict[str, float],
+        *,
+        confirmed: bool = False,
+        battery_catalog_spec: Any | None = None,
     ) -> dict:
+        # Block Closure B-PROP-ENERGY IC §2: when the caller already resolved
+        # a catalog-bound ComponentSpec for the battery (a live SKU named in
+        # free text — see try_ingest), use it verbatim instead of the
+        # freeform _make_battery_spec(cap) below, so catalog_ref survives.
+        # None (every other caller, unchanged) preserves today's freeform
+        # behavior exactly.
         # K2: normalizar alias de motor count antes de procesar.
         # Cubre callers externos que pasen 'motors' en vez de 'motor_count'.
         # Nota: no usar {**d, key: d.pop(key)} — el ** spread ocurre antes del pop.
@@ -883,7 +942,10 @@ class ParamDefinitionSession:
             logger.debug("D4: bridging mirrored params through component writers: %s", blocked)
             if "battery_capacity_wh" in blocked:
                 cap = param_updates["battery_capacity_wh"]
-                project_state = set_battery_component(project_state, _make_battery_spec(cap), cap)
+                battery_spec = (
+                    battery_catalog_spec if battery_catalog_spec is not None else _make_battery_spec(cap)
+                )
+                project_state = set_battery_component(project_state, battery_spec, cap)
                 bridged_updates["battery_capacity_wh"] = cap
             if "motor_power_w" in blocked:
                 pw = param_updates["motor_power_w"]

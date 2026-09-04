@@ -29,6 +29,159 @@ def _state(**kwargs):
     return SimpleNamespace(**defaults)
 
 
+def test_situation_thrust_feasibility_only_when_autonomy_unmet():
+    """CLI feasibility vs readiness semantics IC (§2.1): closed BOM + sim
+    PASS + an autonomy constraint the calc could not evaluate must say
+    "Comprobación de empuje... Candidato inicial", never "Diseño validado"
+    — thrust feasibility PASS is not the same claim as the autonomy
+    objective being demonstrated."""
+    state = _state(
+        latest_results={
+            "simulation": {
+                "status": "pass",
+                "quality": "acceptable",
+                "safety_margin_ratio": 1.28,
+                "can_fly": True,
+                "warnings": [],
+                "energy_status": "missing_energy_parameters",
+            },
+            "calculations": {},
+        },
+    )
+    cont = build_project_continuity(
+        project_state=state,
+        status_type="nominal",
+        status_reason=None,
+        phase="complete",
+        architecture_progress="4/4",
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={"autonomy_target_min": 5.0},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+        motor_catalog_matches=[],
+    )
+    assert "PASS" in cont["situation"]
+    assert "Comprobación de empuje" in cont["situation"]
+    assert "Candidato inicial" in cont["situation"]
+    assert "Diseño validado" not in cont["situation"]
+    # §2.2: evidence line for the target must not go silent either.
+    assert any("no calculada" in e.lower() for e in cont["evidence"])
+
+
+def test_situation_still_diseno_validado_when_no_autonomy_constraint():
+    """Same PASS + closed BOM shape, but no autonomy constraint at all ->
+    the original "Diseño validado" wording is unchanged (§2.1's guard is
+    scoped to the autonomy-constraint case only)."""
+    cont = build_project_continuity(
+        project_state=_state(),
+        status_type="nominal",
+        status_reason=None,
+        phase="complete",
+        architecture_progress="4/4",
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+        motor_catalog_matches=[],
+    )
+    assert "Diseño validado en simulación (PASS)" in cont["situation"]
+
+
+def test_situation_thrust_feasibility_when_autonomy_calculated_below_target():
+    """Feasibility delta 2026-09-02: closed BOM + sim PASS + autonomy
+    calculated *below* the target (15 vs 5.0) must not say "Diseño validado".
+    Same locked situation string as the uncalculated parent IC. Next step
+    must not keep the architecture-complete / iterate CTA."""
+    state = _state(
+        latest_results={
+            "simulation": {
+                "status": "pass",
+                "quality": "good",
+                "safety_margin_ratio": 1.75,
+                "can_fly": True,
+                "warnings": ["autonomy_below_restriction"],
+            },
+            "calculations": {"autonomy_min": 5.0},
+        },
+    )
+    cont = build_project_continuity(
+        project_state=state,
+        status_type="warning",
+        status_reason="autonomy_below_restriction",
+        phase="complete",
+        architecture_progress="4/4",
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question="Arquitectura completa (4/4) — puedes optimizar o simular.",
+        suggested_action={"label": "Optimiza o itera el diseño.", "reason": "margen"},
+        physical_requirements={
+            "autonomy_target_min": 15.0,
+            "current_autonomy_min": 5.0,
+            "thrust_per_motor_needed_n": 4.30,
+        },
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+        motor_catalog_matches=[],
+    )
+    assert "Comprobación de empuje" in cont["situation"]
+    assert "Candidato inicial" in cont["situation"]
+    assert "Diseño validado" not in cont["situation"]
+    assert "Revisa energía" in cont["next_useful_step"]
+    assert "empuje ya es PASS" in cont["next_useful_step"]
+    assert "Arquitectura completa" not in cont["next_useful_step"]
+    assert "optimizar" not in cont["next_useful_step"]
+    assert "puedes iterar" not in cont["next_useful_step"]
+    assert "ayúdame a elegir" not in cont["next_useful_step"]
+    assert cont["next_useful_why"] == "autonomy_below_restriction"
+    assert any("15" in e and "5.0" in e for e in cont["evidence"])
+
+
+def test_situation_still_diseno_validado_when_autonomy_meets_target():
+    """Same PASS + closed BOM + autonomy constraint, but current meets the
+    target → original "Diseño validado" wording (delta is below-target only)."""
+    cont = build_project_continuity(
+        project_state=_state(
+            latest_results={
+                "simulation": {
+                    "status": "pass",
+                    "quality": "good",
+                    "safety_margin_ratio": 1.75,
+                    "can_fly": True,
+                    "warnings": [],
+                },
+                "calculations": {"autonomy_min": 16.0},
+            },
+        ),
+        status_type="nominal",
+        status_reason=None,
+        phase="complete",
+        architecture_progress="4/4",
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={
+            "autonomy_target_min": 15.0,
+            "current_autonomy_min": 16.0,
+        },
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+        motor_catalog_matches=[],
+    )
+    assert "Diseño validado en simulación (PASS)" in cont["situation"]
+    assert "Comprobación de empuje" not in cont["situation"]
+
+
 def test_continuity_catalog_gap_beats_optimization_suggestion():
     cont = build_project_continuity(
         project_state=_state(),
@@ -83,6 +236,77 @@ def test_continuity_incomplete_bom_without_catalog_gap():
     )
     assert "battery" in cont["next_useful_step"].lower()
     assert "Aumentar carga útil" not in cont["next_useful_step"]
+
+
+def test_continuity_sim_fail_underspec_names_candidates():
+    """T1 (implementation_contract_cli_catalog_assist_t1.md §2.4/§3): rank 2
+    (sim warning/fail) stays first, but when the bound motor SKU is
+    underspec its copy names the G22 candidates instead of only the
+    generic "no es PASS" — and never claims sim PASS or bloque CERRADO."""
+    cont = build_project_continuity(
+        project_state=_state(
+            latest_results={
+                "simulation": {"status": "fail", "quality": "fail", "warnings": []},
+                "calculations": {},
+            }
+        ),
+        status_type="nominal",
+        status_reason=None,
+        phase="complete",
+        architecture_progress="4/4",
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={"thrust_per_motor_needed_n": 15.04},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=(
+            "El motor vinculado (sunnysky_r2305_2500) ya no cubre el hueco de diseño "
+            "(empuje ≥ 15.0 N/motor, ~2500KV, hélice ~5\")."
+        ),
+        motor_catalog_matches=[{"name": "sunnysky_r2205_2500", "thrust_n": 12.5525}],
+    )
+    assert "ayúdame a elegir" in cont["next_useful_step"]
+    assert "sunnysky_r2205_2500" in cont["next_useful_step"]
+    # Locked disclaimer, not a claim of achieved PASS/CERRADO.
+    assert "no garantiza sim PASS" in cont["next_useful_step"]
+    assert "CERRADO" not in cont["next_useful_step"]
+    assert "sunnysky_r2305_2500" in cont["next_useful_why"]
+
+
+def test_continuity_sim_fail_without_underspec_unchanged():
+    """Sim fail with no underspec evidence, thrust itself genuinely fine
+    (can_fly=True — every real simulation result sets this; explicit here
+    per implementation_contract_cli_fail_routing_coherence.md §2.4, which
+    only replaces this generic fallback when can_fly is NOT True) keeps
+    today's generic copy — T1 only specializes the underspec case, nothing
+    else in rank 2 for this shape."""
+    cont = build_project_continuity(
+        project_state=_state(
+            latest_results={
+                "simulation": {
+                    "status": "fail", "quality": "fail", "can_fly": True,
+                    "warnings": ["margen bajo"],
+                },
+                "calculations": {},
+            }
+        ),
+        status_type="nominal",
+        status_reason=None,
+        phase="complete",
+        architecture_progress="4/4",
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+    )
+    assert "Corrige la causa" in cont["next_useful_step"]
+    assert "ayúdame a elegir" not in cont["next_useful_step"]
 
 
 def test_render_leads_with_continuity_block():

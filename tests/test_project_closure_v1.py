@@ -59,10 +59,29 @@ def test_derive_physical_requirements_from_calc_and_constraints():
 
 
 def test_energy_honesty_only_when_autonomy_constrained():
+    # No constraint at all -> no note, regardless of calc state.
     assert energy_model_honesty_note(_state()) is None
-    note = energy_model_honesty_note(_state(parsed_constraints={"autonomy_min": 15}))
-    assert note is not None
-    assert "Wh" in note or "simplificado" in note.lower()
+
+    # CLI feasibility vs readiness semantics IC (§2.5): constraint set but no
+    # autonomy was actually calculated -> honest "not calculated" sentence,
+    # never the L0 (Wh/W)x60 disclosure (that would imply a number exists).
+    note_uncalculated = energy_model_honesty_note(
+        _state(parsed_constraints={"autonomy_min": 15})
+    )
+    assert note_uncalculated is not None
+    assert "no calculada" in note_uncalculated.lower()
+    assert "Wh" not in note_uncalculated
+
+    # Constraint set AND autonomy actually calculated -> keep the original
+    # L0 disclosure sentence, unchanged.
+    note_calculated = energy_model_honesty_note(
+        _state(
+            parsed_constraints={"autonomy_min": 15},
+            latest_results={"calculations": {"autonomy_min": 12.5}},
+        )
+    )
+    assert note_calculated is not None
+    assert "Wh" in note_calculated or "simplificado" in note_calculated.lower()
 
 
 def test_build_component_bom_classifies_gaps():

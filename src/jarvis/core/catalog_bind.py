@@ -309,3 +309,56 @@ def invalidate_diverged_catalog_refs(
     if not changed:
         return components, params
     return updated_components, updated_params
+
+
+# ── DSE apply honesty (implementation_contract_dse_apply_honest.md) ──────────
+
+def catalog_motor_nameplate_watts(
+    components: dict[str, Any],
+    *,
+    library: ComponentLibrary | None = None,
+) -> float | None:
+    """The bound motor SKU's real nameplate ``max_watts``, or ``None`` when
+    no motor is catalog-bound or the bound SKU honestly declares no watts
+    (e.g. ``emax_rs2205s_2300``). Single library lookup — never invents a
+    number, never rounds beyond what the catalog itself declares.
+    """
+    lib = library or default_library
+    motor = components.get("motors")
+    catalog_ref = getattr(motor, "catalog_ref", None)
+    if catalog_ref is None or catalog_ref.family != "motor":
+        return None
+    try:
+        spec = lib.get_motor(catalog_ref.sku)
+    except KeyError:
+        return None
+    return spec.max_watts
+
+
+def find_battery_skus_for_energy_wh(
+    energy_wh: float,
+    *,
+    library: ComponentLibrary | None = None,
+    epsilon: float = 1e-6,
+) -> list[str]:
+    """All catalog battery SKUs whose declared ``energy_wh`` matches
+    *energy_wh* within *epsilon* (same order as the G5 divergence epsilon).
+    """
+    lib = library or default_library
+    return [
+        b.name for b in lib.list_batteries() if abs(float(b.energy_wh) - float(energy_wh)) <= epsilon
+    ]
+
+
+def find_unique_battery_sku_for_energy_wh(
+    energy_wh: float,
+    *,
+    library: ComponentLibrary | None = None,
+    epsilon: float = 1e-6,
+) -> str | None:
+    """The single catalog battery SKU matching *energy_wh*, or ``None`` when
+    zero or more than one SKU matches — DSE apply must never silently pick
+    among ambiguous packs (implementation_contract_dse_apply_honest.md §2.2).
+    """
+    matches = find_battery_skus_for_energy_wh(energy_wh, library=library, epsilon=epsilon)
+    return matches[0] if len(matches) == 1 else None

@@ -29,3 +29,6 @@ htmlcov/
 # Jarvis runtime noise (regenerable)
 src/jarvis/runtime/llm_logs/
 *.log
+
+# Local CLI walk workspaces (not product source)
+workspace/

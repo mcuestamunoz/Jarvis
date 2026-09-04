@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from jarvis.core.calculation_engine import CalculationEngine
+from jarvis.core.endurance_sweep_writer import build_with_estimative_sweep
 from jarvis.core.state_manager import StateManager
 from jarvis.schemas.action_schema import ActionName
 from jarvis.schemas.state_schema import HistoryEntry
@@ -27,7 +28,9 @@ class CalculateAction:
             workspace_path=parameters.get("workspace_path"),
             project_slug=parameters.get("project_slug"),
         )
-        calculations = self.calculation_engine.build(project_state.current_parameters)
+        calculations = build_with_estimative_sweep(
+            self.calculation_engine, project_state.current_parameters,
+        )
         workspace_path = Path(project_state.workspace_path)
         action_index = len(project_state.history)
         calculations_path = self.workspace_manager.save_calculation(

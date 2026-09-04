@@ -1,49 +1,54 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Phase 2.7-B implemented — Cursor review PASS WITH NOTES; awaiting Engineer checkpoint decision",
-  "scope": "L2 E-SWEEP opt-in · L1 unchanged · P26 frozen · P27-A validated frozen",
-  "execution_status": "implemented_pending_validation",
-  "current_mode": "Validation",
+  "cycle_intent": "Phase transition: prop/energy/Structure A/fail-routing experimental construction closed. Next phase = knowledge & block parity. Engineer names first thread before any IC.",
+  "scope": "Agenda only. Freeze default polish on catalog honesty C-A1, autonomy Continuity/DSE copy, fail-routing N1 residual. No src without new Engineer-named investigation/IC.",
+  "execution_status": "phase_knowledge_block_parity_awaiting_engineer_thread",
+  "current_mode": "Knowledge & block parity agenda — wait Engineer thread choice",
   "movement_trigger": {
-    "type": "implementation_review",
-    "note": "P27-B IC v0.2 PASS WITH NOTES. Suite 2071. Probe 4/4. L1 probe 4/4. No checkpoint unless Engineer asks."
+    "type": "phase_transition_ratified",
+    "note": "Engineer Procede 2026-09-04. Construction question → knowledge question. No feature IC opened."
   },
-  "relevant_workflow_phases": [
-    "Validation"
-  ],
+  "relevant_workflow_phases": ["investigation"],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
     "phase26_p_battery_boundary": "★ RATIFICADO — UNVERIFIABLE — NO IC",
     "phase26_esc_system_losses": "INVESTIGATED CLOSED",
     "phase27_battery_voltage_sag": "★ RATIFICADO — INSUFFICIENT DATA — NO IC (validated L3)",
     "phase27_loaded_battery_boundary": "FROZEN for unlabeled/validated loaded autonomy",
-    "phase27b_parametric_estimate": "★ RATIFICADO ★1–★5 — IC READY",
-    "esc_bench_data_campaign": "PARALLEL",
-    "m3_crate_derating_campaign": "PARALLEL OPEN",
+    "phase27b_parametric_estimate": "★ RATIFICADO ★1–★5 — IMPLEMENTED REVIEWED",
+    "option_a_show_estimative": "★ RATIFICADO ★1–★5 — CLOSED",
+    "cli_feasibility_semantics": "★ RATIFICADO ★1–★5 — IMPLEMENTED REVIEWED CLOSED",
+    "cli_feasibility_autonomy_below": "★ RATIFICADO (Engineer procede 2026-09-02) — IMPLEMENTED REVIEWED PASS",
+    "block_closure_b_prop_energy": "★ RATIFICADO ★1–★6 — REVIEWED PASS WITH NOTES — N1 CLOSED — CLI WALK CLOSED (picker ≠ Gate A)",
+    "cli_catalog_assist_t1": "★ RATIFICADO ★1–★5 — IMPLEMENTED REVIEWED PASS WITH NOTES",
+    "cli_catalog_assist_t1_plus_2": "★ RATIFICADO (Engineer vamos 2026-09-02) — IMPLEMENTED REVIEWED PASS WITH NOTES",
+    "cli_catalog_assist_watts_recovery": "★ RATIFICADO (Engineer bien ratifico 2026-09-02) — IMPLEMENTED REVIEWED PASS WITH NOTES",
+    "cli_stale_energy_recalc": "★ RATIFICADO (Engineer procede 2026-09-02) — IMPLEMENTED REVIEWED PASS WITH NOTES",
+    "dse_apply_honest": "★ RATIFICADO (Engineer empecemos 2026-09-03) — IMPLEMENTED REVIEWED PASS WITH NOTES",
+    "structure_a": "★ RATIFICADO — IMPLEMENTED REVIEWED PASS WITH NOTES; N1 HOTFIX REVIEWED PASS WITH NOTE",
+    "cli_fail_routing_coherence": "★ IC RATIFIED — IMPLEMENTED REVIEWED PASS WITH NOTES (suite 2150)",
+    "phase_transition_knowledge_parity": "★ RATIFICADO (Engineer Procede 2026-09-04) — AGENDA ACTIVE, NO IC",
+    "esc_bench_data_campaign": "PARKED — HD-002 — never PRIORIDAD AHORA (Engineer 2026-09-03: no lab)",
+    "m3_crate_derating_campaign": "PARKED — HD-001 — never PRIORIDAD AHORA (Engineer 2026-09-03: no lab)",
     "hover_energy_autonomy_min": "L1 MOTOR-INPUT — nameplate Wh / P_motor_input; not flight time; not a physical lower bound"
   },
   "required_artifacts": [
-    ".jes/artifacts/engineer_ratification_phase27_battery_voltage_sag.md",
-    ".jes/artifacts/investigation_contract_phase27b_parametric_battery_estimate.md",
-    ".jes/artifacts/investigation_report_phase27b_parametric_battery_estimate.md",
-    ".jes/artifacts/investigation_review_phase27b_parametric_battery_estimate.md",
-    ".jes/artifacts/engineer_ratification_phase27b_parametric_battery_estimate.md",
-    ".jes/artifacts/implementation_contract_phase27b_parametric_battery_estimate.md",
-    ".jes/artifacts/implementation_contract_review_phase27b_parametric_battery_estimate.md",
-    ".jes/artifacts/implementation_report_phase27b_parametric_battery_estimate.md",
-    ".jes/artifacts/implementation_review_phase27b_parametric_battery_estimate.md"
+    ".jes/artifacts/engineer_ratification_phase_transition_knowledge_parity.md",
+    ".jes/artifacts/engineer_agenda_knowledge_and_block_parity.md",
+    ".jes/artifacts/implementation_review_cli_walk_correction_package.md",
+    ".jes/artifacts/implementation_review_cli_fail_routing_coherence.md",
+    "docs/IMPLEMENTATION_TASKS.md"
   ],
-  "active_operation": "P27-B implementation review PASS WITH NOTES. Engineer may checkpoint.",
+  "active_operation": "knowledge_block_parity_agenda",
   "authority_gates": [
+    "Phase transition ★ 2026-09-04 — knowledge/block parity; no polish IC default",
+    "CLI fail-routing ✅ suite 2150 REVIEW PASS WITH NOTES",
+    "Structure A + N1 hotfix ✅ suite 2143 REVIEWED",
+    "DSE apply honest ✅ suite 2124 REVIEW PASS WITH NOTES",
+    "Stale-energy recalc ✅ suite 2117 REVIEW PASS WITH NOTES",
     "v0.3.5 checkpoint ✅",
-    "Phase 2.6 boundary ★ RATIFICADO ✅",
-    "Phase 2.7-A ★ INSUFFICIENT DATA ✅",
-    "Phase 2.7-B investigation ✅ PASS WITH NOTES",
-    "Phase 2.7-B Engineer ★1–★5 ✅",
-    "Phase 2.7-B IC v0.2 ✅",
-    "Phase 2.7-B implementation ✅",
-    "Phase 2.7-B implementation review ✅ PASS WITH NOTES",
-    "Checkpoint ⏳ Engineer"
+    "v0.3.6 experimental construction closed — tag after commit",
+    "Hardware HD-* PARKED — never PRIORIDAD AHORA (Engineer: no lab equipment)"
   ],
   "checkpoints": {
     "v0.3.1": "30c9aec",
@@ -55,7 +60,9 @@
     "v0.3.4": "a563fe789f1cd22313152714926a4fca0e54d3e5",
     "checkpoint-motor-op-voltage-coherence": "a563fe789f1cd22313152714926a4fca0e54d3e5",
     "v0.3.5": "fc46938b64c757bc9e1ab7f5e69e91bde30ad174",
-    "checkpoint-phase25-hover-energy": "fc46938b64c757bc9e1ab7f5e69e91bde30ad174"
+    "checkpoint-phase25-hover-energy": "fc46938b64c757bc9e1ab7f5e69e91bde30ad174",
+    "v0.3.6": "PENDING_COMMIT",
+    "checkpoint-experimental-prop-energy-closed": "PENDING_COMMIT"
   },
   "arc": {
     "validation_case_investigation": "CHECKPOINTED",
@@ -67,16 +74,34 @@
     "phase27_battery_voltage_sag_investigation": "INVESTIGATED_NO_IC",
     "phase27b_parametric_battery_estimate_investigation": "RATIFIED",
     "phase27b_parametric_battery_estimate_ic": "IMPLEMENTED_REVIEWED",
-    "m3_crate_derating_campaign": "OPEN",
-    "esc_bench_data_campaign": "NOT_STARTED",
-    "block_closure_investigation": "INVESTIGATED",
-    "catalog_foundation_investigation": "CHECKPOINTED",
+    "option_a_l2_chat_visibility": "CLOSED",
+    "cli_feasibility_semantics_investigation": "REVIEWED_PASS_WITH_NOTES",
+    "cli_feasibility_semantics_ic": "IMPLEMENTED_REVIEWED_CLOSED",
+    "cli_feasibility_autonomy_below_ic": "IMPLEMENTED_REVIEWED_PASS",
+    "m3_crate_derating_campaign": "DEBT — HD-001 docs/HARDWARE_DEBT.md (not execution queue)",
+    "esc_bench_data_campaign": "DEBT — HD-002 docs/HARDWARE_DEBT.md (not execution queue)",
+    "block_closure_investigation": "RATIFIED ★1–★6",
+    "block_closure_prop_energy_ic": "REVIEWED_WALK_CLOSED_PICKER_NE_GATE_A",
+    "cli_catalog_assist_misfit_propose_investigation": "REVIEWED_PASS_WITH_NOTES",
+    "cli_catalog_assist_t1_ic": "REVIEWED_PASS_WITH_NOTES",
+    "cli_catalog_assist_t1_plus_2_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "cli_catalog_assist_watts_recovery_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "cli_stale_energy_recalc_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "dse_apply_honest_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "structure_a_investigation": "REVIEWED_PASS_WITH_NOTES",
+    "structure_a_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES_N1_CLOSED",
+    "cli_fail_routing_coherence_investigation": "CLOSED_REVISION_PASS_WITH_NOTES",
+    "cli_fail_routing_coherence_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "phase_transition_knowledge_parity": "RATIFIED_AGENDA_ACTIVE",
+    "catalog_foundation_investigation": "CHECKPOINTED — not first (★5)",
+    "catalog_honesty_c_a1": "OUT_OF_PHASE_DEFAULT — Engineer may reopen as knowledge semantics",
     "frozen": [
       "H5_ESC_CATALOG",
       "G24_B_SCORING_REWRITE",
       "PHASE25_HOVER_ENERGY_ARCHITECTURE",
       "PHASE26_P_BATTERY_BOUNDARY",
-      "PHASE27_LOADED_BATTERY_BOUNDARY"
+      "PHASE27_LOADED_BATTERY_BOUNDARY",
+      "PROP_ENERGY_ROUTING_POLISH_AS_DEFAULT_NEXT"
     ]
   }
 }

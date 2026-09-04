@@ -11,6 +11,7 @@ from jarvis.core.parameter_requirements import (
     params_for_reason,
     reason_domain_label,
 )
+from jarvis.core.project_closure import catalog_bound_motor_lacks_nameplate_watts
 from jarvis.schemas.tool_schema import ReasoningOutput, ReasoningSuggestion
 
 
@@ -105,12 +106,29 @@ class ReasoningLayer:
                 "Con estos datos el engine puede estimar el thrust (modelo Ct≈0.12)."
             )
         if signals["missing_energy_parameters"] and not signals["missing_physics_parameters"]:
-            missing_e = self._detect_missing_energy_params(context)
-            param_str = ", ".join(missing_e) if missing_e else "battery_capacity_wh, motor_power_w"
-            insights.append(
-                f"No se puede calcular la autonomía porque faltan parámetros de energía: "
-                f"{param_str}. Define estos valores en los parámetros del proyecto."
-            )
+            if self._catalog_bound_motor_lacks_watts(context):
+                # §2.3: this SKU is catalog-identified and honestly has no
+                # nameplate wattage — do not tell the user to "define"
+                # motor_power_w, that reads as an input Jarvis is missing
+                # rather than a gap in the SKU's own published data.
+                insights.append(
+                    "No se puede calcular la autonomía: el motor de catálogo no "
+                    "declara vatios. No inventes motor_power_w a mano."
+                )
+            else:
+                missing_e = self._detect_missing_energy_params(context)
+                # Stale-signal guard (implementation_contract_cli_stale_energy_
+                # recalc.md §2.2): missing_energy_parameters can stay true from
+                # a pre-pick simulation even after battery_capacity_wh and
+                # motor_power_w are both already in current_parameters. Do not
+                # label them "missing" — that would tell the user to declare
+                # values that are already there.
+                if missing_e:
+                    param_str = ", ".join(missing_e)
+                    insights.append(
+                        f"No se puede calcular la autonomía porque faltan parámetros de energía: "
+                        f"{param_str}. Define estos valores en los parámetros del proyecto."
+                    )
         if signals["material_defined"]:
             insights.append("El material estructural está definido en propiedades de diseño.")
         if signals["power_unit_defined"]:
@@ -157,10 +175,14 @@ class ReasoningLayer:
                 "El modelo usa Ct=0.12; el empuje real depende del perfil aerodinámico de la hélice."
             )
         if signals["missing_energy_parameters"] and not signals["missing_physics_parameters"]:
-            energy_required = params_for_reason(MISSING_ENERGY_PARAMETERS)
-            tradeoffs.append(
-                f"Sin parámetros de energía ({', '.join(energy_required)}) no es posible calcular la autonomía operacional."
-            )
+            # Same stale-signal guard as the insight/suggestion above: skip
+            # when the SKU declares W and nothing is actually absent from
+            # current_parameters.
+            if self._catalog_bound_motor_lacks_watts(context) or self._detect_missing_energy_params(context):
+                energy_required = params_for_reason(MISSING_ENERGY_PARAMETERS)
+                tradeoffs.append(
+                    f"Sin parámetros de energía ({', '.join(energy_required)}) no es posible calcular la autonomía operacional."
+                )
         if signals["declarative_not_physical"]:
             tradeoffs.append("Las propiedades declarativas nuevas no alteran resultados físicos hasta modelarlas en cálculo/simulación.")
         if signals["power_unit_defined"] and signals["declarative_context"]:
@@ -233,8 +255,31 @@ class ReasoningLayer:
             return self._build_declarative_next_steps(context)
 
         if signals["missing_energy_parameters"]:
+            if self._catalog_bound_motor_lacks_watts(context):
+                # §2.3 (locked copy): the motor is catalog-bound and honestly
+                # has no nameplate wattage — asking the user to "declare"
+                # motor_power_w would only ever produce an invented number
+                # feeding the L0 (Wh/W)×60 model as if it were real evidence.
+                return [
+                    ReasoningSuggestion(
+                        action="iterate",
+                        label="No declares motor_power_w a mano — este motor de catálogo no declara vatios",
+                        reason=(
+                            "Inventar W usaría (Wh/W)×60 como si fuera vuelo. No hay "
+                            "autonomía de hover calculable con la evidencia actual."
+                        ),
+                        priority=0.95,
+                    )
+                ]
             missing_e = self._detect_missing_energy_params(context)
-            param_list = ", ".join(missing_e) if missing_e else "battery_capacity_wh, motor_power_w"
+            if not missing_e:
+                # Stale-signal guard: SKU declares W and nothing is actually
+                # absent from current_parameters — the missing_energy_parameters
+                # signal is a stale-result artifact, not a real gap. Declaring
+                # already-present params would be a lie; recalc is Continuity's
+                # call, not a suggested action here.
+                return []
+            param_list = ", ".join(missing_e)
             return [
                 ReasoningSuggestion(
                     action="iterate",
@@ -410,6 +455,24 @@ class ReasoningLayer:
         """Return params required for energy calculation that are absent from current_parameters."""
         params = context.get("current_parameters") or {}
         return missing_params_for_reason(MISSING_ENERGY_PARAMETERS, params)
+
+    @staticmethod
+    def _catalog_bound_motor_lacks_watts(context: dict[str, Any]) -> bool:
+        """CLI feasibility vs readiness semantics IC (§2.3): is the missing-
+        energy signal caused by a catalog-bound motor that honestly has no
+        nameplate wattage, rather than a motor the user never specified at
+        all?
+
+        T1 (implementation_contract_cli_catalog_assist_t1.md §2.6): uses
+        ``catalog_bound_motor_lacks_nameplate_watts``, not the identity-only
+        ``catalog_bound_motor_covers_power_w`` — that predicate answers "is a
+        motor catalog-bound at all" (correct for architecture-progress/energy
+        -nag gating, unchanged), which is a different question from "does
+        *this* bound SKU actually lack nameplate watts" (this CTA's claim).
+        A SKU that does declare watts (e.g. ``sunnysky_r2305_2500``, 220W)
+        must never see this copy.
+        """
+        return catalog_bound_motor_lacks_nameplate_watts(context.get("design_properties"))
 
     def _detect_power_unit_missing_fields(self, context: dict[str, Any]) -> list[str]:
         latest_entry = self._latest_component_entry(context)

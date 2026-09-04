@@ -50,6 +50,7 @@ def set_frame_material(
     project_state: Any,
     mass_kg: float | None,
     material: str | None,
+    size_class_inch: float | None = None,
 ) -> Any:
     """Único punto de escritura para propiedades del frame.
 
@@ -59,6 +60,11 @@ def set_frame_material(
 
     Fase 3 completada: el mirror legacy structure.material fue eliminado.
     La lectura canónica ahora se hace via get_frame_material() en design_utils.py.
+
+    Structure A (implementation_contract_structure_a.md §2.2): size_class_inch
+    is component-property-only — no current_parameters mirror, no thrust/power/
+    RPM/Ct/autonomy involvement. None means "leave whatever is already declared"
+    (same convention as material), never invented, never copied from the prop.
 
     Returns the updated ProjectState (not persisted — caller must save).
     """
@@ -73,6 +79,10 @@ def set_frame_material(
     if material is not None:
         props["material"] = PropertyValue(
             value=material, unit=None, confidence=0.9, source="declared"
+        )
+    if size_class_inch is not None:
+        props["size_class_inch"] = PropertyValue(
+            value=size_class_inch, unit="in", confidence=0.9, source="declared"
         )
 
     completeness, missing_fields = _frame_completeness(props)
@@ -92,9 +102,15 @@ def set_frame_material(
     })
 
     # ── 2. structure_mass_override_kg in current_parameters ───────────────
+    # N1 hotfix (implementation_contract_structure_a_n1_hotfix.md): mirror
+    # from the MERGED props, not the mass_kg argument — a partial update
+    # (e.g. size/material only, mass_kg=None) must not delete an override
+    # the merged component still declares. Only pop when the merged frame
+    # truly has no mass.
     updated_params = dict(project_state.current_parameters or {})
-    if mass_kg is not None:
-        updated_params["structure_mass_override_kg"] = mass_kg
+    mass_prop = props.get("mass_kg")
+    if mass_prop is not None and mass_prop.value is not None:
+        updated_params["structure_mass_override_kg"] = float(mass_prop.value)
     else:
         updated_params.pop("structure_mass_override_kg", None)
 

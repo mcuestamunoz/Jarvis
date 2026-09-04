@@ -368,6 +368,61 @@ def test_continuity_prefers_motor_assist_when_power_missing():
     assert "completa la especificación de motors" not in cont["next_useful_step"].lower()
 
 
+def test_continuity_catalog_bound_motor_without_watts_points_at_next_bom_gap():
+    """Field: emax_rs2205s_2300 is bound (no nameplate W) but Continuity still
+    said 'elige un motor / declara W' because motor_catalog_matches listed the
+    same SKU. Next step must be the real BOM gap (propellers)."""
+    from jarvis.schemas.action_schema import CatalogRef, ComponentSpec
+
+    motors = ComponentSpec(
+        name="emax_rs2205s_2300",
+        component_type="propulsion_active",
+        completeness="high",
+        source="declared",
+        catalog_ref=CatalogRef(family="motor", sku="emax_rs2205s_2300"),
+    )
+    state = SimpleNamespace(
+        latest_results={
+            "simulation": {
+                "status": "pass",
+                "quality": "good",
+                "safety_margin_ratio": 1.98,
+                "can_fly": True,
+                "warnings": [],
+            },
+            "calculations": {},
+        },
+        current_parameters={"motor_count": 4, "per_motor_max_thrust_n": 10.042},
+        design_properties=SimpleNamespace(components={"motors": motors}),
+    )
+    cont = build_project_continuity(
+        project_state=state,
+        status_type="nominal",
+        status_reason=None,
+        phase="definition",
+        architecture_progress="1/4",
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={"thrust_per_motor_needed_n": 5.06},
+        component_bom={
+            "defined": [{"key": "motors"}],
+            "incomplete": [{"key": "propellers", "missing_fields": ["incompleto"]}],
+            "missing": [],
+            "declarative": [],
+        },
+        energy_model_note=None,
+        motor_catalog_gap=None,
+        motor_catalog_matches=[{"name": "emax_rs2205s_2300"}],
+    )
+    step = (cont["next_useful_step"] or "").lower()
+    why = (cont.get("next_why") or "").lower()
+    assert "propellers" in step
+    assert "elige un motor" not in step
+    assert "motor_power_w" not in why
+
+
 # ── FN-009: guided propulsion acquisition ──────────────────────────────────────
 
 def test_fn009_offer_catalog_help_thrust_pending_uses_n_copy_not_watts(tmp_path: Path):
@@ -504,6 +559,58 @@ def test_fn009_catalog_pick_resolves_thrust_only_pending_without_looping(tmp_pat
 
     ctx = orch.build_startup_context()
     assert ctx.get("motor_catalog_gap") is None
+
+
+def test_catalog_pick_verified_motor_without_nominal_watts_does_not_crash(tmp_path: Path):
+    """Field: pick #5 ``emax_rs2205s_2300`` (max_watts is None by catalog
+    contract) crashed DEFINE_MISSING confirmation with ``int(None)``.
+    The numbered pick was already matched; only the copy assumed watts.
+    """
+    from jarvis.core.motor_catalog_assist import (
+        format_motor_change_summary,
+        format_motor_chosen_line,
+    )
+
+    no_w = {
+        "idx": 5,
+        "name": "emax_rs2205s_2300",
+        "thrust_n": 10.042,
+        "kv_rating": 2300,
+        "weight_g": 30.0,
+        "max_watts": None,
+        "is_generic": False,
+    }
+    msg = format_motor_chosen_line(no_w, recalculated=True)
+    assert "emax_rs2205s_2300" in msg
+    assert "10.042" in msg
+    assert "None" not in msg
+    assert "~" not in msg
+    assert format_motor_change_summary(no_w) == "motor → emax_rs2205s_2300"
+
+    orch = _propulsion_missing_project(tmp_path, payload_kg=1.0)
+    orch.start_define_missing_params(
+        ["per_motor_max_thrust_n"], reason=MISSING_PROPULSION_PARAMETERS
+    )
+    help_result = orch.param_definition_session.answer("ayúdame a elegir")
+    suggestions = help_result.get("motor_suggestions") or []
+    target = next((s for s in suggestions if s["name"] == "emax_rs2205s_2300"), None)
+    assert target is not None, "expected emax_rs2205s_2300 in the 1 kg / 4-motor list"
+    assert target["max_watts"] is None
+
+    pick = orch.param_definition_session.answer(str(target["idx"]))
+    assert pick.get("status") != "error"
+    assert "int()" not in (pick.get("message") or "")
+    assert "emax_rs2205s_2300" in (pick.get("message") or "")
+    assert "~None" not in (pick.get("message") or "")
+
+    saved = orch.state_manager.load_active_project(orch.workspace_manager)
+    motors = saved.design_properties.components["motors"]
+    assert motors.catalog_ref is not None
+    assert motors.catalog_ref.sku == "emax_rs2205s_2300"
+    assert saved.current_parameters.get("motor_power_w") is None
+    assert saved.current_parameters.get("per_motor_max_thrust_n") == pytest.approx(
+        float(target["thrust_n"])
+    )
 
 
 def test_fn009_continuity_marks_thrust_requirement_as_provisional_without_battery():

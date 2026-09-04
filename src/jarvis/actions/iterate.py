@@ -4,7 +4,8 @@ from pathlib import Path
 
 from jarvis.core.calculation_engine import CalculationEngine
 from jarvis.core.component_resolver import resolve_propulsion_parameters
-from jarvis.core.component_writers import set_battery_component, set_motor_component
+from jarvis.core.component_writers import set_battery_component, set_frame_material, set_motor_component
+from jarvis.core.endurance_sweep_writer import build_with_estimative_sweep
 from jarvis.core.mutation_engine import MutationEngine
 from jarvis.core.parameter_requirements import (
     MISSING_PROPELLER_PARAMETERS,
@@ -199,7 +200,9 @@ class IterateAction:
         )
         updated_parameters = propulsion_override.apply_to(updated_parameters)
 
-        calculations = self.calculation_engine.build(updated_parameters)
+        calculations = build_with_estimative_sweep(
+            self.calculation_engine, updated_parameters,
+        )
         autonomy_threshold = project_state.parsed_constraints.get("autonomy_min")
         simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
         suggestions = self.suggestion_engine.generate_suggestions(simulation, calculations)
@@ -331,11 +334,49 @@ class IterateAction:
                 else None
             )
             carrier_state = set_battery_component(carrier_state, battery_patch, capacity_wh)
+        # Structure A (implementation_contract_structure_a.md §2.1): route a
+        # frame component_patch (mass_kg and/or size_class_inch parsed from
+        # the material iterate text — see iterate_interactive_session.py's
+        # two Gap-1 branches) through the single frame writer instead of
+        # letting it sit unused in design_properties.components while
+        # structure_mass_override_kg stays stale (the confirmed walk leak).
+        # Material-only (no mass, no size) intentionally takes no writer call
+        # here — that case keeps today's material-note path, no invented mass.
+        frame_patch = component_patch.get("frame")
+        frame_recalc_needed = False
+        if frame_patch is not None:
+            frame_properties = frame_patch.properties
+            mass_prop = frame_properties.get("mass_kg")
+            size_prop = frame_properties.get("size_class_inch")
+            material_prop = frame_properties.get("material")
+            mass_val = (
+                float(mass_prop.value) if mass_prop is not None and mass_prop.value is not None else None
+            )
+            size_val = (
+                float(size_prop.value) if size_prop is not None and size_prop.value is not None else None
+            )
+            material_val = (
+                str(material_prop.value)
+                if material_prop is not None and material_prop.value is not None
+                else None
+            )
+            if mass_val is not None or size_val is not None:
+                carrier_state = set_frame_material(carrier_state, mass_val, material_val, size_val)
+                frame_recalc_needed = True
         updated_design_properties = carrier_state.design_properties
         updated_parameters = carrier_state.current_parameters
 
-        calculations = self._resolve_existing_calculations(project_state)
-        simulation = self._resolve_existing_simulation(project_state)
+        if frame_recalc_needed:
+            # Mirrors orchestrator._apply_inferred_component_spec's frame
+            # branch — a declared mass/class is immediately load-bearing
+            # physics data, unlike a purely declarative note, so this one
+            # case recalculates instead of reusing the stale stored result.
+            calculations = self.calculation_engine.build(updated_parameters)
+            autonomy_threshold = project_state.parsed_constraints.get("autonomy_min")
+            simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
+        else:
+            calculations = self._resolve_existing_calculations(project_state)
+            simulation = self._resolve_existing_simulation(project_state)
         suggestions = []
         suggestion_context_note = "No se generan sugerencias físicas automáticas en iteraciones declarativas."
         declarative_mutation = {
@@ -384,6 +425,12 @@ class IterateAction:
         )
         latest_results = dict(project_state.latest_results)
         latest_results["mutation"] = declarative_mutation
+        if frame_recalc_needed:
+            # Persist the recalculated result — otherwise the saved state's
+            # latest_results would keep the pre-mass-change calc/sim even
+            # though current_parameters/components["frame"] already moved.
+            latest_results["calculations"] = calculations.model_dump()
+            latest_results["simulation"] = simulation.model_dump()
         updated_state = self.state_manager.record_action(
             state=project_state.model_copy(update={
                 "design_properties": updated_design_properties,

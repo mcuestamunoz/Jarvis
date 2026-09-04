@@ -6,27 +6,196 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.5`** / **`checkpoint-phase25-hover-energy`**.  
-> **PRIORIDAD AHORA:** **Phase 2.7-B implementación revisada** — Cursor **PASS WITH NOTES**. Checkpoint solo si Engineer lo pide.  
-> **Versión:** **`v0.3.5`**. P26 + P27-A (autonomía *validada* bajo carga) siguen congelados.
+> **Base:** tag **`v0.3.6`** / **`checkpoint-experimental-prop-energy-closed`** (construcción experimental cerrada; `v0.3.5` = Phase 2.5 hover energy).  
+> **PRIORIDAD AHORA:** **fase knowledge / block parity** — Engineer nombra el siguiente hilo; no IC de pulido prop/energía/routing.  
+> Suite last closed: **2150**. Fase experimental prop/energía/Structure A/fail-routing **cerrada como construcción**. P26 / P27-A **congelados**. HD-* nunca 🔴.  
+> **★ fase:** [engineer_ratification_phase_transition_knowledge_parity.md](../.jes/artifacts/engineer_ratification_phase_transition_knowledge_parity.md) — Engineer `Procede` 2026-09-04  
+> **Agenda:** [engineer_agenda_knowledge_and_block_parity.md](../.jes/artifacts/engineer_agenda_knowledge_and_block_parity.md)  
+> Protocolo: Know / Claim / Measure / Buy antes de código. C-A1, N1 hint residual, DSE copy = fuera de fase por defecto.  
+> Software aparcado (no el default): Tier 3 · G24-B · H5 · Foundation · Option B · Impl C C3 · CAD/FEA · control physics · pulido del stack prop/energía ya usable.
 
-### 🔴 IC LISTO — Phase 2.7-B Parametric / Estimative Battery Endurance (2026-09-01)
+### 🟡 FASE ACTIVA — Knowledge & block parity (2026-09-04)
+
+> **Qué:** otras funciones/bloques al nivel del loop prop/energía/Structure A/readiness — no “otra feature” sobre lo ya visible.  
+> **Pregunta rectora:** qué debe saber Jarvis, qué puede afirmar, qué debe medir, qué conocimiento comprar (código / lab / investigación).  
+> **Congelado por defecto:** catalog honesty C-A1, Continuity/DSE polish de autonomía, fail-routing N1 residual, exprimir hover-Wh UX.  
+> **Siguiente:** Engineer elige un hilo de la agenda (§5) → solo entonces Investigation Contract.
+
+### 🟢 CERRADO (fase experimental de construcción) — Prop/energía + Structure A + CLI fail-routing
+
+> Walks 2026-09-03/04: límites físicos visibles; `ASSEMBLY READY` alcanzable con trade-offs honestos (batería ↔ empuje, nameplate W).  
+> Reviews: fail-routing PASS WITH NOTES · Structure A + N1 · package review en [implementation_review_cli_walk_correction_package.md](../.jes/artifacts/implementation_review_cli_walk_correction_package.md).
+
+### 🟢 CERRADO (código + review) — CLI fail-routing coherence (2026-09-03)
+
+> **★:** Engineer `Procede` (investigación + IC)  
+> **IC:** [implementation_contract_cli_fail_routing_coherence.md](../.jes/artifacts/implementation_contract_cli_fail_routing_coherence.md)  
+> **Report:** [implementation_report_cli_fail_routing_coherence.md](../.jes/artifacts/implementation_report_cli_fail_routing_coherence.md)  
+> **Review:** [implementation_review_cli_fail_routing_coherence.md](../.jes/artifacts/implementation_review_cli_fail_routing_coherence.md) — **PASS WITH NOTES**  
+> **Suite (reviewer targeted + report):** **2150** · `tests/test_cli_fail_routing_coherence.py` 7/7  
+> **Qué:** wizard frame pide clase tras PVC 650g; FAIL no se pinta como WARNING junto a Continuity; no “empuje ya es PASS” si `can_fly` es false; 4/4 no usa “optimizar o simular” como siguiente paso de un FAIL.  
+> **Notas:** N1 `_append_arch_progress_hint` in-progress aún genérico (no el loop del walk); N2 copy class_incompatible nueva; N3 fixture `can_fly` completado. **Fuera de fase** salvo reopen Engineer.  
+> **Siguiente:** no automático.
+
+### 🧊 FUERA DE FASE (no PRIORIDAD AHORA) — Catalog honesty (nominal vs design-space)
+
+> **Qué:** D8 admite por `max_thrust_n`; el pick aplica `thrust_n` nominal. Solo si Engineer lo nombra como decisión de semántica/conocimiento, no como feature default.
+
+### 🟡 EN COLA — Review de la auditoría de código del núcleo (2026-09-03)
+
+> **Qué:** por petición directa del usuario (fuera del ciclo IC), auditoría de las ~24.017 líneas de `src/jarvis/core/` + módulos adyacentes — 5 investigaciones en paralelo, lectura completa por archivo, verificación cruzada con grep/tests, y reproducción manual de los 5 hallazgos de mayor severidad (incluye un `ZeroDivisionError` reproducido de extremo a extremo con `motor_count=0`, y `resolve_material_alias` declarando material desde texto no relacionado). Sin cambios a `src/`.  
+> **Dónde vive:** [docs/CODE_AUDIT_CORE.md](CODE_AUDIT_CORE.md) (patrones transversales, métricas de `orchestrator.py`, recomendaciones de arquitectura) + [docs/BUGS.md](BUGS.md) Fase O, Bugs 80–112 (defectos puntuales, uno por hallazgo, formato estándar del tracker — todos ⬜ Pendiente).  
+> **Severidad:** 1 crítico · 14 altos · 17 medios · 9 bajos.  
+> **No implementado:** ningún hallazgo tiene código escrito todavía — esto es solo la fase de auditoría/hallazgo.  
+> **Siguiente:** JES/Cursor revisa `CODE_AUDIT_CORE.md` + Fase O de `BUGS.md` y decide qué se convierte en Investigation/Implementation Contract y en qué orden — el "Orden de implementación sugerido — Fase O" al final de `BUGS.md` es una propuesta de Claude, no una decisión tomada. **No desplaza** la fase knowledge / block parity; solo entra si Engineer lo nombra.
+
+### 🟢 CERRADO (código + review) — Structure A (masa + compatibilidad de clase, 2026-09-03)
+
+> **★:** Engineer `ratifico` (2026-09-03)  
+> **IC:** [implementation_contract_structure_a.md](../.jes/artifacts/implementation_contract_structure_a.md)  
+> **Report:** [implementation_report_structure_a.md](../.jes/artifacts/implementation_report_structure_a.md)  
+> **Review:** [implementation_review_structure_a.md](../.jes/artifacts/implementation_review_structure_a.md) — **PASS WITH NOTES**  
+> **Investigation:** [investigation_review_structure_a.md](../.jes/artifacts/investigation_review_structure_a.md) — PASS WITH NOTES  
+> **Suite (reviewer):** **2140** · `tests/test_structure_a.py` 11/11 · gaps +4 · frame +1 · adjacent 130/130  
+> **Qué:** iterate `PVC 200g` → `structure_mass_override_kg == 0.2`. Si hay \(D\), `size_class_inch` obligatorio; \(D \le\) class = CLASS COMPATIBILITY PASS LEVEL A; \(D >\) class = `GAP-FRAME-PROP-SIZE` MEDIUM + structure incomplete. Sin CAD, sin class→thrust, sin “cabe”, sin VERIFIED, sin +0.25, sin mm→class. `_derive_overall` no tocado.  
+> **N1 hotfix:** [IC](../.jes/artifacts/implementation_contract_structure_a_n1_hotfix.md) · [report](../.jes/artifacts/implementation_report_structure_a_n1_hotfix.md) · [review PASS WITH NOTE](../.jes/artifacts/implementation_review_structure_a_n1_hotfix.md) · suite **2143**. El mirror de masa ahora sale de props fusionados; `"pvc 5 pulgadas"` conserva override y masa calculada.  
+> **Notas restantes:** `get_block_in_progress_reason` no conoce clase (N2); copy Continuity sin test (N3); N4–N6 higiene. No re-implementar automáticamente.  
+> **Siguiente:** walk CLI opcional en `autonomia-15min`. Engineer nombra el siguiente IC.
+
+### 🟢 CERRADO (código) — DSE apply honesto (2026-09-03)
+
+> **★:** [engineer_ratification_dse_apply_honest.md](../.jes/artifacts/engineer_ratification_dse_apply_honest.md) — Engineer “Empecemos por DSE apply honesto”  
+> **IC:** [implementation_contract_dse_apply_honest.md](../.jes/artifacts/implementation_contract_dse_apply_honest.md)  
+> **Report:** [implementation_report_dse_apply_honest.md](../.jes/artifacts/implementation_report_dse_apply_honest.md)  
+> **Review:** [implementation_review_dse_apply_honest.md](../.jes/artifacts/implementation_review_dse_apply_honest.md) — **PASS WITH NOTES**  
+> **Suite (reviewer):** **2124** · `tests/test_dse_apply_honest.py` 7/7 · adjacent 123/123  
+> **Qué:** `aplica la mejor` params-only no escribe `motor_power_w` distinto del nameplate; 148 Wh vincula `lipo_4s_10000mah` (masa 0.98 kg). Cero matches → paramétrico. Dos+ → refuse. Explore no se re-ordena.  
+> **Notas review:** `base=` omitido a propósito (N1); merge solo keys de batería (N2); 2+ solo monkeypatch (N3). No re-implementar.  
+> **Siguiente:** walk CLI opcional en `autonomia-15min`. Structure A no automático hasta ★.
+
+### 🟢 CERRADO (código) — CLI Continuity: recalc after watts-recovery pick (2026-09-02)
+
+> **★:** [engineer_ratification_cli_stale_energy_recalc.md](../.jes/artifacts/engineer_ratification_cli_stale_energy_recalc.md) — Engineer “procede”  
+> **IC:** [implementation_contract_cli_stale_energy_recalc.md](../.jes/artifacts/implementation_contract_cli_stale_energy_recalc.md)  
+> **Report:** [implementation_report_cli_stale_energy_recalc.md](../.jes/artifacts/implementation_report_cli_stale_energy_recalc.md)  
+> **Review:** [implementation_review_cli_stale_energy_recalc.md](../.jes/artifacts/implementation_review_cli_stale_energy_recalc.md) — **PASS WITH NOTES**  
+> **Suite:** **2117** (2114 + 3) · `tests/test_cli_stale_energy_recalc.py` 2/2 · `test_energy_params.py` +1  
+> **Qué:** tras vincular un motor de catálogo que declara W nominales (p. ej. pick `sunnysky_r2305_2500` desde la lista watts-recovery), con Wh y objetivo de autonomía ya en el proyecto y minutos aún ausentes/`energy_status` stale, Continuity pide `calcular`/`simular` en vez de “Declarar battery_capacity_wh, motor_power_w” (ambos ya están en el proyecto) o de reabrir watts-recovery/optimizar. `ReasoningLayer` deja de etiquetar como “faltantes” parámetros ya presentes cuando la señal stale no corresponde a un hueco real. El hint post-guardado “puedes optimizar o simular” se omite mientras la autonomía objetivo no esté demostrada. No auto-`calcular`, no Option B, no toca T1+2/G22/G21/watts-recovery (no-W).  
+> **Notas review:** test walk no afirma `Candidato inicial` (N1); autonomy-below no afirma ausencia del string recalc (N2); orchestrator importa helper privado de Continuity (N3). No re-implementar.  
+> **Siguiente:** walk CLI opcional (`autonomia-15min`): pick → recalc CTA → `calcular`/`simular` → 5 vs 15.
+
+### 🟢 CERRADO — CLI catalog-assist watts recovery (2026-09-02)
+
+> **★:** [engineer_ratification_cli_catalog_assist_watts_recovery.md](../.jes/artifacts/engineer_ratification_cli_catalog_assist_watts_recovery.md) — Engineer “bien ratifico”  
+> **IC:** [implementation_contract_cli_catalog_assist_watts_recovery.md](../.jes/artifacts/implementation_contract_cli_catalog_assist_watts_recovery.md)  
+> **Report:** [implementation_report_cli_catalog_assist_watts_recovery.md](../.jes/artifacts/implementation_report_cli_catalog_assist_watts_recovery.md)  
+> **Review:** [implementation_review_cli_catalog_assist_watts_recovery.md](../.jes/artifacts/implementation_review_cli_catalog_assist_watts_recovery.md) — **PASS WITH NOTES**  
+> **Suite:** **2114** (2111 + 3) · `tests/test_cli_catalog_assist_watts_recovery.py` 3/3  
+> **Qué:** SKU de catálogo sin W de placa + objetivo de autonomía + minutos ausentes → IDLE `ayúdame a elegir` abre G22 filtrado a motores con `max_watts`; Continuity nombra candidatos + help-choose, no se queda solo en “No declares motor_power_w”. G21 covering-con-W intacto. G18 `definir motor` sigue pudiendo listar emax. No inventa W.  
+> **Nota:** predicado no llama `bound_motor_sku_is_underspec` (G9-A: un solo `resolve_motor_catalog_surface` en startup). Underspec sigue primero en IDLE y en Continuity rank-2.  
+> **Siguiente:** walk CLI en el fixture emax. Pick W-SKU → L0 puede devolver ~5 vs 15 (unmet OK). Option B / Tier 3 no automáticos.
+
+### 🟢 CERRADO — CLI catalog-assist T1+2 (2026-09-02)
+
+> **★:** [engineer_ratification_cli_catalog_assist_t1_plus_2.md](../.jes/artifacts/engineer_ratification_cli_catalog_assist_t1_plus_2.md) — Engineer “vamos con T1+2”  
+> **IC:** [implementation_contract_cli_catalog_assist_t1_plus_2.md](../.jes/artifacts/implementation_contract_cli_catalog_assist_t1_plus_2.md)  
+> **Report:** [implementation_report_cli_catalog_assist_t1_plus_2.md](../.jes/artifacts/implementation_report_cli_catalog_assist_t1_plus_2.md)  
+> **Review:** [implementation_review_cli_catalog_assist_t1_plus_2.md](../.jes/artifacts/implementation_review_cli_catalog_assist_t1_plus_2.md) — **PASS**  
+> **Suite:** **2110** (2105 + 5) · `tests/test_cli_catalog_assist_t1_plus_2.py` 5/5  
+> **Qué:** underspec → lista T1 (KV/hélice actuales) más segundo paso **nombrado** (sin KV ni pulgadas). Frankenstein: aviso de hélice, pick no desbindea prop. G22 default vacío intacto.  
+> **Follow-up (2026-09-02):** `definir motor` (wizard motors-only) + `ayúdame a elegir` ahora abre la lista aunque el SKU cubra empuje (`autonomia-15min` reprint). IDLE covering y wizard compuesto covering **sin cambio** (G21/T1). Suite **2111**.  
+> **Siguiente:** walk CLI en el fixture underspec (`inspección-autonomía-mínima-5-minutos` o tmp). Tier 3 no automático.
+
+### 🟢 CERRADO — CLI feasibility: calculated autonomy below target (2026-09-02)
+
+> **★:** [engineer_ratification_cli_feasibility_autonomy_below.md](../.jes/artifacts/engineer_ratification_cli_feasibility_autonomy_below.md) — Engineer “procede”  
+> **IC:** [implementation_contract_cli_feasibility_autonomy_below.md](../.jes/artifacts/implementation_contract_cli_feasibility_autonomy_below.md)  
+> **Report:** [implementation_report_cli_feasibility_autonomy_below.md](../.jes/artifacts/implementation_report_cli_feasibility_autonomy_below.md)  
+> **Review:** [implementation_review_cli_feasibility_autonomy_below.md](../.jes/artifacts/implementation_review_cli_feasibility_autonomy_below.md) — **PASS**  
+> **Suite:** **2105** (2103 + 2) · `tests/test_project_continuity.py` (below-target + meets-target)  
+> **Qué:** sim PASS + autonomía **calculada y por debajo** (15 vs 5.0) ya no dice “Diseño validado”; misma frase locked de empuje / candidato inicial. Siguiente paso: revisa energía o el requisito — no arquitectura completa / iterar. Sim pass-fail, ERF, T1 **sin cambios**.  
+> **Siguiente:** walk `estado` en el proyecto del CLI. T1+2 / Tier 3 no automáticos.
+
+### 🟢 CERRADO (código) — IC T1 catalog-assist (2026-09-02)
+
+> **Review:** [implementation_review_cli_catalog_assist_t1.md](../.jes/artifacts/implementation_review_cli_catalog_assist_t1.md) — **PASS WITH NOTES**  
+> **Suite (reviewer):** **2103** · probe T1 4/4  
+> **Qué:** underspec → `ayúdame a elegir` reabre G22; Continuity nombra candidatos con “no garantiza sim PASS”; GAP title; CTA vatios solo si `max_watts is None`.  
+> **Notas:** test compuesto covering débil (N1); fallback Continuity sin `readiness` (N2). No re-implementar.  
+> **Siguiente:** walk CLI opcional en el proyecto del walk. T1+2 no automático.
+
+> **★:** [engineer_ratification_cli_catalog_assist_t1.md](../.jes/artifacts/engineer_ratification_cli_catalog_assist_t1.md) — ★1–★5  
+> **IC:** [implementation_contract_cli_catalog_assist_t1.md](../.jes/artifacts/implementation_contract_cli_catalog_assist_t1.md)  
+> **Report:** [implementation_report_cli_catalog_assist_t1.md](../.jes/artifacts/implementation_report_cli_catalog_assist_t1.md)  
+> **Suite:** **2103** (2095 + 8 nuevos) · `tests/test_cli_catalog_assist_t1.py` 4/4 · G21 noop guard sin cambios · GAP titles 3/3 · Continuity 2/2 · watts CTA 1/1 · probe `cli_probe_cli_catalog_assist_t1.py` 4/4  
+> **Qué:** underspec (`bound_motor_sku_is_underspec`, reusa `resolve_motor_catalog_surface`) → `ayúdame a elegir` reabre la lista G22 existente (IDLE y wizard compuesto), en vez del reprint de `estado` atascado del walk. Continuity nombra hasta 5 candidatos en rank-2 (sim fail) cuando hay underspec, con disclaimer "no garantiza sim PASS" — nunca CERRADO. GAP title varía por evidencia (`bound_sku_underspec:`/`bound_sku_missing:`), ID sin cambios. CTA de vatios separado en `catalog_bound_motor_lacks_nameplate_watts` (chequea `max_watts` real de catálogo) — `sunnysky_r2305_2500` (220W) ya no dice "no declara vatios"; `emax_rs2205s_2300` (sin W) lo sigue diciendo. Cero búsqueda nueva, cero relax de filtros — reusa `build_motor_catalog_suggestions` tal cual.  
+> **No tocado:** `catalog_bound_motor_covers_power_w` (identity-only, byte-unchanged), `_derive_overall`/`ASSEMBLY_READY`, `derive_prop_energy_block_closure`, N1, `find_motors_for_requirements`, G24-B `_score_candidate`.  
+> **Siguiente:** Cursor review contra el IC.
+
+### 🟢 CERRADO (investigación) — CLI catalog-assist + misfit propose (2026-09-01)
+
+> **★ investigación:** [ratification](../.jes/artifacts/engineer_ratification_cli_catalog_assist_misfit_propose.md) — ★1–★5  
+> **Contract:** [investigation_contract_cli_catalog_assist_misfit_propose.md](../.jes/artifacts/investigation_contract_cli_catalog_assist_misfit_propose.md)  
+> **Report:** [investigation_report_cli_catalog_assist_misfit_propose.md](../.jes/artifacts/investigation_report_cli_catalog_assist_misfit_propose.md)  
+> **Review:** [investigation_review_cli_catalog_assist_misfit_propose.md](../.jes/artifacts/investigation_review_cli_catalog_assist_misfit_propose.md) — **PASS WITH NOTES**  
+> **Recomendación: T1.** Loop atascado = cablear `bound_sku_underspec` a help-choose. G22 en el fixture: 1 candidato útil-insuficiente (`r2205`). T1+2 no es el primer IC. Note 1: Continuity en T1 (contrato), no opcional. Note 2: 6 motores thrust-only PASS-capable, todos frankenstein vs `gf_5045x3` (no solo `v4006`).
+
+### 🟢 CERRADO (walk) — Block Closure B-PROP-ENERGY + PRODUCT_SCOPE (2026-09-01)
+
+> **Walk Engineer:** create→A→picker **#1 `sunnysky_r2305_2500`** (Combo A `r2205` no está en el top 5) → `gf_5045x3` → ESC 40A → `lipo_4s_1500mah` → PVC 650g → Pixhawk/Here3 → sim fail 3.0 min / 15 vs 16.35 N → re-bind `lipo_6s_10000mah` 222 Wh → sim fail 30.3 min / 15 vs 30 N. Bloque **NO CERRADO** honesto. Combo A typed-SKU **abandonado**.  
+> **Cola:** investigación catalog-assist **revisada** — ver ACTIVO (★ T1) arriba.
+
+### 🟢 CERRADO (código; walk arriba) — Block Closure B-PROP-ENERGY (2026-09-01)
+
+> **Investigación:** [report](../.jes/artifacts/investigation_report_post_v034_block_closure.md) · [review PASS WITH NOTES](../.jes/artifacts/investigation_review_post_v034_block_closure.md)  
+> **★:** [engineer_ratification_block_closure_prop_energy.md](../.jes/artifacts/engineer_ratification_block_closure_prop_energy.md) — ★1–★6  
+> **IC:** [implementation_contract_block_closure_prop_energy.md](../.jes/artifacts/implementation_contract_block_closure_prop_energy.md)  
+> **Report:** [implementation_report_block_closure_prop_energy.md](../.jes/artifacts/implementation_report_block_closure_prop_energy.md) (incl. nota N1)  
+> **Suite:** **2095** (2094 + 1 N1) · `tests/test_block_closure_prop_energy.py` 8/8 · G27 (`test_battery_catalog_bind_ux.py`) 13/13 sin cambios · `test_cli_feasibility_semantics.py` 1/1  
+> **Qué (IC base):** rollup derivable `BLOQUE PROPULSIÓN/ENERGÍA: CERRADO|NO CERRADO` (≠ `ASSEMBLY_READY`, confirmado con test dual en el mismo fixture) + fix re-bind SKU batería (`definir bateria lipo_6s_…` / `cambia la bateria a …` ya no escribe 6 Wh — escribe el Wh real del catálogo, 222.0, y preserva `catalog_ref`). Root cause real difería de la hipótesis del IC: el seam vivo es `try_ingest` → `parse_params_bidir` → `apply_and_recalculate`, no `parse_floats_from_input` (hallado por live tracing, ver report §4).  
+> **N1 (parcheado):** la frase locked `descarga de batería excedida` solo se imprime si `facts["battery_discharge"] == "exceeded"` (antes: cualquier `reasons` con el token, incluyendo `unverifiable` — mismo tipo de mentira que "sin hélice de catálogo"). Fixture emax+HQ+4S (sin ESC) ya no reclama descarga excedida; Gate A motor_count=4 (exceeded real) sigue mostrando la frase. Test nuevo: `test_unverifiable_discharge_does_not_claim_exceeded`.  
+> **Hygiene opcional aplicada:** `ParamDefinitionSession.answer()` — SKU de batería vivo tecleado mientras el wizard pide `battery_capacity_wh` ahora bindea por catálogo (mismo seam que `try_ingest`), en vez de raspar `6.0` de `lipo_6s_10000mah`. G27 intacto — seam distinto.  
+> **No tocado:** `_derive_overall`/`ASSEMBLY_READY`, `SubsystemEvidence.validated`, electrical formulas, catalog JSON, copia closed-path, CLI feasibility strings, H5, Catalog Foundation, Path 4 frankenstein, Option B ERF, `intent_resolver.py`, `actions/iterate.py`, version.  
+> **N1 re-check (Cursor):** **Pass** — emax ya no dice descarga excedida; Gate A motor_count=4 sí. Suite **2095**.  
+> **Walk:** cerrado — ver subsección **CERRADO (walk)** arriba.
+
+### 🟢 CERRADO — CLI feasibility semantics IC (2026-09-01)
+
+> **★:** [engineer_ratification_cli_feasibility_semantics.md](../.jes/artifacts/engineer_ratification_cli_feasibility_semantics.md) — ★1–★5 locked  
+> **IC:** [implementation_contract_cli_feasibility_semantics.md](../.jes/artifacts/implementation_contract_cli_feasibility_semantics.md)  
+> **Report:** [implementation_report_cli_feasibility_semantics.md](../.jes/artifacts/implementation_report_cli_feasibility_semantics.md)  
+> **Review:** [implementation_review_cli_feasibility_semantics.md](../.jes/artifacts/implementation_review_cli_feasibility_semantics.md) — **PASS WITH NOTES**  
+> **Suite (reviewer re-run):** **2087** · probe CLI feasibility semantics **4/4**  
+> **Comportamiento:** Continuity ya no dice "Diseño validado" cuando el PASS es solo empuje y la autonomía del objetivo no está calculada; no pide inventar `motor_power_w` para un motor de catálogo; `calcular`/`simular` nombran el hueco; sufijo fallback lee el BOM. ERF Energy PASS / dual ASSEMBLY READY **permitido** (★1).  
+> **Cerrado.** Siguiente: Block Closure ★ (arriba). Commit opcional si Engineer lo pide.
+
+### ⚫ APARCADO PERMANENTE — Hardware lab (nunca 🔴)
+
+> **Engineer 2026-09-03:** no hay equipo, banco ni campaña de laboratorio. HD-* **no** sube nunca a 🔴 PRIORIDAD ACTUAL. No es “siguiente” ni default cuando se acaba un IC de software.  
+> Registro: [HARDWARE_DEBT.md](HARDWARE_DEBT.md) (HD-001 C-rate · HD-002 ESC · HD-003 sag). L1 Combo A sigue **1.32 min** motor-input. Los agentes no inventan números T1/T2 ni abren un IC de física de banco.
+
+### ⚪ Producto software aparcado (no automático)
+
+> Option B ERF · catalog hygiene · C-081 · H5 · Foundation · CAD/FEA · control physics · pulido C-A1/N1 del stack prop/energía. G27 wizard cerrado. Structure A **cerrada** (código + N1); no reabrir aquí.
+
+### 🟢 CERRADO — Opción A: mostrar ESTIMATIVO en chat (2026-09-01)
+
+> **★:** [engineer_ratification_option_a_estimative_visibility.md](../.jes/artifacts/engineer_ratification_option_a_estimative_visibility.md) — ★1–★5 locked  
+> **IC:** [implementation_contract_option_a_estimative_visibility.md](../.jes/artifacts/implementation_contract_option_a_estimative_visibility.md)  
+> **Report:** [implementation_report_option_a_estimative_visibility.md](../.jes/artifacts/implementation_report_option_a_estimative_visibility.md)  
+> **Review:** [implementation_review_option_a_estimative_visibility.md](../.jes/artifacts/implementation_review_option_a_estimative_visibility.md) — **PASS WITH NOTES**  
+> **Suite:** **2075** · probe Opción A **5/5** · P27-B **4/4** · P25 **4/4** (L1 Combo A = 1.3237)  
+> **Comportamiento:** `calcular` **y** `estado` muestran ESTIMATIVO (mismo bloque). Sweep **no** se guarda. DSE no lo usa.  
+> **Cerrado.** No es prioridad. Commit opcional si Engineer lo pide.
+
+### 🟢 CERRADO — Phase 2.7-B Parametric / Estimative Battery Endurance (2026-09-01)
 
 > **★:** [engineer_ratification_phase27b_parametric_battery_estimate.md](../.jes/artifacts/engineer_ratification_phase27b_parametric_battery_estimate.md) — ★1–★5 locked  
 > **IC:** [implementation_contract_phase27b_parametric_battery_estimate.md](../.jes/artifacts/implementation_contract_phase27b_parametric_battery_estimate.md) **v0.2**  
 > **Report:** [implementation_report_phase27b_parametric_battery_estimate.md](../.jes/artifacts/implementation_report_phase27b_parametric_battery_estimate.md)  
 > **Review:** [implementation_review_phase27b_parametric_battery_estimate.md](../.jes/artifacts/implementation_review_phase27b_parametric_battery_estimate.md) — **PASS WITH NOTES**  
 > **Suite:** **2071** · probe P27-B **4/4** · probe P25 **4/4** (L1 Combo A = 1.3237)  
-> **Nota:** L2 no aparece en CLI hasta que un caller escriba `battery_endurance_sweep` (opt-in, sin grid por defecto).  
-> **Siguiente:** Engineer decide checkpoint. P26 / P27-A siguen congelados.
-
-### 🟡 PARALELO — P27-M3 C-rate derating (`lipo_4s_1500mah` @ ~45 C) (2026-09-01)
-
-> **Contract:** [data_acquisition_contract_phase27_m3_crate_derating.md](../.jes/artifacts/data_acquisition_contract_phase27_m3_crate_derating.md)  
-> **Objetivo:** tabla T1/T2 `{C-rate → % capacidad usable}` que cubra hover Combo A (~45 C). Sin eso, autonomía sigue siendo **1.32 min motor-input**.  
-> **No es IC.** No editar catálogo ni `src/` hasta datos + investigation delta + ★.  
-> **Paralelo:** bench ESC aislado (`hobbywing_xrotor_40a_6s`) — no bloquea.  
-> **Aparcado:** Block Closure B-PROP-ENERGY (producto, no este arco). **G27 wizard está cerrado** (`LiPo 6S 10000mAh` → ~222 Wh, nunca 6 Wh).
+> **Cerrado.** L2 fórmula + visibilidad chat. P26 / P27-A siguen congelados.
 
 ### 🟢 CERRADO — Phase 2.7 Battery Voltage / Sag / SOC (2026-09-01) · ★ RATIFICADO
 
@@ -59,9 +228,7 @@
 > **Review:** [investigation_review_post_v034_block_closure.md](../.jes/artifacts/investigation_review_post_v034_block_closure.md) — **PASS WITH NOTES**  
 > **Headline:** `ASSEMBLY_READY` ≠ block closed · Hypothesis (A) derivable rollup · Gate D none BLOCKING · Gate F Block Closure before Catalog Foundation  
 > **New regression:** `define_missing_params` battery SKU phrase destroys `catalog_ref` (G27-class, distinct path)  
-> **Siguiente:** Engineer ★ → IC Block Closure B-PROP-ENERGY (battery re-bind fix as prerequisite)
-
-### 🔴 INVESTIGACIÓN — Post-v0.3.4 Block Closure Capability (2026-09-01)
+> **★ + IC (cola de hoy):** [ratification](../.jes/artifacts/engineer_ratification_block_closure_prop_energy.md) · [IC](../.jes/artifacts/implementation_contract_block_closure_prop_energy.md) — Claude implementa. Path 4 frankenstein **deferred**.
 
 ### 🟢 COMPLETADO — Motor OP Voltage Coherence @ 0.3.4 (2026-09-01)
 
@@ -71,8 +238,6 @@
 > **Suite:** **2036** · probe **6/6** · P2-2 + Validation Case **6/6** · cliff DSE cerrado (8.325=8.325, 12.8077=12.8077)  
 > **Hygiene:** `cli_probe_impl_d_sku_bom.py` step 3 G24D drift — **done** (`0db2d2b`)  
 > **Congelado.** Candidatos siguientes (sin schedule): **H5** · **G24-B** · **battery/ESC curation** · **FN-R** — requiere investigación nueva.
-
-### 🟢 COMPLETADO — Motor OP Voltage Coherence implementación (2026-09-01)
 
 ### 🟡 INVESTIGADO + ★ RATIFICADO — DSE Motor OP Dual-Truth @ 0.3.3 (2026-08-31)
 
@@ -336,15 +501,15 @@ Impl C · Impl D
 Phase 2 — Physical Propulsion Engine
 ```
 
-### 🔮 HORIZONTE — Phase 2: Physical Propulsion Engine
+### 🟢 CERRADO EN PRODUCTO — Phase 2: Physical Propulsion Engine (lab = deuda)
 
 > Evolución del modelo físico de propulsión: de "motor = empuje fijo" a puntos de operación basados en componentes reales (motor + hélice + batería + ESC + condiciones).
 > Visión: [`PHYSICAL_PROPULSION_ENGINE_PHASE2.md`](./PHYSICAL_PROPULSION_ENGINE_PHASE2.md)
 > Relacionado: [`PHYSICAL_COMPONENT_CATALOG_V1.md`](./PHYSICAL_COMPONENT_CATALOG_V1.md)
-> Prerrequisitos: Impl B ✅, ERF-2 ✅, G9-A, Impl C, Impl D.
-> **No comenzar hasta que Catalog V1 esté completo (Impl D cerrado).**
+> **Ya no es horizonte.** Prerrequisitos cumplidos hace semanas — **Impl B ✅ · ERF-2 ✅ · G9-A ✅ · Impl C ✅ · Impl D ✅** (ver entradas más arriba en esta misma sección, todas fechadas 2026-08-20/21).
+> **Progreso real** (detalle vigente en 🔴 PRIORIDAD ACTUAL): … → **Phase 2.5** Hover Energy (v0.3.5) → **Phase 2.6** ESC (boundary congelado) → **Phase 2.7-A** sag (boundary congelado) → **Phase 2.7-B** L2 estimativo + **Opción A** → CLI feasibility + catalog-assist + DSE apply honest + Structure A + fail-routing → **cerrado en `v0.3.6`**. Siguiente fase = knowledge / block parity. Lab = [HARDWARE_DEBT.md](HARDWARE_DEBT.md), nunca 🔴.
 
-**Engineer lock (histórico):** Audit-before-impl cerrado para polish. Nuevos cambios `src/` requieren IC propio.
+**Engineer lock (histórico, sigue vigente como práctica):** Audit-before-impl cerrado para polish. Nuevos cambios `src/` requieren IC propio.
 
 ### ✅ COMPLETADO — Catalog Bind Impl B
 
@@ -1157,6 +1322,8 @@ def _check_constraint_violations(state: ProjectState) -> list[str]:
 
 ## 🧠 ESTADO ACTUAL DEL SISTEMA
 
+> **Actualizado 2026-09-04.** Esta sección resume arquitectura de fondo, no el foco del día — para eso está 🔴 PRIORIDAD ACTUAL arriba. Progresión histórica de tests hasta el 5 de agosto abajo (sin tocar); desde entonces el conteo pasó por checkpoints **v0.3.1→v0.3.6** hasta **2150 tests passing** (suite last closed), vía Motor OP, Phase 2.5–2.7-B, Opción A, CLI feasibility/catalog-assist, DSE apply honest, Structure A, fail-routing — detalle en 🔴 PRIORIDAD ACTUAL. Fase activa: knowledge / block parity.
+
 - **1321 tests passing** sin regresiones (baseline 885, +155 Fase 2, +35 Fase 2.5, +20 Fase 2.6, +7 Fase 2.6.1, +15 Fase 3, +96 Fases 4–6+K, +14 Fase L+M, +87 Fase U, +21 Fase N). Verificado 16 julio 2026.
 - **1331 tests passing** tras rediseño `create_project` por ramas (5 agosto 2026, +11).
 - **1337 tests passing** tras repair de `workspace_path` en carga (5 agosto 2026, +6). Proyectos con path legacy se reparan al `StateManager.load`.
@@ -1181,11 +1348,11 @@ def _check_constraint_violations(state: ProjectState) -> list[str]:
 - **Fase U completada (9 junio 2026):** masa de batería dinámica (U1), bridge propellers→params físicos (U2), DSE exploración ampliada domain-agnostic (U3), persistencia historial conversacional (U4), validación restricciones incremental (U5).
 - **Fase N (15–16 julio 2026):** validación CLI propeller-only path E2E — `calculate_thrust_from_propeller` activo sin `per_motor_max_thrust_n`. 4 bugs detectados y corregidos (76–79): vehicle type alias en create_project, escape suave wizard DEFINE_MISSING, merge motor_count en doble write, DSE apply sin constraint check. **1321 tests passing.**
 
-**Limitaciones conocidas:**
-- Modelo energético parcial: `(wh/w)×60` — sin curva de descarga ni C-rating.
-- `DependencyGraph` estático: mismo orden para todo proyecto del mismo dominio.
+**Limitaciones conocidas (revisado 2026-09-01):**
+- Modelo energético en tres capas (Phase 2.5–2.7-B + Opción A, **cerrado en producto**): `hover_energy_autonomy_min` (L1 — motor-input, nameplate Wh) · boundary `P_battery` congelado (Phase 2.6) · autonomía *validada* bajo carga congelada (Phase 2.7-A) · envelope **ESTIMATIVO** 4S visible en `calcular`/`estado` (no SKU, no tiempo de vuelo). Lab T1/T2: [HARDWARE_DEBT.md](HARDWARE_DEBT.md), no prioridad. `battery_discharge` (ERF-2) es check de C-rate, no `(wh/w)×60` desnudo.
+- `DependencyGraph` estático: mismo orden para todo proyecto del mismo dominio. (sin cambios)
 - Routing LLM: calibración real 2026-08-05 + grounding léxico; `CONFIDENCE_THRESHOLD = 0.75` retenido (retune opcional con más preseeds grounded).
-- Biblioteca de motores: matching por KV, no por espacio de diseño — **D8**.
+- ~~Biblioteca de motores: matching por KV, no por espacio de diseño — D8~~ → **Cerrado 2026-08-06**, ver 🧨 DEUDA TÉCNICA D8. Esta línea seguía aquí por desactualización — eliminada del estado vigente.
 
 ---
 

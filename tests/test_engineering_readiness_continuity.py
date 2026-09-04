@@ -48,7 +48,13 @@ def _motor_spec(kv=None):
 
 def _catalog_gap_state():
     """A' continuity-bom style fixture: sim PASS, declared thrust covers the
-    floor, 2400KV+10in has zero catalog matches -> genuine G9-B demotion."""
+    floor, 2400KV+10in has zero catalog matches -> genuine G9-B demotion.
+
+    Frame declares a compatible size_class_inch (Structure A,
+    implementation_contract_structure_a.md §2.2) so the unrelated
+    class-compatibility rank never fires here — this fixture is about G9-B
+    catalog demotion, not structure.
+    """
     return _project_state(
         current_parameters={
             "vehicle_type": "dron",
@@ -60,7 +66,16 @@ def _catalog_gap_state():
             "simulation": {"status": "pass", "safety_margin_ratio": 9.1},
             "calculations": {"required_thrust_n": 19.8, "total_mass_kg": 1.5},
         },
-        design_properties=_design_properties(components={"motors": _motor_spec(kv=2400)}),
+        design_properties=_design_properties(components={
+            "motors": _motor_spec(kv=2400),
+            "frame": ComponentSpec(
+                component_type="structure",
+                suggested_key="frame",
+                completeness="high",
+                properties={"size_class_inch": PropertyValue(value=10.0, unit="in")},
+                source="declared",
+            ),
+        }),
     )
 
 

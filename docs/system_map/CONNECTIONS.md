@@ -31,6 +31,8 @@ CONNECTIONS.md
 
 **Motor OP Voltage Coherence (2026-09-01, v0.3.4):** No registry change. **C-030** / **C-091** detail updated: battery catalog bind still routes through `set_battery_component` only at the orchestrator layer, but that writer now **conditionally** re-calls `set_motor_component` when stored `propulsion_resolution` was never `voltage_validated` or is validated at an incompatible pack voltage — preserving the P2-2/IC2 lock when already validated at the same voltage. `library.resolve_operating_point` exact match now requires `voltage_v is not None`. Report: [`.jes/artifacts/implementation_report_motor_op_voltage_coherence.md`](../../.jes/artifacts/implementation_report_motor_op_voltage_coherence.md).
 
+**Phase 2.5–2.7-B + Option A (2026-09-01):** No registry change. **C-060** detail: user `calcular`/`iterate`/simulate-rebuild wrap `build()` via `endurance_sweep_writer` (4S labeled L2, ephemeral). `CalculationEngine.build` stays opt-in; DSE apply stays a bare `build()`. Lab remainder is [`docs/HARDWARE_DEBT.md`](../HARDWARE_DEBT.md), not a map edge. **No new C-xxx.**
+
 **Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables. The only authoritative count is the length of **Canonical registry** below.
 
 Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror this registry; if they diverge, **this file wins**.
@@ -646,7 +648,9 @@ Same underlying phrase and root cause as **C-025** — listed under both Intent 
 | Mutation | NO (pure) |
 | LLM | NO |
 | Status | 🟢 CONNECTED |
-| Evidence | `core/calculation_engine.py:34`, `actions/calculate.py` |
+| Evidence | `core/calculation_engine.py` (`build` still opt-in for L2), `core/endurance_sweep_writer.py` (user calculate/iterate wrapper only), `actions/calculate.py` |
+
+User-facing `calcular` may two-pass via `build_with_estimative_sweep` (4S labeled sweep on a **copy** of params). `CalculationEngine.build` itself never invents a grid. DSE apply stays a bare `build()` (P27-B ★3 / Option A ★5). **No new C-xxx.**
 
 ### C-061 — `component_resolver.resolve_propulsion_parameters` → calculation input override
 | Field | Value |

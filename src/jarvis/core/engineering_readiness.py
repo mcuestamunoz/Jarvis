@@ -25,10 +25,15 @@ from jarvis.core.electrical_compatibility import (
 )
 from jarvis.core.project_closure import (
     build_component_bom,
+    catalog_bound_motor_lacks_nameplate_watts,
     catalog_gap_covered_by_declared_thrust,
     classify_component,
     component_presence_tier,
     derive_physical_requirements,
+    frame_class_compatibility_state,
+    frame_size_blocks_structure_complete,
+    param_present_for_architecture,
+    propeller_diameter_in,
 )
 from jarvis.core.system_architecture_catalog import (
     BLOCK_TO_COMPONENTS,
@@ -299,6 +304,40 @@ def resolve_motor_catalog_surface(
     return catalog_gap, catalog_matches, gap_evidence_fact
 
 
+def bound_motor_sku_is_underspec(project_state: Any) -> bool:
+    """T1 (implementation_contract_cli_catalog_assist_t1.md §2.1) — single
+    authority for "the bound motor SKU no longer covers current thrust."
+
+    True iff ``resolve_motor_catalog_surface`` returns a ``gap_evidence_fact``
+    starting with ``bound_sku_underspec:`` — reuses that pure derivation
+    (which itself reuses ``_motor_covers_requirements``) rather than
+    reimplementing the coverage check here.
+    """
+    req = derive_physical_requirements(project_state)
+    _, _, gap_evidence_fact = resolve_motor_catalog_surface(project_state, req)
+    return bool(gap_evidence_fact) and gap_evidence_fact.startswith("bound_sku_underspec:")
+
+
+def bound_motor_needs_watts_recovery(project_state: Any) -> bool:
+    """Watts-recovery IC: bound SKU lacks nameplate W, autonomy target is
+    set, and minutes are absent. Underspec is owned by T1 (IDLE checks it
+    first). Do not call ``resolve_motor_catalog_surface`` here — G9-A
+    ``build_startup_context`` must resolve once via readiness.
+    """
+    dp = getattr(project_state, "design_properties", None)
+    if not catalog_bound_motor_lacks_nameplate_watts(dp):
+        return False
+    req = derive_physical_requirements(project_state)
+    if req.get("autonomy_target_min") is None:
+        return False
+    latest = getattr(project_state, "latest_results", None) or {}
+    calc = latest.get("calculations") or {}
+    sim = latest.get("simulation") or {}
+    if calc.get("autonomy_min") is None:
+        return True
+    return sim.get("energy_status") == "missing_energy_parameters"
+
+
 # ── §6.2 — shared helper: architecture progress ─────────────────────────────
 
 _FALLBACK_BLOCK_LABELS: dict[str, str] = {
@@ -349,7 +388,10 @@ def _block_progress_status(block: str, design_properties: Any, params: dict[str,
         param_reason = get_param_reason_for_block(block)
         if param_reason:
             required = params_for_reason(param_reason)
-            defined = [p for p in required if params.get(p) is not None] if required else []
+            defined = [
+                p for p in required
+                if param_present_for_architecture(p, params, design_properties)
+            ] if required else []
             params_ok = bool(required) and len(defined) == len(required)
         else:
             params_ok = True
@@ -379,6 +421,8 @@ def _block_progress_status(block: str, design_properties: Any, params: dict[str,
     if not non_low:
         return "not_started"
     if len(non_low) == len(component_keys):
+        if block == "structure" and frame_size_blocks_structure_complete(design_properties, params):
+            return "in_progress"
         return "complete"
     return "in_progress"
 
@@ -458,12 +502,22 @@ def _motor_catalog_gaps(
         next_step = RecommendedNextStep(action="list_motors", params={})
     else:
         next_step = RecommendedNextStep(action="explore_design_space", params={})
+    # T1 (implementation_contract_cli_catalog_assist_t1.md §2.5): gap_type ID
+    # stays a single registry entry — only the human-facing title varies by
+    # evidence shape, so "bound but no longer covers thrust" reads
+    # differently from "nothing bound at all" without a registry rename.
+    if gap_evidence_fact.startswith("bound_sku_underspec:"):
+        title = "Bound motor SKU no longer covers thrust"
+    elif gap_evidence_fact.startswith("bound_sku_missing:"):
+        title = "Bound motor SKU missing from catalog"
+    else:
+        title = "Motor SKU unresolved"
     return [
         Gap(
             gap_id=_gap_id("GAP-MOTOR-CATALOG-UNRESOLVED", None),
             gap_type="GAP-MOTOR-CATALOG-UNRESOLVED",
             instance_key=None,
-            title="Motor SKU unresolved",
+            title=title,
             severity="MEDIUM",
             domain="catalog",
             blocks=["catalog", "propulsion", "bom"],
@@ -829,6 +883,78 @@ def _prop_motor_mismatch_gap(compatibility: CompatibilityResult) -> list[Gap]:
     ]
 
 
+def _frame_class_gaps(project_state: Any) -> list[Gap]:
+    """Structure A (implementation_contract_structure_a.md §2.2) —
+    GAP-FRAME-SIZE-MISSING / GAP-FRAME-PROP-SIZE.
+
+    Class-compatibility screening (LEVEL A), never a geometric fit proof —
+    forbidden copy (VERIFIED / "cabe" / "no cabe" / "misfit geométrico") is
+    kept out of both the gap title and the evidence facts; the full locked
+    Spanish CTA lives in the project's Continuity module, not here. Both
+    MEDIUM, never in ``_INCOMPATIBLE_CLASS_GAP_TYPES`` (that verdict is for
+    demonstrated conflicts — ESC/discharge/motor-prop — not a class
+    convention check), never ``can_fly=False``, no new HIGH.
+    """
+    state = frame_class_compatibility_state(project_state)
+    if state not in ("missing", "class_incompatible"):
+        return []
+
+    diameter_in = propeller_diameter_in(project_state)
+    evidence = [
+        GapEvidence(
+            source="project_closure.propeller_diameter_in", fact=f"diameter_in={diameter_in}"
+        )
+    ]
+
+    if state == "missing":
+        return [
+            Gap(
+                gap_id=_gap_id("GAP-FRAME-SIZE-MISSING", None),
+                gap_type="GAP-FRAME-SIZE-MISSING",
+                instance_key=None,
+                title="Frame size class missing",
+                severity="MEDIUM",
+                domain="structure",
+                blocks=["structure"],
+                depends_on=[],
+                evidence=evidence,
+                recommended_next_step=RecommendedNextStep(
+                    action="declare_frame_size_class", params={"diameter_in": diameter_in}
+                ),
+            )
+        ]
+
+    design_properties = getattr(project_state, "design_properties", None)
+    components = getattr(design_properties, "components", None) or {}
+    frame = components.get("frame")
+    props = getattr(frame, "properties", None) or {}
+    size_prop = props.get("size_class_inch")
+    size_class_inch = size_prop.value if size_prop is not None else None
+    evidence.append(
+        GapEvidence(
+            source="project_closure.frame_class_compatibility_state",
+            fact=f"size_class_inch={size_class_inch}",
+        )
+    )
+    return [
+        Gap(
+            gap_id=_gap_id("GAP-FRAME-PROP-SIZE", None),
+            gap_type="GAP-FRAME-PROP-SIZE",
+            instance_key=None,
+            title="Propeller diameter exceeds declared frame class",
+            severity="MEDIUM",
+            domain="structure",
+            blocks=["structure"],
+            depends_on=[],
+            evidence=evidence,
+            recommended_next_step=RecommendedNextStep(
+                action="declare_frame_size_class",
+                params={"diameter_in": diameter_in, "size_class_inch": size_class_inch},
+            ),
+        )
+    ]
+
+
 # ── §6.10 — prioritization ───────────────────────────────────────────────────
 
 _SEVERITY_ORDER: dict[str, int] = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
@@ -1121,6 +1247,7 @@ def build_engineering_readiness(project_state: Any) -> EngineeringReadinessResul
     gaps += _esc_undersized_gap(compatibility)
     gaps += _battery_discharge_exceeded_gap(compatibility)
     gaps += _prop_motor_mismatch_gap(compatibility)
+    gaps += _frame_class_gaps(project_state)
 
     prioritized = prioritize_gaps(gaps)
     top_gap = prioritized[0] if prioritized else None

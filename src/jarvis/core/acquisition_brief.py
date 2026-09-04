@@ -64,6 +64,17 @@ def build_acquisition_brief(key: str, project_state: Any | None) -> dict[str, st
     pre-FN-018 COMPONENT_PROMPTS-only behavior).
     """
     question = COMPONENT_PROMPTS.get(key, "")
+    if key == "frame" and project_state is not None:
+        # CLI fail-routing coherence (implementation_contract_cli_fail_
+        # routing_coherence.md §2.3): the frame question must reflect what is
+        # actually still missing (mass/material vs. size class vs. class
+        # incompatibility), not always the static mass/material example —
+        # single source shared with the orchestrator's frame prompts.
+        from jarvis.core.project_closure import frame_next_missing_question
+
+        specific_question = frame_next_missing_question(project_state)
+        if specific_question:
+            question = specific_question
     if key not in _BRIEF_KEYS or project_state is None:
         return {"message": "", "question": question}
 

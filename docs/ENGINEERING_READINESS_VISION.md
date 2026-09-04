@@ -210,7 +210,8 @@ Scope:
 - No new source of truth replaces ProjectState.
 - No LLM authority over engineering next-step decisions.
 - No implicit rewrite of existing acquisition/continuity contracts — Continuity remains next-step copy authority; see [`PROJECT_CONTINUITY.md`](./PROJECT_CONTINUITY.md).
-- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. Delivered phases (ERF-1/2, Catalog Impl C/D, Project Closure §11) are closed; new work requires a new investigation/IC, not edits to §11 without Engineer approval.
+- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. **As of 2026-09-01 there is no active product slice** — Engineer chooses the next software IC. Delivered phases (ERF-1/2, Catalog Impl C/D, Project Closure §11, Phase 2.5–2.7-B + Option A ESTIMATIVO) are closed; new work requires a new investigation/IC, not edits to §11 without Engineer approval.
+- **Hardware-gated physics** (T1/T2 lab before any sibling field) lives in [`HARDWARE_DEBT.md`](./HARDWARE_DEBT.md) — **debt register, never 🔴 PRIORIDAD ACTUAL** (Engineer: no lab equipment). Not in this vision and not in the software/product queue.
 
 ---
 

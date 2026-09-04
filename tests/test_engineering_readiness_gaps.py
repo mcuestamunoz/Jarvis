@@ -92,6 +92,9 @@ def test_gap_motor_catalog_unresolved_trigger():
     assert set(gap.blocks) == {"catalog", "propulsion", "bom"}
     assert gap.depends_on == []
     assert gap.recommended_next_step.action == "list_motors"
+    # T1 (implementation_contract_cli_catalog_assist_t1.md §2.5): unbound/
+    # empty-search shape keeps the pre-existing title — type ID unchanged.
+    assert gap.title == "Motor SKU unresolved"
 
 
 def test_gap_motor_catalog_unresolved_absent_when_matches_found():
@@ -170,6 +173,8 @@ def test_gap_motor_catalog_unresolved_bound_sku_underspec():
     catalog_gaps = [g for g in result.gaps if g.gap_type == "GAP-MOTOR-CATALOG-UNRESOLVED"]
     assert len(catalog_gaps) == 1
     assert catalog_gaps[0].evidence[0].fact == f"bound_sku_underspec:{_BOUND_SKU}"
+    # T1 §2.5: type ID stays GAP-MOTOR-CATALOG-UNRESOLVED, title varies.
+    assert catalog_gaps[0].title == "Bound motor SKU no longer covers thrust"
 
 
 def test_gap_motor_catalog_unresolved_bound_sku_missing_from_library():
@@ -187,6 +192,8 @@ def test_gap_motor_catalog_unresolved_bound_sku_missing_from_library():
     catalog_gaps = [g for g in result.gaps if g.gap_type == "GAP-MOTOR-CATALOG-UNRESOLVED"]
     assert len(catalog_gaps) == 1
     assert catalog_gaps[0].evidence[0].fact == "bound_sku_missing:deleted_motor_xyz"
+    # T1 §2.5: type ID stays GAP-MOTOR-CATALOG-UNRESOLVED, title varies.
+    assert catalog_gaps[0].title == "Bound motor SKU missing from catalog"
 
 
 # ── GAP-ARCH-BLOCK-INCOMPLETE ────────────────────────────────────────────────
@@ -384,6 +391,90 @@ def _gap(gap_id, severity, blocks):
         evidence=[GapEvidence(source="test", fact="x")],
         recommended_next_step=RecommendedNextStep(action="noop", params={}),
     )
+
+
+# ── GAP-FRAME-SIZE-MISSING / GAP-FRAME-PROP-SIZE (Structure A) ─────────────
+# implementation_contract_structure_a.md §2.2 — class-compatibility
+# screening (LEVEL A), never a geometric fit proof.
+
+
+def _propeller(diameter_in):
+    return ComponentSpec(
+        suggested_key="propellers", component_type="propulsion_passive", completeness="high",
+        properties={"diameter_in": PropertyValue(value=diameter_in, unit="in")},
+    )
+
+
+def _frame(size_class_inch=None):
+    props = {"mass_kg": PropertyValue(value=0.5), "material": PropertyValue(value="carbono")}
+    if size_class_inch is not None:
+        props["size_class_inch"] = PropertyValue(value=size_class_inch, unit="in")
+    return ComponentSpec(suggested_key="frame", component_type="structure", completeness="high", properties=props)
+
+
+def test_gap_frame_size_missing_trigger():
+    state = _project_state(
+        current_parameters={"vehicle_type": "dron", "propeller_diameter_in": 5.0},
+        design_properties=_design_properties(components={"propellers": _propeller(5.0), "frame": _frame()}),
+    )
+    result = build_engineering_readiness(state)
+    gaps = [g for g in result.gaps if g.gap_type == "GAP-FRAME-SIZE-MISSING"]
+    assert len(gaps) == 1
+    assert gaps[0].severity == "MEDIUM"
+    assert gaps[0].blocks == ["structure"]
+    assert [g for g in result.gaps if g.gap_type == "GAP-FRAME-PROP-SIZE"] == []
+
+
+def test_gap_frame_prop_size_trigger_and_severity_not_incompatible_class():
+    from jarvis.core.engineering_readiness import _INCOMPATIBLE_CLASS_GAP_TYPES
+
+    state = _project_state(
+        current_parameters={"vehicle_type": "dron", "propeller_diameter_in": 7.0},
+        design_properties=_design_properties(
+            components={"propellers": _propeller(7.0), "frame": _frame(size_class_inch=5.0)}
+        ),
+    )
+    result = build_engineering_readiness(state)
+    gaps = [g for g in result.gaps if g.gap_type == "GAP-FRAME-PROP-SIZE"]
+    assert len(gaps) == 1
+    assert gaps[0].severity == "MEDIUM"
+    assert gaps[0].blocks == ["structure"]
+    assert "GAP-FRAME-PROP-SIZE" not in _INCOMPATIBLE_CLASS_GAP_TYPES
+    assert [g for g in result.gaps if g.gap_type == "GAP-FRAME-SIZE-MISSING"] == []
+    # No new HIGH gap, and can_fly is untouched by this gap alone.
+    assert not any(g.severity == "HIGH" for g in gaps)
+
+
+def test_gap_frame_class_absent_when_compatible_or_no_propeller():
+    compatible = _project_state(
+        current_parameters={"vehicle_type": "dron", "propeller_diameter_in": 5.0},
+        design_properties=_design_properties(
+            components={"propellers": _propeller(5.0), "frame": _frame(size_class_inch=5.0)}
+        ),
+    )
+    result = build_engineering_readiness(compatible)
+    assert not any(g.gap_type.startswith("GAP-FRAME-") for g in result.gaps)
+
+    no_propeller = _project_state(
+        design_properties=_design_properties(components={"frame": _frame()}),
+    )
+    result = build_engineering_readiness(no_propeller)
+    assert not any(g.gap_type.startswith("GAP-FRAME-") for g in result.gaps)
+
+
+def test_gap_frame_prop_size_flips_overall_not_assembly_ready_via_medium_only():
+    """The §1 Gate: a MEDIUM-only frame-class gap already yields
+    NOT_ASSEMBLY_READY through the existing subsystem-verdict rollup — no
+    HIGH severity, no _derive_overall code change needed."""
+    state = _project_state(
+        current_parameters={"vehicle_type": "dron", "propeller_diameter_in": 7.0},
+        design_properties=_design_properties(
+            components={"propellers": _propeller(7.0), "frame": _frame(size_class_inch=5.0)}
+        ),
+    )
+    result = build_engineering_readiness(state)
+    assert not any(g.severity == "HIGH" for g in result.gaps)
+    assert result.overall == "NOT_ASSEMBLY_READY"
 
 
 def test_prioritize_gaps_severity_then_unblock_then_id():

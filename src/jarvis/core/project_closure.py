@@ -4,6 +4,7 @@ Pure functions over ProjectState / latest_results. No I/O.
 """
 from __future__ import annotations
 
+import json
 from typing import Any
 
 
@@ -39,6 +40,273 @@ def catalog_gap_covered_by_declared_thrust(
         return float(declared) >= float(needed)
     except (TypeError, ValueError):
         return False
+
+
+def catalog_bound_motor_covers_power_w(design_properties: Any) -> bool:
+    """A catalog SKU on motors is identity enough for energy-block progress.
+
+    Verified motors such as ``emax_rs2205s_2300`` honestly have no nameplate
+    ``max_watts`` — ``set_motor_component`` therefore omits ``motor_power_w``.
+    Continuity and the energy composite must not keep asking the user to
+    invent W, or to re-pick the same SKU, while propellers/battery/frame
+    are still the real gaps.
+
+    CLI feasibility vs readiness semantics IC (§2.3): accepts either the
+    live ``DesignProperties`` object (``orchestrator.py``'s own callers) or
+    the ``.model_dump()``-shaped dict ``ReasoningLayer.build()`` already
+    receives on ``context["design_properties"]`` — same predicate, two
+    equivalent input shapes, no second helper.
+    """
+    if design_properties is None:
+        return False
+    if isinstance(design_properties, dict):
+        components = design_properties.get("components") or {}
+        motors = components.get("motors") if isinstance(components, dict) else None
+        ref = motors.get("catalog_ref") if isinstance(motors, dict) else None
+        family = ref.get("family") if isinstance(ref, dict) else None
+    else:
+        components = getattr(design_properties, "components", None) or {}
+        motors = components.get("motors")
+        ref = getattr(motors, "catalog_ref", None)
+        family = getattr(ref, "family", None)
+    return ref is not None and family == "motor"
+
+
+def catalog_bound_motor_lacks_nameplate_watts(design_properties: Any) -> bool:
+    """T1 (implementation_contract_cli_catalog_assist_t1.md §2.6) — the
+    "este motor de catálogo no declara vatios" CTA's own predicate.
+
+    Deliberately separate from ``catalog_bound_motor_covers_power_w``, which
+    is identity-only (any catalog-bound motor reads as "done" for
+    architecture-progress/energy-nag purposes, regardless of whether that
+    SKU declares watts). This one answers a narrower, different question:
+    does the *specific bound SKU* actually lack a nameplate ``max_watts`` —
+    so the CTA is never shown for a SKU (like ``sunnysky_r2305_2500``, 220W)
+    that does declare watts, while a genuinely watts-less SKU (like
+    ``emax_rs2205s_2300``) still gets it. True only when identity-bound
+    *and* the library lookup confirms ``max_watts is None``; a SKU missing
+    from the library returns False rather than raising.
+    """
+    if design_properties is None:
+        return False
+    if isinstance(design_properties, dict):
+        components = design_properties.get("components") or {}
+        motors = components.get("motors") if isinstance(components, dict) else None
+        ref = motors.get("catalog_ref") if isinstance(motors, dict) else None
+        family = ref.get("family") if isinstance(ref, dict) else None
+        sku = ref.get("sku") if isinstance(ref, dict) else None
+    else:
+        components = getattr(design_properties, "components", None) or {}
+        motors = components.get("motors")
+        ref = getattr(motors, "catalog_ref", None)
+        family = getattr(ref, "family", None)
+        sku = getattr(ref, "sku", None)
+    if ref is None or family != "motor" or not sku:
+        return False
+
+    from jarvis.knowledge.library import default_library
+
+    if not default_library.has_motor(sku):
+        return False
+    return default_library.get_motor(sku).max_watts is None
+
+
+def propeller_diameter_in(project_state: Any) -> float | None:
+    """Structure A (implementation_contract_structure_a.md §2.2): the known
+    propeller diameter in inches, or None when unknown.
+
+    Priority order (locked, single source per rank — never averages/guesses):
+      1. components["propellers"].properties["diameter_in"] (numeric).
+      2. current_parameters["propeller_diameter_in"] (set_propeller_component
+         already bridges 1 -> 2; this covers a freeform/numeric-only project
+         that never had a propeller component at all).
+      3. A catalog-bound propeller SKU's own declared diameter_in.
+
+    Never parses millimetres, never invents from a SKU name.
+    """
+    design_properties = getattr(project_state, "design_properties", None)
+    components = getattr(design_properties, "components", None) or {}
+    propellers = components.get("propellers")
+
+    props = getattr(propellers, "properties", None) or {}
+    diameter_prop = props.get("diameter_in")
+    if diameter_prop is not None and diameter_prop.value is not None:
+        try:
+            return float(diameter_prop.value)
+        except (TypeError, ValueError):
+            pass
+
+    params = getattr(project_state, "current_parameters", None) or {}
+    param_val = params.get("propeller_diameter_in")
+    if param_val is not None:
+        try:
+            return float(param_val)
+        except (TypeError, ValueError):
+            pass
+
+    catalog_ref = getattr(propellers, "catalog_ref", None)
+    if catalog_ref is not None and getattr(catalog_ref, "family", None) == "propeller":
+        sku = getattr(catalog_ref, "sku", None)
+        if sku:
+            from jarvis.knowledge.library import default_library
+
+            try:
+                spec = default_library.get_propeller(sku)
+            except KeyError:
+                return None
+            return float(spec.diameter_in)
+
+    return None
+
+
+def frame_class_compatibility_state(project_state: Any) -> str:
+    """Structure A (§2.2): class-compatibility screening state — LEVEL A, not
+    a geometric fit proof.
+
+    Returns one of:
+      "not_required"       — no known propeller diameter; size not required.
+      "missing"             — D known, frame declares no size_class_inch.
+      "class_compatible"    — D known, class set, D <= size_class_inch.
+      "class_incompatible"  — D known, class set, D > size_class_inch.
+
+    Single shared predicate — both ``_block_progress_status`` copies and the
+    ERF-2 gap builders call this so architecture progress and the Gap
+    Registry can never disagree on the state. Never copies size_class_inch
+    from the propeller, never adds slack, never touches thrust/power/RPM/Ct.
+    """
+    diameter_in = propeller_diameter_in(project_state)
+    if diameter_in is None:
+        return "not_required"
+
+    design_properties = getattr(project_state, "design_properties", None)
+    components = getattr(design_properties, "components", None) or {}
+    frame = components.get("frame")
+    props = getattr(frame, "properties", None) or {}
+    size_prop = props.get("size_class_inch")
+    if size_prop is None or size_prop.value is None:
+        return "missing"
+
+    try:
+        size_class_inch = float(size_prop.value)
+    except (TypeError, ValueError):
+        return "missing"
+
+    return "class_compatible" if diameter_in <= size_class_inch else "class_incompatible"
+
+
+def frame_size_blocks_structure_complete(design_properties: Any, params: dict[str, Any]) -> bool:
+    """True when the frame's class-compatibility state alone must prevent the
+    ``"structure"`` architecture block from reading ``"complete"`` — i.e.
+    ``frame_class_compatibility_state`` is ``"missing"`` or
+    ``"class_incompatible"`` — even though its components are otherwise
+    non-stub (mass + material present).
+
+    Thin duck-typed adapter: ``_block_progress_status`` (both the
+    ``orchestrator.py`` and ``engineering_readiness.py`` copies) only carries
+    ``design_properties``/``params`` separately, not a full ``project_state``,
+    so this wraps them into the shape ``frame_class_compatibility_state``
+    expects — single shared predicate, no duplicated size-required logic
+    between architecture progress and the Gap Registry
+    (implementation_contract_structure_a.md §2.2).
+    """
+    from types import SimpleNamespace
+
+    shim = SimpleNamespace(design_properties=design_properties, current_parameters=params)
+    return frame_class_compatibility_state(shim) in ("missing", "class_incompatible")
+
+
+def frame_next_missing_datum(project_state: Any) -> str | None:
+    """CLI fail-routing coherence (implementation_contract_cli_fail_routing_
+    coherence.md §2.1): the single next thing the frame needs, composing the
+    existing mass/material persistence and ``frame_class_compatibility_state``
+    — never re-deriving completeness itself (``_frame_completeness`` in
+    ``domains.aerial`` stays the mass+material authority for
+    ``ComponentSpec.completeness``; this is a *routing* view, not a second
+    completeness definition).
+
+    Returns one of:
+      "mass"               — frame has no declared mass_kg yet.
+      "material"            — mass known, no declared material yet.
+      "size_class"           — mass+material known, D known, no size_class_inch.
+      "class_incompatible"   — mass+material known, D known, class set, D > class.
+      None                   — nothing left to ask (includes D unknown: class
+                                screening is not required, per Structure A §6).
+
+    Order: mass/material first (a class the user can't act on yet is useless
+    without a frame to put it on), then size class, then incompatibility.
+    """
+    design_properties = getattr(project_state, "design_properties", None)
+    components = getattr(design_properties, "components", None) or {}
+    frame = components.get("frame")
+    props = getattr(frame, "properties", None) or {}
+
+    mass_prop = props.get("mass_kg")
+    if mass_prop is None or mass_prop.value is None:
+        return "mass"
+    material_prop = props.get("material")
+    if material_prop is None or material_prop.value is None:
+        return "material"
+
+    state = frame_class_compatibility_state(project_state)
+    if state == "missing":
+        return "size_class"
+    if state == "class_incompatible":
+        return "class_incompatible"
+    return None
+
+
+def frame_next_missing_question(project_state: Any) -> str | None:
+    """Locked copy for ``frame_next_missing_datum`` — single source shared by
+    Acquisition Brief and the orchestrator's frame prompts, so the two never
+    diverge on what to ask next for the frame (implementation_contract_cli_
+    fail_routing_coherence.md §2.1/§2.3). LEVEL A / CLASS-BASED throughout —
+    never "cabe"/"no cabe", never VERIFIED.
+    """
+    datum = frame_next_missing_datum(project_state)
+    if datum is None:
+        return None
+
+    if datum == "size_class":
+        return (
+            "El frame ya tiene material y masa. Declara la clase en pulgadas "
+            "(ej. 'frame 5 pulgadas'). El empuje lo da la hélice, no el frame."
+        )
+
+    if datum == "class_incompatible":
+        diameter_in = propeller_diameter_in(project_state)
+        design_properties = getattr(project_state, "design_properties", None)
+        components = getattr(design_properties, "components", None) or {}
+        frame = components.get("frame")
+        props = getattr(frame, "properties", None) or {}
+        size_prop = props.get("size_class_inch")
+        size_class_inch = size_prop.value if size_prop is not None else None
+        d_bit = f"{float(diameter_in):g}" if diameter_in is not None else "declarada"
+        c_bit = f"{float(size_class_inch):g}" if size_class_inch is not None else "declarada"
+        return (
+            f"La hélice ({d_bit} in) supera la clase de frame declarada ({c_bit} in) "
+            "— compatibilidad de clase nivel A, no verificada. Declara una clase de "
+            "frame mayor (ej. 'frame 6 pulgadas') o cambia de hélice."
+        )
+
+    # datum in ("mass", "material") — one combined prompt regardless of which
+    # single field is missing, per §2.1.
+    if propeller_diameter_in(project_state) is not None:
+        return (
+            "Describe el frame del dron (material, masa y clase en pulgadas). "
+            "Ej: 'fibra de carbono 450g 5 pulgadas'"
+        )
+    return "Describe el frame del dron (material y masa). Ej: 'fibra de carbono 450g'"
+
+
+def param_present_for_architecture(
+    param: str, params: dict[str, Any], design_properties: Any
+) -> bool:
+    """Architecture-progress view of a required param (not a calc input)."""
+    if (params or {}).get(param) is not None:
+        return True
+    if param == "motor_power_w":
+        return catalog_bound_motor_covers_power_w(design_properties)
+    return False
 
 
 def derive_physical_requirements(project_state: Any) -> dict[str, Any]:
@@ -360,12 +628,26 @@ def build_component_bom(project_state: Any) -> dict[str, Any]:
 
 
 def energy_model_honesty_note(project_state: Any) -> str | None:
-    """When autonomy is a hard constraint, disclose the simplified energy model."""
+    """When autonomy is a hard constraint, disclose the simplified energy model.
+
+    CLI feasibility vs readiness semantics IC (§2.5): the L0 ``(Wh/W)×60``
+    sentence presumes a number exists to interpret — it must not fire when
+    no autonomy was actually calculated (``latest_results.calculations.
+    autonomy_min`` absent), since that reads as "here is the model behind
+    your result" when there is no result. That case gets its own honest
+    sentence instead.
+    """
     constraints = getattr(project_state, "parsed_constraints", None) or {}
     if hasattr(constraints, "model_dump"):
         constraints = constraints.model_dump()
     if constraints.get("autonomy_min") is None:
         return None
+    calculations = (getattr(project_state, "latest_results", None) or {}).get("calculations") or {}
+    if calculations.get("autonomy_min") is None:
+        return (
+            "Autonomía no calculada: no hay potencia de hover usable ni W de placa. "
+            "No inventes motor_power_w."
+        )
     return (
         "Modelo energético simplificado: autonomía ≈ (Wh / W) × 60 — "
         "sin curva de descarga ni C-rating. Úsalo como orientación, no como certificación."
@@ -449,3 +731,117 @@ def format_bom_lines(bom: dict[str, Any]) -> list[str]:
     for key in bom.get("missing") or []:
         lines.append(f"✗ {key}: no definido")
     return lines
+
+
+def derive_prop_energy_block_closure(
+    project_state: Any, *, readiness: Any | None = None
+) -> dict[str, Any]:
+    """Block Closure B-PROP-ENERGY IC §3 — derivable rollup over EXISTING
+    signals (readiness + electrical compatibility + sim + catalog identity).
+    Pure derivation, same discipline as this module's other helpers: does
+    not mutate state, does not touch ``ASSEMBLY_READY``'s own 9-way
+    conjunction (``engineering_readiness._derive_overall`` untouched, not
+    even imported here except at call time), does not add new engineering
+    physics — every fact below is read from ``build_engineering_readiness``/
+    ``evaluate_electrical_compatibility``, both already pure.
+
+    Answers a DIFFERENT question than ``ASSEMBLY_READY``
+    (investigation_report_post_v034_block_closure.md Finding B-3): is the
+    propulsion/energy/electronics stack specifically done, independent of
+    frame/control/requirements/architecture/catalog/bom subsystems. A
+    project can be block-``closed`` and simultaneously ``NOT_ASSEMBLY_READY``
+    — that dual is the point, not a bug.
+
+    ``SubsystemEvidence.validated`` (the shared ``ctx.sim_status=="pass"``
+    boolean, Finding B-2) is deliberately NOT read as ESC proof here — the
+    real, per-fact ``electrical_compatibility`` checks (``esc_vs_motor``,
+    ``battery_discharge``, ``prop_motor``, ``esc_presence``) are what gate
+    ``closed``, exactly as the investigation found they are the one place a
+    real, block-specific physics fact already exists in this codebase.
+
+    ``readiness`` (keyword, optional): pass an already-computed
+    ``EngineeringReadinessResult`` when the caller has one (e.g.
+    ``build_startup_context``, which already builds it once for the
+    ``readiness`` ctx key) — G9-A's "single catalog resolve per turn"
+    regression guard means a second, independent
+    ``build_engineering_readiness`` call here would double-invoke
+    ``resolve_motor_catalog_surface``. ``None`` (every direct/test caller,
+    e.g. ``derive_prop_energy_block_closure(project_state)`` alone) computes
+    it fresh — this function stays callable with just ``project_state``.
+    """
+    from jarvis.core.electrical_compatibility import evaluate_electrical_compatibility
+
+    if readiness is None:
+        from jarvis.core.engineering_readiness import build_engineering_readiness
+
+        readiness = build_engineering_readiness(project_state)
+    compat = evaluate_electrical_compatibility(project_state)
+    sim = (getattr(project_state, "latest_results", None) or {}).get("simulation") or {}
+    components = getattr(getattr(project_state, "design_properties", None), "components", None) or {}
+
+    def _verdict(key: str) -> str | None:
+        entry = readiness.subsystems.get(key)
+        return entry.verdict if entry is not None else None
+
+    checks: list[tuple[bool, str]] = [
+        (_verdict("propulsion") == "PASS", "propulsion_not_pass"),
+        (_verdict("energy") == "PASS", "energy_not_pass"),
+        (_verdict("electronics") == "PASS", "electronics_not_pass"),
+        (compat.battery_discharge == "within_limit", "battery_discharge_exceeded"),
+        (compat.esc_vs_motor == "compatible", "esc_vs_motor_incompatible"),
+        (compat.prop_motor == "compatible", "prop_motor_incompatible"),
+        (compat.esc_presence == "defined", "esc_not_defined"),
+        (sim.get("status") == "pass", "sim_not_pass"),
+    ]
+    for key, family in (("motors", "motor"), ("propellers", "propeller"), ("battery", "battery")):
+        spec = components.get(key)
+        ref = getattr(spec, "catalog_ref", None)
+        ok = ref is not None and getattr(ref, "family", None) == family
+        checks.append((ok, f"{key}_not_catalog_bound"))
+
+    reasons = [reason for ok, reason in checks if not ok]
+    status = "closed" if not reasons else "not_closed"
+
+    # ★6 evidence tier — descriptive only, never gates `status` (§3.3: a
+    # fallback-tier OP can still be `closed`; a manufacturer_test-tier OP
+    # with a failed check above is still `not_closed`).
+    resolution_type: str | None = None
+    source_type: str | None = None
+    propulsion_resolution_raw = (getattr(project_state, "current_parameters", None) or {}).get(
+        "propulsion_resolution"
+    )
+    if propulsion_resolution_raw:
+        try:
+            parsed = json.loads(propulsion_resolution_raw)
+            resolution_type = parsed.get("resolution_type")
+            source_type = parsed.get("source_type")
+        except (TypeError, ValueError, json.JSONDecodeError):
+            pass
+
+    if resolution_type == "exact_operating_point" and source_type == "manufacturer_test":
+        evidence_tier = "manufacturer_test"
+    elif resolution_type == "fallback_operating_point":
+        evidence_tier = "fallback"
+    elif resolution_type == "legacy_estimate":
+        evidence_tier = "legacy_estimate"
+    else:
+        evidence_tier = "none"
+
+    return {
+        "block_id": "B-PROP-ENERGY",
+        "status": status,
+        "evidence_tier": evidence_tier,
+        "reasons": reasons,
+        "facts": {
+            "propulsion_verdict": _verdict("propulsion"),
+            "energy_verdict": _verdict("energy"),
+            "electronics_verdict": _verdict("electronics"),
+            "battery_discharge": compat.battery_discharge,
+            "esc_vs_motor": compat.esc_vs_motor,
+            "prop_motor": compat.prop_motor,
+            "esc_presence": compat.esc_presence,
+            "sim_status": sim.get("status"),
+            "resolution_type": resolution_type,
+            "source_type": source_type,
+        },
+    }

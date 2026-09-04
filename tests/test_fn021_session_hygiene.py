@@ -151,8 +151,12 @@ def test_after_arch_complete_iterate_phrase_not_stale_component_prompt(tmp_path:
     propellers = _comp("propellers", "propulsion_passive",
         diameter_in=PropertyValue(value=10), pitch_in=PropertyValue(value=4.5))
     battery = _comp("battery", "energy", battery_capacity_wh=PropertyValue(value=74))
+    # Structure A (implementation_contract_structure_a.md §2.2): the
+    # propeller above declares diameter_in=10, so this frame must also
+    # declare a compatible size_class_inch to stay architecture-complete.
     frame = _comp("frame", "structure",
-        mass_kg=PropertyValue(value=0.5), material=PropertyValue(value="fibra"))
+        mass_kg=PropertyValue(value=0.5), material=PropertyValue(value="fibra"),
+        size_class_inch=PropertyValue(value=10.0, unit="in"))
     flight_controller = _comp("flight_controller", "control",
         model=PropertyValue(value="Pixhawk 4"))
     esc = _comp("esc", "propulsion_active", current_a=PropertyValue(value=30.0))  # ERF-2 ★5

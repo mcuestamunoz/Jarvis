@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from jarvis.core.catalog_bind import bind_motor_from_catalog
 from jarvis.core.component_inference import infer_component
 import jarvis.core.semantic_interpreter as sem
+from jarvis.domains.aerial import extract_frame_properties
 from jarvis.domains.registry_selector import get_registry
 
 from jarvis.knowledge.library import ComponentLibrary, default_library
@@ -15,7 +16,6 @@ from jarvis.core.iterate_domain import (
     _normalize_variable_input,
     _fuzzy_normalize_variable,
     _is_valid_variable,
-    _KNOWN_MATERIALS,
 )
 from jarvis.memory.history import build_conflict_type, latest_conflict_by_type
 from jarvis.schemas.semantic_schema import SemanticState, SlotValue
@@ -24,6 +24,7 @@ from jarvis.config import ESCAPE_WORDS
 from jarvis.core.intent_resolver import IntentResolver
 from jarvis.schemas.action_schema import (
     ActionName,
+    ComponentSpec,
     ImpactEstimate,
     InteractiveSessionState,
     IterationConflict,
@@ -292,7 +293,15 @@ class IterateInteractiveSession:
         # ─────────────────────────────────────────────────────────────────────
 
         if session.step == 2 and self._awaiting_material_value(session.iteration_draft):
-            material_name = self._extract_material_from_text(normalized)
+            # Structure A (implementation_contract_structure_a.md §2.1): parse
+            # the FULL text with extract_frame_properties (single shared
+            # alias table with _extract_material_from_text — same material
+            # result) before reducing to a bare material name, so mass_kg /
+            # size_class_inch survive on the draft instead of being dropped
+            # here (the confirmed walk leak).
+            frame_props = extract_frame_properties(normalized)
+            material_prop = frame_props.get("material")
+            material_name = str(material_prop.value) if material_prop is not None else None
             if not material_name:
                 return self._build_response(
                     session,
@@ -315,9 +324,14 @@ class IterateInteractiveSession:
             # _estimate_impact can compute a real delta.  Fall back to DEFINE only when
             # no operation was set (avoids operation=None reaching _handle_final_confirmation).
             _op = session.iteration_draft.operation or IterationOperation.DEFINE
+            updated_patch = dict(session.iteration_draft.component_patch or {})
+            frame_patch = self._build_frame_patch_from_props(frame_props)
+            if frame_patch is not None:
+                updated_patch["frame"] = frame_patch
             updated_draft = session.iteration_draft.model_copy(update={
                 "value": material_name,
                 "operation": _op,
+                "component_patch": updated_patch,
             })
             return self._build_response(
                 session.model_copy(update={"step": 3, "iteration_draft": updated_draft})
@@ -409,11 +423,23 @@ class IterateInteractiveSession:
         if session.step == 2:
             # ── Gap 1: material variable → try to extract name from strategy ──
             if (updated_draft.variable or "").lower() == "material" and updated_draft.value is None:
-                material_name = self._extract_material_from_text(updated_draft.strategy or "")
+                # Structure A (implementation_contract_structure_a.md §2.1):
+                # same coherent parse as the awaiting-material branch above —
+                # extract_frame_properties on the full strategy text before
+                # truncating to a bare material name.
+                frame_props = extract_frame_properties(updated_draft.strategy or "")
+                material_prop = frame_props.get("material")
+                material_name = str(material_prop.value) if material_prop is not None else None
                 if material_name:
                     # Name embedded in strategy → store and go to restrictions
                     _op = updated_draft.operation or IterationOperation.DEFINE
-                    updated_draft = updated_draft.model_copy(update={"value": material_name, "operation": _op})
+                    updated_patch = dict(updated_draft.component_patch or {})
+                    frame_patch = self._build_frame_patch_from_props(frame_props)
+                    if frame_patch is not None:
+                        updated_patch["frame"] = frame_patch
+                    updated_draft = updated_draft.model_copy(update={
+                        "value": material_name, "operation": _op, "component_patch": updated_patch,
+                    })
                     return self._build_response(
                         session.model_copy(update={"step": 3, "iteration_draft": updated_draft})
                     )
@@ -1263,14 +1289,27 @@ class IterateInteractiveSession:
 
     # ── Material helpers (Gap 1) ──────────────────────────────────────────────
 
-    def _extract_material_from_text(self, text: str) -> str | None:
-        """Return canonical material name if any known material appears in *text*."""
-        normalized = text.lower()
-        # Sorted by key length descending so multi-word keys match before substrings.
-        for key, canonical in sorted(_KNOWN_MATERIALS.items(), key=lambda x: -len(x[0])):
-            if key in normalized:
-                return canonical
-        return None
+    @staticmethod
+    def _build_frame_patch_from_props(frame_props: dict[str, PropertyValue]) -> ComponentSpec | None:
+        """Structure A (implementation_contract_structure_a.md §2.1): wrap
+        ``extract_frame_properties``'s output as a minimal frame
+        ``ComponentSpec`` so ``_run_declarative_iteration`` can route mass_kg
+        / size_class_inch through the single frame writer (``set_frame_
+        material``) instead of losing them to the design_properties.structure
+        .material string-only legacy patch. None when nothing frame-relevant
+        was found (material-only input still lands here with just a
+        "material" property — that alone must not trigger a writer call;
+        see the caller-side mass_kg/size_class_inch gate in actions/iterate.py).
+        """
+        if not frame_props:
+            return None
+        return ComponentSpec(
+            name="frame",
+            component_type="structure",
+            suggested_key="frame",
+            properties=dict(frame_props),
+            source="declared",
+        )
 
     def _awaiting_material_value(self, draft: IterationDraft) -> bool:
         """True when the user said 'cambiar material' but has not yet named the material."""

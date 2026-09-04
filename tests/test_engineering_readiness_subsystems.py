@@ -143,7 +143,14 @@ def test_assembly_ready_false_when_high_gap():
 def _fully_closed_components():
     frame = ComponentSpec(
         suggested_key="frame", completeness="high", source="declared",
-        properties={"mass_kg": PropertyValue(value=0.4), "material": PropertyValue(value="carbono")},
+        # Structure A (implementation_contract_structure_a.md §2.2): the
+        # propeller below declares diameter_in=10.0, so a "fully closed, no
+        # gaps" fixture must also declare a compatible size_class_inch.
+        properties={
+            "mass_kg": PropertyValue(value=0.4),
+            "material": PropertyValue(value="carbono"),
+            "size_class_inch": PropertyValue(value=10.0, unit="in"),
+        },
         catalog_ref=CatalogRef(family="motor", sku="dummy"),
     )
     battery = ComponentSpec(

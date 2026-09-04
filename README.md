@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.3.0**
+**v0.3.6**
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -41,20 +41,15 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
-## What v0.3 includes
+## What v0.3.6 includes
 
-- Everything in v0.2, plus:
-- Catalog-bound motors with lookup operating points (`exact` / `fallback` / `legacy`)
-- Propeller catalog bind UX (`ayúdame a elegir` → SKU) that upgrades fallback → exact OP in CLI
-- SKU-aware BOM / Continuity visibility for catalog-bound components
-- Guided / direct `create_project`
-- Component definition in natural language (motors, frame, battery, propellers, …)
-- Deterministic `calculate` and `simulate` with history + Markdown views
-- Controlled `iterate` and design-space explore / apply (DSE)
-- Engineering intent → Goal Plan → Handoff Context (Plan → DSE / Iterate, FN-024…026)
-- Living System Map (`docs/system_map/`) — 59 connections, 0 RED
-- CLI and MCP adapters
-- Curated motor/propeller library (still thin; Physical Catalog v1 continues)
+- Everything through **v0.3.5** (Phase 2.5 hover-regime autonomy L1), plus the closed experimental construction stack:
+- CLI feasibility honesty (PASS vs unmet autonomy; no false “Diseño validado”)
+- Catalog-assist T1 / T1+2 / watts-recovery + stale-energy recalc CTAs
+- DSE apply that refuses silent nameplate-W undercuts
+- Structure A: frame mass + size-class compatibility (level A)
+- CLI fail-routing coherence (frame next-missing; FAIL ≠ WARNING; no optimize-as-next on FAIL)
+- Phase transition: **knowledge / block parity** agenda (no default polish IC on prop/energy)
 
 ## Docs
 
@@ -65,14 +60,19 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 | [docs/PROJECT_CONTINUITY.md](docs/PROJECT_CONTINUITY.md) | A' — Situation / Evidence / Next useful step |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the system is built |
 | [docs/system_map/README.md](docs/system_map/README.md) | System Map — connections & authority |
-| [docs/IMPLEMENTATION_TASKS.md](docs/IMPLEMENTATION_TASKS.md) | Roadmap, gaps, technical debt |
+| [docs/IMPLEMENTATION_TASKS.md](docs/IMPLEMENTATION_TASKS.md) | Roadmap, gaps, software/product debt |  
+| [docs/HARDWARE_DEBT.md](docs/HARDWARE_DEBT.md) | Physics debt gated on T1/T2 lab (ESC η, battery C-rate, sag) |
 | [.jes/artifacts/cli_findings_post_catalog_bind_v1.md](.jes/artifacts/cli_findings_post_catalog_bind_v1.md) | Living CLI findings register (G9–G20) |
 | [src/jarvis/README.md](src/jarvis/README.md) | Deeper product / flow reference |
 
 ## Tags
 
-`v0.3.0` — Phase 2 P2-1 lookup OP + Propeller Catalog Bind UX (fallback→exact in live CLI).  
-`checkpoint-propeller-catalog-bind` — propeller help-choose / bind unlocks exact OP.  
-`checkpoint-phase2-p2-1` — `resolve_operating_point` + OP seed data.  
+`v0.3.6` / `checkpoint-experimental-prop-energy-closed` — experimental prop/energy/Structure A/fail-routing construction closed; knowledge-parity phase starts.  
+`v0.3.5` / `checkpoint-phase25-hover-energy` — Phase 2.5 honest hover-regime autonomy.  
+`v0.3.4` / `checkpoint-motor-op-voltage-coherence` — motor OP voltage gate + DSE live params.  
+`v0.3.3` / `checkpoint-validation-case-regression-gate` — Validation Case probe/docs.  
+`v0.3.2` / `checkpoint-deferred-queue-cd` — Deferred Queue C+D.  
+`v0.3.1` / `checkpoint-next-engineering-block` — G24-A + P2-2 OP bridge.  
+`v0.3.0` / `checkpoint-propeller-catalog-bind` — propeller help-choose → exact OP.  
 `v0.2.0` — H1–H4 handoffs closed; System Map at 0 RED.  
 `v0.1.0-prototype` — first functional cut.
