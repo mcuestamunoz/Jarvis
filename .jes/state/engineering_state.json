@@ -82,8 +82,8 @@
     "checkpoint-phase25-hover-energy": "fc46938b64c757bc9e1ab7f5e69e91bde30ad174",
     "v0.3.6": "f70b2787f87a92f5b549ea26a7b23ecfd052ce17",
     "checkpoint-experimental-prop-energy-closed": "f70b2787f87a92f5b549ea26a7b23ecfd052ce17",
-    "v0.3.7": "PENDING_RELEASE_COMMIT",
-    "checkpoint-structure-representation-closed": "PENDING_RELEASE_COMMIT"
+    "v0.3.7": "dbaf3b9864a97823d530faefb95afed83d41286d",
+    "checkpoint-structure-representation-closed": "dbaf3b9864a97823d530faefb95afed83d41286d"
   },
   "arc": {
     "validation_case_investigation": "CHECKPOINTED",
