@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.3.7**
+**v0.3.8**
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -47,8 +47,9 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
-## What v0.3.7 includes
+## What v0.3.8 includes
 
+- Everything in **v0.3.7** (Structure representation arc + `jarvis board`), plus the spatial projector that 0.3.7 gitignored (`src/jarvis/workspace/spatial_board.py`).
 - Everything through **v0.3.6** (experimental prop/energy construction + Structure A + fail-routing), plus the closed **Structure representation** arc:
 - Claim hygiene + control parity (`PASS *` honesty)
 - Structure Foundations / Catalog Foundation IC-1→3 (frame seed + bind + assist)
@@ -74,6 +75,7 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 
 ## Tags
 
+`v0.3.8` / `checkpoint-spatial-board-projector` — ship `spatial_board.py` (was gitignored); `/workspace/` ignore.  
 `v0.3.7` / `checkpoint-structure-representation-closed` — Structure representation arc closed (catalog→parts→rebind→plates); suite **2294**.  
 `v0.3.6` / `checkpoint-experimental-prop-energy-closed` — experimental prop/energy/Structure A/fail-routing construction closed; knowledge-parity phase starts.  
 `v0.3.5` / `checkpoint-phase25-hover-energy` — Phase 2.5 honest hover-regime autonomy.  

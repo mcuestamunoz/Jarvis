@@ -6,7 +6,7 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.7`** / `checkpoint-structure-representation-closed`. Suite viva **2294**.  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector`. Suite viva **2294**.  
 > **PRIORIDAD AHORA:** **Ninguna IC abierta.** Structure arco + smoke **CLOSED/ACCEPT**. Optimization **NO** abrir (lock abajo).  
 > **Pared física:** Prop/Energy experimental → HD-004 ([lock](../.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md)).  
 > **Debt software (no cola):** free-text multi-plate · completeness hardcode · G-N2/3/4 · C3 UX · MEASURE out · System optimization (deferred).  

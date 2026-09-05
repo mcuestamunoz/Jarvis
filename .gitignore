@@ -30,8 +30,9 @@ htmlcov/
 src/jarvis/runtime/llm_logs/
 *.log
 
-# Local CLI walk workspaces (not product source)
-workspace/
+# Local CLI walk workspaces (not product source).
+# Anchor at repo root — `workspace/` also matches src/jarvis/workspace/.
+/workspace/
 
 # Spatial board visor
 ui/spatial-board/node_modules/

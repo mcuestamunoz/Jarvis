@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Release v0.3.7 Structure representation closed. No open IC. Optimization deferred. Prop/Energy = HD-004 wall. Idle.",
-  "scope": "v0.3.7 / checkpoint-structure-representation-closed",
-  "execution_status": "v037_released_idle",
+  "cycle_intent": "Release v0.3.8 spatial projector hotfix. No open IC. Optimization deferred. Prop/Energy = HD-004 wall. Idle.",
+  "scope": "v0.3.8 / checkpoint-spatial-board-projector",
+  "execution_status": "v038_released_idle",
   "current_mode": "Idle \u2014 await Engineer-named pain/evidence (not Vision-driven Optimization)",
   "movement_trigger": {
     "type": "release",
-    "note": "2026-09-05 v0.3.7 Structure representation arc"
+    "note": "2026-09-05 v0.3.8 spatial projector hotfix"
   },
   "relevant_workflow_phases": [
     "idle"
@@ -67,6 +67,7 @@
     "M0 / MEASURE / CAD / FEA / arm\u2194motor out",
     "Artifacts: investigation/implementation/review only",
     "v0.3.7 / checkpoint-structure-representation-closed \u2705",
+    "v0.3.8 / checkpoint-spatial-board-projector \u2705",
     "Hardware HD-* PARKED \u2014 never PRIORIDAD AHORA"
   ],
   "checkpoints": {
@@ -83,7 +84,9 @@
     "v0.3.6": "f70b2787f87a92f5b549ea26a7b23ecfd052ce17",
     "checkpoint-experimental-prop-energy-closed": "f70b2787f87a92f5b549ea26a7b23ecfd052ce17",
     "v0.3.7": "dbaf3b9864a97823d530faefb95afed83d41286d",
-    "checkpoint-structure-representation-closed": "dbaf3b9864a97823d530faefb95afed83d41286d"
+    "checkpoint-structure-representation-closed": "dbaf3b9864a97823d530faefb95afed83d41286d",
+    "v0.3.8": "PENDING_RELEASE_COMMIT",
+    "checkpoint-spatial-board-projector": "PENDING_RELEASE_COMMIT"
   },
   "arc": {
     "validation_case_investigation": "CHECKPOINTED",

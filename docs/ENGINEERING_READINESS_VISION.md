@@ -2,7 +2,7 @@
 
 **Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure ✅ §11; Claim Hygiene ✅, Control Parity ✅, Structure Foundations ✅, Structure Catalog Foundation IC-1→IC-3 ✅, Structure honesty `PASS *` ✅, Structure B Parts Graph Fase 1 ✅, G-N1 ✅, IDLE rebind B2+B3 ✅, arm `thickness_mm` B2 ✅, plate multiplicity B2 ✅ — §8)  
 **Type:** Vision / To-be  
-**Date:** 2026-09-05 (release **v0.3.7** @ suite **2294**; Structure smoke ACCEPT; Prop/Energy = HD-004 wall; System Optimization **deferred** until pain)
+**Date:** 2026-09-05 (release **v0.3.8** @ suite **2294**; Structure smoke ACCEPT; Prop/Energy = HD-004 wall; System Optimization **deferred** until pain)
 
 ---
 
@@ -342,7 +342,7 @@ Allowed later (optional): investigation of *what evidence schema to ingest when 
 - No new source of truth replaces ProjectState.
 - No LLM authority over engineering next-step decisions.
 - No implicit rewrite of existing acquisition/continuity contracts — Continuity remains next-step copy authority; see [`PROJECT_CONTINUITY.md`](./PROJECT_CONTINUITY.md).
-- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. **As of 2026-09-05** release **v0.3.7** suite **2294**; Structure + CLI smoke **CLOSED**; **no open software PRIORIDAD**. System Optimization **deferred** until pain. Prop/Energy experimental = **HD-004 wall**. MEASURE/CAD is not the default. Free-text multi-plate / G-N*/C3 / completeness hardcode remain debt.
+- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. **As of 2026-09-05** release **v0.3.8** suite **2294**; Structure + CLI smoke **CLOSED**; **no open software PRIORIDAD**. System Optimization **deferred** until pain. Prop/Energy experimental = **HD-004 wall**. MEASURE/CAD is not the default. Free-text multi-plate / G-N*/C3 / completeness hardcode remain debt.
 - **Hardware-gated physics** (T1/T2 lab before any sibling field) lives in [`HARDWARE_DEBT.md`](./HARDWARE_DEBT.md) — **debt register, never 🔴 PRIORIDAD ACTUAL** (Engineer: no lab equipment). Includes HD-004 OP→consumption for autonomy. Not in the software/product queue.
 
 ---

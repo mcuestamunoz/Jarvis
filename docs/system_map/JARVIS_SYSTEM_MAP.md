@@ -71,7 +71,7 @@ Full detail: `00_entry/ENTRY_MAP.md` and `01_runtime/RUNTIME_MAP.md`; connection
 | Sim PASS + risky margin → Continuity next-step thread | 🟡 PARTIAL (WEAK) — H5, deferred | C-081 |
 | Readiness → full Continuity next-step handoff | 🟡 PARTIAL — catalog gap only (Slice 4b deferred) | C-108 |
 
-C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the same `HandoffContext` (Hybrid Operation-Scoped lifecycle — see `MISMATCHES.md`). **H1–H4 are all closed — 0 RED edges remain.** C-081 (H5) and C-108 remain 🟡 PARTIAL — **deferred map debt, not today's implementation queue.** Hardware lab is [`docs/HARDWARE_DEBT.md`](../HARDWARE_DEBT.md). **PRIORIDAD AHORA:** none open — Structure representation closed @ **v0.3.7** (suite **2294**); see `docs/IMPLEMENTATION_TASKS.md`. Baseline: **`v0.3.7`**.
+C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the same `HandoffContext` (Hybrid Operation-Scoped lifecycle — see `MISMATCHES.md`). **H1–H4 are all closed — 0 RED edges remain.** C-081 (H5) and C-108 remain 🟡 PARTIAL — **deferred map debt, not today's implementation queue.** Hardware lab is [`docs/HARDWARE_DEBT.md`](../HARDWARE_DEBT.md). **PRIORIDAD AHORA:** none open — Structure representation closed @ **v0.3.7**; spatial projector hotfix **v0.3.8** (suite **2294**); see `docs/IMPLEMENTATION_TASKS.md`. Baseline: **`v0.3.8`**.
 
 ## Subsystem index
 
