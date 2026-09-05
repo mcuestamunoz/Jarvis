@@ -438,13 +438,12 @@ export default function JarvisSystemMapCanvas() {
         </Text>
       </Stack>
 
-      <Callout tone="neutral" title="Product queue — await Engineer (2026-09-05)">
-        Baseline v0.3.6 · suite 2294. Structure plate multiplicity B2 CLOSED
-        (curated plates[] + ordinal frame_plate* + label). Knowledge/block
-        parity + Structure representation arc CLOSED. Next = Engineer-named
-        (System optimization vs Prop/Energy vs further KNOW). CAD / FEA /
-        free-text multi-plate = debt. C-081 and C-108 remain deferred map
-        debt. HD-* never PRIORIDAD without lab.
+      <Callout tone="neutral" title="Product queue — idle (v0.3.7)">
+        Baseline v0.3.7 · suite 2294. Structure representation CLOSED.
+        Prop/Energy experimental = HD-004 wall. System Optimization
+        deferred until demonstrated pain. No open software PRIORIDAD.
+        C-081 and C-108 remain deferred map debt. HD-* never PRIORIDAD
+        without lab.
       </Callout>
 
       <Grid columns={6} gap={12}>

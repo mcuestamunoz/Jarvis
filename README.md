@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.3.6**
+**v0.3.7**
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -47,17 +47,16 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
-## What v0.3.6 includes
+## What v0.3.7 includes
 
-- Everything through **v0.3.5** (Phase 2.5 hover-regime autonomy L1), plus the closed experimental construction stack:
-- CLI feasibility honesty (PASS vs unmet autonomy; no false “Diseño validado”)
-- Catalog-assist T1 / T1+2 / watts-recovery + stale-energy recalc CTAs
-- DSE apply that refuses silent nameplate-W undercuts
-- Structure A: frame mass + size-class compatibility (level A)
-- CLI fail-routing coherence (frame next-missing; FAIL ≠ WARNING; no optimize-as-next on FAIL)
-- Phase transition: **knowledge / block parity** agenda (no default polish IC on prop/energy)
-
-**Also on `main` after the Structure representation close (still package `0.3.6` — no version bump):** claim hygiene + control parity · Structure Foundations / Catalog IC-1→3 · honesty `PASS *` · Parts Graph + G-N1 · IDLE catalog rebind · arm thickness · curated multi-plate assembly · board visor. Prop/Energy experimental = hardware wall; System Optimization deferred until demonstrated pain.
+- Everything through **v0.3.6** (experimental prop/energy construction + Structure A + fail-routing), plus the closed **Structure representation** arc:
+- Claim hygiene + control parity (`PASS *` honesty)
+- Structure Foundations / Catalog Foundation IC-1→3 (frame seed + bind + assist)
+- Structure honesty `PASS *` · Parts Graph Fase 1 · G-N1 free-text root+parts
+- IDLE catalog rebind (frame / motors / propellers / battery)
+- Arm `thickness_mm` + curated multi-plate assembly (`plates[]`, ordinal siblings, labels)
+- Spatial board visor (`jarvis board`)
+- Locks: Prop/Energy experimental = HD-004 wall; System Optimization deferred until demonstrated pain
 
 ## Docs
 
@@ -69,12 +68,13 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the system is built |
 | [docs/system_map/README.md](docs/system_map/README.md) | System Map — connections & authority |
 | [docs/IMPLEMENTATION_TASKS.md](docs/IMPLEMENTATION_TASKS.md) | Roadmap, gaps, software/product debt |  
-| [docs/HARDWARE_DEBT.md](docs/HARDWARE_DEBT.md) | Physics debt gated on T1/T2 lab (ESC η, battery C-rate, sag) |
+| [docs/HARDWARE_DEBT.md](docs/HARDWARE_DEBT.md) | Physics debt gated on T1/T2 lab (ESC η, battery C-rate, sag, OP→consumo) |
 | [.jes/artifacts/cli_findings_post_catalog_bind_v1.md](.jes/artifacts/cli_findings_post_catalog_bind_v1.md) | Living CLI findings register (G9–G20) |
 | [src/jarvis/README.md](src/jarvis/README.md) | Deeper product / flow reference |
 
 ## Tags
 
+`v0.3.7` / `checkpoint-structure-representation-closed` — Structure representation arc closed (catalog→parts→rebind→plates); suite **2294**.  
 `v0.3.6` / `checkpoint-experimental-prop-energy-closed` — experimental prop/energy/Structure A/fail-routing construction closed; knowledge-parity phase starts.  
 `v0.3.5` / `checkpoint-phase25-hover-energy` — Phase 2.5 honest hover-regime autonomy.  
 `v0.3.4` / `checkpoint-motor-op-voltage-coherence` — motor OP voltage gate + DSE live params.  

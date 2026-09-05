@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "No open IC. Structure CLOSED+smoke ACCEPT. Optimization deferred until pain. Prop/Energy = HD-004 wall. Idle.",
-  "scope": "engineer_lock_system_optimization_deferred \u2014 checkpoint Structure arc.",
-  "execution_status": "idle_no_open_prioridad",
+  "cycle_intent": "Release v0.3.7 Structure representation closed. No open IC. Optimization deferred. Prop/Energy = HD-004 wall. Idle.",
+  "scope": "v0.3.7 / checkpoint-structure-representation-closed",
+  "execution_status": "v037_released_idle",
   "current_mode": "Idle \u2014 await Engineer-named pain/evidence (not Vision-driven Optimization)",
   "movement_trigger": {
-    "type": "engineer_lock",
-    "note": "2026-09-05 Optimization deferred; Structure checkpoint"
+    "type": "release",
+    "note": "2026-09-05 v0.3.7 Structure representation arc"
   },
   "relevant_workflow_phases": [
     "idle"
@@ -66,7 +66,7 @@
     "Free-text multi-plate / completeness hardcode / G-N* / C3 = debt",
     "M0 / MEASURE / CAD / FEA / arm\u2194motor out",
     "Artifacts: investigation/implementation/review only",
-    "v0.3.6 checkpoint \u2705",
+    "v0.3.7 / checkpoint-structure-representation-closed \u2705",
     "Hardware HD-* PARKED \u2014 never PRIORIDAD AHORA"
   ],
   "checkpoints": {
@@ -81,7 +81,9 @@
     "v0.3.5": "fc46938b64c757bc9e1ab7f5e69e91bde30ad174",
     "checkpoint-phase25-hover-energy": "fc46938b64c757bc9e1ab7f5e69e91bde30ad174",
     "v0.3.6": "f70b2787f87a92f5b549ea26a7b23ecfd052ce17",
-    "checkpoint-experimental-prop-energy-closed": "f70b2787f87a92f5b549ea26a7b23ecfd052ce17"
+    "checkpoint-experimental-prop-energy-closed": "f70b2787f87a92f5b549ea26a7b23ecfd052ce17",
+    "v0.3.7": "PENDING_RELEASE_COMMIT",
+    "checkpoint-structure-representation-closed": "PENDING_RELEASE_COMMIT"
   },
   "arc": {
     "validation_case_investigation": "CHECKPOINTED",
