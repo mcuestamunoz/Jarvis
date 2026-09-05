@@ -85,8 +85,8 @@
     "checkpoint-experimental-prop-energy-closed": "f70b2787f87a92f5b549ea26a7b23ecfd052ce17",
     "v0.3.7": "dbaf3b9864a97823d530faefb95afed83d41286d",
     "checkpoint-structure-representation-closed": "dbaf3b9864a97823d530faefb95afed83d41286d",
-    "v0.3.8": "PENDING_RELEASE_COMMIT",
-    "checkpoint-spatial-board-projector": "PENDING_RELEASE_COMMIT"
+    "v0.3.8": "f3deae05e5e32bdedf7d3122bc49220b75ef4918",
+    "checkpoint-spatial-board-projector": "f3deae05e5e32bdedf7d3122bc49220b75ef4918"
   },
   "arc": {
     "validation_case_investigation": "CHECKPOINTED",
