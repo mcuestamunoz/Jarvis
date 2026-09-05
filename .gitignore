@@ -32,3 +32,7 @@ src/jarvis/runtime/llm_logs/
 
 # Local CLI walk workspaces (not product source)
 workspace/
+
+# Spatial board visor
+ui/spatial-board/node_modules/
+ui/spatial-board/dist/

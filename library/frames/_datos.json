@@ -1,0 +1,75 @@
+{
+  "tbs_source_one_v5_5in": {
+    "manufacturer": "Team BlackSheep",
+    "model": "TBS Source One V5",
+    "mass_g": 123.5,
+    "size_class_inch": 5,
+    "wheelbase_mm": 226,
+    "configuration": "quad_x",
+    "arm_thickness_mm": 6,
+    "plates": [
+      {"label": "Top", "thickness_mm": 2},
+      {"label": "Middle", "thickness_mm": 2},
+      {"label": "Bottom", "thickness_mm": 2.5}
+    ],
+    "identity_status": "verified",
+    "source_url": "https://www.racedayquads.com/products/tbs-source-one-v5-5-freestyle-long-range-frame",
+    "source_note": "Retailer product page states frame weight 123.5g, 5\" wide-stance X configuration freestyle/long-range frame, wheelbase 226mm, arm thickness 6mm, plate thicknesses Top 2mm / Middle 2mm / Bottom 2.5mm (curated from the page's own spec list — not the full Included kit). Material not stated on this page — omitted, not invented. No cage/standoff breakdown stated."
+  },
+  "tbs_source_one_v5_1_7in_dc": {
+    "manufacturer": "Team BlackSheep",
+    "model": "TBS Source One V5.1 7-inch DC",
+    "mass_g": 143.5,
+    "size_class_inch": 7,
+    "wheelbase_mm": 320,
+    "configuration": "deadcat",
+    "arm_thickness_mm": 6,
+    "plates": [
+      {"label": "Top/Middle", "thickness_mm": 2},
+      {"label": "Bottom", "thickness_mm": 2.5}
+    ],
+    "identity_status": "verified",
+    "source_url": "https://www.progressiverc.com/products/tbs-source-one-v5-7-inch-dc-quad-frame",
+    "source_note": "Retailer product page states frame weight 143.5g, 7\" deadcat (DC) configuration, 320mm motor-to-motor, fuselage thickness spec lists 6mm arms, 2.5mm bottom plate, 2mm top/middle plate (curated from the page's own spec list — not the full Included kit). Material not stated on this page — omitted, not invented. No cage/standoff breakdown stated."
+  },
+  "iflight_xl7_v4_7in": {
+    "manufacturer": "iFlight",
+    "model": "XL7 V4 True-X Long Range",
+    "mass_g": 119.1,
+    "size_class_inch": 7,
+    "material": "fibra de carbono",
+    "wheelbase_mm": 285,
+    "configuration": "quad_x",
+    "arm_thickness_mm": 5,
+    "plates": [
+      {"label": "upper and lower plate", "thickness_mm": 2},
+      {"label": "vertical side plates", "thickness_mm": 1.5}
+    ],
+    "identity_status": "verified",
+    "source_url": "https://www.fpv24.com/en/iflight/iflight-xl7-v4-long-range-fpv-frame",
+    "source_note": "Retailer product page states frame weight ~119.1g, 7\" True-X long-range frame, wheelbase 285mm, full 3K carbon-fiber airframe, technical specs list 5mm arms, 2mm upper/lower plate, 1.5mm vertical side plates (curated from the page's own spec list — not the full Included kit). No separate per-part material breakdown stated — root material only."
+  },
+  "armattan_rooster_5in": {
+    "manufacturer": "Armattan Quads",
+    "model": "Rooster 5\"",
+    "mass_g": 125,
+    "size_class_inch": 5,
+    "material": "fibra de carbono",
+    "wheelbase_mm": 230,
+    "configuration": "quad_x",
+    "arm_material": "fibra de carbono",
+    "arm_thickness_mm": 4,
+    "plate_material": "fibra de carbono",
+    "plates": [
+      {"label": "Main Plate", "thickness_mm": 4, "material": "fibra de carbono"},
+      {"label": "Top (LiPo) plate", "thickness_mm": 2},
+      {"label": "Small front (top) plate", "thickness_mm": 1.5},
+      {"label": "Small rear (top) plate", "thickness_mm": 1.5}
+    ],
+    "cage_material": "titanio",
+    "standoff_material": "aluminio",
+    "identity_status": "verified",
+    "source_url": "https://armattanquads.com/products/rooster-1",
+    "source_note": "Manufacturer's own product page (armattanquads.com) states approx. 125g frame weight, Compressed-X configuration (mapped to quad_x), 230mm motor-to-motor @5in, carbon fiber main plate/arms (arm thickness 4mm), titanium cage, aluminum standoffs. Plate thicknesses curated from the page's own spec list (not the full Included kit): Main Plate 4mm (carbon), Top/LiPo plate 2mm, Small front/rear (top) plates 1.5mm each. No explicit arm/plate/standoff counts stated on the page — left unset, not inferred from the X-configuration name."
+  }
+}

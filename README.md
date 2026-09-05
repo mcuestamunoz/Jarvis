@@ -26,6 +26,12 @@ python -m jarvis.main --chat
 jarvis --chat
 ```
 
+**Pizarra** (visor de componentes; el CLI sigue mutando el diseño):
+
+```bash
+jarvis board
+```
+
 **Tests:**
 
 ```bash
@@ -50,6 +56,8 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 - Structure A: frame mass + size-class compatibility (level A)
 - CLI fail-routing coherence (frame next-missing; FAIL ≠ WARNING; no optimize-as-next on FAIL)
 - Phase transition: **knowledge / block parity** agenda (no default polish IC on prop/energy)
+
+**Also on `main` after the Structure representation close (still package `0.3.6` — no version bump):** claim hygiene + control parity · Structure Foundations / Catalog IC-1→3 · honesty `PASS *` · Parts Graph + G-N1 · IDLE catalog rebind · arm thickness · curated multi-plate assembly · board visor. Prop/Energy experimental = hardware wall; System Optimization deferred until demonstrated pain.
 
 ## Docs
 

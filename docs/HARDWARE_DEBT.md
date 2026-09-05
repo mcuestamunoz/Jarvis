@@ -4,6 +4,8 @@ Registro vivo de **física que Jarvis no inventa**. Cada ítem necesita **T1** (
 
 **Cola:** HD-* **nunca** es 🔴 PRIORIDAD ACTUAL en `IMPLEMENTATION_TASKS.md`. Engineer (2026-09-03): no hay equipo, banco ni herramientas de laboratorio; no hay campaña T1/T2. Aparcar OPEN está bien. Los agentes **no** proponen HD-* como “siguiente” al cerrar un IC de producto.
 
+**Engineer lock (2026-09-05):** autonomía / Prop-Energy **experimental** = **pared física** (HD-004). No abrir “Prop/Energy Evidence implementation” para fingir madurez de autonomía. Ver [`.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md`](../.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md).
+
 **Dueño:** Engineer (laboratorio / datasheet), cuando exista. Los agentes no rellenan números.  
 **Si algún día llegan datos:** apéndice JES → investigation delta → Engineer ★ **explícita** → Implementation Contract → campo sibling. **No** editar catálogo JSON ni `src/` hasta ese IC.  
 **Estado permitido:** dejar un ítem OPEN. L1 permanece `hover_energy_autonomy_min` ≈ 1.32 min (Combo A).
@@ -73,9 +75,27 @@ No añadir filas genéricas de “LiPo típico” o “η típica de ESC”.
 
 ---
 
+## HD-004 — Curva Operating Point → consumo (autonomía de vuelo)
+
+| Campo | Valor |
+|---|---|
+| **Estado** | **OPEN** — **pared física explícita** (Engineer lock 2026-09-05). **No** es cola de implementación. |
+| **SKU** | Combo motor + ESC + hélice + batería del régimen que se quiera certificar (p. ej. el del proyecto vivo) |
+| **Falta** | Tabla / curva experimental `{thrust → V, I, P, η…}` en varios puntos del régimen de vuelo — no solo OP máximo → potencia máxima |
+| **Por qué** | La autonomía `~N min` de Jarvis es **estimación energética orientativa** (Wh/W simplificado). El consumo real no es constante en 10 min; depende de empuje, RPM, tensión bajo carga, corriente, eficiencias, masa, régimen, SOC. Sin OP→consumo medido, **no** hay autonomía físicamente defendible. |
+| **T1** | Datasheet multi-punto del **mismo** conjunto motor/hélice (raro a la granularidad necesaria). |
+| **T2** | Banco instrumentado: thrust stand + medida V/I (y preferible potencia) en ≥3–4 puntos de empuje representativos del hover/cruise del vehículo. |
+| **No cierra** | Inventar SOC/sag/C-rate/η variable/térmica en software sin esta curva. HD-001/002/003 siguen siendo siblings de batería/ESC, no sustituyen esta pared. |
+| **Complejidad** | Alta — airframe o stand + hélice girando + instrumentación. |
+| **Desbloquea** | Solo tras datos + investigation delta + ★ + IC: modelo de consumo por régimen / integración de energía. **Nunca** relabelar la autonomía actual como “validada en vuelo” sin eso. |
+| **Spec** | Lock: [`.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md`](../.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md) |
+| **Boundary** | Misma disciplina que `PHASE26`/`PHASE27` — **sin** campaña de “Prop/Energy Evidence implementation” mientras no haya banco. |
+
+---
+
 ## Más adelante (no abierto)
 
-Validación de vuelo / vehículo completo. Necesita los ítems de arriba (o etiquetas honestas de que siguen faltando). No mezclar en HD-001/002.
+Validación de vuelo / vehículo completo. Necesita HD-001…004 (o etiquetas honestas de que siguen faltando). No mezclar en HD-001/002.
 
 ---
 

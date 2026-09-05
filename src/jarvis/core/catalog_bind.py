@@ -15,6 +15,7 @@ from __future__ import annotations
 from typing import Any
 
 from jarvis.core.motor_catalog_assist import MotorSuggestion
+from jarvis.domains.aerial import _frame_completeness
 from jarvis.knowledge.library import ComponentLibrary, default_library
 from jarvis.schemas.action_schema import CatalogRef, ComponentSpec, PropertyValue
 from jarvis.tools.electricity import estimate_battery_mass_kg
@@ -221,6 +222,174 @@ def bind_esc_from_catalog(
     )
 
 
+def bind_frame_from_catalog(
+    sku: str,
+    *,
+    library: ComponentLibrary | None = None,
+    base: ComponentSpec | None = None,
+) -> ComponentSpec:
+    """Structure Catalog Foundation IC-2 — project a catalog frame SKU into a
+    ``ComponentSpec`` with ``catalog_ref`` set.
+
+    Same status as the battery/propeller/ESC helpers: no CLI/UX entry point
+    calls this yet (IC-3 assist is a separate, not-yet-authorized thread) —
+    exposed as a deterministic, test-callable API. ``completeness``/
+    ``missing_fields`` are derived via ``_frame_completeness`` (the same
+    mass+material authority ``set_frame_material`` already uses) instead of
+    a hardcoded ``"high"`` like the other three binders, because a real seed
+    row may honestly lack a stated ``material`` (Structure Catalog Foundation
+    IC-1's two TBS rows) — completeness must reflect that, not paper over it.
+
+    Structure A composition, not replacement: projects the same two fields
+    ``set_frame_material``/``_frame_completeness``/
+    ``frame_class_compatibility_state`` already read (``mass_kg``,
+    ``size_class_inch``), plus optional ``material`` — never a new field,
+    never geometry/fit/strength data.
+    """
+    lib = library or default_library
+    spec = lib.get_frame(sku)
+    catalog_ref = CatalogRef(family="frame", sku=sku)
+    projected = {
+        "mass_kg": PropertyValue(
+            value=spec.mass_g / 1000.0, unit="kg", confidence=0.95, source="declared"
+        ),
+        "size_class_inch": PropertyValue(
+            value=spec.size_class_inch, unit="in", confidence=0.95, source="declared"
+        ),
+    }
+    if spec.material is not None:
+        projected["material"] = PropertyValue(
+            value=spec.material, unit=None, confidence=0.9, source="declared"
+        )
+    # Structure B Parts Graph (Fase 1) — root-only additive projections;
+    # neither enters _frame_completeness (still mass+material only).
+    if spec.wheelbase_mm is not None:
+        projected["wheelbase_mm"] = PropertyValue(
+            value=spec.wheelbase_mm, unit="mm", confidence=0.95, source="declared"
+        )
+    if spec.configuration is not None:
+        projected["configuration"] = PropertyValue(
+            value=spec.configuration, unit=None, confidence=0.9, source="declared"
+        )
+    if base is not None:
+        merged_properties = {**(base.properties or {}), **projected}
+        completeness, missing_fields = _frame_completeness(merged_properties)
+        return base.model_copy(update={
+            "properties": merged_properties,
+            "completeness": completeness,
+            "missing_fields": missing_fields,
+            "catalog_ref": catalog_ref,
+        })
+    completeness, missing_fields = _frame_completeness(projected)
+    return ComponentSpec(
+        name=sku,
+        component_type="structure",
+        suggested_key="frame",
+        inference_confidence=0.95,
+        completeness=completeness,
+        missing_fields=missing_fields,
+        source="declared",
+        properties=projected,
+        catalog_ref=catalog_ref,
+    )
+
+
+def frame_part_specs_from_catalog(sku: str, *, library: ComponentLibrary | None = None) -> dict[str, ComponentSpec]:
+    """Structure B Parts Graph (Fase 1) — project a catalog frame SKU's
+    declared part-level fields into child ``ComponentSpec`` objects, keyed
+    by the locked dict keys (``FRAME_ARM_KEY`` etc.), each with
+    ``parent_key="frame"``.
+
+    Returns an **empty dict** when the SKU has no part fields — no fabricated
+    children, same "no part fields → no children" rule ``bind_frame_from_catalog``
+    itself follows for the root. With curated ``plates`` / ``arm_thickness_mm``
+    seeded (2026-09-05), all four current seed rows typically project at least
+    an arm and one or more plate siblings. Pure projection; does not write to any
+    ``ProjectState`` — the caller (catalog-assist apply path) upserts these
+    via ``component_writers.upsert_frame_part``.
+    """
+    from jarvis.domains.aerial import (
+        FRAME_ARM_KEY,
+        FRAME_CAGE_KEY,
+        FRAME_PLATE_KEY,
+        FRAME_PLATE_MAX_SIBLINGS,
+        FRAME_STANDOFF_KEY,
+        frame_plate_key,
+    )
+
+    lib = library or default_library
+    spec = lib.get_frame(sku)
+    parts: dict[str, ComponentSpec] = {}
+
+    def _part(
+        key: str,
+        component_type_label: str,
+        count: int | None,
+        material: str | None,
+        thickness_mm: float | None = None,
+        label: str | None = None,
+    ) -> None:
+        if count is None and material is None and thickness_mm is None and label is None:
+            return
+        props: dict[str, PropertyValue] = {}
+        if count is not None:
+            props["count"] = PropertyValue(value=count, unit=None, confidence=0.9, source="declared")
+        if material is not None:
+            props["material"] = PropertyValue(value=material, unit=None, confidence=0.9, source="declared")
+        if thickness_mm is not None:
+            props["thickness_mm"] = PropertyValue(
+                value=thickness_mm, unit="mm", confidence=0.9, source="declared"
+            )
+        if label is not None:
+            props["label"] = PropertyValue(value=label, unit=None, confidence=0.9, source="declared")
+        # N6 (locked, not "fixed" incidentally): every catalog-projected part
+        # is hardcoded "high" here, independent of _structure_part_completeness
+        # (which only free-text/upsert_frame_part ever call). Known
+        # inconsistency, named debt — see investigation report / IC §3.3.4.
+        parts[key] = ComponentSpec(
+            name=key,
+            component_type="structure_part",
+            suggested_key=key,
+            inference_confidence=0.9,
+            properties=props,
+            completeness="high",
+            source="declared",
+            parent_key="frame",
+        )
+
+    # thickness_mm (Structure B additive enrichment B2) projects onto
+    # frame_arm only — cage/standoff never carry it in this slice.
+    _part(FRAME_ARM_KEY, "arm", spec.arm_count, spec.arm_material, spec.arm_thickness_mm)
+
+    # Frame Assembly Physical Model B2 (N2 precedence): when curated
+    # `plates` is set (non-empty), it is the ONLY plate source — the legacy
+    # plate_count/plate_material scalars are ignored entirely, never merged
+    # or used as a fallback/fifth path. Each curated entry becomes its own
+    # ordinal sibling (frame_plate, frame_plate_2, ...) even when two
+    # entries share the same thickness (N3 — never merged by equal value).
+    if spec.plates:
+        if len(spec.plates) > FRAME_PLATE_MAX_SIBLINGS:
+            raise ValueError(
+                f"Frame '{sku}': {len(spec.plates)} plates declared, "
+                f"max {FRAME_PLATE_MAX_SIBLINGS} ordinal siblings."
+            )
+        for index, plate in enumerate(spec.plates):
+            _part(
+                frame_plate_key(index),
+                "plate",
+                None,
+                plate.material,
+                plate.thickness_mm,
+                plate.label,
+            )
+    else:
+        _part(FRAME_PLATE_KEY, "plate", spec.plate_count, spec.plate_material)
+
+    _part(FRAME_CAGE_KEY, "cage", None, spec.cage_material)
+    _part(FRAME_STANDOFF_KEY, "standoff", spec.standoff_count, spec.standoff_material)
+    return parts
+
+
 # G24D (Frankenstein .name clear, ★ locked §2.4): fixed, honest label for a
 # motor whose catalog_ref was just cleared by divergence — replaces the
 # stale SKU string so a BOM/estado reader never mistakes a no-longer-bound
@@ -229,6 +398,10 @@ def bind_esc_from_catalog(
 # pattern) and never a live library key — see
 # test_impl_d_sku_bom.py::test_frankenstein_motor_name_is_never_a_real_sku.
 _DIVERGED_MOTOR_NAME: str = "motor (parámetros divergentes)"
+
+# Structure Catalog Foundation IC-2 — same G24D discipline for frame: never
+# SKU-shaped, never a live library key.
+_DIVERGED_FRAME_NAME: str = "frame (parámetros divergentes)"
 
 
 def invalidate_diverged_catalog_refs(
@@ -270,6 +443,25 @@ def invalidate_diverged_catalog_refs(
     ``catalog_ref`` and reverts ``battery_mass_kg`` to the 150 Wh/kg
     heuristic (``estimate_battery_mass_kg``) — the same fallback an unbound
     battery already uses.
+
+    Frame (Structure Catalog Foundation IC-2): a different shape from
+    motor/battery because ``size_class_inch`` has no ``current_parameters``
+    mirror at all (Structure A §2.2 — component-property-only, locked) and
+    free-text ``set_frame_material`` already clears ``catalog_ref`` by
+    construction on any rewrite (a new ``ComponentSpec`` is always built,
+    never copying a prior ref) — so there is no free-text-vs-bound-property
+    divergence path to reconcile here, unlike motor/battery. Instead:
+    (1) SKU vanished from the library → clear (frankenstein-safe, never
+    invented); (2) the bound component's own ``mass_kg``/``size_class_inch``
+    no longer match what the live ``FrameSpec`` declares → clear (catches a
+    corrected/removed seed row); (3) ``params["structure_mass_override_kg"]``
+    diverges from the component's own ``mass_kg`` → clear (same
+    params-bypass hazard class as motor/battery, for the one frame field
+    that does have a params mirror). On any divergence: clear ``catalog_ref``
+    and rename to ``_DIVERGED_FRAME_NAME`` — mass/class properties
+    themselves are left untouched (no fallback needed; free-text physics
+    already treats any declared mass/class the same way regardless of
+    provenance).
     """
     updated_components = dict(components)
     updated_params = dict(params)
@@ -304,6 +496,35 @@ def invalidate_diverged_catalog_refs(
         ):
             updated_components["battery"] = battery.model_copy(update={"catalog_ref": None})
             updated_params["battery_mass_kg"] = estimate_battery_mass_kg(float(new_value))
+            changed = True
+
+    frame = components.get("frame")
+    if frame is not None and frame.catalog_ref is not None and frame.catalog_ref.family == "frame":
+        sku = frame.catalog_ref.sku
+        diverged = not default_library.has_frame(sku)
+        if not diverged:
+            live = default_library.get_frame(sku)
+            mass_prop = frame.properties.get("mass_kg")
+            mass_value = float(mass_prop.value) if mass_prop is not None and mass_prop.value is not None else None
+            size_prop = frame.properties.get("size_class_inch")
+            size_value = float(size_prop.value) if size_prop is not None and size_prop.value is not None else None
+            if mass_value is not None and abs(mass_value - live.mass_g / 1000.0) > epsilon:
+                diverged = True
+            if size_value is not None and abs(size_value - live.size_class_inch) > epsilon:
+                diverged = True
+            override = updated_params.get("structure_mass_override_kg")
+            if (
+                not diverged
+                and mass_value is not None
+                and override is not None
+                and abs(mass_value - float(override)) > epsilon
+            ):
+                diverged = True
+        if diverged:
+            updated_components["frame"] = frame.model_copy(update={
+                "catalog_ref": None,
+                "name": _DIVERGED_FRAME_NAME,
+            })
             changed = True
 
     if not changed:

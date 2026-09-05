@@ -70,19 +70,32 @@ Default stance: prefer investigation / product lock over implementation until
 
 ---
 
-## 5. Candidate first threads (not ordered, not authorized)
+## 5. Candidate threads
 
-These are **names for Engineer choice**, not a queue to execute:
+**Chosen closed:** Claim hygiene under ASSEMBLY READY — **CLOSED** (suite **2160**).
 
-- **Control parity** — what “control complete” may claim without control physics.
-- **Claim hygiene under ASSEMBLY READY** — PASS + warnings (`low_margin`,
-  `risky`) vs Continuity “Diseño validado”.
-- **OP / propulsion evidence strength** — when “CERRADO — evidencia débil”
-  must block stronger language (knowledge, not scoring rewrite).
-- **Catalog honesty (C-A1)** — only if treated as a semantics decision for
-  what a listed newton means.
-- **Hardware debt (HD-001 / HD-002)** — only with lab; never PRIORIDAD AHORA
-  by default.
+**Chosen closed:** **Control parity B1** — **CLOSED** (suite **2164**).
+[implementation_review_control_parity.md](implementation_review_control_parity.md).
+
+**Phase status:** both planned knowledge/block-parity threads done. Awaiting
+Engineer ★ to **close this phase** and name the next feature cycle.
+
+Remaining (not ordered, not authorized until Engineer picks):
+
+- **OP / propulsion evidence strength** / weak-OP Continuity wiring (N4 residual)
+- **B2** declaration-only subsystems vs ASSEMBLY_READY (future ★)
+- **Catalog honesty (C-A1)** — only as semantics decision
+- **Hardware debt (HD-001 / HD-002)** — only with lab
+- C-081 / C-108 map debt (not phase-default)
+
+Frozen unless reopened: P26 / P27-A loaded autonomy, H5 ESC catalog, G24-B
+scoring rewrite, CAD/FEA, Conversation Engine, broad `orchestrator.py` split.
+
+Remaining (not ordered, not authorized until Engineer picks):
+
+- **OP / propulsion evidence strength** / weak-OP Continuity wiring (N4 residual)
+- **Catalog honesty (C-A1)** — only as semantics decision
+- **Hardware debt (HD-001 / HD-002)** — only with lab
 
 Frozen unless reopened: P26 / P27-A loaded autonomy, H5 ESC catalog, G24-B
 scoring rewrite, CAD/FEA, Conversation Engine, broad `orchestrator.py` split.
@@ -93,8 +106,10 @@ scoring rewrite, CAD/FEA, Conversation Engine, broad `orchestrator.py` split.
 
 - No `src/` without a ratified IC named after an Engineer choice from §4–§5.
 - No “small polish IC” on prop/energy/routing as the default next cycle.
-- JES may draft an **Investigation Contract** only after the Engineer picks a
-  thread in §5 (or an equivalent knowledge question).
+- **Claim hygiene:** Investigation Contract is open — Claude writes the report;
+  no IC until review + Engineer ★ on the claim matrix.
+- Other §5 threads: JES may draft an Investigation Contract only after the
+  Engineer picks them.
 
 ---
 

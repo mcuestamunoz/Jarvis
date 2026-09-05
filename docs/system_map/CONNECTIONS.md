@@ -33,6 +33,8 @@ CONNECTIONS.md
 
 **Phase 2.5–2.7-B + Option A (2026-09-01):** No registry change. **C-060** detail: user `calcular`/`iterate`/simulate-rebuild wrap `build()` via `endurance_sweep_writer` (4S labeled L2, ephemeral). `CalculationEngine.build` stays opt-in; DSE apply stays a bare `build()`. Lab remainder is [`docs/HARDWARE_DEBT.md`](../HARDWARE_DEBT.md), not a map edge. **No new C-xxx.**
 
+**Structure catalog + parts + IDLE rebind + plate multiplicity (2026-09-04→05):** No new C-xxx. **C-030** detail expanded to frame catalog pick / IDLE rebind / `frame_part_specs_from_catalog` (arm thickness + curated ordinal plates). Continuity/State/Acquisition maps synced. Live suite **2294**.
+
 **Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables. The only authoritative count is the length of **Canonical registry** below.
 
 Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror this registry; if they diverge, **this file wins**.
@@ -69,7 +71,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-023 | Intent (`define_params`) | `start_define_missing_params` bridge | 🟢 |
 | C-024 | Intent (`dismiss_suggestion`) | `_handle_dismiss_suggestion` | 🟢 |
 | C-025 | "ayúdame" + named goal | Intent → engineering_intent (was analyze) | 🟢 (FN-025) |
-| C-030 | Runtime (IDLE) | FN-005 assisted motor help | 🟢 |
+| C-030 | Runtime (IDLE) | FN-005 assisted motor help / catalog pick (motor·prop·battery·frame) + IDLE rebind | 🟢 |
 | C-031 | Runtime (IDLE) | FN-014 acquisition mention → wizard open | 🟢 |
 | C-032 | ~~Runtime (IDLE) FN-015 pending-help~~ | REMOVED (G23) | ⛔ |
 | C-033 | Runtime (DEFINE_MISSING) | FN-013 reprompt active block | 🟢 |
@@ -326,18 +328,18 @@ Evidence: `core/orchestrator.py:846,850,864,906`.
 
 ## Detail — 03 Acquisition
 
-### C-030 — Runtime (IDLE + DEFINE_MISSING) → catalog pick UX (motor / propeller / battery)
+### C-030 — Runtime (IDLE + DEFINE_MISSING) → catalog pick UX (motor / propeller / battery / frame)
 | Field | Value |
 |---|---|
 | Kind | CONTROL |
-| Mechanism | phrase match + numbered list + pick index |
-| Symbols | `is_help_choose_phrase`, `_try_start_assisted_motor_help`; `_offer/_apply_component_{motor,propeller,battery}_catalog*`; `catalog_bind.bind_*_from_catalog` → `component_writers.set_*` |
-| Payload | `"ayúdame a elegir"`, pick `N` |
-| Authority | `motor_catalog_assist.py`, `battery_catalog_assist.py`, `catalog_bind.py`, orchestrator pick handlers |
-| Mutation | YES (bind + component writer). Battery pick calls `set_battery_component` only at orchestrator layer; that writer **conditionally** re-calls `set_motor_component` when OP was never voltage-validated or pack voltage changed beyond `_OP_VOLTAGE_EPSILON_V` (v0.3.4 MOP-2). Unconditional motor re-call on every battery bind remains forbidden (P2-2/IC2 lock). |
+| Mechanism | phrase match + numbered list + pick index; IDLE rebind reopen after arch 4/4 |
+| Symbols | `is_help_choose_phrase`, `_try_start_assisted_motor_help`; `_offer/_apply_component_{motor,propeller,battery,frame}_catalog*`; `catalog_bind.bind_*_from_catalog` / `frame_part_specs_from_catalog` → `component_writers.set_*` / `upsert_frame_part`; IDLE `resolve_idle_catalog_rebind` + `clear_frame_part_children` on frame re-pick |
+| Payload | `"ayúdame a elegir"`, `"cambiar frame"` / motors/propellers/battery pure phrases, pick `N` |
+| Authority | `motor_catalog_assist.py`, `battery_catalog_assist.py`, `frame_catalog_assist.py`, `catalog_rebind_assist.py`, `catalog_bind.py`, orchestrator pick handlers |
+| Mutation | YES (bind + component writer). Battery pick calls `set_battery_component` only at orchestrator layer; that writer **conditionally** re-calls `set_motor_component` when OP was never voltage-validated or pack voltage changed beyond `_OP_VOLTAGE_EPSILON_V` (v0.3.4 MOP-2). Unconditional motor re-call on every battery bind remains forbidden (P2-2/IC2 lock). Frame pick projects curated part children (arm thickness + ordinal plates when seeded). |
 | LLM | NO |
-| Status | 🟢 CONNECTED (G21 motor; v0.3.0 propeller; IC 2 battery + G27 hardening; v0.3.4 MOP-2 conditional OP re-resolve) |
-| Evidence | `core/orchestrator.py`, `core/motor_catalog_assist.py`, `core/battery_catalog_assist.py`, `core/catalog_bind.py`, `core/component_writers.py` (`set_battery_component` tail), `tests/test_propeller_catalog_bind_ux.py`, `tests/test_battery_catalog_bind_ux.py`, `tests/test_dse_motor_op_dual_truth.py` |
+| Status | 🟢 CONNECTED (G21 motor; v0.3.0 propeller; IC 2 battery + G27; Structure frame IC-2/IC-3 + IDLE rebind B2+B3; plate multiplicity B2 @ 2294; v0.3.4 MOP-2 conditional OP re-resolve) |
+| Evidence | `core/orchestrator.py`, `core/motor_catalog_assist.py`, `core/battery_catalog_assist.py`, `core/frame_catalog_assist.py`, `core/catalog_rebind_assist.py`, `core/catalog_bind.py`, `core/component_writers.py`, `tests/test_propeller_catalog_bind_ux.py`, `tests/test_battery_catalog_bind_ux.py`, `tests/test_frame_catalog_bind_ux.py`, `tests/test_idle_frame_rebind_b2.py`, `tests/test_idle_catalog_rebind_b3.py`, `tests/test_frame_parts_graph_v1.py`, `tests/test_dse_motor_op_dual_truth.py` |
 
 ### C-031 — Runtime (IDLE) → FN-014 acquisition mention → wizard open
 | Field | Value |
@@ -855,7 +857,7 @@ User-facing `calcular` may two-pass via `build_with_estimative_sweep` (4S labele
 |---|---|
 | Kind | STATE |
 | Mechanism | direct call, atomic write to `components[key]` + mirrored `current_parameters` |
-| Symbols | `set_frame_material`, `set_control_component`, `set_battery_component`, `set_motor_component`, `set_propeller_component`, `apply_components_delta` |
+| Symbols | `set_frame_material`, `merge_frame_root_declared_properties`, `upsert_frame_part`, `set_control_component`, `set_battery_component`, `set_motor_component`, `set_propeller_component`, `apply_components_delta` |
 | Payload | `ComponentSpec` → `ProjectState` update |
 | Authority | `component_writers.py` — **the only** legal writer of `design_properties.components` |
 | Mutation | YES |

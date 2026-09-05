@@ -375,6 +375,12 @@ _MEASURABLE = frozenset({
     "sensor_type",
     "material",
     "model",
+    # Structure B Parts Graph (Fase 1): declared root/part fields — routed
+    # the same as "material"/"model" (name/label-only measurable signal,
+    # not a physics quantity), never widening Structure PASS.
+    "configuration",
+    "wheelbase_mm",
+    "count",
 })
 
 
@@ -508,6 +514,8 @@ def _bom_sku_resolved(catalog_ref: dict[str, str] | None) -> bool:
         return default_library.has_propeller(sku)
     if family == "esc":
         return default_library.has_esc(sku)
+    if family == "frame":
+        return default_library.has_frame(sku)  # Structure Catalog Foundation IC-2
     return False  # no v1 resolve path for other families (★2)
 
 
@@ -611,11 +619,20 @@ def build_component_bom(project_state: Any) -> dict[str, Any]:
         if spec is None:
             missing.append(key)
             continue
+        if getattr(spec, "parent_key", None) is not None:
+            continue
         _classify(key, spec)
 
     # Extra components not in architecture blocks — same classification rules
     for key, spec in components.items():
         if key in expected_keys:
+            continue
+        # Structure B Parts Graph (Fase 1) — Cursor review N1: a declared
+        # frame part (parent_key set) is display-only under its parent
+        # (format_bom_lines), never a top-level BOM peer — an orphaned
+        # parent_key (parent missing from components) is still excluded
+        # here, never silently promoted to a peer entry.
+        if getattr(spec, "parent_key", None) is not None:
             continue
         _classify(key, spec)
 
@@ -710,24 +727,126 @@ def _bom_quantity_suffix(entry: dict[str, Any]) -> str:
     return "" if qty is None else f" qty={qty}"
 
 
-def format_bom_lines(bom: dict[str, Any]) -> list[str]:
+def _bom_completeness_tail(entry: dict[str, Any], project_state: Any = None) -> str:
+    """Control parity IC §2.2: ``flight_controller`` reaches the ``defined``
+    bucket via brand/model name recognition alone (``_MEASURABLE`` includes
+    ``"model"``, a string identity field, alongside real physics quantities
+    like ``thrust_n``) — never a measured engineering value. Name that here,
+    for this one key only; every other ``defined`` entry (motors, battery,
+    propellers, ESC) keeps the plain ``(completeness)`` tail.
+
+    Structure Foundations IC §2.1: ``frame`` reaching ``defined`` (mass +
+    material, per ``_frame_completeness``) never reads ``size_class_inch`` —
+    it can be "high" while a live ``GAP-FRAME-SIZE-MISSING``/
+    ``GAP-FRAME-PROP-SIZE`` still blocks the ``structure`` subsystem. Name
+    that here too, from the same LEVEL A predicate Structure A already
+    computes (``frame_class_compatibility_state`` — never re-derived, never
+    a new screening rule). ``project_state`` is optional so existing callers
+    without one keep the plain tail (backward compatible)."""
+    completeness = entry.get("completeness")
+    if entry.get("key") == "flight_controller":
+        return f"{completeness} — identidad, sin dato físico"
+    if entry.get("key") == "frame" and project_state is not None:
+        state = frame_class_compatibility_state(project_state)
+        if state == "missing":
+            return f"{completeness} — compatibilidad de clase nivel A pendiente"
+        if state == "class_incompatible":
+            return f"{completeness} — clase incompatible nivel A"
+    return str(completeness)
+
+
+_FRAME_PART_LABELS: dict[str, str] = {
+    "frame_arm": "arm",
+    "frame_plate": "plate",
+    "frame_cage": "cage",
+    "frame_standoff": "standoff",
+}
+
+
+def _frame_part_sublines(project_state: Any) -> list[str]:
+    """Structure B Parts Graph (Fase 1) + additive enrichment B2 + Frame
+    Assembly Physical Model B2 (plate multiplicity) — display-only
+    sub-lines for declared frame parts (Cursor review N1): never a
+    top-level BOM peer, never read by any gap builder or
+    ``_derive_subsystem_verdict``. Locked order: arm, then every present
+    plate sibling in ordinal order (``frame_plate``..``frame_plate_8``),
+    then cage, then standoff. A part with none of ``count``/``material``/
+    ``thickness_mm``/``label`` declared is skipped (nothing honest to
+    show). A curated plate's ``label`` (verbatim from source, never a role
+    taxonomy — investigation report §B7) takes the display slot ``material``
+    would otherwise use; ``material`` is stored for provenance but not
+    separately echoed once a label is present, matching the IC's own
+    example shapes."""
+    from jarvis.domains.aerial import FRAME_PLATE_MAX_SIBLINGS, frame_plate_key, is_frame_plate_key
+
+    dp = getattr(project_state, "design_properties", None) if project_state is not None else None
+    components = getattr(dp, "components", None) or {}
+
+    ordered_keys = (
+        "frame_arm",
+        *(frame_plate_key(i) for i in range(FRAME_PLATE_MAX_SIBLINGS)),
+        "frame_cage",
+        "frame_standoff",
+    )
+
+    lines: list[str] = []
+    for key in ordered_keys:
+        spec = components.get(key)
+        if spec is None or getattr(spec, "parent_key", None) != "frame":
+            continue
+        props = getattr(spec, "properties", None) or {}
+        count_prop = props.get("count")
+        material_prop = props.get("material")
+        thickness_prop = props.get("thickness_mm")
+        label_prop = props.get("label")
+        count_bit = f" ×{int(count_prop.value)}" if count_prop is not None and count_prop.value is not None else ""
+        thickness_str = (
+            f"{thickness_prop.value:g}mm"
+            if thickness_prop is not None and thickness_prop.value is not None
+            else None
+        )
+        if label_prop is not None and label_prop.value:
+            desc_bit = f" — {label_prop.value}"
+            if thickness_str:
+                desc_bit += f", {thickness_str}"
+        else:
+            material_bit = f" — {material_prop.value}" if material_prop is not None and material_prop.value is not None else ""
+            if thickness_str:
+                desc_bit = f"{material_bit}, {thickness_str}" if material_bit else f" — {thickness_str}"
+            else:
+                desc_bit = material_bit
+        if not count_bit and not desc_bit:
+            continue
+        label_word = "plate" if is_frame_plate_key(key) else _FRAME_PART_LABELS[key]
+        lines.append(f"   └ {label_word}{count_bit}{desc_bit}")
+    return lines
+
+
+def format_bom_lines(bom: dict[str, Any], project_state: Any = None) -> list[str]:
     lines: list[str] = []
     for entry in bom.get("defined") or []:
         lines.append(
             f"✓ {entry['key']}: {entry.get('name') or entry['key']}"
-            f"{_bom_identity_suffix(entry)}{_bom_quantity_suffix(entry)} ({entry.get('completeness')})"
+            f"{_bom_identity_suffix(entry)}{_bom_quantity_suffix(entry)} "
+            f"({_bom_completeness_tail(entry, project_state)})"
         )
+        if entry["key"] == "frame" and project_state is not None:
+            lines.extend(_frame_part_sublines(project_state))
     for entry in bom.get("incomplete") or []:
         miss = ", ".join(entry.get("missing_fields") or []) or "incompleto"
         lines.append(
             f"… {entry['key']}: {entry.get('name') or entry['key']}"
             f"{_bom_identity_suffix(entry)}{_bom_quantity_suffix(entry)} — falta {miss}"
         )
+        if entry["key"] == "frame" and project_state is not None:
+            lines.extend(_frame_part_sublines(project_state))
     for entry in bom.get("declarative") or []:
         lines.append(
             f"◇ {entry['key']}: {entry.get('name') or entry['key']}"
             f"{_bom_identity_suffix(entry)}{_bom_quantity_suffix(entry)} (declarativo)"
         )
+        if entry["key"] == "frame" and project_state is not None:
+            lines.extend(_frame_part_sublines(project_state))
     for key in bom.get("missing") or []:
         lines.append(f"✗ {key}: no definido")
     return lines

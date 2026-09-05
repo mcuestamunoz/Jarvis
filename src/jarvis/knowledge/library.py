@@ -145,6 +145,66 @@ class EscSpec:
 
 
 @dataclass(frozen=True)
+class PlateSeed:
+    """Structure B Frame Assembly Physical Model B2 — one curated, named
+    plate on a frame's seed row. ``label`` is a verbatim-from-source display
+    string (e.g. ``"Bottom"``, ``"Main Plate"``) — never a closed role
+    vocabulary, never compared across SKUs or manufacturers (investigation
+    report §B7: no source states one manufacturer's plate name is
+    equivalent to another's). All fields optional/additive; a curated entry
+    with none set would be pointless but is not itself forbidden here — the
+    seed data (§3.2 of the IC) always sets at least ``thickness_mm``.
+    """
+
+    label: str | None = None
+    thickness_mm: float | None = None
+    material: str | None = None
+
+
+@dataclass(frozen=True)
+class FrameSpec:
+    """Structure Catalog Foundation IC-1/IC-2 + Structure B Parts Graph
+    (Fase 1) — catalog entry: a real frame kit, optionally with declared
+    part-level composition.
+
+    ``mass_g`` and ``size_class_inch`` are the two Structure A fields
+    (``_frame_completeness``, ``frame_class_compatibility_state``) bind
+    projects onto the root — required here so no incomplete seed row can
+    silently exist. The Fase 1 part/assembly fields below are all optional
+    and additive (default ``None``) — never a strength/fit/geometry field,
+    never invented when a source doesn't state them (Structure B Parts
+    Graph investigation §6/§7; every non-``None`` value in the current seed
+    traces to the row's own ``source_url``).
+    """
+
+    name: str
+    mass_g: float
+    size_class_inch: float
+    manufacturer: str | None = None
+    model: str | None = None
+    material: str | None = None
+    part_number: str | None = None
+    source_url: str | None = None
+    identity_status: str | None = None
+    source_note: str | None = None
+    # Structure B Parts Graph (Fase 1) — additive, all optional/None default.
+    wheelbase_mm: float | None = None
+    configuration: str | None = None
+    arm_count: int | None = None
+    arm_material: str | None = None
+    arm_thickness_mm: float | None = None
+    plate_count: int | None = None
+    plate_material: str | None = None
+    cage_material: str | None = None
+    standoff_count: int | None = None
+    standoff_material: str | None = None
+    # Frame Assembly Physical Model B2 — curated, ordinal plate list.
+    # Legacy scalar fallback: kept when this is None/empty (N2). Canonical
+    # over the scalar plate_count/plate_material once non-empty.
+    plates: list[PlateSeed] | None = None
+
+
+@dataclass(frozen=True)
 class PropellerSpec:
     """Catalog v1 (Impl A) entry: a real propeller."""
 
@@ -175,6 +235,7 @@ class ComponentLibrary:
         self._batteries: dict[str, BatterySpec] | None = None
         self._propellers: dict[str, PropellerSpec] | None = None
         self._escs: dict[str, EscSpec] | None = None
+        self._frames: dict[str, FrameSpec] | None = None
 
     # ── Materials ────────────────────────────────────────────────────────────
 
@@ -601,6 +662,118 @@ class ComponentLibrary:
         """Return True if *name* is in the ESC library (no exception)."""
         try:
             self.get_esc(name)
+            return True
+        except KeyError:
+            return False
+
+    # ── Frame (Structure Catalog Foundation IC-1 — schema+seed only) ────────
+
+    @staticmethod
+    def _frame_from_raw(name: str, data: dict) -> FrameSpec:
+        mass_g = data.get("mass_g")
+        if mass_g is None:
+            raise ValueError(
+                f"Frame '{name}' está incompleto en la biblioteca: "
+                "mass_g es obligatorio."
+            )
+        size_class_inch = data.get("size_class_inch")
+        if size_class_inch is None:
+            raise ValueError(
+                f"Frame '{name}' está incompleto en la biblioteca: "
+                "size_class_inch es obligatorio."
+            )
+        return FrameSpec(
+            name=name,
+            mass_g=float(mass_g),
+            size_class_inch=float(size_class_inch),
+            manufacturer=data.get("manufacturer"),
+            model=data.get("model"),
+            material=data.get("material"),
+            part_number=data.get("part_number"),
+            source_url=data.get("source_url"),
+            identity_status=data.get("identity_status"),
+            source_note=data.get("source_note"),
+            wheelbase_mm=(
+                float(data["wheelbase_mm"]) if data.get("wheelbase_mm") is not None else None
+            ),
+            configuration=data.get("configuration"),
+            arm_count=(int(data["arm_count"]) if data.get("arm_count") is not None else None),
+            arm_material=data.get("arm_material"),
+            arm_thickness_mm=(
+                float(data["arm_thickness_mm"]) if data.get("arm_thickness_mm") is not None else None
+            ),
+            plate_count=(int(data["plate_count"]) if data.get("plate_count") is not None else None),
+            plate_material=data.get("plate_material"),
+            cage_material=data.get("cage_material"),
+            standoff_count=(
+                int(data["standoff_count"]) if data.get("standoff_count") is not None else None
+            ),
+            standoff_material=data.get("standoff_material"),
+            plates=ComponentLibrary._parse_plates(name, data.get("plates")),
+        )
+
+    # Frame Assembly Physical Model B2, N7 lock: frame_plate + frame_plate_2
+    # ... frame_plate_8 — at most 8 ordinal plate siblings. Enforced here
+    # (load time), not silently truncated at projection time.
+    _MAX_PLATES = 8
+
+    @staticmethod
+    def _parse_plates(name: str, raw: Any) -> list[PlateSeed] | None:
+        if raw is None:
+            return None
+        if not isinstance(raw, list):
+            raise ValueError(
+                f"Frame '{name}': 'plates' debe ser una lista, no {type(raw).__name__}."
+            )
+        if len(raw) > ComponentLibrary._MAX_PLATES:
+            raise ValueError(
+                f"Frame '{name}': 'plates' declara {len(raw)} entradas, "
+                f"máximo {ComponentLibrary._MAX_PLATES} (frame_plate..frame_plate_8)."
+            )
+        return [
+            PlateSeed(
+                label=entry.get("label"),
+                thickness_mm=(
+                    float(entry["thickness_mm"]) if entry.get("thickness_mm") is not None else None
+                ),
+                material=entry.get("material"),
+            )
+            for entry in raw
+        ]
+
+    def _load_frames(self) -> dict[str, FrameSpec]:
+        if self._frames is not None:
+            return self._frames
+        path = self._root / "frames" / "_datos.json"
+        if not path.exists():
+            self._frames = {}
+            return self._frames
+        raw: dict[str, dict] = json.loads(path.read_text(encoding="utf-8"))
+        self._frames = {
+            _normalize_name(name): self._frame_from_raw(name, data)
+            for name, data in raw.items()
+        }
+        return self._frames
+
+    def get_frame(self, name: str) -> FrameSpec:
+        """Return exact frame by name. KeyError if not found."""
+        canonical = _normalize_name(name)
+        frames = self._load_frames()
+        if canonical not in frames:
+            available = ", ".join(sorted(frames)) or "(vacío)"
+            raise KeyError(
+                f"Frame '{name}' no está en la biblioteca. Disponibles: {available}"
+            )
+        return frames[canonical]
+
+    def list_frames(self) -> list[FrameSpec]:
+        """Return all frames sorted by name."""
+        return sorted(self._load_frames().values(), key=lambda f: f.name)
+
+    def has_frame(self, name: str) -> bool:
+        """Return True if *name* is in the frame library (no exception)."""
+        try:
+            self.get_frame(name)
             return True
         except KeyError:
             return False

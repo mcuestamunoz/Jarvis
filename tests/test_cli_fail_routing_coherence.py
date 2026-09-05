@@ -136,7 +136,41 @@ def test_frame_wizard_pvc_650g_asks_size_class_not_mass_material_on_save(tmp_pat
     assert "define los parámetros que faltan" not in message
 
 
-def test_frame_wizard_ayudame_a_elegir_asks_size_class_from_persisted_state(tmp_path: Path):
+def test_frame_wizard_unrecognized_reply_asks_size_class_from_persisted_state(tmp_path: Path):
+    """Structure Catalog Foundation IC-3 note: this test used to send
+    'ayúdame a elegir' as its follow-up phrase, but that phrase now
+    legitimately opens the frame catalog for a pending frame (IC-3's whole
+    point) — see test_frame_wizard_ayudame_a_elegir_opens_frame_catalog
+    below for that new, intended behavior. This test's actual subject was
+    always "an unrecognized follow-up re-derives the missing-datum prompt
+    from persisted state," so it now uses a neutral, non-catalog,
+    non-affirmative phrase to keep testing exactly that."""
+    o = _fresh(tmp_path)
+    ps = o.state_manager.load_active_project(o.workspace_manager)
+    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5030"))
+    o.workspace_manager.save_state(ps)
+
+    session = o.state_manager.runtime_state.session
+    updated = session.model_copy(update={
+        "mode": OrchestratorMode.DEFINE_MISSING_PARAMETERS,
+        "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
+        "pending_missing_params": ["frame"],
+        "pending_define_missing": False,
+    })
+    o.state_manager.set_runtime_session(updated)
+    o.handle_user_text("PVC 650g", _RefuseLLM())
+
+    result = o.handle_user_text("continuar", _RefuseLLM())
+    message = result.get("message") or ""
+    assert "clase en pulgadas" in message
+    assert "Indica material y masa" not in message
+
+
+def test_frame_wizard_ayudame_a_elegir_opens_frame_catalog(tmp_path: Path):
+    """Structure Catalog Foundation IC-3: with frame pending and no
+    catalog_ref yet, 'ayúdame a elegir' now opens the real curated frame
+    catalog (IC-1 seed) instead of falling through to the generic
+    missing-datum prompt."""
     o = _fresh(tmp_path)
     ps = o.state_manager.load_active_project(o.workspace_manager)
     ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5030"))
@@ -154,8 +188,8 @@ def test_frame_wizard_ayudame_a_elegir_asks_size_class_from_persisted_state(tmp_
 
     result = o.handle_user_text("ayúdame a elegir", _RefuseLLM())
     message = result.get("message") or ""
-    assert "clase en pulgadas" in message
-    assert "Indica material y masa" not in message
+    assert "Frames del catálogo" in message
+    assert "clase en pulgadas" not in message
 
 
 # ── §2.4/§2.6 — FAIL vs WARNING, no false thrust-PASS claim ─────────────────

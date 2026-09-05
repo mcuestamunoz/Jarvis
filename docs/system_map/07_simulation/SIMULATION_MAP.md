@@ -17,7 +17,7 @@
 ## Important functions (Level 2)
 
 - `FeasibilitySimulator.evaluate(calculations, autonomy_threshold) -> SimulationResult` (`:18`) — the single entry point.
-- `SuggestionEngine.generate_suggestions(simulation, calculations) -> list[Suggestion]` — threshold constants (`HIGH_MARGIN_THRESHOLD=1.8`, `LOW_MARGIN_THRESHOLD=1.3`, `HIGH_TW_RATIO_THRESHOLD=1.6`) are a **second, independent** margin-threshold table from `goal_planner._prioritize_strategies`' own `1.15`/`1.5` cutoffs — both are legitimate (different purposes: general suggestions vs. payload-goal strategy ordering), but a future H5 implementation should be aware both exist before picking a single "risky margin" cutoff for Continuity's next-step text (flagged here, not resolved).
+- `SuggestionEngine.generate_suggestions(simulation, calculations) -> list[Suggestion]` — threshold constants (`HIGH_MARGIN_THRESHOLD=1.8`, `LOW_MARGIN_THRESHOLD=1.3`, `HIGH_TW_RATIO_THRESHOLD=1.6`) are a **second, independent** margin-threshold table from `goal_planner._prioritize_strategies`' own `1.15`/`1.5` cutoffs — both are legitimate (different purposes: general suggestions vs. payload-goal strategy ordering). **Resolved (Claim Hygiene IC, 2026-09-04):** Continuity's H5 fix did not pick a third numeric cutoff — `project_continuity.margin_claim_weak` reads `simulator._resolve_quality`'s existing `"risky"` band plus the simulator's own `low_margin`/`high_actuator_load`/`low_force_to_weight_ratio` warning codes directly, so a fourth independent threshold was avoided for this one purpose. The `suggestion_engine`/`goal_planner` pair above remains its own, still-unharmonized fragmentation — flagged, not resolved.
 - `SimulateAction.run(parameters) -> dict` (`actions/simulate.py`) — load → resolve calculations → `simulator.evaluate` → `SuggestionEngine.generate_suggestions` → `ReasoningLayer.build` → `record_action` → `save_state`.
 
 ## Local state touched
@@ -30,7 +30,7 @@ NO.
 
 ## Known issues owned by this subsystem
 
-None directly (this subsystem's own output is correct and complete) — **C-081** (Continuity not reading `safety_margin_ratio` in the PASS branch) is a `08_continuity` issue, not a Simulation one; Simulation already computes and exposes the margin correctly.
+None directly (this subsystem's own output is correct and complete) — **C-081** (Continuity not reading `safety_margin_ratio`/`quality`/`warnings` in the PASS branch) was a `08_continuity` issue, not a Simulation one, and is now **closed** (Claim Hygiene IC, 2026-09-04 — see `08_continuity/CONTINUITY_MAP.md`). Simulation's own output was never the problem; it already computed and exposed the margin correctly throughout.
 
 ## Tests
 

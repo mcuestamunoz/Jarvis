@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Phase transition: prop/energy/Structure A/fail-routing experimental construction closed. Next phase = knowledge & block parity. Engineer names first thread before any IC.",
-  "scope": "Agenda only. Freeze default polish on catalog honesty C-A1, autonomy Continuity/DSE copy, fail-routing N1 residual. No src without new Engineer-named investigation/IC.",
-  "execution_status": "phase_knowledge_block_parity_awaiting_engineer_thread",
-  "current_mode": "Knowledge & block parity agenda \u2014 wait Engineer thread choice",
+  "cycle_intent": "No open IC. Structure CLOSED+smoke ACCEPT. Optimization deferred until pain. Prop/Energy = HD-004 wall. Idle.",
+  "scope": "engineer_lock_system_optimization_deferred \u2014 checkpoint Structure arc.",
+  "execution_status": "idle_no_open_prioridad",
+  "current_mode": "Idle \u2014 await Engineer-named pain/evidence (not Vision-driven Optimization)",
   "movement_trigger": {
-    "type": "phase_transition_ratified",
-    "note": "Engineer Procede 2026-09-04. Construction question \u2192 knowledge question. No feature IC opened."
+    "type": "engineer_lock",
+    "note": "2026-09-05 Optimization deferred; Structure checkpoint"
   },
   "relevant_workflow_phases": [
-    "investigation"
+    "idle"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -32,25 +32,42 @@
     "phase_transition_knowledge_parity": "\u2605 RATIFICADO (Engineer Procede 2026-09-04) \u2014 AGENDA ACTIVE, NO IC",
     "esc_bench_data_campaign": "PARKED \u2014 HD-002 \u2014 never PRIORIDAD AHORA (Engineer 2026-09-03: no lab)",
     "m3_crate_derating_campaign": "PARKED \u2014 HD-001 \u2014 never PRIORIDAD AHORA (Engineer 2026-09-03: no lab)",
-    "hover_energy_autonomy_min": "L1 MOTOR-INPUT \u2014 nameplate Wh / P_motor_input; not flight time; not a physical lower bound"
+    "hover_energy_autonomy_min": "L1 MOTOR-INPUT \u2014 nameplate Wh / P_motor_input; not flight time; not a physical lower bound",
+    "claim_hygiene_assembly_ready": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2160)",
+    "control_parity": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2164)",
+    "phase_knowledge_block_parity": "\u2605 CLOSED 2026-09-04 \u2014 claim hygiene + control parity done",
+    "structure_foundations": "\u2605 CLAIM-COPY IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2171)",
+    "structure_catalog_foundation": "\u2605 IC-1+IC-2+IC-3 CLOSED (suite 2197) + Engineer walk",
+    "structure_a_pass_meaning": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 absorbed into honesty IC",
+    "structure_b_physical_frame_model": "INVESTIGATION REVIEWED \u2014 scalar Fase 1 REJECTED (chose B)",
+    "structure_b_parts_graph": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 implemented",
+    "structure_honesty_pass_star": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2200)",
+    "structure_b_parts_graph_ic": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2223)",
+    "structure_b_gn1_freetext_root_parts": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2229)",
+    "structure_block": "\u2605 CLOSED 2026-09-04 @ suite 2229",
+    "idle_rebind_b2_b3": "\u2605 CLOSED suites 2250/2276",
+    "structure_b_thickness_arms_b2": "\u2605 CLOSED suite 2286 + smoke PASS",
+    "structure_b_frame_assembly_physical_model": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2294) + CLI smoke ACCEPT",
+    "prop_energy_experimental_wall": "\u2605 LOCKED 2026-09-05 \u2014 HD-004 physical wall \u2014 NOT software queue",
+    "system_optimization": "\u2605 DEFERRED 2026-09-05 \u2014 until demonstrated pain \u2014 NOT Vision-driven"
   },
   "required_artifacts": [
-    ".jes/artifacts/engineer_ratification_phase_transition_knowledge_parity.md",
-    ".jes/artifacts/engineer_agenda_knowledge_and_block_parity.md",
-    ".jes/artifacts/implementation_review_cli_walk_correction_package.md",
-    ".jes/artifacts/implementation_review_cli_fail_routing_coherence.md",
-    "docs/IMPLEMENTATION_TASKS.md"
+    ".jes/artifacts/implementation_contract_structure_b_frame_assembly_physical_model.md",
+    ".jes/artifacts/implementation_report_structure_b_frame_assembly_physical_model.md",
+    ".jes/artifacts/implementation_review_structure_b_frame_assembly_physical_model.md"
   ],
-  "active_operation": "knowledge_block_parity_agenda",
+  "active_operation": null,
   "authority_gates": [
-    "Phase transition \u2605 2026-09-04 \u2014 knowledge/block parity; no polish IC default",
-    "CLI fail-routing \u2705 suite 2150 REVIEW PASS WITH NOTES",
-    "Structure A + N1 hotfix \u2705 suite 2143 REVIEWED",
-    "DSE apply honest \u2705 suite 2124 REVIEW PASS WITH NOTES",
-    "Stale-energy recalc \u2705 suite 2117 REVIEW PASS WITH NOTES",
-    "v0.3.5 checkpoint \u2705",
+    "No open software PRIORIDAD \u2014 Structure checkpoint complete",
+    "System Optimization DEFERRED until demonstrated CLI/product pain \u2014 not Vision \u00a77",
+    "Prop/Energy experimental = physical wall HD-004 \u2014 never PRIORIDAD without bench",
+    "Plate multiplicity B2 CLOSED suite 2294 + CLI smoke ACCEPT",
+    "Further KNOW Structure only with model Buy \u2014 no attribute-drip",
+    "Free-text multi-plate / completeness hardcode / G-N* / C3 = debt",
+    "M0 / MEASURE / CAD / FEA / arm\u2194motor out",
+    "Artifacts: investigation/implementation/review only",
     "v0.3.6 checkpoint \u2705",
-    "Hardware HD-* PARKED \u2014 never PRIORIDAD AHORA (Engineer: no lab equipment)"
+    "Hardware HD-* PARKED \u2014 never PRIORIDAD AHORA"
   ],
   "checkpoints": {
     "v0.3.1": "30c9aec",
@@ -94,7 +111,7 @@
     "structure_a_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES_N1_CLOSED",
     "cli_fail_routing_coherence_investigation": "CLOSED_REVISION_PASS_WITH_NOTES",
     "cli_fail_routing_coherence_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
-    "phase_transition_knowledge_parity": "RATIFIED_AGENDA_ACTIVE",
+    "phase_transition_knowledge_parity": "CLOSED_AFTER_CLAIM_HYGIENE_AND_CONTROL_PARITY",
     "catalog_foundation_investigation": "CHECKPOINTED \u2014 not first (\u26055)",
     "catalog_honesty_c_a1": "OUT_OF_PHASE_DEFAULT \u2014 Engineer may reopen as knowledge semantics",
     "frozen": [
@@ -103,7 +120,37 @@
       "PHASE25_HOVER_ENERGY_ARCHITECTURE",
       "PHASE26_P_BATTERY_BOUNDARY",
       "PHASE27_LOADED_BATTERY_BOUNDARY",
-      "PROP_ENERGY_ROUTING_POLISH_AS_DEFAULT_NEXT"
-    ]
+      "PROP_ENERGY_ROUTING_POLISH_AS_DEFAULT_NEXT",
+      "CAD_FEA_AS_DEFAULT_NEXT",
+      "STRUCTURE_A_RECLOSE_AS_DEFAULT"
+    ],
+    "claim_hygiene_assembly_ready_investigation": "REVIEWED_PASS_WITH_NOTES",
+    "claim_hygiene_assembly_ready_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "control_parity_investigation": "REVIEWED_PASS_WITH_NOTES",
+    "control_parity_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "structure_foundations_investigation": "REVIEWED_PASS_WITH_NOTES",
+    "structure_foundations_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "structure_catalog_foundation_investigation": "\u2605 RATIFIED_NOT_YET_BIND_AS_PHYSICS",
+    "structure_catalog_foundation_ic1": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "structure_catalog_foundation_ic2": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "structure_catalog_foundation_ic3": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "structure_a_pass_meaning_investigation": "REVIEWED_PASS_WITH_NOTES",
+    "structure_b_physical_frame_model_investigation": "REVIEWED_SCALAR_FASE1_REJECTED",
+    "structure_b_parts_graph_investigation": "REVIEWED_PASS_WITH_NOTES",
+    "structure_honesty_pass_star_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "structure_b_parts_graph_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES",
+    "structure_b_gn1_freetext_root_parts_ic": "IMPLEMENTED_REVIEWED_PASS",
+    "structure_block": "CLOSED_2026_09_04",
+    "idle_component_reacquisition_investigation": "REVIEWED_PASS_WITH_NOTES",
+    "idle_frame_rebind_b2_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES_CLOSED",
+    "idle_catalog_rebind_b3_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED",
+    "structure_b_additive_enrichment_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_LOCKED",
+    "structure_b_thickness_arms_b2_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES_CLOSED",
+    "structure_b_thickness_arms_b2_smoke": "PASS_2026_09_05",
+    "structure_b_frame_assembly_physical_model_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_LOCKED",
+    "structure_b_frame_assembly_physical_model_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES_CLOSED",
+    "structure_b_plate_multiplicity_cli_smoke": "ACCEPT_2026_09_05",
+    "prop_energy_experimental_wall": "LOCKED_HD004_NOT_SOFTWARE_QUEUE",
+    "system_optimization": "DEFERRED_UNTIL_PAIN_2026_09_05"
   }
 }

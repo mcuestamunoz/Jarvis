@@ -114,6 +114,148 @@ def test_build_component_bom_classifies_gaps():
     assert any("motors" in line for line in lines)
 
 
+def test_bom_flight_controller_defined_gets_identity_suffix():
+    """Control parity IC §2.2: flight_controller reaching the ``defined``
+    bucket via brand/model name recognition (e.g. "Pixhawk 4") gets an
+    identity-only suffix — it never carries a measured engineering value,
+    unlike motors/battery/propellers/frame in the same bucket."""
+    fc = ComponentSpec(
+        name="pixhawk_4",
+        suggested_key="flight_controller",
+        component_type="flight_controller",
+        completeness="high",
+        properties={"model": PropertyValue(value="pixhawk_4", confidence=0.9)},
+    )
+    motors = ComponentSpec(
+        name="4x 920KV",
+        suggested_key="motors",
+        component_type="propulsion_active",
+        completeness="high",
+        properties={"thrust_n": PropertyValue(value=12.0, unit="N")},
+    )
+    state = _state(
+        design_properties=SimpleNamespace(
+            system_blocks=["control", "propulsion"],
+            system_defined=True,
+            system_priority=["control", "propulsion"],
+            components={"flight_controller": fc, "motors": motors},
+        )
+    )
+    bom = build_component_bom(state)
+    assert any(e["key"] == "flight_controller" for e in bom["defined"])
+    lines = format_bom_lines(bom)
+    fc_line = next(line for line in lines if line.startswith("✓ flight_controller"))
+    motors_line = next(line for line in lines if line.startswith("✓ motors"))
+    assert "identidad, sin dato físico" in fc_line
+    assert "identidad, sin dato físico" not in motors_line
+    assert motors_line.endswith("(high)")
+
+
+def test_bom_sensors_declarative_unaffected_by_control_suffix():
+    """Sensors stay in the declarative bucket (never "defined") and never
+    get the flight_controller-only identity suffix."""
+    sensors = ComponentSpec(
+        name="gps_m9n",
+        suggested_key="sensors",
+        component_type="sensors",
+        completeness="medium",
+        properties={"gps_model": PropertyValue(value="ublox_m9n")},
+    )
+    state = _state(
+        design_properties=SimpleNamespace(
+            system_blocks=["control"],
+            system_defined=True,
+            system_priority=["control"],
+            components={"sensors": sensors},
+        )
+    )
+    bom = build_component_bom(state)
+    assert any(e["key"] == "sensors" for e in bom["declarative"])
+    lines = format_bom_lines(bom)
+    sensors_line = next(line for line in lines if "sensors" in line)
+    assert sensors_line.startswith("◇")
+    assert "(declarativo)" in sensors_line
+    assert "identidad, sin dato físico" not in sensors_line
+
+
+def _frame_and_motors(size_class_inch=None):
+    frame_props = {
+        "mass_kg": PropertyValue(value=0.4),
+        "material": PropertyValue(value="fibra de carbono"),
+    }
+    if size_class_inch is not None:
+        frame_props["size_class_inch"] = PropertyValue(value=size_class_inch, unit="in")
+    frame = ComponentSpec(
+        name="frame", suggested_key="frame", component_type="structure",
+        completeness="high", properties=frame_props,
+    )
+    motors = ComponentSpec(
+        name="4x 920KV", suggested_key="motors", component_type="propulsion_active",
+        completeness="high", properties={"thrust_n": PropertyValue(value=12.0, unit="N")},
+    )
+    propellers = ComponentSpec(
+        name="propellers", suggested_key="propellers", component_type="propulsion_passive",
+        completeness="high", properties={"diameter_in": PropertyValue(value=10.0)},
+    )
+    return frame, motors, propellers
+
+
+def _structure_state(frame, motors, propellers):
+    return _state(
+        design_properties=SimpleNamespace(
+            system_blocks=["structure", "propulsion"],
+            system_defined=True,
+            system_priority=["structure", "propulsion"],
+            components={"frame": frame, "motors": motors, "propellers": propellers},
+        )
+    )
+
+
+def test_bom_frame_class_missing_gets_pending_suffix():
+    """Structure Foundations IC §2.1: frame reaches "defined" (mass+material)
+    without ever declaring size_class_inch — with the propeller diameter
+    known, the BOM line must not look fully settled."""
+    frame, motors, propellers = _frame_and_motors(size_class_inch=None)
+    state = _structure_state(frame, motors, propellers)
+    bom = build_component_bom(state)
+    assert any(e["key"] == "frame" for e in bom["defined"])
+    lines = format_bom_lines(bom, state)
+    frame_line = next(line for line in lines if line.startswith("✓ frame"))
+    motors_line = next(line for line in lines if line.startswith("✓ motors"))
+    assert "compatibilidad de clase nivel A pendiente" in frame_line
+    assert "clase incompatible" not in frame_line
+    assert motors_line.endswith("(high)")
+
+
+def test_bom_frame_class_incompatible_gets_incompatible_suffix():
+    frame, motors, propellers = _frame_and_motors(size_class_inch=5.0)  # < 10 in prop
+    state = _structure_state(frame, motors, propellers)
+    lines = format_bom_lines(build_component_bom(state), state)
+    frame_line = next(line for line in lines if line.startswith("✓ frame"))
+    assert "clase incompatible nivel A" in frame_line
+    assert "pendiente" not in frame_line
+
+
+def test_bom_frame_class_compatible_stays_plain():
+    frame, motors, propellers = _frame_and_motors(size_class_inch=12.0)  # >= 10 in prop
+    state = _structure_state(frame, motors, propellers)
+    lines = format_bom_lines(build_component_bom(state), state)
+    frame_line = next(line for line in lines if line.startswith("✓ frame"))
+    assert frame_line.endswith("(high)")
+    assert "pendiente" not in frame_line
+    assert "incompatible" not in frame_line
+
+
+def test_bom_frame_suffix_absent_without_project_state():
+    """Backward compatibility: omitting project_state keeps the plain tail
+    (existing callers that never pass it are unaffected)."""
+    frame, motors, propellers = _frame_and_motors(size_class_inch=None)
+    state = _structure_state(frame, motors, propellers)
+    lines = format_bom_lines(build_component_bom(state))
+    frame_line = next(line for line in lines if line.startswith("✓ frame"))
+    assert frame_line.endswith("(high)")
+
+
 # ── D8 design-space catalog ───────────────────────────────────────────────────
 
 def test_find_motors_for_requirements_matches_thrust_band():

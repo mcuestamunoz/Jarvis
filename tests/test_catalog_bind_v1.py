@@ -18,14 +18,17 @@ import pytest
 from jarvis.core.calculation_engine import CalculationEngine
 from jarvis.core.catalog_bind import (
     bind_battery_from_catalog,
+    bind_frame_from_catalog,
     bind_motor_from_catalog,
     bind_propeller_from_catalog,
     invalidate_diverged_catalog_refs,
 )
-from jarvis.core.component_writers import set_battery_component, set_motor_component
+from jarvis.core.component_writers import set_battery_component, set_frame_material, set_motor_component
+from jarvis.core.engineering_readiness import build_engineering_readiness
 from jarvis.core.motor_catalog_assist import MotorSuggestion
 from jarvis.core.orchestrator import JarvisOrchestrator
 from jarvis.core.parameter_requirements import MISSING_ENERGY_PARAMETERS
+from jarvis.core.project_closure import _bom_sku_resolved
 from jarvis.core.design_explorer import ExplorationCandidate, ExplorationResult
 from jarvis.knowledge.library import default_library
 from jarvis.schemas.action_schema import CatalogRef, ComponentSpec, PropertyValue
@@ -396,6 +399,158 @@ def test_invalidate_diverged_catalog_refs_no_op_when_unchanged():
     assert updated_components is components
     assert updated_params is params
     assert updated_components["motors"].catalog_ref is not None
+
+
+# ── Structure Catalog Foundation IC-2 — frame bind + BOM + diverge ─────────
+
+def test_bind_frame_from_catalog_projects_mass_and_class():
+    spec = bind_frame_from_catalog("armattan_rooster_5in")
+    assert spec.catalog_ref == CatalogRef(family="frame", sku="armattan_rooster_5in")
+    assert spec.suggested_key == "frame"
+    assert spec.properties["mass_kg"].value == pytest.approx(0.125)
+    assert spec.properties["size_class_inch"].value == pytest.approx(5.0)
+    assert spec.properties["material"].value == "fibra de carbono"
+    assert spec.completeness == "high"
+
+
+def test_bind_frame_from_catalog_material_absent_is_honest_not_invented():
+    """TBS seed rows (IC-1) have no stated material — bind must not invent
+    one, and completeness must reflect that (medium, not a hardcoded high)."""
+    spec = bind_frame_from_catalog("tbs_source_one_v5_5in")
+    assert "material" not in spec.properties
+    assert spec.completeness == "medium"
+    assert spec.properties["mass_kg"].value == pytest.approx(0.1235)
+    assert spec.properties["size_class_inch"].value == pytest.approx(5.0)
+
+
+def test_bind_frame_from_catalog_unknown_sku_raises():
+    with pytest.raises(KeyError):
+        bind_frame_from_catalog("phantom_frame_9000")
+
+
+def test_bind_frame_from_catalog_applies_into_project_state(tmp_path: Path):
+    orch = _closed_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    bound = bind_frame_from_catalog("armattan_rooster_5in")
+
+    ps2 = set_frame_material(
+        ps,
+        bound.properties["mass_kg"].value,
+        bound.properties["material"].value,
+        bound.properties["size_class_inch"].value,
+        catalog_ref=bound.catalog_ref,
+        component_name=bound.name,
+    )
+    frame = ps2.design_properties.components["frame"]
+    assert frame.catalog_ref == CatalogRef(family="frame", sku="armattan_rooster_5in")
+    assert ps2.current_parameters["structure_mass_override_kg"] == pytest.approx(0.125)
+
+
+def test_set_frame_material_free_text_after_bind_clears_ref(tmp_path: Path):
+    orch = _closed_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    bound = bind_frame_from_catalog("armattan_rooster_5in")
+    ps_bound = set_frame_material(
+        ps,
+        bound.properties["mass_kg"].value,
+        bound.properties["material"].value,
+        bound.properties["size_class_inch"].value,
+        catalog_ref=bound.catalog_ref,
+        component_name=bound.name,
+    )
+    assert ps_bound.design_properties.components["frame"].catalog_ref is not None
+
+    ps_free = set_frame_material(ps_bound, 0.5, "aluminio", None)
+    assert ps_free.design_properties.components["frame"].catalog_ref is None
+
+
+def test_bom_sku_resolved_frame_true_for_live_sku_false_for_missing():
+    assert _bom_sku_resolved({"family": "frame", "sku": "armattan_rooster_5in"}) is True
+    assert _bom_sku_resolved({"family": "frame", "sku": "phantom_frame_9000"}) is False
+
+
+def test_invalidate_diverged_catalog_refs_frame_override_diverges_from_component_mass():
+    """Path (b): structure_mass_override_kg ≠ component mass_kg while SKU still
+    matches the component — params-bypass frankenstein."""
+    bound = bind_frame_from_catalog("armattan_rooster_5in")
+    components = {"frame": bound}
+    params = {"structure_mass_override_kg": 0.999}  # diverges from bound 0.125 kg
+    updated_components, _ = invalidate_diverged_catalog_refs(components, params)
+    assert updated_components["frame"].catalog_ref is None
+    assert updated_components["frame"].name == "frame (parámetros divergentes)"
+
+
+def test_invalidate_diverged_catalog_refs_frame_component_mass_diverges_from_sku():
+    """Path (a): component mass_kg ≠ live FrameSpec mass while override stays
+    aligned with the (now wrong) component mass — seed/component frankenstein."""
+    bound = bind_frame_from_catalog("armattan_rooster_5in")
+    diverged_props = {
+        **bound.properties,
+        "mass_kg": PropertyValue(value=0.5, unit="kg", source="declared"),
+    }
+    bound_diverged_mass = bound.model_copy(update={"properties": diverged_props})
+    components = {"frame": bound_diverged_mass}
+    params = {"structure_mass_override_kg": 0.5}  # matches component, not SKU 0.125
+    updated_components, _ = invalidate_diverged_catalog_refs(components, params)
+    assert updated_components["frame"].catalog_ref is None
+    assert updated_components["frame"].name == "frame (parámetros divergentes)"
+    # Identity only — mass/class properties left untouched.
+    assert updated_components["frame"].properties["mass_kg"].value == pytest.approx(0.5)
+
+
+def test_invalidate_diverged_catalog_refs_frame_class_diverges():
+    bound = bind_frame_from_catalog("armattan_rooster_5in")
+    diverged_props = {**bound.properties, "size_class_inch": PropertyValue(value=7.0, unit="in")}
+    bound_diverged_class = bound.model_copy(update={"properties": diverged_props})
+    components = {"frame": bound_diverged_class}
+    params = {"structure_mass_override_kg": 0.125}
+    updated_components, _ = invalidate_diverged_catalog_refs(components, params)
+    assert updated_components["frame"].catalog_ref is None
+
+
+def test_invalidate_diverged_catalog_refs_frame_no_op_when_unchanged():
+    bound = bind_frame_from_catalog("armattan_rooster_5in")
+    components = {"frame": bound}
+    params = {"structure_mass_override_kg": 0.125}
+    updated_components, updated_params = invalidate_diverged_catalog_refs(components, params)
+    assert updated_components is components
+    assert updated_params is params
+    assert updated_components["frame"].catalog_ref is not None
+
+
+def test_invalidate_diverged_catalog_refs_frame_sku_removed_from_library():
+    bound = bind_frame_from_catalog("armattan_rooster_5in")
+    # Simulate a SKU that no longer exists in the library.
+    ghost = bound.model_copy(update={
+        "catalog_ref": CatalogRef(family="frame", sku="ghost_frame_removed"),
+    })
+    components = {"frame": ghost}
+    params = {}
+    updated_components, _ = invalidate_diverged_catalog_refs(components, params)
+    assert updated_components["frame"].catalog_ref is None
+
+
+def test_bound_frame_still_runs_level_a_class_screening(tmp_path: Path):
+    """Structure A LEVEL A screening must compose with a catalog-bound
+    frame exactly as it does with a free-text one — no new gap type, no
+    change to frame_class_compatibility_state's own rule."""
+    orch = _closed_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+
+    # armattan_rooster_5in declares size_class_inch=5; bound propeller is 10in
+    # (from _closed_project's own fixture) -> class incompatible.
+    bound = bind_frame_from_catalog("armattan_rooster_5in")
+    ps2 = set_frame_material(
+        ps,
+        bound.properties["mass_kg"].value,
+        bound.properties["material"].value,
+        bound.properties["size_class_inch"].value,
+        catalog_ref=bound.catalog_ref,
+        component_name=bound.name,
+    )
+    readiness = build_engineering_readiness(ps2)
+    assert any(g.gap_type == "GAP-FRAME-PROP-SIZE" for g in readiness.gaps)
+    assert readiness.subsystems["structure"].verdict == "INCOMPLETE"
 
 
 def test_iterate_numeric_mutation_diverging_capacity_clears_battery_catalog_ref(tmp_path: Path):

@@ -1,8 +1,8 @@
 # Engineering Readiness Vision
 
-**Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure arc ✅ — IC 1/2/3 closed, §11)  
+**Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure ✅ §11; Claim Hygiene ✅, Control Parity ✅, Structure Foundations ✅, Structure Catalog Foundation IC-1→IC-3 ✅, Structure honesty `PASS *` ✅, Structure B Parts Graph Fase 1 ✅, G-N1 ✅, IDLE rebind B2+B3 ✅, arm `thickness_mm` B2 ✅, plate multiplicity B2 ✅ — §8)  
 **Type:** Vision / To-be  
-**Date:** 2026-08-31 (updated post-IC-3 policy sync — Project Closure / Assembly Ready v1)
+**Date:** 2026-09-05 (synced @ suite **2294**; Structure smoke ACCEPT; Prop/Energy = HD-004 wall; System Optimization **deferred** until pain)
 
 ---
 
@@ -190,18 +190,150 @@ Delivered:
 - BOM `[sku]` / `sku_resolved` / quantity (Impl D; propeller `has_propeller` branch IC 3),
 - live catalog pick UX for motor, propeller, battery.
 
-Out of scope (deferred): G24 DSE apply-by-index · H5 ESC catalog · frame SKU catalog.
+Out of scope (deferred): G24 DSE apply-by-index · H5 ESC catalog · frame SKU catalog **bind** (schema+seed landed — see Structure Catalog Foundation IC-1 below).
 
 ### ✅ Project Closure / Assembly Ready v1 — CLOSED
 
 > Tag: `checkpoint-closure-policy`. Product contract: **§11** (same document). IC 1 Requirements · IC 2 Battery/G27 · IC 3 policy sync + propeller display fix.
 
-### System-level Optimization — OPEN
+### ✅ Claim Hygiene under ASSEMBLY READY — CLOSED (2026-09-04)
 
-Scope:
+> Suite: **2160**. `.jes/artifacts/investigation_report_claim_hygiene_assembly_ready.md` / `implementation_report_claim_hygiene_assembly_ready.md`.
 
-- objective-aware configuration scoring tied to readiness closure,
-- safe "aplica la mejor" at system level (§7 target semantics).
+Delivered:
+
+- `project_continuity.margin_claim_weak(sim)` — PASS + `quality=="risky"` or an active `low_margin`/`high_actuator_load`/`low_force_to_weight_ratio` warning no longer says "Diseño validado en simulación (PASS)"; locked situation sentence instead. Resolves H5/C-081 (`system_map/MISMATCHES.md`).
+- CLI `Por qué:` line humanizes known warning codes via `WARNING_SHORT`/`WARNING_MESSAGES` (adapter-only; Continuity keeps the raw code).
+- CLI `PROJECT STATUS: ASSEMBLY READY` gains one `NOTE: margen ajustado...` line when the backing simulation is margin-weak (reads a thin precomputed `margin_claim_weak` flag from `build_startup_context`).
+
+Out of scope (deferred): a general "PASS + any live gap type" audit of Continuity's situation branch (only margin/quality was proven and fixed here — Structure Foundations below separately closed the frame-class instance) · unifying the four independent margin-threshold constants across `simulator.py`/`reasoning_layer.py`/`suggestion_engine.py`/`goal_planner.py` (cited, not touched) · weak-OP-evidence claim language (`prop_energy_block_closure` not wired into Continuity — named N4, its own later thread) · changing `_derive_overall`/`ASSEMBLY_READY` eligibility (not needed — copy-only fix).
+
+### ✅ Control Parity (claim copy) — CLOSED (2026-09-04)
+
+> Suite: **2164**. `.jes/artifacts/investigation_report_control_parity.md` / `implementation_report_control_parity.md`.
+
+Delivered:
+
+- CLI readiness block marks `Control` with `PASS *` + one footnote (`* Control: declaración — sin física de control`) whenever the verdict is `PASS` — naming, in copy only, that `_control_evidence`'s four flags (`defined`/`calculated`/`simulated`/`validated`) never reflect anything control-specific (no control-loop/PID/fusion/failsafe computation exists anywhere in the codebase; `validated` borrows the unrelated thrust-simulation pass/fail, same pattern as every other subsystem).
+- BOM `flight_controller` line gains an identity-only suffix (`(high — identidad, sin dato físico)`) when it reaches the `defined` bucket via brand/model name recognition alone (`"model"` is a `_MEASURABLE` string-identity field, not a physics quantity).
+
+Out of scope (deferred): ERF `_control_evidence`/`_derive_subsystem_verdict` honesty (investigated and explicitly rejected — making `validated` genuinely control-specific would make `PASS` structurally unreachable for control today, flipping `ASSEMBLY_READY` for virtually every real project; named as a future Engineer ★ decision, not a default) · sensor/FC catalog (not authorized; no catalog was proven necessary to fix the identified over-claim) · control-loop physics.
+
+### ✅ Structure Foundations (claim copy) — CLOSED (2026-09-04)
+
+> Suite: **2171**. `.jes/artifacts/investigation_report_structure_foundations.md` / `implementation_report_structure_foundations.md`.
+
+Delivered:
+
+- BOM `frame` line gains a suffix (`— compatibilidad de clase nivel A pendiente` / `— clase incompatible nivel A`) when a live `GAP-FRAME-SIZE-MISSING`/`GAP-FRAME-PROP-SIZE` blocks `structure` — closes the disagreement where `_frame_completeness` (mass+material only, never reads `size_class_inch`) let a frame show `✓ ... (high)` while the Gap Registry already said `structure` was `INCOMPLETE`.
+- Continuity situation gains `_frame_class_gap_live(readiness)` (mirrors `margin_claim_weak`'s shape) — same locked sentence for both gap types, closing the same "situation says validated, next-step names the problem" contradiction H5 fixed for margin, now for frame-class.
+- Confirmed (not fixed — already correct): architecture `n/n` counters and the two `_block_progress_status` copies were already honestly gated on frame-class via the one shared `frame_size_blocks_structure_complete` predicate; `get_block_in_progress_reason`'s two-value reason enum turned out not to apply to `structure` at all (it's special-cased to `frame_next_missing_question` directly).
+
+Out of scope (deferred): CAD/FEA/geometric fit / tip-clearance physics. Frame catalog bind+assist and declared part graph shipped later the same day — see Structure Catalog Foundation IC-2/IC-3 and Structure B below.
+
+### ✅ Structure Catalog Foundation — IC-1 (schema + seed) — CLOSED (2026-09-04)
+
+> Suite: **2177**. `.jes/artifacts/investigation_report_structure_catalog_foundation.md` / `implementation_report_structure_catalog_foundation_ic1.md`.
+
+Delivered:
+
+- `CatalogRef.family` gains `"frame"`.
+- `FrameSpec` + `get_frame`/`has_frame`/`list_frames` in `ComponentLibrary`, mirroring `EscSpec`'s shape exactly.
+- `library/frames/_datos.json` — 4 real, sourced seed rows (2 distinct size classes), each with `source_url`/`source_note`/`identity_status:"verified"`.
+
+Investigation finding (why bind was not “new physics”): `set_frame_material` already writes declared mass into `structure_mass_override_kg` — a frame SKU’s mass is numerically identical in effect to free-text. Binding adds identity/traceability, not a new calculation.
+
+### ✅ Structure Catalog Foundation — IC-2 + IC-3 — CLOSED (2026-09-04)
+
+> Suites: **2188** (IC-2) · **2197** (IC-3).  
+> Reports: `implementation_report_structure_catalog_foundation_ic2.md` / `_ic3.md`.
+
+Delivered:
+
+- IC-2: `bind_frame_from_catalog`, writer `catalog_ref=`, BOM `sku_resolved` for frame, diverge (mass/class/override).
+- IC-3: `frame_catalog_assist`, offer/apply, acquisition-brief CTA; free-text declare intact.
+- `catalog_bound` still **not** wired into Structure PASS / `_derive_subsystem_verdict`.
+
+### ✅ Structure honesty (`PASS *`) — CLOSED (2026-09-04)
+
+> Suite: **2200**. `.jes/artifacts/implementation_contract_structure_honesty_pass_star.md`.
+
+Delivered:
+
+- CLI readiness marks `Structure PASS *` with footnote  
+  `* Structure: identidad / clase nivel A — sin geometría de chasis` (blanket, same posture as Control).
+- ERF predicates / Continuity / BOM unchanged by this IC.
+
+### ✅ Structure B Parts Graph Fase 1 + G-N1 — CLOSED (2026-09-04)
+
+> Suites: **2223** (graph) · **2229** (G-N1).  
+> Contracts: `implementation_contract_structure_b_parts_graph.md`,  
+> `implementation_contract_structure_b_gn1_freetext_root_parts.md`.
+
+Delivered:
+
+- `ComponentSpec.parent_key` — first intra-project parent/child precedent; children are `frame_arm` / `frame_plate`(+ ordinal `frame_plate_2`… when curated) / `frame_cage` / `frame_standoff` with `parent_key="frame"`.
+- Declared-only `configuration` (closed vocab) + `wheelbase_mm` on the frame root; part nodes carry optional `count`/`material` (arms also `thickness_mm`; plates also curated `label`/`thickness_mm`).
+- BOM: children never top-level peers; display-only `└` sub-lines under `frame`.
+- Catalog bind/assist upserts part children from seed (materials, arm thickness, curated plates — see below).
+- **G-N1:** one free-text message may declare root + parts  
+  (`"fibra 450g, 4 brazos carbono, jaula titanio"`); parts-only follow-up does not overwrite root material. Free-text remains **one node per part type** (no ordinal multi-plate parsing).
+- Structure PASS evidence / `_frame_completeness` / `BLOCK_TO_COMPONENTS["structure"]==["frame"]` **unchanged**.
+
+### ✅ IDLE catalog rebind B2+B3 — CLOSED (2026-09-04)
+
+> Suites: **2250** (frame) · **2276** (motors/propellers/battery).  
+> Named IDLE phrases reopen that family’s catalog after architecture 4/4 when the component already exists (not stub). Pure-phrase only (no trailing SKU). Mid-architecture FN-014 preserved. Frame re-pick clears all `parent_key=="frame"` children (including ordinal plates) before projecting the new SKU.
+
+### ✅ Structure B arm `thickness_mm` (additive B2) — CLOSED (2026-09-05)
+
+> Suite: **2286**. Contract: `implementation_contract_structure_b_thickness_arms_b2.md`. Smoke PASS.
+
+Delivered:
+
+- Optional `arm_thickness_mm` on `FrameSpec` + all four seed rows (sourced).
+- `frame_arm.thickness_mm` display-only; N2 may create arm child from thickness alone.
+- **M0** unchanged (root mass sole physics input).
+- Free-text: arm-clause-gated mm only (plate-clause mm still OUT).
+- Structure PASS * footnote unchanged.
+
+### ✅ Structure B plate multiplicity B2 (Frame Assembly Physical Model) — CLOSED (2026-09-05)
+
+> Suite: **2294**. Investigation → Buy → IC → review PASS WITH NOTES.  
+> Contracts: `investigation_*_structure_b_frame_assembly_physical_model.md`,  
+> `implementation_contract_structure_b_frame_assembly_physical_model.md`.
+
+Delivered (code-backed):
+
+- `PlateSeed` + `FrameSpec.plates: list[PlateSeed] | None` — curated per SKU (N1), max 8 (N7).
+- Ordinal siblings `frame_plate` / `frame_plate_2`…`frame_plate_8` + free-text `label` property — **no** closed cross-manufacturer role taxonomy.
+- N2: non-empty `plates[]` is canonical; scalar `plate_count`/`plate_material` = legacy fallback only.
+- N3: equal thickness → distinct nodes (Top/Middle both 2mm stay two).
+- Catalog projection + BOM `└ plate — {label}, {thickness}` display-only.
+- **N4 OUT:** free-text multi-plate parsing remains debt (still one `FRAME_PLATE_KEY`).
+- **N6 debt:** catalog projector may hardcode `completeness="high"`; upsert path still uses `_structure_part_completeness` — not “fixed” in this slice.
+- **M0** / Structure PASS * footnote / MEASURE wall unchanged.
+
+Out of scope (debt / MEASURE wall): tip-clearance / FEA / CAD · `mounts_on` · sum-of-parts mass into physics · arm↔motor cross-check · free-text multi-plate · G-N2 counts / G-N3 `compressed-x` / G-N4 diverge orphans / C3 assist UX · completeness hardcode polish.
+
+### System-level Optimization — DEFERRED (Engineer lock 2026-09-05)
+
+**Not the next phase.** Code today: local DSE (`can_fly` + goal score); apply #1 even if score does not improve (with warning). No readiness/gaps/Continuity/ASSEMBLY READY ring.
+
+Valid product jump **later**, only when demonstrated pain — not because Vision §7 exists.  
+Lock: [`.jes/artifacts/engineer_lock_system_optimization_deferred.md`](../.jes/artifacts/engineer_lock_system_optimization_deferred.md).
+
+Prefer **not** further Structure attribute-drip without a new model Buy.
+
+### 🧱 WALL — Prop/Energy experimental validation (Engineer lock 2026-09-05)
+
+**Not an implementation phase.** Autonomy `~N min` remains an **orientative simplified energy estimate** — never “flight time certified.”
+
+Closing physically defensible autonomy requires bench evidence of **Operating Point → consumption** (multi-point thrust/V/I/P), recorded as **HD-004** in [`HARDWARE_DEBT.md`](./HARDWARE_DEBT.md). Lock artifact: [`.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md`](../.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md).
+
+Forbidden as default next: inventing SOC / sag / C-rate / variable efficiency / thermal models without T1/T2; framing “Prop/Energy Evidence IC” as closing autonomy.
+
+Allowed later (optional): investigation of *what evidence schema to ingest when the bench exists* — still not 🔴 until Engineer names it after hardware exists.
 
 ---
 
@@ -210,8 +342,8 @@ Scope:
 - No new source of truth replaces ProjectState.
 - No LLM authority over engineering next-step decisions.
 - No implicit rewrite of existing acquisition/continuity contracts — Continuity remains next-step copy authority; see [`PROJECT_CONTINUITY.md`](./PROJECT_CONTINUITY.md).
-- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. **As of 2026-09-01 there is no active product slice** — Engineer chooses the next software IC. Delivered phases (ERF-1/2, Catalog Impl C/D, Project Closure §11, Phase 2.5–2.7-B + Option A ESTIMATIVO) are closed; new work requires a new investigation/IC, not edits to §11 without Engineer approval.
-- **Hardware-gated physics** (T1/T2 lab before any sibling field) lives in [`HARDWARE_DEBT.md`](./HARDWARE_DEBT.md) — **debt register, never 🔴 PRIORIDAD ACTUAL** (Engineer: no lab equipment). Not in this vision and not in the software/product queue.
+- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. **As of 2026-09-05** suite **2294**; Structure + CLI smoke **CLOSED**; **no open software PRIORIDAD**. System Optimization **deferred** until pain. Prop/Energy experimental = **HD-004 wall**. MEASURE/CAD is not the default. Free-text multi-plate / G-N*/C3 / completeness hardcode remain debt.
+- **Hardware-gated physics** (T1/T2 lab before any sibling field) lives in [`HARDWARE_DEBT.md`](./HARDWARE_DEBT.md) — **debt register, never 🔴 PRIORIDAD ACTUAL** (Engineer: no lab equipment). Includes HD-004 OP→consumption for autonomy. Not in the software/product queue.
 
 ---
 

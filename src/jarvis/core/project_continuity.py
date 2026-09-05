@@ -182,6 +182,44 @@ _THRUST_FAIL_NEXT_STEP = (
     "Cambia motor, hélice o masa; repetir simular no cierra el fallo."
 )
 
+# Claim hygiene under ASSEMBLY READY IC §2.1: codes that make a PASS margin
+# claim weak — never autonomy_below_restriction, which is owned by the
+# autonomy-undemonstrated/below situation branches above.
+_MARGIN_WEAK_WARNING_CODES = frozenset({
+    "low_margin", "high_actuator_load", "low_force_to_weight_ratio",
+})
+
+_MARGIN_WEAK_SITUATION = (
+    "Comprobación de empuje: PASS. Margen ajustado — el diseño no está "
+    "validado con reserva cómoda."
+)
+
+
+def margin_claim_weak(sim: dict[str, Any]) -> bool:
+    """True when a PASS claim would overstate margin comfort (IC §2.1)."""
+    if (sim.get("quality") or "").lower() == "risky":
+        return True
+    warnings = sim.get("warnings") or []
+    return bool(_MARGIN_WEAK_WARNING_CODES.intersection(warnings))
+
+
+_FRAME_CLASS_GAP_TYPES = frozenset({"GAP-FRAME-SIZE-MISSING", "GAP-FRAME-PROP-SIZE"})
+
+_FRAME_CLASS_GAP_SITUATION = (
+    "Comprobación de empuje: PASS. Compatibilidad de clase (nivel A) pendiente."
+)
+
+
+def _frame_class_gap_live(readiness: Any | None) -> bool:
+    """Structure Foundations IC §2.2: True when the Gap Registry already
+    carries a live GAP-FRAME-SIZE-MISSING/GAP-FRAME-PROP-SIZE — never
+    re-derives the LEVEL A screening itself (that stays Structure A's
+    ``frame_class_compatibility_state``); this only reads what
+    ``build_engineering_readiness`` already computed."""
+    if readiness is None:
+        return False
+    return any(g.gap_type in _FRAME_CLASS_GAP_TYPES for g in (readiness.gaps or []))
+
 
 def build_project_continuity(
     *,
@@ -290,6 +328,18 @@ def build_project_continuity(
             "Comprobación de empuje: PASS. Candidato inicial — la autonomía del "
             "objetivo no está demostrada."
         )
+    elif sim_status == "pass" and margin_claim_weak(sim):
+        # Claim hygiene under ASSEMBLY READY IC §2.1: PASS does not mean
+        # "validado con reserva cómoda" when quality is risky or an active
+        # margin/load warning is present — evidence bullet below already
+        # names quality/margin; this line must agree with it.
+        situation = _MARGIN_WEAK_SITUATION
+    elif sim_status == "pass" and _frame_class_gap_live(readiness):
+        # Structure Foundations IC §2.2: a live frame-class gap must not
+        # coexist with "Diseño validado" — next_useful_step already names
+        # the gap via _frame_class_next_step; this keeps the situation line
+        # from contradicting it.
+        situation = _FRAME_CLASS_GAP_SITUATION
     elif sim_status == "pass":
         situation = "Diseño validado en simulación (PASS). Proyecto vivo — listo para el siguiente paso útil."
     else:

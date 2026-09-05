@@ -40,9 +40,9 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from jarvis.domains.aerial import _frame_completeness
+from jarvis.domains.aerial import _frame_completeness, _structure_part_completeness
 from jarvis.knowledge.library import _OP_VOLTAGE_EPSILON_V, default_library, resolve_operating_point
-from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
+from jarvis.schemas.action_schema import CatalogRef, ComponentSpec, PropertyValue
 from jarvis.tools.electricity import estimate_battery_mass_kg
 
 
@@ -51,6 +51,9 @@ def set_frame_material(
     mass_kg: float | None,
     material: str | None,
     size_class_inch: float | None = None,
+    *,
+    catalog_ref: CatalogRef | None = None,
+    component_name: str | None = None,
 ) -> Any:
     """Único punto de escritura para propiedades del frame.
 
@@ -65,6 +68,17 @@ def set_frame_material(
     is component-property-only — no current_parameters mirror, no thrust/power/
     RPM/Ct/autonomy involvement. None means "leave whatever is already declared"
     (same convention as material), never invented, never copied from the prop.
+
+    Structure Catalog Foundation IC-2: ``catalog_ref``/``component_name`` are
+    keyword-only and default to ``None`` — every existing free-text caller
+    (which never passes them) keeps today's exact behavior: a fresh
+    ``ComponentSpec`` is always built here, never copying a prior
+    ``catalog_ref``, so a free-text rewrite of an already-bound frame
+    silently clears the binding (never a stale SKU label next to numbers
+    that may no longer match it). Passing ``catalog_ref`` is how a bind
+    apply path (test-callable only in IC-2 — no CLI/UX caller yet) persists
+    SKU identity through this same single writer, instead of a second,
+    parallel frame-write path.
 
     Returns the updated ProjectState (not persisted — caller must save).
     """
@@ -87,7 +101,7 @@ def set_frame_material(
 
     completeness, missing_fields = _frame_completeness(props)
     frame_spec = ComponentSpec(
-        name="frame",
+        name=component_name or "frame",
         component_type="structure",
         suggested_key="frame",
         inference_confidence=0.9,
@@ -95,6 +109,7 @@ def set_frame_material(
         completeness=completeness,
         missing_fields=missing_fields,
         source="declared",
+        catalog_ref=catalog_ref,
     )
     updated_components = {**project_state.design_properties.components, "frame": frame_spec}
     updated_dp = project_state.design_properties.model_copy(update={
@@ -118,6 +133,111 @@ def set_frame_material(
         "design_properties": updated_dp,
         "current_parameters": updated_params,
     })
+
+
+def merge_frame_root_declared_properties(
+    project_state: Any,
+    extra: dict[str, PropertyValue],
+) -> Any:
+    """G-N1: merge declared-only root fields (configuration / wheelbase_mm)
+    onto the existing frame without touching mass/material completeness
+    rules. No-op when frame is absent or *extra* is empty.
+    """
+    if not extra:
+        return project_state
+    existing = project_state.design_properties.components.get("frame")
+    if existing is None:
+        return project_state
+    allowed = {"configuration", "wheelbase_mm"}
+    props = dict(existing.properties or {})
+    changed = False
+    for key, value in extra.items():
+        if key not in allowed or value is None:
+            continue
+        props[key] = value
+        changed = True
+    if not changed:
+        return project_state
+    completeness, missing_fields = _frame_completeness(props)
+    frame_spec = existing.model_copy(
+        update={
+            "properties": props,
+            "completeness": completeness,
+            "missing_fields": missing_fields,
+        }
+    )
+    updated_components = {**project_state.design_properties.components, "frame": frame_spec}
+    updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
+    return project_state.model_copy(update={"design_properties": updated_dp})
+
+
+def upsert_frame_part(
+    project_state: Any,
+    part_key: str,
+    properties: dict[str, PropertyValue],
+    *,
+    catalog_ref: CatalogRef | None = None,
+) -> Any:
+    """Structure B Parts Graph — único punto de escritura para un hijo de
+    tipo de parte del frame (``frame_arm``/``frame_plate``/``frame_cage``/
+    ``frame_standoff``).
+
+    G-N1: also reachable from the free-text frame apply path (root+parts
+    in one message), not only catalog bind / tests.
+
+    Merges onto any existing child spec (repeated declarations accumulate,
+    e.g. declaring material after count). ``parent_key="frame"`` always —
+    Fase 1 has exactly one assembly root. Child completeness
+    (``_structure_part_completeness``) is independent of
+    ``_frame_completeness``/Structure PASS — never read by
+    ``_structure_evidence`` or any gap builder.
+
+    Returns the updated ProjectState (not persisted — caller must save).
+    """
+    existing = project_state.design_properties.components.get(part_key)
+    merged_props: dict[str, PropertyValue] = dict(existing.properties) if existing else {}
+    merged_props.update(properties)
+    completeness, missing_fields = _structure_part_completeness(merged_props)
+    part_spec = ComponentSpec(
+        name=part_key,
+        component_type="structure_part",
+        suggested_key=part_key,
+        inference_confidence=0.9,
+        properties=merged_props,
+        completeness=completeness,
+        missing_fields=missing_fields,
+        source="declared",
+        catalog_ref=catalog_ref,
+        parent_key="frame",
+    )
+    updated_components = {**project_state.design_properties.components, part_key: part_spec}
+    updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
+    return project_state.model_copy(update={"design_properties": updated_dp})
+
+
+def clear_frame_part_children(project_state: Any) -> Any:
+    """IDLE frame rebind (B2) — G-N4 catalog half: remove every component
+    with ``parent_key == "frame"`` before a catalog re-pick upserts the new
+    SKU's own part fields, so re-picking Armattan → TBS never leaves stale
+    ``frame_arm``/``frame_plate``/``frame_cage``/``frame_standoff`` entries
+    declaring the *previous* SKU's materials next to a root that no longer
+    names it. Removes by ``parent_key`` (not the four locked keys directly)
+    so it stays correct if a future slice adds more part types. A no-op
+    (returns ``project_state`` unchanged) when no child exists — the plain
+    free-text root rewrite path (§3.5, unchanged) is not affected, since
+    this is only called from the catalog re-pick apply path.
+
+    Returns the updated ProjectState (not persisted — caller must save).
+    """
+    components = project_state.design_properties.components
+    remaining = {
+        key: spec for key, spec in components.items()
+        if getattr(spec, "parent_key", None) != "frame"
+    }
+    if len(remaining) == len(components):
+        return project_state
+    updated_dp = project_state.design_properties.model_copy(update={"components": remaining})
+    return project_state.model_copy(update={"design_properties": updated_dp})
 
 
 def set_control_component(project_state: Any, spec: Any) -> Any:

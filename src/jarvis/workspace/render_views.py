@@ -45,7 +45,7 @@ def render_sistema(state: ProjectState) -> str:
         components_section = f"\n## Componentes definidos\n{comp_lines}\n"
 
     bom = build_component_bom(state)
-    bom_lines = format_bom_lines(bom)
+    bom_lines = format_bom_lines(bom, state)
     bom_section = ""
     if bom_lines:
         bom_section = "\n## BOM / gaps\n" + "\n".join(f"- {line}" for line in bom_lines) + "\n"

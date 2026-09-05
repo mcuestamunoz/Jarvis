@@ -55,11 +55,14 @@ from jarvis.core.goal_planner import (
 )
 from jarvis.core.handoff_matching import match_plan_lever
 from jarvis.core.component_writers import (
+    clear_frame_part_children,
+    merge_frame_root_declared_properties,
     set_battery_component,
     set_control_component,
     set_frame_material,
     set_motor_component,
     set_propeller_component,
+    upsert_frame_part,
 )
 from jarvis.core.design_explorer import DesignExplorer, _apply_delta, _is_catalog_native_motor_candidate
 from jarvis.core.system_architecture_catalog import (
@@ -884,6 +887,68 @@ class JarvisOrchestrator:
             # Non-affirmative → fall through to process input normally
             runtime_state = self.state_manager.runtime_state
             current_session = runtime_state.session
+        # ─────────────────────────────────────────────────────────────────────
+        # ── IDLE catalog rebind (B2 frame + B3 motors/propellers/battery):
+        # an EXPLICITLY named family phrase ("cambiar frame"/"cambiar motor"/
+        # "ayúdame a elegir batería"/…) reopens that family's existing
+        # catalog offer when architecture has **no** pending block
+        # (`_next_pending_block is None`) — even if the component is already
+        # catalog-bound. Mid-architecture phrases stay with FN-014 (wrong-
+        # block refuse / active-gap continue) — do not steal "definir
+        # motores" while propulsion is still the pending block.
+        # Checked BEFORE FN-005's bare help-choose chain so named
+        # "ayúdame a elegir motor" never falls into unnamed triage when
+        # rebind is eligible; bare "ayúdame a elegir" (resolver None) is
+        # unaffected.
+        from jarvis.core.catalog_rebind_assist import resolve_idle_catalog_rebind
+
+        if current_session.mode == OrchestratorMode.IDLE:
+            _rebind_key = resolve_idle_catalog_rebind(user_input)
+            if _rebind_key is not None:
+                project_state = self._safe_active_project()
+                if project_state is None:
+                    result = {
+                        "status": "error",
+                        "action": "component_description_prompt",
+                        "message": "No hay proyecto activo. Crea uno primero.",
+                    }
+                    self._track_turn(user_input, result)
+                    return result
+                if self._next_pending_block(project_state) is None:
+                    components = (
+                        getattr(project_state.design_properties, "components", None) or {}
+                    )
+                    existing = components.get(_rebind_key)
+                    # Swap / upgrade only — never steal first-time FN-009 /
+                    # FN-014 acquisition when the component is still absent.
+                    if existing is not None and not _is_stub_or_absent(existing):
+                        updated = current_session.model_copy(update={
+                            "mode": OrchestratorMode.DEFINE_MISSING_PARAMETERS,
+                            "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
+                            "pending_missing_params": [_rebind_key],
+                            "pending_define_missing": False,
+                        })
+                        self.state_manager.set_runtime_session(updated)
+                        if _rebind_key == "frame":
+                            result = self._offer_component_frame_catalog(
+                                updated, ["frame"]
+                            )
+                        elif _rebind_key == "motors":
+                            result = self._offer_component_motor_catalog(
+                                updated, ["motors"]
+                            )
+                        elif _rebind_key == "propellers":
+                            result = self._offer_component_propeller_catalog(
+                                updated, ["propellers"]
+                            )
+                        else:
+                            result = self._offer_component_battery_catalog(
+                                updated, ["battery"]
+                            )
+                        self._track_turn(user_input, result)
+                        return result
+                # else: pending gap, or component not yet present — FN-014 / FN-005
+
         # ─────────────────────────────────────────────────────────────────────
         # ── FN-005: "ayúdame a elegir" while IDLE → open assisted motor flow ─
         from jarvis.core.motor_catalog_assist import is_help_choose_phrase
@@ -2295,10 +2360,16 @@ class JarvisOrchestrator:
         return default_prompt
 
     def _apply_inferred_component_spec(
-        self, project_state: ProjectState, spec: ComponentSpec
+        self,
+        project_state: ProjectState,
+        spec: ComponentSpec,
+        *,
+        source_text: str | None = None,
     ) -> tuple[ProjectState, str]:
         """Write one inferred component and optionally recalculate. Returns (state, msg)."""
         if spec.suggested_key == "frame":
+            from jarvis.domains.aerial import extract_all_frame_part_properties
+
             mass_prop = spec.properties.get("mass_kg")
             mat_prop = spec.properties.get("material")
             size_prop = spec.properties.get("size_class_inch")
@@ -2306,6 +2377,27 @@ class JarvisOrchestrator:
             material_val: str | None = mat_prop.value if mat_prop else None
             size_val: float | None = size_prop.value if size_prop else None
             updated_state = set_frame_material(project_state, mass_val, material_val, size_val)
+            # G-N1: extract_frame_properties already put configuration /
+            # wheelbase_mm on the inferred spec — persist them (writer used
+            # to drop them on free-text apply).
+            root_extras = {
+                key: spec.properties[key]
+                for key in ("configuration", "wheelbase_mm")
+                if key in (spec.properties or {})
+            }
+            updated_state = merge_frame_root_declared_properties(updated_state, root_extras)
+            part_bits: list[str] = []
+            if source_text:
+                for part_key, part_props in extract_all_frame_part_properties(
+                    source_text.lower()
+                ):
+                    updated_state = upsert_frame_part(updated_state, part_key, part_props)
+                    label = part_key.removeprefix("frame_")
+                    count_prop = part_props.get("count")
+                    if count_prop is not None and count_prop.value is not None:
+                        part_bits.append(f"{label}×{int(count_prop.value)}")
+                    else:
+                        part_bits.append(label)
             try:
                 params = updated_state.current_parameters or {}
                 calculations = self.calculation_engine.build(params)
@@ -2330,7 +2422,10 @@ class JarvisOrchestrator:
             if mass_val is not None:
                 parts.append(f"{mass_val}kg")
             desc = " ".join(parts) if parts else "frame"
-            return updated_state, f"Frame registrado: {desc}."
+            msg = f"Frame registrado: {desc}."
+            if part_bits:
+                msg += " +" + ", ".join(part_bits) + "."
+            return updated_state, msg
 
         if spec.suggested_key == "battery":
             cap_prop = spec.properties.get("battery_capacity_wh")
@@ -2655,12 +2750,15 @@ class JarvisOrchestrator:
                 if project_state is not None
                 else []
             )
-        # Prop-3 ★4/§2 (Bat-3: extended to battery): offering a fresh motor
-        # list retires any pending propeller/battery pick to avoid
+        # Prop-3 ★4/§2 (Bat-3: extended to battery; Structure Catalog
+        # Foundation IC-3: extended to frame): offering a fresh motor list
+        # retires any pending propeller/battery/frame pick to avoid
         # cross-pick ambiguity (symmetric with _offer_component_propeller_
-        # catalog / _offer_component_battery_catalog clearing motor_suggestions).
+        # catalog / _offer_component_battery_catalog / _offer_component_
+        # frame_catalog clearing motor_suggestions).
         updated = session.model_copy(update={
             "motor_suggestions": suggestions, "propeller_suggestions": [], "battery_suggestions": [],
+            "frame_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         if not suggestions:
@@ -2788,6 +2886,7 @@ class JarvisOrchestrator:
             "propeller_suggestions": suggestions,
             "motor_suggestions": [],
             "battery_suggestions": [],
+            "frame_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -2890,6 +2989,7 @@ class JarvisOrchestrator:
             "battery_suggestions": suggestions,
             "motor_suggestions": [],
             "propeller_suggestions": [],
+            "frame_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -2938,6 +3038,132 @@ class JarvisOrchestrator:
         self.state_manager.set_runtime_session(cleared)
 
         saved_msg = f"Batería elegida: {suggestion['name']} ({suggestion['energy_wh']}Wh)."
+        components = updated_state.design_properties.components
+        still_missing = [
+            k for k in expected_keys
+            if components.get(k) is None or components[k].completeness == "low"
+        ]
+        if not still_missing:
+            self._set_pending_next_block()
+            result: dict[str, Any] = {
+                "status": "ok",
+                "action": "component_description_saved",
+                "message": saved_msg,
+            }
+            return self._append_arch_progress_hint(result)
+
+        follow_up = self._component_prompt_for_first_missing(still_missing)
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": f"{saved_msg} {follow_up}",
+        }
+
+    def _offer_component_frame_catalog(
+        self, session: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """Structure Catalog Foundation IC-3: catalog list bridge for the
+        frame COMPONENT sub-mode — mirrors ``_offer_component_battery_catalog``.
+        Suggestions come only from ``build_frame_catalog_suggestions``
+        (``ComponentLibrary.list_frames()``, no hardcode, no ranking). Clears
+        ``motor_suggestions``/``propeller_suggestions``/``battery_suggestions``
+        (same ★4 cross-family rule: offering a new list retires any other
+        family's pending pick).
+        """
+        from jarvis.core.frame_catalog_assist import (
+            build_frame_catalog_suggestions,
+            format_frame_catalog_suggestions,
+        )
+
+        project_state = self._safe_active_project()
+        suggestions = (
+            build_frame_catalog_suggestions(project_state) if project_state is not None else []
+        )
+        updated = session.model_copy(update={
+            "frame_suggestions": suggestions,
+            "motor_suggestions": [],
+            "propeller_suggestions": [],
+            "battery_suggestions": [],
+        })
+        self.state_manager.set_runtime_session(updated)
+        return {
+            "status": "interactive",
+            "action": "component_description_prompt",
+            "message": format_frame_catalog_suggestions(suggestions),
+            "frame_suggestions": suggestions,
+        }
+
+    def _apply_component_frame_catalog_pick(
+        self, suggestion: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """Structure Catalog Foundation IC-3: bind a catalog pick in the
+        frame COMPONENT sub-mode and advance the wizard — mirrors
+        ``_apply_component_battery_catalog_pick``.
+
+        Apply path locked by the IC: ``bind_frame_from_catalog`` +
+        ``set_frame_material(..., catalog_ref=..., component_name=...)`` —
+        the same bind→writer chain IC-2 proved sufficient (test-callable,
+        zero production call sites before this IC). No recalculation here,
+        same posture as the battery/propeller picks (an explicit
+        'calcular'/'simular' recomputes downstream). Material absent on a
+        seed row (the two TBS rows) is passed through as ``None`` — the
+        writer never invents one; completeness stays honest.
+
+        Structure B Parts Graph (Fase 1): after the root write, also upserts
+        any declared part children (``catalog_bind.
+        frame_part_specs_from_catalog``) via ``upsert_frame_part`` — the one
+        production call site for the parts graph in Fase 1. A SKU with no
+        part fields (every seed row except ``armattan_rooster_5in`` today)
+        yields an empty dict here, so root-only behavior is unchanged for
+        every other pick.
+
+        IDLE frame rebind (B2), G-N4 catalog half: a **re-pick** (this
+        method is now reachable when frame is already bound — see the IDLE
+        rebind dispatch) first clears every existing ``parent_key=="frame"``
+        child (``clear_frame_part_children``) before upserting the new SKU's
+        own parts — re-picking Armattan → TBS must never leave stale
+        ``frame_arm``/etc. declaring the *previous* SKU's materials. A no-op
+        when there were no children to clear (first-time bind, or a SKU with
+        no part fields either way).
+        """
+        from jarvis.core.catalog_bind import bind_frame_from_catalog, frame_part_specs_from_catalog
+
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": "No hay proyecto activo. Crea uno primero.",
+            }
+        spec = bind_frame_from_catalog(suggestion["name"])
+        material_prop = spec.properties.get("material")
+        updated_state = set_frame_material(
+            project_state,
+            spec.properties["mass_kg"].value,
+            material_prop.value if material_prop is not None else None,
+            spec.properties["size_class_inch"].value,
+            catalog_ref=spec.catalog_ref,
+            component_name=spec.name,
+        )
+        updated_state = clear_frame_part_children(updated_state)
+        for part_key, part_spec in frame_part_specs_from_catalog(suggestion["name"]).items():
+            updated_state = upsert_frame_part(
+                updated_state, part_key, part_spec.properties, catalog_ref=part_spec.catalog_ref
+            )
+        self.workspace_manager.save_state(updated_state)
+
+        cleared = self.state_manager.get_runtime_session().model_copy(
+            update={"frame_suggestions": []}
+        )
+        self.state_manager.set_runtime_session(cleared)
+
+        identity_bits = [b for b in (suggestion.get("manufacturer"), suggestion.get("model")) if b]
+        identity = " ".join(identity_bits) if identity_bits else suggestion["name"]
+        saved_msg = (
+            f"Frame elegido: {identity} ({suggestion['size_class_inch']:g}\", "
+            f"{suggestion['mass_g']:g}g)."
+        )
         components = updated_state.design_properties.components
         still_missing = [
             k for k in expected_keys
@@ -3100,6 +3326,23 @@ class JarvisOrchestrator:
                 if picked is not None:
                     return self._apply_component_battery_catalog_pick(picked, expected_keys)
 
+        # Structure Catalog Foundation IC-3: frame catalog help-choose / pick
+        # bridge — same ★4 gate shape as motors/propellers/battery
+        # (_wants_catalog_help, not bare key membership).
+        frame_wants_help = "frame" in expected_keys and _wants_catalog_help(gate_components.get("frame"))
+        if frame_wants_help or ("frame" in expected_keys and session.frame_suggestions):
+            from jarvis.core.frame_catalog_assist import (
+                is_help_choose_phrase as frame_is_help_choose_phrase,
+                match_suggestion_by_input as frame_match_suggestion_by_input,
+            )
+
+            if frame_wants_help and frame_is_help_choose_phrase(user_input):
+                return self._offer_component_frame_catalog(session, expected_keys)
+            if session.frame_suggestions:
+                picked = frame_match_suggestion_by_input(user_input, session.frame_suggestions)
+                if picked is not None:
+                    return self._apply_component_frame_catalog_pick(picked, expected_keys)
+
         # ── Affirmative: user confirmed — emit context-specific prompt ────────
         if self._is_affirmative(user_input):
             try:
@@ -3205,6 +3448,75 @@ class JarvisOrchestrator:
             and not (expected_keys and s.suggested_key == "generic_component")
         ]
 
+        # G-N1: parts-only follow-up — frame already declared, user names
+        # parts without a new root mass/size/config/wheelbase. Upsert children
+        # only; do not rewrite root material from a part clause ("standoffs
+        # aluminio" must not become frame.material).
+        if expected_keys and expected_keys[0] == "frame":
+            from jarvis.domains.aerial import (
+                extract_all_frame_part_properties,
+                extract_frame_properties,
+            )
+
+            try:
+                _parts_only_state = self.state_manager.load_active_project(
+                    self.workspace_manager
+                )
+            except FileNotFoundError:
+                _parts_only_state = None
+            _existing_frame = (
+                _parts_only_state.design_properties.components.get("frame")
+                if _parts_only_state is not None
+                else None
+            )
+            _norm = user_input.lower()
+            _declared_parts = extract_all_frame_part_properties(_norm)
+            _root_props = extract_frame_properties(_norm)
+            _has_root_update = any(
+                k in _root_props
+                for k in ("mass_kg", "size_class_inch", "configuration", "wheelbase_mm")
+            )
+            if (
+                _declared_parts
+                and _existing_frame is not None
+                and (_existing_frame.completeness or "low") != "low"
+                and not _has_root_update
+            ):
+                updated_state = _parts_only_state
+                part_bits: list[str] = []
+                for part_key, part_props in _declared_parts:
+                    updated_state = upsert_frame_part(updated_state, part_key, part_props)
+                    label = part_key.removeprefix("frame_")
+                    count_prop = part_props.get("count")
+                    if count_prop is not None and count_prop.value is not None:
+                        part_bits.append(f"{label}×{int(count_prop.value)}")
+                    else:
+                        part_bits.append(label)
+                self.workspace_manager.save_state(updated_state)
+                saved_msg = "Frame partes: " + ", ".join(part_bits) + "."
+                from jarvis.core.project_closure import frame_next_missing_datum
+
+                still_missing = [
+                    k for k in expected_keys
+                    if updated_state.design_properties.components.get(k) is None
+                    or updated_state.design_properties.components[k].completeness == "low"
+                    or (k == "frame" and frame_next_missing_datum(updated_state) is not None)
+                ]
+                if not still_missing:
+                    self._set_pending_next_block()
+                    result = {
+                        "status": "ok",
+                        "action": "component_description_saved",
+                        "message": saved_msg,
+                    }
+                    return self._append_arch_progress_hint(result)
+                follow_up = self._component_prompt_for_first_missing(still_missing)
+                return {
+                    "status": "ok",
+                    "action": "component_description_saved",
+                    "message": f"{saved_msg} {follow_up}",
+                }
+
         if processable:
             # Keep only specs that belong to the active expected set (when set).
             if expected_keys:
@@ -3302,7 +3614,9 @@ class JarvisOrchestrator:
             saved_msgs: list[str] = []
             updated_state = project_state
             for spec in processable:
-                updated_state, msg = self._apply_inferred_component_spec(updated_state, spec)
+                updated_state, msg = self._apply_inferred_component_spec(
+                    updated_state, spec, source_text=user_input
+                )
                 saved_msgs.append(msg)
 
             self.workspace_manager.save_state(updated_state)
@@ -4544,7 +4858,7 @@ class JarvisOrchestrator:
         # G9-A: readiness-first — catalog surface comes from build_engineering_readiness
         # (single resolve_motor_catalog_surface call), not a second invocation here.
         from jarvis.core.engineering_readiness import build_engineering_readiness
-        from jarvis.core.project_continuity import build_project_continuity
+        from jarvis.core.project_continuity import build_project_continuity, margin_claim_weak
 
         readiness = build_engineering_readiness(project_state)
         catalog_gap = readiness.motor_catalog_gap
@@ -4591,7 +4905,7 @@ class JarvisOrchestrator:
             "physical_requirements": physical_requirements,
             "physical_requirements_lines": format_requirements_lines(physical_requirements),
             "component_bom": bom,
-            "component_bom_lines": format_bom_lines(bom),
+            "component_bom_lines": format_bom_lines(bom, project_state),
             # Phase 2 P2-1 (Lookup Operating Point) — provenance of the current
             # per_motor_max_thrust_n, when the motor is catalog-bound. None
             # for freeform/unbound motors (no resolution to show). Stored as
@@ -4639,6 +4953,11 @@ class JarvisOrchestrator:
             "prop_energy_block_closure": derive_prop_energy_block_closure(
                 project_state, readiness=readiness
             ),
+            # Claim hygiene under ASSEMBLY READY IC §2.4: thin flag only —
+            # same authority (project_continuity.margin_claim_weak) Continuity
+            # itself gates its situation string on, so the CLI's ASSEMBLY
+            # READY caveat and Continuity's situation never drift apart.
+            "margin_claim_weak": margin_claim_weak(simulation),
         }
 
     def _build_analyze_context(self, project_state) -> dict[str, Any]:

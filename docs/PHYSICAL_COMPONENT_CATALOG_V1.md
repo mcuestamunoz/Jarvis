@@ -1,6 +1,6 @@
 # Physical Component Catalog v1 — Architectural Design
 
-**Status:** DESIGN CLOSED (Engineer 2026-08-12) — **implementation status:** §13 below (sync 2026-08-31)  
+**Status:** DESIGN CLOSED (Engineer 2026-08-12) — **implementation status:** §13 below (sync 2026-09-05: frame IC-1→3 + Structure B graph + G-N1 + arm thickness + plate multiplicity @ suite **2294**)  
 **Date:** 2026-08-12  
 **Author:** JES / Cursor (Engineer Interface)  
 **Authority:** Engineer confirmation after Catalog v1 connection audit  
@@ -13,8 +13,7 @@
 
 **Explicitly not this document:** Implementation code · full Impl A/B/C/D contracts · H5/C-081 · ESC catalog · Conversation Engine / Step D · Create→BOM implementation details  
 
-**Next:** Implementation Contract — **Catalog Foundation (Impl A)**  
-→ [`.jes/artifacts/implementation_contract_catalog_foundation_v1.md`](../.jes/artifacts/implementation_contract_catalog_foundation_v1.md) — READY for Claude.
+**Next:** see `docs/IMPLEMENTATION_TASKS.md` PRIORIDAD (await Engineer next focus after plate multiplicity B2 CLOSED @ **2294**).
 
 ---
 
@@ -299,9 +298,9 @@ Until that IC exists, **no Catalog Foundation coding**.
 
 ---
 
-## 13. Implementation status (as of `checkpoint-closure-policy`)
+## 13. Implementation status (as of 2026-09-05)
 
-> **This section is timeline hygiene only.** Design locks (§Decision log, §6 phase plan, 1A–5A) are unchanged. For as-is behavior see `docs/ARCHITECTURE.md` and `docs/system_map/*`.
+> **This section is timeline hygiene only.** Design locks (§Decision log, §6 phase plan, 1A–5A) are unchanged. For as-is behavior see `docs/ARCHITECTURE.md` and `docs/system_map/*`. Live suite **2294**.
 
 | Deliverable | Status | Checkpoint (reference) |
 |---|---|---|
@@ -314,8 +313,16 @@ Until that IC exists, **no Catalog Foundation coding**.
 | Battery catalog pick UX | ✅ Complete | IC 2 / `checkpoint-battery-catalog-bind-ux` |
 | G27 battery Wh hardening | ✅ Complete | IC 2 (same checkpoint) |
 | Project Closure / Assembly Ready policy | ✅ Complete | IC 1–3 / `checkpoint-closure-policy` — product contract in `ENGINEERING_READINESS_VISION.md` §11 |
+| Frame catalog — IC-1 (schema + seed) | ✅ Complete (schema+seed only) | Structure Catalog Foundation IC-1 — `CatalogRef.family` gains `"frame"`, `FrameSpec`/`get_frame`/`has_frame`/`list_frames`, `library/frames/_datos.json` (4 seed rows). |
+| Frame catalog — IC-2 (bind + BOM + diverge) | ✅ Complete | Structure Catalog Foundation IC-2 — `bind_frame_from_catalog`, `set_frame_material(..., catalog_ref=)`, `_bom_sku_resolved`/`has_frame`, frame branch in `invalidate_diverged_catalog_refs` (mass + class + override). |
+| Frame catalog — IC-3 (assist UX) | ✅ Complete | Structure Catalog Foundation IC-3 — `frame_catalog_assist.py`, offer/apply, acquisition-brief CTA. `catalog_bound` still not wired into subsystem verdicts. |
+| Structure B Parts Graph Fase 1 | ✅ Complete | `ComponentSpec.parent_key`; sibling keys `frame_arm`/`frame_plate`/`frame_cage`/`frame_standoff`; seed optional `wheelbase_mm`/`configuration`/per-part materials; BOM `└` sub-lines; Structure PASS unchanged. |
+| Structure B G-N1 (free-text root+parts) | ✅ Complete | One message may declare root + parts; parts-only follow-up; suite **2229**. Free-text still one node per type (no ordinal multi-plate). |
+| IDLE catalog rebind B2+B3 | ✅ Complete | Frame + motors/propellers/battery reopen after arch 4/4; suites **2250**/**2276**. `clear_frame_part_children` by `parent_key`. |
+| Structure B arm `thickness_mm` | ✅ Complete | `FrameSpec.arm_thickness_mm` → `frame_arm`; display-only; M0; suite **2286** + smoke. |
+| Structure B plate multiplicity B2 | ✅ Complete | `PlateSeed` + `FrameSpec.plates[]` curated; ordinal `frame_plate*` + `label`; N2/N3/N7; BOM labeled lines; suite **2294**. |
 
-**Still deferred (unchanged from §6 / §10):** H5 ESC catalog · frame SKU catalog · Conversation Engine / Step D · wiring `catalog_bound` into subsystem verdicts · G24 DSE apply-by-index.
+**Still deferred (unchanged from §6 / §10 + post-B2 debt):** H5 ESC catalog · Conversation Engine / Step D · wiring `catalog_bound` into subsystem verdicts · G24 DSE apply-by-index · MEASURE (fit/clearance/FEA/CAD) · free-text multi-plate · optional G-N2 Armattan counts / G-N3 `compressed-x` alias / G-N4 diverge orphans · catalog completeness hardcode polish.
 
 Historical §0 checkpoint sketch ("Next: Impl A ← READY") reflects the **2026-08-12 design gate**, not current code state.
 

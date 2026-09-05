@@ -14,7 +14,14 @@ from pathlib import Path
 
 import pytest
 
-from jarvis.knowledge.library import BatterySpec, ComponentLibrary, EscSpec, MotorSpec, PropellerSpec
+from jarvis.knowledge.library import (
+    BatterySpec,
+    ComponentLibrary,
+    EscSpec,
+    FrameSpec,
+    MotorSpec,
+    PropellerSpec,
+)
 from jarvis.schemas.action_schema import CatalogRef, ComponentSpec
 
 _LIB = ComponentLibrary()
@@ -353,6 +360,122 @@ def test_bind_esc_from_catalog_projects_continuous_current():
     assert spec.properties["mass_g"].value == pytest.approx(26.0)
 
 
+# ── 5c. Frames load; get_frame by id; verified seed (Structure Catalog     ─
+# Foundation IC-1 — schema+seed only, no writer/bind/BOM/Continuity path) ──
+
+def test_frames_load_and_get_by_id():
+    spec = _LIB.get_frame("armattan_rooster_5in")
+    assert isinstance(spec, FrameSpec)
+    assert spec.identity_status == "verified"
+    assert spec.manufacturer == "Armattan Quads"
+    assert spec.mass_g == pytest.approx(125.0)
+    assert spec.size_class_inch == pytest.approx(5.0)
+    assert spec.source_url
+
+
+def test_frame_loader_parses_arm_thickness_mm():
+    """Structure B additive enrichment B2 — seeded arm_thickness_mm parses
+    onto FrameSpec (TBS 5in seed row cites 6mm arm thickness)."""
+    spec = _LIB.get_frame("tbs_source_one_v5_5in")
+    assert spec.arm_thickness_mm == pytest.approx(6.0)
+
+
+def test_frame_loader_arm_thickness_mm_omitted_when_absent(tmp_path: Path):
+    """No source-cited arm thickness → field stays None, never invented."""
+    _write_minimal_library_dirs(tmp_path)
+    (tmp_path / "frames").mkdir()
+    (tmp_path / "frames" / "_datos.json").write_text(
+        '{"bare": {"mass_g": 100, "size_class_inch": 5}}', encoding="utf-8"
+    )
+    lib = ComponentLibrary(library_root=tmp_path)
+    spec = lib.get_frame("bare")
+    assert spec.arm_thickness_mm is None
+
+
+def test_frame_loader_parses_curated_plates():
+    """Frame Assembly Physical Model B2, T1 — curated plates list parses
+    onto FrameSpec.plates as PlateSeed entries (TBS 5in: Top/Middle/Bottom)."""
+    spec = _LIB.get_frame("tbs_source_one_v5_5in")
+    assert spec.plates is not None
+    labels = [p.label for p in spec.plates]
+    thicknesses = [p.thickness_mm for p in spec.plates]
+    assert labels == ["Top", "Middle", "Bottom"]
+    assert thicknesses == [pytest.approx(2.0), pytest.approx(2.0), pytest.approx(2.5)]
+
+
+def test_frame_loader_plates_omitted_when_absent(tmp_path: Path):
+    """No curated plates list → field stays None, never fabricated."""
+    _write_minimal_library_dirs(tmp_path)
+    (tmp_path / "frames").mkdir()
+    (tmp_path / "frames" / "_datos.json").write_text(
+        '{"bare": {"mass_g": 100, "size_class_inch": 5}}', encoding="utf-8"
+    )
+    lib = ComponentLibrary(library_root=tmp_path)
+    spec = lib.get_frame("bare")
+    assert spec.plates is None
+
+
+def test_frame_loader_plates_over_max_rejected(tmp_path: Path):
+    """N7 lock — more than 8 curated plate entries hard-fails at load time,
+    never silently truncated."""
+    _write_minimal_library_dirs(tmp_path)
+    (tmp_path / "frames").mkdir()
+    nine_plates = [{"label": f"p{i}", "thickness_mm": 2} for i in range(9)]
+    import json as _json
+
+    (tmp_path / "frames" / "_datos.json").write_text(
+        _json.dumps({"toomany": {"mass_g": 100, "size_class_inch": 5, "plates": nine_plates}}),
+        encoding="utf-8",
+    )
+    lib = ComponentLibrary(library_root=tmp_path)
+    with pytest.raises(ValueError, match="plates"):
+        lib.get_frame("toomany")
+
+
+def test_frames_seed_has_at_least_two_distinct_size_classes():
+    sizes = {f.size_class_inch for f in _LIB.list_frames()}
+    assert len(sizes) >= 2
+    assert 2 <= len(_LIB.list_frames()) <= 6
+
+
+def test_has_frame():
+    assert _LIB.has_frame("armattan_rooster_5in") is True
+    assert _LIB.has_frame("phantom_frame_9000") is False
+
+
+def test_frame_missing_mass_raises(tmp_path: Path):
+    _write_minimal_library_dirs(tmp_path)
+    (tmp_path / "frames").mkdir()
+    (tmp_path / "frames" / "_datos.json").write_text(
+        '{"broken": {"size_class_inch": 5}}', encoding="utf-8"
+    )
+    lib = ComponentLibrary(library_root=tmp_path)
+    with pytest.raises(ValueError, match="mass_g"):
+        lib.list_frames()
+
+
+def test_frame_missing_size_class_raises(tmp_path: Path):
+    _write_minimal_library_dirs(tmp_path)
+    (tmp_path / "frames").mkdir()
+    (tmp_path / "frames" / "_datos.json").write_text(
+        '{"broken": {"mass_g": 125}}', encoding="utf-8"
+    )
+    lib = ComponentLibrary(library_root=tmp_path)
+    with pytest.raises(ValueError, match="size_class_inch"):
+        lib.list_frames()
+
+
+def test_catalog_ref_accepts_frame_family():
+    ref = CatalogRef(family="frame", sku="armattan_rooster_5in")
+    assert ref.family == "frame"
+
+
+def _write_minimal_library_dirs(tmp_path: Path) -> None:
+    for name in ("motores", "materiales", "baterias", "helices", "esc"):
+        (tmp_path / name).mkdir()
+        (tmp_path / name / "_datos.json").write_text("{}", encoding="utf-8")
+
+
 # ── 6. Unknown SKU → not-found deterministic (cross-family, no fabrication) ─
 
 def test_unknown_sku_never_fabricated():
@@ -360,6 +483,7 @@ def test_unknown_sku_never_fabricated():
     assert _LIB.has_battery("phantom_battery_9000") is False
     assert _LIB.has_propeller("phantom_prop_9000") is False
     assert _LIB.has_esc("phantom_esc_9000") is False
+    assert _LIB.has_frame("phantom_frame_9000") is False
     with pytest.raises(KeyError):
         _LIB.get_motor("phantom_motor_9000")
     with pytest.raises(KeyError):
@@ -368,6 +492,8 @@ def test_unknown_sku_never_fabricated():
         _LIB.get_propeller("phantom_prop_9000")
     with pytest.raises(KeyError):
         _LIB.get_esc("phantom_esc_9000")
+    with pytest.raises(KeyError):
+        _LIB.get_frame("phantom_frame_9000")
 
 
 # ── 7. match_motor_propeller — explicit + fallback + honest False ──────────

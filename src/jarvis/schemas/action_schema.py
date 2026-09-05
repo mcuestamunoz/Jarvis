@@ -136,7 +136,7 @@ class CatalogRef(BaseModel):
     docs/PHYSICAL_COMPONENT_CATALOG_V1.md, decision 1A.
     """
 
-    family: Literal["motor", "battery", "propeller", "esc"]
+    family: Literal["motor", "battery", "propeller", "esc", "frame"]
     sku: str
 
 
@@ -161,6 +161,14 @@ class ComponentSpec(BaseModel):
     # "declared/inferred, not catalog-bound" (today's only behavior). No
     # production code path sets this in Impl A — see CatalogRef docstring.
     catalog_ref: CatalogRef | None = None
+    # Structure B Parts Graph (Fase 1) — optional intra-project parent
+    # reference: the dict key of this spec's parent in
+    # design_properties.components (e.g. "frame" for a "frame_arm" child).
+    # First intra-project parent/child precedent in this schema — additive,
+    # default None, every existing/serialized project deserializes
+    # unchanged. Never read by _structure_evidence/_derive_subsystem_verdict
+    # (Structure PASS stays root-only) — see engineering_readiness.py.
+    parent_key: str | None = None
 
 
 class IterationOperation(str, Enum):
@@ -243,6 +251,10 @@ class InteractiveSessionState(BaseModel):
     # Bat-1: same tier as motor_suggestions/propeller_suggestions —
     # runtime-only (see state_manager._PERSISTED_SESSION_FIELDS comment).
     battery_suggestions: list[dict] = Field(default_factory=list)
+    # Structure Catalog Foundation IC-3: same tier as the three suggestion
+    # lists above — runtime-only (see state_manager._PERSISTED_SESSION_FIELDS
+    # comment).
+    frame_suggestions: list[dict] = Field(default_factory=list)
     pending_param_definitions: list[str] = Field(default_factory=list)
     collected_params: dict[str, float] = Field(default_factory=dict)
     param_definition_reason: str = ""

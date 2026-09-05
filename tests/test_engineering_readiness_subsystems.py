@@ -209,6 +209,41 @@ def test_assembly_ready_true_when_everything_pass_no_gaps():
     assert result.overall == "ASSEMBLY_READY"
 
 
+def test_assembly_ready_true_when_pass_but_quality_risky():
+    """Claim hygiene under ASSEMBLY READY IC §3 (ERF smoke): this IC changes
+    Continuity/CLI copy only — it must NOT flip ERF eligibility. Same
+    fixture as test_assembly_ready_true_when_everything_pass_no_gaps, only
+    swapping the simulation for PASS + quality=risky + low_margin (the
+    investigation's reconstruction shape) — overall stays ASSEMBLY_READY,
+    because engineering_readiness never reads quality/warnings/margin."""
+    frame, battery, fc, sensors, propellers, esc = _fully_closed_components()
+    motors = _motor_spec()
+    state = _project_state(
+        current_parameters=dict(_FULLY_CLOSED_PARAMS),
+        parsed_constraints={"max_weight_kg": 999.0},
+        latest_results={
+            "simulation": {
+                "status": "pass",
+                "can_fly": True,
+                "quality": "risky",
+                "safety_margin_ratio": 1.05,
+                "warnings": ["low_margin"],
+            },
+            "calculations": {"required_thrust_n": 19.8, "total_mass_kg": 1.5, "autonomy_min": 20.0},
+        },
+        design_properties=_design_properties(
+            components={
+                "frame": frame, "battery": battery, "flight_controller": fc,
+                "sensors": sensors, "motors": motors, "propellers": propellers, "esc": esc,
+            },
+            system_blocks=_FULLY_CLOSED_BLOCKS, system_priority=_FULLY_CLOSED_BLOCKS,
+        ),
+    )
+    result = build_engineering_readiness(state)
+    assert result.gaps == [], [g.gap_id for g in result.gaps]
+    assert result.overall == "ASSEMBLY_READY"
+
+
 def test_demoted_catalog_gap_warns_catalog_propulsion_but_bom_keeps_not_ready():
     """★1/§5.3: ACCEPTED_WARNING_TYPES applies only to catalog/propulsion —
     "bom" is deliberately NOT in that closed list, even though the same gap

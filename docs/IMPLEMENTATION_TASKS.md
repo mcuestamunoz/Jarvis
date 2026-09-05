@@ -6,20 +6,157 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.6`** / **`checkpoint-experimental-prop-energy-closed`** (construcción experimental cerrada; `v0.3.5` = Phase 2.5 hover energy).  
-> **PRIORIDAD AHORA:** **fase knowledge / block parity** — Engineer nombra el siguiente hilo; no IC de pulido prop/energía/routing.  
-> Suite last closed: **2150**. Fase experimental prop/energía/Structure A/fail-routing **cerrada como construcción**. P26 / P27-A **congelados**. HD-* nunca 🔴.  
-> **★ fase:** [engineer_ratification_phase_transition_knowledge_parity.md](../.jes/artifacts/engineer_ratification_phase_transition_knowledge_parity.md) — Engineer `Procede` 2026-09-04  
-> **Agenda:** [engineer_agenda_knowledge_and_block_parity.md](../.jes/artifacts/engineer_agenda_knowledge_and_block_parity.md)  
-> Protocolo: Know / Claim / Measure / Buy antes de código. C-A1, N1 hint residual, DSE copy = fuera de fase por defecto.  
-> Software aparcado (no el default): Tier 3 · G24-B · H5 · Foundation · Option B · Impl C C3 · CAD/FEA · control physics · pulido del stack prop/energía ya usable.
+> **Base:** tag **`v0.3.6`**. Suite viva **2294**.  
+> **PRIORIDAD AHORA:** **Ninguna IC abierta.** Structure arco + smoke **CLOSED/ACCEPT**. Optimization **NO** abrir (lock abajo).  
+> **Pared física:** Prop/Energy experimental → HD-004 ([lock](../.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md)).  
+> **Debt software (no cola):** free-text multi-plate · completeness hardcode · G-N2/3/4 · C3 UX · MEASURE out · System optimization (deferred).  
+> **Artefactos:** investigation / implementation / review only (sin docs de ratificación).
 
-### 🟡 FASE ACTIVA — Knowledge & block parity (2026-09-04)
+### 🧊 LOCK — System-level Optimization diferida (2026-09-05)
 
-> **Qué:** otras funciones/bloques al nivel del loop prop/energía/Structure A/readiness — no “otra feature” sobre lo ya visible.  
-> **Pregunta rectora:** qué debe saber Jarvis, qué puede afirmar, qué debe medir, qué conocimiento comprar (código / lab / investigación).  
-> **Congelado por defecto:** catalog honesty C-A1, Continuity/DSE polish de autonomía, fail-routing N1 residual, exprimir hover-Wh UX.  
-> **Siguiente:** Engineer elige un hilo de la agenda (§5) → solo entonces Investigation Contract.
+> **Engineer:** no abrir Optimization todavía.  
+> Hoy `explora`/`aplica la mejor` = optimización **local** sobre sim (`can_fly` + score de goal); **no** anillo sistema (readiness/gaps/Continuity/ASSEMBLY READY).  
+> Mejora de producto válida **solo cuando el comportamiento actual demuestre dolor**. No implementar porque la Vision §7 lo nombre.  
+> Lock: [`.jes/artifacts/engineer_lock_system_optimization_deferred.md`](../.jes/artifacts/engineer_lock_system_optimization_deferred.md)
+
+### 🧊 PARED FÍSICA — Prop/Energy evidence / autonomía (2026-09-05)
+
+> **Lock:** `~N min` = estimación energética orientativa, **no** “volará N minutos”.  
+> Cuello: hardware + medición → evidencia OP→consumo → modelo. **No** más código → autonomía fiable.  
+> HD-004 OPEN. No PRIORIDAD. No implementación de sag/SOC/η inventada.  
+> Opcional más adelante: investigation de *schema* de evidencia cuando exista banco — no ahora.
+
+### 🟢 CERRADO (campo) — Structure plate multiplicity CLI smoke (2026-09-05)
+
+> `cambiar frame` → iFlight (2 plates labeled) → Armattan (4 plates + arm 4mm + cage/standoff). ACCEPT.
+
+### 🟢 CERRADO (código + review) — Structure B plate multiplicity B2 (2026-09-05)
+
+> **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_structure_b_frame_assembly_physical_model.md) · [implementation_review…](../.jes/artifacts/implementation_review_structure_b_frame_assembly_physical_model.md) — **PASS WITH NOTES**  
+> **Suite:** **2294**  
+> **Qué:** `plates[]` curated · ordinal `frame_plate*` · `label` · N2 precedence · BOM labeled lines · free-text multi-plate OUT.
+
+### 🟢 CERRADO (código + review) — Structure B thickness arms B2 (2026-09-05)
+
+> **IC / Review:** [implementation_contract_structure_b_thickness_arms_b2.md](../.jes/artifacts/implementation_contract_structure_b_thickness_arms_b2.md) · [implementation_review…](../.jes/artifacts/implementation_review_structure_b_thickness_arms_b2.md) — **PASS WITH NOTES**  
+> **Suite:** **2286**  
+> **Qué:** `arm_thickness_mm` display-only en `frame_arm`; N2 proyección thickness-only; M0; sin plate thickness.  
+> **Smoke:** [engineer_cli_smoke_thickness_arms_b2.md](../.jes/artifacts/engineer_cli_smoke_thickness_arms_b2.md)
+
+### 🟢 CERRADO (código + review) — IDLE catalog rebind B2+B3 (2026-09-04)
+
+> Frame + motors/propellers/battery reopen tras arquitectura 4/4 · suites **2250** / **2276**.
+
+### 🟢 CERRADO (★ bloque) — Structure representation arc (2026-09-04)
+
+> Foundations · Catalog IC-1→3 · honesty `PASS *` · Parts Graph Fase 1 · G-N1 · suite **2229** · CLI walk ACCEPT.  
+> **★ close:** [engineer_ratification_structure_block_closed.md](../.jes/artifacts/engineer_ratification_structure_block_closed.md)  
+> **Walk:** [engineer_cli_walk_structure_block_post_close.md](../.jes/artifacts/engineer_cli_walk_structure_block_post_close.md)
+
+### 🟢 CERRADO (código + review) — Structure B G-N1 free-text Root+Parts (2026-09-04)
+
+> **IC:** [implementation_contract_structure_b_gn1_freetext_root_parts.md](../.jes/artifacts/implementation_contract_structure_b_gn1_freetext_root_parts.md)  
+> **Report:** [implementation_report_structure_b_gn1_freetext_root_parts.md](../.jes/artifacts/implementation_report_structure_b_gn1_freetext_root_parts.md)  
+> **Review:** [implementation_review_structure_b_gn1_freetext_root_parts.md](../.jes/artifacts/implementation_review_structure_b_gn1_freetext_root_parts.md) — **PASS**  
+> **Suite:** **2229**  
+> **Qué:** un mensaje declara root + partes; parts-only sin pisar root; config/wheelbase free-text persistidos.  
+> **Debt restante del bloque:** G-N2 counts · G-N3 compressed-x · G-N4 diverge orphans · C3 assist UX.
+
+### 🟢 CERRADO (código + review) — Structure B Parts Graph Fase 1 (2026-09-04)
+
+> **IC / Review:** PASS WITH NOTES · suite **2223** → **2229** after G-N1  
+> **G-N1:** absorbed.
+
+### 🟢 CERRADO (código + review) — Structure honesty `PASS *` (2026-09-04)
+
+> **IC:** [implementation_contract_structure_honesty_pass_star.md](../.jes/artifacts/implementation_contract_structure_honesty_pass_star.md)  
+> **Report:** [implementation_report_structure_honesty_pass_asterisk.md](../.jes/artifacts/implementation_report_structure_honesty_pass_asterisk.md)  
+> **Review:** [implementation_review_structure_honesty_pass_star.md](../.jes/artifacts/implementation_review_structure_honesty_pass_star.md) — **PASS WITH NOTES**  
+> **Suite:** **2200** (then 2223 after graph)  
+> **Qué:** `Structure PASS *` + footnote blanket; CLI only; ERF untouched.  
+> **Notas:** N1 docstring Control; N2 Continuity dirty from prior ICs not this one.
+
+### 🟢 CERRADO (investigación; modelo rechazado) — Structure B scalars Fase 1 (2026-09-04)
+
+> **Report / Review:** PASS WITH NOTES — lean 3 escalares. Engineer ★ eligió **B grafo** en su lugar.  
+> **Valor retenido:** prueba de que hoy no hay nesting; muro claim; Buy honesty-first.
+
+### 🟢 CERRADO (investigación) — Structure A PASS meaning (2026-09-04)
+
+> **Report / Review:** PASS WITH NOTES — PASS = 4 bits + LEVEL A; lean `Structure PASS *`; Rank-0 B bajo contrato anti-CAD (superseded as “¿cruzamos?” by Engineer pivot).  
+> **Tabla ✓/✗:** lista para Engineer ★.
+
+> **★ producto:** ver/elegir catálogo + mapa mental  
+> **IC:** [implementation_contract_structure_catalog_foundation_ic3.md](../.jes/artifacts/implementation_contract_structure_catalog_foundation_ic3.md)  
+> **Report:** [implementation_report_structure_catalog_foundation_ic3.md](../.jes/artifacts/implementation_report_structure_catalog_foundation_ic3.md)  
+> **Review:** [implementation_review_structure_catalog_foundation_ic3.md](../.jes/artifacts/implementation_review_structure_catalog_foundation_ic3.md) — **PASS WITH NOTES**  
+> **Suite:** **2197** · CLI walk reportado (list→pick→estado `[sku]` + LEVEL A honest)  
+> **Qué:** `frame_catalog_assist` + offer/apply + brief CTA; free-text intacto.  
+> **Notas:** N1 lista sin sku key visible siempre; N2 limit=10; N3 walk por implementer.  
+> **Siguiente:** bloque Catalog Foundation cerrado — Engineer nombra foco.
+
+### 🟢 CERRADO (código + review) — Catalog Foundation IC-2 bind + BOM + diverge (2026-09-04)
+
+> **IC:** [implementation_contract_structure_catalog_foundation_ic2.md](../.jes/artifacts/implementation_contract_structure_catalog_foundation_ic2.md)  
+> **Report:** [implementation_report_structure_catalog_foundation_ic2.md](../.jes/artifacts/implementation_report_structure_catalog_foundation_ic2.md)  
+> **Review:** [implementation_review_structure_catalog_foundation_ic2.md](../.jes/artifacts/implementation_review_structure_catalog_foundation_ic2.md) — **PASS WITH NOTES**  
+> **Suite:** **2188**  
+> **Qué:** `bind_frame_from_catalog` + writer `catalog_ref` + BOM `has_frame` + diverge masa/clase/override; API-only (sin assist).  
+> **Notas:** N1 test masa vía override; N2 doc status opcional; N3 no CLI walk.  
+> **Siguiente:** Engineer nombra foco; IC-3 solo con ★ nuevo.
+
+### 🟢 CERRADO (código + review) — Catalog Foundation IC-1 schema + seed (2026-09-04)
+
+> **★ / procede:** Engineer  
+> **IC:** [implementation_contract_structure_catalog_foundation_ic1.md](../.jes/artifacts/implementation_contract_structure_catalog_foundation_ic1.md)  
+> **Report:** [implementation_report_structure_catalog_foundation_ic1.md](../.jes/artifacts/implementation_report_structure_catalog_foundation_ic1.md)  
+> **Review:** [implementation_review_structure_catalog_foundation_ic1.md](../.jes/artifacts/implementation_review_structure_catalog_foundation_ic1.md) — **PASS WITH NOTES**  
+> **Suite:** **2177**  
+> **Qué:** `"frame"` en `CatalogRef` + `FrameSpec` + 4 SKUs reales + get/has/list; sin bind/BOM/CLI.  
+> **Notas:** N1 retailer URLs (1 OEM); N3 no CLI walk.  
+> **Siguiente:** Engineer nombra foco; IC-2 solo con nuevo ★.
+
+### 🟢 CERRADO (★ investigación) — Structure Catalog Foundation / Frames (2026-09-04)
+
+> **★:** Engineer `RATIFICO`  
+> **Report / Review:** PASS WITH NOTES — **Not yet** bind/assist; masa frame = mismo override que free text; ESC = precedente IC-1.  
+> **Postura:** **B0** — sin IC de implementación. IC-1 opcional no abierto.  
+> **Siguiente:** nuevo foco nombrado por Engineer.
+
+### 🟢 CERRADO (código + review) — Structure Foundations claim-copy (2026-09-04)
+
+> **★:** Engineer `procede`  
+> **IC:** [implementation_contract_structure_foundations.md](../.jes/artifacts/implementation_contract_structure_foundations.md)  
+> **Report:** [implementation_report_structure_foundations.md](../.jes/artifacts/implementation_report_structure_foundations.md)  
+> **Review:** [implementation_review_structure_foundations.md](../.jes/artifacts/implementation_review_structure_foundations.md) — **PASS WITH NOTES**  
+> **Suite:** **2171**  
+> **Qué:** BOM frame con sufijo de clase pendiente/incompatible; Continuity no dice “Diseño validado” con GAP-FRAME-* en readiness.  
+> **Siguiente:** Catalog Foundation investigation (abierta arriba) — no layout/CAD.
+
+### 🟢 CERRADO (fase) — Knowledge & block parity (2026-09-04)
+
+> Claim hygiene B4 ✅ · Control parity B1 ✅ (suite **2164**). Residuals aparcados.
+
+### 🟢 CERRADO (código + review) — Control parity B1 (2026-09-04)
+
+> **★:** Engineer `procede` (ratifica IC)  
+> **IC:** [implementation_contract_control_parity.md](../.jes/artifacts/implementation_contract_control_parity.md)  
+> **Report:** [implementation_report_control_parity.md](../.jes/artifacts/implementation_report_control_parity.md)  
+> **Review:** [implementation_review_control_parity.md](../.jes/artifacts/implementation_review_control_parity.md) — **PASS WITH NOTES**  
+> **Suite:** **2164**  
+> **Qué:** `Control PASS *` + footnote declaración; BOM `✓ flight_controller … (identidad, sin dato físico)`. ERF intacto.  
+> **Siguiente:** fase knowledge/block parity cerrada → Structure Foundations.
+
+### 🟢 CERRADO (código + review) — Claim hygiene under ASSEMBLY READY (2026-09-04)
+
+> **★:** Engineer `procede`  
+> **IC:** [implementation_contract_claim_hygiene_assembly_ready.md](../.jes/artifacts/implementation_contract_claim_hygiene_assembly_ready.md)  
+> **Report:** [implementation_report_claim_hygiene_assembly_ready.md](../.jes/artifacts/implementation_report_claim_hygiene_assembly_ready.md)  
+> **Review:** [implementation_review_claim_hygiene_assembly_ready.md](../.jes/artifacts/implementation_review_claim_hygiene_assembly_ready.md) — **PASS WITH NOTES**  
+> **Suite:** **2160** · Continuity + CLI + ERF smoke  
+> **Qué:** PASS+risky/`low_margin` → situación “Margen ajustado…” (no “Diseño validado”); NOTE bajo ASSEMBLY READY; `Por qué` humanizado; elegibilidad ERF intacta.  
+> **Notas:** N1 boolean `margin_claim_weak` en ctx (mejor que snapshot); N2 PhaseLayer; N4 weak-OP aparte.  
+> **Siguiente:** control parity investigation — no automático hasta Engineer.
 
 ### 🟢 CERRADO (fase experimental de construcción) — Prop/energía + Structure A + CLI fail-routing
 
@@ -1322,7 +1459,7 @@ def _check_constraint_violations(state: ProjectState) -> list[str]:
 
 ## 🧠 ESTADO ACTUAL DEL SISTEMA
 
-> **Actualizado 2026-09-04.** Esta sección resume arquitectura de fondo, no el foco del día — para eso está 🔴 PRIORIDAD ACTUAL arriba. Progresión histórica de tests hasta el 5 de agosto abajo (sin tocar); desde entonces el conteo pasó por checkpoints **v0.3.1→v0.3.6** hasta **2150 tests passing** (suite last closed), vía Motor OP, Phase 2.5–2.7-B, Opción A, CLI feasibility/catalog-assist, DSE apply honest, Structure A, fail-routing — detalle en 🔴 PRIORIDAD ACTUAL. Fase activa: knowledge / block parity.
+> **Actualizado 2026-09-05.** Esta sección resume arquitectura de fondo, no el foco del día — para eso está 🔴 PRIORIDAD ACTUAL arriba. Progresión histórica de tests hasta el 5 de agosto abajo (sin tocar); desde entonces el conteo pasó por checkpoints **v0.3.1→v0.3.6** y el arco Structure / rebind / thickness / plate multiplicity hasta **2294 tests passing** (suite viva), vía Motor OP, Phase 2.5–2.7-B, Opción A, CLI feasibility/catalog-assist, DSE apply honest, Structure A→B, fail-routing — detalle en 🔴 PRIORIDAD ACTUAL. Fase: await Engineer next focus.
 
 - **1321 tests passing** sin regresiones (baseline 885, +155 Fase 2, +35 Fase 2.5, +20 Fase 2.6, +7 Fase 2.6.1, +15 Fase 3, +96 Fases 4–6+K, +14 Fase L+M, +87 Fase U, +21 Fase N). Verificado 16 julio 2026.
 - **1331 tests passing** tras rediseño `create_project` por ramas (5 agosto 2026, +11).

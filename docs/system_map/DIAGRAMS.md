@@ -40,7 +40,11 @@ CONNECTIONS.md
 
 **Motor OP Voltage Coherence (2026-09-01):** MOP-1…MOP-4 doc sync — `library.resolve_operating_point` requires explicit voltage for exact match; `component_writers` stores `propulsion_resolution.voltage_validated` / conditional battery-bind re-resolve; `DesignExplorer.explore` baseline uses live `current_parameters`; explore message honesty when OP unvalidated. **No new C-xxx.** Tag: `checkpoint-motor-op-voltage-coherence` (`a563fe7` / `v0.3.4`). Detail: C-030 mutation note, C-091/`09_state`, `04_engineering`. Probe hygiene: `cli_probe_impl_d_sku_bom.py` G24D step 3 (`0db2d2b`).
 
-**Experimental construction closed (2026-09-04, v0.3.6):** Catalog-assist / DSE apply honest / Structure A / CLI fail-routing shipped and reviewed; phase transition to knowledge & block parity. **No new C-xxx** from this close. Tag: `checkpoint-experimental-prop-energy-closed` / `v0.3.6`. Queue: `docs/IMPLEMENTATION_TASKS.md` + `.jes/artifacts/engineer_agenda_knowledge_and_block_parity.md`.
+**Experimental construction closed (2026-09-04, v0.3.6):** Catalog-assist / DSE apply honest / Structure A / CLI fail-routing shipped and reviewed. Tag: `checkpoint-experimental-prop-energy-closed` / `v0.3.6`. **No new C-xxx.**
+
+**Claim hygiene B4 + control parity (2026-09-04):** Continuity/CLI margin claim honesty CLOSED (suite **2160**); control parity CLOSED (suite **2164**) — product copy / FC identity, **no new C-xxx**; C-081 stays 🟡 PARTIAL (dedicated risk next-step thread still open as map debt).
+
+**Structure representation + IDLE rebind + assembly KNOW (2026-09-04→05):** Structure Foundations / Catalog IC-1→3 / honesty `PASS *` / Parts Graph + G-N1 / IDLE rebind B2+B3 / arm `thickness_mm` / plate multiplicity (`plates[]` + ordinal `frame_plate*` + `label`) — all CLOSED through suite **2294**. Display-only BOM children; Structure PASS evidence unchanged; free-text multi-plate remains debt. **No new C-xxx.** Queue: `docs/IMPLEMENTATION_TASKS.md`.
 
 **Phase 2.5–2.7-B + Option A (2026-09-01):** Hover L1 + labeled L2 endurance envelope. User calculate/iterate wrap `build()` via `endurance_sweep_writer`; engine stays opt-in; DSE does not call the writer; CLI ESTIMATIVO on `calcular` and `estado`. **No new C-xxx** (C-060 detail only). Lab remainder is `docs/HARDWARE_DEBT.md`, not a map edge.
 

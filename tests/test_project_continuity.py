@@ -182,6 +182,201 @@ def test_situation_still_diseno_validado_when_autonomy_meets_target():
     assert "Comprobación de empuje" not in cont["situation"]
 
 
+def test_situation_margin_weak_never_says_diseno_validado():
+    """Claim hygiene under ASSEMBLY READY IC §2.1: PASS + quality=risky +
+    an active low_margin warning must not say "Diseño validado" — it must
+    use the locked margin-weak sentence instead. Evidence keeps naming
+    quality/margin (unchanged); next step stays the warning-branch
+    correction (status_type="warning", as orchestrator actually derives it
+    for a non-empty warnings list)."""
+    cont = build_project_continuity(
+        project_state=_state(
+            latest_results={
+                "simulation": {
+                    "status": "pass",
+                    "quality": "risky",
+                    "safety_margin_ratio": 1.05,
+                    "can_fly": True,
+                    "warnings": ["low_margin"],
+                },
+                "calculations": {},
+            },
+        ),
+        status_type="warning",
+        status_reason="low_margin",
+        phase="complete",
+        architecture_progress="4/4",
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+        motor_catalog_matches=[],
+    )
+    assert "Diseño validado" not in cont["situation"]
+    assert "Margen ajustado" in cont["situation"]
+    assert "PASS" in cont["situation"]
+    assert any("risky" in e.lower() and "1.05" in e for e in cont["evidence"])
+    assert "Corrige la causa del warning" in cont["next_useful_step"]
+    assert cont["next_useful_why"] == "low_margin"
+
+
+def test_situation_high_actuator_load_never_says_diseno_validado():
+    """Same guard, different margin/load warning code (high_actuator_load) —
+    quality can still be "acceptable"; the warning alone is enough."""
+    cont = build_project_continuity(
+        project_state=_state(
+            latest_results={
+                "simulation": {
+                    "status": "pass",
+                    "quality": "acceptable",
+                    "safety_margin_ratio": 1.2,
+                    "can_fly": True,
+                    "warnings": ["high_actuator_load"],
+                },
+                "calculations": {},
+            },
+        ),
+        status_type="warning",
+        status_reason="high_actuator_load",
+        phase="complete",
+        architecture_progress="4/4",
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+        motor_catalog_matches=[],
+    )
+    assert "Diseño validado" not in cont["situation"]
+    assert "Margen ajustado" in cont["situation"]
+
+
+def test_situation_diseno_validado_unchanged_for_pass_good_no_warnings():
+    """Regression guard: PASS + quality=good + no warnings keeps the
+    original "Diseño validado" sentence — the §2.1 gate must not fire on
+    the honest case."""
+    cont = build_project_continuity(
+        project_state=_state(),
+        status_type="nominal",
+        status_reason=None,
+        phase="complete",
+        architecture_progress="4/4",
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+        motor_catalog_matches=[],
+    )
+    assert "Diseño validado en simulación (PASS)" in cont["situation"]
+    assert "Margen ajustado" not in cont["situation"]
+
+
+def test_situation_frame_class_gap_never_says_diseno_validado():
+    """Structure Foundations IC §2.2: PASS + a live GAP-FRAME-SIZE-MISSING
+    on ``readiness`` must not say "Diseño validado" — even when
+    ``architecture_progress`` is omitted (the gate reads the Gap Registry
+    directly, not the architecture-progress string)."""
+    readiness = SimpleNamespace(
+        gaps=[SimpleNamespace(gap_type="GAP-FRAME-SIZE-MISSING")],
+        top_gap=None,
+        subsystems={},
+        motor_catalog_gap_fact=None,
+    )
+    state = _state(
+        current_parameters={"motor_count": 4, "propeller_diameter_in": 10.0},
+    )
+    cont = build_project_continuity(
+        project_state=state,
+        status_type="nominal",
+        status_reason=None,
+        phase="complete",
+        architecture_progress=None,
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+        motor_catalog_matches=[],
+        readiness=readiness,
+    )
+    assert "Diseño validado" not in cont["situation"]
+    assert cont["situation"] == (
+        "Comprobación de empuje: PASS. Compatibilidad de clase (nivel A) pendiente."
+    )
+
+
+def test_situation_frame_prop_size_gap_uses_same_locked_sentence():
+    readiness = SimpleNamespace(
+        gaps=[SimpleNamespace(gap_type="GAP-FRAME-PROP-SIZE")],
+        top_gap=None,
+        subsystems={},
+        motor_catalog_gap_fact=None,
+    )
+    frame = SimpleNamespace(properties={"size_class_inch": SimpleNamespace(value=5.0)})
+    state = _state(
+        current_parameters={"motor_count": 4, "propeller_diameter_in": 10.0},
+        design_properties=SimpleNamespace(components={"frame": frame}),
+    )
+    cont = build_project_continuity(
+        project_state=state,
+        status_type="nominal",
+        status_reason=None,
+        phase="complete",
+        architecture_progress=None,
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+        motor_catalog_matches=[],
+        readiness=readiness,
+    )
+    assert cont["situation"] == (
+        "Comprobación de empuje: PASS. Compatibilidad de clase (nivel A) pendiente."
+    )
+
+
+def test_situation_diseno_validado_unchanged_when_readiness_has_no_frame_gap():
+    """Regression guard: a readiness object with unrelated gaps (or none)
+    must not trip the new gate."""
+    readiness = SimpleNamespace(gaps=[], top_gap=None, subsystems={}, motor_catalog_gap_fact=None)
+    cont = build_project_continuity(
+        project_state=_state(),
+        status_type="nominal",
+        status_reason=None,
+        phase="complete",
+        architecture_progress="4/4",
+        next_architecture_label=None,
+        next_block_status=None,
+        proactive_question=None,
+        suggested_action=None,
+        physical_requirements={},
+        component_bom={"defined": [], "incomplete": [], "missing": [], "declarative": []},
+        energy_model_note=None,
+        motor_catalog_gap=None,
+        motor_catalog_matches=[],
+        readiness=readiness,
+    )
+    assert "Diseño validado en simulación (PASS)" in cont["situation"]
+
+
 def test_continuity_catalog_gap_beats_optimization_suggestion():
     cont = build_project_continuity(
         project_state=_state(),

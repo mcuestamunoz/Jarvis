@@ -13,11 +13,11 @@
 | `workspace/render_views.py` | `render_estado_actual`, `render_sistema` — `state.json` → markdown views (uses `project_closure`'s BOM, C-082) |
 | `workspace/file_writer.py` | Physical file I/O primitives |
 | `core/component_inference.py` | `infer_component[s]`, `infer_component_for_key` (FN-019) — free text → `ComponentSpec`, pure |
-| `core/component_writers.py` | `set_frame_material`, `set_control_component`, `set_battery_component`, `set_motor_component`, `set_propeller_component`, `apply_components_delta` — **the only** legal writers of `design_properties.components[key]`; motor OP bridge via `knowledge/library.resolve_operating_point` |
-| `knowledge/library.py` | `ComponentLibrary`, catalog rows, **`resolve_operating_point`** (P2-1/P2-2; v0.3.4 MOP-1 exact match requires explicit voltage) — consumed by `component_writers`, not by CalculationEngine directly |
+| `core/component_writers.py` | `set_frame_material`, `merge_frame_root_declared_properties`, `upsert_frame_part`, `clear_frame_part_children`, `set_control_component`, `set_battery_component`, `set_motor_component`, `set_propeller_component`, `apply_components_delta` — **the only** legal writers of `design_properties.components[key]`; motor OP bridge via `knowledge/library.resolve_operating_point`. **Structure B:** `upsert_frame_part` writes arbitrary `frame_*` children with `parent_key="frame"` (catalog assist + G-N1 free-text + ordinal plates). **IDLE rebind:** `clear_frame_part_children` removes every `parent_key=="frame"` child before a catalog re-pick (generic — covers `frame_plate_2`…). |
+| `knowledge/library.py` | `ComponentLibrary`, catalog rows (`FrameSpec` / `PlateSeed` / `arm_thickness_mm` / curated `plates[]` ≤8), **`resolve_operating_point`** (P2-1/P2-2; v0.3.4 MOP-1 exact match requires explicit voltage) — consumed by `component_writers`, not by CalculationEngine directly |
 | `core/component_rules.py` | `ComponentRule`, `ComponentRuleRegistry` — the domain-agnostic matching primitive |
-| `domains/aerial.py`, `domains/ground.py` | Data: keyword tables + property extractors per domain |
-| `schemas/action_schema.py`, `schemas/state_schema.py` | `ProjectState`, `InteractiveSessionState`, `OrchestratorMode`, `ComponentSpec`, `PropertyValue`, `RuntimeState`, `CatalogRef` |
+| `domains/aerial.py`, `domains/ground.py` | Data: keyword tables + property extractors per domain. **Structure B:** `extract_frame_properties` (+ configuration/wheelbase), `extract_all_frame_part_properties` / `extract_frame_part_properties` (G-N1 clause-scoped parts; arm-clause `thickness_mm` only); `frame_plate_key` / `is_frame_plate_key` / `FRAME_PLATE_MAX_SIBLINGS=8` (ordinal plate key space — catalog/BOM only; free-text still single `frame_plate`). |
+| `schemas/action_schema.py`, `schemas/state_schema.py` | `ProjectState`, `InteractiveSessionState`, `OrchestratorMode`, `ComponentSpec` (+ optional `parent_key` for Structure B part children), `PropertyValue`, `RuntimeState`, `CatalogRef` |
 
 ## `OrchestratorMode` (5 values, no more)
 
@@ -65,4 +65,4 @@ None currently open (FN-021 closed the one open issue this subsystem had).
 
 ## Tests
 
-`tests/test_d4_param_gatekeeper.py`, `tests/test_project_closure_v1.py`, `tests/test_project_coherence.py`, `tests/test_fn020_completeness_coherence.py`, component-writer-specific tests (`test_frame_component.py`, `test_battery_component.py`, `test_motor_component.py`, `test_control_component.py`), `tests/test_fn021_session_hygiene.py`, **`tests/test_requirements_closure.py`**, **`tests/test_catalog_bind_v1.py`**, **`tests/test_phase2_lookup_operating_point.py`**, **`tests/test_dse_motor_op_dual_truth.py`**, **`tests/test_impl_d_sku_bom.py`**.
+`tests/test_d4_param_gatekeeper.py`, `tests/test_project_closure_v1.py`, `tests/test_project_coherence.py`, `tests/test_fn020_completeness_coherence.py`, component-writer-specific tests (`test_frame_component.py`, `test_battery_component.py`, `test_motor_component.py`, `test_control_component.py`), `tests/test_fn021_session_hygiene.py`, **`tests/test_requirements_closure.py`**, **`tests/test_catalog_bind_v1.py`**, **`tests/test_catalog_foundation_v1.py`**, **`tests/test_phase2_lookup_operating_point.py`**, **`tests/test_dse_motor_op_dual_truth.py`**, **`tests/test_impl_d_sku_bom.py`**, **`tests/test_frame_parts_graph_v1.py`**.

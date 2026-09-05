@@ -203,8 +203,63 @@ def _battery_completeness(props: dict) -> tuple[str, list[str]]:
 MATERIAL_MAP: dict[str, str] = MATERIAL_ALIASES
 
 
+# Structure B Parts Graph (Fase 1): closed configuration vocabulary — matched
+# from declared text only, never inferred from motor_count or the part
+# graph (investigation_report_structure_b_parts_graph.md §5). Longest-match
+# style, mirroring GPS_MAP/SENSOR_TYPE_MAP below.
+CONFIGURATION_MAP: dict[str, str] = {
+    "quad plus": "quad_plus",
+    "quad-plus": "quad_plus",
+    "quad+": "quad_plus",
+    "cuadricoptero plus": "quad_plus",
+    "quad x": "quad_x",
+    "quad-x": "quad_x",
+    "quadx": "quad_x",
+    "cuadricoptero x": "quad_x",
+    "wide-stance": "quad_x",
+    "true-x": "quad_x",
+    "deadcat": "deadcat",
+    "dead cat": "deadcat",
+    "gato muerto": "deadcat",
+    "hexacoptero": "hex",
+    "hexacóptero": "hex",
+    "hexacopter": "hex",
+    "hex": "hex",
+    "tricoptero": "tricopter",
+    "tricóptero": "tricopter",
+    "tricopter": "tricopter",
+}
+
+
+def _extract_configuration(normalized: str) -> str | None:
+    """Closed-vocabulary configuration match — longest alias wins, word
+    boundaries only (avoids "hex" matching inside an unrelated word)."""
+    found: str | None = None
+    found_len = 0
+    for alias, canonical in CONFIGURATION_MAP.items():
+        if re.search(r'\b' + re.escape(alias) + r'\b', normalized) and len(alias) > found_len:
+            found = canonical
+            found_len = len(alias)
+    return found
+
+
+def _extract_wheelbase_mm(normalized: str) -> float | None:
+    """Declared wheelbase in mm — keyword-gated (unlike size_class_inch, mm
+    IS the natural unit here, but a bare "230mm" with no wheelbase context
+    must stay unclaimed, same discipline as size_class_inch's own "no bare
+    mm" rule for a different field)."""
+    keyword = r"(?:wheelbase|distancia entre motores|motor a motor)"
+    m = re.search(keyword + r"\D{0,10}(\d+(?:\.\d+)?)\s*mm\b", normalized, re.IGNORECASE)
+    if not m:
+        m = re.search(r"(\d+(?:\.\d+)?)\s*mm\b\D{0,10}" + keyword, normalized, re.IGNORECASE)
+    if m:
+        return float(m.group(1))
+    return None
+
+
 def extract_frame_properties(normalized: str) -> dict[str, PropertyValue]:
-    """Extract mass_kg, material, and size_class_inch from a free-text frame description.
+    """Extract mass_kg, material, size_class_inch, configuration, and
+    wheelbase_mm from a free-text frame description.
 
     Material values are the library's own canonical (Spanish) names — see
     ``jarvis.domains.materials`` — so they can be passed straight to
@@ -216,6 +271,11 @@ def extract_frame_properties(normalized: str) -> dict[str, PropertyValue]:
     propeller itself. No mm→inch conversion (a bare "250mm" is ignored, not
     silently converted).
 
+    Structure B Parts Graph (Fase 1): ``configuration``/``wheelbase_mm`` are
+    additive, root-only, declared-only fields (investigation_report_
+    structure_b_parts_graph.md §7) — never widen `_frame_completeness`
+    (still mass+material only, unchanged below).
+
     Examples:
         "fibra de carbono 450g"  → {mass_kg: 0.45, material: "fibra de carbono"}
         "aluminio 0.6kg"         → {mass_kg: 0.6,  material: "aluminio"}
@@ -223,6 +283,7 @@ def extract_frame_properties(normalized: str) -> dict[str, PropertyValue]:
         "500g"                   → {mass_kg: 0.5}
         "frame 5 pulgadas"       → {size_class_inch: 5.0}
         "pvc 200g"               → {mass_kg: 0.2, material: "pvc"}  (no size)
+        "quad x, wheelbase 230mm" → {configuration: "quad_x", wheelbase_mm: 230.0}
     """
     props: dict[str, PropertyValue] = {}
 
@@ -256,7 +317,183 @@ def extract_frame_properties(normalized: str) -> dict[str, PropertyValue]:
             value=float(size_match.group(1)), unit="in", confidence=0.9, source="declared"
         )
 
+    configuration = _extract_configuration(normalized)
+    if configuration:
+        props["configuration"] = PropertyValue(
+            value=configuration, unit=None, confidence=0.9, source="declared"
+        )
+
+    wheelbase_mm = _extract_wheelbase_mm(normalized)
+    if wheelbase_mm is not None:
+        props["wheelbase_mm"] = PropertyValue(
+            value=wheelbase_mm, unit="mm", confidence=0.9, source="declared"
+        )
+
     return props
+
+
+# ── Structure B Parts Graph (Fase 1) — declared part-type extraction ───────
+# One node PER TYPE, not per instance (motor_count precedent) — see
+# investigation_report_structure_b_parts_graph.md §2/§3. Locked dict keys
+# (component_writers.upsert_frame_part / catalog_bind.
+# frame_part_specs_from_catalog use the same four keys).
+
+FRAME_ARM_KEY = "frame_arm"
+FRAME_PLATE_KEY = "frame_plate"
+FRAME_CAGE_KEY = "frame_cage"
+FRAME_STANDOFF_KEY = "frame_standoff"
+
+# Frame Assembly Physical Model B2, N7 lock: ordinal plate siblings only —
+# frame_plate (index 0) .. frame_plate_8 (index 7), 8 max. No closed role
+# vocabulary (investigation report §B7 — manufacturers share no plate
+# naming convention; a fixed role enum would invent a cross-SKU equivalence
+# no source states).
+FRAME_PLATE_MAX_SIBLINGS = 8
+
+
+def frame_plate_key(index: int) -> str:
+    """Ordinal plate dict key for *index* (0-based): 0 -> ``frame_plate``,
+    1 -> ``frame_plate_2``, ... 7 -> ``frame_plate_8``."""
+    return FRAME_PLATE_KEY if index == 0 else f"{FRAME_PLATE_KEY}_{index + 1}"
+
+
+def is_frame_plate_key(key: str) -> bool:
+    """True for ``frame_plate`` or any of its locked ordinal siblings
+    (``frame_plate_2``..``frame_plate_8``) — never for an unrelated
+    ``frame_plate_*`` shape (e.g. a typo or a future unrelated key)."""
+    return key in {frame_plate_key(i) for i in range(FRAME_PLATE_MAX_SIBLINGS)}
+
+_PART_TYPE_MAP: dict[str, str] = {
+    "brazos": FRAME_ARM_KEY,
+    "brazo": FRAME_ARM_KEY,
+    "arms": FRAME_ARM_KEY,
+    "arm": FRAME_ARM_KEY,
+    "placas": FRAME_PLATE_KEY,
+    "placa": FRAME_PLATE_KEY,
+    "plates": FRAME_PLATE_KEY,
+    "plate": FRAME_PLATE_KEY,
+    "jaula": FRAME_CAGE_KEY,
+    "cage": FRAME_CAGE_KEY,
+    "standoffs": FRAME_STANDOFF_KEY,
+    "standoff": FRAME_STANDOFF_KEY,
+    "separadores": FRAME_STANDOFF_KEY,
+    "separador": FRAME_STANDOFF_KEY,
+}
+
+
+_PART_CLAUSE_SPLIT = re.compile(r"\s*(?:,|;|\by\b|\band\b)\s*", re.IGNORECASE)
+
+
+def _frame_part_clauses(normalized: str) -> list[str]:
+    """Split a root+parts free-text line into clauses (G-N1)."""
+    parts = [c.strip() for c in _PART_CLAUSE_SPLIT.split(normalized) if c and c.strip()]
+    return parts or ([normalized.strip()] if normalized.strip() else [])
+
+
+def _best_part_alias_in_clause(clause: str) -> tuple[str, str] | None:
+    """Longest part-type alias hit in *clause* → (locked key, alias), or None."""
+    found_key: str | None = None
+    found_alias = ""
+    for alias, key in _PART_TYPE_MAP.items():
+        if re.search(r"\b" + re.escape(alias) + r"\b", clause) and len(alias) > len(found_alias):
+            found_key = key
+            found_alias = alias
+    if found_key is None:
+        return None
+    return found_key, found_alias
+
+
+_ARM_THICKNESS_MM_PATTERN = re.compile(r"(\d+(?:[.,]\d+)?)\s*mm\b", re.IGNORECASE)
+
+
+def _props_from_part_clause(clause: str, key: str | None = None) -> dict[str, PropertyValue]:
+    props: dict[str, PropertyValue] = {}
+    count_match = re.search(r"\b(\d+)\b", clause)
+    if count_match:
+        props["count"] = PropertyValue(
+            value=int(count_match.group(1)), unit=None, confidence=0.9, source="declared"
+        )
+    found_material = resolve_material_alias(clause)
+    if found_material:
+        props["material"] = PropertyValue(
+            value=found_material, unit=None, confidence=0.9, source="declared"
+        )
+    # Structure B additive enrichment B2 (arms-only): thickness_mm only
+    # inside a clause that matched the arm alias — never plate/cage/standoff
+    # in this slice, never a bare/root mm (wheelbase, stack height, ...).
+    if key == FRAME_ARM_KEY:
+        thickness_match = _ARM_THICKNESS_MM_PATTERN.search(clause)
+        if thickness_match:
+            props["thickness_mm"] = PropertyValue(
+                value=float(thickness_match.group(1).replace(",", ".")),
+                unit="mm",
+                confidence=0.9,
+                source="declared",
+            )
+    return props
+
+
+def extract_all_frame_part_properties(
+    normalized: str,
+) -> list[tuple[str, dict[str, PropertyValue]]]:
+    """G-N1: all declared part types in a root+parts message.
+
+    One entry per locked key (longest alias wins per key). ``count`` /
+    ``material`` are scoped to the clause that names that part — so
+    ``\"fibra 450g, 4 brazos carbono, jaula titanio\"`` yields arm + cage
+    without attaching root ``fibra`` to the cage clause.
+
+    Empty list when no part-type word is present (bare ``\"4\"`` never
+    fabricates a part).
+    """
+    by_key: dict[str, tuple[int, dict[str, PropertyValue]]] = {}
+    for clause in _frame_part_clauses(normalized):
+        hit = _best_part_alias_in_clause(clause)
+        if hit is None:
+            continue
+        key, alias = hit
+        props = _props_from_part_clause(clause, key)
+        prev = by_key.get(key)
+        if prev is None or len(alias) > prev[0]:
+            by_key[key] = (len(alias), props)
+
+    order = (FRAME_ARM_KEY, FRAME_PLATE_KEY, FRAME_CAGE_KEY, FRAME_STANDOFF_KEY)
+    return [(key, by_key[key][1]) for key in order if key in by_key]
+
+
+def extract_frame_part_properties(normalized: str) -> tuple[str, dict[str, PropertyValue]] | None:
+    """Declared frame-part phrase → (locked dict key, properties), or
+    ``None`` when unrecognized — never a stub, never fabricated.
+
+    G-N1: thin wrapper over ``extract_all_frame_part_properties`` (first
+    hit in locked key order). Prefer ``extract_all_…`` for root+parts
+    messages with multiple part types.
+
+    Examples:
+        "4 brazos fibra de carbono" → (FRAME_ARM_KEY,
+            {count: 4, material: "fibra de carbono"})
+        "standoffs aluminio"        → (FRAME_STANDOFF_KEY, {material: "aluminio"})
+        "jaula titanio"             → (FRAME_CAGE_KEY, {material: "titanio"})
+        "algo irreconocible"        → None
+    """
+    all_parts = extract_all_frame_part_properties(normalized)
+    if not all_parts:
+        return None
+    return all_parts[0]
+
+
+def _structure_part_completeness(props: dict) -> tuple[str, list[str]]:
+    """Completeness for a frame part-type child (arm/plate/cage/standoff).
+
+    Independent of ``_frame_completeness`` — never feeds Structure PASS
+    (only the frame root's own completeness does). "high" once either
+    ``count`` or ``material`` is declared — a part child has no mandatory
+    field the way frame itself requires mass+material; any declared fact
+    is enough to call it non-stub.
+    """
+    if "count" in props or "material" in props:
+        return "high", []
+    return "low", ["material o cantidad (ej: 'fibra de carbono' o '4')"]
 
 
 def _frame_completeness(props: dict) -> tuple[str, list[str]]:

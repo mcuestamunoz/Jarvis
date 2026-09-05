@@ -135,3 +135,179 @@ def test_cli_shows_incompatible_label(tmp_path):
 
     text = render_startup_context(ctx)
     assert "INCOMPATIBLE" in text
+
+
+_ASSEMBLY_READY_READINESS = {
+    "subsystems": {
+        key: {"verdict": "PASS", "warning_type": None}
+        for key in (
+            "requirements", "architecture", "structure", "propulsion",
+            "energy", "electronics", "control", "catalog", "bom",
+        )
+    },
+    "overall": "ASSEMBLY_READY",
+    "prioritized_gaps": [],
+}
+
+_NOT_ASSEMBLY_READY_READINESS = {
+    **_ASSEMBLY_READY_READINESS,
+    "overall": "NOT_ASSEMBLY_READY",
+}
+
+
+def test_cli_note_shown_when_assembly_ready_and_margin_claim_weak():
+    """Claim hygiene under ASSEMBLY READY IC §2.4: ASSEMBLY READY + a
+    precomputed margin_claim_weak flag must append the locked NOTE line —
+    the flag is consumed verbatim, never re-derived in the CLI."""
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "readiness": _ASSEMBLY_READY_READINESS,
+        "margin_claim_weak": True,
+    })
+    assert "PROJECT STATUS: ASSEMBLY READY" in text
+    assert "NOTE: margen ajustado" in text
+
+
+def test_cli_note_absent_when_assembly_ready_and_margin_not_weak():
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "readiness": _ASSEMBLY_READY_READINESS,
+        "margin_claim_weak": False,
+    })
+    assert "PROJECT STATUS: ASSEMBLY READY" in text
+    assert "NOTE:" not in text
+
+
+def test_cli_note_absent_when_margin_claim_weak_key_missing():
+    """Backward compatibility: ctx without the new key renders exactly as
+    before this IC (no NOTE, no KeyError)."""
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "readiness": _ASSEMBLY_READY_READINESS,
+    })
+    assert "PROJECT STATUS: ASSEMBLY READY" in text
+    assert "NOTE:" not in text
+
+
+def test_cli_note_absent_when_not_assembly_ready_even_if_margin_weak():
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "readiness": _NOT_ASSEMBLY_READY_READINESS,
+        "margin_claim_weak": True,
+    })
+    assert "PROJECT STATUS: NOT ASSEMBLY READY" in text
+    assert "NOTE:" not in text
+
+
+def test_cli_humanizes_next_useful_why_for_known_warning_code():
+    """Claim hygiene under ASSEMBLY READY IC §2.3/N1: Continuity keeps the
+    raw warning code; the CLI maps it through WARNING_SHORT for display."""
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "continuity": {
+            "situation": "Comprobación de empuje: PASS. Margen ajustado.",
+            "evidence": ["Simulación: pass — calidad risky — margen 1.05"],
+            "next_useful_step": "Corrige la causa del warning/fallo de simulación.",
+            "next_useful_why": "low_margin",
+        },
+    })
+    assert "Por qué: margen ajustado" in text
+    assert "Por qué: low_margin" not in text
+
+
+def test_cli_leaves_unknown_next_useful_why_verbatim():
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "continuity": {
+            "situation": "Última simulación: fail.",
+            "evidence": [],
+            "next_useful_step": "Corrige la causa del warning/fallo de simulación.",
+            "next_useful_why": "un texto libre no catalogado",
+        },
+    })
+    assert "Por qué: un texto libre no catalogado" in text
+
+
+def test_cli_control_pass_gets_declaration_asterisk_and_footnote():
+    """Control parity IC §2.1: Control PASS is marked with an asterisk and a
+    footnote naming it declaration-only — no other subsystem is marked, and
+    the verdict value itself (PASS) is untouched."""
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "readiness": _ASSEMBLY_READY_READINESS,
+    })
+    assert "Control        PASS *" in text
+    assert "* Control: declaración — sin física de control" in text
+    assert "Propulsion     PASS *" not in text
+    assert "Energy         PASS *" not in text
+
+
+def test_cli_control_not_pass_has_no_asterisk_or_footnote():
+    readiness = {
+        **_ASSEMBLY_READY_READINESS,
+        "subsystems": {
+            **_ASSEMBLY_READY_READINESS["subsystems"],
+            "control": {"verdict": "INCOMPLETE", "warning_type": None},
+        },
+        "overall": "NOT_ASSEMBLY_READY",
+    }
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "readiness": readiness,
+    })
+    assert "Control        INCOMPLETE" in text
+    assert "Control        PASS *" not in text
+    assert "* Control: declaración — sin física de control" not in text
+
+
+def test_cli_structure_pass_gets_declaration_asterisk_and_footnote():
+    """Structure honesty IC §2.1: Structure PASS is marked with an asterisk
+    and a footnote naming it identity/LEVEL-A-only — mirrors Control parity.
+    Blanket rule: fires regardless of whether a class check actually ran."""
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "readiness": _ASSEMBLY_READY_READINESS,
+    })
+    assert "Structure      PASS *" in text
+    assert "* Structure: identidad / clase nivel A — sin geometría de chasis" in text
+
+
+def test_cli_structure_not_pass_has_no_asterisk_or_footnote():
+    readiness = {
+        **_ASSEMBLY_READY_READINESS,
+        "subsystems": {
+            **_ASSEMBLY_READY_READINESS["subsystems"],
+            "structure": {"verdict": "INCOMPLETE", "warning_type": None},
+        },
+        "overall": "NOT_ASSEMBLY_READY",
+    }
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "readiness": readiness,
+    })
+    assert "Structure      INCOMPLETE" in text
+    assert "Structure      PASS *" not in text
+    assert "* Structure: identidad / clase nivel A — sin geometría de chasis" not in text
+
+
+def test_cli_structure_and_control_both_pass_show_both_footnotes_in_order():
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "readiness": _ASSEMBLY_READY_READINESS,
+    })
+    assert "Structure      PASS *" in text
+    assert "Control        PASS *" in text
+    structure_footnote_pos = text.index("* Structure: identidad / clase nivel A — sin geometría de chasis")
+    control_footnote_pos = text.index("* Control: declaración — sin física de control")
+    assert structure_footnote_pos < control_footnote_pos

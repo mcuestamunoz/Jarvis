@@ -87,6 +87,15 @@ def _human_warning(code: str) -> str:
     """Return full human-readable description for a simulator warning code."""
     return WARNING_MESSAGES.get(code, code)
 
+
+def _humanize_next_useful_why(code: str) -> str:
+    """Claim hygiene under ASSEMBLY READY IC §2.3/N1: Continuity keeps the
+    raw warning code in ``next_useful_why`` (core stays free of adapters'
+    display maps); the CLI maps known codes through ``WARNING_SHORT``
+    (falling back to ``WARNING_MESSAGES``) when printing 'Por qué:'. Unknown
+    codes (e.g. gap-evidence strings) render verbatim, unchanged."""
+    return WARNING_SHORT.get(code) or WARNING_MESSAGES.get(code, code)
+
 _STATUS_ICON = {
     "blocking": "⚠ ",
     "warning": "⚠ ",
@@ -118,7 +127,35 @@ _READINESS_SUBSYSTEM_LABELS: dict[str, str] = {
 _READINESS_SUBSYSTEM_ORDER: tuple[str, ...] = tuple(_READINESS_SUBSYSTEM_LABELS)
 
 
-def _render_readiness_block(readiness: dict) -> list[str]:
+_ASSEMBLY_READY_MARGIN_NOTE = (
+    "NOTE: margen ajustado — ASSEMBLY READY no implica reserva cómoda."
+)
+
+_CONTROL_DECLARATION_FOOTNOTE = (
+    "* Control: declaración — sin física de control"
+)
+
+# Structure honesty IC: same posture as Control parity — Structure PASS
+# rests on identity/mass/material plus a LEVEL A class-convention check
+# (never a geometric fit proof), not chassis geometry. Blanket rule, matching
+# Control: every Structure PASS gets the asterisk, regardless of whether the
+# LEVEL A class check actually ran (frame_class_compatibility_state can be
+# "not_required" when no propeller is declared yet) — conditioning the
+# footnote on that state would itself be a claim-hygiene gap (a PASS that
+# ran zero class checks would look identical to one that ran and passed).
+_STRUCTURE_DECLARATION_FOOTNOTE = (
+    "* Structure: identidad / clase nivel A — sin geometría de chasis"
+)
+
+# Ordered so footnotes render in readiness subsystem order (structure before
+# control) without hardcoding that order twice.
+_PASS_DECLARATION_FOOTNOTES: tuple[tuple[str, str], ...] = (
+    ("structure", _STRUCTURE_DECLARATION_FOOTNOTE),
+    ("control", _CONTROL_DECLARATION_FOOTNOTE),
+)
+
+
+def _render_readiness_block(readiness: dict, *, margin_claim_weak: bool = False) -> list[str]:
     """ERF-1 Slice 5 / ERF-2 Slice 4 — 9 subsystem lines + overall + up to 3
     top gaps (verdict column shows INCOMPATIBLE verbatim — no new logic here,
     display only; the verdict string itself comes straight from
@@ -126,20 +163,41 @@ def _render_readiness_block(readiness: dict) -> list[str]:
 
     Pure formatting over an already-computed readiness dict (from
     ``dataclasses.asdict(EngineeringReadinessResult)``) — no engineering
-    logic here, only display.
+    logic here, only display. ``margin_claim_weak`` (Claim hygiene under
+    ASSEMBLY READY IC §2.4) is a precomputed flag from
+    ``project_continuity.margin_claim_weak`` — never re-derived here, so this
+    caveat can't drift from Continuity's own situation gate (§2.1).
+
+    Control parity IC §2.1 / Structure honesty IC §2.1: ``control`` and
+    ``structure`` verdicts are computed identically to every other subsystem
+    (``engineering_readiness`` is not touched here) — only ``PASS`` gets an
+    asterisk + footnote, marking that for these two subsystems specifically
+    the verdict reflects declaration/identity, not control-loop physics or
+    chassis geometry (neither exists anywhere in this codebase).
     """
     subsystems = readiness.get("subsystems") or {}
     lines: list[str] = ["ENGINEERING READINESS", ""]
+    footnotes: list[str] = []
+    footnote_by_key = dict(_PASS_DECLARATION_FOOTNOTES)
     for key in _READINESS_SUBSYSTEM_ORDER:
         entry = subsystems.get(key) or {}
         verdict = entry.get("verdict", "UNVERIFIABLE")
         label = _READINESS_SUBSYSTEM_LABELS[key]
-        lines.append(f"{label:<14} {verdict}")
+        footnote = footnote_by_key.get(key)
+        if footnote is not None and verdict == "PASS":
+            lines.append(f"{label:<14} {verdict} *")
+            footnotes.append(footnote)
+        else:
+            lines.append(f"{label:<14} {verdict}")
+
+    lines.extend(footnotes)
 
     overall = readiness.get("overall", "NOT_ASSEMBLY_READY")
     status_text = "ASSEMBLY READY" if overall == "ASSEMBLY_READY" else "NOT ASSEMBLY READY"
     lines.append("")
     lines.append(f"PROJECT STATUS: {status_text}")
+    if overall == "ASSEMBLY_READY" and margin_claim_weak:
+        lines.append(_ASSEMBLY_READY_MARGIN_NOTE)
 
     top_gaps = (readiness.get("prioritized_gaps") or [])[:3]
     if top_gaps:
@@ -219,7 +277,7 @@ def render_startup_context(ctx: dict) -> str:
         if continuity.get("next_useful_step"):
             lines.append(f"Siguiente paso: {continuity['next_useful_step']}")
             if continuity.get("next_useful_why"):
-                lines.append(f"   Por qué: {continuity['next_useful_why']}")
+                lines.append(f"   Por qué: {_humanize_next_useful_why(continuity['next_useful_why'])}")
         lines.append("─" * 44)
 
     phase = ctx.get("phase")
@@ -392,7 +450,9 @@ def render_startup_context(ctx: dict) -> str:
     readiness = ctx.get("readiness")
     if readiness:
         lines.append("")
-        lines.extend(_render_readiness_block(readiness))
+        lines.extend(_render_readiness_block(
+            readiness, margin_claim_weak=bool(ctx.get("margin_claim_weak"))
+        ))
 
     # Block Closure B-PROP-ENERGY IC §4 — one locked line, block-scoped.
     # Never a synonym of PROJECT STATUS above (Finding B-3: the two answer
@@ -885,7 +945,14 @@ def run_chat() -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Jarvis engineering assistant")
     parser.add_argument("--chat", action="store_true", help="Run minimal interactive CLI chat")
+    subparsers = parser.add_subparsers(dest="command")
+    subparsers.add_parser("board", help="Open the spatial board visor")
     args = parser.parse_args()
+
+    if args.command == "board":
+        from jarvis.adapters.cli.board import launch_board
+
+        raise SystemExit(launch_board())
 
     if args.chat:
         run_chat()

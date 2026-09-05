@@ -9,8 +9,10 @@
  *   63 connected · 1 removed (C-032 G23) · 2 partial (C-081, C-108) · 10 forbidden.
  * Updated 2026-08-10 FN-024 · 2026-08-12 FN-025/026 · 2026-08-18 ERF-1 · 2026-08-19 ERF-2.
  * Updated 2026-08-20 G21/G22 (C-030 catalog bind UX) · G23 (C-032 REMOVED — FN-015 deleted).
- * Updated 2026-09-04 v0.3.6 — experimental prop/energy/Structure A/fail-routing closed;
- * knowledge/block parity agenda active. Prior: 2026-09-01 v0.3.4 MOP doc sync.
+ * Updated 2026-09-04 v0.3.6 — experimental construction closed; claim hygiene
+ * B4 CLOSED (suite 2160); control parity CLOSED (suite 2164).
+ * Updated 2026-09-05 — Structure plate multiplicity B2 CLOSED (suite 2294);
+ * PRIORIDAD = await Engineer next focus. Prior: v0.3.4 MOP.
  * Updated 2026-09-01 Phase 2.5–2.7-B + Option A — C-060 detail only (product writer); no new C-xxx.
  * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's software queue.
  * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
@@ -436,12 +438,13 @@ export default function JarvisSystemMapCanvas() {
         </Text>
       </Stack>
 
-      <Callout tone="neutral" title="Product queue — knowledge / block parity (2026-09-04)">
-        Baseline v0.3.6. PRIORIDAD AHORA is the knowledge/block parity phase —
-        Engineer names the next thread before any IC. Prop/energy/Structure A /
-        fail-routing construction is closed; do not open polish ICs on that stack
-        by default. C-081 H5 and C-108 remain deferred map debt. Hardware HD-*
-        lives in docs/HARDWARE_DEBT.md — never PRIORIDAD AHORA without lab.
+      <Callout tone="neutral" title="Product queue — await Engineer (2026-09-05)">
+        Baseline v0.3.6 · suite 2294. Structure plate multiplicity B2 CLOSED
+        (curated plates[] + ordinal frame_plate* + label). Knowledge/block
+        parity + Structure representation arc CLOSED. Next = Engineer-named
+        (System optimization vs Prop/Energy vs further KNOW). CAD / FEA /
+        free-text multi-plate = debt. C-081 and C-108 remain deferred map
+        debt. HD-* never PRIORIDAD without lab.
       </Callout>
 
       <Grid columns={6} gap={12}>
@@ -632,8 +635,16 @@ export default function JarvisSystemMapCanvas() {
 
       <Callout tone="success" title="Closed — v0.3.6 experimental construction (2026-09-04)">
         Catalog-assist, DSE apply honest, Structure A, CLI fail-routing reviewed.
-        Phase = knowledge / block parity (agenda only — no IC until Engineer
-        names a thread). Tag checkpoint-experimental-prop-energy-closed.
+        Tag checkpoint-experimental-prop-energy-closed. Knowledge/block parity
+        phase follows (not a map registry change — no new C-xxx).
+      </Callout>
+
+      <Callout tone="success" title="Closed — claim hygiene B4 margin (2026-09-04)">
+        Continuity situation + CLI ASSEMBLY READY NOTE on PASS+risky/low_margin.
+        ASSEMBLY_READY eligibility unchanged. Suite 2160. C-081 still PARTIAL
+        for a dedicated risk next-step thread — not flipped to CONNECTED by
+        this copy fix. Report:
+        .jes/artifacts/implementation_review_claim_hygiene_assembly_ready.md
       </Callout>
 
       <Callout tone="info" title="ERF-2 + ERF-1">
