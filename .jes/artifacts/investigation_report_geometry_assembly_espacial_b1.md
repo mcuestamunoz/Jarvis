@@ -3,8 +3,9 @@
 **IC:** [investigation_contract_geometry_assembly_espacial_b1.md](investigation_contract_geometry_assembly_espacial_b1.md)
 **Investigator:** Claude Code
 **Date:** 2026-09-07
-**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · awaiting Engineer ★ Buy B1  
+**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · Engineer ★ Buy B1 → IC READY  
 **Review:** [investigation_review_geometry_assembly_espacial_b1.md](investigation_review_geometry_assembly_espacial_b1.md)  
+**IC:** [implementation_contract_geometry_assembly_espacial_b1.md](implementation_contract_geometry_assembly_espacial_b1.md)  
 **Baseline:** package `0.3.8` · suite 2350 (unchanged — investigation only, no code/tests touched)
 
 ---

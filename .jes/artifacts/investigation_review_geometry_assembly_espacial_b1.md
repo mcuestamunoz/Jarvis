@@ -96,4 +96,4 @@ No pose mm/orientation · no fit · no edge drawing (B2) · no layout-as-truth �
 | B1+ numeric pose | Reject this cycle |
 | B2 edges | Follow-on after B1 |
 
-**Default:** ★ **Buy B1** → Cursor writes IC → Claude implements → Cursor reviews.
+**Default:** ★ **Buy B1** — **★ RATIFIED 2026-09-07 (`escribe IC`)** → [IC](implementation_contract_geometry_assembly_espacial_b1.md) → Claude implements → Cursor reviews.

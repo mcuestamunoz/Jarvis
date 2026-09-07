@@ -7,16 +7,22 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2350**.  
-> **PRIORIDAD AHORA:** Investigation Geometry assembly espacial B1 **REVIEWED PASS WITH NOTES** — awaiting Engineer ★ **Buy B1** (`mounted_on` relation-only).  
-> **Eje ★:** Progression Lock — assembly espacial sin fit; Board layout ≠ pose.  
+> **PRIORIDAD AHORA:** IC **Geometry assembly espacial B1** READY — Claude implement (`mounted_on`).  
+> **Eje ★:** Progression Lock — assembly espacial relation-only; sin fit / sin pose mm.  
 > **Hecho:** glyphs @ **2344** · catalog hygiene @ **2350**.  
-> **Congelado:** B1+ pose mm · B2 edges · fit/CAD · Here3/Pixhawk · HD-004.  
+> **Congelado:** B1+ pose · B2 edges · fit/CAD · Here3/Pixhawk · HD-004.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 INVESTIGADO — Geometry assembly espacial B1 (2026-09-07) · awaiting ★ Buy B1
+### 🟡 IC READY — Geometry assembly espacial B1 (2026-09-07) · ★ Buy B1
 
-> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_assembly_espacial_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_assembly_espacial_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_assembly_espacial_b1.md) — **PASS WITH NOTES**  
-> **Hallazgo:** cero estado assembly hoy; **diverge** de `parent_key`; lean **B1** `mounted_on: str | None` declared-only; B1+ pose rechazado (sin fuente / sin marco). N2: Board text requiere projector explícito.
+> **IC:** [implementation_contract_geometry_assembly_espacial_b1.md](../.jes/artifacts/implementation_contract_geometry_assembly_espacial_b1.md) — Claude next.  
+> **Parents:** [report](../.jes/artifacts/investigation_report_geometry_assembly_espacial_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_assembly_espacial_b1.md) — **PASS WITH NOTES**.  
+> **Qué:** `mounted_on: str | None` · writer validate target · Board `"montado en"` · no `parent_key` overload · no pose/fit/edges.
+
+### 🟡 INVESTIGADO — Geometry assembly espacial B1 (2026-09-07) · ★ Buy B1
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_assembly_espacial_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_assembly_espacial_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_assembly_espacial_b1.md) — **PASS WITH NOTES** → IC arriba.  
+> **Hallazgo:** cero estado assembly hoy; **diverge** de `parent_key`; lean **B1** `mounted_on`; B1+ pose rechazado.
 
 ### 🟢 CERRADO (código + review) — Catalog motor thrust not intrinsic B1 (2026-09-07)
 
