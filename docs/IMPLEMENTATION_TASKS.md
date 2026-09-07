@@ -6,12 +6,18 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2344**. Commit glyphs **`64da71c`** on `main`.  
-> **PRIORIDAD AHORA:** Motor thrust not intrinsic B1 **CLOSED** (suite **2350**). Await Engineer next focus.  
-> **Eje ★:** Catalog hygiene B1 done (ESC masa + thrust semantics). **No** pose / H2–H3.  
-> **Hecho:** glyphs @ **2344** · ESC mass 15 g · OP thrust `calculated` + CLI/BOM honesty @ **2350**.  
-> **Congelado:** Here3 / Pixhawk · HD-004 · System Optimization · CAD/fit · schema thrust optionalization.  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2350**.  
+> **PRIORIDAD AHORA:** Investigation **Geometry assembly espacial B1** — OPEN (Claude report).  
+> **Eje ★:** Progression Lock — next rung after visualizar: **pose / `mounted_on` mínimo sin fit**.  
+> **Hecho:** glyphs @ **2344** · catalog hygiene (ESC masa + thrust) @ **2350**.  
+> **Congelado:** fit/CAD · HD-004 · Optimization · Here3/Pixhawk variant · Board layout-as-pose.  
 > **Artefactos:** investigation / implementation / review only.
+
+### 🟡 ABIERTO — Geometry assembly espacial B1 (2026-09-07)
+
+> **Contract:** [investigation_contract_geometry_assembly_espacial_b1.md](../.jes/artifacts/investigation_contract_geometry_assembly_espacial_b1.md) — OPEN.  
+> **Qué:** mínimo `mounted_on` / pose declarado en `ProjectState`; Board proyecta, no es SoT; sin fit/clearance.  
+> **No:** CAD · layout drag = pose · reopen hygiene thrust/ESC.
 
 ### 🟢 CERRADO (código + review) — Catalog motor thrust not intrinsic B1 (2026-09-07)
 
