@@ -1,4 +1,4 @@
-"""Spatial board projector: ProjectState → visor cards. No BOM, no invented slots."""
+"""Spatial board projector: ProjectState → visor cards. No BOM. B3 slots only for declared-architecture missing keys."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -63,13 +63,107 @@ def test_empty_name_stays_empty():
     assert nodes[0]["declaredName"] == ""
 
 
-def test_does_not_invent_missing_architecture_slots():
+def test_missing_expected_keys_of_declared_blocks_become_slots():
+    """B3 (Spatial Board Product Limits, honest absence) supersedes the old
+    'never invent anything' rule: a declared block's expected key that
+    isn't in components now renders as a display-only kind="slot" node —
+    never for an undeclared block (wheels/actuation stays invisible)."""
     state = _state(
         {"motors": ComponentSpec(name="M")},
         blocks=["propulsion", "energy", "structure", "control"],
     )
+    nodes = project_spatial_nodes(state)
+    by_id = {node["id"]: node for node in nodes}
+    assert "wheels" not in by_id  # actuation not declared — still invents nothing there
+    assert by_id["motors"]["kind"] == "component"
+    for key in ("propellers", "esc", "battery", "frame", "flight_controller", "sensors"):
+        assert by_id[key]["kind"] == "slot"
+    assert set(by_id) == {
+        "motors", "propellers", "esc", "battery", "frame", "flight_controller", "sensors",
+    }
+
+
+def test_no_declared_blocks_still_invents_nothing():
+    state = _state({"motors": ComponentSpec(name="M")}, blocks=[])
     ids = [node["id"] for node in project_spatial_nodes(state)]
     assert ids == ["motors"]
+
+
+def test_empty_components_with_declared_blocks_yields_only_slots():
+    """N2 lock: empty components + non-empty system_blocks must NOT
+    short-circuit to []. Every expected key (deduped across blocks) of the
+    four declared blocks becomes a slot."""
+    state = _state({}, blocks=["propulsion", "energy", "structure", "control"])
+    nodes = project_spatial_nodes(state)
+    assert set(n["id"] for n in nodes) == {
+        "motors", "propellers", "esc", "battery", "frame", "flight_controller", "sensors",
+    }
+    assert all(n["kind"] == "slot" for n in nodes)
+
+
+def test_fixture_a_present_components_plus_missing_expected_slots():
+    """Investigation report Fixture A, reconstructed as a regression test:
+    motors/battery/frame/frame_arm/empty-name flight_controller declared;
+    propellers/esc/sensors missing from a declared 4/4 architecture."""
+    state = _state(
+        {
+            "motors": ComponentSpec(
+                name="emax_rs2205_2300",
+                properties={"thrust_n": PropertyValue(value=8.0, unit="N")},
+                catalog_ref=CatalogRef(family="motor", sku="emax_rs2205_2300"),
+            ),
+            "battery": ComponentSpec(name="lipo_4s_1500"),
+            "frame": ComponentSpec(name="armattan_rooster_5in"),
+            "frame_arm": ComponentSpec(
+                name="brazos", parent_key="frame",
+                properties={"thickness_mm": PropertyValue(value=4.0, unit="mm")},
+            ),
+            "flight_controller": ComponentSpec(name=""),
+        },
+        blocks=["propulsion", "energy", "structure", "control"],
+    )
+    by_id = {node["id"]: node for node in project_spatial_nodes(state)}
+    for key in ("propellers", "esc", "sensors"):
+        assert by_id[key]["kind"] == "slot"
+    fc = by_id["flight_controller"]
+    assert fc["kind"] == "component"
+    assert fc["declaredName"] == ""
+    assert by_id["frame_arm"]["kind"] == "part"
+
+
+def test_present_key_never_dual_slot_and_card():
+    state = _state(
+        {"esc": ComponentSpec(name="afro_esc_30a")},
+        blocks=["propulsion", "energy", "structure", "control"],
+    )
+    nodes = project_spatial_nodes(state)
+    esc_nodes = [n for n in nodes if n["id"] == "esc"]
+    assert len(esc_nodes) == 1
+    assert esc_nodes[0]["kind"] == "component"
+
+
+def test_slot_payload_shape():
+    state = _state({}, blocks=["structure"])
+    nodes = project_spatial_nodes(state)
+    assert len(nodes) == 1
+    slot = nodes[0]
+    assert slot["id"] == "frame"
+    assert slot["kind"] == "slot"
+    assert slot["declaredName"] == ""
+    assert slot["fields"] == [{"label": "estado", "value": "no declarado"}]
+    assert not any(f["label"] == "SKU" for f in slot["fields"])
+
+
+def test_projector_module_does_not_import_bom_or_readiness_or_continuity():
+    """Module isolation (locked stance): the projector must stay a pure
+    ProjectState reader — no BOM bucket, ERF, or Continuity authority."""
+    import inspect
+
+    import jarvis.workspace.spatial_board as mod
+
+    source = inspect.getsource(mod)
+    for forbidden in ("build_component_bom", "engineering_readiness", "project_continuity"):
+        assert forbidden not in source
 
 
 def test_parts_are_kind_part_stacked_under_parent_lane():

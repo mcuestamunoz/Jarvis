@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Release v0.3.8 spatial projector hotfix. No open IC. Optimization deferred. Prop/Energy = HD-004 wall. Idle.",
-  "scope": "v0.3.8 / checkpoint-spatial-board-projector",
-  "execution_status": "v038_released_idle",
-  "current_mode": "Idle \u2014 await Engineer-named pain/evidence (not Vision-driven Optimization)",
+  "cycle_intent": "Geometry ESC B1 REVIEWED PASS (suite 2327). Slice CLOSED. Battery+Motor+ESC representar shipped. Await Engineer next focus.",
+  "scope": "implementation_review_geometry_esc_envelope_b1",
+  "execution_status": "esc_b1_reviewed_pass_closed",
+  "current_mode": "Idle \u2014 ESC Geometry B1 closed; await Engineer next focus",
   "movement_trigger": {
-    "type": "release",
-    "note": "2026-09-05 v0.3.8 spatial projector hotfix"
+    "type": "implementation_review",
+    "note": "2026-09-07 PASS; 2327; N3 www URL; mass_g untouched; no wizard"
   },
   "relevant_workflow_phases": [
     "idle"
@@ -49,24 +49,33 @@
     "structure_b_thickness_arms_b2": "\u2605 CLOSED suite 2286 + smoke PASS",
     "structure_b_frame_assembly_physical_model": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2294) + CLI smoke ACCEPT",
     "prop_energy_experimental_wall": "\u2605 LOCKED 2026-09-05 \u2014 HD-004 physical wall \u2014 NOT software queue",
-    "system_optimization": "\u2605 DEFERRED 2026-09-05 \u2014 until demonstrated pain \u2014 NOT Vision-driven"
+    "system_optimization": "\u2605 DEFERRED 2026-09-05 \u2014 until demonstrated pain \u2014 NOT Vision-driven",
+    "geometry_physical_representation_axis": "\u2605 LOCKED 2026-09-05 \u2014 next strategic axis \u2014 investigation before code",
+    "geometry_minimum_physical_object": "\u2605 REVIEWED PASS WITH NOTES \u2014 Buy B1 IMPLEMENTED",
+    "geometry_battery_envelope_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2316) + Board smoke ACCEPT",
+    "geometry_motor_envelope": "\u2605 REVIEWED PASS WITH NOTES \u2014 Buy B1 IMPLEMENTED",
+    "geometry_motor_envelope_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2323)",
+    "geometry_esc_envelope": "\u2605 REVIEWED PASS WITH NOTES \u2014 Buy B1 IMPLEMENTED",
+    "geometry_esc_envelope_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2327)",
+    "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_structure_b_frame_assembly_physical_model.md",
-    ".jes/artifacts/implementation_report_structure_b_frame_assembly_physical_model.md",
-    ".jes/artifacts/implementation_review_structure_b_frame_assembly_physical_model.md"
+    ".jes/artifacts/implementation_contract_geometry_esc_envelope_b1.md",
+    ".jes/artifacts/implementation_report_geometry_esc_envelope_b1.md",
+    ".jes/artifacts/implementation_review_geometry_esc_envelope_b1.md"
   ],
   "active_operation": null,
   "authority_gates": [
-    "No open software PRIORIDAD \u2014 Structure checkpoint complete",
+    "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
+    "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
+    "CAD/FEA/fit as default next still FROZEN \u2014 Geometry axis \u2260 CAD theater",
+    "No open Geometry IC until Engineer Buy after report",
     "System Optimization DEFERRED until demonstrated CLI/product pain \u2014 not Vision \u00a77",
     "Prop/Energy experimental = physical wall HD-004 \u2014 never PRIORIDAD without bench",
-    "Plate multiplicity B2 CLOSED suite 2294 + CLI smoke ACCEPT",
-    "Further KNOW Structure only with model Buy \u2014 no attribute-drip",
-    "Free-text multi-plate / completeness hardcode / G-N* / C3 = debt",
-    "M0 / MEASURE / CAD / FEA / arm\u2194motor out",
+    "Structure sufficient at current level \u2014 no attribute-drip without model Buy",
+    "M0 / MEASURE fit/clearance/FEA / arm\u2194motor out of first Geometry Buy space",
+    "Board B3 honest absence = parallel product slice (closable) \u2014 not Geometry substitute",
     "Artifacts: investigation/implementation/review only",
-    "v0.3.7 / checkpoint-structure-representation-closed \u2705",
     "v0.3.8 / checkpoint-spatial-board-projector \u2705",
     "Hardware HD-* PARKED \u2014 never PRIORIDAD AHORA"
   ],
@@ -156,6 +165,14 @@
     "structure_b_frame_assembly_physical_model_ic": "IMPLEMENTED_REVIEWED_PASS_WITH_NOTES_CLOSED",
     "structure_b_plate_multiplicity_cli_smoke": "ACCEPT_2026_09_05",
     "prop_energy_experimental_wall": "LOCKED_HD004_NOT_SOFTWARE_QUEUE",
-    "system_optimization": "DEFERRED_UNTIL_PAIN_2026_09_05"
+    "system_optimization": "DEFERRED_UNTIL_PAIN_2026_09_05",
+    "geometry_physical_representation_axis": "LOCKED_2026_09_05",
+    "geometry_minimum_physical_object_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
+    "geometry_battery_envelope_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2316_SMOKE_ACCEPT",
+    "geometry_motor_envelope_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
+    "geometry_motor_envelope_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2323",
+    "geometry_esc_envelope_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
+    "geometry_esc_envelope_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2327",
+    "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
 }

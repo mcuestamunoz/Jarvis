@@ -2,6 +2,8 @@
 
 User-visible journeys, step by step, each tied to `C-xxx` connection IDs. These are not exhaustive test cases — they are the reference paths a reader should be able to recognize their own CLI session against.
 
+`jarvis board` is a **parallel visor** of `ProjectState` (cards + architecture slots). It is not a FLOW through the orchestrator: no DEFINE, no catalog pick, no writers. After CLI mutates state, reload / re-select the project on the board to see new cards.
+
 ---
 
 ## FLOW-001 — Architecture acquisition

@@ -237,6 +237,59 @@ def test_catalog_ref_survives_save_load_round_trip(tmp_path: Path):
     assert reloaded_ref == CatalogRef(family="motor", sku="sunnysky_x2216_11")
 
 
+# ── 3b. Motor bind → declared envelope (Minimum Geometric KNOW, B1) ────────
+
+def test_motor_bind_projects_declared_envelope():
+    suggestion: MotorSuggestion = {
+        "idx": 1, "name": "emax_rs2205s_2300", "thrust_n": 10.042, "kv_rating": 2300,
+        "weight_g": 30, "max_watts": None, "is_generic": False,
+    }
+    bound = bind_motor_from_catalog(suggestion)
+    assert bound.properties["stator_diameter_mm"].value == pytest.approx(22.0)
+    assert bound.properties["stator_diameter_mm"].unit == "mm"
+    assert bound.properties["stator_diameter_mm"].source == "declared"
+    assert bound.properties["stator_height_mm"].value == pytest.approx(5.0)
+    assert bound.properties["diameter_mm"].value == pytest.approx(27.9)
+    assert bound.properties["shaft_diameter_mm"].value == pytest.approx(3.0)
+
+
+def test_motor_bind_sunnysky_omits_shaft_key_entirely():
+    suggestion: MotorSuggestion = {
+        "idx": 1, "name": "sunnysky_r2205_2500", "thrust_n": 12.5525, "kv_rating": 2500,
+        "weight_g": 30, "max_watts": 756, "is_generic": False,
+    }
+    bound = bind_motor_from_catalog(suggestion)
+    assert bound.properties["stator_diameter_mm"].value == pytest.approx(22.0)
+    assert bound.properties["diameter_mm"].value == pytest.approx(27.4)
+    assert "shaft_diameter_mm" not in bound.properties
+
+
+def test_motor_bind_unsourced_sibling_sku_has_no_envelope_keys():
+    suggestion: MotorSuggestion = {
+        "idx": 1, "name": "emax_rs2205_2300", "thrust_n": 8.0, "kv_rating": 2300,
+        "weight_g": 30, "max_watts": 250, "is_generic": False,
+    }
+    bound = bind_motor_from_catalog(suggestion)
+    for key in ("stator_diameter_mm", "stator_height_mm", "diameter_mm", "shaft_diameter_mm"):
+        assert key not in bound.properties
+
+
+def test_motor_bind_unknown_sku_falls_back_to_suggestion_only():
+    """N4: a suggestion naming a SKU absent from the library must not crash
+    and must not invent any geometry — thrust/kv/weight still project from
+    the suggestion dict itself."""
+    suggestion: MotorSuggestion = {
+        "idx": 1, "name": "phantom_motor_9000", "thrust_n": 8.0, "kv_rating": 2300,
+        "weight_g": 30, "max_watts": 250, "is_generic": False,
+    }
+    bound = bind_motor_from_catalog(suggestion)
+    assert bound.properties["thrust_n"].value == pytest.approx(8.0)
+    assert bound.properties["kv_rating"].value == 2300
+    assert bound.properties["weight_g"].value == pytest.approx(30.0)
+    for key in ("stator_diameter_mm", "stator_height_mm", "diameter_mm", "shaft_diameter_mm"):
+        assert key not in bound.properties
+
+
 # ── 4. Regression: unbound declare path → catalog_ref is None ──────────────
 
 def test_unbound_declare_path_catalog_ref_none(tmp_path: Path):
@@ -306,6 +359,23 @@ def test_battery_bind_uses_sku_mass_not_heuristic(tmp_path: Path):
     assert ps2.current_parameters["battery_mass_kg"] != pytest.approx(
         estimate_battery_mass_kg(sku_spec.energy_wh)
     )
+
+
+# ── 7b. Battery bind → declared envelope (Minimum Geometric KNOW, B1) ──────
+
+def test_battery_bind_projects_declared_envelope():
+    bound = bind_battery_from_catalog("lipo_4s_1500mah")
+    assert bound.properties["length_mm"].value == pytest.approx(37.0)
+    assert bound.properties["length_mm"].unit == "mm"
+    assert bound.properties["length_mm"].source == "declared"
+    assert bound.properties["width_mm"].value == pytest.approx(35.0)
+    assert bound.properties["height_mm"].value == pytest.approx(75.0)
+
+
+def test_battery_bind_omits_envelope_when_unsourced():
+    bound = bind_battery_from_catalog("lipo_4s_10000mah")
+    for key in ("length_mm", "width_mm", "height_mm"):
+        assert key not in bound.properties
 
 
 # ── 8. Unbound battery → still heuristic mass (regression) ─────────────────

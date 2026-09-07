@@ -98,6 +98,8 @@ Input de usuario
 
 > **Autoridad:** el estado del proyecto / Continuity / Acquisition Target eligen el *siguiente objetivo de ingeniería*. El LLM interpreta lenguaje; no inventa el gap pendiente. Sin Conversation Engine. Step D (Guided Engineering ampliado) y Create→BOM: fuera de este mapa hasta aprobación explícita — ver `docs/PROJECT_CONTINUITY.md` e `IMPLEMENTATION_TASKS.md`.
 
+**Visor espacial (as-is):** `jarvis board` lanza `ui/spatial-board/` (`127.0.0.1:5173`). `workspace/spatial_board.project_spatial_nodes` proyecta `ProjectState` a cards (`component`/`part`) y, desde B3, `kind: "slot"` para claves esperadas de bloques **declarados** que aún no están en `components`. Solo lectura (dos GET). El CLI / writers mutan el diseño. Layout `{x,y,w,h}` vive en `localStorage` (B1 `spatial_layout.json` no shipped). No es superficie v1 de mutación.
+
 ## Capas Del Sistema
 
 ### 1. Contratos y schemas
@@ -1500,8 +1502,9 @@ Implementado:
 - **Fase 6 (propulsion composite)**: `BLOCK_TYPE["propulsion"] = "composite"` (motors + propellers + params); DA-MOTORS-3 resuelto (`workspace_manager` remap `motors` → `motor_count`); `_set_propeller_component()` + routing en `_handle_component_description`; `_COMPONENT_PROMPTS["propellers"]` + `_BLOCK_COMPONENT_HINTS["propulsion"]`; `motor_count` key canónico en `parameter_requirements.py` con aliases `("motores", "num_motores", "motors")`; `calculation_engine` lee `motor_count` (con fallback `actuator_count`); DA-MOTORS-2 implementada (Opción B: componente compartido)
 - **CLI Polish (checkpoint-continuity-polish, 2026-08-18)**: `project_continuity` G9-B catalog-gap demotion; `LIST_MOTORS_PATTERNS` + `_handle_list_motors`; aerial `definir motores` orchestrator gate (G18); force-motors when completeness `high` (G17 partial); `_fresh_pending_keys_for_block` (FN-013/G12 partial); reasoning label bridge to list-motors/DSE (G19). 1768 tests. Post-checkpoint micro-fix `d224dc1` closed G20/G20-B with dynamic composite in-progress labels. Residual: G17 IDLE bare phrase, G14 propeller routing — see `.jes/artifacts/cli_findings_post_catalog_bind_v1.md`.
 - **Project Closure arc (IC 1–3, `checkpoint-closure-policy`, 2026-08-31)**: Requirements explicit-none + G26 write path (`checkpoint-requirements-closure`); battery catalog pick + G27 hardening (`checkpoint-battery-catalog-bind-ux`); closure policy doc sync + propeller `sku_resolved` display fix (`checkpoint-closure-policy`). Suite **1976**. Product contract: `ENGINEERING_READINESS_VISION.md` §11. Deferred at the time: G24, H5 ESC catalog, frame SKU catalog, `catalog_bound`→verdict wiring.
-- **Structure representation arc (2026-09-04→05, post-`v0.3.6`):** Frame catalog IC-1→3 · honesty `PASS *` · Parts Graph Fase 1 · G-N1 · IDLE rebind B2+B3 · arm `thickness_mm` · plate multiplicity (`PlateSeed`/`plates[]`/ordinal siblings/`label`) — live suite **2294**. M0; Structure PASS evidence unchanged; free-text multi-plate + MEASURE wall = debt. Detail: `ENGINEERING_READINESS_VISION.md` §8 + `PHYSICAL_COMPONENT_CATALOG_V1.md` §13.
-- **1976 tests passing** at Project Closure close; **2294** as of plate multiplicity B2 (2026-09-05)
+- **Structure representation arc (2026-09-04→05, post-`v0.3.6`):** Frame catalog IC-1→3 · honesty `PASS *` · Parts Graph Fase 1 · G-N1 · IDLE rebind B2+B3 · arm `thickness_mm` · plate multiplicity (`PlateSeed`/`plates[]`/ordinal siblings/`label`) — suite **2294** at Structure close. M0; Structure PASS evidence unchanged; free-text multi-plate + MEASURE wall = debt. Detail: `ENGINEERING_READINESS_VISION.md` §8 + `PHYSICAL_COMPONENT_CATALOG_V1.md` §13.
+- **Spatial board (2026-09-05→06):** viewport + projector hotfix **v0.3.8** + B3 honest-absence slots — live suite **2310**. Visor read-only; slots ≠ BOM. Layout still `localStorage`.
+- **1976 tests passing** at Project Closure close; **2294** as of plate multiplicity B2; **2310** as of B3 slots (2026-09-05)
 
 Pendiente:
 

@@ -30,6 +30,7 @@ Jarvis ya permite:
 - Guardar preguntas informativas dentro de `ITERATE_INTERACTIVE` del wizard de iteración mediante `classify_input_intent`
 - Explorar automáticamente el espacio de diseño para un objetivo dado (`mejorar_autonomia`, `aumentar_payload`, `reducir_masa`, `mejorar_estabilidad`) sin mutar estado, evaluando tanto variaciones de parámetros como variaciones de componentes (DSE v1 + DA2)
 - Aplicar el mejor candidato de la última exploración con trazabilidad completa, preservando componentes y parámetros derivados (DSE v1.1 + DA2)
+- Abrir la pizarra espacial (`jarvis board`) como visor de solo lectura: cards desde `state.json`; huecos de arquitectura declarada como slots (no es BOM)
 Detalles técnicos internos del sistema en [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Flujos disponibles
@@ -207,6 +208,8 @@ python -m pytest jarvis/tests -q
 # 5) Lanzar CLI
 python -m jarvis.main --chat
 ```
+
+Pizarra (visor, no muta el diseño): `jarvis board` → `http://127.0.0.1:5173/`.
 
 Si usas Ollama local, asegúrate de que el servidor esté activo y el modelo configurado exista.
 

@@ -41,7 +41,10 @@
     "part_number": "1501004BK",
     "identity_status": "verified",
     "source_url": "https://balticdrones.eu/products/battery-cnhl-black-series-lipo-4s-14-8v-1500mah-100c-xt60",
-    "source_note": "CNHL Black Series stock 1501004BK; 4S1P, 14.8V, 1500mAh, 100C continuous, 183g. Burst 200C not used."
+    "length_mm": 37,
+    "width_mm": 35,
+    "height_mm": 75,
+    "source_note": "CNHL Black Series stock 1501004BK; 4S1P, 14.8V, 1500mAh, 100C continuous, 183g. Burst 200C not used. Page states size \"37X35X75mm\" (unlabeled axes, no tolerance note beyond \"1-5mm difference\") — mapped verbatim print order to length/width/height (N2a)."
   },
   "lipo_4s_5000mah": {
     "chemistry": "lipo",
@@ -58,7 +61,10 @@
     "part_number": "SPMX50004S100HT",
     "identity_status": "verified",
     "source_url": "https://my.spektrumrc.com/Products/Default.aspx?ProdID=SPMX50004S100HT",
-    "source_note": "Spektrum official spec: 4S1P hardcase Smart LiPo, 14.8V, 5000mAh, 100C continuous, 498g."
+    "length_mm": 138.5,
+    "width_mm": 47.7,
+    "height_mm": 40.7,
+    "source_note": "Spektrum official spec: 4S1P hardcase Smart LiPo, 14.8V, 5000mAh, 100C continuous, 498g. Page states labeled Length 138.5mm / Width 47.7mm / Height 40.7mm (N1) — mapped directly, not verbatim print order."
   },
   "lipo_4s_10000mah": {
     "chemistry": "lipo",
@@ -85,7 +91,10 @@
     "model": "6000mAh 6S2P 100C XT60",
     "identity_status": "verified",
     "source_url": "https://www.rotorama.com/product/gnb-6000mah-6s2p-100c",
-    "source_note": "GNB 6000mAh 6S2P pack; 22.2V, 100C continuous, 793g, XT60. Two cells in parallel per series group."
+    "length_mm": 141,
+    "width_mm": 64,
+    "height_mm": 41,
+    "source_note": "GNB 6000mAh 6S2P pack; 22.2V, 100C continuous, 793g, XT60. Two cells in parallel per series group. Page states \"Dimensions: 141x64x41mm\" (unlabeled axes) — mapped verbatim print order to length/width/height (N2a)."
   },
   "lipo_6s_10000mah": {
     "chemistry": "lipo",

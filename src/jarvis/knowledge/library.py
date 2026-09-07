@@ -64,6 +64,16 @@ class MotorSpec:
     part_number: str | None = None
     identity_status: str | None = None
     source_note: str | None = None
+    # Geometry axis (Minimum Geometric KNOW, Motor B1) — declared cylinder
+    # envelope, sourced-only, never invented. Independently optional: a row
+    # may state stator dims without a shaft figure (or vice versa). Overall
+    # axial height/length is deliberately NOT modeled here — the two
+    # currently-sourced rows disagree on what it even means (shaft-inclusive
+    # "Motor Height" vs body-only "Body Length"), see investigation report §C.
+    stator_diameter_mm: float | None = None
+    stator_height_mm: float | None = None
+    diameter_mm: float | None = None
+    shaft_diameter_mm: float | None = None
 
 
 def _motor_covers_requirements(
@@ -119,6 +129,12 @@ class BatterySpec:
     pack_configuration: str | None = None
     max_continuous_current_source: str | None = None
     source_note: str | None = None
+    # Geometry axis (Minimum Geometric KNOW, B1) — declared box envelope,
+    # sourced-only, never invented. All three independently optional; a row
+    # with only some stated omits the rest rather than guessing.
+    length_mm: float | None = None
+    width_mm: float | None = None
+    height_mm: float | None = None
 
 
 @dataclass(frozen=True)
@@ -142,6 +158,12 @@ class EscSpec:
     source_url: str | None = None
     identity_status: str | None = None
     source_note: str | None = None
+    # Geometry axis (Minimum Geometric KNOW, ESC B1) — declared box envelope,
+    # sourced-only, never invented. Same vocabulary as BatterySpec — ESC is
+    # a flat PCB module, not a cylinder, so no divergence needed.
+    length_mm: float | None = None
+    width_mm: float | None = None
+    height_mm: float | None = None
 
 
 @dataclass(frozen=True)
@@ -327,6 +349,18 @@ class ComponentLibrary:
             part_number=data.get("part_number"),
             identity_status=data.get("identity_status"),
             source_note=data.get("source_note"),
+            stator_diameter_mm=(
+                float(data["stator_diameter_mm"]) if data.get("stator_diameter_mm") is not None else None
+            ),
+            stator_height_mm=(
+                float(data["stator_height_mm"]) if data.get("stator_height_mm") is not None else None
+            ),
+            diameter_mm=(
+                float(data["diameter_mm"]) if data.get("diameter_mm") is not None else None
+            ),
+            shaft_diameter_mm=(
+                float(data["shaft_diameter_mm"]) if data.get("shaft_diameter_mm") is not None else None
+            ),
         )
 
     def _load_motors(self) -> dict[str, MotorSpec]:
@@ -450,6 +484,9 @@ class ComponentLibrary:
             pack_configuration=data.get("pack_configuration"),
             max_continuous_current_source=data.get("max_continuous_current_source"),
             source_note=data.get("source_note"),
+            length_mm=float(data["length_mm"]) if data.get("length_mm") is not None else None,
+            width_mm=float(data["width_mm"]) if data.get("width_mm") is not None else None,
+            height_mm=float(data["height_mm"]) if data.get("height_mm") is not None else None,
         )
 
     def _load_batteries(self) -> dict[str, BatterySpec]:
@@ -627,6 +664,9 @@ class ComponentLibrary:
             source_url=data.get("source_url"),
             identity_status=data.get("identity_status"),
             source_note=data.get("source_note"),
+            length_mm=float(data["length_mm"]) if data.get("length_mm") is not None else None,
+            width_mm=float(data["width_mm"]) if data.get("width_mm") is not None else None,
+            height_mm=float(data["height_mm"]) if data.get("height_mm") is not None else None,
         )
 
     def _load_escs(self) -> dict[str, EscSpec]:

@@ -26,7 +26,7 @@ python -m jarvis.main --chat
 jarvis --chat
 ```
 
-**Pizarra** (visor de componentes; el CLI sigue mutando el diseño):
+**Pizarra** (visor de componentes; huecos de arquitectura declarada se muestran como slots, no es BOM/completeness; el CLI sigue mutando el diseño):
 
 ```bash
 jarvis board
@@ -49,7 +49,7 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 
 ## What v0.3.8 includes
 
-- Everything in **v0.3.7** (Structure representation arc + `jarvis board`), plus the spatial projector that 0.3.7 gitignored (`src/jarvis/workspace/spatial_board.py`).
+- Everything in **v0.3.7** (Structure representation arc + `jarvis board` UI), plus the spatial projector that 0.3.7 gitignored (`src/jarvis/workspace/spatial_board.py`).
 - Everything through **v0.3.6** (experimental prop/energy construction + Structure A + fail-routing), plus the closed **Structure representation** arc:
 - Claim hygiene + control parity (`PASS *` honesty)
 - Structure Foundations / Catalog Foundation IC-1→3 (frame seed + bind + assist)
@@ -58,6 +58,14 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 - Arm `thickness_mm` + curated multi-plate assembly (`plates[]`, ordinal siblings, labels)
 - Spatial board visor (`jarvis board`)
 - Locks: Prop/Energy experimental = HD-004 wall; System Optimization deferred until demonstrated pain
+
+## On the tree after v0.3.8 (no new tag)
+
+Package version remains **0.3.8**. The working tree also has:
+
+- **B3 honest absence:** declared-architecture holes project as `kind: "slot"` (not BOM / ERF). Review PASS WITH NOTES. Suite **2310**.
+- Layout overlay still in browser `localStorage` (B1 `spatial_layout.json` is named debt, not PRIORIDAD).
+- Next product axis: Geometry / Physical Component Representation — **investigation only** (see `docs/IMPLEMENTATION_TASKS.md`).
 
 ## Docs
 

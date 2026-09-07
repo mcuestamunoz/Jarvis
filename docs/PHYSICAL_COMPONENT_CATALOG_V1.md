@@ -1,6 +1,6 @@
 # Physical Component Catalog v1 — Architectural Design
 
-**Status:** DESIGN CLOSED (Engineer 2026-08-12) — **implementation status:** §13 below (sync 2026-09-05: frame IC-1→3 + Structure B graph + G-N1 + arm thickness + plate multiplicity @ suite **2294**)  
+**Status:** DESIGN CLOSED (Engineer 2026-08-12) — **implementation status:** §13 below (sync 2026-09-06: frame IC-1→3 + Structure B graph + G-N1 + arm thickness + plate multiplicity @ **2294**; spatial board B3 slots @ **2310**)  
 **Date:** 2026-08-12  
 **Author:** JES / Cursor (Engineer Interface)  
 **Authority:** Engineer confirmation after Catalog v1 connection audit  
@@ -13,7 +13,7 @@
 
 **Explicitly not this document:** Implementation code · full Impl A/B/C/D contracts · H5/C-081 · ESC catalog · Conversation Engine / Step D · Create→BOM implementation details  
 
-**Next:** see `docs/IMPLEMENTATION_TASKS.md` PRIORIDAD (await Engineer next focus after plate multiplicity B2 CLOSED @ **2294**).
+**Next:** see `docs/IMPLEMENTATION_TASKS.md` PRIORIDAD (Geometry investigation OPEN; Structure plate multiplicity B2 CLOSED @ **2294**; board B3 @ **2310**).
 
 ---
 
@@ -298,9 +298,9 @@ Until that IC exists, **no Catalog Foundation coding**.
 
 ---
 
-## 13. Implementation status (as of 2026-09-05)
+## 13. Implementation status (as of 2026-09-06)
 
-> **This section is timeline hygiene only.** Design locks (§Decision log, §6 phase plan, 1A–5A) are unchanged. For as-is behavior see `docs/ARCHITECTURE.md` and `docs/system_map/*`. Live suite **2294**.
+> **This section is timeline hygiene only.** Design locks (§Decision log, §6 phase plan, 1A–5A) are unchanged. For as-is behavior see `docs/ARCHITECTURE.md` and `docs/system_map/*`. Live suite **2310**.
 
 | Deliverable | Status | Checkpoint (reference) |
 |---|---|---|
@@ -321,6 +321,7 @@ Until that IC exists, **no Catalog Foundation coding**.
 | IDLE catalog rebind B2+B3 | ✅ Complete | Frame + motors/propellers/battery reopen after arch 4/4; suites **2250**/**2276**. `clear_frame_part_children` by `parent_key`. |
 | Structure B arm `thickness_mm` | ✅ Complete | `FrameSpec.arm_thickness_mm` → `frame_arm`; display-only; M0; suite **2286** + smoke. |
 | Structure B plate multiplicity B2 | ✅ Complete | `PlateSeed` + `FrameSpec.plates[]` curated; ordinal `frame_plate*` + `label`; N2/N3/N7; BOM labeled lines; suite **2294**. |
+| Spatial board visor + B3 slots | ✅ Complete | `jarvis board` + projector; declared-architecture holes → `kind: "slot"` (not BOM); suite **2310**. Layout still `localStorage` (B1 debt). |
 
 **Still deferred (unchanged from §6 / §10 + post-B2 debt):** H5 ESC catalog · Conversation Engine / Step D · wiring `catalog_bound` into subsystem verdicts · G24 DSE apply-by-index · MEASURE (fit/clearance/FEA/CAD) · free-text multi-plate · optional G-N2 Armattan counts / G-N3 `compressed-x` alias / G-N4 diverge orphans · catalog completeness hardcode polish.
 

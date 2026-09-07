@@ -33,7 +33,9 @@ CONNECTIONS.md
 
 **Phase 2.5–2.7-B + Option A (2026-09-01):** No registry change. **C-060** detail: user `calcular`/`iterate`/simulate-rebuild wrap `build()` via `endurance_sweep_writer` (4S labeled L2, ephemeral). `CalculationEngine.build` stays opt-in; DSE apply stays a bare `build()`. Lab remainder is [`docs/HARDWARE_DEBT.md`](../HARDWARE_DEBT.md), not a map edge. **No new C-xxx.**
 
-**Structure catalog + parts + IDLE rebind + plate multiplicity (2026-09-04→05):** No new C-xxx. **C-030** detail expanded to frame catalog pick / IDLE rebind / `frame_part_specs_from_catalog` (arm thickness + curated ordinal plates). Continuity/State/Acquisition maps synced. Live suite **2294**.
+**Structure catalog + parts + IDLE rebind + plate multiplicity (2026-09-04→05):** No new C-xxx. **C-030** detail expanded to frame catalog pick / IDLE rebind / `frame_part_specs_from_catalog` (arm thickness + curated ordinal plates). Continuity/State/Acquisition maps synced. Structure close suite **2294**.
+
+**Spatial board visor + B3 honest absence (2026-09-05→06):** No new C-xxx. `jarvis board` launches `ui/spatial-board/`; `workspace/spatial_board.project_spatial_nodes` is a second derived presentation of `ProjectState` (same class as C-094 markdown views, not a registry ID). B3: declared-block missing keys → `kind: "slot"`. Live suite **2310**. Queue: `docs/IMPLEMENTATION_TASKS.md`.
 
 **Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables. The only authoritative count is the length of **Canonical registry** below.
 
@@ -108,7 +110,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-091 | `ComponentSpec` | `component_writers.set_*` → `design_properties.components[key]` | 🟢 (single write point) |
 | C-092 | Any orchestrator checkpoint | `StateManager.set_runtime_session` / `clear_runtime_session` | 🟢 |
 | C-093 | `ProjectState` | `WorkspaceManager.save_state` → `state.json` | 🟢 |
-| C-094 | `ProjectState` | `WorkspaceManager.render_views` → `estado_actual.md`/`sistema.md` | 🟢 |
+| C-094 | `ProjectState` | `WorkspaceManager.render_views` → `estado_actual.md`/`sistema.md` (markdown). Sibling derived view, not a new ID: `spatial_board.project_spatial_nodes` → visor cards/slots. | 🟢 |
 | C-100 | `orchestrator` | `llm_interface.interpret` → `PromptBuilder.build_messages` | 🟢 |
 | C-101 | `PromptBuilder` messages | `LLMClient.complete` (Ollama) | 🟢 |
 | C-102 | Raw LLM response | `LLMResponseParser.parse/validate_for_runtime` (`ActionPolicy`) | 🟢 |
@@ -884,7 +886,7 @@ User-facing `calcular` may two-pass via `build_with_estimative_sweep` (4S labele
 | ID | To | Symbols | Status | Evidence |
 |---|---|---|---|---|
 | C-093 | `state.json` | `WorkspaceManager.save_state` | 🟢 | `workspace/workspace_manager.py:82` |
-| C-094 | `estado_actual.md`/`sistema.md` | `WorkspaceManager.render_views` (uses `project_closure`'s BOM) | 🟢 | `workspace/workspace_manager.py:115`, `workspace/render_views.py` |
+| C-094 | `estado_actual.md`/`sistema.md` | `WorkspaceManager.render_views` (uses `project_closure`'s BOM). **Sibling derived view (no new ID):** `workspace/spatial_board.project_spatial_nodes` → visor DTOs (`component`/`part`/`slot`); not markdown, not BOM. | 🟢 | `workspace/workspace_manager.py:115`, `workspace/render_views.py`, `workspace/spatial_board.py` |
 
 ---
 
@@ -964,3 +966,4 @@ These are gaps observed while building this registry — not claimed as connecti
 - **Plan/Handoff Context → DSE consumer** — **IMPLEMENTED (FN-024, C-105/C-106)**, closing C-042. **Help+Goal routing (H3/C-025/C-044)** — **IMPLEMENTED (FN-025)**, closing both. **Plan/Handoff Context → Iterate consumer (H4/C-043)** — **IMPLEMENTED (FN-026)**, via `handoff_matching.match_plan_lever` + `orchestrator._preseed_variable_from_handoff`. H1–H4 all closed; only H5 (C-081, below) remains. See `MISMATCHES.md` design appendix.
 - **Continuity → margin/goal "thread"** — `⚪ NOT IMPLEMENTED` in the sense that no data surface currently carries "we are worried about margin" across turns; C-081 is the read-side symptom.
 - **`ActionRouter` entry for `analyze`/`project_status`/`explore_design_space`/etc.** — `⚪ NOT IMPLEMENTED` by design (§1.4 dual-dispatch note) — these intents never touch `ActionRouter` at all, which is why the seam exists. Not a bug, listed for completeness.
+- **Spatial board visor → writers / DEFINE / catalog pick** — `⚪ NOT IMPLEMENTED` by design (U1 visor). `ui/spatial-board/` has GET only; slots are display-only. Layout overlay is `localStorage`, not `ProjectState`. Do **not** add a C-xxx for this absence.

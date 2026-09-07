@@ -101,6 +101,41 @@ def test_emax_rs2205s_2300_verified_motor_identity_no_nominal_power():
     assert spec.voltage_max == pytest.approx(16.8)
 
 
+def test_emax_rs2205s_2300_declared_envelope():
+    """Geometry axis (Minimum Geometric KNOW, Motor B1) — EMAX page states
+    Stator Diameter 22mm, Stator Height 5mm, Shaft Diameter 3mm, Motor
+    Diameter 27.9mm (mapped to diameter_mm). Overall axial height/length is
+    deliberately not modeled — see investigation report §C."""
+    spec = _LIB.get_motor("emax_rs2205s_2300")
+    assert spec.stator_diameter_mm == pytest.approx(22.0)
+    assert spec.stator_height_mm == pytest.approx(5.0)
+    assert spec.diameter_mm == pytest.approx(27.9)
+    assert spec.shaft_diameter_mm == pytest.approx(3.0)
+
+
+def test_sunnysky_r2205_2500_declared_envelope_no_shaft():
+    """SunnySky page states Stator Diameter 22mm, Stator Thickness 5mm,
+    Rotor Diameter 27.4mm (mapped to diameter_mm) — no shaft diameter
+    stated, so shaft_diameter_mm stays None (asymmetric coverage, same
+    discipline as Battery B1's unsourced rows)."""
+    spec = _LIB.get_motor("sunnysky_r2205_2500")
+    assert spec.stator_diameter_mm == pytest.approx(22.0)
+    assert spec.stator_height_mm == pytest.approx(5.0)
+    assert spec.diameter_mm == pytest.approx(27.4)
+    assert spec.shaft_diameter_mm is None
+
+
+def test_motor_envelope_omitted_for_unsourced_sibling_sku():
+    """emax_rs2205_2300 (no trailing "s") has no source_url — distinct SKU
+    from the sourced emax_rs2205s_2300; must never inherit its sibling's
+    dims."""
+    spec = _LIB.get_motor("emax_rs2205_2300")
+    assert spec.stator_diameter_mm is None
+    assert spec.stator_height_mm is None
+    assert spec.diameter_mm is None
+    assert spec.shaft_diameter_mm is None
+
+
 def test_motor_optional_enrichment_fields_load_when_present(tmp_path: Path):
     (tmp_path / "motores").mkdir()
     (tmp_path / "materiales").mkdir()
@@ -171,6 +206,41 @@ def test_lipo_6s_6000mah_gnb_verified_identity():
     assert spec.pack_configuration == "6S2P"
     assert spec.mass_g == pytest.approx(793.0)
     assert spec.max_continuous_current_a == pytest.approx(600.0)
+
+
+def test_lipo_4s_1500mah_declared_envelope_verbatim_print_order():
+    """Geometry axis (Minimum Geometric KNOW, B1) — CNHL page states
+    unlabeled "37X35X75mm" (N2a: verbatim print order -> length/width/height)."""
+    spec = _LIB.get_battery("lipo_4s_1500mah")
+    assert spec.length_mm == pytest.approx(37.0)
+    assert spec.width_mm == pytest.approx(35.0)
+    assert spec.height_mm == pytest.approx(75.0)
+
+
+def test_lipo_4s_5000mah_declared_envelope_labeled_axes():
+    """N1: Spektrum page labels axes directly (Length/Width/Height) —
+    138.5 / 47.7 / 40.7mm, not the CNHL-style print-order mapping."""
+    spec = _LIB.get_battery("lipo_4s_5000mah")
+    assert spec.length_mm == pytest.approx(138.5)
+    assert spec.width_mm == pytest.approx(47.7)
+    assert spec.height_mm == pytest.approx(40.7)
+
+
+def test_lipo_6s_6000mah_declared_envelope_verbatim_print_order():
+    """N2a: Rotorama page states unlabeled "141x64x41mm"."""
+    spec = _LIB.get_battery("lipo_6s_6000mah")
+    assert spec.length_mm == pytest.approx(141.0)
+    assert spec.width_mm == pytest.approx(64.0)
+    assert spec.height_mm == pytest.approx(41.0)
+
+
+def test_battery_envelope_omitted_when_unsourced():
+    """No cited dims on this row's seed -> all three stay None, never
+    invented."""
+    spec = _LIB.get_battery("lipo_4s_10000mah")
+    assert spec.length_mm is None
+    assert spec.width_mm is None
+    assert spec.height_mm is None
 
 
 def test_all_seed_batteries_have_required_fields():
@@ -329,6 +399,31 @@ def _assert_esc_hobbywing(spec: EscSpec) -> None:
     assert spec.mass_g == pytest.approx(26.0)
 
 
+def test_esc_declared_envelope_from_disambiguated_part_number():
+    """Geometry axis (Minimum Geometric KNOW, ESC B1) — the Hobbywing page
+    describes 4 physical variants at 2 sizes; this row's own part_number
+    (30901001, International Version B) disambiguates to 50.0x21.6x12.0mm,
+    not the 42.0x21.6x12.0mm Version A."""
+    spec = _LIB.get_esc("hobbywing_xrotor_40a_6s")
+    assert spec.length_mm == pytest.approx(50.0)
+    assert spec.width_mm == pytest.approx(21.6)
+    assert spec.height_mm == pytest.approx(12.0)
+
+
+def test_esc_mass_unchanged_by_geometry_addition():
+    """N2 regression: adding declared dims must not touch the pre-existing
+    (and separately flagged as debt) mass_g value."""
+    spec = _LIB.get_esc("hobbywing_xrotor_40a_6s")
+    assert spec.mass_g == pytest.approx(26.0)
+
+
+def test_esc_source_url_normalized_to_working_mirror():
+    """N3: a.hobbywing.com fails TLS validation; source_url now points at
+    the working www. mirror of the same product page."""
+    spec = _LIB.get_esc("hobbywing_xrotor_40a_6s")
+    assert spec.source_url.startswith("https://www.hobbywing.com/")
+
+
 def test_has_esc():
     assert _LIB.has_esc("hobbywing_xrotor_40a_6s") is True
     assert _LIB.has_esc("no_existe_xyz") is False
@@ -356,6 +451,20 @@ def test_bind_esc_from_catalog_projects_continuous_current():
     spec = bind_esc_from_catalog("hobbywing_xrotor_40a_6s")
     assert spec.catalog_ref == CatalogRef(family="esc", sku="hobbywing_xrotor_40a_6s")
     assert spec.suggested_key == "esc"
+    assert spec.properties["current_a"].value == pytest.approx(40.0)
+    assert spec.properties["mass_g"].value == pytest.approx(26.0)
+
+
+def test_bind_esc_from_catalog_projects_declared_envelope():
+    from jarvis.core.catalog_bind import bind_esc_from_catalog
+
+    spec = bind_esc_from_catalog("hobbywing_xrotor_40a_6s")
+    assert spec.properties["length_mm"].value == pytest.approx(50.0)
+    assert spec.properties["length_mm"].unit == "mm"
+    assert spec.properties["length_mm"].source == "declared"
+    assert spec.properties["width_mm"].value == pytest.approx(21.6)
+    assert spec.properties["height_mm"].value == pytest.approx(12.0)
+    # Existing electrical/mass projection must be unaffected by the addition.
     assert spec.properties["current_a"].value == pytest.approx(40.0)
     assert spec.properties["mass_g"].value == pytest.approx(26.0)
 

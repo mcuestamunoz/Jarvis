@@ -1,6 +1,6 @@
 # 00 — Entry
 
-**Purpose.** The CLI/MCP surface, and the seam where two independent dispatch mechanisms meet the same orchestrator.
+**Purpose.** The CLI/MCP surface, the spatial board visor launcher, and the seam where two independent dispatch mechanisms meet the same orchestrator. The visor does **not** call `handle` / `handle_user_text`.
 
 **Inbound:** C-001 (user → CLI). **Outbound:** C-002 (→ `handle_user_text`), C-003 (→ `handle`).
 
@@ -11,6 +11,7 @@
 | `adapters/cli/main.py` | Terminal loop; renders results (`render_response`, `render_startup_context`) |
 | `adapters/mcp/server.py` | MCP tool server exposing Jarvis actions |
 | `adapters/mcp/session_manager.py` | MCP-side session bookkeeping |
+| `adapters/cli/board.py` (`jarvis board`) + `workspace/spatial_board.py` | Spatial board visor launcher + read-only projector (`ProjectState` → cards/`kind: "slot"` for declared-architecture holes). No writer, no BOM/ERF/Continuity import — CLI stays the engineering mutation surface. Layout overlay is browser `localStorage` (B1 debt: `views/spatial_layout.json`). |
 
 ## Important functions
 
@@ -44,8 +45,9 @@ _handle_user_text_inner                    interactive-session short-circuit
 
 ## Local state touched
 
-None directly — this layer only forwards to the orchestrator.
+CLI/MCP: none directly — those adapters forward to the orchestrator.  
+`jarvis board`: launches Vite; visor layout overlay lives in browser `localStorage` (not `ProjectState`). Projector is read-only.
 
 ## Tests
 
-`tests/test_main_cli.py` (CLI rendering), MCP-specific tests under the same `tests/` tree if present (not enumerated here — see `find tests -iname "*mcp*"`).
+`tests/test_main_cli.py` (CLI rendering), `tests/test_cli_board.py` (launcher), `tests/test_spatial_board_projector.py` (cards + B3 slots). MCP-specific tests under the same `tests/` tree if present (not enumerated here — see `find tests -iname "*mcp*"`).

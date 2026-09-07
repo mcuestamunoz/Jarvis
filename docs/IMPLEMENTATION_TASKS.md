@@ -6,11 +6,68 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector`. Suite viva **2294**.  
-> **PRIORIDAD AHORA:** **Ninguna IC abierta.** Structure arco + smoke **CLOSED/ACCEPT**. Optimization **NO** abrir (lock abajo).  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`; no hay tag posterior). Suite viva **2327** (Geometry Battery + Motor + ESC B1).  
+> **PRIORIDAD AHORA:** **Ninguna IC abierta.** Geometry ESC B1 **CLOSED** (suite **2327**). Battery + Motor + ESC en `representar`.  
+> **Eje ★:** Geometry / Physical Representation — primer trío de familias shipped; siguiente solo con nuevo Buy.  
+> **Escalera:** KNOW → representar → visualizar → comparar → verificar (no saltar a VERIFICADO).  
+> **Pizarra (código, no cola):** visor `jarvis board` + projector read-only + B3 slots (`kind: "slot"`). Review **PASS WITH NOTES**. Residual board = **B1** layout-on-disk — **no PRIORIDAD**.  
 > **Pared física:** Prop/Energy experimental → HD-004 ([lock](../.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md)).  
-> **Debt software (no cola):** free-text multi-plate · completeness hardcode · G-N2/3/4 · C3 UX · MEASURE out · System optimization (deferred).  
+> **Debt software (no cola):** B1 `spatial_layout.json` · B2 poll/mtime · free-text multi-plate · completeness hardcode · G-N2/3/4 · C3 UX · MEASURE fit/CAD theater · System optimization (deferred).  
 > **Artefactos:** investigation / implementation / review only (sin docs de ratificación).
+
+### 🟢 CERRADO (código + review) — Geometry ESC declared envelope B1 (2026-09-07)
+
+> **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_geometry_esc_envelope_b1.md) · [implementation_review…](../.jes/artifacts/implementation_review_geometry_esc_envelope_b1.md) — **PASS**  
+> **Suite:** **2327**. 50×21.6×12 · N3 www URL · mass_g 26 intacto · sin wizard.
+
+### 🟡 INVESTIGADO — Geometry ESC envelope (2026-09-07) · ★ Buy B1
+
+> **Review:** [investigation_review…](../.jes/artifacts/investigation_review_geometry_esc_envelope.md) — **PASS WITH NOTES** → IC cerrado arriba.
+
+### 🟢 CERRADO (código + review) — Geometry Motor declared envelope B1 (2026-09-06)
+
+> **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_geometry_motor_envelope_b1.md) · [implementation_review…](../.jes/artifacts/implementation_review_geometry_motor_envelope_b1.md) — **PASS**  
+> **Suite:** **2323**. Seed 2/22 · sin height axial · sibling `emax_rs2205_2300` sin dims.
+
+### 🟡 INVESTIGADO — Geometry Motor envelope (2026-09-06) · ★ Buy B1
+
+> **Review:** [investigation_review…](../.jes/artifacts/investigation_review_geometry_motor_envelope.md) — **PASS WITH NOTES** → IC cerrado arriba.
+
+### 🟢 SMOKE ACCEPT — Geometry B1 Battery on Board (2026-09-06)
+
+> [engineer_smoke…](../.jes/artifacts/engineer_smoke_geometry_battery_envelope_b1.md) — card `lipo_4s_1500mah` muestra 37/35/75 mm. (Rebind smoke desde `lipo_4s_10000mah`.)
+
+### 🟢 CERRADO (código + review) — Geometry B1 Battery declared envelope (2026-09-06)
+
+> **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_geometry_battery_envelope_b1.md) · [implementation_review…](../.jes/artifacts/implementation_review_geometry_battery_envelope_b1.md) — **PASS**  
+> **Suite:** **2316**. CNHL 37×35×75 · Spektrum 138.5×47.7×40.7 · GNB 141×64×41 → bind → Board texto. Sin fit/glyph/Frame.
+
+### 🟡 INVESTIGADO — Geometry minimum physical object (2026-09-06) · ★ Buy B1
+
+> **Review:** [investigation_review…](../.jes/artifacts/investigation_review_geometry_minimum_physical_object.md) — **PASS WITH NOTES** → IC cerrado arriba.
+
+### 🧊 FUERA DE FASE (no PRIORIDAD AHORA) — Board B1 layout-on-disk
+
+> Layout del visor vive en `localStorage` (`jarvis.spatial-board.layout.v1.<projectId>`), no en `workspace/<id>/views/spatial_layout.json`.  
+> Named residual Buy del ciclo Spatial Board Product Limits — **no** sustituye Geometry; **no** abrir IC hasta ★ aparte.
+
+### 🟢 CERRADO (código + review) — Spatial board honest absence B3 (2026-09-05)
+
+> **IC / Review:** [implementation_contract_spatial_board_honest_absence_b3.md](../.jes/artifacts/implementation_contract_spatial_board_honest_absence_b3.md) · [implementation_review…](../.jes/artifacts/implementation_review_spatial_board_honest_absence_b3.md) — **PASS WITH NOTES**  
+> **Suite:** **2310** · paquete sigue **0.3.8** (sin bump).  
+> **Qué:** claves esperadas por `BLOCK_TO_COMPONENTS` de un bloque **declarado** ausentes de `components` → DTO `kind: "slot"` (hueco de arquitectura). No slots para bloques no declarados. Vacío `components` + bloques → slots, no `[]`. No BOM / ERF / Continuity. Sin writers en `ui/`.  
+> **N1 (no bloquea):** `_emit` podría duplicar una clave si solo existe como hijo `parent_key` (no alcanzable con writers actuales).  
+> **No es Geometry.**
+
+### 🟢 CERRADO (código + review + tag) — Spatial board projector (v0.3.8)
+
+> **Tag:** `v0.3.8` / `checkpoint-spatial-board-projector` — `src/jarvis/workspace/spatial_board.py` (el tag `v0.3.7` lo gitignoreaba).  
+> `project_spatial_nodes`: `ProjectState` → cards `component`/`part`. Solo GET. CLI muta.
+
+### 🟢 CERRADO (código + review) — Spatial board viewport (2026-09-05)
+
+> **IC / Review:** [implementation_contract_spatial_board_viewport.md](../.jes/artifacts/implementation_contract_spatial_board_viewport.md) · [implementation_review…](../.jes/artifacts/implementation_review_spatial_board_viewport.md)  
+> **Qué:** `ui/spatial-board/` (React/Vite) + `jarvis board` → `127.0.0.1:5173`. Pan / zoom / drag / resize / minimap / fit. Layout overlay en `localStorage`. **No** es superficie de mutación (U1 visor).
 
 ### 🧊 LOCK — System-level Optimization diferida (2026-09-05)
 
@@ -644,7 +701,7 @@ Phase 2 — Physical Propulsion Engine
 > Visión: [`PHYSICAL_PROPULSION_ENGINE_PHASE2.md`](./PHYSICAL_PROPULSION_ENGINE_PHASE2.md)
 > Relacionado: [`PHYSICAL_COMPONENT_CATALOG_V1.md`](./PHYSICAL_COMPONENT_CATALOG_V1.md)
 > **Ya no es horizonte.** Prerrequisitos cumplidos hace semanas — **Impl B ✅ · ERF-2 ✅ · G9-A ✅ · Impl C ✅ · Impl D ✅** (ver entradas más arriba en esta misma sección, todas fechadas 2026-08-20/21).
-> **Progreso real** (detalle vigente en 🔴 PRIORIDAD ACTUAL): … → **Phase 2.5** Hover Energy (v0.3.5) → **Phase 2.6** ESC (boundary congelado) → **Phase 2.7-A** sag (boundary congelado) → **Phase 2.7-B** L2 estimativo + **Opción A** → CLI feasibility + catalog-assist + DSE apply honest + Structure A + fail-routing → **cerrado en `v0.3.6`**. Siguiente fase = knowledge / block parity. Lab = [HARDWARE_DEBT.md](HARDWARE_DEBT.md), nunca 🔴.
+> **Progreso real** (detalle vigente en 🔴 PRIORIDAD ACTUAL): … → **Phase 2.5** Hover Energy (v0.3.5) → **Phase 2.6** ESC (boundary congelado) → **Phase 2.7-A** sag (boundary congelado) → **Phase 2.7-B** L2 estimativo + **Opción A** → CLI feasibility + catalog-assist + DSE apply honest + Structure A + fail-routing → **cerrado en `v0.3.6`**. Después: knowledge/block parity + Structure + visor/B3 (**v0.3.8** / suite **2310**). Cola viva = investigación Geometry. Lab = [HARDWARE_DEBT.md](HARDWARE_DEBT.md), nunca 🔴.
 
 **Engineer lock (histórico, sigue vigente como práctica):** Audit-before-impl cerrado para polish. Nuevos cambios `src/` requieren IC propio.
 
@@ -1459,7 +1516,7 @@ def _check_constraint_violations(state: ProjectState) -> list[str]:
 
 ## 🧠 ESTADO ACTUAL DEL SISTEMA
 
-> **Actualizado 2026-09-05.** Esta sección resume arquitectura de fondo, no el foco del día — para eso está 🔴 PRIORIDAD ACTUAL arriba. Progresión histórica de tests hasta el 5 de agosto abajo (sin tocar); desde entonces el conteo pasó por checkpoints **v0.3.1→v0.3.6** y el arco Structure / rebind / thickness / plate multiplicity hasta **2294 tests passing** (suite viva), vía Motor OP, Phase 2.5–2.7-B, Opción A, CLI feasibility/catalog-assist, DSE apply honest, Structure A→B, fail-routing — detalle en 🔴 PRIORIDAD ACTUAL. Fase: await Engineer next focus.
+> **Actualizado 2026-09-06.** Esta sección resume arquitectura de fondo, no el foco del día — para eso está 🔴 PRIORIDAD ACTUAL arriba. Progresión histórica de tests hasta el 5 de agosto abajo (sin tocar); desde entonces el conteo pasó por checkpoints **v0.3.1→v0.3.8** (Structure / rebind / plates @ **2294**; projector hotfix; B3 slots @ **2310** suite viva), vía Motor OP, Phase 2.5–2.7-B, Opción A, CLI feasibility/catalog-assist, DSE apply honest, Structure A→B, fail-routing, visor espacial. Fase: investigación Geometry OPEN (await `procede`) — detalle en 🔴 PRIORIDAD ACTUAL.
 
 - **1321 tests passing** sin regresiones (baseline 885, +155 Fase 2, +35 Fase 2.5, +20 Fase 2.6, +7 Fase 2.6.1, +15 Fase 3, +96 Fases 4–6+K, +14 Fase L+M, +87 Fase U, +21 Fase N). Verificado 16 julio 2026.
 - **1331 tests passing** tras rediseño `create_project` por ramas (5 agosto 2026, +11).

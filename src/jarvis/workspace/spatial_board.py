@@ -2,9 +2,15 @@
 ==============
 Proyecta ProjectState → cards del visor (`ui/spatial-board`).
 
-Solo lee estado — no muta ingeniería, no clasifica BOM, no inventa slots
-ausentes. Una ComponentSpec = una card. Layout inicial por carriles 4/4;
-el visor overlay de {x,y,width,height} manda después del primer gesto.
+Solo lee estado — no muta ingeniería, no clasifica BOM. Una ComponentSpec
+= una card (`kind` "component"/"part"). Additive honesty (B3, Spatial
+Board Product Limits): una clave esperada por `BLOCK_TO_COMPONENTS` de un
+bloque **declarado** (`system_blocks`) que no está en `components` se
+proyecta como `kind: "slot"` — un hueco de arquitectura, nunca inventado
+para un bloque no declarado, nunca una clasificación BOM
+(`incomplete`/`declarative`/`✗`), nunca un `ComponentSpec`. Layout inicial
+por carriles 4/4; el visor overlay de {x,y,width,height} manda después del
+primer gesto.
 """
 from __future__ import annotations
 
@@ -28,11 +34,21 @@ ORIGIN_Y = 80
 
 
 def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
-    """Deterministic DTO list for the spatial visor. No completeness / BOM."""
+    """Deterministic DTO list for the spatial visor. No completeness / BOM.
+
+    B3 (Spatial Board Product Limits, honest absence): a declared block's
+    expected key that isn't in ``components`` becomes a display-only
+    ``kind: "slot"`` node (§2.1) — so an engineer can tell "not yet
+    declared" apart from "doesn't apply to this architecture." Slots are
+    never emitted for a block that isn't in ``system_blocks``, never for
+    frame parts (not in ``BLOCK_TO_COMPONENTS``), and never duplicate a key
+    that's already present in ``components`` under any form (root or
+    child) — presence, not root-ness, is what suppresses a slot.
+    """
     components = state.design_properties.components
-    if not components:
-        return []
     blocks = list(state.design_properties.system_blocks or [])
+    if not components and not blocks:
+        return []
 
     children: dict[str, list[str]] = {}
     roots: list[str] = []
@@ -53,6 +69,8 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
         if spec.parent_key and spec.parent_key not in components
     ]
 
+    expected_by_column = _expected_keys_by_column(blocks)
+
     nodes: list[dict[str, Any]] = []
     next_y: dict[int, int] = {}
     emitted: set[str] = set()
@@ -60,14 +78,20 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
     def place(key: str, col: int) -> None:
         spec = components[key]
         fields = _fields(spec)
+        _emit(key, col, spec.name or "", "part" if spec.parent_key else "component", fields)
+
+    def place_slot(key: str, col: int) -> None:
+        _emit(key, col, "", "slot", [{"label": "estado", "value": "no declarado"}])
+
+    def _emit(key: str, col: int, declared_name: str, kind: str, fields: list[dict[str, str]]) -> None:
         height = _default_height(len(fields))
         y = next_y.get(col, ORIGIN_Y)
         nodes.append(
             {
                 "id": key,
                 "title": key,
-                "declaredName": spec.name or "",
-                "kind": "part" if spec.parent_key else "component",
+                "declaredName": declared_name,
+                "kind": kind,
                 "fields": fields,
                 "x": ORIGIN_X + col * (CARD_WIDTH + LANE_GAP),
                 "y": y,
@@ -78,9 +102,22 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
         next_y[col] = y + height + ROW_GAP
         emitted.add(key)
 
-    lane_count = max(lanes, default=-1) + 1
+    # Slots require walking every declared block's own column, not just
+    # columns that already have a real root (review N-lane: otherwise a
+    # project with only "motors" would never show the battery/frame/control
+    # slots at all).
+    lane_count = max(len(blocks), max(lanes, default=-1) + 1)
     for col in range(lane_count):
+        for key in expected_by_column.get(col, []):
+            if key in components:
+                place(key, col)
+                for child_key in children.get(key, []):
+                    place(child_key, col)
+            else:
+                place_slot(key, col)
         for root_key in _sort_roots(col, lanes.get(col, []), blocks, components):
+            if root_key in emitted:
+                continue
             place(root_key, col)
             for child_key in children.get(root_key, []):
                 place(child_key, col)
@@ -95,6 +132,23 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
             place(key, _lane_index(key, components[key], blocks))
 
     return nodes
+
+
+def _expected_keys_by_column(blocks: list[str]) -> dict[int, list[str]]:
+    """Declared-block expected keys, first-match deduped (a key owned by
+    multiple blocks — e.g. ``motors`` in propulsion+energy — is listed
+    once, at the first block that names it), in ``BLOCK_TO_COMPONENTS``
+    order within each column. Empty for an undeclared/no-blocks project —
+    the "no inventa para bloques no declarados" virtue (§2.1)."""
+    result: dict[int, list[str]] = {}
+    seen: set[str] = set()
+    for i, block in enumerate(blocks):
+        for key in BLOCK_TO_COMPONENTS.get(block, []):
+            if key in seen:
+                continue
+            seen.add(key)
+            result.setdefault(i, []).append(key)
+    return result
 
 
 def project_spatial_nodes_from_path(path: Path) -> list[dict[str, Any]]:

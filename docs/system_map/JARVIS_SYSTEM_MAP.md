@@ -37,6 +37,10 @@ ORCHESTRATOR (core/orchestrator.py) ──────────────�
            ▲
            │ all of the above read/write through here — this is the
            │ single source of engineering truth
+           │
+           └──► Spatial board visor (`jarvis board` → ui/spatial-board)  00_entry
+                  read-only GET; projector → cards + B3 slots
+                  no writers; layout overlay = localStorage (B1 debt)
   ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
   LLM (llm/*.py) ── reachable ONLY from Orchestrator, as a bounded    10_llm
   fallback (`interpret`, closed 4-verb action set) or narrator
@@ -71,13 +75,13 @@ Full detail: `00_entry/ENTRY_MAP.md` and `01_runtime/RUNTIME_MAP.md`; connection
 | Sim PASS + risky margin → Continuity next-step thread | 🟡 PARTIAL (WEAK) — H5, deferred | C-081 |
 | Readiness → full Continuity next-step handoff | 🟡 PARTIAL — catalog gap only (Slice 4b deferred) | C-108 |
 
-C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the same `HandoffContext` (Hybrid Operation-Scoped lifecycle — see `MISMATCHES.md`). **H1–H4 are all closed — 0 RED edges remain.** C-081 (H5) and C-108 remain 🟡 PARTIAL — **deferred map debt, not today's implementation queue.** Hardware lab is [`docs/HARDWARE_DEBT.md`](../HARDWARE_DEBT.md). **PRIORIDAD AHORA:** none open — Structure representation closed @ **v0.3.7**; spatial projector hotfix **v0.3.8** (suite **2294**); see `docs/IMPLEMENTATION_TASKS.md`. Baseline: **`v0.3.8`**.
+C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the same `HandoffContext` (Hybrid Operation-Scoped lifecycle — see `MISMATCHES.md`). **H1–H4 are all closed — 0 RED edges remain.** C-081 (H5) and C-108 remain 🟡 PARTIAL — **deferred map debt, not today's implementation queue.** Hardware lab is [`docs/HARDWARE_DEBT.md`](../HARDWARE_DEBT.md). **PRIORIDAD AHORA:** Geometry investigation OPEN (no IC, no code) — see `docs/IMPLEMENTATION_TASKS.md`. Baseline tag **`v0.3.8`**; live tree also has B3 honest-absence slots (suite **2310**). Spatial board is a derived visor, not a new C-xxx.
 
 ## Subsystem index
 
 | Folder | One-line role | Inbound (from) | Outbound (to) |
 |---|---|---|---|
-| [`00_entry`](00_entry/ENTRY_MAP.md) | CLI/MCP surface, dual-dispatch seam | User | Orchestrator |
+| [`00_entry`](00_entry/ENTRY_MAP.md) | CLI/MCP + spatial board visor (`jarvis board`); dual-dispatch seam | User | Orchestrator (CLI/MCP only; visor does not dispatch) |
 | [`01_runtime`](01_runtime/RUNTIME_MAP.md) | Turn dispatcher, ~25 checkpoints | Entry | Intent, Acquisition, Engineering, Iteration, State, LLM |
 | [`02_intent`](02_intent/INTENT_MAP.md) | Regex intent classification | Runtime | Runtime (routing decision only) |
 | [`03_acquisition`](03_acquisition/ACQUISITION_MAP.md) | Next-gap authority, wizards | Runtime, Continuity | State (writes via component_writers), Runtime |

@@ -22,7 +22,8 @@ from jarvis.tools.electricity import estimate_battery_mass_kg
 
 
 def bind_motor_from_catalog(
-    suggestion: MotorSuggestion, *, base: ComponentSpec | None = None
+    suggestion: MotorSuggestion, *, base: ComponentSpec | None = None,
+    library: ComponentLibrary | None = None,
 ) -> ComponentSpec:
     """Project a catalog ``MotorSuggestion`` into a ``ComponentSpec`` with
     ``catalog_ref`` set.
@@ -36,6 +37,15 @@ def bind_motor_from_catalog(
     * ``base=<spec>`` — merges onto an existing draft spec, preserving
       whatever properties were already collected (e.g. ``motor_count``) —
       the iterate wizard's mid-session pick shape.
+
+    Geometry axis (Minimum Geometric KNOW, Motor B1): ``suggestion`` (a
+    lightweight ranked-candidate dict, ``motor_catalog_assist.MotorSuggestion``)
+    never carries dims — the full ``MotorSpec`` does. This is the only bind
+    of the four that looks the SKU back up in the library rather than
+    reading everything off its own input, because it's the only one whose
+    input isn't already the full catalog record. A missing/unknown SKU
+    (N4) is not an error here — dim projection is simply skipped; the
+    suggestion-only properties below are unaffected either way.
     """
     watts_raw = suggestion.get("max_watts")
     sku = str(suggestion["name"])
@@ -55,6 +65,18 @@ def bind_motor_from_catalog(
         projected["power_w"] = PropertyValue(
             value=float(watts_raw), unit="W", confidence=0.9, source="declared"
         )
+    lib = library or default_library
+    try:
+        motor_spec = lib.get_motor(sku)
+    except (KeyError, ValueError):
+        motor_spec = None
+    if motor_spec is not None:
+        for prop_key in ("stator_diameter_mm", "stator_height_mm", "diameter_mm", "shaft_diameter_mm"):
+            dim_value = getattr(motor_spec, prop_key)
+            if dim_value is not None:
+                projected[prop_key] = PropertyValue(
+                    value=dim_value, unit="mm", confidence=0.9, source="declared"
+                )
     if base is not None:
         merged_properties = {**(base.properties or {}), **projected}
         return base.model_copy(update={
@@ -88,11 +110,10 @@ def bind_battery_from_catalog(
     """Project a catalog battery SKU into a ``ComponentSpec`` with
     ``catalog_ref`` set.
 
-    No CLI/UX entry point calls this yet — no battery catalog pick flow
-    exists (Impl A's 5A lock: no Continuity/assist redesign for batteries in
-    Foundation). Exposed as a deterministic, test-callable API so Impl B can
-    prove the Bind → writer → calc causality chain without inventing a
-    Continuity UX ahead of when it's actually needed.
+    Called from the live battery catalog-pick flow
+    (``orchestrator._apply_component_battery_catalog_pick``) as well as
+    test-callable directly — the Bind → writer → calc causality chain Impl B
+    proved holds for this family too.
     """
     lib = library or default_library
     spec = lib.get_battery(sku)
@@ -107,6 +128,21 @@ def bind_battery_from_catalog(
     if spec.cells is not None:
         projected["cell_count"] = PropertyValue(
             value=spec.cells, confidence=0.9, source="declared"
+        )
+    # Geometry axis (Minimum Geometric KNOW, B1) — declared box envelope,
+    # display-only (`representar`), never a physics/fit input. Sourced-only:
+    # omitted entirely for a row whose seed doesn't state it.
+    if spec.length_mm is not None:
+        projected["length_mm"] = PropertyValue(
+            value=spec.length_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.width_mm is not None:
+        projected["width_mm"] = PropertyValue(
+            value=spec.width_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.height_mm is not None:
+        projected["height_mm"] = PropertyValue(
+            value=spec.height_mm, unit="mm", confidence=0.9, source="declared"
         )
     if base is not None:
         merged_properties = {**(base.properties or {}), **projected}
@@ -185,8 +221,10 @@ def bind_esc_from_catalog(
 
     Projects ``continuous_current_a`` from the catalog into ``current_a`` —
     the property ``electrical_compatibility`` already reads for per-channel
-    ESC-vs-motor comparison. No CLI/UX entry point calls this yet; exposed as
-    a deterministic, test-callable API mirroring ``bind_battery_from_catalog``.
+    ESC-vs-motor comparison. No CLI/UX entry point calls this yet — no ESC
+    catalog-pick wizard exists in Continuity/orchestrator; exposed as a
+    deterministic, test-callable/script-callable API mirroring
+    ``bind_battery_from_catalog``.
     """
     lib = library or default_library
     spec = lib.get_esc(sku)
@@ -202,6 +240,20 @@ def bind_esc_from_catalog(
     if spec.mass_g is not None:
         projected["mass_g"] = PropertyValue(
             value=spec.mass_g, unit="g", confidence=0.9, source="declared"
+        )
+    # Geometry axis (Minimum Geometric KNOW, ESC B1) — declared box envelope,
+    # display-only (`representar`), never a physics/fit input.
+    if spec.length_mm is not None:
+        projected["length_mm"] = PropertyValue(
+            value=spec.length_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.width_mm is not None:
+        projected["width_mm"] = PropertyValue(
+            value=spec.width_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.height_mm is not None:
+        projected["height_mm"] = PropertyValue(
+            value=spec.height_mm, unit="mm", confidence=0.9, source="declared"
         )
     if base is not None:
         merged_properties = {**(base.properties or {}), **projected}

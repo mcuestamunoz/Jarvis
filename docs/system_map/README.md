@@ -1,7 +1,7 @@
 # Jarvis System Map — Navigation Guide
 
 **Version:** SYS-MAP-002 (split/navigability delta of SYS-MAP-001, reviewed PASS WITH NOTES)  
-**Date:** 2026-08-10 (subsystem deltas: 2026-08-18 post-ERF-1 — C-107–C-110; 2026-08-19 post-ERF-2 — C-111–C-112; 2026-08-31 post–Project Closure — IC 1–3 doc sync; 2026-09-01 post–Motor OP Voltage Coherence @ v0.3.4 — MOP-1…MOP-4 doc sync, C-030/C-091 detail updates, no new C-xxx; **2026-09-05** Structure plate multiplicity B2 CLOSED @ suite **2294** — C-030/Continuity/State/Acquisition maps synced, no new C-xxx)  
+**Date:** 2026-08-10 (subsystem deltas: 2026-08-18 post-ERF-1 — C-107–C-110; 2026-08-19 post-ERF-2 — C-111–C-112; 2026-08-31 post–Project Closure — IC 1–3 doc sync; 2026-09-01 post–Motor OP Voltage Coherence @ v0.3.4 — MOP-1…MOP-4 doc sync, C-030/C-091 detail updates, no new C-xxx; **2026-09-05** Structure plate multiplicity B2 CLOSED @ suite **2294**; **2026-09-06** spatial board visor + B3 slots on live tree @ suite **2310**, no new C-xxx — C-030/Continuity/State/Acquisition/Entry maps synced)  
 **Type:** As-is architecture documentation. Zero product behavior changes.
 
 ## How to navigate
@@ -61,7 +61,7 @@ No other taxonomy changes were needed — the provisional 01–10 split matched 
 
 | Folder | Scope | Key modules |
 |---|---|---|
-| `00_entry` | CLI/MCP adapters, dual-dispatch seam | `adapters/cli/main.py`, `adapters/mcp/*.py`, `orchestrator.handle` vs `handle_user_text` |
+| `00_entry` | CLI/MCP adapters, spatial board visor, dual-dispatch seam | `adapters/cli/main.py`, `adapters/cli/board.py`, `workspace/spatial_board.py`, `adapters/mcp/*.py`, `orchestrator.handle` vs `handle_user_text` |
 | `01_runtime` | The turn dispatcher itself: `_handle_user_text_inner`'s checkpoint chain, `ActionRouter` | `core/orchestrator.py`, `core/action_router.py` |
 | `02_intent` | Regex-based intent classification | `core/intent_resolver.py` |
 | `03_acquisition` | "What's the next gap to declare" — mention resolution, Brief, wizards, catalog pick UX | `core/acquisition_target.py`, `core/acquisition_brief.py`, `core/param_definition_session.py`, `core/system_definition_session.py`, `core/motor_catalog_assist.py`, `core/battery_catalog_assist.py`, `core/catalog_bind.py` (via orchestrator pick handlers) |
@@ -70,7 +70,7 @@ No other taxonomy changes were needed — the provisional 01–10 split matched 
 | `06_calculation` | `current_parameters` → physical results | `core/calculation_engine.py`, `core/component_resolver.py`, `tools/*.py` |
 | `07_simulation` | Physical results → feasibility verdict | `simulation/simulator.py`, `suggestions/suggestion_engine.py` (`flight_model.py`/`energy_model.py` are empty/unused, see `MISMATCHES.md` M-003) |
 | `08_continuity` | Situation/Evidence/Next-step + BOM + phase + reasoning signals | `core/project_continuity.py`, `core/project_closure.py`, `core/phase_layer.py`, `core/reasoning_layer.py` |
-| `09_state` | The persisted/runtime source of truth | `core/state_manager.py`, `workspace/workspace_manager.py`, `workspace/render_views.py`, `core/component_inference.py`, `core/component_writers.py`, `core/component_rules.py`, `schemas/*.py` |
+| `09_state` | The persisted/runtime source of truth | `core/state_manager.py`, `workspace/workspace_manager.py`, `workspace/render_views.py`, `workspace/spatial_board.py` (derived visor DTOs), `core/component_inference.py`, `core/component_writers.py`, `core/component_rules.py`, `schemas/*.py` |
 | `10_llm` | The LLM boundary | `llm/llm_client.py`, `llm/prompt_builder.py`, `llm/response_parser.py`, `llm/action_policy.py`, `llm/semantic_intent_adapter.py`, `llm/ollama_client.py` |
 
 ## Maintenance rule
