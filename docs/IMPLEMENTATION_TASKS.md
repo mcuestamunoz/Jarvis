@@ -7,21 +7,21 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2385**.  
-> **PRIORIDAD AHORA:** Board edges B2 — Claude review **PASS** · **Engineer Board smoke** para cerrar cola 1/3.  
-> **Eje ★:** Cola assembly: **B2 edges (smoke) → pose stub → fit stub**.  
-> **Hecho:** glyphs · hygiene · `mounted_on` · Continuity · edges code @ **2385** · Claude independent review PASS.  
-> **Cola (no implementar 2–3):** pose · fit stubs.  
+> **PRIORIDAD AHORA:** Cola assembly **2/3** — IC stub **Pose B1+** para Engineer review (blocked: investigación ★ antes de implementar).  
+> **Eje ★:** Cola: B2 CLOSED → **pose stub (review)** → fit stub.  
+> **Hecho:** glyphs · hygiene · `mounted_on` · Continuity · **Board edges B2 CLOSED** @ **2385** + smoke ACCEPT.  
+> **Cola:** pose stub · fit stub — no implementar sin investigación.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 SMOKE — Board edges B2 (2026-09-07) · cola 1/3 · Claude PASS
+### 🟡 COLA 2/3 — Pose B1+ stub → Engineer review (2026-09-07)
 
-> **IC / Report / Claude review:** [contract](../.jes/artifacts/implementation_contract_geometry_assembly_board_edges_b2.md) · [report](../.jes/artifacts/implementation_report_geometry_assembly_board_edges_b2.md) · [claude review](../.jes/artifacts/implementation_review_geometry_assembly_board_edges_b2_claude.md) — **PASS**  
-> **Review contract:** [implementation_review_contract…](../.jes/artifacts/implementation_review_contract_geometry_assembly_board_edges_b2.md)  
-> **Suite:** **2385**. Await Engineer visual ACCEPT on Board (líneas `mountedOn`).
+> **IC stub:** [implementation_contract_geometry_assembly_pose_b1plus.md](../.jes/artifacts/implementation_contract_geometry_assembly_pose_b1plus.md) — **QUEUED — DO NOT IMPLEMENT**  
+> **Gate:** tras B2 CLOSED, hace falta ★ investigación (origen/referencia + honesty) antes de un IC READY.
 
-### ⚪ COLA — Pose B1+ (queued · no implementar)
+### 🟢 CERRADO (código + Claude review + smoke) — Board edges B2 (2026-09-07) · cola 1/3
 
-> **Stub:** [implementation_contract_geometry_assembly_pose_b1plus.md](../.jes/artifacts/implementation_contract_geometry_assembly_pose_b1plus.md) — blocked hasta investigación ★ (sin origen/referencia hoy).
+> **IC / Report / Claude review:** [contract](../.jes/artifacts/implementation_contract_geometry_assembly_board_edges_b2.md) · [report](../.jes/artifacts/implementation_report_geometry_assembly_board_edges_b2.md) · [claude](../.jes/artifacts/implementation_review_geometry_assembly_board_edges_b2_claude.md) — **PASS**  
+> **Suite:** **2385**. Engineer Board smoke **ACCEPT** (líneas FC/ESC/motors/battery). Hotfix blank-screen `DeclaredMountEdges` (`80a0478`).
 
 ### ⚪ COLA — Fit / compare (queued · no implementar)
 

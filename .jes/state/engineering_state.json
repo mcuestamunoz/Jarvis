@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Board edges B2 Claude independent review PASS (suite 2385). Await Engineer Board smoke to close queue 1/3. Pose/fit stubs stay queued.",
-  "scope": "implementation_review_geometry_assembly_board_edges_b2_claude",
-  "execution_status": "geometry_assembly_board_edges_b2_claude_pass_awaiting_board_smoke",
-  "current_mode": "Smoke \u2014 Board edges B2; Claude PASS; await Engineer visual ACCEPT",
+  "cycle_intent": "Board edges B2 CLOSED (Claude PASS + Engineer smoke ACCEPT @ 2385). Queue 2/3: Engineer reviews pose B1+ stub \u2014 investigation \u2605 required before READY IC.",
+  "scope": "implementation_contract_geometry_assembly_pose_b1plus",
+  "execution_status": "geometry_assembly_board_edges_b2_closed_pose_stub_for_engineer_review",
+  "current_mode": "Idle/Review \u2014 Engineer: pose B1+ stub; investigation gate before implement",
   "movement_trigger": {
-    "type": "implementation_review",
-    "note": "2026-09-07 Claude independent PASS; residual = Engineer Board smoke"
+    "type": "engineer_buy",
+    "note": "2026-09-07 Board edges B2 smoke ACCEPT; next = pose stub review"
   },
   "relevant_workflow_phases": [
-    "smoke"
+    "review"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -70,16 +70,15 @@
     "catalog_motor_thrust_not_intrinsic_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2350)",
     "geometry_assembly_espacial_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2364)",
     "continuity_mounted_on_declare_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2380)",
-    "geometry_assembly_board_edges_b2": "\u2605 CLAUDE INDEPENDENT REVIEW PASS @ 2385 \u2014 await Engineer Board smoke",
-    "geometry_assembly_pose_b1plus": "QUEUED STUB \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605",
+    "geometry_assembly_board_edges_b2": "\u2605 CLOSED (Claude PASS + Engineer smoke ACCEPT @ 2385)",
+    "geometry_assembly_pose_b1plus": "QUEUED STUB \u2014 Engineer review \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605",
     "geometry_assembly_fit_compare": "QUEUED STUB \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_contract_geometry_assembly_board_edges_b2.md",
-    ".jes/artifacts/implementation_review_geometry_assembly_board_edges_b2_claude.md"
+    ".jes/artifacts/implementation_contract_geometry_assembly_pose_b1plus.md"
   ],
-  "active_operation": "smoke_geometry_assembly_board_edges_b2",
+  "active_operation": null,
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
@@ -206,9 +205,9 @@
     "geometry_assembly_espacial_b1_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
     "geometry_assembly_espacial_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2364",
     "continuity_mounted_on_declare_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2380",
-    "geometry_assembly_board_edges_b2_ic": "CLAUDE_REVIEW_PASS_AWAITING_SMOKE_2385",
+    "geometry_assembly_board_edges_b2_ic": "CLOSED_CLAUDE_PASS_SMOKE_ACCEPT_2385",
     "geometry_assembly_board_edges_b2_review_contract": "DONE_CLAUDE_PASS",
-    "geometry_assembly_pose_b1plus_ic": "QUEUED_STUB_BLOCKED",
+    "geometry_assembly_pose_b1plus_ic": "QUEUED_STUB_ENGINEER_REVIEW",
     "geometry_assembly_fit_compare_ic": "QUEUED_STUB_BLOCKED",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
