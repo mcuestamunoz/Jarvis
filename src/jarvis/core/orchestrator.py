@@ -950,6 +950,19 @@ class JarvisOrchestrator:
                 # else: pending gap, or component not yet present — FN-014 / FN-005
 
         # ─────────────────────────────────────────────────────────────────────
+        # ── Geometry Assembly Espacial — Continuity B1: IDLE "monta X en Y" /
+        # "quita el montaje de X" declare/clear phrases → set_component_
+        # mounted_on directly, deterministic parse only (never LLM, never
+        # inferred). Checked before FN-005's help-choose chain so a named
+        # mount phrase never falls into unrelated triage; returns None (falls
+        # through unchanged) for any phrase that isn't a mount declare/clear.
+        if current_session.mode == OrchestratorMode.IDLE:
+            mount_result = self._try_handle_mounted_on_declare(user_input)
+            if mount_result is not None:
+                self._track_turn(user_input, mount_result)
+                return mount_result
+
+        # ─────────────────────────────────────────────────────────────────────
         # ── FN-005: "ayúdame a elegir" while IDLE → open assisted motor flow ─
         from jarvis.core.motor_catalog_assist import is_help_choose_phrase
 
@@ -1705,6 +1718,75 @@ class JarvisOrchestrator:
             return self.state_manager.load_active_project(self.workspace_manager)
         except FileNotFoundError:
             return None
+
+    def _try_handle_mounted_on_declare(self, user_input: str) -> dict | None:
+        """Geometry Assembly Espacial — Continuity B1: IDLE "monta X en Y" /
+        "quita el montaje de X" phrases call set_component_mounted_on directly.
+
+        Deterministic parse only (mounted_on_declare_assist) — never LLM,
+        never inferred from Board x/y, BOM co-membership, or
+        cardinality-of-one. Returns None when the phrase isn't a mount
+        declare/clear at all (NONE) so the caller falls through to normal
+        routing unchanged.
+        """
+        from jarvis.core.mounted_on_declare_assist import parse_mounted_on_declare
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        result = parse_mounted_on_declare(user_input, components)
+        if result.kind == "NONE":
+            return None
+
+        if result.kind == "AMBIGUOUS_TARGET":
+            if result.candidates:
+                options = ", ".join(f"{k} ({label})" for k, label in result.candidates)
+                message = f"Hay varias placas declaradas. Indica cuál: {options}."
+            else:
+                message = (
+                    "No encontré esa parte declarada para el montaje. "
+                    "Indica una clave ya declarada (por ejemplo frame_plate, frame_arm)."
+                )
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": message,
+            }
+
+        component_key = result.component_key
+        if component_key not in components:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": f"'{component_key}' aún no declarado — no se puede fijar el montaje.",
+            }
+
+        from jarvis.core.component_writers import set_component_mounted_on
+
+        target_key = result.target_key if result.kind == "SET" else None
+        try:
+            updated_state = set_component_mounted_on(project_state, component_key, target_key)
+        except ValueError as exc:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": str(exc),
+            }
+        self.workspace_manager.save_state(updated_state)
+
+        if result.kind == "SET":
+            message = (
+                f"Declarado: {component_key} montado en {target_key}. "
+                'Se verá en el Board como "montado en".'
+            )
+        else:
+            message = f"Montaje declarado de {component_key} eliminado."
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": message,
+        }
 
     def _try_start_acquisition_from_mention(self, user_input: str) -> dict | None:
         """FN-014: unified block ∪ component acquisition gate for IDLE (including

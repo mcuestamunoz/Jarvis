@@ -6,18 +6,17 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2350**.  
-> **PRIORIDAD AHORA:** IC **Continuity declare mounted_on B1** READY — Claude implement.  
-> **Eje ★:** Cerrar gap §3.5 assembly espacial — declarar montaje desde IDLE/chat.  
-> **Hecho:** glyphs · hygiene · `mounted_on` schema/Board @ **2364**.  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2380**.  
+> **PRIORIDAD AHORA:** Continuity declare mounted_on B1 **CLOSED** (suite **2380**). Await Engineer next focus.  
+> **Eje ★:** Assembly relation declare from IDLE shipped; pose mm / edges / fit still later.  
+> **Hecho:** glyphs · hygiene · `mounted_on` @ **2364** · Continuity declare @ **2380**.  
 > **Congelado:** pose mm · edges · fit · inferencia · Conversation Engine.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 IC READY — Continuity declare mounted_on B1 (2026-09-07) · ★ Buy
+### 🟢 CERRADO (código + review) — Continuity declare mounted_on B1 (2026-09-07)
 
-> **IC:** [implementation_contract_continuity_mounted_on_declare_b1.md](../.jes/artifacts/implementation_contract_continuity_mounted_on_declare_b1.md) — Claude next.  
-> **Parent:** assembly espacial B1 CLOSED @ **2364**.  
-> **Qué:** IDLE parse → `set_component_mounted_on` · copy “declarado montado en” · placas ambiguas sin adivinar.
+> **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_continuity_mounted_on_declare_b1.md) · [implementation_review…](../.jes/artifacts/implementation_review_continuity_mounted_on_declare_b1.md) — **PASS**  
+> **Suite:** **2380**. IDLE parse → `set_component_mounted_on` · honest copy · no plate guessing · +16 tests.
 
 ### 🟢 CERRADO (código + review) — Geometry assembly espacial B1 (2026-09-07)
 
