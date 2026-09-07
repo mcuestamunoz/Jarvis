@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ZOOM } from "./constants";
 import { Minimap } from "./Minimap";
+import { MountEdges } from "./MountEdges";
 import { SpatialCard } from "./SpatialCard";
 import { ProjectSwitcher } from "./ProjectSwitcher";
 import { useBoardNodes } from "./useBoardNodes";
@@ -144,6 +145,7 @@ export function InfiniteCanvas() {
           <p className="sb-empty">Este proyecto no tiene componentes declarados</p>
         ) : null}
         <div className="sb-world" style={{ transform: css }}>
+          <MountEdges nodes={nodes} />
           {nodes.map((node: SpatialNode) => (
             <SpatialCard
               key={node.id}

@@ -22,9 +22,15 @@ física — ver `_geometry_from_spec`.
 Geometry Assembly Espacial B1 (`mounted_on`, relation-only): cuando
 `ComponentSpec.mounted_on` está declarado, la card lleva un campo de texto
 extra `"montado en"` (ver `_fields`) — ninguna posición/orientación, ningún
-edge en canvas (B2, diferido), ningún cambio a `kind`/carril/`x`/`y`.
-Ortogonal a `parent_key` (topología BOM del frame, siempre literal
-`"frame"`): `mounted_on` nombra cualquier clave declarada.
+cambio a `kind`/carril/`x`/`y`. Ortogonal a `parent_key` (topología BOM del
+frame, siempre literal `"frame"`): `mounted_on` nombra cualquier clave
+declarada.
+
+Geometry Assembly Board edges B2: si el target de `mounted_on` también está
+en `components` (nodo proyectable), el DTO lleva `mountedOn` (clave máquina)
+para que el visor dibuje una arista — el texto `"montado en"` se mantiene.
+Si el target ya no existe en `components`, se omite `mountedOn` (sin arista)
+pero el campo de texto puede seguir mostrando la clave guardada.
 """
 from __future__ import annotations
 
@@ -93,9 +99,16 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
         spec = components[key]
         fields = _fields(spec)
         geometry = _geometry_from_spec(spec)
+        mounted_on = spec.mounted_on
+        # B2: machine edge endpoint only when the target is still a declared
+        # component (will be projected). Stale keys keep the text field only.
+        mounted_dto = (
+            mounted_on if mounted_on and mounted_on in components else None
+        )
         _emit(
             key, col, spec.name or "", "part" if spec.parent_key else "component", fields,
             geometry=geometry,
+            mounted_on=mounted_dto,
         )
 
     def place_slot(key: str, col: int) -> None:
@@ -109,6 +122,7 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
         fields: list[dict[str, str]],
         *,
         geometry: dict[str, float | str] | None = None,
+        mounted_on: str | None = None,
     ) -> None:
         height = _default_height(len(fields))
         y = next_y.get(col, ORIGIN_Y)
@@ -125,6 +139,8 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
         }
         if geometry is not None:
             node["geometry"] = geometry
+        if mounted_on is not None:
+            node["mountedOn"] = mounted_on
         nodes.append(node)
         next_y[col] = y + height + ROW_GAP
         emitted.add(key)
@@ -269,9 +285,8 @@ def _fields(spec: ComponentSpec) -> list[dict[str, str]]:
     if sku:
         fields.append({"label": "SKU", "value": sku})
     # Geometry Assembly Espacial B1: a declared mount relation shows as a
-    # plain text field — no new geometry math, no edge drawing (B2, deferred).
-    # Orthogonal to parent_key (frame BOM topology): a "part" node can also
-    # carry mounted_on, and this never changes kind/lane placement.
+    # plain text field — orthogonal to parent_key / kind / lane. B2 adds a
+    # separate machine ``mountedOn`` on the node DTO when the target exists.
     if spec.mounted_on:
         fields.append({"label": "montado en", "value": spec.mounted_on})
     return fields

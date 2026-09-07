@@ -116,8 +116,28 @@ html, body, #root {
   transform-origin: 0 0;
 }
 
+/* Assembly Board edges B2 — presentation only; under cards. */
+.sb-mount-edges {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sb-mount-edge {
+  stroke: #6a7a8a;
+  stroke-width: 1.5;
+  stroke-opacity: 0.85;
+  fill: none;
+}
+
 .sb-card {
   position: absolute;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   background: #1a1a1a;

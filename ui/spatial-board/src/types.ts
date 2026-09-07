@@ -33,6 +33,13 @@ export type SpatialNode = SpatialRect & {
   fields: { label: string; value: string }[];
   /** Present only when the projector found sufficient declared dims. */
   geometry?: SpatialGeometry;
+  /**
+   * Declared mount target key (Assembly Board edges B2). Present only when
+   * `ComponentSpec.mounted_on` is set AND that target is still among projected
+   * components — never inferred from card layout. Independent of the text
+   * field `"montado en"` (which may still show a stale key).
+   */
+  mountedOn?: string;
 };
 
 export type ContentBounds = {
