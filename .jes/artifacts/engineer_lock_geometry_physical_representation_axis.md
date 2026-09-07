@@ -50,6 +50,8 @@ Spatial board **B3 honest absence** (ghost slots) shipped on the live tree (revi
 
 ## Next
 
-1. Investigation contract: [investigation_contract_geometry_minimum_physical_object.md](investigation_contract_geometry_minimum_physical_object.md)
-2. Await Engineer `procede` → Claude report → Cursor review → Engineer ★ Buy (or defer)
-3. **No code** until IC after Buy
+1. ~~Investigation: minimum physical object~~ → **CLOSED** (Battery B1 and follow-on families)
+2. Progression lock: [engineer_lock_geometry_spatial_representation_progression.md](engineer_lock_geometry_spatial_representation_progression.md)
+3. Investigation: [investigation_contract_geometry_board_glyph_vocabulary.md](investigation_contract_geometry_board_glyph_vocabulary.md) — **visualizar**
+4. **No code** until IC after ★ Buy on glyphs
+5. Pose / assembly / fit remain later ★

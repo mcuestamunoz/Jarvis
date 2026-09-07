@@ -46,7 +46,7 @@ CONNECTIONS.md
 
 **Structure representation + IDLE rebind + assembly KNOW (2026-09-04→05):** Structure Foundations / Catalog IC-1→3 / honesty `PASS *` / Parts Graph + G-N1 / IDLE rebind B2+B3 / arm `thickness_mm` / plate multiplicity (`plates[]` + ordinal `frame_plate*` + `label`) — all CLOSED through suite **2294**. Display-only BOM children; Structure PASS evidence unchanged; free-text multi-plate remains debt. **No new C-xxx.**
 
-**Spatial board visor + B3 (2026-09-05→06):** Viewport (`ui/spatial-board/`, `jarvis board`) + projector (`spatial_board.py`) + honest-absence slots CLOSED (review PASS WITH NOTES, suite **2310**). Read-only derived view of `ProjectState` (C-094 class, **no new C-xxx**). Residual board Buy B1 layout-on-disk is not PRIORIDAD. Queue: `docs/IMPLEMENTATION_TASKS.md` (Geometry investigation OPEN).
+**Spatial board visor + B3 (2026-09-05→06):** Viewport (`ui/spatial-board/`, `jarvis board`) + projector (`spatial_board.py`) + honest-absence slots CLOSED (review PASS WITH NOTES, suite **2310**). Read-only derived view of `ProjectState` (C-094 class, **no new C-xxx**). Residual board Buy B1 layout-on-disk is not PRIORIDAD. **Geometry `representar` + sensors honesty (2026-09-07):** suite **2336**. Queue: `docs/IMPLEMENTATION_TASKS.md` (Board glyph / **visualizar** investigation OPEN).
 
 **Phase 2.5–2.7-B + Option A (2026-09-01):** Hover L1 + labeled L2 endurance envelope. User calculate/iterate wrap `build()` via `endurance_sweep_writer`; engine stays opt-in; DSE does not call the writer; CLI ESTIMATIVO on `calcular` and `estado`. **No new C-xxx** (C-060 detail only). Lab remainder is `docs/HARDWARE_DEBT.md`, not a map edge.
 

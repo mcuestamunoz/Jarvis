@@ -61,11 +61,13 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 
 ## On the tree after v0.3.8 (no new tag)
 
-Package version remains **0.3.8**. The working tree also has:
+Package version remains **0.3.8**. Live suite **2336**. The working tree also has:
 
-- **B3 honest absence:** declared-architecture holes project as `kind: "slot"` (not BOM / ERF). Review PASS WITH NOTES. Suite **2310**.
-- Layout overlay still in browser `localStorage` (B1 `spatial_layout.json` is named debt, not PRIORIDAD).
-- Next product axis: Geometry / Physical Component Representation — **investigation only** (see `docs/IMPLEMENTATION_TASKS.md`).
+- **B3 honest absence:** declared-architecture holes → `kind: "slot"`. Suite **2310**.
+- **Geometry `representar`:** Battery / Motor / ESC catalog envelopes + FC Pixhawk 4 identity-linked box (44×84×12 mm). Suites through **2332**.
+- **Sensors BOM honesty:** declarative tails distinguish GNSS vs bare `sensor_type` (suite **2336**) — claim ladder, not geometry.
+- Layout overlay still in browser `localStorage` (B1 `spatial_layout.json` = named debt, not PRIORIDAD).
+- **PRIORIDAD:** Geometry **visualizar** — Board glyph vocabulary investigation ([lock](.jes/artifacts/engineer_lock_geometry_spatial_representation_progression.md) · [contract](.jes/artifacts/investigation_contract_geometry_board_glyph_vocabulary.md)). Progression: dims → glyphs → pose → assembly → fit (no jump to “cabe”). See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Docs
 

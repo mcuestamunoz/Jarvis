@@ -30,7 +30,7 @@ Jarvis ya permite:
 - Guardar preguntas informativas dentro de `ITERATE_INTERACTIVE` del wizard de iteración mediante `classify_input_intent`
 - Explorar automáticamente el espacio de diseño para un objetivo dado (`mejorar_autonomia`, `aumentar_payload`, `reducir_masa`, `mejorar_estabilidad`) sin mutar estado, evaluando tanto variaciones de parámetros como variaciones de componentes (DSE v1 + DA2)
 - Aplicar el mejor candidato de la última exploración con trazabilidad completa, preservando componentes y parámetros derivados (DSE v1.1 + DA2)
-- Abrir la pizarra espacial (`jarvis board`) como visor de solo lectura: cards desde `state.json`; huecos de arquitectura declarada como slots (no es BOM)
+- Abrir la pizarra espacial (`jarvis board`) como visor de solo lectura: cards desde `state.json` (incl. dims geométricas declaradas como texto cuando existen); huecos de arquitectura declarada como slots (no es BOM). Glyphs 2D / assembly espacial = cola Geometry (`visualizar`), no mutación desde el Board.
 Detalles técnicos internos del sistema en [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Flujos disponibles

@@ -28,7 +28,7 @@ Detail: [docs/PROJECT_CONTINUITY.md](docs/PROJECT_CONTINUITY.md).
 - Aerial-first (inspection / photography / light delivery class).
 - Deterministic calculate / simulate / iterate / DSE.
 - CLI + MCP.
-- Spatial board visor (`jarvis board`) — **read-only** projection of `ProjectState` (cards + architecture slots). Not a v1 mutation surface; CLI/MCP remain the engineering I/O.
+- Spatial board visor (`jarvis board`) — **read-only** projection of `ProjectState` (cards + architecture slots; declared geometry as text fields today). Not a v1 mutation surface; CLI/MCP remain the engineering I/O. Board glyphs / spatial assembly are progressive Geometry work — see `docs/IMPLEMENTATION_TASKS.md`.
 - Small curated motor catalog matched to **design space** (D8), not KV alone.
 - Simplified energy model with **visible honesty** when autonomy is a hard constraint.
 - Unified Project Continuity surface on status/startup.

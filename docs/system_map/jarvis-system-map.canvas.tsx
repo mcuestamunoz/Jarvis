@@ -13,7 +13,8 @@
  * B4 CLOSED (suite 2160); control parity CLOSED (suite 2164).
  * Updated 2026-09-05 — Structure plate multiplicity B2 CLOSED (suite 2294).
  * Updated 2026-09-06 — Spatial board visor + B3 slots on live tree (suite 2310);
- * PRIORIDAD = Geometry investigation (no IC). Board is derived visor, no new C-xxx.
+ * PRIORIDAD = Board glyph vocabulary investigation (visualizar). Suite 2336.
+ * Board is derived visor, no new C-xxx. Progression: dims → glyphs → pose → fit.
  * Prior: v0.3.4 MOP.
  * Updated 2026-09-01 Phase 2.5–2.7-B + Option A — C-060 detail only (product writer); no new C-xxx.
  * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's software queue.
@@ -440,14 +441,15 @@ export default function JarvisSystemMapCanvas() {
         </Text>
       </Stack>
 
-      <Callout tone="neutral" title="Product queue — Geometry investigation (v0.3.8 + B3)">
-        Baseline tag v0.3.8 · live suite 2310 (B3 slots). Structure
-        representation CLOSED. Spatial board = read-only visor (no new
-        C-xxx). PRIORIDAD = Geometry minimum physical object investigation
-        — no IC, no code. Prop/Energy experimental = HD-004 wall. System
-        Optimization deferred until demonstrated pain. Board B1
-        layout-on-disk is named debt, not PRIORIDAD. C-081 and C-108
-        remain deferred map debt. HD-* never PRIORIDAD without lab.
+      <Callout tone="neutral" title="Product queue — Geometry visualizar (v0.3.8 · suite 2336)">
+        Baseline tag v0.3.8 · live suite 2336. Structure CLOSED. Geometry
+        representar (Battery/Motor/ESC/FC) + sensors BOM honesty CLOSED.
+        Spatial board = read-only visor (no new C-xxx). PRIORIDAD = Board
+        glyph vocabulary investigation — no IC, no code. Progression lock:
+        dims → glyphs → pose → assembly → fit (no jump to “cabe”).
+        Prop/Energy = HD-004 wall. System Optimization deferred. Board B1
+        layout-on-disk is named debt, not PRIORIDAD. C-081 and C-108 remain
+        deferred map debt. HD-* never PRIORIDAD without lab.
       </Callout>
 
       <Grid columns={6} gap={12}>

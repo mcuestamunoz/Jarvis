@@ -1,6 +1,6 @@
 # Physical Component Catalog v1 — Architectural Design
 
-**Status:** DESIGN CLOSED (Engineer 2026-08-12) — **implementation status:** §13 below (sync 2026-09-06: frame IC-1→3 + Structure B graph + G-N1 + arm thickness + plate multiplicity @ **2294**; spatial board B3 slots @ **2310**)  
+**Status:** DESIGN CLOSED (Engineer 2026-08-12) — **implementation status:** §13 below (sync 2026-09-07: Structure @ **2294**; board B3 @ **2310**; Geometry `representar` Battery/Motor/ESC/FC + sensors BOM honesty @ **2336**)  
 **Date:** 2026-08-12  
 **Author:** JES / Cursor (Engineer Interface)  
 **Authority:** Engineer confirmation after Catalog v1 connection audit  
@@ -13,7 +13,7 @@
 
 **Explicitly not this document:** Implementation code · full Impl A/B/C/D contracts · H5/C-081 · ESC catalog · Conversation Engine / Step D · Create→BOM implementation details  
 
-**Next:** see `docs/IMPLEMENTATION_TASKS.md` PRIORIDAD (Geometry investigation OPEN; Structure plate multiplicity B2 CLOSED @ **2294**; board B3 @ **2310**).
+**Next:** see `docs/IMPLEMENTATION_TASKS.md` PRIORIDAD (Board glyph / **visualizar** investigation OPEN; Geometry `representar` CLOSED @ **2336**).
 
 ---
 
@@ -298,9 +298,9 @@ Until that IC exists, **no Catalog Foundation coding**.
 
 ---
 
-## 13. Implementation status (as of 2026-09-06)
+## 13. Implementation status (as of 2026-09-07)
 
-> **This section is timeline hygiene only.** Design locks (§Decision log, §6 phase plan, 1A–5A) are unchanged. For as-is behavior see `docs/ARCHITECTURE.md` and `docs/system_map/*`. Live suite **2310**.
+> **This section is timeline hygiene only.** Design locks (§Decision log, §6 phase plan, 1A–5A) are unchanged. For as-is behavior see `docs/ARCHITECTURE.md` and `docs/system_map/*`. Live suite **2336**.
 
 | Deliverable | Status | Checkpoint (reference) |
 |---|---|---|
@@ -322,8 +322,13 @@ Until that IC exists, **no Catalog Foundation coding**.
 | Structure B arm `thickness_mm` | ✅ Complete | `FrameSpec.arm_thickness_mm` → `frame_arm`; display-only; M0; suite **2286** + smoke. |
 | Structure B plate multiplicity B2 | ✅ Complete | `PlateSeed` + `FrameSpec.plates[]` curated; ordinal `frame_plate*` + `label`; N2/N3/N7; BOM labeled lines; suite **2294**. |
 | Spatial board visor + B3 slots | ✅ Complete | `jarvis board` + projector; declared-architecture holes → `kind: "slot"` (not BOM); suite **2310**. Layout still `localStorage` (B1 debt). |
+| Geometry Battery envelope B1 | ✅ Complete | optional L×W×H on `BatterySpec` + bind → Board text; suite **2316**. |
+| Geometry Motor envelope B1 | ✅ Complete | stator/Ø/shaft on sourced motors; suite **2323**. |
+| Geometry ESC envelope B1 | ✅ Complete | L×W×H on sole ESC seed; suite **2327**. |
+| Geometry FC box B1 | ✅ Complete | identity-linked Pixhawk 4 44×84×12 in `aerial.py` (no `library/fc/`); suite **2332**. |
+| Sensors BOM honesty B1 | ✅ Complete | GNSS vs non-GNSS declarative tails; suite **2336**. |
 
-**Still deferred (unchanged from §6 / §10 + post-B2 debt):** H5 ESC catalog · Conversation Engine / Step D · wiring `catalog_bound` into subsystem verdicts · G24 DSE apply-by-index · MEASURE (fit/clearance/FEA/CAD) · free-text multi-plate · optional G-N2 Armattan counts / G-N3 `compressed-x` alias / G-N4 diverge orphans · catalog completeness hardcode polish.
+**Still deferred (unchanged from §6 / §10 + post-B2 debt):** H5 ESC Continuity wizard · Conversation Engine / Step D · wiring `catalog_bound` into subsystem verdicts · G24 DSE apply-by-index · MEASURE (fit/clearance/FEA/CAD) · Board glyphs / pose / assembly (Geometry progression — **visualizar** investigation OPEN) · free-text multi-plate · optional G-N2 Armattan counts / G-N3 `compressed-x` alias / G-N4 diverge orphans · catalog completeness hardcode polish.
 
 Historical §0 checkpoint sketch ("Next: Impl A ← READY") reflects the **2026-08-12 design gate**, not current code state.
 
