@@ -7,11 +7,17 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2350**.  
-> **PRIORIDAD AHORA:** Geometry assembly espacial B1 **CLOSED** (suite **2364**). Await Engineer next focus.  
-> **Eje ★:** Progression Lock — assembly relation-only shipped; pose mm / edges / fit still later.  
-> **Hecho:** glyphs @ **2344** · hygiene @ **2350** · `mounted_on` @ **2364**.  
-> **Congelado:** B1+ pose · B2 edges · fit/CAD · Here3/Pixhawk · HD-004.  
+> **PRIORIDAD AHORA:** IC **Continuity declare mounted_on B1** READY — Claude implement.  
+> **Eje ★:** Cerrar gap §3.5 assembly espacial — declarar montaje desde IDLE/chat.  
+> **Hecho:** glyphs · hygiene · `mounted_on` schema/Board @ **2364**.  
+> **Congelado:** pose mm · edges · fit · inferencia · Conversation Engine.  
 > **Artefactos:** investigation / implementation / review only.
+
+### 🟡 IC READY — Continuity declare mounted_on B1 (2026-09-07) · ★ Buy
+
+> **IC:** [implementation_contract_continuity_mounted_on_declare_b1.md](../.jes/artifacts/implementation_contract_continuity_mounted_on_declare_b1.md) — Claude next.  
+> **Parent:** assembly espacial B1 CLOSED @ **2364**.  
+> **Qué:** IDLE parse → `set_component_mounted_on` · copy “declarado montado en” · placas ambiguas sin adivinar.
 
 ### 🟢 CERRADO (código + review) — Geometry assembly espacial B1 (2026-09-07)
 
