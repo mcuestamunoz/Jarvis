@@ -6,18 +6,26 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`; no hay tag posterior). Suite viva **2336** (Geometry representar cuarteto + sensors BOM honesty).  
-> **PRIORIDAD AHORA:** Board glyphs B1 **CLOSED** (suite **2344**). Smoke Board/CLI next; then Engineer focus.  
-> **Eje ★:** Geometry Progression Lock B1 — **visualizar** `{box, disk}` shipped on cards.  
-> **Hecho:** representar (Battery/Motor/ESC/FC) + sensors honesty @ **2336** + glyphs @ **2344**.  
-> **Escalera geometry:** KNOW → representar → **visualizar (CLOSED)** → comparar → verificar.  
-> **Escalera claim (orthogonal):** CONTROL DECLARED → NAVIGATION-CAPABLE KNOW → AUTONOMOUS FLIGHT CLAIM.  
-> **Pizarra:** glyphs en card; DTO `width`/`height` = píxeles. Residual B1 layout-on-disk — **no PRIORIDAD**.  
-> **Pared física:** Prop/Energy → HD-004.  
-> **Debt software (no cola):** B1 `spatial_layout.json` · B2 poll/mtime · free-text multi-plate · G-N2/3/4 · C3 UX · MEASURE fit/CAD · System optimization (deferred).  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2344**. Commit glyphs **`64da71c`** on `main`.  
+> **PRIORIDAD AHORA:** Investigation **ESC XRotor variant coherence** (PN ↔ dims ↔ masa) — OPEN.  
+> **Eje ★:** Catalog hygiene — *cada número ↔ variante + condición*. **No** pose / assembly.  
+> **Hecho:** representar + sensors honesty + glyphs visualizar @ **2344** (Board smoke ACCEPT).  
+> **Escalera geometry:** KNOW → representar → **visualizar (CLOSED)** → assembly espacial / comparar — **no abrir**.  
+> **Cola 2 (formalizada, no este contract):** motor `thrust_n` top-level ≠ propiedad EMAX — solo OP (10.042 / HQ5045 BN).  
+> **Congelado:** Here3 / Pixhawk variant · HD-004 · System Optimization · CAD/fit.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟢 CERRADO (código + review) — Board glyphs B1 (2026-09-07)
+### 🟡 ABIERTO — Catalog ESC variant coherence (2026-09-07)
+
+> **Contract:** [investigation_contract_catalog_esc_variant_coherence.md](../.jes/artifacts/investigation_contract_catalog_esc_variant_coherence.md) — OPEN (Claude report next).  
+> **Qué:** `hobbywing_xrotor_40a_6s` — cerrar triple PN `30901001` ↔ 50×21.6×12 ↔ masa (seed 26 vs página ~15). Deuda N2 del ESC envelope B1.  
+> **No:** pose · Here3/Pixhawk · motor thrust rewrite (cola 2).
+
+### 🧊 COLA 2 (formalizada) — Motor thrust no es propiedad intrínseca
+
+> `emax_rs2205s_2300.thrust_n = 10.042` duplica el fallback OP (HQ5045 BN @ V). Investigation aparte **después** de ESC hygiene (o ★ paralelo). No IC hasta contract + Buy.
+
+### 🟢 CERRADO (código + review + push) — Board glyphs B1 (2026-09-07)
 
 > **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_geometry_board_glyphs_b1.md) · [implementation_review…](../.jes/artifacts/implementation_review_geometry_board_glyphs_b1.md) — **PASS**  
 > **Suite:** **2344**. `{box, disk}` · `GLYPH.pxPerMm=0.5` · sin pose/fit. Smoke: hard-refresh Board; FC re-declare si falta L×W×H.

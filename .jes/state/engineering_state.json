@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Board glyphs B1 REVIEWED PASS (suite 2344). Slice CLOSED. Smoke Board next; await Engineer focus.",
-  "scope": "implementation_review_geometry_board_glyphs_b1",
-  "execution_status": "board_glyphs_b1_reviewed_pass_closed",
-  "current_mode": "Smoke / Idle \u2014 Board glyphs B1 closed; await Engineer next focus",
+  "cycle_intent": "Glyphs B1 CLOSED+pushed (64da71c @ 2344). Next: catalog hygiene ESC PN\u2194dims\u2194mass investigation OPEN. No pose. Thrust-as-property queued #2.",
+  "scope": "investigation_contract_catalog_esc_variant_coherence",
+  "execution_status": "catalog_esc_variant_coherence_investigation_open",
+  "current_mode": "Investigation \u2014 ESC XRotor variant coherence (await Claude report)",
   "movement_trigger": {
-    "type": "implementation_review",
-    "note": "2026-09-07 PASS; 2344; box+disk; SpatialGlyph; no pose/fit"
+    "type": "engineer_focus",
+    "note": "2026-09-07 Engineer: hygiene next (variant+condition); ESC first; motor thrust second; no pose"
   },
   "relevant_workflow_phases": [
-    "idle"
+    "investigate"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -63,20 +63,25 @@
     "sensors_bom_honesty_tail_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2336)",
     "geometry_spatial_representation_progression": "\u2605 LOCKED 2026-09-07 \u2014 dims \u2192 glyphs \u2192 pose \u2192 assembly \u2192 fit",
     "geometry_board_glyph_vocabulary": "\u2605 BUY B1 IMPLEMENTED",
-    "geometry_board_glyphs_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2344)",
+    "geometry_board_glyphs_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2344) + push 64da71c + Board smoke ACCEPT",
+    "catalog_esc_variant_coherence": "INVESTIGATION OPEN 2026-09-07",
+    "catalog_motor_thrust_not_intrinsic": "QUEUED #2 \u2014 formalized; no contract yet",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_geometry_board_glyphs_b1.md",
-    ".jes/artifacts/implementation_report_geometry_board_glyphs_b1.md",
-    ".jes/artifacts/implementation_review_geometry_board_glyphs_b1.md"
+    ".jes/artifacts/investigation_contract_catalog_esc_variant_coherence.md",
+    ".jes/artifacts/investigation_report_catalog_esc_variant_coherence.md"
   ],
-  "active_operation": null,
+  "active_operation": "investigation_catalog_esc_variant_coherence",
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
     "CAD/FEA/fit as default next still FROZEN \u2014 Geometry axis \u2260 CAD theater",
     "No open Geometry IC until Engineer Buy after report",
+    "No pose/assembly after glyphs without separate \u2605 \u2014 hygiene is catalog KNOW, not Geometry rung",
+    "Catalog hygiene: each number \u2194 correct variant + condition",
+    "Here3 / Pixhawk variant FROZEN until identity investigation",
+    "Motor thrust_n top-level = queued #2 after ESC hygiene (or parallel \u2605 only)",
     "System Optimization DEFERRED until demonstrated CLI/product pain \u2014 not Vision \u00a77",
     "Prop/Energy experimental = physical wall HD-004 \u2014 never PRIORIDAD without bench",
     "Structure sufficient at current level \u2014 no attribute-drip without model Buy",
