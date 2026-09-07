@@ -7,7 +7,7 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2344**. Commit glyphs **`64da71c`** on `main`.  
-> **PRIORIDAD AHORA:** Investigation **ESC XRotor variant coherence** (PN ↔ dims ↔ masa) — OPEN.  
+> **PRIORIDAD AHORA:** Investigation ESC variant coherence **REVIEWED PASS WITH NOTES** — awaiting Engineer ★ **Buy B1** (mass 26→15).  
 > **Eje ★:** Catalog hygiene — *cada número ↔ variante + condición*. **No** pose / assembly.  
 > **Hecho:** representar + sensors honesty + glyphs visualizar @ **2344** (Board smoke ACCEPT).  
 > **Escalera geometry:** KNOW → representar → **visualizar (CLOSED)** → assembly espacial / comparar — **no abrir**.  
@@ -15,11 +15,11 @@
 > **Congelado:** Here3 / Pixhawk variant · HD-004 · System Optimization · CAD/fit.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 ABIERTO — Catalog ESC variant coherence (2026-09-07)
+### 🟡 INVESTIGADO — Catalog ESC variant coherence (2026-09-07) · awaiting ★ Buy B1
 
-> **Contract:** [investigation_contract_catalog_esc_variant_coherence.md](../.jes/artifacts/investigation_contract_catalog_esc_variant_coherence.md) — OPEN (Claude report next).  
-> **Qué:** `hobbywing_xrotor_40a_6s` — cerrar triple PN `30901001` ↔ 50×21.6×12 ↔ masa (seed 26 vs página ~15). Deuda N2 del ESC envelope B1.  
-> **No:** pose · Here3/Pixhawk · motor thrust rewrite (cola 2).
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_catalog_esc_variant_coherence.md) · [report](../.jes/artifacts/investigation_report_catalog_esc_variant_coherence.md) · [review](../.jes/artifacts/investigation_review_catalog_esc_variant_coherence.md) — **PASS WITH NOTES**  
+> **Hallazgo:** PN `30901001` + 50×21.6×12 **correctos**; `mass_g: 26` no cuadra con ninguna variante (página: **15 g** Version B). Lean **B1** mass-only. H3 split rechazado. Glyph/pose/thrust/FC out.  
+> **N4 smoke:** proyectos ya bound pueden seguir mostrando 26 g hasta rebind.
 
 ### 🧊 COLA 2 (formalizada) — Motor thrust no es propiedad intrínseca
 

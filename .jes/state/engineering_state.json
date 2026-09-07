@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Glyphs B1 CLOSED+pushed (64da71c @ 2344). Next: catalog hygiene ESC PN\u2194dims\u2194mass investigation OPEN. No pose. Thrust-as-property queued #2.",
-  "scope": "investigation_contract_catalog_esc_variant_coherence",
-  "execution_status": "catalog_esc_variant_coherence_investigation_open",
-  "current_mode": "Investigation \u2014 ESC XRotor variant coherence (await Claude report)",
+  "cycle_intent": "ESC variant coherence investigation REVIEWED PASS WITH NOTES. Await Engineer \u2605 Buy B1 (mass 26\u219215). No pose. Thrust queued #2.",
+  "scope": "investigation_review_catalog_esc_variant_coherence",
+  "execution_status": "catalog_esc_variant_coherence_reviewed_awaiting_buy",
+  "current_mode": "Await Engineer \u2605 \u2014 ESC mass hygiene B1 recommended",
   "movement_trigger": {
-    "type": "engineer_focus",
-    "note": "2026-09-07 Engineer: hygiene next (variant+condition); ESC first; motor thrust second; no pose"
+    "type": "investigation_review",
+    "note": "2026-09-07 PASS WITH NOTES; PN+dims OK; mass 26 unmatched; lean B1"
   },
   "relevant_workflow_phases": [
-    "investigate"
+    "await_buy"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -64,15 +64,16 @@
     "geometry_spatial_representation_progression": "\u2605 LOCKED 2026-09-07 \u2014 dims \u2192 glyphs \u2192 pose \u2192 assembly \u2192 fit",
     "geometry_board_glyph_vocabulary": "\u2605 BUY B1 IMPLEMENTED",
     "geometry_board_glyphs_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2344) + push 64da71c + Board smoke ACCEPT",
-    "catalog_esc_variant_coherence": "INVESTIGATION OPEN 2026-09-07",
+    "catalog_esc_variant_coherence": "INVESTIGATION REVIEWED PASS WITH NOTES 2026-09-07 \u2014 await \u2605 Buy B1",
     "catalog_motor_thrust_not_intrinsic": "QUEUED #2 \u2014 formalized; no contract yet",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
     ".jes/artifacts/investigation_contract_catalog_esc_variant_coherence.md",
-    ".jes/artifacts/investigation_report_catalog_esc_variant_coherence.md"
+    ".jes/artifacts/investigation_report_catalog_esc_variant_coherence.md",
+    ".jes/artifacts/investigation_review_catalog_esc_variant_coherence.md"
   ],
-  "active_operation": "investigation_catalog_esc_variant_coherence",
+  "active_operation": null,
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
@@ -192,7 +193,7 @@
     "geometry_spatial_representation_progression": "LOCKED_2026_09_07",
     "geometry_board_glyph_vocabulary_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
     "geometry_board_glyphs_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2344",
-    "catalog_esc_variant_coherence_investigation": "OPEN",
+    "catalog_esc_variant_coherence_investigation": "REVIEWED_PASS_WITH_NOTES_AWAIT_BUY_B1",
     "catalog_motor_thrust_not_intrinsic": "QUEUED_2_FORMALIZED_NO_CONTRACT",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }

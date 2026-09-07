@@ -8,7 +8,9 @@
 **Reviewer:** Cursor (Investigation Review)  
 **Output (you write this):** `.jes/artifacts/investigation_report_catalog_esc_variant_coherence.md`
 
-**Status:** OPEN — awaiting report  
+**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · awaiting Engineer ★ Buy B1  
+**Report:** [investigation_report_catalog_esc_variant_coherence.md](investigation_report_catalog_esc_variant_coherence.md)  
+**Review:** [investigation_review_catalog_esc_variant_coherence.md](investigation_review_catalog_esc_variant_coherence.md)  
 **Parents (mandatory):**
 - [implementation_review_geometry_esc_envelope_b1.md](implementation_review_geometry_esc_envelope_b1.md) — B1 dims CLOSED @ **2327**; N2 left `mass_g=26` untouched
 - [investigation_report_geometry_esc_envelope.md](investigation_report_geometry_esc_envelope.md) — live page: Version B `30901001` = 50×21.6×12 @ **15 g**; seed mass **26 g**
