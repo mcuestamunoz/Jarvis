@@ -8,7 +8,9 @@
 **Reviewer:** Cursor (Investigation Review)  
 **Output (you write this):** `.jes/artifacts/investigation_report_geometry_assembly_espacial_b1.md`
 
-**Status:** OPEN — awaiting report  
+**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · awaiting Engineer ★ Buy B1  
+**Report:** [investigation_report_geometry_assembly_espacial_b1.md](investigation_report_geometry_assembly_espacial_b1.md)  
+**Review:** [investigation_review_geometry_assembly_espacial_b1.md](investigation_review_geometry_assembly_espacial_b1.md)  
 **Parents (mandatory):**
 - [engineer_lock_geometry_spatial_representation_progression.md](engineer_lock_geometry_spatial_representation_progression.md) — ★ Progression Lock (dims → glyphs → **pose / assembly** → fit)
 - [engineer_lock_geometry_physical_representation_axis.md](engineer_lock_geometry_physical_representation_axis.md)

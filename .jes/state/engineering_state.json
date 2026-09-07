@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Geometry assembly espacial B1 investigation OPEN (Engineer option A). Hygiene CLOSED @ 2350. Await Claude report. No fit.",
-  "scope": "investigation_contract_geometry_assembly_espacial_b1",
-  "execution_status": "geometry_assembly_espacial_b1_investigation_open",
-  "current_mode": "Investigation \u2014 Geometry assembly espacial B1 (await Claude report)",
+  "cycle_intent": "Geometry assembly espacial B1 investigation REVIEWED PASS WITH NOTES. Await Engineer \u2605 Buy B1 (mounted_on relation-only). No fit/pose-mm.",
+  "scope": "investigation_review_geometry_assembly_espacial_b1",
+  "execution_status": "geometry_assembly_espacial_b1_reviewed_awaiting_buy",
+  "current_mode": "Await Engineer \u2605 \u2014 assembly espacial B1 recommended (mounted_on)",
   "movement_trigger": {
-    "type": "engineer_focus",
-    "note": "2026-09-07 Engineer Vamos con A \u2014 assembly espacial investigation"
+    "type": "investigation_review",
+    "note": "2026-09-07 PASS WITH NOTES; diverge parent_key; lean B1 relation-only"
   },
   "relevant_workflow_phases": [
-    "investigate"
+    "await_buy"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -68,14 +68,15 @@
     "catalog_esc_mass_hygiene_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2344)",
     "catalog_motor_thrust_not_intrinsic": "\u2605 BUY B1 IMPLEMENTED",
     "catalog_motor_thrust_not_intrinsic_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2350)",
-    "geometry_assembly_espacial_b1": "INVESTIGATION OPEN 2026-09-07",
+    "geometry_assembly_espacial_b1": "INVESTIGATION REVIEWED PASS WITH NOTES 2026-09-07 \u2014 await \u2605 Buy B1",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
     ".jes/artifacts/investigation_contract_geometry_assembly_espacial_b1.md",
-    ".jes/artifacts/investigation_report_geometry_assembly_espacial_b1.md"
+    ".jes/artifacts/investigation_report_geometry_assembly_espacial_b1.md",
+    ".jes/artifacts/investigation_review_geometry_assembly_espacial_b1.md"
   ],
-  "active_operation": "investigation_geometry_assembly_espacial_b1",
+  "active_operation": null,
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
@@ -199,7 +200,7 @@
     "catalog_esc_mass_hygiene_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2344",
     "catalog_motor_thrust_not_intrinsic": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
     "catalog_motor_thrust_not_intrinsic_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2350",
-    "geometry_assembly_espacial_b1_investigation": "OPEN",
+    "geometry_assembly_espacial_b1_investigation": "REVIEWED_PASS_WITH_NOTES_AWAIT_BUY_B1",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
 }

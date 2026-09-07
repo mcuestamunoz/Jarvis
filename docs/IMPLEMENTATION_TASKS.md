@@ -7,17 +7,16 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2350**.  
-> **PRIORIDAD AHORA:** Investigation **Geometry assembly espacial B1** — OPEN (Claude report).  
-> **Eje ★:** Progression Lock — next rung after visualizar: **pose / `mounted_on` mínimo sin fit**.  
-> **Hecho:** glyphs @ **2344** · catalog hygiene (ESC masa + thrust) @ **2350**.  
-> **Congelado:** fit/CAD · HD-004 · Optimization · Here3/Pixhawk variant · Board layout-as-pose.  
+> **PRIORIDAD AHORA:** Investigation Geometry assembly espacial B1 **REVIEWED PASS WITH NOTES** — awaiting Engineer ★ **Buy B1** (`mounted_on` relation-only).  
+> **Eje ★:** Progression Lock — assembly espacial sin fit; Board layout ≠ pose.  
+> **Hecho:** glyphs @ **2344** · catalog hygiene @ **2350**.  
+> **Congelado:** B1+ pose mm · B2 edges · fit/CAD · Here3/Pixhawk · HD-004.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 ABIERTO — Geometry assembly espacial B1 (2026-09-07)
+### 🟡 INVESTIGADO — Geometry assembly espacial B1 (2026-09-07) · awaiting ★ Buy B1
 
-> **Contract:** [investigation_contract_geometry_assembly_espacial_b1.md](../.jes/artifacts/investigation_contract_geometry_assembly_espacial_b1.md) — OPEN.  
-> **Qué:** mínimo `mounted_on` / pose declarado en `ProjectState`; Board proyecta, no es SoT; sin fit/clearance.  
-> **No:** CAD · layout drag = pose · reopen hygiene thrust/ESC.
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_assembly_espacial_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_assembly_espacial_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_assembly_espacial_b1.md) — **PASS WITH NOTES**  
+> **Hallazgo:** cero estado assembly hoy; **diverge** de `parent_key`; lean **B1** `mounted_on: str | None` declared-only; B1+ pose rechazado (sin fuente / sin marco). N2: Board text requiere projector explícito.
 
 ### 🟢 CERRADO (código + review) — Catalog motor thrust not intrinsic B1 (2026-09-07)
 
