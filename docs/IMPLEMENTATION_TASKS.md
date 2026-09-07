@@ -7,16 +7,21 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2385**.  
-> **PRIORIDAD AHORA:** Pose B1+ investigation **REVIEWED PASS WITH NOTES** — lean **B0 Defer**. Await Engineer ★ lock Defer (or override).  
-> **Eje ★:** Cola 2/3 pose → Defer recommended · fit stub still queued separately.  
-> **Hecho:** glyphs · hygiene · `mounted_on` · Continuity · Board edges B2 CLOSED @ **2385**.  
-> **No code** until explicit override ★ (not recommended).  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2385**.  
+> **PRIORIDAD AHORA:** Pose B1+ **DEFERRED** (B0). Await Engineer next focus.  
+> **Eje ★:** Assembly relation rung CLOSED (mounted_on · Continuity · edges). Pose deferred. Fit stub queued (not active).  
+> **Hecho:** glyphs · hygiene · `mounted_on` · Continuity · Board edges B2 @ **2385** · pose investigation → **Defer**.  
+> **Congelado:** pose mm · fit (until separate ★) · Conversation Engine.  
 > **Artefactos:** investigation / implementation / review only.
+
+### 🟢 CERRADO (Defer B0) — Geometry assembly Pose B1+ (2026-09-07) · cola 2/3
+
+> **IC / Report:** [defer IC](../.jes/artifacts/implementation_contract_geometry_assembly_pose_b1plus_defer.md) · [report](../.jes/artifacts/implementation_report_geometry_assembly_pose_b1plus_defer.md) — **doc-only**  
+> **Investigation:** [review](../.jes/artifacts/investigation_review_geometry_assembly_pose_b1plus.md) — **PASS WITH NOTES** · lean B0. Stub [pose IC](../.jes/artifacts/implementation_contract_geometry_assembly_pose_b1plus.md) → **DEFERRED**.
 
 ### 🟡 INVESTIGATION REVIEWED — Geometry assembly Pose B1+ (2026-09-07) · lean B0 Defer
 
-> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_assembly_pose_b1plus.md) · [report](../.jes/artifacts/investigation_report_geometry_assembly_pose_b1plus.md) · [review](../.jes/artifacts/investigation_review_geometry_assembly_pose_b1plus.md) — **PASS WITH NOTES**  
-> **Hallazgo:** `mounted_on`+edges ≠ reference frame; zero catalog mount/hole/offset; **B0 Defer** reafirma rechazo previo. Await Engineer ★.
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_assembly_pose_b1plus.md) · [report](../.jes/artifacts/investigation_report_geometry_assembly_pose_b1plus.md) · [review](../.jes/artifacts/investigation_review_geometry_assembly_pose_b1plus.md) — **PASS WITH NOTES** → Defer IC arriba.
 
 ### 🟢 CERRADO (código + Claude review + smoke) — Board edges B2 (2026-09-07) · cola 1/3
 

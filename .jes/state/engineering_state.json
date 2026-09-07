@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Pose B1+ investigation REVIEWED PASS WITH NOTES \u2014 lean B0 Defer. Await Engineer \u2605 lock Defer (or explicit override). No READY IC.",
-  "scope": "investigation_review_geometry_assembly_pose_b1plus",
-  "execution_status": "geometry_assembly_pose_b1plus_investigation_reviewed_pass_awaiting_engineer_star",
-  "current_mode": "Await Engineer \u2605 \u2014 Pose B1+ B0 Defer (recommended)",
+  "cycle_intent": "Pose B1+ DEFERRED (B0) via defer IC. Assembly relation rung complete. Await Engineer next focus. Fit stub stays queued.",
+  "scope": "implementation_contract_geometry_assembly_pose_b1plus_defer",
+  "execution_status": "geometry_assembly_pose_b1plus_deferred_closed",
+  "current_mode": "Idle \u2014 pose deferred; await Engineer next focus",
   "movement_trigger": {
-    "type": "investigation_review",
-    "note": "2026-09-07 PASS WITH NOTES; B0 Defer; reaffirm prior B1+ rejection"
+    "type": "engineer_buy",
+    "note": "2026-09-07 redacta Ic \u2192 B0 Defer IC executed (doc-only)"
   },
   "relevant_workflow_phases": [
-    "ratify"
+    "idle"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -71,14 +71,13 @@
     "geometry_assembly_espacial_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2364)",
     "continuity_mounted_on_declare_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2380)",
     "geometry_assembly_board_edges_b2": "\u2605 CLOSED (Claude PASS + Engineer smoke ACCEPT @ 2385)",
-    "geometry_assembly_pose_b1plus": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 lean B0 Defer \u2014 await Engineer \u2605",
+    "geometry_assembly_pose_b1plus": "\u2605 DEFERRED CLOSED (B0) 2026-09-07 \u2014 no pose schema",
     "geometry_assembly_fit_compare": "QUEUED STUB \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
-    ".jes/artifacts/investigation_contract_geometry_assembly_pose_b1plus.md",
-    ".jes/artifacts/investigation_report_geometry_assembly_pose_b1plus.md",
-    ".jes/artifacts/investigation_review_geometry_assembly_pose_b1plus.md"
+    ".jes/artifacts/implementation_contract_geometry_assembly_pose_b1plus_defer.md",
+    ".jes/artifacts/implementation_report_geometry_assembly_pose_b1plus_defer.md"
   ],
   "active_operation": null,
   "authority_gates": [
@@ -209,8 +208,9 @@
     "continuity_mounted_on_declare_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2380",
     "geometry_assembly_board_edges_b2_ic": "CLOSED_CLAUDE_PASS_SMOKE_ACCEPT_2385",
     "geometry_assembly_board_edges_b2_review_contract": "DONE_CLAUDE_PASS",
-    "geometry_assembly_pose_b1plus_ic": "QUEUED_STUB_BLOCKED",
+    "geometry_assembly_pose_b1plus_ic": "DEFERRED_CLOSED_B0",
     "geometry_assembly_pose_b1plus_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_B0_DEFER",
+    "geometry_assembly_pose_b1plus_defer_ic": "IMPLEMENTED_DOC_ONLY_CLOSED",
     "geometry_assembly_fit_compare_ic": "QUEUED_STUB_BLOCKED",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
