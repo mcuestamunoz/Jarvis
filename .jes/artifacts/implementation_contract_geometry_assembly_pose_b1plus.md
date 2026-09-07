@@ -3,8 +3,9 @@
 **Project:** Jarvis  
 **Date:** 2026-09-07  
 **Author:** JES / Cursor (Engineer Interface)  
-**Status:** **QUEUED — DO NOT IMPLEMENT**  
-**Queue position:** **2 of 3** (after Board edges B2)
+**Status:** **QUEUED — DO NOT IMPLEMENT** until investigation REVIEWED + Engineer ★ Buy + superseding READY IC  
+**Queue position:** **2 of 3** (after Board edges B2 CLOSED)  
+**Unblocking investigation:** [investigation_contract_geometry_assembly_pose_b1plus.md](investigation_contract_geometry_assembly_pose_b1plus.md) — READY (Claude report next)
 
 **Parents:**
 - [investigation_report_geometry_assembly_espacial_b1.md](investigation_report_geometry_assembly_espacial_b1.md) — **B1+ rejected** this cycle: no catalog mount source, no reference frame

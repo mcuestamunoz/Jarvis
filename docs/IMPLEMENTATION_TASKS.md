@@ -7,16 +7,17 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2385**.  
-> **PRIORIDAD AHORA:** Cola assembly **2/3** — IC stub **Pose B1+** para Engineer review (blocked: investigación ★ antes de implementar).  
-> **Eje ★:** Cola: B2 CLOSED → **pose stub (review)** → fit stub.  
+> **PRIORIDAD AHORA:** Investigation contract **Pose B1+** READY — Claude report.  
+> **Eje ★:** Cola assembly 2/3 — pose (investigar) → fit stub.  
 > **Hecho:** glyphs · hygiene · `mounted_on` · Continuity · **Board edges B2 CLOSED** @ **2385** + smoke ACCEPT.  
-> **Cola:** pose stub · fit stub — no implementar sin investigación.  
+> **Cola:** pose stub blocked until investigation ★ Buy · fit stub.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 COLA 2/3 — Pose B1+ stub → Engineer review (2026-09-07)
+### 🟡 INVESTIGATION READY — Geometry assembly Pose B1+ (2026-09-07) · cola 2/3
 
-> **IC stub:** [implementation_contract_geometry_assembly_pose_b1plus.md](../.jes/artifacts/implementation_contract_geometry_assembly_pose_b1plus.md) — **QUEUED — DO NOT IMPLEMENT**  
-> **Gate:** tras B2 CLOSED, hace falta ★ investigación (origen/referencia + honesty) antes de un IC READY.
+> **Contract:** [investigation_contract_geometry_assembly_pose_b1plus.md](../.jes/artifacts/investigation_contract_geometry_assembly_pose_b1plus.md) — **Claude next** (report only).  
+> **Stub IC (do not implement):** [implementation_contract_geometry_assembly_pose_b1plus.md](../.jes/artifacts/implementation_contract_geometry_assembly_pose_b1plus.md)  
+> **Qué:** ¿pose numérica honesta posible (origen + mm) o Defer? Sin fit · sin inventar mounts · Board x/y ≠ pose.
 
 ### 🟢 CERRADO (código + Claude review + smoke) — Board edges B2 (2026-09-07) · cola 1/3
 
