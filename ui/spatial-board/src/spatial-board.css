@@ -170,6 +170,32 @@ html, body, #root {
   color: #888;
 }
 
+.sb-glyph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px 0;
+}
+
+.sb-glyph__box {
+  border: 1px solid #6a9fd8;
+  background: rgba(106, 159, 216, 0.12);
+  box-sizing: border-box;
+}
+
+.sb-glyph__disk {
+  border: 1px solid #6a9fd8;
+  background: rgba(106, 159, 216, 0.12);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.sb-glyph__caption {
+  font-size: 11px;
+  color: #888;
+}
+
 .sb-card__fields {
   margin: 0;
   padding: 6px 10px 8px;

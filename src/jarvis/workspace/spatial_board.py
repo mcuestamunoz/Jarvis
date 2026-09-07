@@ -11,6 +11,13 @@ para un bloque no declarado, nunca una clasificación BOM
 (`incomplete`/`declarative`/`✗`), nunca un `ComponentSpec`. Layout inicial
 por carriles 4/4; el visor overlay de {x,y,width,height} manda después del
 primer gesto.
+
+Geometry Progression Lock B1 (`visualizar`): un nodo `component`/`part`
+(nunca `slot`) puede llevar un `geometry` opcional (`box`/`disk`) derivado
+de dimensiones ya declaradas — "sé qué componente es y sé qué volumen
+físico declarado ocupa," nunca ensamblado ni "cabe." `width`/`height` del
+nodo siguen siendo el layout en píxeles de la card, nunca la geometría
+física — ver `_geometry_from_spec`.
 """
 from __future__ import annotations
 
@@ -78,27 +85,40 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
     def place(key: str, col: int) -> None:
         spec = components[key]
         fields = _fields(spec)
-        _emit(key, col, spec.name or "", "part" if spec.parent_key else "component", fields)
+        geometry = _geometry_from_spec(spec)
+        _emit(
+            key, col, spec.name or "", "part" if spec.parent_key else "component", fields,
+            geometry=geometry,
+        )
 
     def place_slot(key: str, col: int) -> None:
         _emit(key, col, "", "slot", [{"label": "estado", "value": "no declarado"}])
 
-    def _emit(key: str, col: int, declared_name: str, kind: str, fields: list[dict[str, str]]) -> None:
+    def _emit(
+        key: str,
+        col: int,
+        declared_name: str,
+        kind: str,
+        fields: list[dict[str, str]],
+        *,
+        geometry: dict[str, float | str] | None = None,
+    ) -> None:
         height = _default_height(len(fields))
         y = next_y.get(col, ORIGIN_Y)
-        nodes.append(
-            {
-                "id": key,
-                "title": key,
-                "declaredName": declared_name,
-                "kind": kind,
-                "fields": fields,
-                "x": ORIGIN_X + col * (CARD_WIDTH + LANE_GAP),
-                "y": y,
-                "width": CARD_WIDTH,
-                "height": height,
-            }
-        )
+        node: dict[str, Any] = {
+            "id": key,
+            "title": key,
+            "declaredName": declared_name,
+            "kind": kind,
+            "fields": fields,
+            "x": ORIGIN_X + col * (CARD_WIDTH + LANE_GAP),
+            "y": y,
+            "width": CARD_WIDTH,
+            "height": height,
+        }
+        if geometry is not None:
+            node["geometry"] = geometry
+        nodes.append(node)
         next_y[col] = y + height + ROW_GAP
         emitted.add(key)
 
@@ -176,6 +196,61 @@ def _sort_roots(
     rank = {name: i for i, name in enumerate(order)}
     insertion = {name: i for i, name in enumerate(components)}
     return sorted(keys, key=lambda k: (rank.get(k, 1000), insertion[k]))
+
+
+_MM_PER_INCH = 25.4
+
+
+def _geometry_from_spec(spec: ComponentSpec) -> dict[str, float | str] | None:
+    """Board glyphs (Geometry Progression Lock B1, `visualizar`) — a
+    declarative 2D shape hint derived from whichever dimension
+    ``PropertyValue`` keys are actually present on ``spec``. Shape is
+    chosen by which keys exist, never a hardcoded per-family table
+    (investigation report §C) — this is why Motor and Propeller, two
+    unrelated families, both resolve to ``disk`` today.
+
+    ``box`` requires the full ``length_mm``/``width_mm``/``height_mm``
+    triple (a complete box always wins over any diameter also present).
+    ``disk`` requires exactly one diameter path: ``diameter_mm`` if
+    present, else ``diameter_in`` converted to an mm-equivalent purely for
+    drawing scale (a lossless physical-constant conversion, never altering
+    the declared unit shown in ``fields``). A diameter alongside an
+    unrelated height (e.g. Motor's ``stator_height_mm``) never becomes a
+    cylinder — this function never stitches two different physical
+    references together (investigation report §E). Returns ``None`` when
+    dims are insufficient — no partial/dashed geometry is ever invented.
+    """
+    props = spec.properties or {}
+
+    def _num(key: str) -> float | None:
+        prop = props.get(key)
+        if prop is None or prop.value is None:
+            return None
+        try:
+            return float(prop.value)
+        except (TypeError, ValueError):
+            return None
+
+    length_mm = _num("length_mm")
+    width_mm = _num("width_mm")
+    height_mm = _num("height_mm")
+    if length_mm is not None and width_mm is not None and height_mm is not None:
+        return {
+            "shape": "box",
+            "length_mm": length_mm,
+            "width_mm": width_mm,
+            "height_mm": height_mm,
+        }
+
+    diameter_mm = _num("diameter_mm")
+    if diameter_mm is None:
+        diameter_in = _num("diameter_in")
+        if diameter_in is not None:
+            diameter_mm = diameter_in * _MM_PER_INCH
+    if diameter_mm is not None:
+        return {"shape": "disk", "diameter_mm": diameter_mm}
+
+    return None
 
 
 def _fields(spec: ComponentSpec) -> list[dict[str, str]]:

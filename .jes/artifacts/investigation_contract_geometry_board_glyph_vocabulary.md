@@ -8,7 +8,10 @@
 **Reviewer:** Cursor (Investigation Review)  
 **Output (you write this):** `.jes/artifacts/investigation_report_geometry_board_glyph_vocabulary.md`
 
-**Status:** OPEN — awaiting Claude report  
+**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · Engineer ★ Buy B1 → IC READY  
+**Report:** [investigation_report_geometry_board_glyph_vocabulary.md](investigation_report_geometry_board_glyph_vocabulary.md)  
+**Review:** [investigation_review_geometry_board_glyph_vocabulary.md](investigation_review_geometry_board_glyph_vocabulary.md)  
+**IC:** [implementation_contract_geometry_board_glyphs_b1.md](implementation_contract_geometry_board_glyphs_b1.md)  
 **Parents (mandatory):**
 - [engineer_lock_geometry_spatial_representation_progression.md](engineer_lock_geometry_spatial_representation_progression.md) — ★ Geometry Progression Lock B1
 - [engineer_lock_geometry_physical_representation_axis.md](engineer_lock_geometry_physical_representation_axis.md)

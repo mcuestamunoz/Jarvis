@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Docs synced @ 2336. Geometry spatial progression LOCKED. Board glyph vocabulary investigation OPEN (visualizar). Await Claude report.",
-  "scope": "investigation_contract_geometry_board_glyph_vocabulary",
-  "execution_status": "board_glyph_vocabulary_investigation_open",
-  "current_mode": "Investigation \u2014 Board glyph vocabulary (visualizar); no IC; no code",
+  "cycle_intent": "Board glyphs B1 REVIEWED PASS (suite 2344). Slice CLOSED. Smoke Board next; await Engineer focus.",
+  "scope": "implementation_review_geometry_board_glyphs_b1",
+  "execution_status": "board_glyphs_b1_reviewed_pass_closed",
+  "current_mode": "Smoke / Idle \u2014 Board glyphs B1 closed; await Engineer next focus",
   "movement_trigger": {
-    "type": "investigation_contract",
-    "note": "2026-09-07 Engineer: docs first then glyphs before pose/assembly/fit"
+    "type": "implementation_review",
+    "note": "2026-09-07 PASS; 2344; box+disk; SpatialGlyph; no pose/fit"
   },
   "relevant_workflow_phases": [
-    "investigation"
+    "idle"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -62,20 +62,16 @@
     "minimum_sensor_know_aerial_autonomy_claim": "\u2605 BUY CLAIM-COPY IMPLEMENTED",
     "sensors_bom_honesty_tail_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2336)",
     "geometry_spatial_representation_progression": "\u2605 LOCKED 2026-09-07 \u2014 dims \u2192 glyphs \u2192 pose \u2192 assembly \u2192 fit",
-    "geometry_board_glyph_vocabulary": "INVESTIGATION OPEN 2026-09-07 \u2014 visualizar",
+    "geometry_board_glyph_vocabulary": "\u2605 BUY B1 IMPLEMENTED",
+    "geometry_board_glyphs_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2344)",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
-    ".jes/artifacts/engineer_lock_geometry_spatial_representation_progression.md",
-    ".jes/artifacts/investigation_contract_geometry_board_glyph_vocabulary.md",
-    ".jes/artifacts/investigation_report_geometry_board_glyph_vocabulary.md"
+    ".jes/artifacts/implementation_contract_geometry_board_glyphs_b1.md",
+    ".jes/artifacts/implementation_report_geometry_board_glyphs_b1.md",
+    ".jes/artifacts/implementation_review_geometry_board_glyphs_b1.md"
   ],
-  "active_operation": {
-    "type": "investigation",
-    "artifact": ".jes/artifacts/investigation_contract_geometry_board_glyph_vocabulary.md",
-    "investigator": "Claude Code",
-    "reviewer": "Cursor"
-  },
+  "active_operation": null,
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
@@ -189,7 +185,8 @@
     "minimum_sensor_know_aerial_autonomy_claim_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_CLAIM_COPY",
     "sensors_bom_honesty_tail_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2336",
     "geometry_spatial_representation_progression": "LOCKED_2026_09_07",
-    "geometry_board_glyph_vocabulary_investigation": "OPEN_2026_09_07",
+    "geometry_board_glyph_vocabulary_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
+    "geometry_board_glyphs_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2344",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
 }

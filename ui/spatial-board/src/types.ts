@@ -13,6 +13,17 @@ export type SpatialRect = {
   height: number;
 };
 
+/**
+ * Board glyphs (Geometry Progression Lock B1, `visualizar`) — a
+ * declarative 2D shape hint computed server-side by the projector from
+ * dimensions already declared/sourced. Never present on `kind: "slot"`
+ * nodes. Independent of `SpatialRect.width`/`height`, which stay the
+ * card's on-canvas pixel layout (drag/resize state) — never physical mm.
+ */
+export type SpatialGeometry =
+  | { shape: "box"; length_mm: number; width_mm: number; height_mm: number }
+  | { shape: "disk"; diameter_mm: number };
+
 export type SpatialNode = SpatialRect & {
   id: string;
   title: string;
@@ -20,6 +31,8 @@ export type SpatialNode = SpatialRect & {
   declaredName: string;
   kind: "component" | "slot" | "part";
   fields: { label: string; value: string }[];
+  /** Present only when the projector found sufficient declared dims. */
+  geometry?: SpatialGeometry;
 };
 
 export type ContentBounds = {

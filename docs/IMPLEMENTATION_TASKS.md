@@ -7,23 +7,24 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`; no hay tag posterior). Suite viva **2336** (Geometry representar cuarteto + sensors BOM honesty).  
-> **PRIORIDAD AHORA:** **Investigation** Board glyph vocabulary (**visualizar**) — [contract](../.jes/artifacts/investigation_contract_geometry_board_glyph_vocabulary.md). **No IC. No código.**  
-> **Eje ★:** Geometry — [progresión locked](../.jes/artifacts/engineer_lock_geometry_spatial_representation_progression.md): dims → **glyphs** → pose → assembly → fit.  
-> **Hecho (representar):** Battery/Motor/ESC catalog + FC Pixhawk 4 identity-linked @ **2332**; sensors BOM honesty @ **2336**.  
-> **Escalera geometry:** KNOW → representar → **visualizar (ahora)** → comparar → verificar.  
+> **PRIORIDAD AHORA:** Board glyphs B1 **CLOSED** (suite **2344**). Smoke Board/CLI next; then Engineer focus.  
+> **Eje ★:** Geometry Progression Lock B1 — **visualizar** `{box, disk}` shipped on cards.  
+> **Hecho:** representar (Battery/Motor/ESC/FC) + sensors honesty @ **2336** + glyphs @ **2344**.  
+> **Escalera geometry:** KNOW → representar → **visualizar (CLOSED)** → comparar → verificar.  
 > **Escalera claim (orthogonal):** CONTROL DECLARED → NAVIGATION-CAPABLE KNOW → AUTONOMOUS FLIGHT CLAIM.  
-> **Pizarra:** `jarvis board` + projector + B3 slots — canvas listo; glyphs aún no. Residual B1 layout-on-disk — **no PRIORIDAD**.  
-> **Pared física:** Prop/Energy → HD-004 — **≠** autonomía navegacional.  
+> **Pizarra:** glyphs en card; DTO `width`/`height` = píxeles. Residual B1 layout-on-disk — **no PRIORIDAD**.  
+> **Pared física:** Prop/Energy → HD-004.  
 > **Debt software (no cola):** B1 `spatial_layout.json` · B2 poll/mtime · free-text multi-plate · G-N2/3/4 · C3 UX · MEASURE fit/CAD · System optimization (deferred).  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 INVESTIGACIÓN ABIERTA — Minimum Board Glyph Vocabulary / visualizar B1 (2026-09-07)
+### 🟢 CERRADO (código + review) — Board glyphs B1 (2026-09-07)
 
-> **Lock:** [Geometry Progression Lock B1](../.jes/artifacts/engineer_lock_geometry_spatial_representation_progression.md) — glyph = envelope declarado; **≠** ensamblado / fit.  
-> **Contract:** [investigation_contract_geometry_board_glyph_vocabulary.md](../.jes/artifacts/investigation_contract_geometry_board_glyph_vocabulary.md)  
-> **Objetivo:** vocabulario mínimo de formas desde dims existentes; ausencia → no inventar geometría.  
-> **Siguiente:** Claude report → Cursor review → Engineer ★ Buy B1.  
-> **Nota código:** motor “altura” no es trivial (Motor B1 rechazó height axial global); plates/arms suelen tener solo thickness.
+> **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_geometry_board_glyphs_b1.md) · [implementation_review…](../.jes/artifacts/implementation_review_geometry_board_glyphs_b1.md) — **PASS**  
+> **Suite:** **2344**. `{box, disk}` · `GLYPH.pxPerMm=0.5` · sin pose/fit. Smoke: hard-refresh Board; FC re-declare si falta L×W×H.
+
+### 🟡 INVESTIGADO — Minimum Board Glyph Vocabulary (2026-09-07) · ★ Buy B1
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_board_glyph_vocabulary.md) · [report](../.jes/artifacts/investigation_report_geometry_board_glyph_vocabulary.md) · [review](../.jes/artifacts/investigation_review_geometry_board_glyph_vocabulary.md) — **PASS WITH NOTES** → IC cerrado arriba.
 
 ### 🟢 CERRADO (código + review) — Sensors BOM honesty tail B1 (2026-09-07)
 

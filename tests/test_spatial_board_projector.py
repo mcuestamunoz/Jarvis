@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from jarvis.schemas.action_schema import CatalogRef, ComponentSpec, PropertyValue
 from jarvis.schemas.state_schema import DesignProperties, ProjectState
 from jarvis.workspace.spatial_board import (
@@ -210,3 +212,150 @@ def test_load_from_state_json_path(tmp_path: Path):
     nodes = project_spatial_nodes_from_path(path)
     assert [node["id"] for node in nodes] == ["battery"]
     assert nodes[0]["declaredName"] == "lipo"
+
+
+# ── Board glyphs (Geometry Progression Lock B1, `visualizar`) ───────────────
+
+def test_geometry_box_from_full_lwh_triple():
+    """A full length/width/height triple emits a box glyph — no cylinder,
+    no stitching, verbatim mm values."""
+    state = _state(
+        {
+            "battery": ComponentSpec(
+                name="lipo_4s_1500mah",
+                properties={
+                    "length_mm": PropertyValue(value=37.0, unit="mm"),
+                    "width_mm": PropertyValue(value=35.0, unit="mm"),
+                    "height_mm": PropertyValue(value=75.0, unit="mm"),
+                },
+            )
+        }
+    )
+    node = project_spatial_nodes(state)[0]
+    assert node["geometry"] == {
+        "shape": "box",
+        "length_mm": 37.0,
+        "width_mm": 35.0,
+        "height_mm": 75.0,
+    }
+
+
+def test_geometry_disk_from_diameter_mm():
+    """A bare diameter_mm (e.g. a motor's overall bell diameter) emits a
+    disk — never a cylinder, even though the spec below also carries a
+    stator height for a DIFFERENT physical reference (N: no stitching)."""
+    state = _state(
+        {
+            "motors": ComponentSpec(
+                name="emax_rs2205s_2300",
+                properties={
+                    "diameter_mm": PropertyValue(value=27.9, unit="mm"),
+                    "stator_diameter_mm": PropertyValue(value=22.0, unit="mm"),
+                    "stator_height_mm": PropertyValue(value=5.0, unit="mm"),
+                },
+            )
+        }
+    )
+    node = project_spatial_nodes(state)[0]
+    assert node["geometry"] == {"shape": "disk", "diameter_mm": 27.9}
+
+
+def test_geometry_disk_from_diameter_in_converts_to_mm():
+    """diameter_in converts to an mm-equivalent for the glyph only — the
+    text field keeps declaring the original inch unit unchanged."""
+    state = _state(
+        {
+            "propellers": ComponentSpec(
+                name="gemfan_5030",
+                properties={"diameter_in": PropertyValue(value=5.0, unit="in")},
+            )
+        }
+    )
+    node = project_spatial_nodes(state)[0]
+    assert node["geometry"] == {"shape": "disk", "diameter_mm": pytest.approx(127.0)}
+    assert {"label": "diameter_in", "value": "5 in"} in node["fields"]
+
+
+def test_geometry_absent_when_only_thickness_declared():
+    """Thickness alone (frame arm/plate) cannot define a 2D area — no
+    geometry key at all, never a partial/dashed shape."""
+    state = _state(
+        {
+            "frame_arm": ComponentSpec(
+                name="brazos",
+                parent_key="frame",
+                properties={"thickness_mm": PropertyValue(value=4.0, unit="mm")},
+            ),
+        }
+    )
+    node = project_spatial_nodes(state)[0]
+    assert "geometry" not in node
+
+
+def test_geometry_absent_when_no_dimension_properties():
+    """A component with no dimension-shaped properties at all gets no
+    geometry key (baseline absence case)."""
+    state = _state({"motors": ComponentSpec(name="M", properties={"thrust_n": PropertyValue(value=8.0, unit="N")})})
+    node = project_spatial_nodes(state)[0]
+    assert "geometry" not in node
+
+
+def test_geometry_never_on_slots():
+    """B3 slot nodes never carry a geometry key, even when the column's
+    other real components do."""
+    state = _state(
+        {
+            "motors": ComponentSpec(
+                name="M",
+                properties={"diameter_mm": PropertyValue(value=27.9, unit="mm")},
+            ),
+        },
+        blocks=["propulsion"],
+    )
+    by_id = {n["id"]: n for n in project_spatial_nodes(state)}
+    assert by_id["motors"]["geometry"] == {"shape": "disk", "diameter_mm": 27.9}
+    assert by_id["propellers"]["kind"] == "slot"
+    assert "geometry" not in by_id["propellers"]
+    assert "geometry" not in by_id["esc"]
+
+
+def test_geometry_box_wins_over_diameter_when_both_present():
+    """N: a complete L×W×H triple takes priority over any diameter also
+    present on the same spec — box, never disk, never both keys."""
+    state = _state(
+        {
+            "flight_controller": ComponentSpec(
+                name="pixhawk_4",
+                properties={
+                    "length_mm": PropertyValue(value=44.0, unit="mm"),
+                    "width_mm": PropertyValue(value=84.0, unit="mm"),
+                    "height_mm": PropertyValue(value=12.0, unit="mm"),
+                    "diameter_mm": PropertyValue(value=30.5, unit="mm"),
+                },
+            )
+        }
+    )
+    node = project_spatial_nodes(state)[0]
+    assert node["geometry"]["shape"] == "box"
+    assert "diameter_mm" not in node["geometry"]
+
+
+def test_geometry_does_not_affect_card_pixel_layout():
+    """Card width/height stay the projector's pixel-layout defaults —
+    unrelated to and untouched by the new geometry payload."""
+    state = _state(
+        {
+            "battery": ComponentSpec(
+                name="lipo_4s_1500mah",
+                properties={
+                    "length_mm": PropertyValue(value=37.0, unit="mm"),
+                    "width_mm": PropertyValue(value=35.0, unit="mm"),
+                    "height_mm": PropertyValue(value=75.0, unit="mm"),
+                },
+            )
+        }
+    )
+    node = project_spatial_nodes(state)[0]
+    assert node["width"] == 280
+    assert isinstance(node["height"], int)
+    assert node["height"] != node["geometry"]["height_mm"]

@@ -1,3 +1,4 @@
+import { SpatialGlyph } from "./SpatialGlyph";
 import { useNodeGestures } from "./useNodeGestures";
 import type { CanvasTransform, ResizeHandle, SpatialNode } from "./types";
 
@@ -39,6 +40,7 @@ export function SpatialCard({ node, transform, onPreview, onCommit }: Props) {
         ) : (
           <p className="sb-card__name sb-card__name--empty">sin nombre declarado</p>
         )}
+        {node.geometry ? <SpatialGlyph geometry={node.geometry} /> : null}
         <dl className="sb-card__fields">
           {node.fields.map((f) => (
             <div key={f.label}>
