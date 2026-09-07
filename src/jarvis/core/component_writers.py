@@ -528,11 +528,22 @@ def set_motor_component(
                     updated_params[_key] = _value
                 else:
                     updated_params.pop(_key, None)
+            # Motor thrust not intrinsic B1 (N1): tagged "calculated", not
+            # "declared" — the user never typed this number, resolve_operating_
+            # point derived it. Reusing G5's own gate (component_resolver.
+            # resolve_propulsion_parameters only re-derives per_motor_max_thrust_n
+            # from a "declared" property) means this mirror can no longer be
+            # treated as the resolvable magnitude on a later, unrelated
+            # recalculation — current_parameters["per_motor_max_thrust_n"]
+            # (written unconditionally above, every time this function runs)
+            # stays authoritative instead of being silently re-derived from a
+            # component the resolver has no way to know is itself a mirror of
+            # that same resolution.
             spec = spec.model_copy(update={"properties": {
                 **spec.properties,
                 "thrust_n": PropertyValue(
                     value=resolved_op.thrust_n, unit="N",
-                    confidence=resolved_op.confidence, source="declared",
+                    confidence=resolved_op.confidence, source="calculated",
                 ),
             }})
             updated_components = {**updated_components, "motors": spec}

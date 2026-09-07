@@ -7,21 +7,20 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2344**. Commit glyphs **`64da71c`** on `main`.  
-> **PRIORIDAD AHORA:** IC **motor thrust not intrinsic B1** READY — Claude implement (OP `calculated` + CLI copy).  
-> **Eje ★:** Catalog hygiene — thrust ↔ condición. ESC masa CLOSED. **No** pose.  
-> **Hecho:** glyphs @ **2344** + ESC mass 15 g.  
-> **Congelado:** Here3 / Pixhawk · HD-004 · H2/H3 schema · CAD/fit.  
+> **PRIORIDAD AHORA:** Motor thrust not intrinsic B1 **CLOSED** (suite **2350**). Await Engineer next focus.  
+> **Eje ★:** Catalog hygiene B1 done (ESC masa + thrust semantics). **No** pose / H2–H3.  
+> **Hecho:** glyphs @ **2344** · ESC mass 15 g · OP thrust `calculated` + CLI/BOM honesty @ **2350**.  
+> **Congelado:** Here3 / Pixhawk · HD-004 · System Optimization · CAD/fit · schema thrust optionalization.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 IC READY — Catalog motor thrust not intrinsic B1 (2026-09-07) · ★ Buy B1
+### 🟢 CERRADO (código + review) — Catalog motor thrust not intrinsic B1 (2026-09-07)
 
-> **IC:** [implementation_contract_catalog_motor_thrust_not_intrinsic_b1.md](../.jes/artifacts/implementation_contract_catalog_motor_thrust_not_intrinsic_b1.md) — Claude next.  
-> **Parents:** [report](../.jes/artifacts/investigation_report_catalog_motor_thrust_not_intrinsic.md) · [review](../.jes/artifacts/investigation_review_catalog_motor_thrust_not_intrinsic.md) — **PASS WITH NOTES**.  
-> **Qué:** OP thrust → `source=calculated` (N1) · CLI honesty · regression 13.4841 sobrevive resolve · triage `10.042` tests. Sin H2/H3.
+> **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_catalog_motor_thrust_not_intrinsic_b1.md) · [implementation_review…](../.jes/artifacts/implementation_review_catalog_motor_thrust_not_intrinsic_b1.md) — **PASS**  
+> **Suite:** **2350**. OP mirror `calculated` · CLI `(pico catálogo)` · BOM tails legacy/fallback · +6 tests.
 
 ### 🟡 INVESTIGADO — Catalog motor thrust not intrinsic (2026-09-07) · ★ Buy B1
 
-> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_catalog_motor_thrust_not_intrinsic.md) · [report](../.jes/artifacts/investigation_report_catalog_motor_thrust_not_intrinsic.md) · [review](../.jes/artifacts/investigation_review_catalog_motor_thrust_not_intrinsic.md) — **PASS WITH NOTES** → IC arriba.  
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_catalog_motor_thrust_not_intrinsic.md) · [report](../.jes/artifacts/investigation_report_catalog_motor_thrust_not_intrinsic.md) · [review](../.jes/artifacts/investigation_review_catalog_motor_thrust_not_intrinsic.md) — **PASS WITH NOTES** → IC cerrado arriba.  
 > **Hallazgo:** FN-007 vs `resolve_operating_point`; N1: mirror ya existe pero `declared`→debe `calculated`.
 
 ### 🟢 CERRADO (código + review) — Catalog ESC mass hygiene B1 (2026-09-07)

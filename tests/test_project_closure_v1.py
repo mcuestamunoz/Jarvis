@@ -151,6 +151,99 @@ def test_bom_flight_controller_defined_gets_identity_suffix():
     assert motors_line.endswith("(high)")
 
 
+def test_bom_motors_legacy_estimate_gets_catalog_peak_tail():
+    """Motor thrust not intrinsic B1 (§3.4): a motor whose thrust resolved
+    to ``legacy_estimate`` (no operating_points[] on file at all — the bare
+    catalog peak) gets an honest tail naming that, instead of the plain
+    "(high)" every other defined component shows."""
+    import json
+
+    motors = ComponentSpec(
+        name="brotherhobby_avenger_2500",
+        suggested_key="motors",
+        component_type="propulsion_active",
+        completeness="high",
+        properties={"thrust_n": PropertyValue(value=9.5, unit="N")},
+    )
+    state = _state(
+        current_parameters={
+            "propulsion_resolution": json.dumps({"resolution_type": "legacy_estimate"}),
+        },
+        design_properties=SimpleNamespace(
+            system_blocks=["propulsion"],
+            system_defined=True,
+            system_priority=["propulsion"],
+            components={"motors": motors},
+        ),
+    )
+    bom = build_component_bom(state)
+    lines = format_bom_lines(bom, state)
+    motors_line = next(line for line in lines if line.startswith("✓ motors"))
+    assert "pico de catálogo, sin operating point" in motors_line
+
+
+def test_bom_motors_fallback_op_gets_not_prop_specific_tail():
+    """Same B1 §3.4: a ``fallback_operating_point`` resolution (a real seed
+    row, but self-reported as not propeller-independent physics) also gets
+    an honest tail — distinct wording from legacy_estimate's "no data at
+    all"."""
+    import json
+
+    motors = ComponentSpec(
+        name="emax_rs2205s_2300",
+        suggested_key="motors",
+        component_type="propulsion_active",
+        completeness="high",
+        properties={"thrust_n": PropertyValue(value=10.042, unit="N")},
+    )
+    state = _state(
+        current_parameters={
+            "propulsion_resolution": json.dumps({"resolution_type": "fallback_operating_point"}),
+        },
+        design_properties=SimpleNamespace(
+            system_blocks=["propulsion"],
+            system_defined=True,
+            system_priority=["propulsion"],
+            components={"motors": motors},
+        ),
+    )
+    bom = build_component_bom(state)
+    lines = format_bom_lines(bom, state)
+    motors_line = next(line for line in lines if line.startswith("✓ motors"))
+    assert "operating point fallback, no específico de esta hélice" in motors_line
+
+
+def test_bom_motors_exact_op_keeps_plain_tail():
+    """Same B1 §3.4: an ``exact_operating_point`` resolution has nothing to
+    disclose — the shown thrust already IS specific to the bound propeller
+    and voltage, so the tail stays the plain "(completeness)" every other
+    defined component shows."""
+    import json
+
+    motors = ComponentSpec(
+        name="emax_rs2205s_2300",
+        suggested_key="motors",
+        component_type="propulsion_active",
+        completeness="high",
+        properties={"thrust_n": PropertyValue(value=13.4841, unit="N")},
+    )
+    state = _state(
+        current_parameters={
+            "propulsion_resolution": json.dumps({"resolution_type": "exact_operating_point"}),
+        },
+        design_properties=SimpleNamespace(
+            system_blocks=["propulsion"],
+            system_defined=True,
+            system_priority=["propulsion"],
+            components={"motors": motors},
+        ),
+    )
+    bom = build_component_bom(state)
+    lines = format_bom_lines(bom, state)
+    motors_line = next(line for line in lines if line.startswith("✓ motors"))
+    assert motors_line.endswith("(high)")
+
+
 def test_bom_sensors_declarative_unaffected_by_control_suffix():
     """Sensors stay in the declarative bucket (never "defined") and never
     get the flight_controller-only identity suffix. Minimum Sensor KNOW B1:

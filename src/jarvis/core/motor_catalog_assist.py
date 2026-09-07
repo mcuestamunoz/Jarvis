@@ -414,7 +414,15 @@ def format_underspec_relax_catalog(
 
 
 def _format_candidate_line(s: MotorSuggestion, *, detailed: bool) -> str:
-    """Shared candidate-line formatting for the full list and the inline quick menu."""
+    """Shared candidate-line formatting for the full list and the inline quick menu.
+
+    Motor thrust not intrinsic B1 (§3.3): ``thrust_n`` here is the bare
+    catalog peak (``MotorSpec.thrust_n``), not a propeller/voltage-resolved
+    operating point — the trailing ``(pico catálogo)`` marker names that so
+    the figure never reads as an unconditioned motor fact. Appended after
+    the existing body, never inside it, so it never depends on which fields
+    a given call includes.
+    """
     tag = " [genérico]" if s.get("is_generic") else ""
     watts = s.get("max_watts")
     watts_bit = f", ~{int(watts)}W" if watts is not None else ""
@@ -422,7 +430,7 @@ def _format_candidate_line(s: MotorSuggestion, *, detailed: bool) -> str:
         body = f"{s['thrust_n']}N, {s['weight_g']}g, {s['kv_rating']}KV{watts_bit}"
     else:
         body = f"{s['thrust_n']}N{watts_bit}"
-    return f"  {s['idx']}. {s['name']}{tag}  →  {body}"
+    return f"  {s['idx']}. {s['name']}{tag}  →  {body} (pico catálogo)"
 
 
 def format_motor_chosen_line(suggestion: MotorSuggestion, *, recalculated: bool = False) -> str:
@@ -430,13 +438,21 @@ def format_motor_chosen_line(suggestion: MotorSuggestion, *, recalculated: bool 
 
     ``max_watts`` is optional (verified SKUs such as ``emax_rs2205s_2300`` have
     none). Never call ``int(watts)`` when it is missing.
+
+    Motor thrust not intrinsic B1 (§3.3): the thrust figure shown here is the
+    bare catalog peak carried by ``MotorSuggestion`` at pick time — this
+    function has no ``project_state``/propeller/voltage context to show a
+    resolved operating point instead, and none is invented. The trailing
+    ``(pico catálogo, se refina con hélice/batería)`` marker names the figure
+    for what it is instead of presenting it as a fixed motor fact.
     """
     watts = suggestion.get("max_watts")
     power_bit = f"~{int(watts)}W, " if watts is not None else ""
     suffix = " Sistema recalculado." if recalculated else ""
     return (
         f"Motor elegido: {suggestion['name']} "
-        f"({power_bit}{suggestion['thrust_n']}N).{suffix}"
+        f"({power_bit}{suggestion['thrust_n']}N).{suffix} "
+        "(pico catálogo, se refina con hélice/batería)"
     )
 
 

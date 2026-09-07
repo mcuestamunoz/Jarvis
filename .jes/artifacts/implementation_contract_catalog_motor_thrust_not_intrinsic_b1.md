@@ -6,7 +6,9 @@
 **Implementer:** Claude Code  
 **Reviewer:** Cursor against this IC after the edit
 
-**Status:** READY FOR IMPLEMENTATION — Engineer ★ Buy B1 (`procede con el IC`)  
+**Status:** IMPLEMENTED · REVIEWED **PASS** · CLOSED (suite **2350**)  
+**Review:** [implementation_review_catalog_motor_thrust_not_intrinsic_b1.md](implementation_review_catalog_motor_thrust_not_intrinsic_b1.md)  
+**Report:** [implementation_report_catalog_motor_thrust_not_intrinsic_b1.md](implementation_report_catalog_motor_thrust_not_intrinsic_b1.md)  
 **Parents:**
 - [investigation_contract_catalog_motor_thrust_not_intrinsic.md](investigation_contract_catalog_motor_thrust_not_intrinsic.md)
 - [investigation_report_catalog_motor_thrust_not_intrinsic.md](investigation_report_catalog_motor_thrust_not_intrinsic.md)
@@ -139,13 +141,13 @@ H2 optional schema · H3 rename · OP backfill for 20 motors · pose/fit/CAD · 
 
 ## 7. Done criteria
 
-- [ ] Exact/fallback OP thrust on motors component is `source="calculated"` (G5 gate) after `set_motor_component`.
-- [ ] Regression: conditioned thrust **survives** propulsion resolve/apply (13.4841 path).
-- [ ] Motor-only fallback/legacy numeric honesty preserved where appropriate.
-- [ ] CLI candidate/chosen lines no longer present catalog peak as a bare motor fact.
-- [ ] `10.042` test pins triaged/retargeted; suite green; count reported.
-- [ ] Implementation report written (include N1 path chosen; N2/N3.4 deferrals if any).
-- [ ] Cursor review PASS before Engineer close.
+- [x] Exact/fallback OP thrust on motors component is `source="calculated"` (G5 gate) after `set_motor_component`.
+- [x] Regression: conditioned thrust **survives** propulsion resolve/apply (13.4841 path).
+- [x] Motor-only fallback/legacy numeric honesty preserved where appropriate.
+- [x] CLI candidate/chosen lines no longer present catalog peak as a bare motor fact.
+- [x] `10.042` test pins triaged/retargeted; suite green; count reported.
+- [x] Implementation report written (include N1 path chosen; N2/N3.4 deferrals if any).
+- [x] Cursor review PASS before Engineer close.
 
 ---
 

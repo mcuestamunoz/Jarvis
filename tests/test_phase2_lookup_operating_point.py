@@ -446,6 +446,72 @@ def test_bridge_writes_motor_op_keys_fallback(tmp_path: Path):
     assert "motor_op_rpm" not in updated.current_parameters
 
 
+def test_op_mirror_tagged_calculated_survives_resolve_propulsion_parameters(tmp_path: Path):
+    """Motor thrust not intrinsic B1 (N1, regression): the exact-OP mirror
+    onto components["motors"].properties["thrust_n"] is tagged "calculated",
+    not "declared" — investigation_report_catalog_motor_thrust_not_intrinsic.md
+    proved that component_resolver.resolve_propulsion_parameters (called
+    unconditionally on every later, unrelated recalculation) re-derives
+    per_motor_max_thrust_n from ANY "declared" thrust_n property and
+    unconditionally overwrites current_parameters with it. Tagging the
+    mirror "calculated" closes the resolver's own declared-only gate (the
+    same gate G5's sync_motors_component_from_params relies on), so the
+    conditioned 13.4841N resolution survives instead of reverting to the
+    bare 10.042N catalog peak on the next recalculation."""
+    from jarvis.core.component_resolver import resolve_propulsion_parameters
+
+    _, updated = _bound_exact_op_state(tmp_path)
+    motors = updated.design_properties.components["motors"]
+    assert motors.properties["thrust_n"].value == pytest.approx(13.4841)
+    assert motors.properties["thrust_n"].source == "calculated"
+    assert updated.current_parameters["per_motor_max_thrust_n"] == pytest.approx(13.4841)
+
+    # Simulate the next, unrelated recalculation (actions/iterate.py:197-200 /
+    # param_definition_session.py:963-965 both do exactly this unconditionally).
+    override = resolve_propulsion_parameters(
+        {key: value.model_dump() for key, value in updated.design_properties.components.items()}
+    )
+    recalculated_params = override.apply_to(dict(updated.current_parameters))
+    assert recalculated_params["per_motor_max_thrust_n"] == pytest.approx(13.4841), (
+        "resolve_propulsion_parameters must not revert the exact-OP "
+        "resolution back to the bare catalog peak (10.042)"
+    )
+
+
+def test_op_mirror_fallback_also_tagged_calculated(tmp_path: Path):
+    """Same N1 protection for the fallback_operating_point branch (the
+    numerically-coincidental EMAX case where the mirrored value equals the
+    bare catalog peak) — the tag must still say "calculated", not "declared",
+    since resolve_propulsion_parameters has no way to tell "coincidentally
+    equal" apart from "genuinely still the bare value" other than the tag."""
+    orch = _fresh_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    motor_spec = bind_motor_from_catalog(_suggestion_for("emax_rs2205s_2300"))
+    updated = set_motor_component(ps, motor_spec, default_library.get_motor("emax_rs2205s_2300").max_watts)
+
+    resolution = json.loads(updated.current_parameters["propulsion_resolution"])
+    assert resolution["resolution_type"] == "fallback_operating_point"
+    motors = updated.design_properties.components["motors"]
+    assert motors.properties["thrust_n"].value == pytest.approx(10.042)
+    assert motors.properties["thrust_n"].source == "calculated"
+
+
+def test_op_mirror_legacy_estimate_stays_declared(tmp_path: Path):
+    """legacy_estimate never mirrors (no operating_points[] on file at all) —
+    the bare spec.properties["thrust_n"] set by bind_motor_from_catalog keeps
+    its original "declared" tag, unchanged by N1."""
+    orch = _fresh_project(tmp_path)
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    sku = "brotherhobby_avenger_2500"
+    motor_spec = bind_motor_from_catalog(_suggestion_for(sku))
+    updated = set_motor_component(ps, motor_spec, default_library.get_motor(sku).max_watts)
+
+    resolution = json.loads(updated.current_parameters["propulsion_resolution"])
+    assert resolution["resolution_type"] == "legacy_estimate"
+    motors = updated.design_properties.components["motors"]
+    assert motors.properties["thrust_n"].source == "declared"
+
+
 def test_bridge_legacy_estimate_no_motor_op_keys(tmp_path: Path):
     """legacy_estimate (no operating_points match at all) must carry zero
     motor_op_* keys — motor_power_w stays the catalog rating, unaffected."""

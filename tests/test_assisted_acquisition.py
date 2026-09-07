@@ -220,9 +220,13 @@ def test_format_candidate_line_detailed_and_quick_forms():
     }
     full = format_motor_catalog_suggestions([suggestion])
     assert "1. demo_motor  →  12.0N, 55.0g, 900KV, ~280W" in full
+    # Motor thrust not intrinsic B1 (§3.3): bare catalog thrust must never
+    # read as an unconditioned motor fact.
+    assert "(pico catálogo)" in full
 
     quick = assisted_motor_power_question([suggestion], thrust_hint_n=4.7)
     assert "1. demo_motor  →  12.0N, ~280W" in quick
+    assert "(pico catálogo)" in quick
     # Quick form must not leak the detailed fields (weight/KV)
     assert "55.0g" not in quick
     assert "900KV" not in quick
@@ -585,6 +589,9 @@ def test_catalog_pick_verified_motor_without_nominal_watts_does_not_crash(tmp_pa
     assert "10.042" in msg
     assert "None" not in msg
     assert "~" not in msg
+    # Motor thrust not intrinsic B1 (§3.3): chosen-line thrust is a bare
+    # catalog peak at pick time — must not read as a fixed motor fact.
+    assert "pico catálogo" in msg
     assert format_motor_change_summary(no_w) == "motor → emax_rs2205s_2300"
 
     orch = _propulsion_missing_project(tmp_path, payload_kg=1.0)

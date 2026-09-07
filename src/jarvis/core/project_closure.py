@@ -742,7 +742,18 @@ def _bom_completeness_tail(entry: dict[str, Any], project_state: Any = None) -> 
     that here too, from the same LEVEL A predicate Structure A already
     computes (``frame_class_compatibility_state`` — never re-derived, never
     a new screening rule). ``project_state`` is optional so existing callers
-    without one keep the plain tail (backward compatible)."""
+    without one keep the plain tail (backward compatible).
+
+    Motor thrust not intrinsic B1 (§3.4): ``motors`` reaches ``defined`` on
+    ``thrust_n`` alone being present in ``_MEASURABLE`` — true whether that
+    figure is a real resolved operating point or just the bare catalog peak
+    (``resolve_operating_point``'s own ``legacy_estimate``/
+    ``fallback_operating_point`` labels, already computed and stored in
+    ``current_parameters["propulsion_resolution"]`` by
+    ``component_writers.set_motor_component`` — read only, never
+    re-derived). Named here for the two cases where the shown thrust is NOT
+    specific to the actually-bound propeller+voltage; ``exact_operating_
+    point`` keeps the plain tail, since that case has nothing to disclose."""
     completeness = entry.get("completeness")
     if entry.get("key") == "flight_controller":
         return f"{completeness} — identidad, sin dato físico"
@@ -752,6 +763,18 @@ def _bom_completeness_tail(entry: dict[str, Any], project_state: Any = None) -> 
             return f"{completeness} — compatibilidad de clase nivel A pendiente"
         if state == "class_incompatible":
             return f"{completeness} — clase incompatible nivel A"
+    if entry.get("key") == "motors" and project_state is not None:
+        params = getattr(project_state, "current_parameters", None) or {}
+        raw_resolution = params.get("propulsion_resolution")
+        if raw_resolution:
+            try:
+                resolution_type = json.loads(raw_resolution).get("resolution_type")
+            except (TypeError, ValueError):
+                resolution_type = None
+            if resolution_type == "legacy_estimate":
+                return f"{completeness} — pico de catálogo, sin operating point"
+            if resolution_type == "fallback_operating_point":
+                return f"{completeness} — operating point fallback, no específico de esta hélice"
     return str(completeness)
 
 
