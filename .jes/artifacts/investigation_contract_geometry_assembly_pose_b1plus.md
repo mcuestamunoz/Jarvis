@@ -8,7 +8,9 @@
 **Reviewer:** Cursor (Investigation Review)  
 **Output (you write this):** `.jes/artifacts/investigation_report_geometry_assembly_pose_b1plus.md`
 
-**Status:** READY FOR INVESTIGATION — Engineer asked to redact (`redactalo`) after closing B2  
+**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · lean **B0 Defer** · await Engineer ★  
+**Report:** [investigation_report_geometry_assembly_pose_b1plus.md](investigation_report_geometry_assembly_pose_b1plus.md)  
+**Review:** [investigation_review_geometry_assembly_pose_b1plus.md](investigation_review_geometry_assembly_pose_b1plus.md)  
 **Parents (mandatory):**
 - [implementation_contract_geometry_assembly_pose_b1plus.md](implementation_contract_geometry_assembly_pose_b1plus.md) — **QUEUED stub** (DO NOT IMPLEMENT; this investigation unblocks a superseding READY IC)
 - [investigation_report_geometry_assembly_espacial_b1.md](investigation_report_geometry_assembly_espacial_b1.md) — B1+ pose **rejected** then: no catalog mount source, no reference frame

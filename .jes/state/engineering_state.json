@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Engineer \u2605 pose B1+ investigation contract READY. Claude writes report. Stub IC stays DO NOT IMPLEMENT until Buy.",
-  "scope": "investigation_contract_geometry_assembly_pose_b1plus",
-  "execution_status": "geometry_assembly_pose_b1plus_investigation_ready",
-  "current_mode": "Investigation \u2014 Claude: pose B1+ report",
+  "cycle_intent": "Pose B1+ investigation REVIEWED PASS WITH NOTES \u2014 lean B0 Defer. Await Engineer \u2605 lock Defer (or explicit override). No READY IC.",
+  "scope": "investigation_review_geometry_assembly_pose_b1plus",
+  "execution_status": "geometry_assembly_pose_b1plus_investigation_reviewed_pass_awaiting_engineer_star",
+  "current_mode": "Await Engineer \u2605 \u2014 Pose B1+ B0 Defer (recommended)",
   "movement_trigger": {
-    "type": "engineer_buy",
-    "note": "2026-09-07 redactalo investigation contract after B2 ACCEPT"
+    "type": "investigation_review",
+    "note": "2026-09-07 PASS WITH NOTES; B0 Defer; reaffirm prior B1+ rejection"
   },
   "relevant_workflow_phases": [
-    "investigate"
+    "ratify"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -71,15 +71,16 @@
     "geometry_assembly_espacial_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2364)",
     "continuity_mounted_on_declare_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2380)",
     "geometry_assembly_board_edges_b2": "\u2605 CLOSED (Claude PASS + Engineer smoke ACCEPT @ 2385)",
-    "geometry_assembly_pose_b1plus": "INVESTIGATION CONTRACT READY 2026-09-07 \u2014 Claude report; stub IC DO NOT IMPLEMENT",
+    "geometry_assembly_pose_b1plus": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 lean B0 Defer \u2014 await Engineer \u2605",
     "geometry_assembly_fit_compare": "QUEUED STUB \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
     ".jes/artifacts/investigation_contract_geometry_assembly_pose_b1plus.md",
-    ".jes/artifacts/investigation_report_geometry_assembly_pose_b1plus.md"
+    ".jes/artifacts/investigation_report_geometry_assembly_pose_b1plus.md",
+    ".jes/artifacts/investigation_review_geometry_assembly_pose_b1plus.md"
   ],
-  "active_operation": "investigation_geometry_assembly_pose_b1plus",
+  "active_operation": null,
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
@@ -209,7 +210,7 @@
     "geometry_assembly_board_edges_b2_ic": "CLOSED_CLAUDE_PASS_SMOKE_ACCEPT_2385",
     "geometry_assembly_board_edges_b2_review_contract": "DONE_CLAUDE_PASS",
     "geometry_assembly_pose_b1plus_ic": "QUEUED_STUB_BLOCKED",
-    "geometry_assembly_pose_b1plus_investigation": "READY",
+    "geometry_assembly_pose_b1plus_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_B0_DEFER",
     "geometry_assembly_fit_compare_ic": "QUEUED_STUB_BLOCKED",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
