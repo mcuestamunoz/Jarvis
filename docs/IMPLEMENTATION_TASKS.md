@@ -7,18 +7,22 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2344**. Commit glyphs **`64da71c`** on `main`.  
-> **PRIORIDAD AHORA:** Investigation **motor thrust ≠ intrinsic** — OPEN (Claude report).  
-> **Eje ★:** Catalog hygiene — *cada número ↔ variante + condición*. ESC masa **CLOSED**. **No** pose.  
-> **Hecho:** representar + sensors + glyphs @ **2344** + ESC mass 15 g (`c3cf044`).  
-> **Escalera geometry:** visualizar **CLOSED** — no assembly.  
-> **Congelado:** Here3 / Pixhawk · HD-004 · System Optimization · CAD/fit.  
+> **PRIORIDAD AHORA:** IC **motor thrust not intrinsic B1** READY — Claude implement (OP `calculated` + CLI copy).  
+> **Eje ★:** Catalog hygiene — thrust ↔ condición. ESC masa CLOSED. **No** pose.  
+> **Hecho:** glyphs @ **2344** + ESC mass 15 g.  
+> **Congelado:** Here3 / Pixhawk · HD-004 · H2/H3 schema · CAD/fit.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 ABIERTO — Catalog motor thrust not intrinsic (2026-09-07)
+### 🟡 IC READY — Catalog motor thrust not intrinsic B1 (2026-09-07) · ★ Buy B1
 
-> **Contract:** [investigation_contract_catalog_motor_thrust_not_intrinsic.md](../.jes/artifacts/investigation_contract_catalog_motor_thrust_not_intrinsic.md) — OPEN.  
-> **Qué:** `thrust_n` top-level vs `operating_points[]` (spotlight EMAX 10.042 / HQ5045 BN). Lean honesty Buy sin romper resolve.  
-> **No:** pose · ESC · FC · hover rewrite.
+> **IC:** [implementation_contract_catalog_motor_thrust_not_intrinsic_b1.md](../.jes/artifacts/implementation_contract_catalog_motor_thrust_not_intrinsic_b1.md) — Claude next.  
+> **Parents:** [report](../.jes/artifacts/investigation_report_catalog_motor_thrust_not_intrinsic.md) · [review](../.jes/artifacts/investigation_review_catalog_motor_thrust_not_intrinsic.md) — **PASS WITH NOTES**.  
+> **Qué:** OP thrust → `source=calculated` (N1) · CLI honesty · regression 13.4841 sobrevive resolve · triage `10.042` tests. Sin H2/H3.
+
+### 🟡 INVESTIGADO — Catalog motor thrust not intrinsic (2026-09-07) · ★ Buy B1
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_catalog_motor_thrust_not_intrinsic.md) · [report](../.jes/artifacts/investigation_report_catalog_motor_thrust_not_intrinsic.md) · [review](../.jes/artifacts/investigation_review_catalog_motor_thrust_not_intrinsic.md) — **PASS WITH NOTES** → IC arriba.  
+> **Hallazgo:** FN-007 vs `resolve_operating_point`; N1: mirror ya existe pero `declared`→debe `calculated`.
 
 ### 🟢 CERRADO (código + review) — Catalog ESC mass hygiene B1 (2026-09-07)
 

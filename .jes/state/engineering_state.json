@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Motor thrust-not-intrinsic investigation OPEN (cola 2). ESC mass CLOSED. Await Claude report. No pose.",
-  "scope": "investigation_contract_catalog_motor_thrust_not_intrinsic",
-  "execution_status": "catalog_motor_thrust_not_intrinsic_investigation_open",
-  "current_mode": "Investigation \u2014 motor thrust not intrinsic (await Claude report)",
+  "cycle_intent": "Motor thrust-not-intrinsic REVIEWED PASS WITH NOTES. Engineer \u2605 Buy B1. IC READY for Claude (calculated OP + CLI copy).",
+  "scope": "implementation_contract_catalog_motor_thrust_not_intrinsic_b1",
+  "execution_status": "catalog_motor_thrust_not_intrinsic_b1_ic_ready",
+  "current_mode": "Implementation \u2014 Claude: motor thrust not intrinsic B1 IC",
   "movement_trigger": {
-    "type": "engineer_focus",
-    "note": "2026-09-07 Engineer abre cola 2 thrust investigation"
+    "type": "engineer_buy",
+    "note": "2026-09-07 procede con el IC \u2605 Buy B1; N1 calculated tag"
   },
   "relevant_workflow_phases": [
-    "investigate"
+    "implement"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -66,14 +66,15 @@
     "geometry_board_glyphs_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2344) + push 64da71c + Board smoke ACCEPT",
     "catalog_esc_variant_coherence": "\u2605 BUY B1 IMPLEMENTED",
     "catalog_esc_mass_hygiene_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2344)",
-    "catalog_motor_thrust_not_intrinsic": "INVESTIGATION OPEN 2026-09-07",
+    "catalog_motor_thrust_not_intrinsic": "\u2605 BUY B1 \u2014 IC READY",
+    "catalog_motor_thrust_not_intrinsic_b1": "IC READY 2026-09-07 \u2014 Claude implement",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
-    ".jes/artifacts/investigation_contract_catalog_motor_thrust_not_intrinsic.md",
-    ".jes/artifacts/investigation_report_catalog_motor_thrust_not_intrinsic.md"
+    ".jes/artifacts/implementation_contract_catalog_motor_thrust_not_intrinsic_b1.md",
+    ".jes/artifacts/implementation_report_catalog_motor_thrust_not_intrinsic_b1.md"
   ],
-  "active_operation": "investigation_catalog_motor_thrust_not_intrinsic",
+  "active_operation": "implementation_catalog_motor_thrust_not_intrinsic_b1",
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
@@ -195,7 +196,8 @@
     "geometry_board_glyphs_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2344",
     "catalog_esc_variant_coherence_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
     "catalog_esc_mass_hygiene_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2344",
-    "catalog_motor_thrust_not_intrinsic": "INVESTIGATION_OPEN",
+    "catalog_motor_thrust_not_intrinsic": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
+    "catalog_motor_thrust_not_intrinsic_b1_ic": "READY",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
 }

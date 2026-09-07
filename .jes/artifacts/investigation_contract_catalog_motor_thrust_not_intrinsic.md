@@ -8,7 +8,10 @@
 **Reviewer:** Cursor (Investigation Review)  
 **Output (you write this):** `.jes/artifacts/investigation_report_catalog_motor_thrust_not_intrinsic.md`
 
-**Status:** OPEN — awaiting report  
+**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · Engineer ★ Buy B1 → IC READY  
+**Report:** [investigation_report_catalog_motor_thrust_not_intrinsic.md](investigation_report_catalog_motor_thrust_not_intrinsic.md)  
+**Review:** [investigation_review_catalog_motor_thrust_not_intrinsic.md](investigation_review_catalog_motor_thrust_not_intrinsic.md)  
+**IC:** [implementation_contract_catalog_motor_thrust_not_intrinsic_b1.md](implementation_contract_catalog_motor_thrust_not_intrinsic_b1.md)  
 **Parents (mandatory):**
 - ESC mass hygiene B1 CLOSED — [implementation_review_catalog_esc_mass_hygiene_b1.md](implementation_review_catalog_esc_mass_hygiene_b1.md) @ suite **2344**
 - [investigation_contract_catalog_esc_variant_coherence.md](investigation_contract_catalog_esc_variant_coherence.md) §8 (queued this investigation)
