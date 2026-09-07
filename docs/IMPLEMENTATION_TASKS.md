@@ -7,13 +7,18 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2344**. Commit glyphs **`64da71c`** on `main`.  
-> **PRIORIDAD AHORA:** ESC mass hygiene B1 **CLOSED** (suite **2344**). Next: Engineer ★ on cola 2 (motor thrust) or idle.  
-> **Eje ★:** Catalog hygiene — ESC PN↔dims↔masa coherente. **No** pose / assembly.  
-> **Hecho:** representar + sensors honesty + glyphs @ **2344** + ESC mass 15 g.  
-> **Escalera geometry:** KNOW → representar → **visualizar (CLOSED)** → assembly espacial / comparar — **no abrir**.  
-> **Cola 2 (formalizada):** motor `thrust_n` top-level ≠ propiedad EMAX — solo OP (10.042 / HQ5045 BN).  
-> **Congelado:** Here3 / Pixhawk variant · HD-004 · System Optimization · CAD/fit.  
+> **PRIORIDAD AHORA:** Investigation **motor thrust ≠ intrinsic** — OPEN (Claude report).  
+> **Eje ★:** Catalog hygiene — *cada número ↔ variante + condición*. ESC masa **CLOSED**. **No** pose.  
+> **Hecho:** representar + sensors + glyphs @ **2344** + ESC mass 15 g (`c3cf044`).  
+> **Escalera geometry:** visualizar **CLOSED** — no assembly.  
+> **Congelado:** Here3 / Pixhawk · HD-004 · System Optimization · CAD/fit.  
 > **Artefactos:** investigation / implementation / review only.
+
+### 🟡 ABIERTO — Catalog motor thrust not intrinsic (2026-09-07)
+
+> **Contract:** [investigation_contract_catalog_motor_thrust_not_intrinsic.md](../.jes/artifacts/investigation_contract_catalog_motor_thrust_not_intrinsic.md) — OPEN.  
+> **Qué:** `thrust_n` top-level vs `operating_points[]` (spotlight EMAX 10.042 / HQ5045 BN). Lean honesty Buy sin romper resolve.  
+> **No:** pose · ESC · FC · hover rewrite.
 
 ### 🟢 CERRADO (código + review) — Catalog ESC mass hygiene B1 (2026-09-07)
 
@@ -24,10 +29,6 @@
 
 > **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_catalog_esc_variant_coherence.md) · [report](../.jes/artifacts/investigation_report_catalog_esc_variant_coherence.md) · [review](../.jes/artifacts/investigation_review_catalog_esc_variant_coherence.md) — **PASS WITH NOTES** → IC cerrado arriba.  
 > **Hallazgo:** PN `30901001` + 50×21.6×12 **correctos**; `mass_g: 26` no cuadra (página: **15 g**). H3 split rechazado.
-
-### 🧊 COLA 2 (formalizada) — Motor thrust no es propiedad intrínseca
-
-> `emax_rs2205s_2300.thrust_n = 10.042` duplica el fallback OP (HQ5045 BN @ V). Investigation aparte **después** de ESC hygiene (o ★ paralelo). No IC hasta contract + Buy.
 
 ### 🟢 CERRADO (código + review + push) — Board glyphs B1 (2026-09-07)
 

@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "ESC mass hygiene B1 REVIEWED PASS (suite 2344). Slice CLOSED. Cola 2 motor thrust queued; await Engineer focus.",
-  "scope": "implementation_review_catalog_esc_mass_hygiene_b1",
-  "execution_status": "catalog_esc_mass_hygiene_b1_reviewed_pass_closed",
-  "current_mode": "Idle \u2014 ESC mass hygiene closed; await Engineer next focus (cola 2 thrust or other)",
+  "cycle_intent": "Motor thrust-not-intrinsic investigation OPEN (cola 2). ESC mass CLOSED. Await Claude report. No pose.",
+  "scope": "investigation_contract_catalog_motor_thrust_not_intrinsic",
+  "execution_status": "catalog_motor_thrust_not_intrinsic_investigation_open",
+  "current_mode": "Investigation \u2014 motor thrust not intrinsic (await Claude report)",
   "movement_trigger": {
-    "type": "implementation_review",
-    "note": "2026-09-07 PASS; mass 26\u219215; PN+dims intact; N4 rebind"
+    "type": "engineer_focus",
+    "note": "2026-09-07 Engineer abre cola 2 thrust investigation"
   },
   "relevant_workflow_phases": [
-    "idle"
+    "investigate"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -66,15 +66,14 @@
     "geometry_board_glyphs_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2344) + push 64da71c + Board smoke ACCEPT",
     "catalog_esc_variant_coherence": "\u2605 BUY B1 IMPLEMENTED",
     "catalog_esc_mass_hygiene_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2344)",
-    "catalog_motor_thrust_not_intrinsic": "QUEUED #2 \u2014 formalized; no contract yet",
+    "catalog_motor_thrust_not_intrinsic": "INVESTIGATION OPEN 2026-09-07",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_catalog_esc_mass_hygiene_b1.md",
-    ".jes/artifacts/implementation_report_catalog_esc_mass_hygiene_b1.md",
-    ".jes/artifacts/implementation_review_catalog_esc_mass_hygiene_b1.md"
+    ".jes/artifacts/investigation_contract_catalog_motor_thrust_not_intrinsic.md",
+    ".jes/artifacts/investigation_report_catalog_motor_thrust_not_intrinsic.md"
   ],
-  "active_operation": null,
+  "active_operation": "investigation_catalog_motor_thrust_not_intrinsic",
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
@@ -196,7 +195,7 @@
     "geometry_board_glyphs_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2344",
     "catalog_esc_variant_coherence_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
     "catalog_esc_mass_hygiene_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2344",
-    "catalog_motor_thrust_not_intrinsic": "QUEUED_2_FORMALIZED_NO_CONTRACT",
+    "catalog_motor_thrust_not_intrinsic": "INVESTIGATION_OPEN",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
 }
