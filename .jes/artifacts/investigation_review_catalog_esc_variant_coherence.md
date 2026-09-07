@@ -97,7 +97,7 @@ No glyph/UI change · no pose/`mounted_on` · no Version-A second SKU · no Here
 | Option | Cursor stance |
 |---|---|
 | B0 doc-only | Reject — wrong number stays live |
-| **B1 mass 26→15 + note + tests** | **Recommend ★** |
+| **B1 mass 26→15 + note + tests** | **Recommend ★** — **★ RATIFIED 2026-09-07 (`procede`)** → [IC](implementation_contract_catalog_esc_mass_hygiene_b1.md) |
 | B2 split / rematch PN | Reject for this Buy |
 | Defer | Reject — value known and cited |
 
