@@ -6,17 +6,19 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2380**.  
-> **PRIORIDAD AHORA:** Board edges B2 **IMPLEMENTED** @ **2385** — Engineer Board smoke, then close cola 1/3.  
-> **Eje ★:** Cola natural assembly: **B2 edges (smoke) → pose B1+ (queued) → fit (queued)**.  
-> **Hecho:** glyphs · hygiene · `mounted_on` @ **2364** · Continuity @ **2380** · edges code @ **2385**.  
-> **Cola (no implementar 2–3 aún):** pose stub · fit stub — requieren investigación ★.  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2385**.  
+> **PRIORIDAD AHORA:** Review contract B2 → **Claude** independent review (Cursor self-check no es autoritativo).  
+> **Eje ★:** Cola assembly: **B2 edges (review+smoke) → pose stub → fit stub**.  
+> **Hecho:** glyphs · hygiene · `mounted_on` · Continuity · edges code @ **2385** (implementó Cursor — pendiente review Claude).  
+> **Cola (no implementar 2–3):** pose · fit stubs.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 SMOKE — Geometry assembly Board edges B2 (2026-09-07) · cola 1/3
+### 🟡 REVIEW CONTRACT — Board edges B2 → Claude (2026-09-07)
 
-> **IC / Report / Review:** [contract](../.jes/artifacts/implementation_contract_geometry_assembly_board_edges_b2.md) · [report](../.jes/artifacts/implementation_report_geometry_assembly_board_edges_b2.md) · [review](../.jes/artifacts/implementation_review_geometry_assembly_board_edges_b2.md) — **PASS** (code) · await Board smoke.  
-> **Suite:** **2385**. `mountedOn` DTO + SVG edges · texto `"montado en"` intacto.
+> **Review contract:** [implementation_review_contract_geometry_assembly_board_edges_b2.md](../.jes/artifacts/implementation_review_contract_geometry_assembly_board_edges_b2.md) — **Claude next**.  
+> **IC / Report:** [contract](../.jes/artifacts/implementation_contract_geometry_assembly_board_edges_b2.md) · [report](../.jes/artifacts/implementation_report_geometry_assembly_board_edges_b2.md)  
+> **Self-check Cursor:** [review](../.jes/artifacts/implementation_review_geometry_assembly_board_edges_b2.md) — **non-authoritative** (implementer).  
+> **Output Claude:** `implementation_review_geometry_assembly_board_edges_b2_claude.md`
 
 ### ⚪ COLA — Pose B1+ (queued · no implementar)
 
