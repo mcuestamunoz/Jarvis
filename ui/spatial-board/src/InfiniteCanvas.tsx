@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ZOOM } from "./constants";
 import { Minimap } from "./Minimap";
-import { MountEdges } from "./MountEdges";
+import { MountEdges } from "./DeclaredMountEdges";
 import { SpatialCard } from "./SpatialCard";
 import { ProjectSwitcher } from "./ProjectSwitcher";
 import { useBoardNodes } from "./useBoardNodes";
