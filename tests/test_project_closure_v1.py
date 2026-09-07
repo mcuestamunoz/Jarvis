@@ -153,7 +153,9 @@ def test_bom_flight_controller_defined_gets_identity_suffix():
 
 def test_bom_sensors_declarative_unaffected_by_control_suffix():
     """Sensors stay in the declarative bucket (never "defined") and never
-    get the flight_controller-only identity suffix."""
+    get the flight_controller-only identity suffix. Minimum Sensor KNOW B1:
+    this fixture declares a gps_model, so it gets the GNSS honesty tail
+    (not the plain "(declarativo)" this test asserted before that IC)."""
     sensors = ComponentSpec(
         name="gps_m9n",
         suggested_key="sensors",
@@ -171,11 +173,96 @@ def test_bom_sensors_declarative_unaffected_by_control_suffix():
     )
     bom = build_component_bom(state)
     assert any(e["key"] == "sensors" for e in bom["declarative"])
-    lines = format_bom_lines(bom)
+    lines = format_bom_lines(bom, state)
     sensors_line = next(line for line in lines if "sensors" in line)
     assert sensors_line.startswith("◇")
-    assert "(declarativo)" in sensors_line
+    assert "declarativo — GNSS declarado, no vuelo demostrado" in sensors_line
+    assert "no implica GNSS ni navegación" not in sensors_line
     assert "identidad, sin dato físico" not in sensors_line
+
+
+def test_bom_sensors_declarative_gnss_here3_tail():
+    """Minimum Sensor KNOW B1: a Here3 (gps_model) declaration gets the
+    GNSS honesty tail — declared, not demonstrated flight."""
+    sensors = ComponentSpec(
+        name="here3",
+        suggested_key="sensors",
+        component_type="sensors",
+        completeness="medium",
+        properties={"gps_model": PropertyValue(value="here3")},
+    )
+    state = _state(
+        design_properties=SimpleNamespace(
+            system_blocks=["control"],
+            system_defined=True,
+            system_priority=["control"],
+            components={"sensors": sensors},
+        )
+    )
+    bom = build_component_bom(state)
+    lines = format_bom_lines(bom, state)
+    sensors_line = next(line for line in lines if "sensors" in line)
+    assert "declarativo — GNSS declarado, no vuelo demostrado" in sensors_line
+    assert "no implica GNSS ni navegación" not in sensors_line
+
+
+def test_bom_sensors_declarative_non_gnss_tail():
+    """Minimum Sensor KNOW B1: a bare sensor_type (e.g. barometer, no
+    gps_model) must NOT read as GNSS/navigation-capable — the exact
+    conflation the investigation found (_sensor_completeness grades a
+    barometer and a Here3 declaration identically)."""
+    sensors = ComponentSpec(
+        name="barometro",
+        suggested_key="sensors",
+        component_type="sensors",
+        completeness="medium",
+        properties={"sensor_type": PropertyValue(value="barometer")},
+    )
+    state = _state(
+        design_properties=SimpleNamespace(
+            system_blocks=["control"],
+            system_defined=True,
+            system_priority=["control"],
+            components={"sensors": sensors},
+        )
+    )
+    bom = build_component_bom(state)
+    lines = format_bom_lines(bom, state)
+    sensors_line = next(line for line in lines if "sensors" in line)
+    assert "declarativo — no implica GNSS ni navegación" in sensors_line
+    assert "GNSS declarado" not in sensors_line
+
+
+def test_bom_sensors_declarative_tail_safe_default_without_project_state():
+    """§3.1 lock: when project_state is unavailable, the sensors tail must
+    fall back to the SAFER non-GNSS phrasing, never assume GNSS."""
+    sensors = ComponentSpec(
+        name="here3",
+        suggested_key="sensors",
+        component_type="sensors",
+        completeness="medium",
+        properties={"gps_model": PropertyValue(value="here3")},
+    )
+    state = _state(
+        design_properties=SimpleNamespace(
+            system_blocks=["control"],
+            system_defined=True,
+            system_priority=["control"],
+            components={"sensors": sensors},
+        )
+    )
+    bom = build_component_bom(state)
+    lines = format_bom_lines(bom)  # no project_state passed
+    sensors_line = next(line for line in lines if "sensors" in line)
+    assert "declarativo — no implica GNSS ni navegación" in sensors_line
+
+
+def test_bom_other_declarative_keys_keep_plain_tail():
+    """Non-sensors declarative entries must not be affected by the sensors
+    honesty-tail addition — they keep the plain "(declarativo)" tail."""
+    from jarvis.core.project_closure import _bom_sensors_declarative_tail
+
+    assert _bom_sensors_declarative_tail({"key": "battery"}) == "declarativo"
 
 
 def _frame_and_motors(size_class_inch=None):

@@ -125,6 +125,40 @@ def test_extract_fc_unknown():
     assert props == {}
 
 
+# ── Geometry axis (Minimum Geometric KNOW, FC B1) — identity-linked dims ──────
+
+def test_extract_fc_pixhawk4_declared_envelope():
+    """'Pixhawk 4' → model + identity-linked declared box (44/84/12mm),
+    sourced from PX4 docs + Holybro, both agreeing verbatim on
+    "44x84x12mm" (investigation report §C/§D)."""
+    props = extract_flight_controller_properties("pixhawk 4")
+    assert props["length_mm"].value == pytest.approx(44.0)
+    assert props["length_mm"].unit == "mm"
+    assert props["length_mm"].source == "declared"
+    assert props["length_mm"].confidence == pytest.approx(0.9)
+    assert props["width_mm"].value == pytest.approx(84.0)
+    assert props["height_mm"].value == pytest.approx(12.0)
+
+
+def test_extract_fc_pixhawk4_mini_has_no_dims():
+    """N: pixhawk_4_mini is a distinct canonical model with no sourced
+    entry this session (investigation report §D) — must not inherit
+    pixhawk_4's dims or invent its own."""
+    props = extract_flight_controller_properties("pixhawk 4 mini")
+    assert props["model"].value == "pixhawk_4_mini"
+    for key in ("length_mm", "width_mm", "height_mm"):
+        assert key not in props
+
+
+def test_extract_fc_generic_pixhawk_has_no_dims():
+    """Generic 'pixhawk' (no digit, no specific model) stays dims-less —
+    only the exact, sourced 'pixhawk_4' identity carries geometry."""
+    props = extract_flight_controller_properties("controladora pixhawk")
+    assert props["model"].value == "pixhawk"
+    for key in ("length_mm", "width_mm", "height_mm"):
+        assert key not in props
+
+
 # ── Commit 1+2: extract_sensor_properties ────────────────────────────────────
 
 def test_extract_sensors_gps_m9n():
@@ -170,6 +204,21 @@ def test_fc_completeness_high():
     level, missing = _flight_controller_completeness(props)
     assert level == "high"
     assert missing == []
+
+
+def test_fc_completeness_unchanged_by_declared_dims():
+    """N5 lock: dims never gate completeness — identical verdict with or
+    without length_mm/width_mm/height_mm present."""
+    from jarvis.schemas.action_schema import PropertyValue
+
+    without = {"model": PropertyValue(value="pixhawk_4", confidence=0.9, source="declared")}
+    with_dims = {
+        **without,
+        "length_mm": PropertyValue(value=44.0, unit="mm", confidence=0.9, source="declared"),
+        "width_mm": PropertyValue(value=84.0, unit="mm", confidence=0.9, source="declared"),
+        "height_mm": PropertyValue(value=12.0, unit="mm", confidence=0.9, source="declared"),
+    }
+    assert _flight_controller_completeness(without) == _flight_controller_completeness(with_dims)
 
 
 def test_fc_completeness_medium():
@@ -309,6 +358,26 @@ def test_handle_component_description_fc_saves_flight_controller(tmp_path):
     fc = saved.design_properties.components.get("flight_controller")
     assert fc is not None
     assert fc.completeness != "low"
+
+
+def test_handle_component_description_fc_persists_declared_envelope(tmp_path):
+    """Geometry axis (FC B1): declaring 'Pixhawk 4' through the real
+    control-block persist path writes the three identity-linked dim
+    properties onto components['flight_controller'] — same writer
+    (set_control_component), no special-casing needed."""
+    orchestrator = JarvisOrchestrator(workspace_root=tmp_path)
+    session = _setup_control_pending(orchestrator, tmp_path)
+
+    result = orchestrator._handle_component_description("Pixhawk 4", session)
+    assert result["status"] == "ok"
+
+    saved = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    fc = saved.design_properties.components.get("flight_controller")
+    assert fc is not None
+    assert fc.properties["length_mm"].value == pytest.approx(44.0)
+    assert fc.properties["width_mm"].value == pytest.approx(84.0)
+    assert fc.properties["height_mm"].value == pytest.approx(12.0)
+    assert fc.catalog_ref is None
 
 
 def test_handle_component_description_sensors_saved_after_fc(tmp_path):

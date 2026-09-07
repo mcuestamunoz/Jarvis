@@ -755,6 +755,28 @@ def _bom_completeness_tail(entry: dict[str, Any], project_state: Any = None) -> 
     return str(completeness)
 
 
+def _bom_sensors_declarative_tail(entry: dict[str, Any], project_state: Any = None) -> str:
+    """Minimum Sensor KNOW investigation, B1 (claim-copy only) — the plain
+    ``(declarativo)`` tail does not distinguish a GNSS-capable declaration
+    (Here3, M9N, ...) from a bare non-GNSS sensor type (barometer/IMU/
+    compass alone): ``_sensor_completeness`` grades both ``"medium"``
+    identically, and ``_control_evidence`` never reads ``sensors`` at all
+    (Control PASS is sensors-blind by design — unchanged here). Discriminate
+    in copy only, never claim flight demonstrated, never imply Control PASS
+    requires GNSS. Every other declarative key keeps the plain tail.
+    """
+    if entry.get("key") != "sensors":
+        return "declarativo"
+    dp = getattr(project_state, "design_properties", None) if project_state is not None else None
+    components = getattr(dp, "components", None) or {}
+    spec = components.get("sensors")
+    props = getattr(spec, "properties", None) or {} if spec is not None else {}
+    gps_prop = props.get("gps_model")
+    if gps_prop is not None and gps_prop.value is not None:
+        return "declarativo — GNSS declarado, no vuelo demostrado"
+    return "declarativo — no implica GNSS ni navegación"
+
+
 _FRAME_PART_LABELS: dict[str, str] = {
     "frame_arm": "arm",
     "frame_plate": "plate",
@@ -843,7 +865,8 @@ def format_bom_lines(bom: dict[str, Any], project_state: Any = None) -> list[str
     for entry in bom.get("declarative") or []:
         lines.append(
             f"◇ {entry['key']}: {entry.get('name') or entry['key']}"
-            f"{_bom_identity_suffix(entry)}{_bom_quantity_suffix(entry)} (declarativo)"
+            f"{_bom_identity_suffix(entry)}{_bom_quantity_suffix(entry)} "
+            f"({_bom_sensors_declarative_tail(entry, project_state)})"
         )
         if entry["key"] == "frame" and project_state is not None:
             lines.extend(_frame_part_sublines(project_state))

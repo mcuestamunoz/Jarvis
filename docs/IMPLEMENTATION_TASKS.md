@@ -6,14 +6,34 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`; no hay tag posterior). Suite viva **2327** (Geometry Battery + Motor + ESC B1).  
-> **PRIORIDAD AHORA:** **Ninguna IC abierta.** Geometry ESC B1 **CLOSED** (suite **2327**). Battery + Motor + ESC en `representar`.  
-> **Eje ★:** Geometry / Physical Representation — primer trío de familias shipped; siguiente solo con nuevo Buy.  
-> **Escalera:** KNOW → representar → visualizar → comparar → verificar (no saltar a VERIFICADO).  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`; no hay tag posterior). Suite viva **2332** (Geometry Battery + Motor + ESC + FC B1).  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`; no hay tag posterior). Suite viva **2336** (Geometry cuarteto + sensors BOM honesty).  
+> **PRIORIDAD AHORA:** **Ninguna IC abierta.** Sensors BOM honesty B1 **CLOSED** (suite **2336**). Await Engineer next path.  
+> **Eje ★:** Geometry @ `representar` CLOSED; claim honesty sensors BOM shipped (GNSS vs generic).  
+> **Escalera claim (locked):** CONTROL DECLARED → NAVIGATION-CAPABLE KNOW → AUTONOMOUS FLIGHT CLAIM — no aplanar a Control PASS.  
+> **Escalera geometry:** KNOW → representar → visualizar → comparar → verificar (orthogonal).  
 > **Pizarra (código, no cola):** visor `jarvis board` + projector read-only + B3 slots (`kind: "slot"`). Review **PASS WITH NOTES**. Residual board = **B1** layout-on-disk — **no PRIORIDAD**.  
-> **Pared física:** Prop/Energy experimental → HD-004 ([lock](../.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md)).  
+> **Pared física:** Prop/Energy experimental → HD-004 ([lock](../.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md)) — **≠** autonomía navegacional.  
 > **Debt software (no cola):** B1 `spatial_layout.json` · B2 poll/mtime · free-text multi-plate · completeness hardcode · G-N2/3/4 · C3 UX · MEASURE fit/CAD theater · System optimization (deferred).  
 > **Artefactos:** investigation / implementation / review only (sin docs de ratificación).
+
+### 🟢 CERRADO (código + review) — Sensors BOM honesty tail B1 (2026-09-07)
+
+> **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_sensors_bom_honesty_tail_b1.md) · [implementation_review…](../.jes/artifacts/implementation_review_sensors_bom_honesty_tail_b1.md) — **PASS**  
+> **Suite:** **2336**. GNSS vs non-GNSS declarative tails · sin `_control_evidence` · sin schema.
+
+### 🟡 INVESTIGADO — Minimum Sensor KNOW for Aerial Autonomy Claim (2026-09-07) · ★ Buy claim-copy
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_minimum_sensor_know_aerial_autonomy_claim.md) · [report](../.jes/artifacts/investigation_report_minimum_sensor_know_aerial_autonomy_claim.md) · [review](../.jes/artifacts/investigation_review_minimum_sensor_know_aerial_autonomy_claim.md) — **PASS WITH NOTES** → IC cerrado arriba.
+
+### 🟢 CERRADO (código + review) — Geometry FC declared box B1 (2026-09-07)
+
+> **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_geometry_fc_envelope_b1.md) · [implementation_review…](../.jes/artifacts/implementation_review_geometry_fc_envelope_b1.md) — **PASS**  
+> **Suite:** **2332**. `pixhawk_4` → 44/84/12 · sin `library/fc/` · sin bind · `catalog_ref` null · Mini out. Smoke Board = re-declarar “Pixhawk 4”.
+
+### 🟡 INVESTIGADO — Geometry FC envelope (2026-09-07) · ★ Buy B1
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_fc_envelope.md) · [report](../.jes/artifacts/investigation_report_geometry_fc_envelope.md) · [review](../.jes/artifacts/investigation_review_geometry_fc_envelope.md) — **PASS WITH NOTES** → IC cerrado arriba.
 
 ### 🟢 CERRADO (código + review) — Geometry ESC declared envelope B1 (2026-09-07)
 

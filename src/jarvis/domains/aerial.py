@@ -534,12 +534,48 @@ FLIGHT_CONTROLLER_MAP: dict[str, str] = {
     "matek":          "matek",
 }
 
+# Geometry axis (Minimum Geometric KNOW, FC B1) — identity-linked declared
+# box, NOT a catalog family. Keyed by the same canonical model string
+# FLIGHT_CONTROLLER_MAP already produces. No `library/fc/`, no `FcSpec`, no
+# bind function, no `catalog_ref` — this is the free-text/Structure-style
+# pattern (a value attached once a keyword/identity is recognized), not the
+# Battery/Motor/ESC catalog-bind pattern, because there is no SKU identity
+# here cleaner than the model string this system already names correctly.
+# Sourced-only, one entry (pixhawk_4) — never back-filled onto a model this
+# investigation didn't verify (investigation report §C/§D).
+FLIGHT_CONTROLLER_DIMENSIONS: dict[str, dict[str, object]] = {
+    "pixhawk_4": {
+        "length_mm": 44.0,
+        "width_mm": 84.0,
+        "height_mm": 12.0,
+        "source_urls": (
+            "https://docs.px4.io/main/en/flight_controller/pixhawk4.html",
+            "https://holybro.com/products/pixhawk-4",
+        ),
+        "source_note": (
+            "PX4 official docs (\"Dimensions: 44x84x12mm\") and Holybro's own "
+            "product page (\"44x84x12mm\") agree. Verbatim print order mapped "
+            "to length/width/height. No mounting hole pattern stated on "
+            "either page — not claimed. Pixhawk 4 Mini not seeded (no usable "
+            "spec page found this session)."
+        ),
+    },
+}
+
 
 def extract_flight_controller_properties(normalized: str) -> dict[str, PropertyValue]:
     """Extract model from a flight controller description.
 
+    Geometry axis (FC B1): a recognized model with an entry in
+    ``FLIGHT_CONTROLLER_DIMENSIONS`` also gets ``length_mm``/``width_mm``/
+    ``height_mm`` attached — identity-linked from a sourced table, never
+    parsed from the user's own message (no mm digit in ``normalized`` is
+    ever read for this). Not catalog-bound: no ``catalog_ref`` is set by
+    this function or anywhere downstream of it.
+
     Examples:
-        "Pixhawk 4"            → {model: "pixhawk_4",  confidence=0.9}
+        "Pixhawk 4"            → {model: "pixhawk_4",  confidence=0.9,
+                                   length_mm=44, width_mm=84, height_mm=12}
         "controladora Pixhawk" → {model: "pixhawk",    confidence=0.7}
         "ardupilot"            → {model: "ardupilot",  confidence=0.7}
         "controladora"         → {} (brand not identified)
@@ -561,6 +597,12 @@ def extract_flight_controller_properties(normalized: str) -> dict[str, PropertyV
         props["model"] = PropertyValue(
             value=found_model, unit=None, confidence=found_confidence, source="declared"
         )
+        dims = FLIGHT_CONTROLLER_DIMENSIONS.get(found_model)
+        if dims is not None:
+            for key in ("length_mm", "width_mm", "height_mm"):
+                props[key] = PropertyValue(
+                    value=dims[key], unit="mm", confidence=found_confidence, source="declared"
+                )
     return props
 
 
