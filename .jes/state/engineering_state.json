@@ -192,6 +192,8 @@
     "geometry_spatial_representation_progression": "LOCKED_2026_09_07",
     "geometry_board_glyph_vocabulary_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
     "geometry_board_glyphs_b1_ic": "IMPLEMENTED_REVIEWED_PASS_CLOSED_2344",
+    "catalog_esc_variant_coherence_investigation": "OPEN",
+    "catalog_motor_thrust_not_intrinsic": "QUEUED_2_FORMALIZED_NO_CONTRACT",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
 }
