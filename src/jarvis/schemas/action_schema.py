@@ -169,6 +169,19 @@ class ComponentSpec(BaseModel):
     # unchanged. Never read by _structure_evidence/_derive_subsystem_verdict
     # (Structure PASS stays root-only) — see engineering_readiness.py.
     parent_key: str | None = None
+    # Geometry Assembly Espacial B1 — optional declared mount relation: the
+    # dict key of another component in design_properties.components (or an
+    # ordinal frame-part key like "frame_plate_1") this spec is declared
+    # mounted on. Orthogonal to parent_key (frame BOM topology, always the
+    # literal "frame") — this names ANY component, never overloads parent_key's
+    # single-root invariant. Always a DECLARED relation, set only via
+    # component_writers.set_component_mounted_on — never inferred from Board
+    # x/y, localStorage layout, BOM co-membership, or cardinality-of-one.
+    # No pose: no position, orientation, offset, or face/side semantics —
+    # "declared mounted on X", never "fits" / "assembled" / "verified".
+    # Additive, default None — every existing/serialized project deserializes
+    # unchanged.
+    mounted_on: str | None = None
 
 
 class IterationOperation(str, Enum):

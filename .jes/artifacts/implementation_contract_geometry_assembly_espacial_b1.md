@@ -6,7 +6,9 @@
 **Implementer:** Claude Code  
 **Reviewer:** Cursor against this IC after the edit
 
-**Status:** READY FOR IMPLEMENTATION — Engineer ★ Buy B1 (`escribe IC`)  
+**Status:** IMPLEMENTED · REVIEWED **PASS** · CLOSED (suite **2364**)  
+**Review:** [implementation_review_geometry_assembly_espacial_b1.md](implementation_review_geometry_assembly_espacial_b1.md)  
+**Report:** [implementation_report_geometry_assembly_espacial_b1.md](implementation_report_geometry_assembly_espacial_b1.md)  
 **Parents:**
 - [engineer_lock_geometry_spatial_representation_progression.md](engineer_lock_geometry_spatial_representation_progression.md)
 - [investigation_contract_geometry_assembly_espacial_b1.md](investigation_contract_geometry_assembly_espacial_b1.md)
@@ -168,13 +170,13 @@ Numeric pose / orientation · fit / clearance / intersection · Board edge visua
 
 ## 7. Done criteria
 
-- [ ] `mounted_on` on `ComponentSpec`, default `None`, orthogonal to `parent_key`.
-- [ ] Writer set/clear with target-existence + no self-ref validation.
-- [ ] Board shows `"montado en"` text when set; no glyph/lane change.
-- [ ] Frame `parent_key` paths unchanged.
-- [ ] Tests §4 green; full suite green; count reported.
-- [ ] Implementation report written (note Continuity UX deferred if so).
-- [ ] Cursor review PASS before Engineer close.
+- [x] `mounted_on` on `ComponentSpec`, default `None`, orthogonal to `parent_key`.
+- [x] Writer set/clear with target-existence + no self-ref validation.
+- [x] Board shows `"montado en"` text when set; no glyph/lane change.
+- [x] Frame `parent_key` paths unchanged.
+- [x] Tests §4 green; full suite green; count reported.
+- [x] Implementation report written (note Continuity UX deferred if so).
+- [x] Cursor review PASS before Engineer close.
 
 ---
 

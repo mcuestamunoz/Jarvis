@@ -7,21 +7,20 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2350**.  
-> **PRIORIDAD AHORA:** IC **Geometry assembly espacial B1** READY — Claude implement (`mounted_on`).  
-> **Eje ★:** Progression Lock — assembly espacial relation-only; sin fit / sin pose mm.  
-> **Hecho:** glyphs @ **2344** · catalog hygiene @ **2350**.  
+> **PRIORIDAD AHORA:** Geometry assembly espacial B1 **CLOSED** (suite **2364**). Await Engineer next focus.  
+> **Eje ★:** Progression Lock — assembly relation-only shipped; pose mm / edges / fit still later.  
+> **Hecho:** glyphs @ **2344** · hygiene @ **2350** · `mounted_on` @ **2364**.  
 > **Congelado:** B1+ pose · B2 edges · fit/CAD · Here3/Pixhawk · HD-004.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 IC READY — Geometry assembly espacial B1 (2026-09-07) · ★ Buy B1
+### 🟢 CERRADO (código + review) — Geometry assembly espacial B1 (2026-09-07)
 
-> **IC:** [implementation_contract_geometry_assembly_espacial_b1.md](../.jes/artifacts/implementation_contract_geometry_assembly_espacial_b1.md) — Claude next.  
-> **Parents:** [report](../.jes/artifacts/investigation_report_geometry_assembly_espacial_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_assembly_espacial_b1.md) — **PASS WITH NOTES**.  
-> **Qué:** `mounted_on: str | None` · writer validate target · Board `"montado en"` · no `parent_key` overload · no pose/fit/edges.
+> **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_geometry_assembly_espacial_b1.md) · [implementation_review…](../.jes/artifacts/implementation_review_geometry_assembly_espacial_b1.md) — **PASS**  
+> **Suite:** **2364**. `mounted_on` · writer validate · Board `"montado en"` · Continuity UX deferred · +14 tests.
 
 ### 🟡 INVESTIGADO — Geometry assembly espacial B1 (2026-09-07) · ★ Buy B1
 
-> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_assembly_espacial_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_assembly_espacial_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_assembly_espacial_b1.md) — **PASS WITH NOTES** → IC arriba.  
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_assembly_espacial_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_assembly_espacial_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_assembly_espacial_b1.md) — **PASS WITH NOTES** → IC cerrado arriba.  
 > **Hallazgo:** cero estado assembly hoy; **diverge** de `parent_key`; lean **B1** `mounted_on`; B1+ pose rechazado.
 
 ### 🟢 CERRADO (código + review) — Catalog motor thrust not intrinsic B1 (2026-09-07)

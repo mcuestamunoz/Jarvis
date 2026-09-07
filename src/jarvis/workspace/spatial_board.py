@@ -18,6 +18,13 @@ de dimensiones ya declaradas — "sé qué componente es y sé qué volumen
 físico declarado ocupa," nunca ensamblado ni "cabe." `width`/`height` del
 nodo siguen siendo el layout en píxeles de la card, nunca la geometría
 física — ver `_geometry_from_spec`.
+
+Geometry Assembly Espacial B1 (`mounted_on`, relation-only): cuando
+`ComponentSpec.mounted_on` está declarado, la card lleva un campo de texto
+extra `"montado en"` (ver `_fields`) — ninguna posición/orientación, ningún
+edge en canvas (B2, diferido), ningún cambio a `kind`/carril/`x`/`y`.
+Ortogonal a `parent_key` (topología BOM del frame, siempre literal
+`"frame"`): `mounted_on` nombra cualquier clave declarada.
 """
 from __future__ import annotations
 
@@ -261,6 +268,12 @@ def _fields(spec: ComponentSpec) -> list[dict[str, str]]:
     sku = spec.catalog_ref.sku if spec.catalog_ref else None
     if sku:
         fields.append({"label": "SKU", "value": sku})
+    # Geometry Assembly Espacial B1: a declared mount relation shows as a
+    # plain text field — no new geometry math, no edge drawing (B2, deferred).
+    # Orthogonal to parent_key (frame BOM topology): a "part" node can also
+    # carry mounted_on, and this never changes kind/lane placement.
+    if spec.mounted_on:
+        fields.append({"label": "montado en", "value": spec.mounted_on})
     return fields
 
 

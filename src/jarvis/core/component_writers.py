@@ -240,6 +240,51 @@ def clear_frame_part_children(project_state: Any) -> Any:
     return project_state.model_copy(update={"design_properties": updated_dp})
 
 
+def set_component_mounted_on(
+    project_state: Any, component_key: str, target_key: str | None
+) -> Any:
+    """Geometry Assembly Espacial B1 — único punto de escritura para la
+    relación declarada ``ComponentSpec.mounted_on``.
+
+    Orthogonal to the frame parts graph (``parent_key``, always the literal
+    ``"frame"``): this writer never touches ``parent_key`` and ``target_key``
+    may name ANY key in ``design_properties.components`` (including ordinal
+    frame-part keys like ``"frame_plate_1"``). Always a DECLARED relation —
+    no inference, no default, no numeric pose.
+
+    ``target_key=None`` clears the relation (idempotent — a no-op when
+    already ``None``). A non-``None`` ``target_key`` requires both
+    ``component_key`` and ``target_key`` to already exist in ``components``
+    and to be different keys — a dangling reference (naming a component that
+    was never declared) or a self-mount is rejected with ``ValueError``
+    rather than silently stored, matching the B3 slot precedent's "never
+    invent for what wasn't declared" discipline.
+
+    Returns the updated ProjectState (not persisted — caller must save).
+    """
+    components = project_state.design_properties.components
+    if component_key not in components:
+        raise ValueError(f"Componente '{component_key}' no declarado — no se puede fijar mounted_on.")
+    spec = components[component_key]
+
+    if target_key is None:
+        if getattr(spec, "mounted_on", None) is None:
+            return project_state
+        updated_spec = spec.model_copy(update={"mounted_on": None})
+    else:
+        if target_key == component_key:
+            raise ValueError(f"'{component_key}' no puede estar montado en sí mismo.")
+        if target_key not in components:
+            raise ValueError(
+                f"Destino de montaje '{target_key}' no declarado — no se puede fijar mounted_on."
+            )
+        updated_spec = spec.model_copy(update={"mounted_on": target_key})
+
+    updated_components = {**components, component_key: updated_spec}
+    updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
+    return project_state.model_copy(update={"design_properties": updated_dp})
+
+
 def set_control_component(project_state: Any, spec: Any) -> Any:
     """Único punto de escritura para componentes del bloque control (FC, sensores).
 
