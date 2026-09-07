@@ -396,7 +396,7 @@ def _assert_esc_hobbywing(spec: EscSpec) -> None:
     assert spec.continuous_current_source == "manufacturer_spec"
     assert spec.cells_min == 2
     assert spec.cells_max == 6
-    assert spec.mass_g == pytest.approx(26.0)
+    assert spec.mass_g == pytest.approx(15.0)
 
 
 def test_esc_declared_envelope_from_disambiguated_part_number():
@@ -410,11 +410,17 @@ def test_esc_declared_envelope_from_disambiguated_part_number():
     assert spec.height_mm == pytest.approx(12.0)
 
 
-def test_esc_mass_unchanged_by_geometry_addition():
-    """N2 regression: adding declared dims must not touch the pre-existing
-    (and separately flagged as debt) mass_g value."""
+def test_esc_mass_coherent_with_version_b_envelope():
+    """ESC XRotor variant coherence IC: mass_g is 15g, matching the same
+    part_number (30901001, International Version B) the dims are sourced
+    from — one coherent physical variant, not a collage of siblings.
+    Superseded the prior "mass unchanged / flagged as debt" test now that
+    the debt is resolved."""
     spec = _LIB.get_esc("hobbywing_xrotor_40a_6s")
-    assert spec.mass_g == pytest.approx(26.0)
+    assert spec.mass_g == pytest.approx(15.0)
+    assert spec.length_mm == pytest.approx(50.0)
+    assert spec.width_mm == pytest.approx(21.6)
+    assert spec.height_mm == pytest.approx(12.0)
 
 
 def test_esc_source_url_normalized_to_working_mirror():
@@ -452,7 +458,7 @@ def test_bind_esc_from_catalog_projects_continuous_current():
     assert spec.catalog_ref == CatalogRef(family="esc", sku="hobbywing_xrotor_40a_6s")
     assert spec.suggested_key == "esc"
     assert spec.properties["current_a"].value == pytest.approx(40.0)
-    assert spec.properties["mass_g"].value == pytest.approx(26.0)
+    assert spec.properties["mass_g"].value == pytest.approx(15.0)
 
 
 def test_bind_esc_from_catalog_projects_declared_envelope():
@@ -464,9 +470,10 @@ def test_bind_esc_from_catalog_projects_declared_envelope():
     assert spec.properties["length_mm"].source == "declared"
     assert spec.properties["width_mm"].value == pytest.approx(21.6)
     assert spec.properties["height_mm"].value == pytest.approx(12.0)
-    # Existing electrical/mass projection must be unaffected by the addition.
+    # Electrical/mass projection stays independent of the geometry fields
+    # (mass corrected to 15g by the ESC XRotor variant coherence IC).
     assert spec.properties["current_a"].value == pytest.approx(40.0)
-    assert spec.properties["mass_g"].value == pytest.approx(26.0)
+    assert spec.properties["mass_g"].value == pytest.approx(15.0)
 
 
 # ── 5c. Frames load; get_frame by id; verified seed (Structure Catalog     ─

@@ -6,7 +6,9 @@
 **Implementer:** Claude Code  
 **Reviewer:** Cursor against this IC after the edit
 
-**Status:** READY FOR IMPLEMENTATION — Engineer ★ Buy B1 ratified (`procede`)  
+**Status:** IMPLEMENTED · REVIEWED **PASS** · CLOSED (suite **2344**)  
+**Review:** [implementation_review_catalog_esc_mass_hygiene_b1.md](implementation_review_catalog_esc_mass_hygiene_b1.md)  
+**Report:** [implementation_report_catalog_esc_mass_hygiene_b1.md](implementation_report_catalog_esc_mass_hygiene_b1.md)  
 **Parents:**
 - [investigation_contract_catalog_esc_variant_coherence.md](investigation_contract_catalog_esc_variant_coherence.md)
 - [investigation_report_catalog_esc_variant_coherence.md](investigation_report_catalog_esc_variant_coherence.md)
@@ -135,15 +137,15 @@ Pose / `mounted_on` / assembly / fit / CAD / FEA · glyph renderer · Version A 
 
 ## 6. Done criteria
 
-- [ ] Seed `hobbywing_xrotor_40a_6s.mass_g == 15`.
-- [ ] `source_note` cites page 15g for PN 30901001 and retires debt framing.
-- [ ] PN + dims unchanged.
-- [ ] All four former `26.0` asserts now `15.0`; N2 test renamed + re-docstringed.
-- [ ] Grep: no leftover ESC mass 26 for this SKU.
-- [ ] No `ui/` / projector / motor / FC edits.
-- [ ] Full suite green; count reported.
-- [ ] Implementation report written (include N4 rebind honesty).
-- [ ] Cursor review PASS before Engineer close.
+- [x] Seed `hobbywing_xrotor_40a_6s.mass_g == 15`.
+- [x] `source_note` cites page 15g for PN 30901001 and retires debt framing.
+- [x] PN + dims unchanged.
+- [x] All four former `26.0` asserts now `15.0`; N2 test renamed + re-docstringed.
+- [x] Grep: no leftover ESC mass 26 for this SKU.
+- [x] No `ui/` / projector / motor / FC edits.
+- [x] Full suite green; count reported.
+- [x] Implementation report written (include N4 rebind honesty).
+- [x] Cursor review PASS before Engineer close.
 
 ---
 

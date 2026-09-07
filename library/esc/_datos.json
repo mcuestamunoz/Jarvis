@@ -13,11 +13,11 @@
     "voltage_max": 25.2,
     "cells_min": 2,
     "cells_max": 6,
-    "mass_g": 26,
+    "mass_g": 15,
     "source_url": "https://www.hobbywing.com/en/products/xrotor-40a122",
     "length_mm": 50.0,
     "width_mm": 21.6,
     "height_mm": 12.0,
-    "source_note": "HOBBYWING official: 40A continuous / 60A peak, 2-6S LiPo, no BEC, 26g. Individual ESC for multicopters (550/650 class quads). source_url normalized to the www. mirror (a.hobbywing.com fails TLS validation). Page states size \"50.0x21.6x12.0mm\" for part_number 30901001 (International Version B, no output wires) — verbatim print order mapped to length/width/height. Version A (part 30901013, with output wires) is 42.0x21.6x12.0mm — NOT seeded, different part_number. Page states this variant's weight as 15g, differing from this row's existing mass_g=26 — flagged as pre-existing data-quality debt, not resolved in this IC."
+    "source_note": "HOBBYWING official: 40A continuous / 60A peak, 2-6S LiPo, no BEC. Individual ESC for multicopters (550/650 class quads). source_url normalized to the www. mirror (a.hobbywing.com fails TLS validation). Page states size \"50.0x21.6x12.0mm\" and weight \"15g\" for part_number 30901001 (International Version B, no output wires) — verbatim print order mapped to length/width/height. Version A (part 30901013, with output wires) is 42.0x21.6x12.0mm / 18.5g — NOT seeded, different part_number. Catalog hygiene (ESC XRotor variant coherence IC): mass_g corrected from a prior 26g to the page's own stated 15g for this exact PN — 26 matched neither this variant (15g) nor Version A (18.5g), was not an average or unit-conversion artifact of either, and no cited primary source was ever found for it; its origin is undocumented/unknown."
   }
 }

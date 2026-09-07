@@ -7,23 +7,22 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2344**. Commit glyphs **`64da71c`** on `main`.  
-> **PRIORIDAD AHORA:** IC **ESC mass hygiene B1** READY — Claude implement (`mass_g` 26→15).  
-> **Eje ★:** Catalog hygiene — *cada número ↔ variante + condición*. **No** pose / assembly.  
-> **Hecho:** representar + sensors honesty + glyphs visualizar @ **2344** (Board smoke ACCEPT).  
+> **PRIORIDAD AHORA:** ESC mass hygiene B1 **CLOSED** (suite **2344**). Next: Engineer ★ on cola 2 (motor thrust) or idle.  
+> **Eje ★:** Catalog hygiene — ESC PN↔dims↔masa coherente. **No** pose / assembly.  
+> **Hecho:** representar + sensors honesty + glyphs @ **2344** + ESC mass 15 g.  
 > **Escalera geometry:** KNOW → representar → **visualizar (CLOSED)** → assembly espacial / comparar — **no abrir**.  
-> **Cola 2 (formalizada, no este contract):** motor `thrust_n` top-level ≠ propiedad EMAX — solo OP (10.042 / HQ5045 BN).  
+> **Cola 2 (formalizada):** motor `thrust_n` top-level ≠ propiedad EMAX — solo OP (10.042 / HQ5045 BN).  
 > **Congelado:** Here3 / Pixhawk variant · HD-004 · System Optimization · CAD/fit.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 IC READY — Catalog ESC mass hygiene B1 (2026-09-07) · ★ Buy B1
+### 🟢 CERRADO (código + review) — Catalog ESC mass hygiene B1 (2026-09-07)
 
-> **IC:** [implementation_contract_catalog_esc_mass_hygiene_b1.md](../.jes/artifacts/implementation_contract_catalog_esc_mass_hygiene_b1.md) — Claude implement next.  
-> **Parents:** [report](../.jes/artifacts/investigation_report_catalog_esc_variant_coherence.md) · [review](../.jes/artifacts/investigation_review_catalog_esc_variant_coherence.md) — **PASS WITH NOTES**.  
-> **Qué:** `mass_g` 26→**15** · `source_note` · 4 tests · rename N2 test. PN/dims intact. N4: rebind for stale cards.
+> **IC / Review:** [implementation_contract…](../.jes/artifacts/implementation_contract_catalog_esc_mass_hygiene_b1.md) · [implementation_review…](../.jes/artifacts/implementation_review_catalog_esc_mass_hygiene_b1.md) — **PASS**  
+> **Suite:** **2344**. `mass_g` 26→**15** · PN/dims intact · N4 rebind para cards viejas.
 
 ### 🟡 INVESTIGADO — Catalog ESC variant coherence (2026-09-07) · ★ Buy B1
 
-> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_catalog_esc_variant_coherence.md) · [report](../.jes/artifacts/investigation_report_catalog_esc_variant_coherence.md) · [review](../.jes/artifacts/investigation_review_catalog_esc_variant_coherence.md) — **PASS WITH NOTES** → IC arriba.  
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_catalog_esc_variant_coherence.md) · [report](../.jes/artifacts/investigation_report_catalog_esc_variant_coherence.md) · [review](../.jes/artifacts/investigation_review_catalog_esc_variant_coherence.md) — **PASS WITH NOTES** → IC cerrado arriba.  
 > **Hallazgo:** PN `30901001` + 50×21.6×12 **correctos**; `mass_g: 26` no cuadra (página: **15 g**). H3 split rechazado.
 
 ### 🧊 COLA 2 (formalizada) — Motor thrust no es propiedad intrínseca
