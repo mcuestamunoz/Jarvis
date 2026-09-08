@@ -6,17 +6,21 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2385**.  
-> **PRIORIDAD AHORA:** Catalog-bound refresh B1 — **PASS WITH NOTES** · Engineer Continuity smoke.  
-> **Eje ★:** `actualiza el esc desde catálogo` on demo → Board **15 g** → CLOSE.  
-> **Suite:** **2406**. N1 motor hotfix CLOSED.  
-> **Cola post-smoke:** Fase 2 geometry-all · Fase 3 connect · fit/pose parked.  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2406**.  
+> **PRIORIDAD AHORA:** Fase 2 **geometry-for-all** investigation READY → **Claude report**.  
+> **Eje ★:** Secuencia E → **G** → Conn. E (refresh) PASS WITH NOTES @ 2406 — Engineer ESC smoke when ready (parallel).  
+> **Cola:** Conn (Fase 3) · fit/pose parked.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟢 IMPLEMENTATION REVIEWED — Catalog-bound refresh B1 (2026-09-08) · PASS WITH NOTES
+### 🟡 INVESTIGATION READY — Geometry for all B1 (2026-09-08) · Fase 2 / G
+
+> **Contract:** [investigation_contract_geometry_for_all_b1.md](../.jes/artifacts/investigation_contract_geometry_for_all_b1.md) — **Claude next**.  
+> **Hallazgo triage:** plates/arms = thickness only (no glyph); cage/standoff = material; sensors Here3 frozen; propellers likely disk-ready via `diameter_in`.
+
+### 🟢 IMPLEMENTATION REVIEWED — Catalog-bound refresh B1 (2026-09-08) · PASS WITH NOTES · Fase 1 / E
 
 > **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_catalog_bound_refresh_b1.md) · [report](../.jes/artifacts/implementation_report_catalog_bound_refresh_b1.md) · [review](../.jes/artifacts/implementation_review_catalog_bound_refresh_b1.md) — **PASS WITH NOTES**.  
-> **Smoke:** Engineer — refresh demo ESC → Board 15 g.
+> **Smoke (parallel):** Engineer — `actualiza el esc desde catálogo` → Board 15 g → then mark E CLOSED.
 
 ### 🟢 LOCK — Geometry assembly relation rung CLOSED (2026-09-08)
 
