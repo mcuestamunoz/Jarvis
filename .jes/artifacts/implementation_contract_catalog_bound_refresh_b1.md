@@ -6,9 +6,10 @@
 **Implementer:** Claude Code  
 **Reviewer:** Cursor against this IC after the edit
 
-**Status:** IMPLEMENTATION REVIEWED — **FAIL** (motor binder signature) — hotfix required before CLOSE  
+**Status:** IMPLEMENTATION REVIEWED — **PASS WITH NOTES** (N1 motor hotfix CLOSED) — Engineer smoke next  
 **Review:** [implementation_review_catalog_bound_refresh_b1.md](implementation_review_catalog_bound_refresh_b1.md)  
 **Report:** [implementation_report_catalog_bound_refresh_b1.md](implementation_report_catalog_bound_refresh_b1.md)  
+**Suite:** **2406** (baseline pre-impl **2385**)  
 **Parents:**
 - [investigation_contract_catalog_bound_property_freshness_b1.md](investigation_contract_catalog_bound_property_freshness_b1.md)
 - [investigation_report_catalog_bound_property_freshness_b1.md](investigation_report_catalog_bound_property_freshness_b1.md) — lean **B1 generic refresh**

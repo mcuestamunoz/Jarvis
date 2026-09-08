@@ -88,6 +88,51 @@ def test_t1b_diff_helper_reports_only_the_changed_value():
     assert changed == {"mass_g": (26.0, 15.0)}
 
 
+def test_t1_motor_stale_weight_and_thrust_refresh_preserves_mounted_on_and_count():
+    """N1 hotfix regression: bind_motor_from_catalog takes a MotorSuggestion
+    dict, not a bare SKU string — refresh_component_from_catalog must adapt
+    via motor_spec_to_suggestion(default_library.get_motor(sku)) rather than
+    calling the binder with the SKU directly (that crashed with
+    AttributeError: 'str' object has no attribute 'get')."""
+    state = ProjectState(
+        project_id="p1", project_slug="demo", objective="demo", workspace_path="/tmp/demo",
+        design_properties=DesignProperties(components={
+            "motors": ComponentSpec(
+                suggested_key="motors", completeness="high",
+                catalog_ref=CatalogRef(family="motor", sku="emax_rs2205s_2300"),
+                mounted_on="frame_arm",
+                properties={
+                    "thrust_n": PropertyValue(value=999.0, unit="N", source="declared"),
+                    "weight_g": PropertyValue(value=999.0, unit="g", source="declared"),
+                    "motor_count": PropertyValue(value=4, source="declared"),
+                },
+            ),
+        }),
+    )
+    updated = refresh_component_from_catalog(state, "motors")
+    motors = updated.design_properties.components["motors"]
+    assert motors.properties["thrust_n"].value == pytest.approx(10.042)
+    assert motors.properties["weight_g"].value == pytest.approx(30.0)
+    assert motors.mounted_on == "frame_arm"
+    # base-only field (not part of the catalog projection) survives the merge
+    assert motors.properties["motor_count"].value == 4
+
+
+def test_t1_motor_unknown_sku_raises_value_error_not_attribute_error():
+    state = ProjectState(
+        project_id="p1", project_slug="demo", objective="demo", workspace_path="/tmp/demo",
+        design_properties=DesignProperties(components={
+            "motors": ComponentSpec(
+                suggested_key="motors", completeness="high",
+                catalog_ref=CatalogRef(family="motor", sku="does_not_exist_sku"),
+                properties={"thrust_n": PropertyValue(value=10.0, unit="N", source="declared")},
+            ),
+        }),
+    )
+    with pytest.raises(ValueError):
+        refresh_component_from_catalog(state, "motors")
+
+
 def test_t2_no_catalog_ref_raises_no_write():
     state = ProjectState(
         project_id="p1", project_slug="demo", objective="demo", workspace_path="/tmp/demo",
@@ -186,6 +231,46 @@ def test_t5c_idle_refresh_missing_component_honest_error(tmp_path: Path):
     result = orch.handle_user_text("actualiza la bateria desde catalogo", _RefuseLLM())
     assert result["status"] == "error"
     assert "aún no declarado" in result["message"].lower() or "aun no declarado" in result["message"].lower()
+
+
+def test_t5d_idle_refresh_motors_via_chat_does_not_crash(tmp_path: Path):
+    """N1 hotfix regression at the orchestrator boundary: 'actualiza motores'
+    used to raise an uncaught AttributeError (only ValueError was handled)."""
+    orch = JarvisOrchestrator(workspace_root=tmp_path)
+    orch.handle({
+        "action": "create_project",
+        "parameters": {
+            "vehicle_type": "dron", "objective": "catalog refresh b1 motor",
+            "payload_kg": 1.0, "restrictions": "ninguna", "detail_level": "conceptual",
+            "structure_mass_factor": 0.5, "safety_factor": 1.2,
+        },
+    })
+    ps = orch.state_manager.load_active_project(orch.workspace_manager)
+    motors = ComponentSpec(
+        suggested_key="motors", completeness="high",
+        catalog_ref=CatalogRef(family="motor", sku="emax_rs2205s_2300"),
+        mounted_on="frame_arm",
+        properties={
+            "thrust_n": PropertyValue(value=999.0, unit="N", source="declared"),
+            "weight_g": PropertyValue(value=999.0, unit="g", source="declared"),
+        },
+    )
+    updated_dp = ps.design_properties.model_copy(
+        update={"components": {**ps.design_properties.components, "motors": motors}}
+    )
+    ps = ps.model_copy(update={"design_properties": updated_dp})
+    orch.workspace_manager.save_state(ps)
+
+    result = orch.handle_user_text("actualiza motores", _RefuseLLM())
+    assert result["status"] == "ok"
+    assert "Actualizado desde catálogo" in result["message"]
+    assert "thrust_n" in result["message"]
+    assert "Montaje declarado sin cambios" in result["message"]
+
+    saved = orch.state_manager.load_active_project(orch.workspace_manager)
+    refreshed_motors = saved.design_properties.components["motors"]
+    assert refreshed_motors.properties["thrust_n"].value == pytest.approx(10.042)
+    assert refreshed_motors.mounted_on == "frame_arm"
 
 
 # ── T6: non-regression ───────────────────────────────────────────────────

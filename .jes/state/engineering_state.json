@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Fase 1: catalog-bound refresh B1 FAIL review \u2014 motor family AttributeError. Claude hotfix: MotorSuggestion adapter + T1-motor; then Cursor re-review.",
+  "cycle_intent": "Fase 1: catalog-bound refresh B1 PASS WITH NOTES (N1 motor hotfix CLOSED). Suite 2406. Engineer Continuity smoke: actualiza esc on demo \u2192 Board 15g \u2192 CLOSE.",
   "scope": "implementation_contract_catalog_bound_refresh_b1",
-  "execution_status": "catalog_bound_refresh_b1_fail_motor_hotfix",
-  "current_mode": "Implementation hotfix \u2014 Claude: motor refresh adapter",
+  "execution_status": "catalog_bound_refresh_b1_pass_await_smoke",
+  "current_mode": "Engineer smoke \u2014 Continuity refresh demo ESC",
   "movement_trigger": {
     "type": "implementation_review",
-    "note": "2026-09-08 FAIL \u2014 bind_motor_from_catalog expects MotorSuggestion not sku str"
+    "note": "2026-09-08 PASS WITH NOTES after motor MotSuggestion adapter hotfix; suite 2406"
   },
   "relevant_workflow_phases": [
-    "implement"
+    "verify"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -74,7 +74,7 @@
     "geometry_assembly_pose_b1plus": "\u2605 DEFERRED CLOSED (B0) 2026-09-07 \u2014 no pose schema",
     "geometry_assembly_relation_rung": "\u2605 LOCKED CLOSED 2026-09-08 \u2014 mounted_on + Continuity + edges; idle",
     "catalog_bound_property_freshness_b1": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 lean B1",
-    "catalog_bound_refresh_b1": "IMPLEMENTATION REVIEWED FAIL 2026-09-08 \u2014 motor adapter hotfix",
+    "catalog_bound_refresh_b1": "IMPLEMENTATION REVIEWED PASS WITH NOTES 2026-09-08 \u2014 await Engineer ESC smoke",
     "geometry_assembly_fit_compare": "QUEUED STUB \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605 (fit-as-default FROZEN)",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
@@ -216,7 +216,7 @@
     "geometry_assembly_pose_b1plus_defer_ic": "IMPLEMENTED_DOC_ONLY_CLOSED",
     "geometry_assembly_relation_rung_lock": "LOCKED_CLOSED_IDLE_2026_09_08",
     "catalog_bound_property_freshness_b1_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_B1",
-    "catalog_bound_refresh_b1_ic": "FAIL_MOTOR_HOTFIX",
+    "catalog_bound_refresh_b1_ic": "PASS_WITH_NOTES_AWAIT_SMOKE",
     "geometry_assembly_fit_compare_ic": "QUEUED_STUB_BLOCKED",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }

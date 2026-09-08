@@ -292,8 +292,14 @@ def set_component_mounted_on(
     return project_state.model_copy(update={"design_properties": updated_dp})
 
 
+# Motor Geometry B1 (Minimum Geometric KNOW): bind_motor_from_catalog is the
+# one binder whose first argument is a MotorSuggestion dict, not a bare SKU
+# string — it's the only bind of the five whose input isn't already the
+# full catalog record (see its own docstring). Not dispatchable through the
+# same {sku: str, base: spec} shape as the other four; handled explicitly
+# in refresh_component_from_catalog below instead of forcing a shared
+# signature that doesn't fit.
 _REFRESH_BINDERS: dict[str, Any] = {
-    "motor": bind_motor_from_catalog,
     "battery": bind_battery_from_catalog,
     "propeller": bind_propeller_from_catalog,
     "esc": bind_esc_from_catalog,
@@ -306,7 +312,7 @@ def refresh_component_from_catalog(project_state: Any, component_key: str) -> An
     re-proyectar los físicos de un componente ya vinculado a catálogo desde
     el seed ACTUAL.
 
-    Reuses each ``bind_*_from_catalog(sku, base=spec)`` exactly as-is (no
+    Reuses each ``bind_*_from_catalog(..., base=spec)`` exactly as-is (no
     new merge logic): ``base.model_copy`` only overwrites ``properties``/
     ``completeness``/``catalog_ref`` on the existing spec, so ``mounted_on``,
     ``name``, ``parent_key``, and every other field survive untouched —
@@ -318,7 +324,9 @@ def refresh_component_from_catalog(project_state: Any, component_key: str) -> An
     Never called from Board load/read or any projector path — only from an
     explicit Continuity IDLE phrase (catalog_refresh_assist). Raises
     ``ValueError`` (never a silent no-op or an invented value) when the key
-    is undeclared or not catalog-bound — there is nothing honest to refresh.
+    is undeclared, not catalog-bound, names an unsupported family, or (motor
+    only) the bound SKU no longer exists in the live library — there is
+    nothing honest to refresh in any of those cases.
 
     Returns the updated ProjectState (not persisted — caller must save).
     """
@@ -329,11 +337,24 @@ def refresh_component_from_catalog(project_state: Any, component_key: str) -> An
     catalog_ref = spec.catalog_ref
     if catalog_ref is None:
         raise ValueError(f"'{component_key}' no está vinculado a catálogo — nada que actualizar.")
-    binder = _REFRESH_BINDERS.get(catalog_ref.family)
-    if binder is None:
-        raise ValueError(f"Familia de catálogo '{catalog_ref.family}' no soportada para actualizar.")
 
-    refreshed = binder(catalog_ref.sku, base=spec)
+    if catalog_ref.family == "motor":
+        from jarvis.core.motor_catalog_assist import motor_spec_to_suggestion
+
+        try:
+            motor_spec = default_library.get_motor(catalog_ref.sku)
+        except KeyError as exc:
+            raise ValueError(
+                f"'{catalog_ref.sku}' ya no está en el catálogo — nada que actualizar."
+            ) from exc
+        suggestion = motor_spec_to_suggestion(motor_spec)
+        refreshed = bind_motor_from_catalog(suggestion, base=spec)
+    else:
+        binder = _REFRESH_BINDERS.get(catalog_ref.family)
+        if binder is None:
+            raise ValueError(f"Familia de catálogo '{catalog_ref.family}' no soportada para actualizar.")
+        refreshed = binder(catalog_ref.sku, base=spec)
+
     updated_components = {**components, component_key: refreshed}
     updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
     return project_state.model_copy(update={"design_properties": updated_dp})
