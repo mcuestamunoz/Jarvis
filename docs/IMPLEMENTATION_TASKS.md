@@ -7,20 +7,16 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2406**.  
-> **PRIORIDAD AHORA:** Fase 2 **geometry-for-all** investigation READY → **Claude report**.  
-> **Eje ★:** Secuencia E → **G** → Conn. E (refresh) PASS WITH NOTES @ 2406 — Engineer ESC smoke when ready (parallel).  
-> **Cola:** Conn (Fase 3) · fit/pose parked.  
+> **PRIORIDAD AHORA:** Fase 2 geometry-for-all — investigation **PASS WITH NOTES** · await Engineer ★ **B1** or **B0**.  
+> **Eje ★:** B1 = narrow text (standoff heights + iFlight body) · B0 = defer G → Conn.  
+> **Suite:** **2406**. E refresh smoke still parallel.  
+> **Cola:** Conn · fit/pose parked.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 INVESTIGATION READY — Geometry for all B1 (2026-09-08) · Fase 2 / G
+### 🟡 INVESTIGATION REVIEWED — Geometry for all B1 (2026-09-08) · lean B1 ≈ B0
 
-> **Contract:** [investigation_contract_geometry_for_all_b1.md](../.jes/artifacts/investigation_contract_geometry_for_all_b1.md) — **Claude next**.  
-> **Hallazgo triage:** plates/arms = thickness only (no glyph); cage/standoff = material; sensors Here3 frozen; propellers likely disk-ready via `diameter_in`.
-
-### 🟢 IMPLEMENTATION REVIEWED — Catalog-bound refresh B1 (2026-09-08) · PASS WITH NOTES · Fase 1 / E
-
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_catalog_bound_refresh_b1.md) · [report](../.jes/artifacts/implementation_report_catalog_bound_refresh_b1.md) · [review](../.jes/artifacts/implementation_review_catalog_bound_refresh_b1.md) — **PASS WITH NOTES**.  
-> **Smoke (parallel):** Engineer — `actualiza el esc desde catálogo` → Board 15 g → then mark E CLOSED.
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_for_all_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_for_all_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_for_all_b1.md) — **PASS WITH NOTES**.  
+> **★ next:** Buy **B1** (Cursor IC) or **B0** (skip to Conn). No IC until pick.
 
 ### 🟢 LOCK — Geometry assembly relation rung CLOSED (2026-09-08)
 

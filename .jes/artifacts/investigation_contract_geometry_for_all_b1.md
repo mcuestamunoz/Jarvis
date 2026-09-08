@@ -8,7 +8,9 @@
 **Reviewer:** Cursor (Investigation Review)  
 **Output (you write this):** `.jes/artifacts/investigation_report_geometry_for_all_b1.md`
 
-**Status:** READY FOR INVESTIGATION  
+**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · lean **B1** (B0 equally defensible) · await Engineer ★  
+**Report:** [investigation_report_geometry_for_all_b1.md](investigation_report_geometry_for_all_b1.md)  
+**Review:** [investigation_review_geometry_for_all_b1.md](investigation_review_geometry_for_all_b1.md)  
 **Parents:**
 - Engineer sequence: Fase 1 hygiene **E** → Fase 2 geometry-all **G** → Fase 3 connect **Conn**
 - [implementation_contract_catalog_bound_refresh_b1.md](implementation_contract_catalog_bound_refresh_b1.md) — **PASS WITH NOTES** @ suite **2406** (Fase 1 refresh path shipped; demo ESC smoke may still be pending)

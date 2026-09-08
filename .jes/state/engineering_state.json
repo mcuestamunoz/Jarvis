@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Fase 2 G: investigation geometry-for-all B1 READY. Claude report. Inventory gaps (plates LxW, cage/standoff, sensors freeze, propeller glyph). E refresh PASS@2406 smoke parallel.",
+  "cycle_intent": "Fase 2 G: geometry-for-all investigation PASS WITH NOTES. Lean B1 text enrichment (standoff heights + iFlight body) with B0 (defer to Conn) equally defensible. Await Engineer \u2605 pick before IC.",
   "scope": "investigation_contract_geometry_for_all_b1",
-  "execution_status": "geometry_for_all_b1_investigation_ready",
-  "current_mode": "Investigation \u2014 Claude: geometry-for-all B1 report",
+  "execution_status": "geometry_for_all_b1_await_star_buy",
+  "current_mode": "Await Engineer \u2605 \u2014 B1 IC or B0 Conn",
   "movement_trigger": {
-    "type": "engineer_buy",
-    "note": "2026-09-08 Engineer procede siguiente after refresh PASS WITH NOTES; open G investigation (not IC \u2014 sourcing undefined)"
+    "type": "investigation_review",
+    "note": "2026-09-08 PASS WITH NOTES; live page quotes confirmed; no IC until B1/B0 pick"
   },
   "relevant_workflow_phases": [
-    "investigate"
+    "decide"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -75,15 +75,16 @@
     "geometry_assembly_relation_rung": "\u2605 LOCKED CLOSED 2026-09-08 \u2014 mounted_on + Continuity + edges; idle",
     "catalog_bound_property_freshness_b1": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 lean B1",
     "catalog_bound_refresh_b1": "IMPLEMENTATION REVIEWED PASS WITH NOTES 2026-09-08 \u2014 await Engineer ESC smoke (parallel)",
-    "geometry_for_all_b1": "INVESTIGATION CONTRACT READY 2026-09-08 \u2014 Claude report",
+    "geometry_for_all_b1": "INVESTIGATION REVIEWED PASS WITH NOTES 2026-09-08 \u2014 lean B1 approx B0 await \u2605",
     "geometry_assembly_fit_compare": "QUEUED STUB \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605 (fit-as-default FROZEN)",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
     ".jes/artifacts/investigation_contract_geometry_for_all_b1.md",
-    ".jes/artifacts/investigation_report_geometry_for_all_b1.md"
+    ".jes/artifacts/investigation_report_geometry_for_all_b1.md",
+    ".jes/artifacts/investigation_review_geometry_for_all_b1.md"
   ],
-  "active_operation": "investigation_geometry_for_all_b1",
+  "active_operation": "geometry_for_all_b1_await_star",
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
@@ -218,7 +219,7 @@
     "geometry_assembly_relation_rung_lock": "LOCKED_CLOSED_IDLE_2026_09_08",
     "catalog_bound_property_freshness_b1_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_B1",
     "catalog_bound_refresh_b1_ic": "PASS_WITH_NOTES_AWAIT_SMOKE",
-    "geometry_for_all_b1_investigation": "READY",
+    "geometry_for_all_b1_investigation": "REVIEWED_PASS_WITH_NOTES_AWAIT_STAR",
     "geometry_assembly_fit_compare_ic": "QUEUED_STUB_BLOCKED",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
