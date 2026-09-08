@@ -323,6 +323,17 @@ def bind_frame_from_catalog(
         projected["configuration"] = PropertyValue(
             value=spec.configuration, unit=None, confidence=0.9, source="declared"
         )
+    # Geometry-for-all B1 — declared body footprint (root-only, additive,
+    # never enters _frame_completeness): representar text only, never a box
+    # glyph input alone (no accompanying height sourced for any seed row).
+    if spec.body_length_mm is not None:
+        projected["body_length_mm"] = PropertyValue(
+            value=spec.body_length_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.body_width_mm is not None:
+        projected["body_width_mm"] = PropertyValue(
+            value=spec.body_width_mm, unit="mm", confidence=0.9, source="declared"
+        )
     if base is not None:
         merged_properties = {**(base.properties or {}), **projected}
         completeness, missing_fields = _frame_completeness(merged_properties)
@@ -380,8 +391,12 @@ def frame_part_specs_from_catalog(sku: str, *, library: ComponentLibrary | None 
         material: str | None,
         thickness_mm: float | None = None,
         label: str | None = None,
+        height_mm: float | str | None = None,
     ) -> None:
-        if count is None and material is None and thickness_mm is None and label is None:
+        if (
+            count is None and material is None and thickness_mm is None
+            and label is None and height_mm is None
+        ):
             return
         props: dict[str, PropertyValue] = {}
         if count is not None:
@@ -394,6 +409,11 @@ def frame_part_specs_from_catalog(sku: str, *, library: ComponentLibrary | None 
             )
         if label is not None:
             props["label"] = PropertyValue(value=label, unit=None, confidence=0.9, source="declared")
+        if height_mm is not None:
+            # Geometry-for-all B1 — standoff height only (never a diameter,
+            # never merged with thickness_mm). A str value here is a
+            # multi-height page quote joined "30 / 22" — never dropped.
+            props["height_mm"] = PropertyValue(value=height_mm, unit="mm", confidence=0.9, source="declared")
         # N6 (locked, not "fixed" incidentally): every catalog-projected part
         # is hardcoded "high" here, independent of _structure_part_completeness
         # (which only free-text/upsert_frame_part ever call). Known
@@ -438,7 +458,24 @@ def frame_part_specs_from_catalog(sku: str, *, library: ComponentLibrary | None 
         _part(FRAME_PLATE_KEY, "plate", spec.plate_count, spec.plate_material)
 
     _part(FRAME_CAGE_KEY, "cage", None, spec.cage_material)
-    _part(FRAME_STANDOFF_KEY, "standoff", spec.standoff_count, spec.standoff_material)
+    # Geometry-for-all B1: standoff height(s), never dropped when a page
+    # states more than one (single float when exactly one; " / " joined
+    # string, seed order, when 2+ — never averaged, never picks "the first
+    # one"). count/material scalars are unaffected — a row may have height
+    # data, material data, both, or neither.
+    standoff_height: float | str | None = None
+    if spec.standoffs:
+        heights = [s.height_mm for s in spec.standoffs]
+        if len(heights) == 1:
+            standoff_height = heights[0]
+        else:
+            standoff_height = " / ".join(
+                str(int(h)) if float(h).is_integer() else str(h) for h in heights
+            )
+    _part(
+        FRAME_STANDOFF_KEY, "standoff", spec.standoff_count, spec.standoff_material,
+        height_mm=standoff_height,
+    )
     return parts
 
 

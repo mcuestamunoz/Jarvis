@@ -201,7 +201,10 @@ def test_rebind_to_tbs_clears_stale_armattan_children(tmp_path: Path):
     (arm + 4 curated plate siblings + cage + standoff) -> rebind pick TBS ->
     every stale Armattan child gone; TBS's own sourced arm_thickness_mm +
     curated 3-plate list (Top/Middle/Bottom) project fresh children rather
-    than surviving with Armattan's material/labels."""
+    than surviving with Armattan's material/labels. Geometry-for-all B1:
+    TBS 5in also legitimately re-creates frame_standoff (its own page-stated
+    30mm/22mm heights) — a fresh, differently-shaped standoff child, not a
+    survival of Armattan's stale material-only one."""
     orch = _closed_project_bound_frame(tmp_path)
     before = orch.state_manager.load_active_project(orch.workspace_manager)
     assert sorted(
@@ -222,7 +225,9 @@ def test_rebind_to_tbs_clears_stale_armattan_children(tmp_path: Path):
         family="frame", sku="tbs_source_one_v5_5in"
     )
     remaining = sorted(k for k in after.design_properties.components if k.startswith("frame_"))
-    assert remaining == ["frame_arm", "frame_plate", "frame_plate_2", "frame_plate_3"], (
+    assert remaining == [
+        "frame_arm", "frame_plate", "frame_plate_2", "frame_plate_3", "frame_standoff",
+    ], (
         f"unexpected frame_* children survived rebind: {remaining}"
     )
     fresh_arm = after.design_properties.components["frame_arm"].properties
@@ -233,6 +238,11 @@ def test_rebind_to_tbs_clears_stale_armattan_children(tmp_path: Path):
     fresh_plate_2 = after.design_properties.components["frame_plate_2"].properties
     assert fresh_plate_2["label"].value == "Middle", (
         "stale Armattan plate label ('Top (LiPo) plate') must not survive rebind to TBS"
+    )
+    fresh_standoff = after.design_properties.components["frame_standoff"].properties
+    assert fresh_standoff["height_mm"].value == "30 / 22"
+    assert "material" not in fresh_standoff, (
+        "stale Armattan standoff material ('aluminio') must not survive rebind to TBS"
     )
 
 

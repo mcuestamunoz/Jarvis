@@ -184,6 +184,20 @@ class PlateSeed:
 
 
 @dataclass(frozen=True)
+class StandoffSeed:
+    """Geometry-for-all B1 — one curated, sourced standoff height on a
+    frame's seed row. ``height_mm`` is required per entry (a heightless
+    entry would be pointless) — ``count`` is optional and only set when the
+    cited page states a piece count for that height group (e.g. iFlight's
+    "25mm (4 pieces), 32mm (4 pieces)"). Never invented, never a diameter —
+    no source states a standoff diameter for any current seed row, so no
+    disk glyph is derivable from this data."""
+
+    height_mm: float
+    count: int | None = None
+
+
+@dataclass(frozen=True)
 class FrameSpec:
     """Structure Catalog Foundation IC-1/IC-2 + Structure B Parts Graph
     (Fase 1) — catalog entry: a real frame kit, optionally with declared
@@ -224,6 +238,18 @@ class FrameSpec:
     # Legacy scalar fallback: kept when this is None/empty (N2). Canonical
     # over the scalar plate_count/plate_material once non-empty.
     plates: list[PlateSeed] | None = None
+    # Geometry-for-all B1 — curated, sourced standoff heights (never a
+    # diameter — see StandoffSeed). Additive/optional; coexists with the
+    # legacy standoff_count/standoff_material scalars above (those stay
+    # material/count-only, this carries height only — never merged).
+    standoffs: list[StandoffSeed] | None = None
+    # Geometry-for-all B1 — declared frame BODY footprint (the central
+    # plate-stack area a manufacturer page states as "Body dimensions",
+    # distinct from wheelbase_mm which is motor-to-motor). Root-level only;
+    # never a full box glyph input alone (no accompanying height sourced
+    # for any current row) — representar text only.
+    body_length_mm: float | None = None
+    body_width_mm: float | None = None
 
 
 @dataclass(frozen=True)
@@ -750,6 +776,13 @@ class ComponentLibrary:
             ),
             standoff_material=data.get("standoff_material"),
             plates=ComponentLibrary._parse_plates(name, data.get("plates")),
+            standoffs=ComponentLibrary._parse_standoffs(name, data.get("standoffs")),
+            body_length_mm=(
+                float(data["body_length_mm"]) if data.get("body_length_mm") is not None else None
+            ),
+            body_width_mm=(
+                float(data["body_width_mm"]) if data.get("body_width_mm") is not None else None
+            ),
         )
 
     # Frame Assembly Physical Model B2, N7 lock: frame_plate + frame_plate_2
@@ -777,6 +810,24 @@ class ComponentLibrary:
                     float(entry["thickness_mm"]) if entry.get("thickness_mm") is not None else None
                 ),
                 material=entry.get("material"),
+            )
+            for entry in raw
+        ]
+
+    @staticmethod
+    def _parse_standoffs(name: str, raw: Any) -> list[StandoffSeed] | None:
+        if raw is None:
+            return None
+        if not isinstance(raw, list):
+            raise ValueError(
+                f"Frame '{name}': 'standoffs' debe ser una lista, no {type(raw).__name__}."
+            )
+        if not raw:
+            return None
+        return [
+            StandoffSeed(
+                height_mm=float(entry["height_mm"]),
+                count=(int(entry["count"]) if entry.get("count") is not None else None),
             )
             for entry in raw
         ]

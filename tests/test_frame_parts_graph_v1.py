@@ -424,13 +424,17 @@ def test_structure_pass_and_evidence_unchanged_with_vs_without_arm_thickness():
     assert with_thickness.subsystems["structure"].verdict == "PASS"
 
 
-def test_frame_part_specs_from_catalog_tbs_5in_arm_and_three_plates_no_cage_standoff():
+def test_frame_part_specs_from_catalog_tbs_5in_arm_and_three_plates_no_cage():
     """Frame Assembly Physical Model B2, T2 — TBS 5in has a sourced
     arm_thickness_mm (arms B2) *and* a curated 3-plate list (Top/Middle/
-    Bottom); still no cage/standoff (never stated on its page). Supersedes
-    the pre-this-IC "arm-thickness-only" shape."""
+    Bottom); still no cage (never stated on its page). Geometry-for-all B1:
+    the page's own "Standoff Height: 30mm and 22mm" is now seeded, so
+    frame_standoff carries a height_mm text field — no material/count,
+    since the page states neither of those for the standoffs."""
     parts = frame_part_specs_from_catalog("tbs_source_one_v5_5in")
-    assert set(parts.keys()) == {FRAME_ARM_KEY, "frame_plate", "frame_plate_2", "frame_plate_3"}
+    assert set(parts.keys()) == {
+        FRAME_ARM_KEY, "frame_plate", "frame_plate_2", "frame_plate_3", FRAME_STANDOFF_KEY,
+    }
     assert parts[FRAME_ARM_KEY].properties["thickness_mm"].value == pytest.approx(6.0)
     assert "material" not in parts[FRAME_ARM_KEY].properties
     assert "count" not in parts[FRAME_ARM_KEY].properties
@@ -439,8 +443,10 @@ def test_frame_part_specs_from_catalog_tbs_5in_arm_and_three_plates_no_cage_stan
     assert parts["frame_plate_2"].properties["label"].value == "Middle"
     assert parts["frame_plate_3"].properties["label"].value == "Bottom"
     assert parts["frame_plate_3"].properties["thickness_mm"].value == pytest.approx(2.5)
+    assert parts[FRAME_STANDOFF_KEY].properties["height_mm"].value == "30 / 22"
+    assert "material" not in parts[FRAME_STANDOFF_KEY].properties
+    assert "count" not in parts[FRAME_STANDOFF_KEY].properties
     assert FRAME_CAGE_KEY not in parts
-    assert FRAME_STANDOFF_KEY not in parts
 
 
 def test_upsert_frame_part_merges_and_sets_parent_key(tmp_path):

@@ -6,7 +6,9 @@
 **Implementer:** Claude Code  
 **Reviewer:** Cursor against this IC after the edit
 
-**Status:** READY FOR IMPLEMENTATION — Engineer ★ Buy **B1** (investigation lean)  
+**Status:** IMPLEMENTATION REVIEWED — **PASS WITH NOTES** · closable · suite **2418**  
+**Review:** [implementation_review_geometry_for_all_b1.md](implementation_review_geometry_for_all_b1.md)  
+**Report:** [implementation_report_geometry_for_all_b1.md](implementation_report_geometry_for_all_b1.md)  
 **Parents:**
 - [investigation_contract_geometry_for_all_b1.md](investigation_contract_geometry_for_all_b1.md)
 - [investigation_report_geometry_for_all_b1.md](investigation_report_geometry_for_all_b1.md) — lean **B1**

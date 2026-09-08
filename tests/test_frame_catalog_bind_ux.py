@@ -165,14 +165,16 @@ def test_frame_pick_with_seeded_parts_upserts_children(tmp_path: Path):
     assert "frame_cage" not in all_top_level
 
 
-def test_frame_pick_tbs_row_creates_arm_thickness_and_curated_plates_no_cage_standoff(
+def test_frame_pick_tbs_row_creates_arm_thickness_and_curated_plates_no_cage(
     tmp_path: Path,
 ):
-    """A SKU with no seeded arm/cage/standoff material or count but a
-    sourced arm_thickness_mm (arms B2) and a curated plates list (Frame
-    Assembly Physical Model B2 — any TBS row) must project frame_arm
-    (thickness only) plus its ordinal plate siblings, never fabricate
-    frame_cage/frame_standoff and never fabricate arm material/count."""
+    """A SKU with no seeded arm/cage material or count but a sourced
+    arm_thickness_mm (arms B2) and a curated plates list (Frame Assembly
+    Physical Model B2 — any TBS row) must project frame_arm (thickness
+    only) plus its ordinal plate siblings, never fabricate frame_cage and
+    never fabricate arm material/count. Geometry-for-all B1: TBS 5in's page
+    also states standoff heights (30mm/22mm, no material/count stated), so
+    frame_standoff legitimately projects here too — height text only."""
     o = _fresh(tmp_path)
     llm = _RefuseLLM()
     _open_frame_wizard(o)
@@ -183,8 +185,7 @@ def test_frame_pick_tbs_row_creates_arm_thickness_and_curated_plates_no_cage_sta
 
     state = o.state_manager.load_active_project(o.workspace_manager)
     components = state.design_properties.components
-    for key in ("frame_cage", "frame_standoff"):
-        assert key not in components
+    assert "frame_cage" not in components
     assert components["frame_arm"].parent_key == "frame"
     assert components["frame_arm"].properties["thickness_mm"].value == pytest.approx(6.0)
     assert "material" not in components["frame_arm"].properties
@@ -194,6 +195,10 @@ def test_frame_pick_tbs_row_creates_arm_thickness_and_curated_plates_no_cage_sta
     assert components["frame_plate_3"].properties["label"].value == "Bottom"
     for key in ("frame_plate", "frame_plate_2", "frame_plate_3"):
         assert components[key].parent_key == "frame"
+    assert components["frame_standoff"].properties["height_mm"].value == "30 / 22"
+    assert "material" not in components["frame_standoff"].properties
+    assert "count" not in components["frame_standoff"].properties
+    assert components["frame_standoff"].parent_key == "frame"
 
 
 # ── 5 — TBS-style seed without material: honest, no fabrication ────────────
