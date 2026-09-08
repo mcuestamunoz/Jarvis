@@ -216,7 +216,7 @@
     "geometry_assembly_pose_b1plus_defer_ic": "IMPLEMENTED_DOC_ONLY_CLOSED",
     "geometry_assembly_relation_rung_lock": "LOCKED_CLOSED_IDLE_2026_09_08",
     "catalog_bound_property_freshness_b1_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_B1",
-    "catalog_bound_refresh_b1_ic": "READY",
+    "catalog_bound_refresh_b1_ic": "FAIL_MOTOR_HOTFIX",
     "geometry_assembly_fit_compare_ic": "QUEUED_STUB_BLOCKED",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
