@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Fase 3 Conn: B1 IC READY \u2014 mounted_on parse symmetry (subject before en + component-noun target aliases). Claude implement.",
-  "scope": "implementation_contract_connect_remaining_mounted_on_b1",
-  "execution_status": "connect_remaining_mounted_on_b1_ic_ready",
-  "current_mode": "Implementation \u2014 Claude: Conn B1 parse fix",
+  "cycle_intent": "Fase 3 Conn B1 CLOSED (parse symmetry PASS WITH NOTES @ 2429). Sequence E\u2192G\u2192Conn complete. Idle \u2014 await Engineer next \u2605 (fit frozen; optional demo Continuity walk).",
+  "scope": "connect_remaining_mounted_on_b1_closed",
+  "execution_status": "connect_remaining_mounted_on_b1_closed",
+  "current_mode": "Idle \u2014 E\u2192G\u2192Conn closed @ 2429",
   "movement_trigger": {
-    "type": "investigation_review",
-    "note": "2026-09-08 PASS WITH NOTES; N1 dual lock; IC authored READY"
+    "type": "implementation_review",
+    "note": "2026-09-08 PASS WITH NOTES suite 2429; Conn closed"
   },
   "relevant_workflow_phases": [
-    "implement"
+    "idle"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -76,15 +76,16 @@
     "catalog_bound_property_freshness_b1": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 lean B1",
     "catalog_bound_refresh_b1": "IMPLEMENTATION REVIEWED PASS WITH NOTES 2026-09-08 \u2014 await Engineer ESC smoke (parallel)",
     "geometry_for_all_b1": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2418)",
-    "connect_remaining_mounted_on_b1": "IC READY 2026-09-08 \u2014 \u2605 Buy B1 parse symmetry \u2014 Claude implement",
+    "connect_remaining_mounted_on_b1": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2429)",
     "geometry_assembly_fit_compare": "QUEUED STUB \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605 (fit-as-default FROZEN)",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
     ".jes/artifacts/implementation_contract_connect_remaining_mounted_on_b1.md",
-    ".jes/artifacts/implementation_report_connect_remaining_mounted_on_b1.md"
+    ".jes/artifacts/implementation_report_connect_remaining_mounted_on_b1.md",
+    ".jes/artifacts/implementation_review_connect_remaining_mounted_on_b1.md"
   ],
-  "active_operation": "implementation_connect_remaining_mounted_on_b1",
+  "active_operation": "idle_egc_sequence_closed",
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
@@ -222,7 +223,7 @@
     "geometry_for_all_b1_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
     "geometry_for_all_b1_ic": "CLOSED_PASS_WITH_NOTES_2418",
     "connect_remaining_mounted_on_b1_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
-    "connect_remaining_mounted_on_b1_ic": "READY",
+    "connect_remaining_mounted_on_b1_ic": "CLOSED_PASS_WITH_NOTES_2429",
     "geometry_assembly_fit_compare_ic": "QUEUED_STUB_BLOCKED",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }

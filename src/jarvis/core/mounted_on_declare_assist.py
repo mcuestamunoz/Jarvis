@@ -156,6 +156,23 @@ def _resolve_target(normalized: str, components: dict) -> MountDeclareResult | s
         # zero plates declared — nothing to resolve to
         return None
 
+    # Conn B1: component-noun aliases (the same fixed-priority table used
+    # for subjects, e.g. "motores" -> motors, "esc" -> esc) — scoped to the
+    # TARGET segment only, and only when that key already exists in
+    # components. Never invents a key. This is what lets "hélices montadas
+    # en los motores" resolve a target at all — "motores" is not a frame
+    # part noun, it's an electronics/propulsion key phrased in Spanish.
+    alias = _resolve_target_component_alias(normalized, components)
+    if alias is not None:
+        return alias
+
+    return None
+
+
+def _resolve_target_component_alias(normalized: str, components: dict) -> str | None:
+    for key, pattern in _SUBJECT_PATTERNS:
+        if pattern.search(normalized) and key in components:
+            return key
     return None
 
 
@@ -179,14 +196,23 @@ def parse_mounted_on_declare(user_input: str, components: dict) -> MountDeclareR
     if not is_set_phrase:
         return _NONE
 
-    subject = _resolve_subject(normalized)
+    en_match = _EN_RE.search(normalized)
+    # Conn B1: subject resolution is scoped to the text BEFORE the first
+    # "en" — the exact mirror of the target-segment discipline below.
+    # Without this, "helices montadas en los motores" misresolved "motors"
+    # as the subject: "motores" also matches the motors subject pattern,
+    # which outranks propellers in the fixed priority table, and the old
+    # code scanned the WHOLE phrase for a subject with no positional
+    # awareness. Scoping to "before en" means the target segment's own
+    # nouns can never leak into subject resolution.
+    subject_segment = normalized[:en_match.start()] if en_match else normalized
+    subject = _resolve_subject(subject_segment)
     if subject is None:
         return _NONE
 
     # Target resolution only looks AFTER the first "en" — never at the
     # subject's own text before it — so e.g. "esc montado en frame_plate"
     # can never resolve "esc" itself as its own target.
-    en_match = _EN_RE.search(normalized)
     target_segment = normalized[en_match.end():] if en_match else ""
 
     target = _resolve_target(target_segment, components)

@@ -7,18 +7,24 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2418**.  
-> **PRIORIDAD AHORA:** IC **Conn B1** READY — Claude implement (subject-before-`en` + target noun aliases).  
-> **Eje ★:** Bug-fix Continuity parse — natural hélices→motores / sensor→esc.  
-> **Suite:** **2418**.  
-> **Cola:** fit/pose parked.  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2429**.  
+> **PRIORIDAD AHORA:** Secuencia E → G → **Conn CLOSED**. Idle / next ★ aparte (fit frozen; optional demo Continuity walk).  
+> **Eje ★:** Parse symmetry shipped — natural hélices→motores / sensor→esc.  
+> **Cola:** fit/pose parked · optional smoke (ESC refresh + Conn walk).  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 IC READY — Connect remaining mounted_on B1 (2026-09-08) · Fase 3 / Conn · ★ Buy B1
+### 🟢 CERRADO — Connect remaining mounted_on B1 (2026-09-08) · Fase 3 / Conn · suite **2429**
 
-> **IC:** [implementation_contract_connect_remaining_mounted_on_b1.md](../.jes/artifacts/implementation_contract_connect_remaining_mounted_on_b1.md) — **Claude next**.  
-> **Investigation:** [contract](../.jes/artifacts/investigation_contract_connect_remaining_mounted_on_b1.md) · [report](../.jes/artifacts/investigation_report_connect_remaining_mounted_on_b1.md) · [review](../.jes/artifacts/investigation_review_connect_remaining_mounted_on_b1.md) — **PASS WITH NOTES**.
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_connect_remaining_mounted_on_b1.md) · [report](../.jes/artifacts/implementation_report_connect_remaining_mounted_on_b1.md) · [review](../.jes/artifacts/implementation_review_connect_remaining_mounted_on_b1.md) — **PASS WITH NOTES**.
 
 ### 🟢 CERRADO — Geometry for all B1 (2026-09-08) · Fase 2 / G · suite **2418**
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_for_all_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_for_all_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_for_all_b1.md) — **PASS WITH NOTES**.
+
+### 🟢 IMPLEMENTATION REVIEWED — Catalog-bound refresh B1 (2026-09-08) · Fase 1 / E · PASS WITH NOTES
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_catalog_bound_refresh_b1.md) · [report](../.jes/artifacts/implementation_report_catalog_bound_refresh_b1.md) · [review](../.jes/artifacts/implementation_review_catalog_bound_refresh_b1.md).  
+> **Smoke (parallel):** `actualiza el esc` → Board 15 g.
 
 > **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_for_all_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_for_all_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_for_all_b1.md) — **PASS WITH NOTES**.
 
