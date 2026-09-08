@@ -7,16 +7,16 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2406**.  
-> **PRIORIDAD AHORA:** Fase 2 geometry-for-all — investigation **PASS WITH NOTES** · await Engineer ★ **B1** or **B0**.  
-> **Eje ★:** B1 = narrow text (standoff heights + iFlight body) · B0 = defer G → Conn.  
-> **Suite:** **2406**. E refresh smoke still parallel.  
+> **PRIORIDAD AHORA:** IC **geometry-for-all B1** READY — Claude implement.  
+> **Eje ★:** Buy B1 — standoff heights (TBS+iFlight) + iFlight body 202×202 on frame root; text only.  
+> **Suite:** **2406**. Demo Armattan no cambia.  
 > **Cola:** Conn · fit/pose parked.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 INVESTIGATION REVIEWED — Geometry for all B1 (2026-09-08) · lean B1 ≈ B0
+### 🟡 IC READY — Geometry for all B1 (2026-09-08) · Fase 2 / G · ★ Buy B1
 
-> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_for_all_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_for_all_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_for_all_b1.md) — **PASS WITH NOTES**.  
-> **★ next:** Buy **B1** (Cursor IC) or **B0** (skip to Conn). No IC until pick.
+> **IC:** [implementation_contract_geometry_for_all_b1.md](../.jes/artifacts/implementation_contract_geometry_for_all_b1.md) — **Claude next**.  
+> **Investigation:** [contract](../.jes/artifacts/investigation_contract_geometry_for_all_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_for_all_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_for_all_b1.md) — **PASS WITH NOTES**.
 
 ### 🟢 IMPLEMENTATION REVIEWED — Catalog-bound refresh B1 (2026-09-08) · Fase 1 / E · PASS WITH NOTES
 

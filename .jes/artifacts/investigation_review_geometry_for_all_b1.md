@@ -9,7 +9,7 @@
 
 **PASS WITH NOTES**
 
-Evidence quality is high (live projector + live page re-fetch). Lean **B1** (narrow text enrichment) is Buy-eligible; **B0** (defer → Conn) is equally honest given zero new glyphs and tiny Board payoff. Engineer ★ picks B1 or B0 — **no IC authored** until that pick.
+Evidence quality is high (live projector + live page re-fetch). Lean **B1** (narrow text enrichment) is Buy-eligible; **B0** (defer → Conn) is equally honest given zero new glyphs and tiny Board payoff. Engineer ★ picks B1 or B0 — **IC authored on ★ Buy B1** (see [implementation_contract_geometry_for_all_b1.md](implementation_contract_geometry_for_all_b1.md)).
 
 ---
 
