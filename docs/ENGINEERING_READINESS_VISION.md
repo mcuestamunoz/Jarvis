@@ -1,8 +1,8 @@
 # Engineering Readiness Vision
 
-**Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure ✅ §11; Claim Hygiene ✅, Control Parity ✅, Structure Foundations ✅, Structure Catalog Foundation IC-1→IC-3 ✅, Structure honesty `PASS *` ✅, Structure B Parts Graph Fase 1 ✅, G-N1 ✅, IDLE rebind B2+B3 ✅, arm `thickness_mm` B2 ✅, plate multiplicity B2 ✅ — §8; spatial board visor + B3 honest absence ✅; Geometry `representar` first families ✅; sensors BOM honesty ✅; Geometry spatial progression ★ locked — **visualizar** investigation OPEN)  
+**Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure ✅ §11; Structure + spatial board + Geometry `representar`/glyphs/`mounted_on`/visualizar-3D ✅ — §8; **PRIORIDAD = 3D mapping path** — Scene3D-from-pose investigation first, not IC)  
 **Type:** Vision / To-be  
-**Date:** 2026-09-07 (tag **v0.3.8** · suite **2336**; Geometry `representar` CLOSED for first families; **visualizar** investigation OPEN; Prop/Energy = HD-004 wall; System Optimization **deferred** until pain)
+**Date:** 2026-09-08 (tag **v0.3.8** · suite **2429**; Conn walk ACCEPT; 3D Board horizon ★ locked; Prop/Energy = HD-004 wall; System Optimization **deferred** until pain)
 
 ---
 
@@ -330,12 +330,12 @@ Out of scope (debt / MEASURE wall): tip-clearance / FEA / CAD · `mounts_on` · 
 > Sensors BOM: GNSS vs bare `sensor_type` honesty tails — Control PASS * unchanged (sensors-blind).  
 > **Not** glyphs · **not** pose/assembly · **not** fit.
 
-### ★ Geometry spatial progression — LOCKED (2026-09-07)
+### ★ Geometry spatial progression — LOCKED (2026-09-07) + 3D horizon (2026-09-08)
 
-> Lock: [`.jes/artifacts/engineer_lock_geometry_spatial_representation_progression.md`](../.jes/artifacts/engineer_lock_geometry_spatial_representation_progression.md)  
-> Progression: verified dims → **2D/simple glyphs** → pose → assembly → geometric compare → fit → serious CAD.  
-> **PRIORIDAD:** investigation Board glyph vocabulary ([contract](../.jes/artifacts/investigation_contract_geometry_board_glyph_vocabulary.md)) — rung **`visualizar`**.  
-> Explicitly **out** of next Buy: `mounted_on`, clearance, STEP/FEA.
+> Glyphs / relation locks: [progression](../.jes/artifacts/engineer_lock_geometry_spatial_representation_progression.md) · [assembly relation CLOSED](../.jes/artifacts/engineer_lock_geometry_assembly_relation_rung_closed.md)  
+> **Horizonte de producto (Engineer 2026-09-08):** [3D placement](../.jes/artifacts/engineer_lock_geometry_3d_placement_horizon.md) — visualizar-3D **CLOSED** (sólidos CSS 3D + click-inspect); más tarde colocar (`mounted_on` guía) → más tarde `"cabe"` vs esa situación.  
+> **PRIORIDAD:** [3D mapping path](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md) — Scene3D-from-pose investigation first. `"cabe"` / N-motores = later rungs, **no** IC this cut.  
+> Glifo 2D ya shipped. Relación `mounted_on` CLOSED. Fit stub sigue QUEUED.
 
 ### System-level Optimization — DEFERRED (Engineer lock 2026-09-05)
 
@@ -363,7 +363,7 @@ Allowed later (optional): investigation of *what evidence schema to ingest when 
 - No new source of truth replaces ProjectState.
 - No LLM authority over engineering next-step decisions.
 - No implicit rewrite of existing acquisition/continuity contracts — Continuity remains next-step copy authority; see [`PROJECT_CONTINUITY.md`](./PROJECT_CONTINUITY.md).
-- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. **As of 2026-09-07** tag **v0.3.8** · suite **2336**; Structure + board B3 + Geometry `representar` (Battery/Motor/ESC/FC) + sensors BOM honesty **CLOSED**; **PRIORIDAD = Board glyph vocabulary investigation** (`visualizar`; no IC, no code). Pose/assembly/fit deferred by progression lock. Board B1 layout-on-disk is named debt, not PRIORIDAD. System Optimization **deferred** until pain. Prop/Energy experimental = **HD-004 wall**. MEASURE/CAD is not the default. Free-text multi-plate / G-N*/C3 / completeness hardcode remain debt.
+- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. **As of 2026-09-08** tag **v0.3.8** · suite **2456**; visualizar-3D CLOSED; Continuity pose writer CLOSED; **PRIORIDAD = 3D mapping path** (Scene3D-from-pose investigation first, not IC). Board B1 layout-on-disk is named debt, not PRIORIDAD. System Optimization **deferred** until pain. Prop/Energy experimental = **HD-004 wall**. MEASURE/CAD is not the default.
 - **Hardware-gated physics** (T1/T2 lab before any sibling field) lives in [`HARDWARE_DEBT.md`](./HARDWARE_DEBT.md) — **debt register, never 🔴 PRIORIDAD ACTUAL** (Engineer: no lab equipment). Includes HD-004 OP→consumption for autonomy. Not in the software/product queue.
 
 ---

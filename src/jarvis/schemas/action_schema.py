@@ -140,6 +140,30 @@ class CatalogRef(BaseModel):
     sku: str
 
 
+class DeclaredBoxPose(BaseModel):
+    """Geometry pose B1 — declared millimetre offset in a box-local frame.
+
+    Origin point is always the geometric center of ``origin_key``'s declared
+    ``geometry: box`` (a pure function of that spec's own sourced
+    length_mm/width_mm/height_mm — never a new dimension, never a plate
+    corner or centroid invented for a shapeless part).
+
+    Axes are Jarvis-DECLARED, not sourced: length_mm=+X, width_mm=+Y,
+    height_mm=+Z. This is a risk-accepted convention, not a manufacturer
+    claim — every seeded box's own source_note states its L/W/H order is
+    "verbatim print order" (investigation_report_geometry_pose_box_anchor.md
+    §3), so this mapping is NOT airframe heading, NOT gravity-relative up,
+    and NOT a catalog fact. `mounted_on` remains the separate, orthogonal
+    relation (which component) — this field never replaces it and is never
+    inferred from it.
+    """
+
+    origin_key: str
+    x_mm: float | None = None
+    y_mm: float | None = None
+    z_mm: float | None = None
+
+
 class ComponentSpec(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -179,9 +203,19 @@ class ComponentSpec(BaseModel):
     # x/y, localStorage layout, BOM co-membership, or cardinality-of-one.
     # No pose: no position, orientation, offset, or face/side semantics —
     # "declared mounted on X", never "fits" / "assembled" / "verified".
+    # Pose (when declared) lives in the separate declared_box_pose field
+    # below — orthogonal, optional, never inferred from this relation.
     # Additive, default None — every existing/serialized project deserializes
     # unchanged.
     mounted_on: str | None = None
+    # Geometry Pose Declared Box-Local Frame B1 — optional declared
+    # millimetre offset in another box-having component's own local frame.
+    # See DeclaredBoxPose's own docstring for the origin/axes honesty
+    # discipline. Set only via component_writers.set_component_declared_box_
+    # pose — never inferred from mounted_on, Board x/y, or localStorage
+    # layout. Additive, default None — every existing/serialized project
+    # deserializes unchanged.
+    declared_box_pose: DeclaredBoxPose | None = None
 
 
 class IterationOperation(str, Enum):

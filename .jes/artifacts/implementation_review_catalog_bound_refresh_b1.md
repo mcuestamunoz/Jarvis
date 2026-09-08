@@ -66,4 +66,4 @@ Report baseline **2385** is the pre-implementation count; post-hotfix green is *
 
 ## Phase
 
-Implementation **reviewable closable** pending Engineer ESC Board smoke → then mark CLOSED. Next cola: Fase 2 geometry-all (separate ★).
+Implementation **CLOSED**. Engineer ESC Board smoke **ACCEPT** (26→15 on CLI + Board). Sequence E complete.

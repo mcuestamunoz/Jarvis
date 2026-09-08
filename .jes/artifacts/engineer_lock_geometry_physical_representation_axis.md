@@ -50,8 +50,9 @@ Spatial board **B3 honest absence** (ghost slots) shipped on the live tree (revi
 
 ## Next
 
-1. ~~Investigation: minimum physical object~~ → **CLOSED** (Battery B1 and follow-on families)
-2. Progression lock: [engineer_lock_geometry_spatial_representation_progression.md](engineer_lock_geometry_spatial_representation_progression.md)
-3. Investigation: [investigation_contract_geometry_board_glyph_vocabulary.md](investigation_contract_geometry_board_glyph_vocabulary.md) — **visualizar**
-4. **No code** until IC after ★ Buy on glyphs
-5. Pose / assembly / fit remain later ★
+1. ~~Investigation: minimum physical object~~ → **CLOSED**
+2. Progression lock + glyphs B1 + assembly **relation** → **CLOSED**
+3. **CLOSED:** click-inspect + CSS 3D + declared box-local pose **writer** B1 @ **2438**.
+4. **CLOSED:** Continuity pose B1 @ **2456** + ACCEPT.
+5. **CLOSED (stance):** [pre-assembly honesty](engineer_lock_geometry_pre_assembly_honesty.md). R1/R2 **CLOSED** CLI walk.
+6. **LOCKED (queue):** [3D mapping path](engineer_lock_geometry_3d_mapping_path.md) — five rungs. Next = Scene3D-from-pose investigation.

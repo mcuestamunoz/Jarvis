@@ -8,7 +8,8 @@
 
 **Parents:**
 - [engineer_lock_geometry_spatial_representation_progression.md](engineer_lock_geometry_spatial_representation_progression.md) — ladder: assembly → **comparar/verificar** → CAD
-- Assembly espacial B1 + Continuity + (queued) B2 edges / pose
+- [engineer_lock_geometry_3d_placement_horizon.md](engineer_lock_geometry_3d_placement_horizon.md) — `"cabe"` is the last rung of the 3D horizon; still not this stub
+- Assembly espacial B1 + Continuity + B2 edges CLOSED; pose B0 DEFERRED
 
 ---
 

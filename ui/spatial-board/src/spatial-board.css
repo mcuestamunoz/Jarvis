@@ -150,6 +150,14 @@ html, body, #root {
   color: #aaa;
 }
 
+/* Board click-inspect B1− — outline only, never changes box size/position
+   (no layout shift) or z-index; every card already shows all its fields
+   unconditionally, this is a highlight, not a reveal. */
+.sb-card--selected {
+  outline: 2px solid #5b9dd9;
+  outline-offset: 1px;
+}
+
 .sb-card__grip {
   display: flex;
   justify-content: space-between;
@@ -293,4 +301,60 @@ html, body, #root {
   fill: none;
   stroke: #c8c8c8;
   stroke-width: 1.5;
+}
+
+/* Board 3D solids B1 — a sibling pane below the 2D viewport, NOT inside
+   .sb-world (mixing 2D absolute layout with preserve-3d on the same nodes
+   is not viable). Presentation only: no pose, no "cabe", no fit claim. */
+.sb-scene3d {
+  height: 260px;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+  background: #161616;
+  border-top: 1px solid #2a2a2a;
+  perspective: 900px;
+  cursor: grab;
+}
+
+.sb-scene3d__world {
+  position: absolute;
+  left: 40px;
+  top: 50%;
+  transform-style: preserve-3d;
+}
+
+.sb-solid {
+  position: absolute;
+  transform-style: preserve-3d;
+}
+
+.sb-solid--box .sb-solid__cuboid {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.sb-solid__face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(91, 141, 239, 0.35);
+  border: 1px solid rgba(91, 141, 239, 0.8);
+  box-sizing: border-box;
+}
+
+.sb-solid__disk-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  background: rgba(122, 158, 106, 0.4);
+  border: 1px solid rgba(122, 158, 106, 0.9);
+  box-sizing: border-box;
+}
+
+.sb-solid--selected .sb-solid__face,
+.sb-solid--selected .sb-solid__disk-face {
+  border-color: #f0c419;
+  border-width: 2px;
 }

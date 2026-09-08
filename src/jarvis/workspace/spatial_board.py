@@ -97,7 +97,7 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
 
     def place(key: str, col: int) -> None:
         spec = components[key]
-        fields = _fields(spec)
+        fields = _fields(spec, components)
         geometry = _geometry_from_spec(spec)
         mounted_on = spec.mounted_on
         # B2: machine edge endpoint only when the target is still a declared
@@ -276,7 +276,16 @@ def _geometry_from_spec(spec: ComponentSpec) -> dict[str, float | str] | None:
     return None
 
 
-def _fields(spec: ComponentSpec) -> list[dict[str, str]]:
+# Geometry Pose Declared Box-Local Frame B1 — the ONE honesty label for
+# every declared_box_pose text field. Not manufacturer heading, not
+# gravity: every seeded box's own source_note states its L/W/H order is
+# "verbatim print order" (investigation_report_geometry_pose_box_anchor.md
+# §3) — this string exists specifically so the Board never lets a reader
+# mistake this convention for a sourced fact.
+POSE_AXES_HONESTY_LABEL = "locales declarados (L→+X, W→+Y, H→+Z); no morro; no gravedad"
+
+
+def _fields(spec: ComponentSpec, components: dict[str, ComponentSpec]) -> list[dict[str, str]]:
     fields = [
         {"label": key, "value": _format_property(value)}
         for key, value in spec.properties.items()
@@ -289,7 +298,25 @@ def _fields(spec: ComponentSpec) -> list[dict[str, str]]:
     # separate machine ``mountedOn`` on the node DTO when the target exists.
     if spec.mounted_on:
         fields.append({"label": "montado en", "value": spec.mounted_on})
+    # Geometry Pose Declared Box-Local Frame B1: text only, never moves a
+    # glyph/solid. Omitted entirely (not a fallback origin) when the pose's
+    # origin key has vanished from components — same "honest absence"
+    # discipline as B2's own mountedOn DTO omission.
+    pose = spec.declared_box_pose
+    if pose and pose.origin_key in components:
+        fields.append({"label": "origen pose", "value": pose.origin_key})
+        fields.append({"label": "ejes pose", "value": POSE_AXES_HONESTY_LABEL})
+        if pose.x_mm is not None:
+            fields.append({"label": "Δx mm", "value": _format_number(pose.x_mm)})
+        if pose.y_mm is not None:
+            fields.append({"label": "Δy mm", "value": _format_number(pose.y_mm)})
+        if pose.z_mm is not None:
+            fields.append({"label": "Δz mm", "value": _format_number(pose.z_mm)})
     return fields
+
+
+def _format_number(value: float) -> str:
+    return str(int(value)) if float(value).is_integer() else str(value)
 
 
 def _format_property(value: PropertyValue) -> str:

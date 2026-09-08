@@ -62,6 +62,10 @@ Not: “this fits” / “this is assembled.”
 
 ## Next
 
-1. Investigation: [investigation_contract_geometry_board_glyph_vocabulary.md](investigation_contract_geometry_board_glyph_vocabulary.md)  
-2. Report → review → Engineer ★ Buy B1 → IC → implement → Board shows glyphs  
-3. **No code** until ★ Buy after investigation
+Glyphs B1 **shipped** (suite **2344**). Assembly **relation** CLOSED 2026-09-08. Visualizar-3D **CLOSED**. Declared box-local pose **writer** CLOSED @ **2438**. Continuity pose B1 **CLOSED** @ **2456** + ACCEPT.
+
+**Product horizon (Engineer 2026-09-08):** 3D solids at declared scale → click opens today’s card → **place in space** (`mounted_on` as guide; declared box-local offsets) → later `"cabe"` vs that spatial situation.
+
+Lock: [engineer_lock_geometry_3d_placement_horizon.md](engineer_lock_geometry_3d_placement_horizon.md). Reds **CLOSED**. Queue: [3D mapping path](engineer_lock_geometry_3d_mapping_path.md) — rung 1 Scene3D-from-pose investigation next. Fit still QUEUED.
+
+This B1 lock still holds: a glyph (2D or later 3D) answers **what envelope the component has**, not where it is mounted, nor whether it fits.

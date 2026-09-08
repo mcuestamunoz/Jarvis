@@ -223,3 +223,30 @@ def parse_mounted_on_declare(user_input: str, components: dict) -> MountDeclareR
     if target is None:
         return MountDeclareResult(kind="AMBIGUOUS_TARGET", component_key=subject, candidates=())
     return MountDeclareResult(kind="SET", component_key=subject, target_key=target)
+
+
+# ── Public wrappers (Continuity Declared Box-Local Pose B1) ─────────────────
+#
+# Thin, behavior-preserving re-exports of this module's own noun-resolution
+# internals, so a sibling assist (declared_box_pose_declare_assist.py) can
+# reuse the exact same subject/part-noun tables instead of duplicating them.
+# Neither wrapper changes what the underlying function returns — they exist
+# only so a second module never has to import a private (`_`-prefixed) name.
+
+
+def resolve_component_subject_noun(normalized: str) -> str | None:
+    """Public alias of ``_resolve_subject`` — canonical component key for a
+    recognized subject noun (fc/esc/motor(es)/bateria/sensor(es)/helice(s)),
+    or ``None``. Does not check whether the key is actually declared."""
+    return _resolve_subject(normalized)
+
+
+def resolve_declared_part_noun(
+    normalized: str, components: dict
+) -> MountDeclareResult | str | None:
+    """Public alias of ``_resolve_target`` — a resolved component key
+    (``str``), an ``AMBIGUOUS_TARGET``-kind ``MountDeclareResult`` carrying
+    plate candidates, or ``None`` when no target-shaped token was found at
+    all. ``components`` is used only to resolve/validate — never to invent
+    a key that isn't declared."""
+    return _resolve_target(normalized, components)

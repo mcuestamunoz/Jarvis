@@ -977,6 +977,21 @@ class JarvisOrchestrator:
                 return refresh_result
 
         # ─────────────────────────────────────────────────────────────────────
+        # ── Continuity Declared Box-Local Pose B1: IDLE "declara X a N mm en
+        # <eje> respecto a Y" / "quita la pose de X" calls
+        # set_component_declared_box_pose directly. Deterministic parse only
+        # (never LLM, never Scene3D). Checked right after the catalog-refresh
+        # bridge, before FN-005's help-choose chain, same reason as every
+        # other deterministic IDLE bridge above — and before FN-014 so a
+        # pose-shaped phrase (even INCOMPLETE/AMBIGUOUS_ORIGIN) never gets
+        # silently swallowed by acquisition triage.
+        if current_session.mode == OrchestratorMode.IDLE:
+            pose_result = self._try_handle_declared_box_pose(user_input)
+            if pose_result is not None:
+                self._track_turn(user_input, pose_result)
+                return pose_result
+
+        # ─────────────────────────────────────────────────────────────────────
         # ── FN-005: "ayúdame a elegir" while IDLE → open assisted motor flow ─
         from jarvis.core.motor_catalog_assist import is_help_choose_phrase
 
@@ -1852,6 +1867,105 @@ class JarvisOrchestrator:
             message = f"Ya coincidía con el catálogo ({sku}) — sin cambios."
         if new_spec.mounted_on:
             message += " Montaje declarado sin cambios."
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": message,
+        }
+
+    def _try_handle_declared_box_pose(self, user_input: str) -> dict | None:
+        """Continuity Declared Box-Local Pose B1: IDLE "declara X a N mm en
+        <eje> respecto a Y" / "quita la pose de X" calls
+        set_component_declared_box_pose directly.
+
+        Deterministic parse only (declared_box_pose_declare_assist) — never
+        LLM, never Scene3D, never an inferred origin. Returns None when the
+        phrase isn't a pose declare/clear at all, so a phrase like
+        "declarar el esc" (no mm/respecto) still reaches FN-014's
+        acquisition flow unchanged.
+        """
+        from jarvis.core.declared_box_pose_declare_assist import parse_declared_box_pose_declare
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        result = parse_declared_box_pose_declare(user_input, components)
+        if result.kind == "NONE":
+            return None
+
+        if result.kind == "INCOMPLETE":
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": (
+                    "Indica sujeto y eje (x/y/z o largo/ancho/alto) para declarar la pose, "
+                    "por ejemplo: \"declara el esc a 5 mm en x respecto al fc\"."
+                ),
+            }
+
+        if result.kind == "AMBIGUOUS_ORIGIN":
+            if result.candidates:
+                options = ", ".join(f"{k} ({label})" for k, label in result.candidates)
+                message = f"Hay varias placas declaradas. Indica cuál: {options}."
+            else:
+                message = (
+                    "No encontré ese origen declarado para la pose. "
+                    "Indica una clave ya declarada (por ejemplo flight_controller, esc, battery)."
+                )
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": message,
+            }
+
+        component_key = result.component_key
+        if component_key not in components:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": f"'{component_key}' aún no declarado — no se puede fijar la pose.",
+            }
+
+        from jarvis.core.component_writers import set_component_declared_box_pose
+        from jarvis.schemas.action_schema import DeclaredBoxPose
+        from jarvis.workspace.spatial_board import POSE_AXES_HONESTY_LABEL
+
+        pose = (
+            DeclaredBoxPose(
+                origin_key=result.origin_key,
+                x_mm=result.x_mm, y_mm=result.y_mm, z_mm=result.z_mm,
+            )
+            if result.kind == "SET" else None
+        )
+        try:
+            updated_state = set_component_declared_box_pose(project_state, component_key, pose)
+        except ValueError as exc:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": str(exc),
+            }
+        self.workspace_manager.save_state(updated_state)
+
+        if result.kind == "SET":
+            def _fmt(value: float) -> str:
+                return str(int(value)) if float(value).is_integer() else str(value)
+
+            axis_parts = []
+            if result.x_mm is not None:
+                axis_parts.append(f"{_fmt(result.x_mm)} mm en x")
+            if result.y_mm is not None:
+                axis_parts.append(f"{_fmt(result.y_mm)} mm en y")
+            if result.z_mm is not None:
+                axis_parts.append(f"{_fmt(result.z_mm)} mm en z")
+            axes_desc = " y ".join(axis_parts)
+            message = (
+                f"Declarado: {component_key} a {axes_desc} respecto a {result.origin_key}. "
+                f"Ejes: {POSE_AXES_HONESTY_LABEL}."
+            )
+        else:
+            message = f"Pose declarada de {component_key} eliminada."
         return {
             "status": "ok",
             "action": "component_description_saved",

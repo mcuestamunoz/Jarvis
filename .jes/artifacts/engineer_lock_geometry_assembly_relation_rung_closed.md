@@ -36,7 +36,9 @@ Pose mm · cabe · ensamblado verificado · el drag del Board es la geometría d
 ```text
 KNOW → representar → visualizar (glyphs)
   → ASSEMBLY RELATION (mounted_on + Continuity + edges)  ← ★ CLOSED
-  → pose mm                                          ← DEFERRED (B0)
+  → pose mm (declared box-local **writer** CLOSED @ 2438; Continuity B1 CLOSED @ 2456)
+  → Scene3D-from-pose                                ← next (mapping path rung 1)
+  → airframe body-frame pose                         ← still DEFERRED (stub B0)
   → comparar / verificar (fit)                       ← FROZEN as default next
   → CAD / MEASURE / FEA                              ← later ★
 ```
@@ -47,9 +49,8 @@ Authority gate unchanged: **CAD/FEA/fit as default next still FROZEN**.
 
 ## What may happen without a new IC
 
-- Engineer/user may use Continuity phrases already shipped to declare remaining mounts (e.g. sensors / propellers).
-- Board hard-refresh to see `"montado en"` + edges.
-- No code change required.
+- Board hard-refresh to see already-declared `"montado en"` + edges.
+- No code change required. Remaining component mounts on demo (`propellers`/`sensors`) were declared 2026-09-08 — [engineer_smoke_connect_remaining_mounted_on_b1.md](engineer_smoke_connect_remaining_mounted_on_b1.md) **ACCEPT**.
 
 ---
 
@@ -57,8 +58,11 @@ Authority gate unchanged: **CAD/FEA/fit as default next still FROZEN**.
 
 | Ask | Artifact first |
 |---|---|
-| Fit / “cabe” / compare | **Investigation contract** (stub exists; not enough for READY IC) |
-| Numeric pose | Reversal conditions in pose investigation §E + new READY IC (stub DEFERRED) |
+| Fit / “cabe” / compare | **Investigation contract** after 3D spatial situation exists — stub remains QUEUED; see [3D horizon](engineer_lock_geometry_3d_placement_horizon.md) |
+| 3D visor / click→card | **CLOSED** @ **2429** |
+| Continuity declared box pose (CLI mm) | **CLOSED** @ **2456** |
+| Scene3D placement from pose numbers | [3D mapping path](engineer_lock_geometry_3d_mapping_path.md) rung 1 — investigation next |
+| Airframe / body-frame pose | Stub still **DEFERRED** |
 | FC/ESC stack hole-pattern KNOW | Fresh narrow investigation (orthogonal to airframe pose) |
 | Here3 / Pixhawk identity | Unfreeze + identity investigation |
 
@@ -72,4 +76,4 @@ Implementing fit · inventing pose mm · treating Board layout as SoT · Convers
 
 ## Mode
 
-**Idle** — package `0.3.8` · suite **2385**. No active implementation operation for Claude on this lock (doc-only close of the rung).
+**Relation rung stays CLOSED.** Writer @ **2438** · Continuity pose @ **2456**. Next = [mapping path](engineer_lock_geometry_3d_mapping_path.md) rung 1. Package `0.3.8` · suite **2456**.

@@ -292,6 +292,61 @@ def set_component_mounted_on(
     return project_state.model_copy(update={"design_properties": updated_dp})
 
 
+def set_component_declared_box_pose(project_state: Any, component_key: str, pose: Any) -> Any:
+    """Geometry Pose Declared Box-Local Frame B1 — único punto de escritura
+    para ``ComponentSpec.declared_box_pose``.
+
+    Orthogonal to ``mounted_on`` (relation: which component) — this field
+    never replaces it and is never inferred from it. Origin must already be
+    a component with a declared ``geometry: box`` (reuses
+    ``spatial_board._geometry_from_spec`` — never a second box-detection
+    rule): a disk (rotational symmetry, no in-plane heading — investigation
+    report §A3) or a shapeless part (`frame_plate`/`frame_arm`/etc. — no
+    L×W ever sourced) is rejected, never silently accepted with an invented
+    fallback origin.
+
+    ``pose=None`` clears the field (idempotent — a no-op, same object
+    returned, when already ``None``). A non-``None`` pose requires
+    ``component_key`` to exist, ``pose.origin_key`` to differ from
+    ``component_key`` (no self-origin), ``origin_key`` to exist, and that
+    origin's spec to resolve to a ``box`` via ``_geometry_from_spec`` —
+    raises ``ValueError`` for each violation rather than storing a dangling
+    or dishonest reference.
+
+    Returns the updated ProjectState (not persisted — caller must save).
+    """
+    from jarvis.workspace.spatial_board import _geometry_from_spec
+
+    components = project_state.design_properties.components
+    spec = components.get(component_key)
+    if spec is None:
+        raise ValueError(f"'{component_key}' no declarado — no se puede fijar la pose.")
+
+    if pose is None:
+        if spec.declared_box_pose is None:
+            return project_state
+        updated_spec = spec.model_copy(update={"declared_box_pose": None})
+    else:
+        if pose.origin_key == component_key:
+            raise ValueError(f"'{component_key}' no puede ser el origen de su propia pose.")
+        origin_spec = components.get(pose.origin_key)
+        if origin_spec is None:
+            raise ValueError(
+                f"Origen de pose '{pose.origin_key}' no declarado — no se puede fijar la pose."
+            )
+        geometry = _geometry_from_spec(origin_spec)
+        if geometry is None or geometry.get("shape") != "box":
+            raise ValueError(
+                f"'{pose.origin_key}' no tiene una caja declarada (geometry: box) — "
+                "no puede ser origen de pose."
+            )
+        updated_spec = spec.model_copy(update={"declared_box_pose": pose})
+
+    updated_components = {**components, component_key: updated_spec}
+    updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
+    return project_state.model_copy(update={"design_properties": updated_dp})
+
+
 # Motor Geometry B1 (Minimum Geometric KNOW): bind_motor_from_catalog is the
 # one binder whose first argument is a MotorSuggestion dict, not a bare SKU
 # string — it's the only bind of the five whose input isn't already the

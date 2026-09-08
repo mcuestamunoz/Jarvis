@@ -6,7 +6,7 @@
 **Implementer:** Claude Code  
 **Reviewer:** Cursor against this IC after the edit
 
-**Status:** IMPLEMENTATION REVIEWED — **PASS WITH NOTES** (N1 motor hotfix CLOSED) — Engineer smoke next  
+**Status:** CLOSED — **PASS WITH NOTES** + Engineer ESC Board smoke **ACCEPT** (2026-09-08)  
 **Review:** [implementation_review_catalog_bound_refresh_b1.md](implementation_review_catalog_bound_refresh_b1.md)  
 **Report:** [implementation_report_catalog_bound_refresh_b1.md](implementation_report_catalog_bound_refresh_b1.md)  
 **Suite:** **2406** (baseline pre-impl **2385**)  

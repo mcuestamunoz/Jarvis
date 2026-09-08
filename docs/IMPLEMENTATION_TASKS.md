@@ -6,32 +6,84 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2418**.  
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2429**.  
-> **PRIORIDAD AHORA:** Secuencia E → G → **Conn CLOSED**. Idle / next ★ aparte (fit frozen; optional demo Continuity walk).  
-> **Eje ★:** Parse symmetry shipped — natural hélices→motores / sensor→esc.  
-> **Cola:** fit/pose parked · optional smoke (ESC refresh + Conn walk).  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2456**.  
+> **PRIORIDAD AHORA:** Queue locked in [3D mapping path](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md) (5 rungs). Next = Scene3D-from-pose investigation (not IC).  
+> **Eje ★:** [mapping path](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Pose Continuity [smoke](../.jes/artifacts/engineer_smoke_continuity_declared_box_pose_b1.md) ACCEPT @ **2456**. Reds [R1/R2](../.jes/artifacts/engineer_smoke_pre_assembly_reds_r1_r2.md) ACCEPT.  
+> **Cola:** 1 Scene3D-from-pose → 2 wheelbase + optional 4-motor sketch → 3 motor height 31.7 cited → 4 plate L×W search → 5 `"cabe"`. Fit QUEUED.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟢 CERRADO — Connect remaining mounted_on B1 (2026-09-08) · Fase 3 / Conn · suite **2429**
+### 🔒 LOCKED — 3D mapping path · five rungs (2026-09-08)
 
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_connect_remaining_mounted_on_b1.md) · [report](../.jes/artifacts/implementation_report_connect_remaining_mounted_on_b1.md) · [review](../.jes/artifacts/implementation_review_connect_remaining_mounted_on_b1.md) — **PASS WITH NOTES**.
+> **Lock:** [engineer_lock_geometry_3d_mapping_path.md](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Catálogo entero **no** es el primer tapón. Primero: visor lee `declared_box_pose`.
+
+### 🟢 CERRADO (walk) — Pre-assembly reds R1/R2 (2026-09-08) · CLI · no IC
+
+> **Lock / smoke:** [lock](../.jes/artifacts/engineer_lock_geometry_pre_assembly_honesty.md) · [smoke](../.jes/artifacts/engineer_smoke_pre_assembly_reds_r1_r2.md) **ACCEPT**. `motor_count=4` · Here3 `montado en frame`. Stance CAD/envelope **holds**.
+
+### 🔒 LOCKED — Pre-assembly honesty (2026-09-08) · envelope ≠ CAD · Rooster bottleneck
+
+### 🟢 CERRADO — Continuity declared box-local pose B1 (2026-09-08) · suite **2456** + ACCEPT
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_continuity_declared_box_pose_b1.md) · [report](../.jes/artifacts/implementation_report_continuity_declared_box_pose_b1.md) · [review](../.jes/artifacts/implementation_review_continuity_declared_box_pose_b1.md).  
+> **Smoke:** [engineer_smoke_continuity_declared_box_pose_b1.md](../.jes/artifacts/engineer_smoke_continuity_declared_box_pose_b1.md) — **ACCEPT**. CLI `declara el esc a 5 mm en x respecto al fc`; card ESC `origen pose` / `Δx`; 3D row **unchanged** (locked).
+
+### 🟡 INVESTIGATION REVIEWED — Continuity declared box-local pose B1 (2026-09-08) · PASS WITH NOTES · ★ B1
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_continuity_declared_box_pose_b1.md) · [report](../.jes/artifacts/investigation_report_continuity_declared_box_pose_b1.md) · [review](../.jes/artifacts/investigation_review_continuity_declared_box_pose_b1.md).  
+> **Lean:** B1 thin IDLE `declara … mm … respecto` → existing writer. B1+ Scene3D **out**. B2 LLM **out**. FN-014 order load-bearing (N2). Engineer ★ **B1** → IC READY.
+
+### 🟢 CERRADO — Geometry pose declared box-local frame B1 (2026-09-08) · suite **2438** + ACCEPT
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_pose_declared_box_frame_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_pose_declared_box_frame_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_pose_declared_box_frame_b1.md) — **PASS WITH NOTES**.  
+> **Smoke:** [engineer_smoke_geometry_pose_declared_box_frame_b1.md](../.jes/artifacts/engineer_smoke_geometry_pose_declared_box_frame_b1.md) — **ACCEPT**. CLI pose phrase **out** this Buy (igual que `mounted_on` antes de Continuity).
+
+### 🟡 INVESTIGATION REVIEWED — Geometry pose box-anchored origin (2026-09-08) · PASS WITH NOTES · ★ B1
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_pose_box_anchor.md) · [report](../.jes/artifacts/investigation_report_geometry_pose_box_anchor.md) · [review](../.jes/artifacts/investigation_review_geometry_pose_box_anchor.md).  
+> **Finding:** centro de caja **honesto**; L/W/H del demo = print order, no ejes físicos. Censo Cursor: 3 box / 2 disk / 9 none. **No IC until ★.**
+
+### 🟡 INVESTIGATION REVIEWED — Geometry pose origin & axes (2026-09-08) · PASS WITH NOTES · plate/arm path B0 (not vision-closed)
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_pose_origin_axes.md) · [report](../.jes/artifacts/investigation_report_geometry_pose_origin_axes.md) · [review](../.jes/artifacts/investigation_review_geometry_pose_origin_axes.md).  
+> **Lean:** no origin point (plates have no L×W); no +X (one `frame_arm` key, not four); `+Z up` alone is not a body frame. Class A ⊥ Class B. **No IC until ★.**
+
+### 🟢 CERRADO — Geometry assembly pose revisit (2026-09-08) · Keep B0
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_assembly_pose_revisit.md) · [report](../.jes/artifacts/investigation_report_geometry_assembly_pose_revisit.md) · [review](../.jes/artifacts/investigation_review_geometry_assembly_pose_revisit.md) — **PASS WITH NOTES**. Engineer ★ **Keep B0**. Pose stub stays DEFERRED.
+
+### 🟢 CERRADO — Board CSS 3D solids B1 (2026-09-08) · visor · suite **2429** + smoke ACCEPT
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_board_css3d_solids_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_board_css3d_solids_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_board_css3d_solids_b1.md) — **PASS WITH NOTES**.  
+> **Smoke:** [engineer_smoke_geometry_board_css3d_solids_b1.md](../.jes/artifacts/engineer_smoke_geometry_board_css3d_solids_b1.md) — **ACCEPT** (Ocultar 3D; 5 sólidos; discos planos; 1 motor/1 hélice = 1 identidad, no 4 ejemplares).
+
+### 🟡 INVESTIGATION REVIEWED — Board 3D rendering technology (2026-09-08) · PASS WITH NOTES · ★ B1
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_3d_rendering_tech.md) · [report](../.jes/artifacts/investigation_report_geometry_3d_rendering_tech.md) · [review](../.jes/artifacts/investigation_review_geometry_3d_rendering_tech.md).  
+> **Buy:** **B1** CSS 3D (IC arriba). **B1+** not this cycle. **B0** declined.
+
+### 🟢 CERRADO — Board click-inspect B1− (2026-09-08) · visor · suite **2429** + smoke ACCEPT
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_board_click_inspect_b1minus.md) · [report](../.jes/artifacts/implementation_report_geometry_board_click_inspect_b1minus.md) · [review](../.jes/artifacts/implementation_review_geometry_board_click_inspect_b1minus.md) — **PASS WITH NOTES**.  
+> **Smoke:** [engineer_smoke_geometry_board_click_inspect_b1minus.md](../.jes/artifacts/engineer_smoke_geometry_board_click_inspect_b1minus.md) — **ACCEPT** (recuadro azul solo en la card seleccionada).
+
+### 🟡 INVESTIGATION REVIEWED — Geometry 3D placement horizon (2026-09-08) · PASS WITH NOTES · ★ B1− CLOSED
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_3d_placement_horizon.md) · [report](../.jes/artifacts/investigation_report_geometry_3d_placement_horizon.md) · [review](../.jes/artifacts/investigation_review_geometry_3d_placement_horizon.md).  
+> **Buy:** **B1−** cerrado (arriba). **B1** 3D = investigation de render (arriba). **B2** reject.
+
+### 🟢 CERRADO — Connect remaining mounted_on B1 (2026-09-08) · Fase 3 / Conn · suite **2429** + walk ACCEPT
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_connect_remaining_mounted_on_b1.md) · [report](../.jes/artifacts/implementation_report_connect_remaining_mounted_on_b1.md) · [review](../.jes/artifacts/implementation_review_connect_remaining_mounted_on_b1.md) — **PASS WITH NOTES**.  
+> **Smoke:** [engineer_smoke_connect_remaining_mounted_on_b1.md](../.jes/artifacts/engineer_smoke_connect_remaining_mounted_on_b1.md) — **ACCEPT** (`propellers→motors`, `sensors→esc` en CLI + Board).
 
 ### 🟢 CERRADO — Geometry for all B1 (2026-09-08) · Fase 2 / G · suite **2418**
 
 > **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_for_all_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_for_all_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_for_all_b1.md) — **PASS WITH NOTES**.
 
-### 🟢 IMPLEMENTATION REVIEWED — Catalog-bound refresh B1 (2026-09-08) · Fase 1 / E · PASS WITH NOTES
+### 🟢 CERRADO — Catalog-bound refresh B1 (2026-09-08) · Fase 1 / E · suite **2406** + smoke ACCEPT
 
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_catalog_bound_refresh_b1.md) · [report](../.jes/artifacts/implementation_report_catalog_bound_refresh_b1.md) · [review](../.jes/artifacts/implementation_review_catalog_bound_refresh_b1.md).  
-> **Smoke (parallel):** `actualiza el esc` → Board 15 g.
-
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_for_all_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_for_all_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_for_all_b1.md) — **PASS WITH NOTES**.
-
-### 🟢 IMPLEMENTATION REVIEWED — Catalog-bound refresh B1 (2026-09-08) · Fase 1 / E · PASS WITH NOTES
-
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_catalog_bound_refresh_b1.md) · [report](../.jes/artifacts/implementation_report_catalog_bound_refresh_b1.md) · [review](../.jes/artifacts/implementation_review_catalog_bound_refresh_b1.md).  
-> **Smoke (parallel):** `actualiza el esc` → Board 15 g.
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_catalog_bound_refresh_b1.md) · [report](../.jes/artifacts/implementation_report_catalog_bound_refresh_b1.md) · [review](../.jes/artifacts/implementation_review_catalog_bound_refresh_b1.md) — **PASS WITH NOTES**.  
+> **Smoke:** [engineer_smoke_catalog_bound_refresh_b1.md](../.jes/artifacts/engineer_smoke_catalog_bound_refresh_b1.md) — **ACCEPT** (`mass_g` 26→15 · Board 15 g · montaje `frame_plate`).
 
 ### 🟢 LOCK — Geometry assembly relation rung CLOSED (2026-09-08)
 

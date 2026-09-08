@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { nextSelectedId, reconcileSelection } from "./boardSelection";
 import { ZOOM } from "./constants";
 import { Minimap } from "./Minimap";
 import { MountEdges } from "./DeclaredMountEdges";
+import { Scene3D } from "./Scene3D";
 import { SpatialCard } from "./SpatialCard";
 import { ProjectSwitcher } from "./ProjectSwitcher";
 import { useBoardNodes } from "./useBoardNodes";
@@ -28,6 +30,19 @@ export function InfiniteCanvas() {
   const { transform, setTransform, zoomToPoint, reset, fit, css } =
     useCanvasTransform();
   const [viewport, setViewport] = useState({ width: 800, height: 600 });
+  // Board click-inspect B1− — session-only selection highlight, never
+  // persisted (no localStorage/URL/ProjectState) and never a second
+  // selection model: all transitions route through boardSelection.ts.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const onSelect = useCallback((id: string) => {
+    setSelectedId((cur) => nextSelectedId(cur, { type: "select", id }));
+  }, []);
+  // Board 3D solids B1 — session-only toggle. `null` = no explicit user
+  // choice yet -> default to shown iff any live node has `geometry`; once
+  // the user toggles, that explicit choice is respected across re-fetches.
+  const [show3DOverride, setShow3DOverride] = useState<boolean | null>(null);
+  const hasGeometry = nodes.some((n) => n.geometry);
+  const show3D = show3DOverride ?? hasGeometry;
   const panRef = useRef<{
     mouseX: number;
     mouseY: number;
@@ -36,6 +51,31 @@ export function InfiniteCanvas() {
   } | null>(null);
   const transformRef = useRef(transform);
   transformRef.current = transform;
+
+  // Board click-inspect B1− — Escape clears selection, unless focus is in
+  // the toolbar's project <select> (its own native Escape behavior — a
+  // dropdown-close keypress must not also wipe an unrelated board selection).
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (event.target instanceof Element && event.target.closest("select")) return;
+      setSelectedId((cur) => nextSelectedId(cur, { type: "clear" }));
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  // Switching projects always clears selection — a selected id never
+  // survives across projects (the ids aren't even comparable).
+  useEffect(() => {
+    setSelectedId((cur) => nextSelectedId(cur, { type: "clear" }));
+  }, [projectId]);
+
+  // A fresh projector read may no longer include the selected node (renamed,
+  // removed, or project reloaded) — drop a selection that's gone stale.
+  useEffect(() => {
+    setSelectedId((cur) => reconcileSelection(cur, nodes.map((n) => n.id)));
+  }, [nodes]);
 
   useEffect(() => {
     const el = boardRef.current;
@@ -92,6 +132,7 @@ export function InfiniteCanvas() {
   const onPanStart = (event: React.MouseEvent) => {
     if (event.button !== 0 || shouldIgnorePan(event.target)) return;
     event.preventDefault();
+    setSelectedId((cur) => nextSelectedId(cur, { type: "clear" }));
     panRef.current = {
       mouseX: event.clientX,
       mouseY: event.clientY,
@@ -129,11 +170,16 @@ export function InfiniteCanvas() {
           <button type="button" onClick={reset}>
             100%
           </button>
+          {hasGeometry ? (
+            <button type="button" onClick={() => setShow3DOverride(!show3D)}>
+              {show3D ? "Ocultar 3D" : "Mostrar 3D"}
+            </button>
+          ) : null}
         </div>
         <span className="sb-toolbar__hint">
           {nodesError
             ? "No se pudieron leer los componentes"
-            : "rueda: zoom · arrastrar fondo: pan · card: mover · esquinas: tamaño"}
+            : `rueda: zoom · arrastrar fondo: pan · card: mover · esquinas: tamaño · click: seleccionar${show3D ? " · 3D: arrastrar vista" : ""}`}
         </span>
       </header>
       <div
@@ -151,6 +197,8 @@ export function InfiniteCanvas() {
               key={node.id}
               node={node}
               transform={transform}
+              selected={node.id === selectedId}
+              onSelect={onSelect}
               onPreview={preview}
               onCommit={commit}
             />
@@ -163,6 +211,7 @@ export function InfiniteCanvas() {
           onNavigate={navigateKeepZoom}
         />
       </div>
+      {show3D ? <Scene3D nodes={nodes} selectedId={selectedId} onSelect={onSelect} /> : null}
     </div>
   );
 }

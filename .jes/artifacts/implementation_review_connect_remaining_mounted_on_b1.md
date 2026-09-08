@@ -52,7 +52,7 @@ As report: future subject-table edits auto-extend target aliases. Intended symme
 
 ### N2 — Demo still needs Engineer walk
 
-Parse is fixed; `propellers`/`sensors` on demo stay `mounted_on=None` until Continuity phrases are run live. Optional smoke checklist, not a code gap.
+**CLOSED 2026-09-08** — Engineer Continuity walk ACCEPT: [engineer_smoke_connect_remaining_mounted_on_b1.md](engineer_smoke_connect_remaining_mounted_on_b1.md).
 
 ### N3 — B1+ “qué falta” deferred
 
