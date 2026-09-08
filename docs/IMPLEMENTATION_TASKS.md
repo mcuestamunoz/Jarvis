@@ -7,16 +7,16 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2385**.  
-> **PRIORIDAD AHORA:** Fase 1 hygiene — investigation **catalog-bound freshness** READY → **Claude report**.  
-> **Eje ★:** Secuencia E → geometría-all → connect. Assembly relation CLOSED.  
-> **Hecho triage:** ESC seed **15** · demo project **26** + `catalog_ref` · no Continuity “cambiar esc”.  
-> **Cola:** Fase 2/3 pending · fit/pose frozen/deferred · A–D catalog intact.  
+> **PRIORIDAD AHORA:** IC **catalog-bound refresh B1** READY — Claude implement (await Engineer ★ if not yet given).  
+> **Eje ★:** Fase 1 hygiene — refresh from catalog_ref (5 families).  
+> **Investigation:** PASS WITH NOTES · lean B1.  
+> **Cola:** Fase 2 geometry-all · Fase 3 connect · fit/pose parked.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 INVESTIGATION READY — Catalog-bound property freshness B1 (2026-09-08) · Fase 1
+### 🟡 IC READY — Catalog-bound refresh B1 (2026-09-08) · Fase 1 · lean B1
 
-> **Contract:** [investigation_contract_catalog_bound_property_freshness_b1.md](../.jes/artifacts/investigation_contract_catalog_bound_property_freshness_b1.md) — **Claude next**.  
-> **Hallazgo:** seed hygiene CLOSED; Board stale; ESC fuera de idle rebind B3; `bind_esc_from_catalog` sin picker UX.
+> **IC:** [implementation_contract_catalog_bound_refresh_b1.md](../.jes/artifacts/implementation_contract_catalog_bound_refresh_b1.md) — **Claude next**.  
+> **Investigation:** [contract](../.jes/artifacts/investigation_contract_catalog_bound_property_freshness_b1.md) · [report](../.jes/artifacts/investigation_report_catalog_bound_property_freshness_b1.md) · [review](../.jes/artifacts/investigation_review_catalog_bound_property_freshness_b1.md) — **PASS WITH NOTES**.
 
 ### 🟢 LOCK — Geometry assembly relation rung CLOSED (2026-09-08)
 

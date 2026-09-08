@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Fase 1 hygiene: investigation catalog-bound property freshness READY. Claude report. ESC Board 26 vs seed 15; no ESC Continuity rebind.",
-  "scope": "investigation_contract_catalog_bound_property_freshness_b1",
-  "execution_status": "catalog_bound_property_freshness_b1_investigation_ready",
-  "current_mode": "Investigation \u2014 Claude: catalog-bound freshness B1 report",
+  "cycle_intent": "Fase 1: catalog-bound refresh B1 IC READY (lean B1). Claude implement after Engineer \u2605. Writer + Continuity phrase; no picker; no Board-load auto-refresh.",
+  "scope": "implementation_contract_catalog_bound_refresh_b1",
+  "execution_status": "catalog_bound_refresh_b1_ic_ready",
+  "current_mode": "Implementation \u2014 Claude: catalog-bound refresh B1 IC (await \u2605 if needed)",
   "movement_trigger": {
-    "type": "engineer_buy",
-    "note": "2026-09-08 Procede Fase 1 after affirming E\u2192G\u2192Conn sequence"
+    "type": "investigation_review",
+    "note": "2026-09-08 PASS WITH NOTES lean B1; IC authored READY"
   },
   "relevant_workflow_phases": [
-    "investigate"
+    "implement"
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",
@@ -73,15 +73,16 @@
     "geometry_assembly_board_edges_b2": "\u2605 CLOSED (Claude PASS + Engineer smoke ACCEPT @ 2385)",
     "geometry_assembly_pose_b1plus": "\u2605 DEFERRED CLOSED (B0) 2026-09-07 \u2014 no pose schema",
     "geometry_assembly_relation_rung": "\u2605 LOCKED CLOSED 2026-09-08 \u2014 mounted_on + Continuity + edges; idle",
-    "catalog_bound_property_freshness_b1": "INVESTIGATION CONTRACT READY 2026-09-08 \u2014 Claude report",
+    "catalog_bound_property_freshness_b1": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 lean B1",
+    "catalog_bound_refresh_b1": "IC READY 2026-09-08 \u2014 Claude implement",
     "geometry_assembly_fit_compare": "QUEUED STUB \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605 (fit-as-default FROZEN)",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
-    ".jes/artifacts/investigation_contract_catalog_bound_property_freshness_b1.md",
-    ".jes/artifacts/investigation_report_catalog_bound_property_freshness_b1.md"
+    ".jes/artifacts/implementation_contract_catalog_bound_refresh_b1.md",
+    ".jes/artifacts/implementation_report_catalog_bound_refresh_b1.md"
   ],
-  "active_operation": "investigation_catalog_bound_property_freshness_b1",
+  "active_operation": "implementation_catalog_bound_refresh_b1",
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
@@ -214,7 +215,8 @@
     "geometry_assembly_pose_b1plus_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_B0_DEFER",
     "geometry_assembly_pose_b1plus_defer_ic": "IMPLEMENTED_DOC_ONLY_CLOSED",
     "geometry_assembly_relation_rung_lock": "LOCKED_CLOSED_IDLE_2026_09_08",
-    "catalog_bound_property_freshness_b1_investigation": "READY",
+    "catalog_bound_property_freshness_b1_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_B1",
+    "catalog_bound_refresh_b1_ic": "READY",
     "geometry_assembly_fit_compare_ic": "QUEUED_STUB_BLOCKED",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }

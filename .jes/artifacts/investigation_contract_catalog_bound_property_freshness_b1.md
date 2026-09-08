@@ -8,7 +8,10 @@
 **Reviewer:** Cursor (Investigation Review)  
 **Output (you write this):** `.jes/artifacts/investigation_report_catalog_bound_property_freshness_b1.md`
 
-**Status:** READY FOR INVESTIGATION  
+**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · lean **B1** · IC READY  
+**Report:** [investigation_report_catalog_bound_property_freshness_b1.md](investigation_report_catalog_bound_property_freshness_b1.md)  
+**Review:** [investigation_review_catalog_bound_property_freshness_b1.md](investigation_review_catalog_bound_property_freshness_b1.md)  
+**IC:** [implementation_contract_catalog_bound_refresh_b1.md](implementation_contract_catalog_bound_refresh_b1.md)  
 **Parents:**
 - Engineer sequence in plan `geometry_status_next` — Fase 1 = hygiene **E**
 - [implementation_contract_catalog_esc_mass_hygiene_b1.md](implementation_contract_catalog_esc_mass_hygiene_b1.md) — CLOSED; **N4:** already-bound projects keep stale `26` until rebind
