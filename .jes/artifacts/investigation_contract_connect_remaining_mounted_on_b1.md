@@ -8,7 +8,10 @@
 **Reviewer:** Cursor (Investigation Review)  
 **Output (you write this):** `.jes/artifacts/investigation_report_connect_remaining_mounted_on_b1.md`
 
-**Status:** READY FOR INVESTIGATION  
+**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · ★ Buy **B1** · IC READY (dual lock)  
+**Report:** [investigation_report_connect_remaining_mounted_on_b1.md](investigation_report_connect_remaining_mounted_on_b1.md)  
+**Review:** [investigation_review_connect_remaining_mounted_on_b1.md](investigation_review_connect_remaining_mounted_on_b1.md)  
+**IC:** [implementation_contract_connect_remaining_mounted_on_b1.md](implementation_contract_connect_remaining_mounted_on_b1.md)  
 **Parents:**
 - Engineer sequence: Fase 1 hygiene **E** CLOSED-ish (refresh PASS @ **2406**) → Fase 2 geometry-all **G** CLOSED @ **2418** → Fase 3 **Conn**
 - [engineer_lock_geometry_assembly_relation_rung_closed.md](engineer_lock_geometry_assembly_relation_rung_closed.md) — relation rung CLOSED; may declare remaining mounts **without new IC** via Continuity already shipped

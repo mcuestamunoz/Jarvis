@@ -7,16 +7,16 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2418**.  
-> **PRIORIDAD AHORA:** Fase 3 **Conn** investigation READY → **Claude report**.  
-> **Eje ★:** Connect remaining `mounted_on` — Continuity first; B0 walk-only allowed.  
-> **Hecho:** E refresh + G text @ **2418**.  
+> **PRIORIDAD AHORA:** IC **Conn B1** READY — Claude implement (subject-before-`en` + target noun aliases).  
+> **Eje ★:** Bug-fix Continuity parse — natural hélices→motores / sensor→esc.  
+> **Suite:** **2418**.  
 > **Cola:** fit/pose parked.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 INVESTIGATION READY — Connect remaining mounted_on B1 (2026-09-08) · Fase 3 / Conn
+### 🟡 IC READY — Connect remaining mounted_on B1 (2026-09-08) · Fase 3 / Conn · ★ Buy B1
 
-> **Contract:** [investigation_contract_connect_remaining_mounted_on_b1.md](../.jes/artifacts/investigation_contract_connect_remaining_mounted_on_b1.md) — **Claude next**.  
-> **Triage:** demo has motors/ESC/FC/battery mounted; **propellers + sensors** undeclared (assist already has nouns); frame_* have `parent_key` only.
+> **IC:** [implementation_contract_connect_remaining_mounted_on_b1.md](../.jes/artifacts/implementation_contract_connect_remaining_mounted_on_b1.md) — **Claude next**.  
+> **Investigation:** [contract](../.jes/artifacts/investigation_contract_connect_remaining_mounted_on_b1.md) · [report](../.jes/artifacts/investigation_report_connect_remaining_mounted_on_b1.md) · [review](../.jes/artifacts/investigation_review_connect_remaining_mounted_on_b1.md) — **PASS WITH NOTES**.
 
 ### 🟢 CERRADO — Geometry for all B1 (2026-09-08) · Fase 2 / G · suite **2418**
 
