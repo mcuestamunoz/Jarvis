@@ -963,6 +963,20 @@ class JarvisOrchestrator:
                 return mount_result
 
         # ─────────────────────────────────────────────────────────────────────
+        # ── Catalog-bound Property Freshness B1: IDLE "actualiza/refresca X
+        # desde catálogo" re-projects a catalog-bound component's physicals
+        # from the current seed via refresh_component_from_catalog.
+        # Deterministic parse only (never LLM, never a picker, never
+        # triggered by Board load). Checked right after the mount-declare
+        # bridge, before FN-005's help-choose chain, for the same reason —
+        # a named refresh phrase must never fall into unrelated triage.
+        if current_session.mode == OrchestratorMode.IDLE:
+            refresh_result = self._try_handle_catalog_refresh(user_input)
+            if refresh_result is not None:
+                self._track_turn(user_input, refresh_result)
+                return refresh_result
+
+        # ─────────────────────────────────────────────────────────────────────
         # ── FN-005: "ayúdame a elegir" while IDLE → open assisted motor flow ─
         from jarvis.core.motor_catalog_assist import is_help_choose_phrase
 
@@ -1782,6 +1796,62 @@ class JarvisOrchestrator:
             )
         else:
             message = f"Montaje declarado de {component_key} eliminado."
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": message,
+        }
+
+    def _try_handle_catalog_refresh(self, user_input: str) -> dict | None:
+        """Catalog-bound Property Freshness B1: IDLE "actualiza/refresca X
+        desde catálogo" re-projects a catalog-bound component's physicals
+        from the CURRENT seed via refresh_component_from_catalog.
+
+        Deterministic parse only (catalog_refresh_assist) — never LLM, never
+        a picker, never triggered by Board load/read. Returns None when the
+        phrase isn't a catalog-refresh request at all, so the caller falls
+        through to normal routing unchanged.
+        """
+        from jarvis.core.catalog_refresh_assist import resolve_catalog_refresh_component
+
+        component_key = resolve_catalog_refresh_component(user_input)
+        if component_key is None:
+            return None
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        if component_key not in components:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": f"'{component_key}' aún no declarado — nada que actualizar.",
+            }
+
+        from jarvis.core.component_writers import diff_refreshed_properties, refresh_component_from_catalog
+
+        old_spec = components[component_key]
+        try:
+            updated_state = refresh_component_from_catalog(project_state, component_key)
+        except ValueError as exc:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": str(exc),
+            }
+        self.workspace_manager.save_state(updated_state)
+
+        new_spec = updated_state.design_properties.components[component_key]
+        changed = diff_refreshed_properties(old_spec, new_spec)
+        sku = new_spec.catalog_ref.sku if new_spec.catalog_ref is not None else component_key
+        if changed:
+            deltas = ", ".join(f"{k} {old} → {new}" for k, (old, new) in sorted(changed.items()))
+            message = f"Actualizado desde catálogo ({sku}): {deltas}."
+        else:
+            message = f"Ya coincidía con el catálogo ({sku}) — sin cambios."
+        if new_spec.mounted_on:
+            message += " Montaje declarado sin cambios."
         return {
             "status": "ok",
             "action": "component_description_saved",

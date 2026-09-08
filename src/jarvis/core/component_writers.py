@@ -40,6 +40,13 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from jarvis.core.catalog_bind import (
+    bind_battery_from_catalog,
+    bind_esc_from_catalog,
+    bind_frame_from_catalog,
+    bind_motor_from_catalog,
+    bind_propeller_from_catalog,
+)
 from jarvis.domains.aerial import _frame_completeness, _structure_part_completeness
 from jarvis.knowledge.library import _OP_VOLTAGE_EPSILON_V, default_library, resolve_operating_point
 from jarvis.schemas.action_schema import CatalogRef, ComponentSpec, PropertyValue
@@ -283,6 +290,71 @@ def set_component_mounted_on(
     updated_components = {**components, component_key: updated_spec}
     updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
     return project_state.model_copy(update={"design_properties": updated_dp})
+
+
+_REFRESH_BINDERS: dict[str, Any] = {
+    "motor": bind_motor_from_catalog,
+    "battery": bind_battery_from_catalog,
+    "propeller": bind_propeller_from_catalog,
+    "esc": bind_esc_from_catalog,
+    "frame": bind_frame_from_catalog,
+}
+
+
+def refresh_component_from_catalog(project_state: Any, component_key: str) -> Any:
+    """Catalog-bound property freshness B1 — único punto de escritura para
+    re-proyectar los físicos de un componente ya vinculado a catálogo desde
+    el seed ACTUAL.
+
+    Reuses each ``bind_*_from_catalog(sku, base=spec)`` exactly as-is (no
+    new merge logic): ``base.model_copy`` only overwrites ``properties``/
+    ``completeness``/``catalog_ref`` on the existing spec, so ``mounted_on``,
+    ``name``, ``parent_key``, and every other field survive untouched —
+    proven live on the stale demo project during the investigation. This
+    writer only touches ``components[component_key]`` — a frame refresh
+    never reaches into sibling ``frame_plate``/``frame_arm``/etc. entries,
+    so frame parts are preserved by construction, not by special-casing.
+
+    Never called from Board load/read or any projector path — only from an
+    explicit Continuity IDLE phrase (catalog_refresh_assist). Raises
+    ``ValueError`` (never a silent no-op or an invented value) when the key
+    is undeclared or not catalog-bound — there is nothing honest to refresh.
+
+    Returns the updated ProjectState (not persisted — caller must save).
+    """
+    components = project_state.design_properties.components
+    spec = components.get(component_key)
+    if spec is None:
+        raise ValueError(f"'{component_key}' no declarado — nada que actualizar.")
+    catalog_ref = spec.catalog_ref
+    if catalog_ref is None:
+        raise ValueError(f"'{component_key}' no está vinculado a catálogo — nada que actualizar.")
+    binder = _REFRESH_BINDERS.get(catalog_ref.family)
+    if binder is None:
+        raise ValueError(f"Familia de catálogo '{catalog_ref.family}' no soportada para actualizar.")
+
+    refreshed = binder(catalog_ref.sku, base=spec)
+    updated_components = {**components, component_key: refreshed}
+    updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
+    return project_state.model_copy(update={"design_properties": updated_dp})
+
+
+def diff_refreshed_properties(old_spec: Any, new_spec: Any) -> dict[str, tuple[Any, Any]]:
+    """Pure helper for honest Continuity copy: which declared property
+    values actually changed between *old_spec* and *new_spec* (e.g. after
+    ``refresh_component_from_catalog``). Never mutates, never called by the
+    writer itself — the writer's contract is unaffected by whether anyone
+    inspects this diff."""
+    old_props = old_spec.properties or {}
+    new_props = new_spec.properties or {}
+    changed: dict[str, tuple[Any, Any]] = {}
+    for key, new_value in new_props.items():
+        old_value = old_props.get(key)
+        old_val = old_value.value if old_value is not None else None
+        new_val = new_value.value
+        if old_val != new_val:
+            changed[key] = (old_val, new_val)
+    return changed
 
 
 def set_control_component(project_state: Any, spec: Any) -> Any:

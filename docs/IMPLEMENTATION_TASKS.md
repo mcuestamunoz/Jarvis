@@ -7,16 +7,16 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2385**.  
-> **PRIORIDAD AHORA:** IC **catalog-bound refresh B1** READY — Claude implement (await Engineer ★ if not yet given).  
-> **Eje ★:** Fase 1 hygiene — refresh from catalog_ref (5 families).  
-> **Investigation:** PASS WITH NOTES · lean B1.  
-> **Cola:** Fase 2 geometry-all · Fase 3 connect · fit/pose parked.  
+> **PRIORIDAD AHORA:** Catalog-bound refresh B1 — **FAIL review** · Claude motor-adapter hotfix.  
+> **Eje ★:** Fase 1 hygiene — 4/5 families OK; **motor** crashes (`bind_motor` needs `MotorSuggestion`, not SKU).  
+> **Suite:** **2403** (ESC path green; motor untested until hotfix).  
+> **Cola:** hotfix → re-review → Engineer ESC smoke · then Fase 2/3.  
 > **Artefactos:** investigation / implementation / review only.
 
-### 🟡 IC READY — Catalog-bound refresh B1 (2026-09-08) · Fase 1 · lean B1
+### 🔴 IMPLEMENTATION FAIL — Catalog-bound refresh B1 (2026-09-08) · motor adapter
 
-> **IC:** [implementation_contract_catalog_bound_refresh_b1.md](../.jes/artifacts/implementation_contract_catalog_bound_refresh_b1.md) — **Claude next**.  
-> **Investigation:** [contract](../.jes/artifacts/investigation_contract_catalog_bound_property_freshness_b1.md) · [report](../.jes/artifacts/investigation_report_catalog_bound_property_freshness_b1.md) · [review](../.jes/artifacts/investigation_review_catalog_bound_property_freshness_b1.md) — **PASS WITH NOTES**.
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_catalog_bound_refresh_b1.md) · [report](../.jes/artifacts/implementation_report_catalog_bound_refresh_b1.md) · [review](../.jes/artifacts/implementation_review_catalog_bound_refresh_b1.md) — **FAIL**.  
+> **Fix:** `motor_spec_to_suggestion(lib.get_motor(sku))` → `bind_motor_from_catalog(suggestion, base=spec)` + T1-motor. **Claude next.**
 
 ### 🟢 LOCK — Geometry assembly relation rung CLOSED (2026-09-08)
 

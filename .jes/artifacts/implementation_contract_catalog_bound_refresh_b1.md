@@ -6,7 +6,9 @@
 **Implementer:** Claude Code  
 **Reviewer:** Cursor against this IC after the edit
 
-**Status:** READY FOR IMPLEMENTATION — pending Engineer ★ Buy (investigation lean **B1**)  
+**Status:** IMPLEMENTATION REVIEWED — **FAIL** (motor binder signature) — hotfix required before CLOSE  
+**Review:** [implementation_review_catalog_bound_refresh_b1.md](implementation_review_catalog_bound_refresh_b1.md)  
+**Report:** [implementation_report_catalog_bound_refresh_b1.md](implementation_report_catalog_bound_refresh_b1.md)  
 **Parents:**
 - [investigation_contract_catalog_bound_property_freshness_b1.md](investigation_contract_catalog_bound_property_freshness_b1.md)
 - [investigation_report_catalog_bound_property_freshness_b1.md](investigation_report_catalog_bound_property_freshness_b1.md) — lean **B1 generic refresh**

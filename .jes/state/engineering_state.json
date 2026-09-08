@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Fase 1: catalog-bound refresh B1 IC READY (lean B1). Claude implement after Engineer \u2605. Writer + Continuity phrase; no picker; no Board-load auto-refresh.",
+  "cycle_intent": "Fase 1: catalog-bound refresh B1 FAIL review \u2014 motor family AttributeError. Claude hotfix: MotorSuggestion adapter + T1-motor; then Cursor re-review.",
   "scope": "implementation_contract_catalog_bound_refresh_b1",
-  "execution_status": "catalog_bound_refresh_b1_ic_ready",
-  "current_mode": "Implementation \u2014 Claude: catalog-bound refresh B1 IC (await \u2605 if needed)",
+  "execution_status": "catalog_bound_refresh_b1_fail_motor_hotfix",
+  "current_mode": "Implementation hotfix \u2014 Claude: motor refresh adapter",
   "movement_trigger": {
-    "type": "investigation_review",
-    "note": "2026-09-08 PASS WITH NOTES lean B1; IC authored READY"
+    "type": "implementation_review",
+    "note": "2026-09-08 FAIL \u2014 bind_motor_from_catalog expects MotorSuggestion not sku str"
   },
   "relevant_workflow_phases": [
     "implement"
@@ -74,7 +74,7 @@
     "geometry_assembly_pose_b1plus": "\u2605 DEFERRED CLOSED (B0) 2026-09-07 \u2014 no pose schema",
     "geometry_assembly_relation_rung": "\u2605 LOCKED CLOSED 2026-09-08 \u2014 mounted_on + Continuity + edges; idle",
     "catalog_bound_property_freshness_b1": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 lean B1",
-    "catalog_bound_refresh_b1": "IC READY 2026-09-08 \u2014 Claude implement",
+    "catalog_bound_refresh_b1": "IMPLEMENTATION REVIEWED FAIL 2026-09-08 \u2014 motor adapter hotfix",
     "geometry_assembly_fit_compare": "QUEUED STUB \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605 (fit-as-default FROZEN)",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
