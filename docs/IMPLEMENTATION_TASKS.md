@@ -7,12 +7,17 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2385**.  
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2385**.  
-> **PRIORIDAD AHORA:** Pose B1+ **DEFERRED** (B0). Await Engineer next focus.  
-> **Eje ★:** Assembly relation rung CLOSED (mounted_on · Continuity · edges). Pose deferred. Fit stub queued (not active).  
-> **Hecho:** glyphs · hygiene · `mounted_on` · Continuity · Board edges B2 @ **2385** · pose investigation → **Defer**.  
-> **Congelado:** pose mm · fit (until separate ★) · Conversation Engine.  
-> **Artefactos:** investigation / implementation / review only.
+> **PRIORIDAD AHORA:** Geometry **assembly relation rung CLOSED** — **idle**. Fit stub parked (no ★).  
+> **Eje ★:** [engineer_lock_geometry_assembly_relation_rung_closed.md](../.jes/artifacts/engineer_lock_geometry_assembly_relation_rung_closed.md)  
+> **Hecho:** glyphs · hygiene · `mounted_on` · Continuity · Board edges · pose **DEFERRED**.  
+> **Uso libre (sin IC):** declarar mounts faltantes vía Continuity ya shipped.  
+> **Congelado:** pose mm · fit-as-default · Here3/Pixhawk · HD-004 · Conversation Engine.  
+> **Artefactos:** investigation / implementation / review only. **Claude:** sin IC de código en este slice.
+
+### 🟢 LOCK — Geometry assembly relation rung CLOSED (2026-09-08)
+
+> **Lock:** [engineer_lock_geometry_assembly_relation_rung_closed.md](../.jes/artifacts/engineer_lock_geometry_assembly_relation_rung_closed.md)  
+> **Plan:** idle Geometry tras Board status review — no fit investigation sin override ★.
 
 ### 🟢 CERRADO (Defer B0) — Geometry assembly Pose B1+ (2026-09-07) · cola 2/3
 

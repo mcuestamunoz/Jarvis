@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Pose B1+ DEFERRED (B0) via defer IC. Assembly relation rung complete. Await Engineer next focus. Fit stub stays queued.",
-  "scope": "implementation_contract_geometry_assembly_pose_b1plus_defer",
-  "execution_status": "geometry_assembly_pose_b1plus_deferred_closed",
-  "current_mode": "Idle \u2014 pose deferred; await Engineer next focus",
+  "cycle_intent": "Geometry assembly relation rung CLOSED (engineer lock 2026-09-08). Idle. Fit stub parked \u2014 no investigation without explicit \u2605 override of fit-as-default freeze. No Claude code IC.",
+  "scope": "engineer_lock_geometry_assembly_relation_rung_closed",
+  "execution_status": "geometry_assembly_relation_rung_closed_idle",
+  "current_mode": "Idle \u2014 assembly relation closed; Continuity use free; await Engineer next \u2605",
   "movement_trigger": {
     "type": "engineer_buy",
-    "note": "2026-09-07 redacta Ic \u2192 B0 Defer IC executed (doc-only)"
+    "note": "2026-09-08 Procede plan idle Geometry; lock rung closed; no fit IC/investigation"
   },
   "relevant_workflow_phases": [
     "idle"
@@ -72,21 +72,21 @@
     "continuity_mounted_on_declare_b1": "\u2605 IMPLEMENTED REVIEWED PASS \u2014 CLOSED (suite 2380)",
     "geometry_assembly_board_edges_b2": "\u2605 CLOSED (Claude PASS + Engineer smoke ACCEPT @ 2385)",
     "geometry_assembly_pose_b1plus": "\u2605 DEFERRED CLOSED (B0) 2026-09-07 \u2014 no pose schema",
-    "geometry_assembly_fit_compare": "QUEUED STUB \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605",
+    "geometry_assembly_relation_rung": "\u2605 LOCKED CLOSED 2026-09-08 \u2014 mounted_on + Continuity + edges; idle",
+    "geometry_assembly_fit_compare": "QUEUED STUB \u2014 DO NOT IMPLEMENT \u2014 needs investigation \u2605 (fit-as-default FROZEN)",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 \u2014 closable (parallel board Buy)"
   },
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_geometry_assembly_pose_b1plus_defer.md",
-    ".jes/artifacts/implementation_report_geometry_assembly_pose_b1plus_defer.md"
+    ".jes/artifacts/engineer_lock_geometry_assembly_relation_rung_closed.md"
   ],
   "active_operation": null,
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
+    "Assembly relation rung CLOSED 2026-09-08 \u2014 mounted_on + Continuity + edges; pose DEFERRED; fit not default-next",
     "CAD/FEA/fit as default next still FROZEN \u2014 Geometry axis \u2260 CAD theater",
     "No open Geometry IC until Engineer Buy after report",
     "No pose/assembly after glyphs without separate \u2605 \u2014 hygiene is catalog KNOW, not Geometry rung",
-    "Assembly espacial investigation OPEN 2026-09-07 \u2014 no fit; Board layout \u2260 physical pose",
     "Catalog hygiene: each number \u2194 correct variant + condition",
     "Here3 / Pixhawk variant FROZEN until identity investigation",
     "System Optimization DEFERRED until demonstrated CLI/product pain \u2014 not Vision \u00a77",
@@ -97,7 +97,7 @@
     "Artifacts: investigation/implementation/review only",
     "v0.3.8 / checkpoint-spatial-board-projector \u2705",
     "Hardware HD-* PARKED \u2014 never PRIORIDAD AHORA"
-  ],
+   ],
   "checkpoints": {
     "v0.3.1": "30c9aec",
     "checkpoint-next-engineering-block": "30c9aec",
@@ -211,6 +211,7 @@
     "geometry_assembly_pose_b1plus_ic": "DEFERRED_CLOSED_B0",
     "geometry_assembly_pose_b1plus_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_B0_DEFER",
     "geometry_assembly_pose_b1plus_defer_ic": "IMPLEMENTED_DOC_ONLY_CLOSED",
+    "geometry_assembly_relation_rung_lock": "LOCKED_CLOSED_IDLE_2026_09_08",
     "geometry_assembly_fit_compare_ic": "QUEUED_STUB_BLOCKED",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
   }
