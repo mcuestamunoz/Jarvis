@@ -7,12 +7,16 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2385**.  
-> **PRIORIDAD AHORA:** Geometry **assembly relation rung CLOSED** — **idle**. Fit stub parked (no ★).  
-> **Eje ★:** [engineer_lock_geometry_assembly_relation_rung_closed.md](../.jes/artifacts/engineer_lock_geometry_assembly_relation_rung_closed.md)  
-> **Hecho:** glyphs · hygiene · `mounted_on` · Continuity · Board edges · pose **DEFERRED**.  
-> **Uso libre (sin IC):** declarar mounts faltantes vía Continuity ya shipped.  
-> **Congelado:** pose mm · fit-as-default · Here3/Pixhawk · HD-004 · Conversation Engine.  
-> **Artefactos:** investigation / implementation / review only. **Claude:** sin IC de código en este slice.
+> **PRIORIDAD AHORA:** Fase 1 hygiene — investigation **catalog-bound freshness** READY → **Claude report**.  
+> **Eje ★:** Secuencia E → geometría-all → connect. Assembly relation CLOSED.  
+> **Hecho triage:** ESC seed **15** · demo project **26** + `catalog_ref` · no Continuity “cambiar esc”.  
+> **Cola:** Fase 2/3 pending · fit/pose frozen/deferred · A–D catalog intact.  
+> **Artefactos:** investigation / implementation / review only.
+
+### 🟡 INVESTIGATION READY — Catalog-bound property freshness B1 (2026-09-08) · Fase 1
+
+> **Contract:** [investigation_contract_catalog_bound_property_freshness_b1.md](../.jes/artifacts/investigation_contract_catalog_bound_property_freshness_b1.md) — **Claude next**.  
+> **Hallazgo:** seed hygiene CLOSED; Board stale; ESC fuera de idle rebind B3; `bind_esc_from_catalog` sin picker UX.
 
 ### 🟢 LOCK — Geometry assembly relation rung CLOSED (2026-09-08)
 
