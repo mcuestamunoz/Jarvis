@@ -18,6 +18,11 @@
 > **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_for_all_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_for_all_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_for_all_b1.md) — **PASS WITH NOTES**.  
 > **★ next:** Buy **B1** (Cursor IC) or **B0** (skip to Conn). No IC until pick.
 
+### 🟢 IMPLEMENTATION REVIEWED — Catalog-bound refresh B1 (2026-09-08) · Fase 1 / E · PASS WITH NOTES
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_catalog_bound_refresh_b1.md) · [report](../.jes/artifacts/implementation_report_catalog_bound_refresh_b1.md) · [review](../.jes/artifacts/implementation_review_catalog_bound_refresh_b1.md).  
+> **Smoke (parallel):** `actualiza el esc` → Board 15 g.
+
 ### 🟢 LOCK — Geometry assembly relation rung CLOSED (2026-09-08)
 
 > **Lock:** [engineer_lock_geometry_assembly_relation_rung_closed.md](../.jes/artifacts/engineer_lock_geometry_assembly_relation_rung_closed.md)  
