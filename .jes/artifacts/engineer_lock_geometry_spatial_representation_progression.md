@@ -66,6 +66,6 @@ Glyphs B1 **shipped** (suite **2344**). Assembly **relation** CLOSED 2026-09-08.
 
 **Product horizon (Engineer 2026-09-08):** 3D solids at declared scale → click opens today’s card → **place in space** (`mounted_on` as guide; declared box-local offsets) → later `"cabe"` vs that spatial situation.
 
-Lock: [engineer_lock_geometry_3d_placement_horizon.md](engineer_lock_geometry_3d_placement_horizon.md). Reds **CLOSED**. Queue: [3D mapping path](engineer_lock_geometry_3d_mapping_path.md) — rung 1 Scene3D-from-pose **CLOSED**; rung 2 wheelbase on spec next. Fit still QUEUED.
+Lock: [engineer_lock_geometry_3d_placement_horizon.md](engineer_lock_geometry_3d_placement_horizon.md). Reds **CLOSED**. Queue: [3D mapping path](engineer_lock_geometry_3d_mapping_path.md) — rung 1 Scene3D-from-pose **CLOSED**; rung 2 first cut (wheelbase on spec) **CLOSED**. Fit still QUEUED.
 
 This B1 lock still holds: a glyph (2D or later 3D) answers **what envelope the component has**, not where it is mounted, nor whether it fits.

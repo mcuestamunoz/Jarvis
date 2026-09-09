@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-08  
 **Authority:** Engineer (`Viuelvo con lo de antes` — solutions for 3D mapping; document then work)  
-**Status:** ★ LOCKED — ordered queue. Item **1 CLOSED** @ **2462** + smoke ACCEPT. Item **2** next (wheelbase on spec; 4-motor sketch later ★). Items 3–5 later ★. Fit still **QUEUED**.  
+**Status:** ★ LOCKED — ordered queue. Item **1 CLOSED** @ **2462**. Item **2 first cut CLOSED** @ **2466** + smoke ACCEPT (`wheelbase_mm` on bound spec). 4-motor sketch later ★. Items 3–5 later ★. Fit still **QUEUED**.  
 **Parents:**
 - [engineer_lock_geometry_3d_placement_horizon.md](engineer_lock_geometry_3d_placement_horizon.md)
 - [engineer_lock_geometry_pre_assembly_honesty.md](engineer_lock_geometry_pre_assembly_honesty.md) — R1/R2 **CLOSED** CLI; envelope ≠ reconstructed part
@@ -15,7 +15,7 @@
 
 ## Locked reading
 
-The visor already draws **declared** envelopes. Rung 1 **CLOSED**: Scene3D reads `declared_box_pose` (one hop, CSS place). Visor chrome (2026-09-09): the solid cluster is centered in the 3D pane (AABB of wrappers → pane center), not pose. Next missing piece is mapping rung **2** (wheelbase on the bound frame spec), not another visor DTO.
+The visor already draws **declared** envelopes. Rung 1 **CLOSED**: Scene3D reads `declared_box_pose` (one hop, CSS place). Visor chrome (2026-09-09): the solid cluster is centered in the 3D pane (AABB of wrappers → pane center), not pose. Rung **2 first cut CLOSED**: bound Rooster spec now carries cited `wheelbase_mm` 230 (refresh of stale ProjectState; card text). Next missing pieces are mapping rungs **2 remainder (4-motor sketch, later ★)** and **3–5**, not another visor DTO.
 
 Two products (do not collapse):
 
@@ -45,9 +45,9 @@ origen, ejes L→+X W→+Y H→+Z declarados. Aún no es el Rooster ni “cabe.�
 
 ### 2. Wheelbase on the spec + optional 4-motor sketch
 
-Rooster seed **has** `wheelbase_mm` 230 (Armattan motor-to-motor). Live demo **frame card does not** (only mass / 5" / material) — bind/projection hole, not missing KNOW in the library file.
+**First cut CLOSED** @ **2466** + [smoke](engineer_smoke_geometry_wheelbase_on_spec_b1.md) **ACCEPT**. Rooster seed had `wheelbase_mm` 230; live demo frame was stale (mass / 5" / material only). Bind already projected; refresh applied it. Card shows `230 mm`. Frame still has **no** 3D solid.
 
-Path: project `wheelbase_mm` onto the bound frame spec. Then a **separate ★** may instance `motor_count=4` on an X of 230 mm, copy: “boceto de distancias, mismo SKU, no 4 nodos BOM.” That **reverses** CSS 3D B1 “one solid per spec” — allowed only as a named Buy, not smuggled into rung 1.
+**Remainder (later ★):** instance `motor_count=4` on an X of 230 mm, copy: “boceto de distancias, mismo SKU, no 4 nodos BOM.” That **reverses** CSS 3D B1 “one solid per spec” — allowed only as a named Buy.
 
 ### 3. Motor `height_mm` 31.7 cited
 
@@ -71,4 +71,4 @@ Full catalog refresh · Here3 unfreeze · battery L/W/H remap · `istand` · STE
 
 ## Mode
 
-Rung **1 CLOSED**. Next = rung **2** first cut (project `wheelbase_mm` onto the bound frame spec; **not** 4-motor copies). Package `0.3.8` · suite **2462**.
+Rung **1 CLOSED**. Rung **2 first cut CLOSED** (wheelbase on spec). Next = Engineer names 4-motor sketch ★ or rungs 3–5. Package `0.3.8` · suite **2466**.

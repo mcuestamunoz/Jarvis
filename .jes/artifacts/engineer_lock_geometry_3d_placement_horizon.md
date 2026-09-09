@@ -48,7 +48,7 @@ comparar (“cabe”)      → verify against that situation
 
 ## Next work queue (PRIORIDAD)
 
-**Next artifact:** [3D mapping path](engineer_lock_geometry_3d_mapping_path.md) rung **2** — wheelbase on spec. Scene3D-from-pose **CLOSED**. Fit QUEUED.
+**Next artifact:** [3D mapping path](engineer_lock_geometry_3d_mapping_path.md) — rung 2 first cut **CLOSED**; 4-motor sketch later ★. Fit QUEUED.
 
 ---
 
@@ -60,4 +60,4 @@ Implementing 3D theater without envelope KNOW · treating drag as pose · `"cabe
 
 ## Mode
 
-**Visualizar-3D CLOSED.** Continuity pose CLOSED @ **2456**. Scene3D-from-pose CLOSED @ **2462**. Mapping rung 2 next (wheelbase on spec). Package `0.3.8`.
+**Visualizar-3D CLOSED.** Continuity pose CLOSED @ **2456**. Scene3D-from-pose CLOSED @ **2462**. Wheelbase-on-spec first cut CLOSED @ **2466**. Package `0.3.8`.

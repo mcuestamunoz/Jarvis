@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Scene3D-from-pose B1 CLOSED @ 2462 + smoke ACCEPT. Engineer named mapping rung 2: wheelbase on the bound frame spec (not 4-motor sketch). Fit QUEUED.",
+  "cycle_intent": "Wheelbase-on-spec B1 CLOSED @ 2466 + smoke ACCEPT. Idle \u2014 Engineer names 4-motor sketch \u2605 or mapping rungs 3\u20135. Fit QUEUED.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "Named next \u2014 mapping rung 2 wheelbase on spec",
+  "current_mode": "Idle \u2014 rung 2 first cut CLOSED; Engineer names next mapping rung",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-09 Engineer Board smoke ACCEPT Scene3D-from-pose B1"
+    "note": "2026-09-09 Engineer smoke ACCEPT wheelbase-on-spec B1"
   },
   "relevant_workflow_phases": [
     "Verification"
@@ -77,8 +77,9 @@
     "geometry_pose_box_anchor": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 Engineer \u2605 B1 declared box-local frame \u2014 writer CLOSED @ 2438",
     "geometry_pose_declared_box_frame_b1": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2438) + Engineer ACCEPT",
     "continuity_declared_box_pose_b1": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2456) + Engineer ACCEPT",
-    "geometry_3d_mapping_path": "\u2605 LOCKED 2026-09-08 \u2014 five rungs; rung 1 CLOSED @ 2462 + smoke ACCEPT; Engineer named rung 2 (wheelbase on spec)",
+    "geometry_3d_mapping_path": "\u2605 LOCKED 2026-09-08 \u2014 five rungs; rung 1 CLOSED @ 2462; rung 2 first cut CLOSED @ 2466",
     "geometry_scene3d_from_pose_b1": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2462) + Engineer Board smoke ACCEPT",
+    "geometry_wheelbase_on_spec_b1": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2466) + Engineer smoke ACCEPT",
     "geometry_assembly_relation_rung": "\u2605 LOCKED CLOSED 2026-09-08 \u2014 mounted_on + Continuity + edges; next Geometry = Continuity pose investigation (not a relation reopen)",
     "catalog_bound_property_freshness_b1": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 lean B1",
     "catalog_bound_refresh_b1": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2406) + Engineer ESC smoke ACCEPT",
@@ -93,13 +94,13 @@
   "required_artifacts": [
     ".jes/artifacts/engineer_lock_geometry_3d_mapping_path.md"
   ],
-  "active_operation": "named_mapping_path_rung2_wheelbase",
+  "active_operation": "idle_mapping_path_rung2_first_cut_closed",
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
     "Assembly relation rung CLOSED 2026-09-08 \u2014 mounted_on + Continuity + edges; airframe pose stub DEFERRED; fit not default-next",
     "3D placement horizon LOCKED 2026-09-08 \u2014 visualizar-3D CLOSED; Continuity pose CLOSED @ 2456; demo reds closed",
-    "3D mapping path LOCKED 2026-09-08 \u2014 five rungs; rung 1 CLOSED @ 2462 + smoke ACCEPT; Engineer named rung 2 (wheelbase on spec, not 4-motor copies)",
+    "3D mapping path LOCKED 2026-09-08 \u2014 five rungs; rung 1 CLOSED @ 2462; rung 2 first cut CLOSED @ 2466 (4-motor sketch later \u2605)",
     "Pre-assembly honesty LOCKED 2026-09-08 \u2014 envelope \u2260 CAD; R1/R2 CLOSED by CLI walk",
     "CAD/FEA/fit as default next still FROZEN \u2014 Geometry axis \u2260 CAD theater",
     "No open Geometry IC until Engineer Buy after report",
@@ -233,9 +234,11 @@
     "geometry_pose_declared_box_frame_b1_ic": "CLOSED_PASS_WITH_NOTES_2438_ACCEPT",
     "continuity_declared_box_pose_b1_investigation": "REVIEWED_PASS_WITH_NOTES_STAR_B1",
     "continuity_declared_box_pose_b1_ic": "CLOSED_PASS_WITH_NOTES_2456_ACCEPT",
-    "geometry_3d_mapping_path_lock": "LOCKED_FIVE_RUNGS_RUNG1_CLOSED_2462_SMOKE_ACCEPT",
+    "geometry_3d_mapping_path_lock": "LOCKED_FIVE_RUNGS_RUNG1_CLOSED_2462_RUNG2_FIRST_CUT_CLOSED_2466",
     "geometry_scene3d_from_pose_b1_investigation": "REVIEWED_PASS_WITH_NOTES_STAR_B1",
     "geometry_scene3d_from_pose_b1_ic": "CLOSED_PASS_WITH_NOTES_2462_SMOKE_ACCEPT",
+    "geometry_wheelbase_on_spec_b1_investigation": "REVIEWED_PASS_WITH_NOTES_STAR_B1",
+    "geometry_wheelbase_on_spec_b1_ic": "CLOSED_PASS_WITH_NOTES_2466_SMOKE_ACCEPT",
     "geometry_pre_assembly_honesty_lock": "LOCKED_STANCE_HOLDS_REDS_CLOSED_CLI_WALK",
     "geometry_assembly_pose_b1plus_defer_ic": "IMPLEMENTED_DOC_ONLY_CLOSED",
     "geometry_assembly_relation_rung_lock": "LOCKED_CLOSED_IDLE_2026_09_08",

@@ -6,11 +6,21 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2462**.  
-> **PRIORIDAD AHORA:** Mapping rung **2** — project `wheelbase_mm` onto the bound frame spec (not 4-motor sketch). Scene3D-from-pose B1 **CLOSED** @ **2462** + smoke ACCEPT. Fit QUEUED.  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2466**.  
+> **PRIORIDAD AHORA:** Geometry **idle**. Wheelbase-on-spec first cut **CLOSED** @ **2466**. 4-motor sketch / rungs 3–5 later ★. Fit QUEUED.  
 > **Eje ★:** [mapping path](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Pose Continuity [smoke](../.jes/artifacts/engineer_smoke_continuity_declared_box_pose_b1.md) ACCEPT @ **2456**. Reds [R1/R2](../.jes/artifacts/engineer_smoke_pre_assembly_reds_r1_r2.md) ACCEPT.  
-> **Cola:** ~~1 Scene3D-from-pose~~ **CLOSED** → **2 wheelbase on spec** (4-motor sketch later ★) → 3 motor height 31.7 cited → 4 plate L×W search → 5 `"cabe"`. Fit QUEUED.  
+> **Cola:** ~~1 Scene3D-from-pose~~ **CLOSED** → ~~2 wheelbase on spec~~ **CLOSED** (4-motor sketch later ★) → 3 motor height 31.7 cited → 4 plate L×W search → 5 `"cabe"`. Fit QUEUED.  
 > **Artefactos:** investigation / implementation / review only.
+
+### 🟢 CERRADO — Wheelbase on spec B1 (2026-09-09) · suite **2466** + ACCEPT
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_wheelbase_on_spec_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_wheelbase_on_spec_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_wheelbase_on_spec_b1.md).  
+> **Smoke:** [engineer_smoke_geometry_wheelbase_on_spec_b1.md](../.jes/artifacts/engineer_smoke_geometry_wheelbase_on_spec_b1.md) — **ACCEPT**. Stale Rooster frame refresh → card `wheelbase_mm` 230 mm + `configuration` quad_x; no new 3D solid; no 4 motors.
+
+### 🟡 INVESTIGATION REVIEWED — Wheelbase on spec B1 (2026-09-09) · PASS WITH NOTES · ★ B1
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_wheelbase_on_spec_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_wheelbase_on_spec_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_wheelbase_on_spec_b1.md).  
+> **Lean:** **B1** lock existing bind/refresh + live smoke. Overlay / Scene3D glyph / 4 motors **out**.
 
 ### 🟢 CERRADO — Scene3D-from-pose B1 (2026-09-09) · suite **2462** + ACCEPT
 
@@ -25,7 +35,7 @@
 
 ### 🔒 LOCKED — 3D mapping path · five rungs (2026-09-08)
 
-> **Lock:** [engineer_lock_geometry_3d_mapping_path.md](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Rung 1 CLOSED. Next = project `wheelbase_mm` onto the bound frame spec.
+> **Lock:** [engineer_lock_geometry_3d_mapping_path.md](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Rung 1 CLOSED. Rung 2 first cut CLOSED. Next = 4-motor sketch ★ or rungs 3–5.
 
 ### 🟢 CERRADO (walk) — Pre-assembly reds R1/R2 (2026-09-08) · CLI · no IC
 
