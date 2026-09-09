@@ -105,11 +105,21 @@ def _assembly_ready_shape_state(restrictions: str, *, autonomy_min: float = 5.04
     })
     flight_controller = _spec("flight_controller", "control")
     sensors = _spec("sensors", "control")
+    # Assembly kit template B1-min: vehicle_type=dron now expects two kit
+    # holes too (power_connector/signal_harness) — declared here so this
+    # "assembly ready shape" fixture stays genuinely gap-free. Prop adapter
+    # ask B1 (later cycle): motors+propellers present -> a third kit hole
+    # (prop_adapter) also joined the set.
+    power_connector = _spec("power_connector", "generic_component")
+    signal_harness = _spec("signal_harness", "generic_component")
+    prop_adapter = _spec("prop_adapter", "generic_component")
 
     dp = DesignProperties(
         components={
             "motors": motors, "propellers": propellers, "esc": esc, "battery": battery,
             "frame": frame, "flight_controller": flight_controller, "sensors": sensors,
+            "power_connector": power_connector, "signal_harness": signal_harness,
+            "prop_adapter": prop_adapter,
         },
         system_defined=True,
         system_blocks=["propulsion", "energy", "structure", "control"],

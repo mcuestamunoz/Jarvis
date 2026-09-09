@@ -330,9 +330,14 @@ def test_hq_5045_bn_partially_verified_identity():
     assert spec.mass_g is None
 
 
-def test_gemfan_5045_hbn_verified_identity():
+def test_gemfan_5045_hbn_partially_verified_identity():
+    """Propeller cited envelope B0: the row's only source (an Oscar Liang
+    motor thrust-test article) confirms the propeller's identity/use but
+    states no propeller physical fact — the same evidence-quality gap
+    hq_5045_bn already carries honestly. Previously mislabeled 'verified';
+    this is a required correction, not a weaken."""
     spec = _LIB.get_propeller("gemfan_5045_hbn")
-    assert spec.identity_status == "verified"
+    assert spec.identity_status == "partially_verified"
     assert spec.manufacturer == "Gemfan"
     assert spec.model == "5045 HBN"
     assert spec.mass_g is None

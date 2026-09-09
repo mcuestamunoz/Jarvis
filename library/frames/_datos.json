@@ -74,12 +74,15 @@
       {"label": "Main Plate", "thickness_mm": 4, "material": "fibra de carbono"},
       {"label": "Top (LiPo) plate", "thickness_mm": 2},
       {"label": "Small front (top) plate", "thickness_mm": 1.5},
-      {"label": "Small rear (top) plate", "thickness_mm": 1.5}
+      {"label": "Small rear (top) plate", "thickness_mm": 1.5},
+      {"label": "HD Cam plate", "thickness_mm": 1.5},
+      {"label": "Rear VTX plates (Standard and TBS)", "thickness_mm": 2}
     ],
+    "max_stack_height_mm": 22,
     "cage_material": "titanio",
     "standoff_material": "aluminio",
     "identity_status": "verified",
     "source_url": "https://armattanquads.com/products/rooster-1",
-    "source_note": "Manufacturer's own product page (armattanquads.com) states approx. 125g frame weight, Compressed-X configuration (mapped to quad_x), 230mm motor-to-motor @5in, carbon fiber main plate/arms (arm thickness 4mm), titanium cage, aluminum standoffs. Plate thicknesses curated from the page's own spec list (not the full Included kit): Main Plate 4mm (carbon), Top/LiPo plate 2mm, Small front/rear (top) plates 1.5mm each. No explicit arm/plate/standoff counts stated on the page — left unset, not inferred from the X-configuration name."
+    "source_note": "Manufacturer's own product page (armattanquads.com) states approx. 125g frame weight, Compressed-X configuration (mapped to quad_x), 230mm motor-to-motor @5in, carbon fiber main plate/arms (arm thickness 4mm), titanium cage, aluminum standoffs. Plate thicknesses curated from the page's own spec list (not the full Included kit): Main Plate 4mm (carbon), Top/LiPo plate 2mm, Small front/rear (top) plates 1.5mm each. No explicit arm/plate/standoff counts stated on the page — left unset, not inferred from the X-configuration name. Rooster Included plates B2 (live re-fetch 2026-09-09): the page's own Carbon Fiber Included list also states '1x 1.5mm HD Cam plate' and '1x 2mm Rear VTX plates (Standard and TBS)' — seeded as two more curated plate rows (never split into two siblings — one Included line stays one PlateSeed). Its Specification table additionally states 'Max Stack Height: 22mm' — seeded as the root-only max_stack_height_mm, never height_mm/body_*/a box glyph input. Still no plate or airframe L×W stated anywhere on the page. Still not the full hardware bag — nylon standoffs, bolt/nut counts, LiPo strap, camera foam, 28.5mm camera mount, and 30.5mm stack mount remain unseeded."
   }
 }

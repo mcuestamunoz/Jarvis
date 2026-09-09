@@ -198,20 +198,21 @@ def test_pick_after_rebind_binds_catalog_ref_and_parts(tmp_path: Path):
 
 def test_rebind_to_tbs_clears_stale_armattan_children(tmp_path: Path):
     """T5 (arms B2) / T8 (Frame Assembly Physical Model B2): bound Armattan
-    (arm + 4 curated plate siblings + cage + standoff) -> rebind pick TBS ->
-    every stale Armattan child gone; TBS's own sourced arm_thickness_mm +
-    curated 3-plate list (Top/Middle/Bottom) project fresh children rather
-    than surviving with Armattan's material/labels. Geometry-for-all B1:
-    TBS 5in also legitimately re-creates frame_standoff (its own page-stated
-    30mm/22mm heights) — a fresh, differently-shaped standoff child, not a
-    survival of Armattan's stale material-only one."""
+    (arm + 6 curated plate siblings, per Rooster Included plates B2 + cage +
+    standoff) -> rebind pick TBS -> every stale Armattan child gone; TBS's
+    own sourced arm_thickness_mm + curated 3-plate list (Top/Middle/Bottom)
+    project fresh children rather than surviving with Armattan's
+    material/labels. Geometry-for-all B1: TBS 5in also legitimately
+    re-creates frame_standoff (its own page-stated 30mm/22mm heights) — a
+    fresh, differently-shaped standoff child, not a survival of Armattan's
+    stale material-only one."""
     orch = _closed_project_bound_frame(tmp_path)
     before = orch.state_manager.load_active_project(orch.workspace_manager)
     assert sorted(
         k for k in before.design_properties.components if k.startswith("frame_")
     ) == [
         "frame_arm", "frame_cage", "frame_plate", "frame_plate_2", "frame_plate_3",
-        "frame_plate_4", "frame_standoff",
+        "frame_plate_4", "frame_plate_5", "frame_plate_6", "frame_standoff",
     ]
 
     _reset_idle(orch)

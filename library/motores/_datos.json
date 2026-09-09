@@ -179,7 +179,8 @@
     "stator_height_mm": 5,
     "diameter_mm": 27.9,
     "shaft_diameter_mm": 3,
-    "source_note": "Official EMAX RS2205 RaceSpec Cooling Series. Product Code 0101008001. 2300KV, approx. 30g with wires, 3S-4S (12.6-16.8V), 22mm stator, 12N14P. max_watts/max_current_a not declared on manufacturer spec — left null. Page states Stator Diameter 22mm, Stator Height 5mm, Shaft Diameter 3mm, \"Motor Diameter\" 27.9mm (mapped to diameter_mm). Page also states Motor Height 31.7mm and a 15mm extended prop shaft — NOT seeded (overall axial height excluded this increment, see investigation report §C: not comparable to SunnySky's differently-scoped \"Body Length\").",
+    "height_mm": 31.7,
+    "source_note": "Official EMAX RS2205 RaceSpec Cooling Series. Product Code 0101008001. 2300KV, approx. 30g with wires, 3S-4S (12.6-16.8V), 22mm stator, 12N14P. max_watts/max_current_a not declared on manufacturer spec — left null. Page states Stator Diameter 22mm, Stator Height 5mm, Shaft Diameter 3mm, \"Motor Diameter\" 27.9mm (mapped to diameter_mm). Page also states Motor Height 31.7mm — seeded as height_mm (cited \"Motor Height\", shaft-inclusive per investigation report §C; NOT comparable to SunnySky's differently-scoped \"Body Length\"). The page's 15mm extended prop shaft figure remains NOT seeded.",
     "operating_points": [
       {
         "propeller_sku": null,

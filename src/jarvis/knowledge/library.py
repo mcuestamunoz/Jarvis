@@ -66,14 +66,21 @@ class MotorSpec:
     source_note: str | None = None
     # Geometry axis (Minimum Geometric KNOW, Motor B1) — declared cylinder
     # envelope, sourced-only, never invented. Independently optional: a row
-    # may state stator dims without a shaft figure (or vice versa). Overall
-    # axial height/length is deliberately NOT modeled here — the two
-    # currently-sourced rows disagree on what it even means (shaft-inclusive
-    # "Motor Height" vs body-only "Body Length"), see investigation report §C.
+    # may state stator dims without a shaft figure (or vice versa).
     stator_diameter_mm: float | None = None
     stator_height_mm: float | None = None
     diameter_mm: float | None = None
     shaft_diameter_mm: float | None = None
+    # Motor height 31.7 cited B1: overall axial height, optional and
+    # SKU-scoped — seeded ONLY where a page's own dimension is unambiguous
+    # and cited verbatim (currently just EMAX's "Motor Height", shaft-
+    # inclusive per investigation_report_geometry_motor_envelope.md §C).
+    # NOT comparable across manufacturers: SunnySky's "Body Length" is a
+    # different, differently-scoped physical fact and is deliberately not
+    # mapped here. NOT a glyph/cylinder input — `_geometry_from_spec` still
+    # resolves a bare diameter to a flat `disk`; this field never combines
+    # with `diameter_mm` to produce a cylinder.
+    height_mm: float | None = None
 
 
 def _motor_covers_requirements(
@@ -250,6 +257,13 @@ class FrameSpec:
     # for any current row) — representar text only.
     body_length_mm: float | None = None
     body_width_mm: float | None = None
+    # Rooster Included plates B2 — a cited overall Z-axis fact (a
+    # manufacturer's own "Max Stack Height" spec), root-level only, never a
+    # box glyph input alone (no accompanying L×W sourced for any current
+    # row) and never merged with `height_mm`/`body_*`/standoff `height_mm` —
+    # those are different physical facts (component overall height, body
+    # footprint, standoff post height respectively).
+    max_stack_height_mm: float | None = None
 
 
 @dataclass(frozen=True)
@@ -271,6 +285,18 @@ class PropellerSpec:
     part_number: str | None = None
     source_url: str | None = None
     identity_status: str | None = None
+    # Propeller cited envelope B0+B1 — a sourced-only, per-row optional bag.
+    # Never invented, never copied from a sibling row (a 5x4.5 ABS prop and a
+    # 5x4.5 glass-fiber-nylon prop are different physical products even at
+    # the same size code). `source_note` is catalog provenance only (like
+    # Motor/Battery/ESC) — never projected as a Board property.
+    blade_count: int | None = None
+    material: str | None = None
+    hub_diameter_mm: float | None = None
+    hub_thickness_mm: float | None = None
+    mass_tolerance_g: float | None = None
+    shaft_bore_mm: float | None = None
+    source_note: str | None = None
 
 
 class ComponentLibrary:
@@ -386,6 +412,9 @@ class ComponentLibrary:
             ),
             shaft_diameter_mm=(
                 float(data["shaft_diameter_mm"]) if data.get("shaft_diameter_mm") is not None else None
+            ),
+            height_mm=(
+                float(data["height_mm"]) if data.get("height_mm") is not None else None
             ),
         )
 
@@ -601,6 +630,23 @@ class ComponentLibrary:
             part_number=data.get("part_number"),
             source_url=data.get("source_url"),
             identity_status=data.get("identity_status"),
+            blade_count=(
+                int(data["blade_count"]) if data.get("blade_count") is not None else None
+            ),
+            material=data.get("material"),
+            hub_diameter_mm=(
+                float(data["hub_diameter_mm"]) if data.get("hub_diameter_mm") is not None else None
+            ),
+            hub_thickness_mm=(
+                float(data["hub_thickness_mm"]) if data.get("hub_thickness_mm") is not None else None
+            ),
+            mass_tolerance_g=(
+                float(data["mass_tolerance_g"]) if data.get("mass_tolerance_g") is not None else None
+            ),
+            shaft_bore_mm=(
+                float(data["shaft_bore_mm"]) if data.get("shaft_bore_mm") is not None else None
+            ),
+            source_note=data.get("source_note"),
         )
 
     def _load_propellers(self) -> dict[str, PropellerSpec]:
@@ -782,6 +828,10 @@ class ComponentLibrary:
             ),
             body_width_mm=(
                 float(data["body_width_mm"]) if data.get("body_width_mm") is not None else None
+            ),
+            max_stack_height_mm=(
+                float(data["max_stack_height_mm"])
+                if data.get("max_stack_height_mm") is not None else None
             ),
         )
 

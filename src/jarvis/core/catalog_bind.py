@@ -71,7 +71,9 @@ def bind_motor_from_catalog(
     except (KeyError, ValueError):
         motor_spec = None
     if motor_spec is not None:
-        for prop_key in ("stator_diameter_mm", "stator_height_mm", "diameter_mm", "shaft_diameter_mm"):
+        for prop_key in (
+            "stator_diameter_mm", "stator_height_mm", "diameter_mm", "shaft_diameter_mm", "height_mm",
+        ):
             dim_value = getattr(motor_spec, prop_key)
             if dim_value is not None:
                 projected[prop_key] = PropertyValue(
@@ -191,6 +193,33 @@ def bind_propeller_from_catalog(
     if spec.mass_g is not None:
         projected["mass_g"] = PropertyValue(
             value=spec.mass_g, unit="g", confidence=0.9, source="declared"
+        )
+    # Propeller cited envelope B1 — optional bag, projected only when the
+    # catalog row states it. `source_note` is provenance, never a Board
+    # property (mirrors Motor/Battery/ESC's own source_note handling).
+    if spec.blade_count is not None:
+        projected["blade_count"] = PropertyValue(
+            value=spec.blade_count, confidence=0.9, source="declared"
+        )
+    if spec.material is not None:
+        projected["material"] = PropertyValue(
+            value=spec.material, confidence=0.9, source="declared"
+        )
+    if spec.hub_diameter_mm is not None:
+        projected["hub_diameter_mm"] = PropertyValue(
+            value=spec.hub_diameter_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.hub_thickness_mm is not None:
+        projected["hub_thickness_mm"] = PropertyValue(
+            value=spec.hub_thickness_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.mass_tolerance_g is not None:
+        projected["mass_tolerance_g"] = PropertyValue(
+            value=spec.mass_tolerance_g, unit="g", confidence=0.9, source="declared"
+        )
+    if spec.shaft_bore_mm is not None:
+        projected["shaft_bore_mm"] = PropertyValue(
+            value=spec.shaft_bore_mm, unit="mm", confidence=0.9, source="declared"
         )
     if base is not None:
         merged_properties = {**(base.properties or {}), **projected}
@@ -333,6 +362,14 @@ def bind_frame_from_catalog(
     if spec.body_width_mm is not None:
         projected["body_width_mm"] = PropertyValue(
             value=spec.body_width_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    # Rooster Included plates B2 — root-only, additive, never enters
+    # _frame_completeness: a cited overall Z-axis fact ("Max Stack Height"),
+    # never aliased to height_mm/body_*/standoff height_mm — those are
+    # different physical facts.
+    if spec.max_stack_height_mm is not None:
+        projected["max_stack_height_mm"] = PropertyValue(
+            value=spec.max_stack_height_mm, unit="mm", confidence=0.9, source="declared"
         )
     if base is not None:
         merged_properties = {**(base.properties or {}), **projected}

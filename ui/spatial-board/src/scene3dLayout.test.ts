@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clusterCenterPx, layoutSolidsFromPose, layoutSolidsRow } from "./scene3dLayout";
+import { clusterCenterPx, expandSolidCopies, layoutSolidsFromPose, layoutSolidsRow } from "./scene3dLayout";
 
 describe("layoutSolidsRow", () => {
   it("U5: second originX = first footprint + gap; ignores a fake card x", () => {
@@ -119,5 +119,55 @@ describe("clusterCenterPx", () => {
     // FC wrap 22×6 at (0,0); ESC wrap 25×6 at (66,0) → [0,91] × [0,6]
     expect(c.x).toBeCloseTo(45.5);
     expect(c.y).toBeCloseTo(3);
+  });
+});
+
+describe("expandSolidCopies", () => {
+  const motorsDisk = { shape: "disk" as const, diameter_mm: 27.9 };
+  const fc = { id: "fc", geometry: { shape: "box" as const, length_mm: 44, width_mm: 84, height_mm: 12 } };
+
+  it("U1: solidCopies:3 -> three layout ids sharing one selectId, increasing row originX", () => {
+    const motors = { id: "motors", geometry: motorsDisk, solidCopies: 3 };
+    const expanded = expandSolidCopies([motors]);
+    expect(expanded.map((e) => e.layoutId)).toEqual(["motors#0", "motors#1", "motors#2"]);
+    expect(expanded.every((e) => e.selectId === "motors")).toBe(true);
+
+    const laid = layoutSolidsFromPose(
+      expanded.map((e) => ({ id: e.layoutId, geometry: e.geometry, declaredBoxPose: e.declaredBoxPose })),
+      24,
+      0.5,
+    );
+    expect(laid[0].originX).toBeLessThan(laid[1].originX);
+    expect(laid[1].originX).toBeLessThan(laid[2].originX);
+  });
+
+  it("U2: omitted solidCopies -> one item, layoutId === selectId === node id", () => {
+    const motors = { id: "motors", geometry: motorsDisk };
+    const expanded = expandSolidCopies([motors]);
+    expect(expanded).toEqual([{ layoutId: "motors", selectId: "motors", geometry: motorsDisk, declaredBoxPose: undefined }]);
+  });
+
+  it("U3: declaredBoxPose on a solidCopies:3 node is stripped from every expanded copy", () => {
+    const motors = {
+      id: "motors",
+      geometry: motorsDisk,
+      solidCopies: 3,
+      declaredBoxPose: { originKey: "fc", xMm: 5 },
+    };
+    const expanded = expandSolidCopies([motors]);
+    expect(expanded.every((e) => e.declaredBoxPose === undefined)).toBe(true);
+  });
+
+  it("U4: clusterCenterPx after expanding two copies is a finite midpoint (unique ids)", () => {
+    const motors = { id: "motors", geometry: motorsDisk, solidCopies: 2 };
+    const expanded = expandSolidCopies([fc, motors]);
+    const laid = layoutSolidsFromPose(
+      expanded.map((e) => ({ id: e.layoutId, geometry: e.geometry, declaredBoxPose: e.declaredBoxPose })),
+      24,
+      0.5,
+    );
+    const c = clusterCenterPx(laid, expanded.map((e) => ({ id: e.layoutId, geometry: e.geometry })), 0.5);
+    expect(Number.isFinite(c.x)).toBe(true);
+    expect(Number.isFinite(c.y)).toBe(true);
   });
 });

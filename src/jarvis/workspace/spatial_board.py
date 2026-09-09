@@ -39,7 +39,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from jarvis.core.system_architecture_catalog import BLOCK_TO_COMPONENTS
+from jarvis.core.system_architecture_catalog import (
+    BLOCK_TO_COMPONENTS,
+    KIT_HOME_BLOCK,
+    kit_component_keys,
+)
 from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
 from jarvis.schemas.state_schema import ProjectState
 
@@ -89,7 +93,8 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
         if spec.parent_key and spec.parent_key not in components
     ]
 
-    expected_by_column = _expected_keys_by_column(blocks)
+    vehicle_type = (state.current_parameters or {}).get("vehicle_type")
+    expected_by_column = _expected_keys_by_column(blocks, vehicle_type, components)
 
     nodes: list[dict[str, Any]] = []
     next_y: dict[int, int] = {}
@@ -106,11 +111,13 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
             mounted_on if mounted_on and mounted_on in components else None
         )
         declared_box_pose = _declared_box_pose_dto(spec, components)
+        solid_copies = _solid_copies(spec)
         _emit(
             key, col, spec.name or "", "part" if spec.parent_key else "component", fields,
             geometry=geometry,
             mounted_on=mounted_dto,
             declared_box_pose=declared_box_pose,
+            solid_copies=solid_copies,
         )
 
     def place_slot(key: str, col: int) -> None:
@@ -126,6 +133,7 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
         geometry: dict[str, float | str] | None = None,
         mounted_on: str | None = None,
         declared_box_pose: dict[str, Any] | None = None,
+        solid_copies: int | None = None,
     ) -> None:
         height = _default_height(len(fields))
         y = next_y.get(col, ORIGIN_Y)
@@ -146,6 +154,8 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
             node["mountedOn"] = mounted_on
         if declared_box_pose is not None:
             node["declaredBoxPose"] = declared_box_pose
+        if solid_copies is not None:
+            node["solidCopies"] = solid_copies
         nodes.append(node)
         next_y[col] = y + height + ROW_GAP
         emitted.add(key)
@@ -182,12 +192,29 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
     return nodes
 
 
-def _expected_keys_by_column(blocks: list[str]) -> dict[int, list[str]]:
+def _expected_keys_by_column(
+    blocks: list[str],
+    vehicle_type: str | None = None,
+    components: dict[str, ComponentSpec] | None = None,
+) -> dict[int, list[str]]:
     """Declared-block expected keys, first-match deduped (a key owned by
     multiple blocks — e.g. ``motors`` in propulsion+energy — is listed
     once, at the first block that names it), in ``BLOCK_TO_COMPONENTS``
     order within each column. Empty for an undeclared/no-blocks project —
-    the "no inventa para bloques no declarados" virtue (§2.1)."""
+    the "no inventa para bloques no declarados" virtue (§2.1).
+
+    Assembly kit template B1-min: after the architecture keys, each kit key
+    (``system_architecture_catalog.kit_component_keys`` — gated on
+    ``vehicle_type``'s domain AND its home block being declared) is appended
+    to the column of its own ``KIT_HOME_BLOCK`` — never a new column, never
+    BLOCK_TO_COMPONENTS. ``vehicle_type`` omitted/unknown → zero kit keys,
+    byte-identical to pre-B1-min output.
+
+    Prop adapter ask B1: ``components`` is forwarded to ``kit_component_keys``
+    so a component-gated kit key (``prop_adapter`` — requires ``motors``/
+    ``propellers`` already present) resolves correctly; omitted → that key
+    fails closed (never shown), same as no ``vehicle_type``.
+    """
     result: dict[int, list[str]] = {}
     seen: set[str] = set()
     for i, block in enumerate(blocks):
@@ -196,6 +223,12 @@ def _expected_keys_by_column(blocks: list[str]) -> dict[int, list[str]]:
                 continue
             seen.add(key)
             result.setdefault(i, []).append(key)
+    for key in kit_component_keys(vehicle_type, blocks, components):
+        if key in seen:
+            continue
+        col = blocks.index(KIT_HOME_BLOCK[key])
+        seen.add(key)
+        result.setdefault(col, []).append(key)
     return result
 
 
@@ -319,6 +352,41 @@ def _declared_box_pose_dto(
     if pose.z_mm is not None:
         dto["zMm"] = pose.z_mm
     return dto
+
+
+# Motor visor copies B1 — a count only ever taken from the `motors` spec's
+# own `motor_count` property. Never a default of 4, never
+# `configuration=quad_x` (a frame fact, not a motors fact), never
+# `current_parameters.motor_count` (a different, possibly-drifted field).
+_SOLID_COPIES_MIN = 2
+_SOLID_COPIES_MAX = 16
+
+
+def _solid_copies(spec: ComponentSpec) -> int | None:
+    """Motor visor copies B1 — how many solid copies to draw for this ONE
+    ``ComponentSpec`` (never N specs, never N BOM nodes). Omitted (``None``)
+    unless the spec IS motors, a real solid already exists for it
+    (``_geometry_from_spec``), and its own ``motor_count`` property is a
+    whole number in ``[2, 16]``. Missing, ``1``, ``0``, non-integer, or out
+    of range all omit — the visor then shows exactly what it showed before
+    this Buy (0 or 1 solid, from ``geometry`` alone)."""
+    if spec.suggested_key != "motors":
+        return None
+    if _geometry_from_spec(spec) is None:
+        return None
+    prop = (spec.properties or {}).get("motor_count")
+    if prop is None or prop.value is None:
+        return None
+    try:
+        raw = float(prop.value)
+    except (TypeError, ValueError):
+        return None
+    if not raw.is_integer():
+        return None
+    count = int(raw)
+    if not (_SOLID_COPIES_MIN <= count <= _SOLID_COPIES_MAX):
+        return None
+    return count
 
 
 def _fields(spec: ComponentSpec, components: dict[str, ComponentSpec]) -> list[dict[str, str]]:

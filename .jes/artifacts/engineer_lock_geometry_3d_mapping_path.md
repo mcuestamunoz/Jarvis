@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-08  
 **Authority:** Engineer (`Viuelvo con lo de antes` — solutions for 3D mapping; document then work)  
-**Status:** ★ LOCKED — ordered queue. Item **1 CLOSED** @ **2462**. Item **2 first cut CLOSED** @ **2466** + smoke ACCEPT (`wheelbase_mm` on bound spec). 4-motor sketch later ★. Items 3–5 later ★. Fit still **QUEUED**.  
+**Status:** ★ LOCKED — ordered queue. Items **1–3 CLOSED**. B2 **REVIEWED**. Rung **4 B0** (no sourced Rooster box). Kit template B1-min **CLOSED**. Fit still **QUEUED**.  
 **Parents:**
 - [engineer_lock_geometry_3d_placement_horizon.md](engineer_lock_geometry_3d_placement_horizon.md)
 - [engineer_lock_geometry_pre_assembly_honesty.md](engineer_lock_geometry_pre_assembly_honesty.md) — R1/R2 **CLOSED** CLI; envelope ≠ reconstructed part
@@ -15,7 +15,7 @@
 
 ## Locked reading
 
-The visor already draws **declared** envelopes. Rung 1 **CLOSED**: Scene3D reads `declared_box_pose` (one hop, CSS place). Visor chrome (2026-09-09): the solid cluster is centered in the 3D pane (AABB of wrappers → pane center), not pose. Rung **2 first cut CLOSED**: bound Rooster spec now carries cited `wheelbase_mm` 230 (refresh of stale ProjectState; card text). Next missing pieces are mapping rungs **2 remainder (4-motor sketch, later ★)** and **3–5**, not another visor DTO.
+The visor already draws **declared** envelopes. Rungs 1–3 **CLOSED**. Rung 4 **B0**. Kit template **B1-min CLOSED**. Rooster Included plates **B2 CLOSED**. Prop adapter ask **B1 IC APPROVED** ([IC](implementation_contract_kit_prop_adapter_ask_b1.md)). Fit still **QUEUED**.
 
 Two products (do not collapse):
 
@@ -47,15 +47,23 @@ origen, ejes L→+X W→+Y H→+Z declarados. Aún no es el Rooster ni “cabe.�
 
 **First cut CLOSED** @ **2466** + [smoke](engineer_smoke_geometry_wheelbase_on_spec_b1.md) **ACCEPT**. Rooster seed had `wheelbase_mm` 230; live demo frame was stale (mass / 5" / material only). Bind already projected; refresh applied it. Card shows `230 mm`. Frame still has **no** 3D solid.
 
-**Remainder (later ★):** instance `motor_count=4` on an X of 230 mm, copy: “boceto de distancias, mismo SKU, no 4 nodos BOM.” That **reverses** CSS 3D B1 “one solid per spec” — allowed only as a named Buy.
+**Remainder CLOSED** @ **2473** + [smoke](engineer_smoke_geometry_motor_count_instances_b1.md) **ACCEPT**. Visor copies, N = `components.motors.motor_count` (live demo **3**, `calculated`). Same SKU, not N BOM nodes. **Not** default 4. **Not** quad-X of 230. Live SunnySky has **no** Ø → still zero motor solids until a later envelope ★.
 
-### 3. Motor `height_mm` 31.7 cited
+### 3. Motor `height_mm` 31.7 cited — **CLOSED** @ **2480** + smoke ACCEPT
 
-EMAX `source_note` already quotes Motor Height 31.7 mm and excludes it from the seed (not comparable to SunnySky Body Length). Optional ★: seed `height_mm` as **cited**. **No** cylinder (Ø+height stitch) until a shape investigation.
+[IC](implementation_contract_geometry_motor_height_cited_b1.md) · [smoke](engineer_smoke_geometry_motor_height_cited_b1.md) **ACCEPT**. EMAX card `31.7 mm`; disk stays disk.
 
-### 4. Plate L×W sourced search (GetFPV vs Armattan)
+### 3b. Propeller cited envelope — **CLOSED** @ **2489** + smoke ACCEPT
 
-Class A envelope for frame parts. Investigation: classify sources; seed only what a page **affirms**. Armattan page used for the seed had **no** plate L×W. GetFPV kit extras are a **different** source. No scrape-in-product. No invented Main Plate 150×150.
+[IC](implementation_contract_geometry_propeller_envelope_b0_b1.md) · [smoke](engineer_smoke_geometry_propeller_envelope_b0_b1.md) **ACCEPT**. Unsourced grams omitted. `gf_5045x3` bag in catalog. Live HBN still Ø-only.
+
+### 3c. Propeller cited seeds B2 — **REVIEWED** @ **2497** (Engineer smoke)
+
+[IC](implementation_contract_geometry_propeller_cited_seeds_b2.md) · [review](implementation_review_geometry_propeller_cited_seeds_b2.md) **PASS WITH NOTES**. Cyclone + `apc_10x6_ep`. GetFPV URL kept; implementer hit 403 and cross-checked (N1).
+
+### 4. Plate L×W sourced search (GetFPV vs Armattan) — **REVIEWED B0** @ 2026-09-09
+
+[Review](investigation_review_geometry_plate_lw_sourced_b1.md) **PASS WITH NOTES**. Rooster: **no** cited footprint. Gap holds. No wheelbase-as-box. Optional text plates / Engineer-declared L×W = later ★. [Kit-template frontier](engineer_lock_assembly_kit_template.md) is a **different** product (novice assemble list), not this rung.
 
 ### 5. `"cabe"` last
 
@@ -71,4 +79,4 @@ Full catalog refresh · Here3 unfreeze · battery L/W/H remap · `istand` · STE
 
 ## Mode
 
-Rung **1 CLOSED**. Rung **2 first cut CLOSED** (wheelbase on spec). Next = Engineer names 4-motor sketch ★ or rungs 3–5. Package `0.3.8` · suite **2466**.
+Rung **1–3 CLOSED**. Rung 4 **B0**. Kit template investigation READY. Package `0.3.8`.

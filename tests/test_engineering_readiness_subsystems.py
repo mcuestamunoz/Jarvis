@@ -200,6 +200,20 @@ def test_assembly_ready_true_when_everything_pass_no_gaps():
             components={
                 "frame": frame, "battery": battery, "flight_controller": fc,
                 "sensors": sensors, "motors": motors, "propellers": propellers, "esc": esc,
+                # Assembly kit template B1-min: vehicle_type=dron now expects
+                # two kit holes too — declared here so these unrelated
+                # 'everything closed' fixtures stay genuinely gap-free.
+                "power_connector": ComponentSpec(
+                    suggested_key="power_connector", completeness="high", source="declared",
+                ),
+                "signal_harness": ComponentSpec(
+                    suggested_key="signal_harness", completeness="high", source="declared",
+                ),
+                # Prop adapter ask B1: motors+propellers present -> a third
+                # kit hole is now expected too.
+                "prop_adapter": ComponentSpec(
+                    suggested_key="prop_adapter", completeness="high", source="declared",
+                ),
             },
             system_blocks=_FULLY_CLOSED_BLOCKS, system_priority=_FULLY_CLOSED_BLOCKS,
         ),
@@ -235,6 +249,20 @@ def test_assembly_ready_true_when_pass_but_quality_risky():
             components={
                 "frame": frame, "battery": battery, "flight_controller": fc,
                 "sensors": sensors, "motors": motors, "propellers": propellers, "esc": esc,
+                # Assembly kit template B1-min: vehicle_type=dron now expects
+                # two kit holes too — declared here so these unrelated
+                # 'everything closed' fixtures stay genuinely gap-free.
+                "power_connector": ComponentSpec(
+                    suggested_key="power_connector", completeness="high", source="declared",
+                ),
+                "signal_harness": ComponentSpec(
+                    suggested_key="signal_harness", completeness="high", source="declared",
+                ),
+                # Prop adapter ask B1: motors+propellers present -> a third
+                # kit hole is now expected too.
+                "prop_adapter": ComponentSpec(
+                    suggested_key="prop_adapter", completeness="high", source="declared",
+                ),
             },
             system_blocks=_FULLY_CLOSED_BLOCKS, system_priority=_FULLY_CLOSED_BLOCKS,
         ),
@@ -262,6 +290,20 @@ def test_demoted_catalog_gap_warns_catalog_propulsion_but_bom_keeps_not_ready():
             components={
                 "frame": frame, "battery": battery, "flight_controller": fc,
                 "sensors": sensors, "motors": motors, "propellers": propellers, "esc": esc,
+                # Assembly kit template B1-min: vehicle_type=dron now expects
+                # two kit holes too — declared here so these unrelated
+                # 'everything closed' fixtures stay genuinely gap-free.
+                "power_connector": ComponentSpec(
+                    suggested_key="power_connector", completeness="high", source="declared",
+                ),
+                "signal_harness": ComponentSpec(
+                    suggested_key="signal_harness", completeness="high", source="declared",
+                ),
+                # Prop adapter ask B1: motors+propellers present -> a third
+                # kit hole is now expected too.
+                "prop_adapter": ComponentSpec(
+                    suggested_key="prop_adapter", completeness="high", source="declared",
+                ),
             },
             system_blocks=_FULLY_CLOSED_BLOCKS, system_priority=_FULLY_CLOSED_BLOCKS,
         ),

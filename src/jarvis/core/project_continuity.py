@@ -528,6 +528,19 @@ def build_project_continuity(
         key = missing[0]
         next_step = f"Define el componente pendiente: {key}."
         next_why = f"{key} aparece en la arquitectura y aún no está definido."
+        # Assembly kit template B1-min: a kit hole (power_connector/
+        # signal_harness) in `missing` means the 7-key architecture is
+        # complete but the assembly kit is not — this is the product, not
+        # a bug (§0 lock 6). Name only the kit keys still actually missing,
+        # never the full registry (a declared one must not keep appearing).
+        from jarvis.core.system_architecture_catalog import KIT_HOME_BLOCK
+
+        _kit_missing = [k for k in missing if k in KIT_HOME_BLOCK]
+        if _kit_missing:
+            next_why += (
+                " La arquitectura 4/4 no es la lista de montaje. Falta declarar: "
+                + ", ".join(_kit_missing) + "."
+            )
     elif incomplete:
         entry = incomplete[0]
         key = entry.get("key", "componente")

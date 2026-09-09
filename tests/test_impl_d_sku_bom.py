@@ -247,6 +247,16 @@ def test_architecture_complete_bound_motor_still_bom_pass_no_new_gap_type(tmp_pa
             "frame": _comp("frame", "structure", mass_kg=PropertyValue(value=0.5), material=PropertyValue(value="fibra")),
             "flight_controller": _comp("flight_controller", "control", model=PropertyValue(value="Pixhawk 4")),
             "sensors": _comp("sensors", "control", gps_model=PropertyValue(value="M9N")),
+            # Assembly kit template B1-min: vehicle_type=dron now expects two
+            # kit holes too (power_connector/signal_harness) — declared here
+            # so this test's own subject (bound-motor BOM/gap-type behavior)
+            # isn't disturbed by the unrelated kit-visibility change.
+            "power_connector": _comp("power_connector", "generic_component"),
+            "signal_harness": _comp("signal_harness", "generic_component"),
+            # Prop adapter ask B1: motors+propellers present -> a third kit
+            # hole is now expected too — declared here for the same reason
+            # as the two above (this test's own subject is unrelated).
+            "prop_adapter": _comp("prop_adapter", "generic_component"),
         },
     })
     ps = ps.model_copy(update={

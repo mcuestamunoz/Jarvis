@@ -6,11 +6,63 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2466**.  
-> **PRIORIDAD AHORA:** Geometry **idle**. Wheelbase-on-spec first cut **CLOSED** @ **2466**. 4-motor sketch / rungs 3–5 later ★. Fit QUEUED.  
-> **Eje ★:** [mapping path](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Pose Continuity [smoke](../.jes/artifacts/engineer_smoke_continuity_declared_box_pose_b1.md) ACCEPT @ **2456**. Reds [R1/R2](../.jes/artifacts/engineer_smoke_pre_assembly_reds_r1_r2.md) ACCEPT.  
-> **Cola:** ~~1 Scene3D-from-pose~~ **CLOSED** → ~~2 wheelbase on spec~~ **CLOSED** (4-motor sketch later ★) → 3 motor height 31.7 cited → 4 plate L×W search → 5 `"cabe"`. Fit QUEUED.  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2514**.  
+> **PRIORIDAD AHORA:** Kit SKUs **D** investigation OPEN (XT60 / harness into existing holes). Adapter B1 **REVIEWED** @ **2523**. Kit B1-min **CLOSED**. Rooster plates B2 **CLOSED**. Fit QUEUED.  
+> **Eje ★:** [contract](../.jes/artifacts/investigation_contract_kit_connector_harness_skus_d.md).  
+> **Cola:** **D report** → ★ Buy → IC → `"cabe"` last.
+
+### 🟡 INVESTIGATION OPEN — Kit SKUs D (XT60 / harness) (2026-09-09)
+
+> **Contract:** [investigation_contract_kit_connector_harness_skus_d.md](../.jes/artifacts/investigation_contract_kit_connector_harness_skus_d.md). Claude writes the report only. **No** `src/` / seed. **No** `prop_adapter` SKUs. **No** N2 tidy. **No** GetFPV scrape.
+
+### 🟡 REVIEWED — Prop adapter ask B1 (2026-09-09) · suite **2523**
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_kit_prop_adapter_ask_b1.md) · [report](../.jes/artifacts/implementation_report_kit_prop_adapter_ask_b1.md) · [review](../.jes/artifacts/implementation_review_kit_prop_adapter_ask_b1.md) **PASS WITH NOTES**. Engineer ★ **D** (proceed). Sequential wizard: hélices → mount Brief → ESC. `"definir esc"` does not steal to adapter (N1).
+
+### 🟢 CERRADO (investigación) — Prop adapter ask after hélices (2026-09-09) · ★ B1 → IC
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_kit_prop_adapter_ask_b0.md) · [report](../.jes/artifacts/investigation_report_kit_prop_adapter_ask_b0.md) · [review](../.jes/artifacts/investigation_review_kit_prop_adapter_ask_b0.md).
+
+### 🟢 CERRADO — Rooster Included plates B2 (2026-09-09) · suite **2514** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_rooster_included_plates_b2.md) · [report](../.jes/artifacts/implementation_report_geometry_rooster_included_plates_b2.md) · [review](../.jes/artifacts/implementation_review_geometry_rooster_included_plates_b2.md) · [smoke](../.jes/artifacts/engineer_smoke_geometry_rooster_included_plates_b2.md) **ACCEPT**. `cambiar frame` → `#1` Rooster. `estado`: HD Cam 1.5 mm + Rear VTX 2 mm. No box. Refresh-only would miss the plates.
+
+### 🟢 CERRADO — Assembly kit template B1-min (2026-09-09) · suite **2507**/**2508** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_assembly_kit_template_b1.md) · [report](../.jes/artifacts/implementation_report_assembly_kit_template_b1.md) · [review](../.jes/artifacts/implementation_review_assembly_kit_template_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_assembly_kit_template_b1.md) **ACCEPT**. 4/4 intact; `XT60` + `cable JST-SH 6 pines` declarative. Sim FAIL on live demo is energy detour, not kit. Relabel N1 + T4d XT60 one-token hotfix.
+
+### 🟡 INVESTIGATION REVIEWED — Assembly kit template (2026-09-09) · ★ B1-min → implemented
+
+> **Contract / Report / Review / Next:** [contract](../.jes/artifacts/investigation_contract_assembly_kit_template_b0.md) · [report](../.jes/artifacts/investigation_report_assembly_kit_template_b0.md) · [review](../.jes/artifacts/investigation_review_assembly_kit_template_b0.md) **PASS WITH NOTES** · [próximos pasos](../.jes/artifacts/engineer_next_assembly_kit_template.md).  
+> **★:** `B1-min` (recommended) · `B3 only` · `B0 park`. **Forbidden:** append keys onto `propulsion`/`energy`.
+
+### 🟢 CERRADO (investigación) — Plate L×W / Rooster envelope (2026-09-09) · **B0** no IC
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_plate_lw_sourced_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_plate_lw_sourced_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_plate_lw_sourced_b1.md) **PASS WITH NOTES**. Armattan live: no L×W. Gap holds. Optional extra plates = **B2 CLOSED** + ACCEPT (not a box). Engineer-declared mm = only 3D path for this SKU.
+
+### 🟡 REVIEWED — Propeller cited seeds B2 (2026-09-09) · suite **2497** · smoke optional
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_propeller_cited_seeds_b2.md) · [report](../.jes/artifacts/implementation_report_geometry_propeller_cited_seeds_b2.md) · [review](../.jes/artifacts/implementation_review_geometry_propeller_cited_seeds_b2.md) — **PASS WITH NOTES**.  
+> **Smoke:** live may stay HBN. Optional bind `dal_7040` → Ø ~178 mm + Cyclone fields; `apc_10x6_ep` → Ø 254 mm. `apc_10x4_5` unchanged.  
 > **Artefactos:** investigation / implementation / review only.
+
+### 🟢 CERRADO — Propeller B0 honesty + B1 cited bag (2026-09-09) · suite **2489** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_propeller_envelope_b0_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_propeller_envelope_b0_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_propeller_envelope_b0_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_geometry_propeller_envelope_b0_b1.md) **ACCEPT**. Live HBN: Ø 127, no mass/hub. `gf_5045x3` bag is catalog; disk unchanged.
+
+### 🟡 INVESTIGATION REVIEWED — Propeller envelope + catalog honesty (2026-09-09) · PASS WITH NOTES · ★ B0+B1
+
+> **Contract / Claude report / Engineer pass / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_propeller_envelope_b1.md) · [Claude](../.jes/artifacts/investigation_report_geometry_propeller_envelope_b1.md) · [Engineer](../.jes/artifacts/engineer_validation_propeller_catalog_2026-09-09.md) · [review](../.jes/artifacts/investigation_review_geometry_propeller_envelope_b1.md).  
+> **Lean:** Engineer ★ **B0+B1** → IC READY. Nested 40-field schema + L4 STEP **out**.
+
+### 🟢 CERRADO — Motor `height_mm` 31.7 cited B1 (2026-09-09) · suite **2480** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_motor_height_cited_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_motor_height_cited_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_motor_height_cited_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_geometry_motor_height_cited_b1.md) **ACCEPT**. Card EMAX `height_mm` 31.7 mm; disco plano. CLI “no declara vatios” es correcto (`max_watts` null) — no es bug de este Buy.
+
+### 🟢 CERRADO — Motor visor copies from project `motor_count` B1 (2026-09-09) · suite **2473** + ACCEPT
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_motor_count_instances_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_motor_count_instances_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_motor_count_instances_b1.md).  
+> **Smoke:** [engineer_smoke_geometry_motor_count_instances_b1.md](../.jes/artifacts/engineer_smoke_geometry_motor_count_instances_b1.md) — **ACCEPT**. N from spec (live **3**); no Ø → zero motor solids; one card; no default 4.
 
 ### 🟢 CERRADO — Wheelbase on spec B1 (2026-09-09) · suite **2466** + ACCEPT
 
@@ -35,7 +87,7 @@
 
 ### 🔒 LOCKED — 3D mapping path · five rungs (2026-09-08)
 
-> **Lock:** [engineer_lock_geometry_3d_mapping_path.md](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Rung 1 CLOSED. Rung 2 first cut CLOSED. Next = 4-motor sketch ★ or rungs 3–5.
+> **Lock:** [engineer_lock_geometry_3d_mapping_path.md](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Rungs 1–3 CLOSED. Rung 4 **B0**. Kit B1-min **CLOSED**. Rooster plates **B2 CLOSED**. Prop adapter ask **REVIEWED** (wait ★ B1).
 
 ### 🟢 CERRADO (walk) — Pre-assembly reds R1/R2 (2026-09-08) · CLI · no IC
 

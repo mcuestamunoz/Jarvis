@@ -91,6 +91,21 @@ COMPONENT_TERM_ALIASES: dict[str, str] = {
     "sensors": "sensors",
     "sensores": "sensors",
     "esc": "esc",
+    # Assembly kit template B1-min — kit holes (never a BLOCK_TO_COMPONENTS
+    # member; see system_architecture_catalog.KIT_HOME_BLOCK). Naming the
+    # hole only — "xt60" resolves the CATEGORY (power_connector), it does
+    # not seed an XT60 SKU or any catalog fact.
+    "power_connector": "power_connector",
+    "conector":        "power_connector",
+    "xt60":            "power_connector",
+    "signal_harness":  "signal_harness",
+    "harness":         "signal_harness",
+    # Prop adapter ask B1 — naming the hole only, never a bare "hélice"/
+    # "buje"/"eje" alias (those name the propeller/motor components
+    # themselves, not the adapter question).
+    "prop_adapter":    "prop_adapter",
+    "adaptador":       "prop_adapter",
+    "adapter":         "prop_adapter",
 }
 
 # FN-ESC-acquisition: keys allowed to save while a scoped wizard expects another
@@ -121,6 +136,9 @@ COMPONENT_PROMPTS: dict[str, str] = {
     "motors":            "Describe los motores. Ej: '4x 2306 2400KV 50W'",
     "propellers":        "Describe las hélices. Ej: '10x4.5' o 'hélices de carbono'",
     "esc":               "Describe el ESC. Ej: 'ESC 30A'",
+    "power_connector":   "Describe el conector de potencia batería-ESC. Ej: 'XT60' — puedes dejarlo pendiente si aún no lo sabes.",
+    "signal_harness":    "Describe el harness/cableado de señal ESC-controladora. Ej: 'cable JST-SH 6 pines' — puedes dejarlo pendiente si aún no lo sabes.",
+    "prop_adapter":      "¿Cómo montas la hélice? Va directa al eje, o con adaptador/collet/tuerca campana. Si no lo sabes, dilo — el hueco queda pendiente.",
 }
 
 
@@ -177,6 +195,33 @@ def resolve_acquisition_mention(
         if owning_block is None:
             continue
         return {"kind": "component", "key": component_key, "block_key": owning_block}
+    return None
+
+
+def resolve_kit_mention(user_input: str, kit_keys: list[str]) -> str | None:
+    """Assembly kit template B1-min — resolve a declare-verb phrase to one of
+    *kit_keys* (``power_connector``/``signal_harness``), whole-word only via
+    the same ``COMPONENT_TERM_ALIASES`` table ``resolve_acquisition_mention``
+    already uses — no second alias table, no substring match.
+
+    ``kit_keys`` is the caller's own already-gated list (typically
+    ``system_architecture_catalog.kit_component_keys(vehicle_type,
+    system_blocks)``) — this function does not import that registry itself,
+    so it never decides kit-key *eligibility*, only phrase *resolution*
+    against whatever the caller says is reachable. Returns ``None`` for no
+    declare verb, no recognized token, or a token that maps to a non-kit
+    component key (e.g. "motor").
+    """
+    if not kit_keys:
+        return None
+    if not _has_declare_verb(user_input):
+        return None
+    normalized = _normalize(user_input)
+    kit_set = set(kit_keys)
+    for token in normalized.split():
+        key = COMPONENT_TERM_ALIASES.get(token)
+        if key in kit_set:
+            return key
     return None
 
 

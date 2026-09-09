@@ -2,14 +2,12 @@
   "gemfan_5030": {
     "diameter_in": 5.0,
     "pitch_in": 3.0,
-    "mass_g": 5,
     "compatible_kv_band": [2000, 2900],
     "tags": ["fpv", "tri-blade"]
   },
   "gemfan_6040": {
     "diameter_in": 6.0,
     "pitch_in": 4.0,
-    "mass_g": 7,
     "compatible_kv_band": [1550, 2600]
   },
   "gemfan_5045_hbn": {
@@ -17,75 +15,92 @@
     "pitch_in": 4.5,
     "manufacturer": "Gemfan",
     "model": "5045 HBN",
-    "identity_status": "verified",
+    "identity_status": "partially_verified",
     "source_url": "https://oscarliang.com/emax-rs2205s-2300kv-motors/",
+    "source_note": "Oscar Liang EMAX RS2205S motor thrust-test article. Table uses the label 'Gemfan 5045 HBN' for the propeller tested at 100% throttle (1375g thrust, 30.3A, 485.3W — matches this catalog's own emax_rs2205s_2300 operating_points entry for propeller_sku gemfan_5045_hbn). The article states only thrust/current/power test results; it does NOT state mass, hub diameter/thickness, blade count, or material for the propeller itself. 'HBN' does not appear as an official model code on any Gemfan/retailer page found (searched 2026-09-09) — physical dims beyond diameter_in/pitch_in remain UNKNOWN, not inferred from a similarly-named 'Bullnose' retail variant.",
     "tags": ["gf5045", "hbn", "5inch", "tri-blade", "bullnose"]
   },
   "dal_7040": {
     "diameter_in": 7.0,
     "pitch_in": 4.0,
-    "mass_g": 9,
-    "compatible_kv_band": [1350, 1850]
+    "compatible_kv_band": [1350, 1850],
+    "manufacturer": "DALProp",
+    "model": "Cyclone 7040",
+    "identity_status": "verified",
+    "source_url": "https://www.getfpv.com/dalprop-cyclone-7040-7-2-blade-propeller.html",
+    "mass_g": 5.7,
+    "blade_count": 2,
+    "material": "Pure PC",
+    "hub_diameter_mm": 5,
+    "hub_thickness_mm": 7,
+    "source_note": "DALProp Cyclone 7040, 7in/pitch 4, 2-blade, Pure PC (polycarbonate). Diameter of Hub: 5mm, Height of Hub: 7mm. Weight 5.7g. POPO: Support. Sold as a 2CW+2CCW pack. GetFPV's own listing (the SoT URL above) returned a Cloudflare bot-challenge page (HTTP 403) on every re-fetch attempt 2026-09-09 — these figures were cross-verified live against two independent resellers carrying the identical DALProp spec sheet (unmannedtechshop.co.uk and pyrodrone.com, both quoting 5.7g / hub 5mm-7mm / Pure PC / POPO Support verbatim, matching each other exactly). No shaft bore distinct from hub Ø stated on any page checked.",
+    "tags": ["dalprop", "cyclone", "7inch", "2-blade", "popo"]
   },
   "apc_8x4_5": {
     "diameter_in": 8.0,
-    "pitch_in": 4.5,
-    "mass_g": 12
+    "pitch_in": 4.5
   },
   "apc_10x4_5": {
     "diameter_in": 10.0,
     "pitch_in": 4.5,
-    "mass_g": 18,
     "compatible_kv_band": [800, 1250]
+  },
+  "apc_10x6_ep": {
+    "diameter_in": 10.0,
+    "pitch_in": 6.0,
+    "manufacturer": "APC",
+    "model": "10x6EP",
+    "identity_status": "verified",
+    "source_url": "https://www.getfpv.com/propellers/x-class-propellers/apc-10x6ep-2-blade-propeller-cw-gray.html",
+    "blade_count": 2,
+    "material": "Composite plastic",
+    "mass_g": 20.1,
+    "hub_diameter_mm": 20.3,
+    "hub_thickness_mm": 9.9,
+    "shaft_bore_mm": 6.35,
+    "source_note": "APC 10x6EP, 10in/pitch 6, 2-blade 'Thin Electric Pusher' composite plastic, CW (gray). Weight 20.1g, Hub Diameter 20.3mm, Hub Thickness 9.9mm, Shaft Bore 6.35mm. GetFPV's own listing (the SoT URL above) returned a Cloudflare bot-challenge page (HTTP 403) on every re-fetch attempt 2026-09-09 — these figures were cross-verified live against racedayquads.com's identical listing (20.1g / 20.3mm / 9.9mm / 6.35mm / Composite plastic / CW, verbatim) AND against APC's own manufacturer page (apcprop.com/product/10x6ep: 0.71 oz / 0.80 in hub dia / 0.39 in hub thickness / 1/4 in shaft bore — converts exactly to 20.13g / 20.32mm / 9.91mm / 6.35mm). This is a distinct SKU from apc_10x4_5 (10x4.5, no mass seeded) — not an overwrite, not a merge.",
+    "tags": ["apc", "10inch", "ep", "2-blade", "pusher"]
   },
   "apc_11x5_5": {
     "diameter_in": 11.0,
-    "pitch_in": 5.5,
-    "mass_g": 22
+    "pitch_in": 5.5
   },
   "tmotor_12x4": {
     "diameter_in": 12.0,
     "pitch_in": 4.0,
-    "mass_g": 30,
     "compatible_kv_band": [550, 900]
   },
   "tmotor_13x4_4": {
     "diameter_in": 13.0,
-    "pitch_in": 4.4,
-    "mass_g": 35
+    "pitch_in": 4.4
   },
   "tmotor_15x5": {
     "diameter_in": 15.0,
     "pitch_in": 5.0,
-    "mass_g": 55,
     "compatible_kv_band": [300, 500]
   },
   "tmotor_16x5_4": {
     "diameter_in": 16.0,
-    "pitch_in": 5.4,
-    "mass_g": 65
+    "pitch_in": 5.4
   },
   "tmotor_17x5_8": {
     "diameter_in": 17.0,
     "pitch_in": 5.8,
-    "mass_g": 85,
     "compatible_kv_band": [280, 420]
   },
   "tmotor_18x6_1": {
     "diameter_in": 18.0,
-    "pitch_in": 6.1,
-    "mass_g": 95
+    "pitch_in": 6.1
   },
   "tmotor_22x6_7": {
     "diameter_in": 22.0,
     "pitch_in": 6.7,
-    "mass_g": 160,
-    "compatible_kv_band": [130, 220]
+    "compatible_kv_band": [130, 220],
+    "source_note": "Identity debt: the current T-Motor propeller catalog lists a 'P22x6.6' entry, not 'P22x6.7'. This row's SKU key and pitch_in (6.7) are NOT renamed/corrected this Buy — no mass or other bag field seeded pending that identity resolution."
   },
   "tmotor_24x7_2": {
     "diameter_in": 24.0,
-    "pitch_in": 7.2,
-    "mass_g": 190
+    "pitch_in": 7.2
   },
   "hq_5045_bn": {
     "diameter_in": 5.0,
@@ -103,7 +118,13 @@
     "manufacturer": "Gemfan",
     "model": "5045 3-Blade",
     "part_number": "PMAB5045-3",
+    "identity_status": "verified",
     "source_url": "https://shop.emaxmodel.com/collections/all/products/2-pairs-5045-3-blade-propeller-abs-cw-ccw-for-mini-quadcopter",
+    "blade_count": 3,
+    "material": "ABS",
+    "hub_diameter_mm": 5,
+    "hub_thickness_mm": 9.5,
+    "source_note": "EMAX shop listing ('★2 Pairs 5045 3 Blade Propeller ABS CW-CCW For Mini Quadcopter', page's own Product Code 0106003102 — re-fetched 2026-09-09). Page states: Material ABS, 3 blades, weight 4.5 grams per prop, hub diameter 5mm, hub thickness 9.5mm, diameter 5in, pitch 4.5in, pack contents 2xCW and 2xCCW (1 full set per pack). Page does not state a weight tolerance or a shaft bore/hole diameter distinct from the hub — both omitted, not invented. Note: the page's own 'Product Code' (0106003102) does not match this row's existing part_number (PMAB5045-3, sourced separately); part_number kept as-is per lock since the page does not contradict the physical bag values (mass/diameter/pitch/material/blade count all match).",
     "tags": ["gf5045", "tri-blade", "5inch", "abs", "pmab5045-3"]
   }
 }

@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { clusterCenterPx, layoutSolidsFromPose } from "./scene3dLayout";
+import { clusterCenterPx, expandSolidCopies, layoutSolidsFromPose } from "./scene3dLayout";
 import { Solid3D } from "./Solid3D";
 import type { SpatialNode } from "./types";
 
@@ -21,8 +21,11 @@ type Props = {
  * the presentation row (`layoutSolidsRow` slots). A resolvable
  * `declaredBoxPose` moves that solid one hop from the origin's **row
  * slot** (not from a composed chain; never card `x`/`y`, never `mountedOn`).
- * The cluster is translated so its 2D bounding-box center sits at the
- * pane center (visor chrome, not pose).
+ * A node's `solidCopies` (Motor visor copies B1) expands it into N row
+ * occupants sharing one `selectId` BEFORE layout — still one card/BOM
+ * node, never N `ComponentSpec`s; a copy's own pose is stripped (would
+ * stack). The cluster is translated so its 2D bounding-box center sits at
+ * the pane center (visor chrome, not pose).
  */
 export function Scene3D({ nodes, selectedId, onSelect }: Props) {
   const solids = nodes.filter(
@@ -70,14 +73,22 @@ export function Scene3D({ nodes, selectedId, onSelect }: Props) {
 
   if (solids.length === 0) return null;
 
+  const expanded = expandSolidCopies(
+    solids.map((n) => ({
+      id: n.id,
+      geometry: n.geometry,
+      declaredBoxPose: n.declaredBoxPose,
+      solidCopies: n.solidCopies,
+    })),
+  );
   const laidOut = layoutSolidsFromPose(
-    solids.map((n) => ({ id: n.id, geometry: n.geometry, declaredBoxPose: n.declaredBoxPose })),
+    expanded.map((e) => ({ id: e.layoutId, geometry: e.geometry, declaredBoxPose: e.declaredBoxPose })),
     GAP_PX,
   );
   const originById = new Map(laidOut.map((l) => [l.id, l]));
   const cluster = clusterCenterPx(
     laidOut,
-    solids.map((n) => ({ id: n.id, geometry: n.geometry })),
+    expanded.map((e) => ({ id: e.layoutId, geometry: e.geometry })),
   );
 
   return (
@@ -88,14 +99,14 @@ export function Scene3D({ nodes, selectedId, onSelect }: Props) {
           transform: `translate(${-cluster.x}px, ${-cluster.y}px) scale(${zoom}) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
         }}
       >
-        {solids.map((node) => {
-          const origin = originById.get(node.id);
+        {expanded.map((e) => {
+          const origin = originById.get(e.layoutId);
           return (
             <Solid3D
-              key={node.id}
-              id={node.id}
-              geometry={node.geometry}
-              selected={node.id === selectedId}
+              key={e.layoutId}
+              id={e.selectId}
+              geometry={e.geometry}
+              selected={e.selectId === selectedId}
               onSelect={onSelect}
               originX={origin?.originX ?? 0}
               originY={origin?.originY ?? 0}

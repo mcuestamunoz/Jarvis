@@ -49,6 +49,15 @@ export type SpatialNode = SpatialRect & {
    * not a CAD/body/gravity frame. Missing x/y/z counts as 0 for display.
    */
   declaredBoxPose?: { originKey: string; xMm?: number; yMm?: number; zMm?: number };
+  /**
+   * Motor visor copies (Motor visor copies from motor_count B1). Present
+   * only on the `motors` node, only when it has `geometry` AND its own
+   * `motor_count` property is a whole number in [2, 16] — never a default
+   * of 4, never derived from `configuration`/`current_parameters`. Still
+   * ONE `ComponentSpec`/card/BOM node; this only tells the 3D visor how
+   * many solid copies to draw.
+   */
+  solidCopies?: number;
 };
 
 export type ContentBounds = {

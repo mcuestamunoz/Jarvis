@@ -18,6 +18,7 @@ from jarvis.core.acquisition_target import (
     is_mention_on_active_gap,
     is_navigation_back_phrase,
     resolve_acquisition_mention,
+    resolve_kit_mention,
     user_explicitly_named_component,
 )
 from jarvis.core.action_router import ActionRouter
@@ -67,10 +68,13 @@ from jarvis.core.component_writers import (
 from jarvis.core.design_explorer import DesignExplorer, _apply_delta, _is_catalog_native_motor_candidate
 from jarvis.core.system_architecture_catalog import (
     BLOCK_TO_COMPONENTS,
+    KIT_HOME_BLOCK,
     SYSTEM_ARCHITECTURES,
     VEHICLE_TYPE_ALIASES,
     get_block_type,
     get_param_reason_for_block,
+    kit_component_keys,
+    splice_prop_adapter_ask,
 )
 from jarvis.schemas.state_schema import HistoryEntry, ProjectState
 from jarvis.memory.memory_manager import MemoryManager
@@ -200,6 +204,16 @@ def _battery_endurance_from_calculations(calculations: dict[str, Any] | None) ->
 # shared with param_definition_session.py) — kept as a local alias so every
 # existing `_COMPONENT_PROMPTS` reference in this file needs no other change.
 _COMPONENT_PROMPTS = COMPONENT_PROMPTS
+
+# Prop adapter ask B1 — exact-phrase skip set for the `prop_adapter` Brief
+# only. Both accented/unaccented forms listed explicitly (no diacritic
+# normalization) — matched against the whole normalized input, never a
+# substring, so it never fires on a real mount-method description that
+# happens to contain one of these words as part of a longer sentence.
+_PROP_ADAPTER_SKIP_PHRASES = frozenset({
+    "no se", "no sé", "no lo se", "no lo sé", "skip", "omitir", "omite",
+    "despues", "después", "mas tarde", "más tarde", "no tengo", "no dispongo",
+})
 
 # ── Proactive question hints for component-driven blocks in build_startup_context ─
 _BLOCK_COMPONENT_HINTS: dict[str, str] = {
@@ -1023,6 +1037,21 @@ class JarvisOrchestrator:
             if acquisition_help is not None:
                 self._track_turn(user_input, acquisition_help)
                 return acquisition_help
+        # ─────────────────────────────────────────────────────────────────────
+        # ── Assembly kit template B1-min: IDLE "declara/definir <conector/
+        # xt60/harness>" opens a single-key DEFINE_MISSING wizard for a kit
+        # hole (power_connector/signal_harness) — ONLY reachable once FN-014
+        # itself already returned None (i.e. architecture has no pending
+        # block). Kit keys are never in BLOCK_TO_COMPONENTS, so FN-014's own
+        # mention resolution structurally cannot find them — this is a
+        # separate, narrow check reusing the SAME COMPONENT_TERM_ALIASES
+        # table via resolve_kit_mention (no copy-pasted union logic). Never
+        # opens the composite energy/propulsion wizard.
+        if current_session.mode == OrchestratorMode.IDLE:
+            kit_help = self._try_start_kit_component_from_mention(user_input)
+            if kit_help is not None:
+                self._track_turn(user_input, kit_help)
+                return kit_help
         # ─────────────────────────────────────────────────────────────────────
         # ── G23: bare "ayúdame a definir" / confusion phrases while IDLE ───────
         # FN-015 — the acquisition-help feature that used to open a
@@ -2050,6 +2079,33 @@ class JarvisOrchestrator:
             session.pending_missing_params, reason=session.pending_missing_reason
         )
 
+    def _try_start_kit_component_from_mention(self, user_input: str) -> dict | None:
+        """Assembly kit template B1-min — see the IDLE dispatch comment above
+        this call site. Returns None (falls through to normal routing) when:
+        there's no active/system-defined project, architecture still has a
+        pending block (kit DEFINE never preempts architecture holes — those
+        precede kit keys in bom_and_board_expected_keys order too), or the
+        phrase doesn't resolve to a kit key reachable for this project's
+        vehicle_type/system_blocks.
+        """
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        if not project_state.design_properties.system_defined:
+            return None
+        if self._next_pending_block(project_state) is not None:
+            return None
+        vehicle_type = (project_state.current_parameters or {}).get("vehicle_type")
+        kit_keys = kit_component_keys(
+            vehicle_type,
+            project_state.design_properties.system_blocks,
+            project_state.design_properties.components,
+        )
+        key = resolve_kit_mention(user_input, kit_keys)
+        if key is None:
+            return None
+        return self.start_define_missing_params([key], reason=MISSING_COMPONENT_DEFINITION)
+
     def _redirect_aerial_motors_request(self, project_state: Any) -> dict | None:
         """G18: aerial "definir motores" → propulsion/motors acquisition,
         never the terrestrial transmission wizard (torque/rueda/gear_ratio).
@@ -2600,6 +2656,45 @@ class JarvisOrchestrator:
         base = _BLOCK_BASE.get(block_key, block_key.capitalize())
         return f"{base} ({' + '.join(parts)})"
 
+    def _with_prop_adapter_ask(
+        self, still_missing: list[str], expected_keys: list[str], project_state: Any,
+    ) -> list[str]:
+        """Prop adapter ask B1 — the one shared splice call, reused at every
+        ``still_missing`` computation (freeform save path + every
+        catalog-pick follow-up) instead of duplicated. Scoped to
+        *expected_keys* containing ``"esc"`` — the one component key unique
+        to propulsion's own ``BLOCK_TO_COMPONENTS`` entry among every
+        block — so an unrelated wizard (battery/frame/control) is never
+        touched even though this same helper is called from their pick
+        handlers too (harmless no-op there).
+
+        ``session.pending_missing_params``/``pending_param_definitions`` are
+        otherwise static for a wizard's whole lifetime (nothing else
+        rewrites them mid-wizard — confirmed by reading every existing
+        still-missing branch) — so when this call is the one that first
+        prepends ``"prop_adapter"``, it ALSO persists that onto the current
+        runtime session here, the single place this splice happens, so the
+        very next turn's ``expected_keys[0]`` really is ``"prop_adapter"``
+        (required for the relabel-widen and the skip-phrase check in
+        ``_handle_component_description`` to ever see it).
+        """
+        if "esc" not in expected_keys:
+            return still_missing
+        spliced = splice_prop_adapter_ask(
+            still_missing,
+            vehicle_type=(project_state.current_parameters or {}).get("vehicle_type"),
+            system_blocks=project_state.design_properties.system_blocks,
+            components=project_state.design_properties.components,
+        )
+        if spliced != still_missing:
+            session = self.state_manager.get_runtime_session()
+            updated_session = session.model_copy(update={
+                "pending_missing_params": spliced,
+                "pending_param_definitions": spliced,
+            })
+            self.state_manager.set_runtime_session(updated_session)
+        return spliced
+
     def _component_prompt_for_first_missing(self, keys: list[str]) -> str:
         """Return a context-specific description prompt for the first key in ``keys``.
 
@@ -3113,6 +3208,7 @@ class JarvisOrchestrator:
             k for k in expected_keys
             if components.get(k) is None or components[k].completeness == "low"
         ]
+        still_missing = self._with_prop_adapter_ask(still_missing, expected_keys, updated_state)
         if not still_missing:
             self._set_pending_next_block()
             result: dict[str, Any] = {
@@ -3215,6 +3311,7 @@ class JarvisOrchestrator:
             k for k in expected_keys
             if components.get(k) is None or components[k].completeness == "low"
         ]
+        still_missing = self._with_prop_adapter_ask(still_missing, expected_keys, updated_state)
         if not still_missing:
             self._set_pending_next_block()
             result: dict[str, Any] = {
@@ -3309,6 +3406,7 @@ class JarvisOrchestrator:
             k for k in expected_keys
             if components.get(k) is None or components[k].completeness == "low"
         ]
+        still_missing = self._with_prop_adapter_ask(still_missing, expected_keys, updated_state)
         if not still_missing:
             self._set_pending_next_block()
             result: dict[str, Any] = {
@@ -3435,6 +3533,7 @@ class JarvisOrchestrator:
             k for k in expected_keys
             if components.get(k) is None or components[k].completeness == "low"
         ]
+        still_missing = self._with_prop_adapter_ask(still_missing, expected_keys, updated_state)
         if not still_missing:
             self._set_pending_next_block()
             result: dict[str, Any] = {
@@ -3499,6 +3598,41 @@ class JarvisOrchestrator:
             refusal = self._maybe_refuse_different_target(user_input, expected_keys)
             if refusal is not None:
                 return refusal
+
+        # Prop adapter ask B1: "no lo sé"/skip while the adapter Brief is the
+        # active question — never write a fake spec, never block the ESC
+        # turn. Drops "prop_adapter" from THIS turn's remaining list only
+        # (recomputed from BLOCK_TO_COMPONENTS, never re-spliced this same
+        # turn) so the wizard advances straight to esc; the Board/BOM hole
+        # stays open (system_architecture_catalog.prop_adapter_is_due is
+        # re-evaluated fresh from persisted state next time, independent of
+        # this session's own skip) until the user actually declares it.
+        if (
+            expected_keys
+            and expected_keys[0] == "prop_adapter"
+            and user_input.strip().lower() in _PROP_ADAPTER_SKIP_PHRASES
+        ):
+            remaining = [k for k in expected_keys if k != "prop_adapter"]
+            updated_session = session.model_copy(update={
+                "pending_missing_params": remaining,
+                "pending_param_definitions": remaining,
+            })
+            self.state_manager.set_runtime_session(updated_session)
+            skip_msg = "De acuerdo — queda pendiente cómo montas la hélice."
+            if not remaining:
+                self._set_pending_next_block()
+                result: dict[str, Any] = {
+                    "status": "ok",
+                    "action": "component_description_saved",
+                    "message": skip_msg,
+                }
+                return self._append_arch_progress_hint(result)
+            follow_up = self._component_prompt_for_first_missing(remaining)
+            return {
+                "status": "ok",
+                "action": "component_description_saved",
+                "message": f"{skip_msg} {follow_up}",
+            }
 
         # G21 ★3 / Prop-3 ★4: motors + propellers catalog help-choose / pick
         # bridge in COMPONENT sub-mode — runs before infer_components so a
@@ -3703,6 +3837,42 @@ class JarvisOrchestrator:
             forced = infer_component_for_key(user_input, "frame", registry=aerial_registry)
             if forced is not None and forced.completeness != "low":
                 specs = [forced]
+        # Assembly kit template B1-min: power_connector/signal_harness have
+        # no aerial ComponentRule at all (they are free-text-only pending
+        # facts — no property extraction, no catalog help this Buy), so
+        # infer_components always returns generic_component for them.
+        # Mirrors the motors/propellers/frame force-blocks above, but
+        # RELABELS rather than re-infers (there is no rule to reinfer
+        # against). Generic fallback marks a single token as completeness
+        # "low" (`len(split) < 2`); the kit Brief's own example is 'XT60',
+        # so requiring medium here re-prompted the same Brief forever
+        # (Engineer smoke 2026-09-09). Identity-only kit holes: any
+        # non-empty description is enough. Promote low → medium so
+        # `processable` accepts it and `still_missing` (which treats low
+        # as still open) closes the wizard. Empty input never reaches
+        # here with a useful spec; Escape stays the cancel path.
+        # Prop adapter ask B1: widened from `len(expected_keys) == 1` to
+        # "non-empty, first key is a kit key" — a spliced propulsion scope
+        # is `["prop_adapter", "esc"]`, not a singleton, but the answer is
+        # still always ABOUT expected_keys[0] (the same key
+        # _component_prompt_for_first_missing just asked about).
+        if (
+            expected_keys
+            and expected_keys[0] in KIT_HOME_BLOCK
+            and all(s.suggested_key == "generic_component" for s in specs)
+        ):
+            candidate = specs[0] if specs else None
+            if candidate is not None and user_input.strip():
+                promoted = (
+                    "medium" if candidate.completeness == "low" else candidate.completeness
+                )
+                specs = [candidate.model_copy(update={
+                    "suggested_key": expected_keys[0],
+                    "component_type": expected_keys[0],
+                    "completeness": promoted,
+                    "missing_fields": [] if promoted != "low" else candidate.missing_fields,
+                    "hints": [] if promoted != "low" else candidate.hints,
+                })]
         # FN-017 B4: inside a scoped wizard (expected_keys set), never silently
         # write a generic_component placeholder — it has no physical meaning
         # and previously masked the fact that the description wasn't
@@ -3768,6 +3938,7 @@ class JarvisOrchestrator:
                     or updated_state.design_properties.components[k].completeness == "low"
                     or (k == "frame" and frame_next_missing_datum(updated_state) is not None)
                 ]
+                still_missing = self._with_prop_adapter_ask(still_missing, expected_keys, updated_state)
                 if not still_missing:
                     self._set_pending_next_block()
                     result = {
@@ -3919,6 +4090,7 @@ class JarvisOrchestrator:
                 if components.get(k) is None or components[k].completeness == "low"
                 or (k == "frame" and frame_next_missing_datum(updated_state) is not None)
             ]
+            still_missing = self._with_prop_adapter_ask(still_missing, expected_keys, updated_state)
 
             if not still_missing:
                 self._set_pending_next_block()

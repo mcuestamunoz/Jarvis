@@ -11,6 +11,7 @@ Regla absoluta: este módulo NO importa nada de jarvis.schemas.
 from __future__ import annotations
 
 import unicodedata
+from typing import Any
 
 
 def _normalize(text: str) -> str:
@@ -278,6 +279,180 @@ def blocks_to_component_keys(blocks: list[str]) -> list[str]:
                 seen.add(key)
                 keys.append(key)
     return keys
+
+
+# ── Assembly kit template B1-min ──────────────────────────────────────────────
+# SYSTEM RULE — Kit holes are visibility, never architecture ownership
+# ─────────────────────────────────────────────────────────────────────────────
+# KIT_TO_COMPONENTS is a SEPARATE registry from BLOCK_TO_COMPONENTS. It never
+# feeds `_block_progress_status`/architecture PASS/hover/autonomy — those all
+# read BLOCK_TO_COMPONENTS directly and are untouched by this registry's
+# existence. A kit key only ever reaches the Board (as a "slot") and the BOM
+# (as "missing") via the two helpers below (`kit_component_keys`/
+# `bom_and_board_expected_keys`) — never via `blocks_to_component_keys`, and
+# NEVER by appending to a BLOCK_TO_COMPONENTS list. Do not "fix" a PASS
+# regression by moving a kit key into BLOCK_TO_COMPONENTS — that would widen
+# what composite blocks require, a different (forbidden) product decision.
+# ─────────────────────────────────────────────────────────────────────────────
+KIT_TO_COMPONENTS: dict[str, list[str]] = {
+    "dron": ["power_connector", "signal_harness", "prop_adapter"],
+    "uav":  ["power_connector", "signal_harness", "prop_adapter"],
+}
+
+# Which existing architecture block a kit key is visually grouped under (Board
+# column / gating for whether the key is even reachable this project) — never
+# a completion-driving membership; `_block_progress_status` never reads this.
+KIT_HOME_BLOCK: dict[str, str] = {
+    "power_connector": "energy",
+    "signal_harness":  "control",
+    "prop_adapter":    "propulsion",
+}
+
+# Prop adapter ask B1 — a kit key may ALSO require specific sibling
+# components to already be present (non-"low") before it is even eligible.
+# `power_connector`/`signal_harness` have no row here (ungated beyond their
+# own KIT_HOME_BLOCK, unchanged from kit B1-min). This is a flat, one-off
+# dict — never a generic "condition engine": adding a new gated key means
+# adding one more tuple here, not writing a new predicate language.
+KIT_REQUIRES_COMPONENTS: dict[str, tuple[str, ...]] = {
+    "prop_adapter": ("motors", "propellers"),
+}
+
+
+def _kit_requirements_met(key: str, components: dict[str, Any] | None) -> bool:
+    """True when *key* has no `KIT_REQUIRES_COMPONENTS` row (ungated), or
+    every required sibling is present in *components* with completeness
+    other than ``"low"``. Fails CLOSED (False) when `components` is
+    ``None`` — a kit key gated on component presence must never be assumed
+    "due" from block declaration alone (that was the pre-existing
+    `power_connector`-style bug this gate exists to avoid repeating for a
+    new key)."""
+    required = KIT_REQUIRES_COMPONENTS.get(key)
+    if not required:
+        return True
+    if components is None:
+        return False
+    for req_key in required:
+        spec = components.get(req_key)
+        if spec is None or getattr(spec, "completeness", "low") == "low":
+            return False
+    return True
+
+
+def canonical_vehicle_domain(vehicle_type: str | None) -> str | None:
+    """``VEHICLE_TYPE_ALIASES`` lookup after ``_normalize``, or ``None`` for an
+    empty/unknown ``vehicle_type`` — the single place kit-key eligibility
+    starts from, so Board/BOM never diverge on what counts as "this project's
+    domain"."""
+    if not vehicle_type:
+        return None
+    return VEHICLE_TYPE_ALIASES.get(_normalize(vehicle_type))
+
+
+def kit_component_keys(
+    vehicle_type: str | None,
+    system_blocks: list[str] | None,
+    components: dict[str, Any] | None = None,
+) -> list[str]:
+    """Kit keys visible for this project: in ``KIT_TO_COMPONENTS[domain]``
+    AND whose ``KIT_HOME_BLOCK`` is a declared ``system_blocks`` member —
+    order preserved. Empty when the domain is unknown/``vehicle_type`` is
+    empty (no silent kit assumption for a project with no declared vehicle
+    type — the existing "no inventa para bloques no declarados" virtue
+    extends to kit holes) or when ``system_blocks`` doesn't include the
+    key's home block yet.
+
+    Prop adapter ask B1: a key also listed in ``KIT_REQUIRES_COMPONENTS``
+    (currently only ``prop_adapter``) additionally requires every required
+    sibling component to already be present at non-"low" completeness —
+    checked via ``_kit_requirements_met``, which fails CLOSED when
+    ``components`` is omitted. This is why every caller that has project
+    components MUST pass them (never nag ``prop_adapter`` at architecture
+    declaration time, before any hélice exists) — ``power_connector``/
+    ``signal_harness`` are unaffected (no ``KIT_REQUIRES_COMPONENTS`` row).
+    """
+    domain = canonical_vehicle_domain(vehicle_type)
+    if domain is None:
+        return []
+    blocks = set(system_blocks or [])
+    keys: list[str] = []
+    for key in KIT_TO_COMPONENTS.get(domain, []):
+        if KIT_HOME_BLOCK.get(key) in blocks and _kit_requirements_met(key, components):
+            keys.append(key)
+    return keys
+
+
+def bom_and_board_expected_keys(
+    system_blocks: list[str] | None,
+    vehicle_type: str | None,
+    components: dict[str, Any] | None = None,
+) -> list[str]:
+    """``blocks_to_component_keys(blocks)`` plus any not-already-present kit
+    keys appended after them — the single shared "what should Board/BOM
+    expect" list, so the two surfaces can never disagree on kit visibility.
+    Architecture/PASS/hover keep using ``blocks_to_component_keys``/
+    ``BLOCK_TO_COMPONENTS`` directly and never call this helper.
+
+    ``components`` forwards straight to ``kit_component_keys`` — required
+    for a gated key like ``prop_adapter`` to ever appear (see there).
+    """
+    blocks = list(system_blocks or [])
+    keys = blocks_to_component_keys(blocks)
+    seen = set(keys)
+    for key in kit_component_keys(vehicle_type, blocks, components):
+        if key not in seen:
+            seen.add(key)
+            keys.append(key)
+    return keys
+
+
+def prop_adapter_is_due(
+    vehicle_type: str | None,
+    system_blocks: list[str] | None,
+    components: dict[str, Any] | None,
+) -> bool:
+    """True iff ``"prop_adapter"`` would be returned by ``kit_component_keys``
+    for this project AND its own spec is absent/still "low" — i.e. there is
+    a genuine, still-open hole to ask about (not merely "the gate is
+    satisfied" — a project that already declared the adapter is not due
+    again)."""
+    if "prop_adapter" not in kit_component_keys(vehicle_type, system_blocks, components):
+        return False
+    spec = (components or {}).get("prop_adapter")
+    return spec is None or getattr(spec, "completeness", "low") == "low"
+
+
+def splice_prop_adapter_ask(
+    still_missing: list[str],
+    *,
+    vehicle_type: str | None,
+    system_blocks: list[str] | None,
+    components: dict[str, Any] | None,
+) -> list[str]:
+    """Prop adapter ask B1 — the one hardcoded splice point (never a generic
+    "insert conditionally" engine): when ``prop_adapter_is_due`` and it
+    isn't already the head of *still_missing*, prepend it. Callers use this
+    on a `BLOCK_TO_COMPONENTS`-derived still-missing list (never on the
+    list itself as an architecture/PASS input) so `prop_adapter` can only
+    ever change wizard *ordering*, never architecture completion.
+
+    Never fires on an already-empty *still_missing*: the ask exists to be
+    INSERTED into a real component still pending (motors→propellers→
+    [adapter]→esc) — it must never become, by itself, a new reason for the
+    propulsion composite wizard to stay in Phase A once its own three
+    BLOCK_TO_COMPONENTS keys are all satisfied (that would silently block
+    the existing Phase A→Phase B numeric-params transition, a behavior
+    change outside this Buy's scope). Once real components are done, a
+    still-undeclared adapter surfaces only via the Board slot/BOM
+    `missing`/kit IDLE path — never by reopening this wizard.
+    """
+    if not still_missing:
+        return still_missing
+    if "prop_adapter" in still_missing:
+        return still_missing
+    if not prop_adapter_is_due(vehicle_type, system_blocks, components):
+        return still_missing
+    return ["prop_adapter", *still_missing]
 
 
 def normalize_block_alias(user_text: str) -> str | None:

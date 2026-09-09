@@ -121,3 +121,47 @@ export function clusterCenterPx(
   if (!Number.isFinite(minX)) return { x: 0, y: 0 };
   return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
 }
+
+export type ExpandedSolid = {
+  layoutId: string;
+  selectId: string;
+  geometry: SpatialGeometry;
+  declaredBoxPose?: { originKey: string; xMm?: number; yMm?: number; zMm?: number };
+};
+
+/**
+ * Motor visor copies B1 — turns one `motors` node with `solidCopies: N`
+ * into N presentation-only layout entries sharing one `selectId` (so
+ * clicking any copy still selects the ONE `motors` card — never N
+ * `ComponentSpec`/BOM nodes). A copied node's `declaredBoxPose` is
+ * deliberately stripped (composing pose onto N copies would stack them at
+ * the same point); an uncopied node (no `solidCopies`, or `< 2`) passes
+ * through as a single entry with its pose intact, in input order.
+ * `layoutId` is what `layoutSolidsFromPose`/`clusterCenterPx` must use as
+ * their own `id` — three nodes sharing `id: "motors"` would collide.
+ */
+export function expandSolidCopies(
+  nodes: {
+    id: string;
+    geometry: SpatialGeometry;
+    declaredBoxPose?: { originKey: string; xMm?: number; yMm?: number; zMm?: number };
+    solidCopies?: number;
+  }[],
+): ExpandedSolid[] {
+  const result: ExpandedSolid[] = [];
+  for (const node of nodes) {
+    if (typeof node.solidCopies === "number" && node.solidCopies >= 2) {
+      for (let i = 0; i < node.solidCopies; i++) {
+        result.push({ layoutId: `${node.id}#${i}`, selectId: node.id, geometry: node.geometry });
+      }
+    } else {
+      result.push({
+        layoutId: node.id,
+        selectId: node.id,
+        geometry: node.geometry,
+        declaredBoxPose: node.declaredBoxPose,
+      });
+    }
+  }
+  return result;
+}

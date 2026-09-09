@@ -56,7 +56,14 @@ def _fresh_orchestrator(tmp_path: Path) -> JarvisOrchestrator:
 
 def _drive_to_battery_wizard(orc: JarvisOrchestrator, llm: _RefuseLLM) -> None:
     """Real turns: architecture A, motor+propeller catalog-bound, ESC
-    declared -> energy block auto-opens with battery as the active gap."""
+    declared -> energy block auto-opens with battery as the active gap.
+
+    Prop adapter ask B1: once motors+propellers are both bound (here, via
+    catalog pick), propulsion's own wizard now interleaves the "how do you
+    mount the propeller" Brief ahead of ESC — skip it ("no lo sé") so this
+    helper still reaches the exact same post-propulsion state (ESC saved,
+    propulsion closed, energy auto-opens) it did before that Buy existed.
+    """
     ps = orc.state_manager.load_active_project(orc.workspace_manager)
     orc.system_definition_session.start("dron", ps)
     orc.system_definition_session.answer("A")
@@ -65,6 +72,7 @@ def _drive_to_battery_wizard(orc: JarvisOrchestrator, llm: _RefuseLLM) -> None:
     orc.handle_user_text("1", llm)
     orc.handle_user_text("ayúdame a elegir", llm)
     orc.handle_user_text("1", llm)
+    orc.handle_user_text("no lo sé", llm)
     orc.handle_user_text("ESC 30A", llm)
 
 

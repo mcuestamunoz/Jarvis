@@ -570,8 +570,16 @@ def build_component_bom(project_state: Any) -> dict[str, Any]:
     identity instead of only completeness buckets. Pure additive fields; no
     existing key removed or renamed (``name`` stays ``name`` — not
     ``display_name``).
+
+    Assembly kit template B1-min: ``expected_keys`` (when ``blocks`` is
+    non-empty) comes from ``bom_and_board_expected_keys`` — the architecture
+    keys plus any kit holes (``power_connector``/``signal_harness``) whose
+    home block is declared and whose domain matches ``vehicle_type``. A
+    7-key-complete dron with kit holes still undeclared is therefore no
+    longer BOM-complete — this is the intended honesty change, not a
+    regression to twin-preserve.
     """
-    from jarvis.core.system_architecture_catalog import BLOCK_TO_COMPONENTS
+    from jarvis.core.system_architecture_catalog import bom_and_board_expected_keys
 
     dp = getattr(project_state, "design_properties", None)
     components = getattr(dp, "components", None) or {}
@@ -579,11 +587,10 @@ def build_component_bom(project_state: Any) -> dict[str, Any]:
     if not blocks:
         expected_keys = list(components.keys())
     else:
-        expected_keys: list[str] = []
-        for block in blocks:
-            for key in BLOCK_TO_COMPONENTS.get(block, []):
-                if key not in expected_keys:
-                    expected_keys.append(key)
+        vehicle_type = (getattr(project_state, "current_parameters", None) or {}).get(
+            "vehicle_type"
+        )
+        expected_keys = bom_and_board_expected_keys(blocks, vehicle_type, components)
 
     defined: list[dict[str, Any]] = []
     incomplete: list[dict[str, Any]] = []

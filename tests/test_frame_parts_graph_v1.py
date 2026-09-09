@@ -269,15 +269,17 @@ def test_bind_frame_from_catalog_projects_wheelbase_and_configuration():
     assert spec.properties["configuration"].value == "quad_x"
 
 
-def test_frame_part_specs_from_catalog_armattan_has_arm_four_plates_cage_standoff():
-    """Frame Assembly Physical Model B2, T3 — Armattan's curated 4-plate
-    list projects 4 ordinal plate siblings (Main/LiPo/front/rear), each its
-    own node, alongside arm/cage/standoff. Superseded by this IC:
-    Armattan no longer has exactly 4 part children — it has 7 (arm + 4
-    plates + cage + standoff)."""
+def test_frame_part_specs_from_catalog_armattan_has_arm_six_plates_cage_standoff():
+    """Frame Assembly Physical Model B2, T3 — Armattan's curated plate list
+    projects one ordinal plate sibling per curated entry, alongside
+    arm/cage/standoff. Rooster Included plates B2 grew the curated list
+    from 4 to 6 (HD Cam plate + Rear VTX plates appended, never split into
+    two siblings) — Armattan now has 9 part children (arm + 6 plates +
+    cage + standoff)."""
     parts = frame_part_specs_from_catalog("armattan_rooster_5in")
     assert set(parts.keys()) == {
         FRAME_ARM_KEY, "frame_plate", "frame_plate_2", "frame_plate_3", "frame_plate_4",
+        "frame_plate_5", "frame_plate_6",
         FRAME_CAGE_KEY, FRAME_STANDOFF_KEY,
     }
     assert parts[FRAME_ARM_KEY].properties["material"].value == "fibra de carbono"
@@ -291,6 +293,10 @@ def test_frame_part_specs_from_catalog_armattan_has_arm_four_plates_cage_standof
     assert parts["frame_plate_3"].properties["thickness_mm"].value == pytest.approx(1.5)
     assert parts["frame_plate_4"].properties["label"].value == "Small rear (top) plate"
     assert parts["frame_plate_4"].properties["thickness_mm"].value == pytest.approx(1.5)
+    assert parts["frame_plate_5"].properties["label"].value == "HD Cam plate"
+    assert parts["frame_plate_5"].properties["thickness_mm"].value == pytest.approx(1.5)
+    assert parts["frame_plate_6"].properties["label"].value == "Rear VTX plates (Standard and TBS)"
+    assert parts["frame_plate_6"].properties["thickness_mm"].value == pytest.approx(2.0)
     assert parts[FRAME_CAGE_KEY].properties["material"].value == "titanio"
     assert parts[FRAME_STANDOFF_KEY].properties["material"].value == "aluminio"
     for spec in parts.values():
