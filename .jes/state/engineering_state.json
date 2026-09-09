@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Kit SKUs D investigation OPEN (XT60/harness into existing holes). Fit QUEUED.",
+  "cycle_intent": "Kit SKUs D REVIEWED PASS WITH NOTES \u2014 wait Engineer \u2605 B1. Fit QUEUED.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "in_progress",
-  "current_mode": "Investigation open \u2014 kit_connector_harness_skus_d",
+  "current_mode": "Investigation reviewed \u2014 kit_connector_harness_skus_d wait Engineer star B1",
   "movement_trigger": {
     "type": "engineer_star",
     "note": "2026-09-09 Engineer procede \u2014 Cyclone + 10x6EP"
@@ -84,7 +84,7 @@
     "geometry_sourced_envelope_to_3d": "\u2605 LOCKED 2026-09-09 \u2014 GetFPV retailer-secondary; 3D = Class A keys; plate L\u00d7W B0",
     "geometry_plate_lw_sourced_b1": "\u2605 INVESTIGATION REVIEWED PASS WITH NOTES \u2014 B0 no IC (Rooster no footprint)",
     "geometry_rooster_included_plates_b2": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2514) + Engineer smoke ACCEPT",
-    "kit_connector_harness_skus_d": "INVESTIGATION OPEN \u2014 wait report",
+    "kit_connector_harness_skus_d": "INVESTIGATION REVIEWED PASS WITH NOTES \u2014 wait Engineer \u2605 B1",
     "kit_prop_adapter_ask": "\u2605 B1 IMPLEMENTED REVIEWED PASS WITH NOTES @ 2523 \u2014 Engineer proceeded to D",
     "assembly_kit_template": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2507/2508) + Engineer smoke ACCEPT",
     "geometry_scene3d_from_pose_b1": "\u2605 IMPLEMENTED REVIEWED PASS WITH NOTES \u2014 CLOSED (suite 2462) + Engineer Board smoke ACCEPT",
@@ -105,7 +105,7 @@
     ".jes/artifacts/engineer_lock_geometry_3d_mapping_path.md",
     ".jes/artifacts/investigation_contract_kit_connector_harness_skus_d.md"
   ],
-  "active_operation": "investigation_open_kit_connector_harness_skus_d",
+  "active_operation": "investigation_reviewed_kit_connector_harness_skus_d_wait_star_b1",
   "authority_gates": [
     "Geometry/Physical Representation = next strategic axis \u2014 investigate minimum geometric KNOW before any IC",
     "Ladder KNOW\u2192representar\u2192visualizar\u2192comparar\u2192verificar \u2014 no KNOW\u2192VERIFICADO jump",
@@ -255,7 +255,7 @@
     "geometry_rooster_included_plates_b2_ic": "CLOSED_PASS_WITH_NOTES_2514_SMOKE_ACCEPT",
     "kit_prop_adapter_ask_investigation": "REVIEWED_PASS_WITH_NOTES_STAR_B1_IC_APPROVED",
     "kit_prop_adapter_ask_b1_ic": "REVIEWED_PASS_WITH_NOTES_2523_ENGINEER_PROCEEDED_TO_D",
-    "kit_connector_harness_skus_d_investigation": "OPEN",
+    "kit_connector_harness_skus_d_investigation": "REVIEWED_PASS_WITH_NOTES_WAIT_STAR_B1",
     "assembly_kit_template_lock": "CLOSED_PASS_WITH_NOTES_2507_2508_SMOKE_ACCEPT",
     "geometry_scene3d_from_pose_b1_investigation": "REVIEWED_PASS_WITH_NOTES_STAR_B1",
     "geometry_scene3d_from_pose_b1_ic": "CLOSED_PASS_WITH_NOTES_2462_SMOKE_ACCEPT",

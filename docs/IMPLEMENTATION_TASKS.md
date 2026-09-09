@@ -7,13 +7,14 @@
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
 > **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2514**.  
-> **PRIORIDAD AHORA:** Kit SKUs **D** investigation OPEN (XT60 / harness into existing holes). Adapter B1 **REVIEWED** @ **2523**. Kit B1-min **CLOSED**. Rooster plates B2 **CLOSED**. Fit QUEUED.  
-> **Eje ★:** [contract](../.jes/artifacts/investigation_contract_kit_connector_harness_skus_d.md).  
-> **Cola:** **D report** → ★ Buy → IC → `"cabe"` last.
+> **PRIORIDAD AHORA:** Kit SKUs **D REVIEWED** — wait ★ **B1** (help-choose into existing holes). Adapter B1 **REVIEWED** @ **2523**. Kit B1-min **CLOSED**. Fit QUEUED.  
+> **Eje ★:** [review](../.jes/artifacts/investigation_review_kit_connector_harness_skus_d.md).  
+> **Cola:** **★ D B1** → IC → `"cabe"` last.
 
-### 🟡 INVESTIGATION OPEN — Kit SKUs D (XT60 / harness) (2026-09-09)
+### 🟡 INVESTIGATION REVIEWED — Kit SKUs D (XT60 / harness) (2026-09-09) · PASS WITH NOTES
 
-> **Contract:** [investigation_contract_kit_connector_harness_skus_d.md](../.jes/artifacts/investigation_contract_kit_connector_harness_skus_d.md). Claude writes the report only. **No** `src/` / seed. **No** `prop_adapter` SKUs. **No** N2 tidy. **No** GetFPV scrape.
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_kit_connector_harness_skus_d.md) · [report](../.jes/artifacts/investigation_report_kit_connector_harness_skus_d.md) · [review](../.jes/artifacts/investigation_review_kit_connector_harness_skus_d.md).  
+> **★:** `B1` (recommended: 1+1 cited rows + bind + kit help-choose) · `B2` (bind-only, no picker) · `B0` park. **Forbidden:** scrape, 3D, XT60-vs-battery inference.
 
 ### 🟡 REVIEWED — Prop adapter ask B1 (2026-09-09) · suite **2523**
 

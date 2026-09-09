@@ -138,7 +138,7 @@ Ordered, do not skip:
 | A | **B2 seed** Rooster HD Cam + Rear VTX plates (Armattan Included, thickness only) | **CLOSED** [smoke](engineer_smoke_geometry_rooster_included_plates_b2.md) **ACCEPT** |
 | B | `prop_adapter` ask after hélices (temporal gate; no hub/shaft inference) | **REVIEWED** — wait ★ **B1** [review](investigation_review_kit_prop_adapter_ask_b0.md) |
 | C | FPV `vtx` / `receiver` as kit keys (N+2) | Overlap with `sensors` — investigate before adding |
-| D | Catalog SKUs for XT60 / harness **after** holes exist | **OPEN** [contract](investigation_contract_kit_connector_harness_skus_d.md)
+| D | Catalog SKUs for XT60 / harness **after** holes exist | **REVIEWED** [review](investigation_review_kit_connector_harness_skus_d.md) — wait ★ **B1**
 | E | Engineer-**declared** Rooster plate L×W if a box is wanted | Geometry; pages have no footprint |
 | F | `"cabe"` / fit | Mapping rung 5; still **QUEUED** |
 | G | GetFPV helix census / Dinoblades new SKU | Catalog G, not P-kit |
