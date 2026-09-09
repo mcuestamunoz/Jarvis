@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { layoutSolidsRow } from "./scene3dLayout";
+import { clusterCenterPx, layoutSolidsFromPose, layoutSolidsRow } from "./scene3dLayout";
 
 describe("layoutSolidsRow", () => {
   it("U5: second originX = first footprint + gap; ignores a fake card x", () => {
@@ -24,5 +24,100 @@ describe("layoutSolidsRow", () => {
     ];
     const laid = layoutSolidsRow(items, 10, 0.5);
     expect(laid.map((l) => l.id)).toEqual(["b", "a"]);
+  });
+});
+
+describe("layoutSolidsFromPose", () => {
+  const fc = { id: "fc", geometry: { shape: "box" as const, length_mm: 44, width_mm: 84, height_mm: 12 } };
+  const escBase = { id: "esc", geometry: { shape: "box" as const, length_mm: 50, width_mm: 21.6, height_mm: 12 } };
+
+  it("unposed item stays at its row slot, originY/originZ = 0", () => {
+    const laid = layoutSolidsFromPose([fc, escBase], 24, 0.5);
+    expect(laid[0]).toEqual({ id: "fc", originX: 0, originY: 0, originZ: 0 });
+    // esc footprint fallback slot: fc footprint max(22,42)=42; 42+24=66
+    expect(laid[1]).toEqual({ id: "esc", originX: 66, originY: 0, originZ: 0 });
+  });
+
+  it("posed item (box origin, all 3 axes) center-to-center with the declared Y<->Z swap", () => {
+    const esc = { ...escBase, declaredBoxPose: { originKey: "fc", xMm: 5, yMm: 3, zMm: -2 } };
+    const laid = layoutSolidsFromPose([fc, esc], 24, 0.5);
+    const escLaid = laid.find((l) => l.id === "esc")!;
+    // originCenterX = 0 + 22/2 = 11; originCenterY = 6/2 = 3
+    // originX = 11 + mmToPx(5)=2.5 - childWrap.width/2=12.5 -> 1
+    expect(escLaid.originX).toBeCloseTo(1);
+    // originY = 3 + mmToPx(-2)=-1 - childWrap.height/2=3 -> -1  (declared +Z -> CSS Y)
+    expect(escLaid.originY).toBeCloseTo(-1);
+    // originZ = mmToPx(3) = 1.5  (declared +Y -> CSS Z/depth, no half-width subtract)
+    expect(escLaid.originZ).toBeCloseTo(1.5);
+  });
+
+  it("omitted xMm/yMm/zMm count as 0 for display, not a schema default", () => {
+    const esc = { ...escBase, declaredBoxPose: { originKey: "fc" } };
+    const laid = layoutSolidsFromPose([fc, esc], 24, 0.5);
+    const escLaid = laid.find((l) => l.id === "esc")!;
+    expect(escLaid.originX).toBeCloseTo(-1.5);
+    expect(escLaid.originY).toBeCloseTo(0);
+    expect(escLaid.originZ).toBeCloseTo(0);
+  });
+
+  it("origin resolving to a disk (not box) falls back to the row slot", () => {
+    const motors = { id: "motors", geometry: { shape: "disk" as const, diameter_mm: 27.9 } };
+    const propeller = {
+      id: "propeller",
+      geometry: { shape: "disk" as const, diameter_mm: 127 },
+      declaredBoxPose: { originKey: "motors", xMm: 5 },
+    };
+    const laid = layoutSolidsFromPose([motors, propeller], 24, 0.5);
+    // motors footprint 13.95; propeller fallback slot = 13.95 + 24 = 37.95
+    expect(laid.find((l) => l.id === "propeller")).toEqual({
+      id: "propeller", originX: 37.95, originY: 0, originZ: 0,
+    });
+  });
+
+  it("origin key absent from the list falls back to the row slot", () => {
+    const esc = { ...escBase, declaredBoxPose: { originKey: "ghost", xMm: 5 } };
+    const laid = layoutSolidsFromPose([esc], 24, 0.5);
+    expect(laid[0]).toEqual({ id: "esc", originX: 0, originY: 0, originZ: 0 });
+  });
+
+  it("empty list -> []", () => {
+    expect(layoutSolidsFromPose([], 24, 0.5)).toEqual([]);
+  });
+
+  it("preserves input order regardless of pose", () => {
+    const esc = { ...escBase, declaredBoxPose: { originKey: "fc", xMm: 5 } };
+    const laid = layoutSolidsFromPose([esc, fc], 24, 0.5);
+    expect(laid.map((l) => l.id)).toEqual(["esc", "fc"]);
+  });
+
+  it("U8: does not compose through a posed origin (one hop from the origin row slot)", () => {
+    const battery = { id: "battery", geometry: { shape: "box" as const, length_mm: 37, width_mm: 35, height_mm: 75 } };
+    const fcPosed = { ...fc, declaredBoxPose: { originKey: "esc", xMm: 100 } };
+    const batPosed = { ...battery, declaredBoxPose: { originKey: "fc", xMm: 5 } };
+    const laid = layoutSolidsFromPose([fcPosed, escBase, batPosed], 24, 0.5);
+    const fromSlot = layoutSolidsFromPose([fc, batPosed], 24, 0.5).find((l) => l.id === "battery")!;
+    const batLaid = laid.find((l) => l.id === "battery")!;
+    // Same child math as if FC had never left its own row slot.
+    expect(batLaid.originX).toBeCloseTo(fromSlot.originX);
+    expect(batLaid.originY).toBeCloseTo(fromSlot.originY);
+    expect(batLaid.originZ).toBeCloseTo(fromSlot.originZ);
+  });
+});
+
+describe("clusterCenterPx", () => {
+  const fc = { id: "fc", geometry: { shape: "box" as const, length_mm: 44, width_mm: 84, height_mm: 12 } };
+  const esc = { id: "esc", geometry: { shape: "box" as const, length_mm: 50, width_mm: 21.6, height_mm: 12 } };
+
+  it("empty -> {0,0}", () => {
+    expect(clusterCenterPx([], [], 0.5)).toEqual({ x: 0, y: 0 });
+  });
+
+  it("unposed FC+ESC row: midpoint of the wrapper AABB", () => {
+    const items = [fc, esc];
+    const laid = layoutSolidsFromPose(items, 24, 0.5);
+    const c = clusterCenterPx(laid, items, 0.5);
+    // FC wrap 22×6 at (0,0); ESC wrap 25×6 at (66,0) → [0,91] × [0,6]
+    expect(c.x).toBeCloseTo(45.5);
+    expect(c.y).toBeCloseTo(3);
   });
 });

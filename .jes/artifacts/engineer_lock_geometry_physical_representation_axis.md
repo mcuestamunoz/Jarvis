@@ -55,4 +55,4 @@ Spatial board **B3 honest absence** (ghost slots) shipped on the live tree (revi
 3. **CLOSED:** click-inspect + CSS 3D + declared box-local pose **writer** B1 @ **2438**.
 4. **CLOSED:** Continuity pose B1 @ **2456** + ACCEPT.
 5. **CLOSED (stance):** [pre-assembly honesty](engineer_lock_geometry_pre_assembly_honesty.md). R1/R2 **CLOSED** CLI walk.
-6. **LOCKED (queue):** [3D mapping path](engineer_lock_geometry_3d_mapping_path.md) — five rungs. Next = Scene3D-from-pose investigation.
+6. **LOCKED (queue):** [3D mapping path](engineer_lock_geometry_3d_mapping_path.md) — five rungs. Rung 1 Scene3D-from-pose **CLOSED**. Next = wheelbase on spec.

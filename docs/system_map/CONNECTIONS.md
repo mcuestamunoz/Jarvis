@@ -35,7 +35,7 @@ CONNECTIONS.md
 
 **Structure catalog + parts + IDLE rebind + plate multiplicity (2026-09-04→05):** No new C-xxx. **C-030** detail expanded to frame catalog pick / IDLE rebind / `frame_part_specs_from_catalog` (arm thickness + curated ordinal plates). Continuity/State/Acquisition maps synced. Structure close suite **2294**.
 
-**Spatial board visor + B3 honest absence (2026-09-05→06):** No new C-xxx. `jarvis board` launches `ui/spatial-board/`; `workspace/spatial_board.project_spatial_nodes` is a second derived presentation of `ProjectState` (same class as C-094 markdown views, not a registry ID). B3: declared-block missing keys → `kind: "slot"`. Live suite **2310**. Geometry dims appear as ordinary card `_fields` (suite **2336**); glyphs not yet. Queue: `docs/IMPLEMENTATION_TASKS.md`.
+**Spatial board visor + B3 honest absence (2026-09-05→06):** No new C-xxx. `jarvis board` launches `ui/spatial-board/`; `workspace/spatial_board.project_spatial_nodes` is a second derived presentation of `ProjectState` (same class as C-094 markdown views, not a registry ID). B3: declared-block missing keys → `kind: "slot"`. Live suite **2310**. Geometry dims appear as ordinary card `_fields`; 2D glyphs + CSS 3D solids + Scene3D-from-pose (one hop) shipped @ **2462**. Queue: `docs/IMPLEMENTATION_TASKS.md`.
 
 **Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables. The only authoritative count is the length of **Canonical registry** below.
 

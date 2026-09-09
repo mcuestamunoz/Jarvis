@@ -40,6 +40,15 @@ export type SpatialNode = SpatialRect & {
    * field `"montado en"` (which may still show a stale key).
    */
   mountedOn?: string;
+  /**
+   * Declared box-local pose (Scene3D-from-pose B1). Present only when
+   * `ComponentSpec.declared_box_pose` is set AND its origin still resolves
+   * to a `box`-shaped component among projected components — the same
+   * "honest absence" gate as `mountedOn` above, never a looser one. Axis
+   * units are millimetres, in the DECLARED frame (L->+X, W->+Y, H->+Z) —
+   * not a CAD/body/gravity frame. Missing x/y/z counts as 0 for display.
+   */
+  declaredBoxPose?: { originKey: string; xMm?: number; yMm?: number; zMm?: number };
 };
 
 export type ContentBounds = {

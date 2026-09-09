@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { layoutSolidsRow } from "./scene3dLayout";
+import { clusterCenterPx, layoutSolidsFromPose } from "./scene3dLayout";
 import { Solid3D } from "./Solid3D";
 import type { SpatialNode } from "./types";
 
@@ -15,13 +15,14 @@ type Props = {
 };
 
 /**
- * Board 3D solids B1 — a sibling pane to the 2D `.sb-viewport`, never
- * inside `.sb-world` (mixing 2D absolute card layout and `preserve-3d` on
- * the same elements is not viable). Owns its own view state (tilt/zoom) —
- * deliberately independent of `useCanvasTransform`, which stays the 2D
- * board's own pan/zoom. Layout is a plain row (`layoutSolidsRow`) — never
- * card `x`/`y`, never `mountedOn`/`parent_key`: there is no 3D placement
- * fact anywhere in the system yet (pose stays deferred).
+ * Board 3D solids B1 + Scene3D-from-pose B1 — sibling pane to the 2D
+ * `.sb-viewport`, never inside `.sb-world`. Owns its own view chrome
+ * (tilt/zoom), independent of `useCanvasTransform`. Unposed solids keep
+ * the presentation row (`layoutSolidsRow` slots). A resolvable
+ * `declaredBoxPose` moves that solid one hop from the origin's **row
+ * slot** (not from a composed chain; never card `x`/`y`, never `mountedOn`).
+ * The cluster is translated so its 2D bounding-box center sits at the
+ * pane center (visor chrome, not pose).
  */
 export function Scene3D({ nodes, selectedId, onSelect }: Props) {
   const solids = nodes.filter(
@@ -69,30 +70,39 @@ export function Scene3D({ nodes, selectedId, onSelect }: Props) {
 
   if (solids.length === 0) return null;
 
-  const laidOut = layoutSolidsRow(
-    solids.map((n) => ({ id: n.id, geometry: n.geometry })),
+  const laidOut = layoutSolidsFromPose(
+    solids.map((n) => ({ id: n.id, geometry: n.geometry, declaredBoxPose: n.declaredBoxPose })),
     GAP_PX,
   );
-  const originById = new Map(laidOut.map((l) => [l.id, l.originX]));
+  const originById = new Map(laidOut.map((l) => [l.id, l]));
+  const cluster = clusterCenterPx(
+    laidOut,
+    solids.map((n) => ({ id: n.id, geometry: n.geometry })),
+  );
 
   return (
     <div className="sb-scene3d" onWheel={onWheel} onMouseDown={onBackgroundMouseDown}>
       <div
         className="sb-scene3d__world"
         style={{
-          transform: `scale(${zoom}) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+          transform: `translate(${-cluster.x}px, ${-cluster.y}px) scale(${zoom}) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
         }}
       >
-        {solids.map((node) => (
-          <Solid3D
-            key={node.id}
-            id={node.id}
-            geometry={node.geometry}
-            selected={node.id === selectedId}
-            onSelect={onSelect}
-            originX={originById.get(node.id) ?? 0}
-          />
-        ))}
+        {solids.map((node) => {
+          const origin = originById.get(node.id);
+          return (
+            <Solid3D
+              key={node.id}
+              id={node.id}
+              geometry={node.geometry}
+              selected={node.id === selectedId}
+              onSelect={onSelect}
+              originX={origin?.originX ?? 0}
+              originY={origin?.originY ?? 0}
+              originZ={origin?.originZ ?? 0}
+            />
+          );
+        })}
       </div>
     </div>
   );

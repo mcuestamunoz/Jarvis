@@ -2,11 +2,11 @@
 
 **Date:** 2026-09-08  
 **Authority:** Engineer (`Viuelvo con lo de antes` — solutions for 3D mapping; document then work)  
-**Status:** ★ LOCKED — ordered queue. Item **1** is next investigation. Items 2–5 are named later ★. Fit still **QUEUED**.  
+**Status:** ★ LOCKED — ordered queue. Item **1 CLOSED** @ **2462** + smoke ACCEPT. Item **2** next (wheelbase on spec; 4-motor sketch later ★). Items 3–5 later ★. Fit still **QUEUED**.  
 **Parents:**
 - [engineer_lock_geometry_3d_placement_horizon.md](engineer_lock_geometry_3d_placement_horizon.md)
 - [engineer_lock_geometry_pre_assembly_honesty.md](engineer_lock_geometry_pre_assembly_honesty.md) — R1/R2 **CLOSED** CLI; envelope ≠ reconstructed part
-- Continuity pose B1 **CLOSED** @ **2456** — writer + IDLE; visor still `layoutSolidsRow`
+- Continuity pose B1 **CLOSED** @ **2456** — writer + IDLE; visor now reads pose (rung 1 CLOSED)
 - CSS 3D B1 smoke: **1 ComponentSpec = 1 solid** (not 4 motor copies) until a later ★
 
 **Not an IC. Do not implement items 2–5 in item 1.**
@@ -15,7 +15,7 @@
 
 ## Locked reading
 
-The visor already draws **declared** envelopes. Catalog dump is **not** the first missing piece. The first missing piece is: **Scene3D does not read `declared_box_pose`.**
+The visor already draws **declared** envelopes. Rung 1 **CLOSED**: Scene3D reads `declared_box_pose` (one hop, CSS place). Visor chrome (2026-09-09): the solid cluster is centered in the 3D pane (AABB of wrappers → pane center), not pose. Next missing piece is mapping rung **2** (wheelbase on the bound frame spec), not another visor DTO.
 
 Two products (do not collapse):
 
@@ -30,9 +30,11 @@ If a manufacturer page is silent: other viewpoints (not “impossible”): visor
 
 ## The five rungs (work queue)
 
-### 1. Scene3D-from-pose — **NEXT** (investigation, then ★, then IC)
+### 1. Scene3D-from-pose — **CLOSED** @ **2462** + smoke ACCEPT
 
-Place the **existing** 5 solids using `declared_box_pose` (Continuity already writes it). Zero new catalog. `mounted_on` stays the **guide**, not millimetres. Disks stay flat. **Still 1 motor / 1 propeller solid** (identity). Row layout is replaced **only** for nodes that participate in a declared pose graph; do not invent 4 arms.
+[IC](implementation_contract_geometry_scene3d_from_pose_b1.md) · [smoke](engineer_smoke_geometry_scene3d_from_pose_b1.md) **ACCEPT**.
+
+Place **existing** solids that already have `geometry` (live demo today: 3 boxes + 1 disk; do not assume 5). Zero new catalog. `mounted_on` stays the **guide**, not millimetres. Disks stay flat. **Still 1 identity = 1 solid**. Row slots remain; posed nodes leave their slot. Do not invent 4 arms.
 
 Product sentence after a later Buy:
 
@@ -69,4 +71,4 @@ Full catalog refresh · Here3 unfreeze · battery L/W/H remap · `istand` · STE
 
 ## Mode
 
-Rung **1** investigation next. Package `0.3.8` · suite **2456**.
+Rung **1 CLOSED**. Next = rung **2** first cut (project `wheelbase_mm` onto the bound frame spec; **not** 4-motor copies). Package `0.3.8` · suite **2462**.

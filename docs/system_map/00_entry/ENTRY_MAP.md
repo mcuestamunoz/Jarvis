@@ -11,7 +11,7 @@
 | `adapters/cli/main.py` | Terminal loop; renders results (`render_response`, `render_startup_context`) |
 | `adapters/mcp/server.py` | MCP tool server exposing Jarvis actions |
 | `adapters/mcp/session_manager.py` | MCP-side session bookkeeping |
-| `adapters/cli/board.py` (`jarvis board`) + `workspace/spatial_board.py` | Spatial board visor launcher + read-only projector (`ProjectState` → cards/`kind: "slot"` for declared-architecture holes; geometry dims as ordinary fields when present). No writer, no BOM/ERF/Continuity import — CLI stays the engineering mutation surface. Layout overlay is browser `localStorage` (B1 debt). Glyphs = Geometry `visualizar` queue, not Entry writers. |
+| `adapters/cli/board.py` (`jarvis board`) + `workspace/spatial_board.py` | Spatial board visor launcher + read-only projector (`ProjectState` → cards/`kind: "slot"` for declared-architecture holes; geometry dims as ordinary fields when present; optional `geometry` + `declaredBoxPose` DTOs). No writer, no BOM/ERF/Continuity import — CLI stays the engineering mutation surface. Layout overlay is browser `localStorage` (B1 debt). Glyphs / CSS 3D / Scene3D-from-pose are derived visor, not Entry writers. |
 
 ## Important functions
 

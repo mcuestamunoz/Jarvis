@@ -40,3 +40,26 @@ export function solidExtentPx(
   const d = mmToPx(geometry.diameter_mm, pxPerMm);
   return { x: d, y: d, z: 0 };
 }
+
+export type SolidWrapperPx = { width: number; height: number };
+
+/**
+ * Scene3D-from-pose B1 — the on-screen footprint of a solid's OUTER wrapper
+ * div, in px: `Solid3D`'s box wrapper is `{width: extent.x, height: extent.z}`
+ * (CSS width = declared length/+X, CSS height = declared height/+Z — the
+ * depth/+Y axis lives entirely in `translateZ`, never in the wrapper's own
+ * box). A disk wrapper is `{width: extent.x, height: extent.x}` — its own
+ * CSS height/width are both the diameter (see `Solid3D`'s disk branch);
+ * never `extent.z`, which is always 0 for a disk and is not its on-screen
+ * height at all.
+ */
+export function solidWrapperPx(
+  geometry: SpatialGeometry,
+  pxPerMm: number = SCENE3D.pxPerMm,
+): SolidWrapperPx {
+  const extent = solidExtentPx(geometry, pxPerMm);
+  if (geometry.shape === "box") {
+    return { width: extent.x, height: extent.z };
+  }
+  return { width: extent.x, height: extent.x };
+}

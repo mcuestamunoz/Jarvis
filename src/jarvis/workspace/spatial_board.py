@@ -105,10 +105,12 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
         mounted_dto = (
             mounted_on if mounted_on and mounted_on in components else None
         )
+        declared_box_pose = _declared_box_pose_dto(spec, components)
         _emit(
             key, col, spec.name or "", "part" if spec.parent_key else "component", fields,
             geometry=geometry,
             mounted_on=mounted_dto,
+            declared_box_pose=declared_box_pose,
         )
 
     def place_slot(key: str, col: int) -> None:
@@ -123,6 +125,7 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
         *,
         geometry: dict[str, float | str] | None = None,
         mounted_on: str | None = None,
+        declared_box_pose: dict[str, Any] | None = None,
     ) -> None:
         height = _default_height(len(fields))
         y = next_y.get(col, ORIGIN_Y)
@@ -141,6 +144,8 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
             node["geometry"] = geometry
         if mounted_on is not None:
             node["mountedOn"] = mounted_on
+        if declared_box_pose is not None:
+            node["declaredBoxPose"] = declared_box_pose
         nodes.append(node)
         next_y[col] = y + height + ROW_GAP
         emitted.add(key)
@@ -285,6 +290,37 @@ def _geometry_from_spec(spec: ComponentSpec) -> dict[str, float | str] | None:
 POSE_AXES_HONESTY_LABEL = "locales declarados (L→+X, W→+Y, H→+Z); no morro; no gravedad"
 
 
+def _declared_box_pose_dto(
+    spec: ComponentSpec, components: dict[str, ComponentSpec]
+) -> dict[str, Any] | None:
+    """Scene3D-from-pose B1 — the ONE gate for whether a declared pose is
+    honest to show at all, shared by the machine DTO (``_emit``) and the
+    human text fields (``_fields``) — never forked into two rules. Requires
+    the origin to still exist AND still resolve to a ``box`` via
+    ``_geometry_from_spec`` (the exact same check the writer itself already
+    enforces at declare-time — never a second, looser rule here). Returns
+    ``None`` (never a fallback origin) when either check fails — the same
+    "honest absence" class as B2's own ``mountedOn`` DTO omission.
+    """
+    pose = spec.declared_box_pose
+    if pose is None:
+        return None
+    origin = components.get(pose.origin_key)
+    if origin is None:
+        return None
+    geometry = _geometry_from_spec(origin)
+    if geometry is None or geometry.get("shape") != "box":
+        return None
+    dto: dict[str, Any] = {"originKey": pose.origin_key}
+    if pose.x_mm is not None:
+        dto["xMm"] = pose.x_mm
+    if pose.y_mm is not None:
+        dto["yMm"] = pose.y_mm
+    if pose.z_mm is not None:
+        dto["zMm"] = pose.z_mm
+    return dto
+
+
 def _fields(spec: ComponentSpec, components: dict[str, ComponentSpec]) -> list[dict[str, str]]:
     fields = [
         {"label": key, "value": _format_property(value)}
@@ -298,12 +334,14 @@ def _fields(spec: ComponentSpec, components: dict[str, ComponentSpec]) -> list[d
     # separate machine ``mountedOn`` on the node DTO when the target exists.
     if spec.mounted_on:
         fields.append({"label": "montado en", "value": spec.mounted_on})
-    # Geometry Pose Declared Box-Local Frame B1: text only, never moves a
-    # glyph/solid. Omitted entirely (not a fallback origin) when the pose's
-    # origin key has vanished from components — same "honest absence"
-    # discipline as B2's own mountedOn DTO omission.
+    # Geometry Pose Declared Box-Local Frame B1 / Scene3D-from-pose B1: text
+    # only, never moves a glyph/solid by itself — the same gate as the
+    # machine ``declaredBoxPose`` DTO key (``_declared_box_pose_dto``),
+    # never a looser one. A stale/shapeless/disk origin omits BOTH the text
+    # and the DTO — no "origen pose" survives on its own once the machine
+    # key would be omitted.
     pose = spec.declared_box_pose
-    if pose and pose.origin_key in components:
+    if pose is not None and _declared_box_pose_dto(spec, components) is not None:
         fields.append({"label": "origen pose", "value": pose.origin_key})
         fields.append({"label": "ejes pose", "value": POSE_AXES_HONESTY_LABEL})
         if pose.x_mm is not None:

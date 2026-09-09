@@ -6,15 +6,26 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2456**.  
-> **PRIORIDAD AHORA:** Queue locked in [3D mapping path](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md) (5 rungs). Next = Scene3D-from-pose investigation (not IC).  
+> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2462**.  
+> **PRIORIDAD AHORA:** Mapping rung **2** — project `wheelbase_mm` onto the bound frame spec (not 4-motor sketch). Scene3D-from-pose B1 **CLOSED** @ **2462** + smoke ACCEPT. Fit QUEUED.  
 > **Eje ★:** [mapping path](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Pose Continuity [smoke](../.jes/artifacts/engineer_smoke_continuity_declared_box_pose_b1.md) ACCEPT @ **2456**. Reds [R1/R2](../.jes/artifacts/engineer_smoke_pre_assembly_reds_r1_r2.md) ACCEPT.  
-> **Cola:** 1 Scene3D-from-pose → 2 wheelbase + optional 4-motor sketch → 3 motor height 31.7 cited → 4 plate L×W search → 5 `"cabe"`. Fit QUEUED.  
+> **Cola:** ~~1 Scene3D-from-pose~~ **CLOSED** → **2 wheelbase on spec** (4-motor sketch later ★) → 3 motor height 31.7 cited → 4 plate L×W search → 5 `"cabe"`. Fit QUEUED.  
 > **Artefactos:** investigation / implementation / review only.
+
+### 🟢 CERRADO — Scene3D-from-pose B1 (2026-09-09) · suite **2462** + ACCEPT
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_scene3d_from_pose_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_scene3d_from_pose_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_scene3d_from_pose_b1.md).  
+> **Smoke:** [engineer_smoke_geometry_scene3d_from_pose_b1.md](../.jes/artifacts/engineer_smoke_geometry_scene3d_from_pose_b1.md) — **ACCEPT**. CLI `declara el esc a 5 mm en x respecto al fc`; card ESC `origen pose` / `Δx`; 3D ESC leaves the row next to FC.  
+> **Chrome (2026-09-09):** Scene3D cluster centered in the 3D pane (`left: 50%` + `clusterCenterPx`); not pose, not a new IC.
+
+### 🟡 INVESTIGATION REVIEWED — Scene3D-from-pose B1 (2026-09-08) · PASS WITH NOTES · ★ B1
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_scene3d_from_pose_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_scene3d_from_pose_b1.md) · [review](../.jes/artifacts/investigation_review_geometry_scene3d_from_pose_b1.md).  
+> **Lean:** **B1** additive `declaredBoxPose` DTO + CSS place, **single-level**. Engineer ★ **B1** (`escribe IC`) → IC READY.
 
 ### 🔒 LOCKED — 3D mapping path · five rungs (2026-09-08)
 
-> **Lock:** [engineer_lock_geometry_3d_mapping_path.md](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Catálogo entero **no** es el primer tapón. Primero: visor lee `declared_box_pose`.
+> **Lock:** [engineer_lock_geometry_3d_mapping_path.md](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Rung 1 CLOSED. Next = project `wheelbase_mm` onto the bound frame spec.
 
 ### 🟢 CERRADO (walk) — Pre-assembly reds R1/R2 (2026-09-08) · CLI · no IC
 

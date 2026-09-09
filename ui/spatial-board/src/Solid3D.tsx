@@ -7,6 +7,8 @@ type Props = {
   selected: boolean;
   onSelect: (id: string) => void;
   originX?: number;
+  originY?: number;
+  originZ?: number;
 };
 
 /**
@@ -18,7 +20,7 @@ type Props = {
  * this component has nothing to misuse into a fake axial extent even by
  * accident.
  */
-export function Solid3D({ id, geometry, selected, onSelect, originX = 0 }: Props) {
+export function Solid3D({ id, geometry, selected, onSelect, originX = 0, originY = 0, originZ = 0 }: Props) {
   const extent = solidExtentPx(geometry);
 
   const handleMouseDown = (event: React.MouseEvent) => {
@@ -34,7 +36,7 @@ export function Solid3D({ id, geometry, selected, onSelect, originX = 0 }: Props
         data-node-id={id}
         aria-current={selected ? "true" : undefined}
         onMouseDown={handleMouseDown}
-        style={{ transform: `translateX(${originX}px)`, width: w, height: h }}
+        style={{ transform: `translate3d(${originX}px, ${originY}px, ${originZ}px)`, width: w, height: h }}
       >
         <div className="sb-solid__cuboid" style={{ width: w, height: h }}>
           <div className="sb-solid__face sb-solid__face--front" style={{ width: w, height: h, transform: `translateZ(${d / 2}px)` }} />
@@ -55,7 +57,7 @@ export function Solid3D({ id, geometry, selected, onSelect, originX = 0 }: Props
       data-node-id={id}
       aria-current={selected ? "true" : undefined}
       onMouseDown={handleMouseDown}
-      style={{ transform: `translateX(${originX}px)`, width: size, height: size }}
+      style={{ transform: `translate3d(${originX}px, ${originY}px, ${originZ}px)`, width: size, height: size }}
     >
       <div
         className="sb-solid__disk-face"

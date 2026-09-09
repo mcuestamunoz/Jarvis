@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mmToPx, solidExtentPx } from "./scene3dScale";
+import { mmToPx, solidExtentPx, solidWrapperPx } from "./scene3dScale";
 
 describe("mmToPx", () => {
   it("U1: mmToPx(127) at 0.5 -> 63.5, not capped", () => {
@@ -27,5 +27,22 @@ describe("solidExtentPx", () => {
     expect(extent.x).toBeCloseTo(63.5);
     expect(extent.y).toBeCloseTo(63.5);
     expect(extent.z).toBe(0);
+  });
+});
+
+describe("solidWrapperPx", () => {
+  it("box 50x21.6x12 at 0.5 -> {width:25, height:6} (CSS width=length, CSS height=height; width_mm/+Y lives only in translateZ)", () => {
+    const wrap = solidWrapperPx(
+      { shape: "box", length_mm: 50, width_mm: 21.6, height_mm: 12 },
+      0.5,
+    );
+    expect(wrap.width).toBeCloseTo(25);
+    expect(wrap.height).toBeCloseTo(6);
+  });
+
+  it("disk 127 at 0.5 -> {width:63.5, height:63.5}, never extent.z", () => {
+    const wrap = solidWrapperPx({ shape: "disk", diameter_mm: 127 }, 0.5);
+    expect(wrap.width).toBeCloseTo(63.5);
+    expect(wrap.height).toBeCloseTo(63.5);
   });
 });
