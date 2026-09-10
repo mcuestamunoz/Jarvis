@@ -154,7 +154,9 @@
     "v0.3.8": "f3deae05e5e32bdedf7d3122bc49220b75ef4918",
     "checkpoint-spatial-board-projector": "f3deae05e5e32bdedf7d3122bc49220b75ef4918",
     "v0.4.0": "d1af6a90ed47249086567e8130a9c22f3653eb53",
-    "checkpoint-continuity-spatial-assembly": "d1af6a90ed47249086567e8130a9c22f3653eb53"
+    "checkpoint-continuity-spatial-assembly": "d1af6a90ed47249086567e8130a9c22f3653eb53",
+    "v0.4.1": "4d380d80dc44bd9125d37c073691e3977c76cf0d",
+    "checkpoint-board-situar": "4d380d80dc44bd9125d37c073691e3977c76cf0d"
   },
   "arc": {
     "validation_case_investigation": "CHECKPOINTED",
