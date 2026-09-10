@@ -6,11 +6,27 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.4.0`** / `checkpoint-continuity-spatial-assembly` (paquete `0.4.0`). Suite viva **2652**.  
-> **PRIORIDAD AHORA:** (vacío de código) — Continuity spatial assembly **CLOSED @ v0.4.0**. Siguiente ★: investigación **Board drag→pose** ([nota](../.jes/artifacts/engineer_note_board_drag_place_concept.md)) o cola B4/plate noun/#4.  
-> **Feature:** [Continuity spatial assembly](../.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md).  
-> **Cola:** B4 `standoff_count` · plate label noun · #4 sourced · drag-place investigation.  
-> **Role:** Claude = `src/`/`ui/`. Cursor = IC/review/PRIORIDAD only.
+> **Base:** tag **`v0.4.1`**. Suite viva **2669** · UI **80**.  
+> **PRIORIDAD AHORA:** **Fit VERIFIED** — investigation (screening `"cabe"` B1-min ya CLOSED; no CAD theater).  
+> **Feature:** Continuity spatial assembly + Board Situar (C-113).  
+> **Cola:** IDLE frame-part count · N≠4 standoffs · #4 sourced · LLM pending deactivate.  
+> **Role:** Cursor escribe investigation contract · Claude report · Engineer ★.
+
+### 🟢 CERRADO (código + review + smoke) — Situar free camera B1 (2026-09-10) · UI **80** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_board_situar_free_camera_b1.md) · [report](../.jes/artifacts/implementation_report_board_situar_free_camera_b1.md) · [review](../.jes/artifacts/implementation_review_board_situar_free_camera_b1.md) **PASS WITH NOTES** · [smoke](../.jes/artifacts/engineer_smoke_board_situar_free_camera_b1.md) **ACCEPT**. Hotfixes: ejes WYSIWYG + `state_path` + plano pantalla (lateral).
+
+### 🟢 CERRADO (código + review + smoke) — Board Situar UX B1 (2026-09-10) · UI **70** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_board_situar_ux_b1.md) · [report](../.jes/artifacts/implementation_report_board_situar_ux_b1.md) · [review](../.jes/artifacts/implementation_review_board_situar_ux_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_board_situar_ux_b1.md) **ACCEPT**. Pane/zoom/preview OK; free-camera = next.
+
+### 🟢 CERRADO (código + Cursor review + smoke) — Board drag → pose B1 (2026-09-10) · suite **2668** + ACCEPT
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_board_drag_pose_b1.md) · [report](../.jes/artifacts/implementation_report_board_drag_pose_b1.md) · [review](../.jes/artifacts/implementation_review_board_drag_pose_b1.md) **PASS WITH NOTES**. C-113 · Situar · singleton · same writer. Smoke: battery/FC/ESC only.
+
+### 🟢 CERRADO (código + Cursor review) — Standoff count gate B4-min (2026-09-10) · suite **2661**
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_standoff_count_gate_b4.md) · [report](../.jes/artifacts/implementation_report_geometry_standoff_count_gate_b4.md) · [review](../.jes/artifacts/implementation_review_geometry_standoff_count_gate_b4.md) **PASS WITH NOTES**. `count=4` → esquinas; sin count / N≠4 → omit. Smoke: poner `count=4` en 5min.
 
 ### 🟢 CERRADO — Frame standoff ×4 corners B1 (2026-09-10) · suite **2652** + ACCEPT
 

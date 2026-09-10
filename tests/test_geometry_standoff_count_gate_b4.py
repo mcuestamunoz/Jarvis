@@ -1,37 +1,34 @@
-"""Frame standoff x4 at Main Plate corners B1.
+"""Standoff count gate for corner copies B4-min.
 
-Covers implementation_contract_geometry_frame_standoff_corners_b1.md §3 —
-when `frame_standoff` has a box, a declared `count` that parses to exactly
-4 (Standoff count gate B4-min — see
-test_geometry_standoff_count_gate_b4.py for the dedicated gate tests), AND
-the literal `frame_plate` (Main Plate) key has a box with finite L×W > 0,
-the standoff gets `solidCopies: 4` and four corner offsets on the Main
-Plate footprint, inset by half the standoff's own L×W: `hx = Lp/2 - Ls/2`,
-`hy = Wp/2 - Ws/2`. A negative inset (standoff footprint larger than the
-plate) fails closed — no copies at all. This is a DIFFERENT gate/formula
-from every quad-X family (motors/propellers/frame_arm/prop_adapter) —
-never reads motors/motor_count/quad_x/wheelbase, never
-`_quad_x_station_points`. Fixture numbers: standoff 5/5/25, plate 100/100/4
--> offsets (±47.5, ±47.5, 0). Never 230.
+Covers implementation_contract_geometry_standoff_count_gate_b4.md §3 —
+`frame_standoff`'s corner `solidCopies`/`solidCopyOffsetsMm` (Frame
+standoff x4 at Main Plate corners B1) now ALSO require the standoff's own
+declared `properties["count"]` to parse (`_parse_solid_copies_count`,
+whole number in [2,16]) to EXACTLY 4 — the same source
+`frame_part_specs_from_catalog` already projects from a catalog
+`FrameSpec.standoff_count` when a seed states it. Missing, non-numeric,
+out-of-range, or any N != 4 all omit BOTH keys — this supersedes B3's own
+unconditional default of 4 (a standoff box + Main Plate box alone is no
+longer sufficient). The corner formula itself (Main Plate footprint inset)
+is completely unchanged — see test_geometry_frame_standoff_corners_b1.py
+for that coverage. Fixture numbers: standoff 5/5/25, plate 100/100/4 ->
+offsets (±47.5, ±47.5, 0). Never 230, never an invented Rooster count.
 
-Fixtures here default `count=4` (B4-min superseded the old "no count
-needed" default of 4 — a standoff with no declared count no longer gets
-copies at all; that regression is exercised in
-test_geometry_standoff_count_gate_b4.py, not here) so these tests keep
-proving the CORNER FORMULA itself, independent of the count gate.
-
-  P1  Standoff box (count=4) + Main Plate 100x100 + standoff 5x5 ->
-      solidCopies==4, offsets match the formula, all four sign
-      combinations present
-  P2  Missing standoff box or missing plate L×W -> no solidCopies
-  P3  Standoff L or W larger than plate -> no copies (fail closed)
-  P4  Offsets differ from motors' quad-X points (same fixture wheelbase
-      230 present alongside)
-  P5  Exactly one frame_standoff node
-  P6  Motors/propellers/frame_arm/prop_adapter copy regressions still
+  P1  Standoff box + Main Plate 100x100 + standoff 5x5 + count=4 ->
+      solidCopies==4, offsets (±47.5, ±47.5, 0)
+  P2  Same boxes, count ABSENT -> no solidCopies (regression vs B3's own
+      default — this must NOT stay green)
+  P3  Same boxes, count=6 (or 3) -> no copies
+  P4  count=4 but missing standoff box or plate L×W -> no copies
+  P5  count=4 but standoff larger than plate -> no copies
+  P6  Offsets still != motors' quad-X points (wheelbase 230 present)
+  P7  Exactly one frame_standoff node
+  P8  Motors/propellers/frame_arm/prop_adapter copy regressions still
       green
 """
 from __future__ import annotations
+
+import pytest
 
 from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
 from jarvis.schemas.state_schema import DesignProperties, ProjectState
@@ -122,56 +119,76 @@ def _nodes_by_id(state: ProjectState) -> dict[str, dict]:
     return {n["id"]: n for n in project_spatial_nodes(state)}
 
 
-def test_p1_standoff_and_plate_boxes_yield_4_corner_offsets():
+def test_p1_count_4_yields_corner_copies():
     nodes = _nodes_by_id(_state({
-        "frame_standoff": _standoff_spec(),
+        "frame_standoff": _standoff_spec(count=4.0),
         "frame_plate": _plate_spec(),
     }))
     standoff = nodes["frame_standoff"]
     assert standoff["solidCopies"] == 4
     offsets = standoff["solidCopyOffsetsMm"]
-    assert len(offsets) == 4
     expected = {(47.5, 47.5), (47.5, -47.5), (-47.5, -47.5), (-47.5, 47.5)}
     actual = {(o["xMm"], o["yMm"]) for o in offsets}
     assert actual == expected
-    assert all(o["zMm"] == 0.0 for o in offsets)
 
 
-def test_p2_missing_standoff_or_plate_geometry_yields_no_copies():
+def test_p2_count_absent_yields_no_copies_regression_vs_b3_default():
+    nodes = _nodes_by_id(_state({
+        "frame_standoff": _standoff_spec(count=None),
+        "frame_plate": _plate_spec(),
+    }))
+    standoff = nodes["frame_standoff"]
+    # B3 used to draw 4 unconditionally here — B4-min removes that default.
+    assert "solidCopies" not in standoff
+    assert "solidCopyOffsetsMm" not in standoff
+    # The single box is still honestly drawn — just never copied.
+    assert standoff["geometry"] == {"shape": "box", "length_mm": 5.0, "width_mm": 5.0, "height_mm": 25.0}
+
+
+@pytest.mark.parametrize("count", [3, 6])
+def test_p3_count_not_4_yields_no_copies(count):
+    nodes = _nodes_by_id(_state({
+        "frame_standoff": _standoff_spec(count=count),
+        "frame_plate": _plate_spec(),
+    }))
+    standoff = nodes["frame_standoff"]
+    assert "solidCopies" not in standoff
+    assert "solidCopyOffsetsMm" not in standoff
+
+
+def test_p4_count_4_but_missing_standoff_or_plate_geometry_yields_no_copies():
     no_standoff_geom = _nodes_by_id(_state({
-        "frame_standoff": ComponentSpec(suggested_key="frame_standoff", completeness="medium"),
+        "frame_standoff": ComponentSpec(
+            suggested_key="frame_standoff", completeness="medium",
+            properties={"count": PropertyValue(value=4, unit="", source="declared")},
+        ),
         "frame_plate": _plate_spec(),
     }))
     assert "solidCopies" not in no_standoff_geom["frame_standoff"]
 
-    no_plate = _nodes_by_id(_state({"frame_standoff": _standoff_spec()}))
+    no_plate = _nodes_by_id(_state({"frame_standoff": _standoff_spec(count=4.0)}))
     assert "solidCopies" not in no_plate["frame_standoff"]
 
     plate_no_lxw = _nodes_by_id(_state({
-        "frame_standoff": _standoff_spec(),
+        "frame_standoff": _standoff_spec(count=4.0),
         "frame_plate": _plate_spec(length_mm=None, width_mm=None, height_mm=4.0),
     }))
     assert "solidCopies" not in plate_no_lxw["frame_standoff"]
 
 
-def test_p3_standoff_larger_than_plate_fails_closed():
-    nodes_l = _nodes_by_id(_state({
-        "frame_standoff": _standoff_spec(length_mm=200.0),
-        "frame_plate": _plate_spec(),
-    }))
-    assert "solidCopies" not in nodes_l["frame_standoff"]
-    assert "solidCopyOffsetsMm" not in nodes_l["frame_standoff"]
-
-    nodes_w = _nodes_by_id(_state({
-        "frame_standoff": _standoff_spec(width_mm=200.0),
-        "frame_plate": _plate_spec(),
-    }))
-    assert "solidCopies" not in nodes_w["frame_standoff"]
-
-
-def test_p4_offsets_differ_from_motors_quad_x_points():
+def test_p5_count_4_but_standoff_larger_than_plate_fails_closed():
     nodes = _nodes_by_id(_state({
-        "frame_standoff": _standoff_spec(),
+        "frame_standoff": _standoff_spec(length_mm=200.0, count=4.0),
+        "frame_plate": _plate_spec(),
+    }))
+    standoff = nodes["frame_standoff"]
+    assert "solidCopies" not in standoff
+    assert "solidCopyOffsetsMm" not in standoff
+
+
+def test_p6_offsets_differ_from_motors_quad_x_points():
+    nodes = _nodes_by_id(_state({
+        "frame_standoff": _standoff_spec(count=4.0),
         "frame_plate": _plate_spec(),
         "motors": _motors_spec(),
         "frame": _frame_spec(),
@@ -179,27 +196,26 @@ def test_p4_offsets_differ_from_motors_quad_x_points():
     standoff_offsets = nodes["frame_standoff"]["solidCopyOffsetsMm"]
     motors_offsets = nodes["motors"]["solidCopyOffsetsMm"]
     assert standoff_offsets != motors_offsets
-    # Standoff corners come from the plate footprint, never the wheelbase.
     for o in standoff_offsets:
         assert abs(o["xMm"]) == 47.5
         assert abs(o["yMm"]) == 47.5
 
 
-def test_p5_exactly_one_frame_standoff_node():
+def test_p7_exactly_one_frame_standoff_node():
     node_list = project_spatial_nodes(_state({
-        "frame_standoff": _standoff_spec(),
+        "frame_standoff": _standoff_spec(count=4.0),
         "frame_plate": _plate_spec(),
     }))
     assert sum(1 for n in node_list if n["id"] == "frame_standoff") == 1
 
 
-def test_p6_motors_propellers_arm_adapter_regressions_still_green():
+def test_p8_motors_propellers_arm_adapter_regressions_still_green():
     nodes = _nodes_by_id(_state({
         "motors": _motors_spec(),
         "propellers": _propellers_spec(),
         "frame_arm": _frame_arm_spec(),
         "prop_adapter": _prop_adapter_spec(),
-        "frame_standoff": _standoff_spec(),
+        "frame_standoff": _standoff_spec(count=4.0),
         "frame_plate": _plate_spec(),
         "frame": _frame_spec(),
     }))
@@ -211,6 +227,5 @@ def test_p6_motors_propellers_arm_adapter_regressions_still_green():
     assert nodes["propellers"]["solidCopyOffsetsMm"] == quad_x_offsets
     assert nodes["frame_arm"]["solidCopyOffsetsMm"] == quad_x_offsets
     assert nodes["prop_adapter"]["solidCopyOffsetsMm"] == quad_x_offsets
-    # Standoff still stationed on the plate footprint, not the quad-X set.
     assert nodes["frame_standoff"]["solidCopies"] == 4
     assert nodes["frame_standoff"]["solidCopyOffsetsMm"] != quad_x_offsets

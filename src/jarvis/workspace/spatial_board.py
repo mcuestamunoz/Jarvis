@@ -459,15 +459,16 @@ def _solid_copies(
             return None
         return count
     if spec.suggested_key == "frame_standoff":
-        # Frame standoff x4 at Main Plate corners B1 — a DIFFERENT gate and
-        # formula from every branch above: fixed count of 4 this Buy, never
-        # read from motors/motor_count/quad_x/wheelbase (that math belongs
-        # to the quad-X families only — a standoff sandwich post is a
-        # Main-Plate-footprint fact, not a propulsion one). Count and
+        # Frame standoff x4 at Main Plate corners B1 / Standoff count gate
+        # B4-min — a DIFFERENT gate and formula from every branch above:
+        # never read from motors/motor_count/quad_x/wheelbase (that math
+        # belongs to the quad-X families only — a standoff sandwich post is
+        # a Main-Plate-footprint fact, not a propulsion one). Count and
         # offsets are computed by the SAME helper
         # (`_frame_standoff_corner_offsets_mm`) so they can never drift
-        # apart; a missing/non-box standoff or Main Plate, or a standoff
-        # footprint larger than the plate in either axis, omits both.
+        # apart; a missing/non-4 declared `count`, a missing/non-box
+        # standoff or Main Plate, or a standoff footprint larger than the
+        # plate in either axis, all omit both — never a silent default of 4.
         if _frame_standoff_corner_offsets_mm(spec, components) is not None:
             return _STANDOFF_CORNER_COUNT
         return None
@@ -522,11 +523,14 @@ def _quad_x_station_points(wheelbase_mm: float) -> list[dict[str, float]]:
     ]
 
 
-# Frame standoff x4 at Main Plate corners B1 — a fixed count, unrelated to
-# the quad-X families above. `_STANDOFF_CORNER_COUNT` is a separate
-# constant (even though it happens to also be 4) to keep this concept
-# textually distinct from `_QUAD_X_STATION_COUNT` — a future N!=4 declared
-# `standoff_count` Buy changes only this constant/branch, never the
+# Frame standoff x4 at Main Plate corners B1 / Standoff count gate B4-min —
+# `_STANDOFF_CORNER_COUNT` is the ONLY corner layout size this Buy knows
+# how to draw, never a default emitted when `count` is absent (B3's own
+# unconditional-4 behavior is superseded — see
+# `_frame_standoff_corner_offsets_mm`'s own count read below). A separate
+# constant from `_QUAD_X_STATION_COUNT` (even though it happens to also be
+# 4) keeps this concept textually distinct — a future N!=4 declared
+# `standoff_count` layout Buy changes only this constant/branch, never the
 # quad-X ones.
 _STANDOFF_CORNER_COUNT = 4
 
@@ -560,12 +564,29 @@ def _frame_standoff_corner_offsets_mm(
 ) -> list[dict[str, float]] | None:
     """The ONE gate + formula shared by `_solid_copies` (decides
     ``count == 4``) and `_solid_copy_offsets_mm` (emits the actual points)
-    for `frame_standoff`, so the two can never drift apart. Requires the
-    standoff's OWN geometry to be a box (`_geometry_from_spec`) AND the
-    literal `frame_plate` key (Main Plate — never an ordinal sibling like
-    `frame_plate_2`) to exist with a box geometry. Fixed count of 4 this
-    Buy — never reads motors/motor_count/quad_x/wheelbase; a declared,
-    generalist `standoff_count` is a later, separate Buy."""
+    for `frame_standoff`, so the two can never drift apart.
+
+    Standoff count gate B4-min: requires the standoff's OWN declared
+    ``properties["count"]`` to parse (same whole-number-in-[2,16] gate as
+    every other family, `_parse_solid_copies_count`) to EXACTLY 4 — the
+    same source `frame_part_specs_from_catalog` already projects from a
+    catalog `FrameSpec.standoff_count` when a seed states it. Missing,
+    non-numeric, out-of-range, or any N != 4 all omit — this deliberately
+    supersedes the prior Buy's unconditional 4 (B3, Frame standoff x4 at
+    Main Plate corners B1); there is no default here anymore. Never reads
+    `library`/`get_frame` directly, never `motor_count`/`quad_x`/
+    `current_parameters` — this is a Main-Plate-footprint fact tied to the
+    standoff's own declared property, not a propulsion one.
+
+    Also requires the standoff's OWN geometry to be a box
+    (`_geometry_from_spec`) AND the literal `frame_plate` key (Main Plate
+    — never an ordinal sibling like `frame_plate_2`) to exist with a box
+    geometry — unchanged from B3. N != 4 layouts (a declared row, or
+    Engineer-typed per-post offsets) are a later, separate Buy."""
+    count_prop = (standoff_spec.properties or {}).get("count")
+    count = _parse_solid_copies_count(count_prop.value if count_prop is not None else None)
+    if count != _STANDOFF_CORNER_COUNT:
+        return None
     standoff_geometry = _geometry_from_spec(standoff_spec)
     if standoff_geometry is None or standoff_geometry.get("shape") != "box":
         return None

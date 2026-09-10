@@ -80,5 +80,23 @@ export function useBoardNodes(projectId: string | null) {
     [projectId],
   );
 
-  return { nodes, preview, commit, loading, error };
+  // Board drag → Continuity pose B1 — after a successful pose POST,
+  // `ProjectState` on disk is the thing that changed, not this hook's own
+  // in-memory `nodes` (that's exactly the "not localStorage SoT" lock).
+  // `refetch` re-runs the same GET the initial load already used, so a
+  // pose write shows up the same honest way a page reload would — no
+  // separate optimistic-update path to keep in sync.
+  const refetch = useCallback(() => {
+    if (!projectId) return;
+    fetchProjectNodes(projectId)
+      .then((incoming) => {
+        setNodes(applyOverlay(incoming, loadOverlay(projectId)));
+        setError(null);
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err.message : "error");
+      });
+  }, [projectId]);
+
+  return { nodes, preview, commit, refetch, loading, error };
 }

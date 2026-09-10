@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mmToPx, solidExtentPx, solidWrapperPx } from "./scene3dScale";
+import { clampZoom, mmToPx, pxToMm, solidExtentPx, solidWrapperPx, ZOOM_MAX, ZOOM_MIN } from "./scene3dScale";
 
 describe("mmToPx", () => {
   it("U1: mmToPx(127) at 0.5 -> 63.5, not capped", () => {
@@ -8,6 +8,45 @@ describe("mmToPx", () => {
 
   it("U2: mmToPx(300) at 0.5 -> 150, must not match GLYPH's 120 cap", () => {
     expect(mmToPx(300, 0.5)).toBe(150);
+  });
+});
+
+describe("pxToMm", () => {
+  it("Board drag → Continuity pose B1 — inverse of mmToPx at the default scale", () => {
+    expect(pxToMm(63.5, 0.5)).toBeCloseTo(127);
+    expect(pxToMm(150, 0.5)).toBeCloseTo(300);
+  });
+
+  it("round-trips mmToPx for arbitrary mm/scale combinations", () => {
+    for (const mm of [0, 1, 5.5, -12.3, 47.5, 230]) {
+      for (const pxPerMm of [0.25, 0.5, 1, 2]) {
+        expect(pxToMm(mmToPx(mm, pxPerMm), pxPerMm)).toBeCloseTo(mm);
+      }
+    }
+  });
+
+  it("defaults to SCENE3D.pxPerMm (0.5) when no scale is given", () => {
+    expect(pxToMm(mmToPx(81.317))).toBeCloseTo(81.317);
+  });
+});
+
+describe("clampZoom", () => {
+  it("U1: Situar UX B1 — widened bounds allow values above the former max 2 and below the former min 0.5", () => {
+    expect(ZOOM_MIN).toBe(0.25);
+    expect(ZOOM_MAX).toBe(4);
+    expect(clampZoom(10)).toBe(4);
+    expect(clampZoom(0.01)).toBe(0.25);
+    expect(clampZoom(3)).toBe(3); // above the OLD max 2, allowed now
+    expect(clampZoom(0.3)).toBe(0.3); // below the OLD min 0.5, allowed now
+  });
+
+  it("passes an in-range value through unchanged", () => {
+    expect(clampZoom(1)).toBe(1);
+  });
+
+  it("respects explicit min/max overrides", () => {
+    expect(clampZoom(5, 0.5, 2)).toBe(2);
+    expect(clampZoom(0.1, 0.5, 2)).toBe(0.5);
   });
 });
 

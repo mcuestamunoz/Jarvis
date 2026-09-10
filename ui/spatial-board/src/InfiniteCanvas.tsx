@@ -26,7 +26,7 @@ function shouldIgnorePan(target: EventTarget | null): boolean {
 export function InfiniteCanvas() {
   const boardRef = useRef<HTMLDivElement>(null);
   const { projects, current, projectId, select, error } = useProjects();
-  const { nodes, preview, commit, loading, error: nodesError } = useBoardNodes(projectId);
+  const { nodes, preview, commit, refetch, loading, error: nodesError } = useBoardNodes(projectId);
   const { transform, setTransform, zoomToPoint, reset, fit, css } =
     useCanvasTransform();
   const [viewport, setViewport] = useState({ width: 800, height: 600 });
@@ -211,7 +211,15 @@ export function InfiniteCanvas() {
           onNavigate={navigateKeepZoom}
         />
       </div>
-      {show3D ? <Scene3D nodes={nodes} selectedId={selectedId} onSelect={onSelect} /> : null}
+      {show3D ? (
+        <Scene3D
+          nodes={nodes}
+          selectedId={selectedId}
+          onSelect={onSelect}
+          projectId={projectId}
+          onPoseCommitted={refetch}
+        />
+      ) : null}
     </div>
   );
 }

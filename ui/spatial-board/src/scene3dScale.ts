@@ -15,6 +15,37 @@ export function mmToPx(mm: number, pxPerMm: number = SCENE3D.pxPerMm): number {
   return mm * pxPerMm;
 }
 
+/**
+ * Board drag → Continuity pose B1 — the inverse of `mmToPx`, so a drag
+ * gesture can turn a world-px delta back into declared mm.
+ *
+ * Board Situar free camera B1: originally valid ONLY in the untilted
+ * "situar" camera (`rotateX: 0, rotateY: 0`), where the world transform is
+ * a pure 2D scale+translate and a screen-px delta maps linearly to a
+ * world-px delta with no rotation/perspective distortion to invert. The
+ * Engineer's free-camera ask means this is now used at ANY tilt too — an
+ * accepted, documented ORTHOGRAPHIC-STYLE APPROXIMATION (see
+ * `boardPoseDrag.ts`'s own module doc), not a true perspective
+ * unprojection.
+ */
+export function pxToMm(px: number, pxPerMm: number = SCENE3D.pxPerMm): number {
+  return px / pxPerMm;
+}
+
+/**
+ * Situar UX B1 — widened from the original 0.5–2 cap so the Engineer can
+ * actually zoom in enough to place small parts (adapters, standoffs)
+ * precisely. `pxToMm`/`computeDragPosePayload` already read the LIVE
+ * `zoom` value, so widening this range needed no change to the drag math
+ * itself — only to how far `onWheel` is allowed to push it.
+ */
+export const ZOOM_MIN = 0.25;
+export const ZOOM_MAX = 4;
+
+export function clampZoom(zoom: number, min: number = ZOOM_MIN, max: number = ZOOM_MAX): number {
+  return Math.min(max, Math.max(min, zoom));
+}
+
 export type SolidExtentPx = { x: number; y: number; z: number };
 
 /**

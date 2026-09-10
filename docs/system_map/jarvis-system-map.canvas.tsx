@@ -11,10 +11,9 @@
  * Updated 2026-08-20 G21/G22 (C-030 catalog bind UX) · G23 (C-032 REMOVED — FN-015 deleted).
  * Updated 2026-09-04→05 — v0.3.6 / claim hygiene / Structure plate multiplicity (2294).
  * Updated 2026-09-06→07 — Spatial board visor + Geometry representar (2310→2336).
- * Updated 2026-09-08→10 — Continuity spatial assembly → tag v0.4.0 / suite 2652:
- * envelopes + pose + multi-hop + assembly root + solidCopies (quad-X +
- * standoff corners) + plate/kit/loose subjects. No new C-xxx (C-094-class).
- * PRIORIDAD = wait Engineer ★ (Board drag→pose concept). Fit VERIFIED QUEUED.
+ * Updated 2026-09-08→10 — Continuity spatial assembly → v0.4.0; Board Situar → v0.4.1
+ * (suite 2669 / UI 80): C-113 drag→pose + free camera + standoff count gate.
+ * PRIORIDAD = Fit VERIFIED (investigation). Cola: IDLE part count / N≠4 / sourced #4.
  * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's queue.
  * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
  * Internal G23 anti-LLM gate (confusion phrase → re-ask / project_status) is not a C-xxx edge.
@@ -443,15 +442,14 @@ export default function JarvisSystemMapCanvas() {
 
       <Callout
         tone="info"
-        title="Product queue — Continuity spatial assembly SHIPPED (v0.4.0 · suite 2652)"
+        title="Product queue — Board Situar SHIPPED (v0.4.1 · suite 2669 · UI 80)"
       >
-        Feature closed: situar el mapa — envelopes + pose + multi-hop +
-        Main Plate root + solidCopies (motors/props/arms/adapter on X;
-        standoffs ×4 on Main Plate corners). No new C-xxx. Lock:
+        Continuity spatial assembly + C-113 Situar (drag→pose, free camera,
+        screen-plane) + standoff count gate. Lock:
         .jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md.
-        PRIORIDAD: wait Engineer ★ — Board drag/resize → same writers
-        (concept note) or cola (standoff_count / plate noun / sourced #4).
-        Fit VERIFIED QUEUED. C-081 / C-108 deferred. HD-* never PRIORIDAD
+        PRIORIDAD: Fit VERIFIED (investigation — beyond “cabe” screening).
+        Cola: IDLE part count / N≠4 standoffs / sourced #4 / LLM pending deactivate.
+        C-081 / C-108 deferred. HD-* never PRIORIDAD
         without lab. Board B1 layout-on-disk = named debt.
       </Callout>
 
@@ -525,13 +523,12 @@ export default function JarvisSystemMapCanvas() {
         confusion phrases → short re-ask (wizard) or Continuity (IDLE).
       </Callout>
 
-      <Callout tone="success" title="Shipped — Continuity spatial assembly @ v0.4.0 (2026-09-08→10)">
-        Envelope declare · pose (electronics / plate / kit / loose) ·
-        Scene3D-from-pose · multi-hop · assembly root · motor/prop/arm/adapter
-        X · standoff Main Plate corners · screening “cabe” B1-min. Open:
-        Board drag→writers · standoff_count · plate noun · sourced dims ·
-        fit VERIFIED. Registry unchanged — 63 connected · 1 removed · 2
-        partial. Suite 2652.
+      <Callout tone="success" title="Shipped — Continuity + Board Situar @ v0.4.1 (2026-09-10)">
+        Envelope declare · pose · Scene3D-from-pose · multi-hop · assembly root ·
+        visor X · standoff corners · screening “cabe” B1-min · **C-113 Situar**
+        (free camera, screen-plane drag) · standoff count gate. Open:
+        Fit VERIFIED · IDLE part count · N≠4 · sourced dims. Registry:
+        63 connected · 1 removed · 2 partial (+ C-113). Suite 2669 · UI 80.
       </Callout>
 
       {filter !== "forbidden" ? (

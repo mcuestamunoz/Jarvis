@@ -305,9 +305,12 @@ html, body, #root {
 
 /* Board 3D solids B1 — a sibling pane below the 2D viewport, NOT inside
    .sb-world (mixing 2D absolute layout with preserve-3d on the same nodes
-   is not viable). Presentation only: no pose, no "cabe", no fit claim. */
+   is not viable). Presentation only: no pose, no "cabe", no fit claim.
+   Situar UX B1: default height is a real, usable pane (>=420px, capped so
+   it doesn't dominate a short viewport); Situar ON expands it further
+   (>=56vh) so a genuine top-down placement pass has room to work in. */
 .sb-scene3d {
-  height: 260px;
+  height: max(420px, min(50vh, 640px));
   flex-shrink: 0;
   overflow: hidden;
   position: relative;
@@ -315,6 +318,10 @@ html, body, #root {
   border-top: 1px solid #2a2a2a;
   perspective: 900px;
   cursor: grab;
+}
+
+.sb-scene3d--situar {
+  height: max(420px, 56vh);
 }
 
 .sb-scene3d__world {
@@ -357,4 +364,74 @@ html, body, #root {
 .sb-solid--selected .sb-solid__disk-face {
   border-color: #f0c419;
   border-width: 2px;
+}
+
+/* Board drag → Continuity pose B1 — minimal situar affordances. Draggable
+   = eligible singleton with an origin already resolved. Needs-origin =
+   eligible singleton with no origin yet — clicking it opens the small
+   picker instead of arming a drag (never a silent default origin). */
+.sb-solid--draggable {
+  cursor: grab;
+}
+
+.sb-solid--needs-origin .sb-solid__face,
+.sb-solid--needs-origin .sb-solid__disk-face {
+  border-style: dashed;
+}
+
+.sb-scene3d__situar-toggle {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  font-size: 12px;
+  padding: 4px 8px;
+  background: #1f1f1f;
+  color: #e0e0e0;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sb-scene3d__situar-toggle--on {
+  background: #f0c419;
+  color: #161616;
+  border-color: #f0c419;
+}
+
+/* Situar free camera B1 — the toggle no longer changes the camera, so a
+   short hint replaces the old "top-down" affordance to explain the three
+   gestures that now coexist. */
+.sb-scene3d__situar-hint {
+  position: absolute;
+  top: 8px;
+  left: 76px;
+  right: 8px;
+  z-index: 2;
+  font-size: 11px;
+  color: #9a9a9a;
+  pointer-events: none;
+}
+
+.sb-scene3d__origin-picker,
+.sb-scene3d__pose-error {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 2;
+  font-size: 12px;
+  padding: 6px 8px;
+  background: #1f1f1f;
+  color: #e0e0e0;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sb-scene3d__pose-error {
+  color: #e07a7a;
+  border-color: #e07a7a;
 }

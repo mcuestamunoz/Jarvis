@@ -8,8 +8,8 @@ Every directed edge in Jarvis that carries control, data, and/or state, as a fir
 CONNECTIONS.md
 │
 ├── Canonical registry  ← THIS SECTION ONLY defines the connection count
-│   └── 65 unique C-xxx  (ID space sparse through C-112)
-│         63 🟢 connected · 1 ⛔ removed (C-032) · 2 🟡 partial
+│   └── 66 unique C-xxx  (ID space sparse through C-113)
+│         64 🟢 connected · 1 ⛔ removed (C-032) · 2 🟡 partial
 │
 ├── Derived / detail views  ← may repeat C-xxx for readability
 │   └── "Detail — NN …" sections below; NOT additional connections
@@ -35,7 +35,9 @@ CONNECTIONS.md
 
 **Structure catalog + parts + IDLE rebind + plate multiplicity (2026-09-04→05):** No new C-xxx. **C-030** detail expanded to frame catalog pick / IDLE rebind / `frame_part_specs_from_catalog` (arm thickness + curated ordinal plates). Continuity/State/Acquisition maps synced. Structure close suite **2294**.
 
-**Spatial board visor + B3 honest absence (2026-09-05→06):** No new C-xxx. `jarvis board` + `spatial_board.project_spatial_nodes` = derived presentation (C-094 class). **Continuity spatial assembly → `v0.4.0` (2026-09-08→10):** same projector/DTO path — envelopes + `declaredBoxPose` + `solidCopies`/offsets (quad-X + Main Plate corners for standoffs); UI composes multi-hop + assembly root. Feature lock: `.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`. Suite **2652**. Queue: `docs/IMPLEMENTATION_TASKS.md`. Drag→writers = concept only ([nota](../../.jes/artifacts/engineer_note_board_drag_place_concept.md)) — not a C-xxx yet.
+**Spatial board visor + B3 honest absence (2026-09-05→06):** No new C-xxx. `jarvis board` + `spatial_board.project_spatial_nodes` = derived presentation (C-094 class). **Continuity spatial assembly → `v0.4.0` (2026-09-08→10):** same projector/DTO path — envelopes + `declaredBoxPose` + `solidCopies`/offsets (quad-X + Main Plate corners for standoffs); UI composes multi-hop + assembly root. Feature lock: `.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`. Suite **2652**. Queue: `docs/IMPLEMENTATION_TASKS.md`.
+
+**Board drag → Continuity pose B1 + Situar free camera (2026-09-10 → `v0.4.1`):** **C-113** — `POST /api/projects/:id/pose` → `board_pose_bridge.apply_drag_pose` → same `set_component_declared_box_pose` + persist to Vite `state_path`. Situar: free camera (no forced tilt), screen-plane drag follows cursor (inverse rotate), Shift = profundidad (`y_mm`), singleton-only, origin picker (never silent default). Standoff count gate B4-min. Suite **2669** · UI **80**. Artifacts: `.jes/artifacts/implementation_report_board_drag_pose_b1.md` · free-camera + situar UX reviews.
 
 **Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables. The only authoritative count is the length of **Canonical registry** below.
 
@@ -122,6 +124,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-110 | CLI `render_startup_context` | `ENGINEERING READINESS` block (9 lines, ERF-2) | 🟢 (ERF-1, updated ERF-2) |
 | C-111 | `electrical_compatibility` checks | `engineering_readiness` gap generation (4 electrical gap types) | 🟢 (ERF-2) |
 | C-112 | `orchestrator._handle_component_description` | ESC out-of-scope explicit save (`OUT_OF_SCOPE_EXPLICIT_SAVE_KEYS`) | 🟢 (ERF-2, FN-ESC) |
+| C-113 | Board `Scene3D` situar drag (`POST /api/projects/:id/pose`) | `board_pose_bridge.apply_drag_pose` → `set_component_declared_box_pose` → `WorkspaceManager.save_state` | 🟢 (Board drag → Continuity pose B1) |
 
 ## Forbidden transitions (not registry edges)
 
@@ -966,5 +969,8 @@ These are gaps observed while building this registry — not claimed as connecti
 - **Plan/Handoff Context → DSE consumer** — **IMPLEMENTED (FN-024, C-105/C-106)**, closing C-042. **Help+Goal routing (H3/C-025/C-044)** — **IMPLEMENTED (FN-025)**, closing both. **Plan/Handoff Context → Iterate consumer (H4/C-043)** — **IMPLEMENTED (FN-026)**, via `handoff_matching.match_plan_lever` + `orchestrator._preseed_variable_from_handoff`. H1–H4 all closed; only H5 (C-081, below) remains. See `MISMATCHES.md` design appendix.
 - **Continuity → margin/goal "thread"** — `⚪ NOT IMPLEMENTED` in the sense that no data surface currently carries "we are worried about margin" across turns; C-081 is the read-side symptom.
 - **`ActionRouter` entry for `analyze`/`project_status`/`explore_design_space`/etc.** — `⚪ NOT IMPLEMENTED` by design (§1.4 dual-dispatch note) — these intents never touch `ActionRouter` at all, which is why the seam exists. Not a bug, listed for completeness.
-- **Spatial board visor → writers / DEFINE / catalog pick** — `⚪ NOT IMPLEMENTED` by design (U1 visor). `ui/spatial-board/` has GET only; slots are display-only. Layout overlay is `localStorage`, not `ProjectState`. Do **not** add a C-xxx for this absence.
-- **Board drag/resize → pose/envelope writers** — `⚪ NOT IMPLEMENTED` (Engineer concept 2026-09-10). Desired: gesture in mm frame commits via existing Continuity writers — not a second SoT. See `.jes/artifacts/engineer_note_board_drag_place_concept.md`.
+- **Spatial board visor → DEFINE / catalog pick** — still `⚪ NOT IMPLEMENTED` by design (U1). Slots remain display-only. Pose commit is the narrow exception **C-113** (Scene3D situar only); layout overlay stays `localStorage`, not `ProjectState`. Do **not** open DEFINE/catalog-from-card without a dedicated ★.
+- **Board drag → pose writer** — now `🟢 C-113` (Board drag → Continuity pose B1, 2026-09-10) — singleton solids only, "situar" mode, POST bridge. See the chronology entry above.
+- **Board resize → envelope writer** — still `⚪ NOT IMPLEMENTED`. Desired: resize handles on eligible solids commit L×W×H via `set_component_declared_box_envelope`, mirroring C-113's own pose bridge shape — a later, separate Buy (`B1+`), not folded into this one.
+- **Board drag on `solidCopies >= 2` station copies** — still `⚪ NOT IMPLEMENTED`, structurally: `isDraggableSolid` fails closed for any copy, since N copies share one identity and a per-copy pose mechanism has no schema today. Do **not** add a C-xxx for this absence without a dedicated multiplicity-pose ★ first.
+- **Board card-px (2D layout overlay) → any writer** — still `⚪ NOT IMPLEMENTED` by design (`localStorage` layout overlay stays presentation-only; C-113 only ever wires the 3D Scene3D pane, never `useNodeGestures`' 2D card drag).

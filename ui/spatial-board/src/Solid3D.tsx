@@ -9,6 +9,10 @@ type Props = {
   originX?: number;
   originY?: number;
   originZ?: number;
+  /** Board drag → Continuity pose B1 — situar mode only; undefined outside it. */
+  draggable?: boolean;
+  needsOrigin?: boolean;
+  onDragStart?: (event: React.MouseEvent, id: string) => void;
 };
 
 /**
@@ -20,19 +24,26 @@ type Props = {
  * this component has nothing to misuse into a fake axial extent even by
  * accident.
  */
-export function Solid3D({ id, geometry, selected, onSelect, originX = 0, originY = 0, originZ = 0 }: Props) {
+export function Solid3D({
+  id, geometry, selected, onSelect, originX = 0, originY = 0, originZ = 0,
+  draggable = false, needsOrigin = false, onDragStart,
+}: Props) {
   const extent = solidExtentPx(geometry);
 
   const handleMouseDown = (event: React.MouseEvent) => {
     event.stopPropagation();
     onSelect(id);
+    if (onDragStart) onDragStart(event, id);
   };
+
+  const modifierClass =
+    `${draggable ? " sb-solid--draggable" : ""}${needsOrigin ? " sb-solid--needs-origin" : ""}`;
 
   if (geometry.shape === "box") {
     const { x: w, y: d, z: h } = extent;
     return (
       <div
-        className={`sb-solid sb-solid--box${selected ? " sb-solid--selected" : ""}`}
+        className={`sb-solid sb-solid--box${selected ? " sb-solid--selected" : ""}${modifierClass}`}
         data-node-id={id}
         aria-current={selected ? "true" : undefined}
         onMouseDown={handleMouseDown}
@@ -53,7 +64,7 @@ export function Solid3D({ id, geometry, selected, onSelect, originX = 0, originY
   const size = extent.x;
   return (
     <div
-      className={`sb-solid sb-solid--disk${selected ? " sb-solid--selected" : ""}`}
+      className={`sb-solid sb-solid--disk${selected ? " sb-solid--selected" : ""}${modifierClass}`}
       data-node-id={id}
       aria-current={selected ? "true" : undefined}
       onMouseDown={handleMouseDown}

@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "v0.4.0 Continuity spatial assembly checkpoint. Next ★ Board drag→pose investigation.",
+  "cycle_intent": "Board drag pose B1 REVIEWED PASS @ 2668 — await Engineer smoke. LLM pending deactivate annotated.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "in_progress",
-  "current_mode": "Idle — wait Engineer star drag-place investigation (post v0.4.0)",
-  "active_operation": "idle_wait_engineer_star_board_drag_place_investigation",
+  "current_mode": "Idle — await Engineer smoke Situar (board_drag_pose_b1)",
+  "active_operation": "await_engineer_smoke_board_drag_pose_b1",
   "movement_trigger": {
-    "type": "engineer_star",
-    "note": "2026-09-10 docs synced + version 0.4.0 — next Board drag/resize → writers"
+    "type": "engineer_smoke",
+    "note": "2026-09-10 review PASS WITH NOTES — Situar battery/FC/ESC; LLM deactivate note filed"
   },
   "relevant_workflow_phases": [
     "Verification"
@@ -107,7 +107,9 @@
     "geometry_3d_placement_horizon": "★ LOCKED 2026-09-08 — visualizar-3D CLOSED; Continuity pose CLOSED @ 2456; demo reds closed; mapping path owns next queue",
     "geometry_board_css3d_solids_b1": "★ IMPLEMENTED REVIEWED PASS WITH NOTES — CLOSED (suite 2429) + Engineer Board smoke ACCEPT",
     "geometry_board_click_inspect_b1minus": "★ IMPLEMENTED REVIEWED PASS WITH NOTES — CLOSED (suite 2429) + Engineer Board smoke ACCEPT",
-    "geometry_assembly_fit_compare": "QUEUED STUB — DO NOT IMPLEMENT — later rung of 3D horizon (fit-as-default still FROZEN)",
+    "geometry_standoff_count_gate_b4": "★ IMPLEMENTED REVIEWED PASS WITH NOTES — CLOSED (suite 2661)",
+    "board_drag_pose_b1": "★ IMPLEMENTED REVIEWED PASS WITH NOTES — CLOSED (suite 2668) — smoke pending",
+    "llm_pending_deactivate": "NOTE FILED — engineer_note_llm_pending_deactivate.md — map uses then ★ deactivate/clean",
     "spatial_board_honest_absence_b3": "REVIEWED PASS WITH NOTES suite 2310 — closable (parallel board Buy)"
   },
   "required_artifacts": [

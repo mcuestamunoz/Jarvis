@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.4.0**
+**v0.4.1**
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -26,7 +26,7 @@ python -m jarvis.main --chat
 jarvis --chat
 ```
 
-**Pizarra** (visor 3D + Continuity spatial assembly; huecos de arquitectura = slots, no BOM; mutación = CLI / Continuity):
+**Pizarra** (visor 3D + Continuity spatial assembly; huecos de arquitectura = slots, no BOM; mutación = CLI / Continuity / Situar drag):
 
 ```bash
 jarvis board
@@ -47,23 +47,20 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
-## What v0.4.0 includes
+## What v0.4.1 includes
 
-- Everything through **v0.3.8** (Structure arc + spatial board projector), plus **Continuity spatial assembly** (*situar el mapa*):
-  - Declared / cited envelopes (battery, sensors, kit, plates, arm, adapter, standoff, cage, …)
-  - Continuity box-local pose (multi-hop) + Main Plate assembly root
-  - Visor multiplicity: motors / hélices / arms / adapter on quad-X; standoffs ×4 on Main Plate corners
-  - One BOM key per family — copies are presentation-only
-  - LLM does **not** invent millimetres
-- Feature lock: [`.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`](.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md)
-- Live suite **2652**. Card layout overlay still `localStorage` (B1 debt ≠ pose SoT)
-- Locks unchanged: Prop/Energy = HD-004 wall; System Optimization deferred until pain
+- Everything in **v0.4.0** (Continuity spatial assembly), plus Board **Situar**:
+  - **C-113** — Scene3D drag → `board_pose_bridge` → same `set_component_declared_box_pose` writer as CLI `declara…`
+  - Free camera while situating (no forced cenital); screen-plane drag follows the cursor; Shift = profundidad (Y)
+  - Situar UX: larger pane, zoom range, live preview
+  - Standoff count gate B4-min (`count==4` → corners; else omit)
+- Live suite **2669** · UI **80**
+- Locks unchanged: Prop/Energy = HD-004 wall; System Optimization deferred until pain; screening AABB ≠ fit VERIFIED
 
 ## Next (not in this tag)
 
-- Board **drag / resize → same pose/envelope writers** ([concept note](.jes/artifacts/engineer_note_board_drag_place_concept.md))
-- Declared `standoff_count` · plate label noun (`placa HD Cam`) · sourced dims #4
-- Fit VERIFIED still QUEUED
+- **Fit VERIFIED** (PRIORIDAD) — beyond `"cabe"` screening
+- IDLE frame-part count (`6 standoffs`) · N≠4 standoff layout · sourced dims #4 · LLM pending deactivate
 
 See `docs/IMPLEMENTATION_TASKS.md`.
 
@@ -83,6 +80,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.4.1` / `checkpoint-board-situar` — Board Situar drag→pose (C-113) + free camera + standoff count gate; suite **2669** · UI **80**.  
 `v0.4.0` / `checkpoint-continuity-spatial-assembly` — Continuity spatial assembly (*situar el mapa*); suite **2652**.  
 `v0.3.8` / `checkpoint-spatial-board-projector` — ship `spatial_board.py` (was gitignored); `/workspace/` ignore.  
 `v0.3.7` / `checkpoint-structure-representation-closed` — Structure representation arc closed (catalog→parts→rebind→plates); suite **2294**.  

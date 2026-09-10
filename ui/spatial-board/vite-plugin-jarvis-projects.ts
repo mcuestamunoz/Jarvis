@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import type { ServerResponse } from "node:http";
+import type { IncomingMessage, ServerResponse } from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -94,11 +94,11 @@ function pythonBin(): string {
   return "python3";
 }
 
-function projectNodes(statePath: string): { nodes: unknown } {
+function runPythonBridge(moduleArgs: string[]): { nodes: unknown } {
   const src = path.join(repoRoot(), "src");
   const result = spawnSync(
     pythonBin(),
-    ["-m", "jarvis.workspace.spatial_board", statePath],
+    ["-m", ...moduleArgs],
     {
       encoding: "utf8",
       cwd: repoRoot(),
@@ -117,6 +117,37 @@ function projectNodes(statePath: string): { nodes: unknown } {
   return JSON.parse(result.stdout) as { nodes: unknown };
 }
 
+function projectNodes(statePath: string): { nodes: unknown } {
+  return runPythonBridge(["jarvis.workspace.spatial_board", statePath]);
+}
+
+/**
+ * Board drag → Continuity pose B1 — the ONE mutation route this plugin
+ * exposes. Bridges to `jarvis.workspace.board_pose_bridge`, which does the
+ * REAL work (load -> `set_component_declared_box_pose` -> save -> reproject)
+ * — this function is just the same `spawnSync` shape `projectNodes`
+ * already uses, with one extra arg (the JSON payload). No LLM, no
+ * orchestrator, no second write path.
+ */
+function applyDragPose(statePath: string, payload: unknown): { nodes: unknown } {
+  return runPythonBridge([
+    "jarvis.workspace.board_pose_bridge",
+    statePath,
+    JSON.stringify(payload),
+  ]);
+}
+
+function readRequestBody(req: IncomingMessage): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", (chunk: Buffer) => {
+      data += chunk.toString("utf8");
+    });
+    req.on("end", () => resolve(data));
+    req.on("error", reject);
+  });
+}
+
 function sendJson(res: ServerResponse, body: unknown, status = 200) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -128,34 +159,76 @@ export function jarvisProjectsPlugin(): Plugin {
     name: "jarvis-projects",
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        if (req.method !== "GET" || !req.url) {
+        if (!req.url) {
           next();
           return;
         }
         const pathname = req.url.split("?")[0] ?? "";
-        if (pathname === "/api/projects") {
-          sendJson(res, {
-            workspace: workspaceRoot(),
-            projects: listProjects(),
-          });
-          return;
-        }
-        const nodesMatch = /^\/api\/projects\/([^/]+)\/nodes$/.exec(pathname);
-        if (nodesMatch) {
-          const id = decodeURIComponent(nodesMatch[1]);
-          const statePath = statePathFor(id);
-          if (!statePath) {
-            sendJson(res, { error: "project not found" }, 404);
+
+        if (req.method === "GET") {
+          if (pathname === "/api/projects") {
+            sendJson(res, {
+              workspace: workspaceRoot(),
+              projects: listProjects(),
+            });
             return;
           }
-          try {
-            sendJson(res, projectNodes(statePath));
-          } catch (err) {
-            const message = err instanceof Error ? err.message : "projector failed";
-            sendJson(res, { error: message }, 500);
+          const nodesMatch = /^\/api\/projects\/([^/]+)\/nodes$/.exec(pathname);
+          if (nodesMatch) {
+            const id = decodeURIComponent(nodesMatch[1]);
+            const statePath = statePathFor(id);
+            if (!statePath) {
+              sendJson(res, { error: "project not found" }, 404);
+              return;
+            }
+            try {
+              sendJson(res, projectNodes(statePath));
+            } catch (err) {
+              const message = err instanceof Error ? err.message : "projector failed";
+              sendJson(res, { error: message }, 500);
+            }
+            return;
           }
+          next();
           return;
         }
+
+        // Board drag → Continuity pose B1 — the ONE mutation route on this
+        // otherwise GET-only plugin. Narrow on purpose: exactly this one
+        // path, exactly this one shape ({component_key, origin_key, x_mm,
+        // y_mm, z_mm}), bridged straight to the existing
+        // `set_component_declared_box_pose` writer — no DEFINE, no catalog
+        // pick, no envelope/resize route (see CONNECTIONS.md C-113).
+        if (req.method === "POST") {
+          const poseMatch = /^\/api\/projects\/([^/]+)\/pose$/.exec(pathname);
+          if (poseMatch) {
+            const id = decodeURIComponent(poseMatch[1]);
+            const statePath = statePathFor(id);
+            if (!statePath) {
+              sendJson(res, { error: "project not found" }, 404);
+              return;
+            }
+            readRequestBody(req)
+              .then((body) => {
+                let payload: unknown;
+                try {
+                  payload = JSON.parse(body);
+                } catch {
+                  sendJson(res, { error: "invalid JSON body" }, 400);
+                  return;
+                }
+                try {
+                  sendJson(res, applyDragPose(statePath, payload));
+                } catch (err) {
+                  const message = err instanceof Error ? err.message : "pose write failed";
+                  sendJson(res, { error: message }, 400);
+                }
+              })
+              .catch(() => sendJson(res, { error: "failed to read request body" }, 400));
+            return;
+          }
+        }
+
         next();
       });
     },

@@ -77,7 +77,7 @@ Full detail: `00_entry/ENTRY_MAP.md` and `01_runtime/RUNTIME_MAP.md`; connection
 
 C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the same `HandoffContext` (Hybrid Operation-Scoped lifecycle — see `MISMATCHES.md`). **H1–H4 are all closed — 0 RED edges remain.** C-081 (H5) and C-108 remain 🟡 PARTIAL — **deferred map debt, not today's implementation queue.** Hardware lab is [`docs/HARDWARE_DEBT.md`](../HARDWARE_DEBT.md).
 
-**Product checkpoint `v0.4.0`:** [Continuity spatial assembly](../../.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md) (*situar el mapa*) — envelopes + pose + multi-hop + assembly root + visor copies (quad-X + standoff corners). Suite **2652**. No new C-xxx (C-094-class derived visor). **PRIORIDAD AHORA:** wait Engineer ★ — Board drag→pose investigation ([nota](../../.jes/artifacts/engineer_note_board_drag_place_concept.md)) or cola (`standoff_count` / plate noun / sourced #4). See `docs/IMPLEMENTATION_TASKS.md`. Spatial board remains a derived visor. Fit VERIFIED QUEUED.
+**Product checkpoint `v0.4.1`:** Continuity spatial assembly + Board Situar (**C-113** drag→pose, free camera) + standoff count gate. Suite **2669** · UI **80**. Feature lock: [Continuity spatial assembly](../../.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md). **PRIORIDAD AHORA:** Fit VERIFIED (investigation). Cola: IDLE part count · N≠4 standoffs · sourced #4. See `docs/IMPLEMENTATION_TASKS.md`. Spatial board remains a derived visor (mutation via C-113 only on Scene3D situar).
 
 ## Subsystem index
 
