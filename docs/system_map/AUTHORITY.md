@@ -25,6 +25,7 @@ This is not a convention that could quietly be violated — it is enforced **str
 | Does BOM line show `[sku]` honestly? | `project_closure._bom_sku_resolved` + `format_bom_lines` (motor/battery/propeller live re-check) | Inferring from `.name` shape; wiring `sku_resolved` into verdicts | ✅ display-only — never read by gap builders (Impl D + IC 3) |
 | Spatial board card payload / honest-absence slots? | `workspace/spatial_board.project_spatial_nodes` (read-only projector) | Visor writers; treating slots as BOM / ERF | ✅ two GETs only; slots = missing expected keys of **declared** `system_blocks` |
 | Spatial board layout `{x,y,w,h}`? | browser `localStorage` overlay (interim) | `ProjectState` / component writers | named debt B1 (`views/spatial_layout.json`) — not PRIORIDAD |
+| Board solid drag/resize → pose/envelope? | **not implemented** (concept) | inventing a second SoT in the UI | desired: gesture → existing Continuity writers ([nota](../../.jes/artifacts/engineer_note_board_drag_place_concept.md)) |
 
 **ERF-1 nuance (2026-08-18):** Continuity remains the sole authority for **human next-step copy**, but the **catalog-gap ranking decision** (genuine gap vs G9-B demoted PASS branch) is now sourced from `engineering_readiness` when `readiness=` is supplied (C-108, 🟡 PARTIAL — catalog branches only; blocking/FN-005/BOM/arch/optimization/fallback unchanged until Slice 4b). Gap registry ordering lives in C-107, not Continuity.
 

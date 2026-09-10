@@ -215,6 +215,17 @@ _PROP_ADAPTER_SKIP_PHRASES = frozenset({
     "despues", "después", "mas tarde", "más tarde", "no tengo", "no dispongo",
 })
 
+# Kit SKUs D B1 — the two kit holes eligible for catalog help-choose. Never
+# "esc in expected_keys" (that gate is prop_adapter-specific, propulsion
+# only) — a kit hardware wizard is always a pure single-key scope.
+_KIT_HARDWARE_KEYS = frozenset({"power_connector", "signal_harness"})
+
+# Geometry assembly fit B1-min — whole-word only, never a substring (so a
+# future word containing "cabe" cannot misfire); IDLE query, not a
+# declare-verb-gated action, so this is deliberately its own pattern, not
+# folded into IntentResolver.DECLARE_BLOCK_VERB_PATTERNS.
+_CABE_WORD_RE = re.compile(r"\bcabe\b", re.IGNORECASE)
+
 # ── Proactive question hints for component-driven blocks in build_startup_context ─
 _BLOCK_COMPONENT_HINTS: dict[str, str] = {
     "structure":  "describe el frame (material y masa). Ej: 'carbono 450g'",
@@ -902,18 +913,15 @@ class JarvisOrchestrator:
             runtime_state = self.state_manager.runtime_state
             current_session = runtime_state.session
         # ─────────────────────────────────────────────────────────────────────
-        # ── IDLE catalog rebind (B2 frame + B3 motors/propellers/battery):
-        # an EXPLICITLY named family phrase ("cambiar frame"/"cambiar motor"/
-        # "ayúdame a elegir batería"/…) reopens that family's existing
-        # catalog offer when architecture has **no** pending block
-        # (`_next_pending_block is None`) — even if the component is already
-        # catalog-bound. Mid-architecture phrases stay with FN-014 (wrong-
-        # block refuse / active-gap continue) — do not steal "definir
-        # motores" while propulsion is still the pending block.
-        # Checked BEFORE FN-005's bare help-choose chain so named
-        # "ayúdame a elegir motor" never falls into unnamed triage when
-        # rebind is eligible; bare "ayúdame a elegir" (resolver None) is
-        # unaffected.
+        # ── IDLE catalog rebind (B2 frame + B3 motors/propellers/battery
+        # + ESC visor rebind B1): an EXPLICITLY named family phrase
+        # ("cambiar frame"/"cambiar motor"/"cambiar esc"/…) reopens that
+        # family's existing catalog offer when architecture has **no**
+        # pending block (`_next_pending_block is None`) — even if the
+        # component is already catalog-bound. Mid-architecture phrases stay
+        # with FN-014. Checked BEFORE FN-005's bare help-choose chain so
+        # named "ayúdame a elegir motor" never falls into unnamed triage;
+        # bare "ayúdame a elegir" (resolver None) is unaffected.
         from jarvis.core.catalog_rebind_assist import resolve_idle_catalog_rebind
 
         if current_session.mode == OrchestratorMode.IDLE:
@@ -955,9 +963,17 @@ class JarvisOrchestrator:
                             result = self._offer_component_propeller_catalog(
                                 updated, ["propellers"]
                             )
-                        else:
+                        elif _rebind_key == "esc":
+                            result = self._offer_component_esc_catalog(
+                                updated, ["esc"]
+                            )
+                        elif _rebind_key == "battery":
                             result = self._offer_component_battery_catalog(
                                 updated, ["battery"]
+                            )
+                        else:
+                            raise AssertionError(
+                                f"unhandled idle catalog rebind key: {_rebind_key}"
                             )
                         self._track_turn(user_input, result)
                         return result
@@ -1004,6 +1020,35 @@ class JarvisOrchestrator:
             if pose_result is not None:
                 self._track_turn(user_input, pose_result)
                 return pose_result
+
+        # ─────────────────────────────────────────────────────────────────────
+        # ── Declared battery envelope + Main Plate L×W B1: IDLE "declara la
+        # batería/la placa principal L x W [x H] mm" / "quita el sobre de X"
+        # calls set_component_declared_box_envelope directly. Deterministic
+        # parse only (declared_envelope_declare_assist) — never LLM, never a
+        # catalog seed. Checked right after the pose bridge (which already
+        # returns None for any phrase carrying "respecto" — mutually
+        # exclusive gates), before FN-005's help-choose chain, same reason
+        # as every other deterministic IDLE bridge above.
+        if current_session.mode == OrchestratorMode.IDLE:
+            envelope_result = self._try_handle_declared_box_envelope(user_input)
+            if envelope_result is not None:
+                self._track_turn(user_input, envelope_result)
+                return envelope_result
+
+        # ─────────────────────────────────────────────────────────────────────
+        # ── Geometry assembly fit B1-min: IDLE whole-word "cabe" question →
+        # posed-box-vs-box AABB screening text. Deterministic parse only
+        # (never LLM, never a wizard). Checked right after the pose bridge
+        # (which already returns None for a bare "cabe" phrase — it never
+        # matches the pose grammar's own declare-verb gate), before FN-005's
+        # help-choose chain, same reason as every other deterministic IDLE
+        # bridge above.
+        if current_session.mode == OrchestratorMode.IDLE:
+            cabe_result = self._try_handle_cabe_screening(user_input)
+            if cabe_result is not None:
+                self._track_turn(user_input, cabe_result)
+                return cabe_result
 
         # ─────────────────────────────────────────────────────────────────────
         # ── FN-005: "ayúdame a elegir" while IDLE → open assisted motor flow ─
@@ -1999,6 +2044,165 @@ class JarvisOrchestrator:
             "status": "ok",
             "action": "component_description_saved",
             "message": message,
+        }
+
+    def _try_handle_declared_box_envelope(self, user_input: str) -> dict | None:
+        """Declared battery envelope + Main Plate L×W B1: IDLE "declara la
+        batería/la placa principal L x W [x H] mm" / "quita el sobre de X"
+        calls set_component_declared_box_envelope directly.
+
+        Deterministic parse only (declared_envelope_declare_assist) — never
+        LLM, never a catalog seed, never `wheelbase_mm`/`max_stack_height_mm`.
+        Returns None when the phrase isn't an envelope declare/clear at all,
+        so it falls through to normal routing unchanged (e.g. "declarar la
+        batería" alone still reaches FN-014's acquisition flow).
+        """
+        from jarvis.core.declared_envelope_declare_assist import parse_declared_envelope_declare
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        result = parse_declared_envelope_declare(user_input, components)
+        if result.kind == "NONE":
+            return None
+
+        if result.kind == "INCOMPLETE":
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": (
+                    "Indica sujeto (batería, placa, sensor o conector/harness ya declarado) "
+                    'y las medidas en mm, por ejemplo: "declara la batería 80 x 34 x 22 mm", '
+                    '"declara la placa principal 100 x 100 mm" o '
+                    '"declara el gps 40 x 40 x 12 mm".'
+                ),
+            }
+
+        if result.kind == "AMBIGUOUS_PLATE":
+            if result.candidates:
+                options = ", ".join(f"{k} ({label})" for k, label in result.candidates)
+                message = f"Hay varias placas declaradas. Indica cuál: {options}."
+            else:
+                message = (
+                    "No encontré esa placa declarada. "
+                    "Indica una clave ya declarada (por ejemplo frame_plate)."
+                )
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": message,
+            }
+
+        component_key = result.component_key
+        if component_key not in components:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": f"'{component_key}' aún no declarado — no se puede fijar el sobre.",
+            }
+
+        from jarvis.core.component_writers import set_component_declared_box_envelope
+
+        if result.kind == "SET":
+            height_mm = result.height_mm
+            thickness_note = False
+            if height_mm is None:
+                spec = components[component_key]
+                thickness_prop = (spec.properties or {}).get("thickness_mm")
+                height_mm = thickness_prop.value if thickness_prop is not None else None
+                thickness_note = True
+            length_mm, width_mm = result.length_mm, result.width_mm
+        else:
+            length_mm = width_mm = height_mm = None
+
+        try:
+            updated_state = set_component_declared_box_envelope(
+                project_state, component_key, length_mm, width_mm, height_mm
+            )
+        except ValueError as exc:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": str(exc),
+            }
+        self.workspace_manager.save_state(updated_state)
+
+        if result.kind == "SET":
+            def _fmt(value: float) -> str:
+                return str(int(value)) if float(value).is_integer() else str(value)
+
+            dims_desc = f"{_fmt(length_mm)} x {_fmt(width_mm)} x {_fmt(height_mm)} mm"
+            message = f"Declarado: {component_key} {dims_desc} (source=declared)."
+            if thickness_note:
+                message += f" Alto tomado del thickness_mm citado ({_fmt(height_mm)} mm)."
+        else:
+            message = f"Sobre declarado de {component_key} eliminado."
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": message,
+        }
+
+    def _try_handle_cabe_screening(self, user_input: str) -> dict | None:
+        """Geometry assembly fit B1-min: IDLE whole-word "cabe" question
+        ("cabe", "¿cabe?", "cabe el esc") → posed-box-vs-box AABB screening
+        text, deterministic only (never LLM). Checked right after the pose
+        declare/clear bridge (which already returns ``None`` for a bare
+        "cabe" phrase — it never matches the ``declara(r)``+``mm``+
+        ``respecto`` gate), before FN-005's help-choose chain.
+
+        Never opens a wizard, never added to ``COMPONENT_TERM_ALIASES``
+        (this is a query, not an acquisition target). Resolves the named
+        subject via the SAME subject-noun table ``mounted_on_declare_
+        assist`` already uses (fc/esc/motor(es)/bateria/sensor(es)/
+        helice(s)) — no second alias table. A bare "cabe" with no named
+        subject: answers for the only posed component if exactly one
+        exists, else asks which (never guesses).
+        """
+        if not _CABE_WORD_RE.search(user_input):
+            return None
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = project_state.design_properties.components or {}
+
+        from jarvis.core.motor_catalog_assist import _normalize_help
+        from jarvis.core.mounted_on_declare_assist import resolve_component_subject_noun
+        from jarvis.core.pose_envelope_screening import format_screening, screen_posed_envelope
+
+        normalized = _normalize_help(user_input)
+        subject_key = resolve_component_subject_noun(normalized)
+        if subject_key is not None and subject_key in components:
+            child_key = subject_key
+        else:
+            posed_keys = sorted(
+                k for k, spec in components.items()
+                if getattr(spec, "declared_box_pose", None) is not None
+            )
+            if len(posed_keys) == 1:
+                child_key = posed_keys[0]
+            elif not posed_keys:
+                return {
+                    "status": "ok",
+                    "action": "assembly_fit_screening",
+                    "message": (
+                        "Jarvis no verifica ensamblaje físico; ningún "
+                        "componente tiene pose declarada todavía."
+                    ),
+                }
+            else:
+                return {
+                    "status": "interactive",
+                    "action": "component_description_prompt",
+                    "message": f"¿Cuál componente? Tienen pose declarada: {', '.join(posed_keys)}.",
+                }
+
+        screening = screen_posed_envelope(components[child_key], components)
+        return {
+            "status": "ok",
+            "action": "assembly_fit_screening",
+            "message": format_screening(screening),
         }
 
     def _try_start_acquisition_from_mention(self, user_input: str) -> dict | None:
@@ -3119,7 +3323,7 @@ class JarvisOrchestrator:
         # frame_catalog clearing motor_suggestions).
         updated = session.model_copy(update={
             "motor_suggestions": suggestions, "propeller_suggestions": [], "battery_suggestions": [],
-            "frame_suggestions": [],
+            "frame_suggestions": [], "kit_hardware_suggestions": [], "esc_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         if not suggestions:
@@ -3249,6 +3453,8 @@ class JarvisOrchestrator:
             "motor_suggestions": [],
             "battery_suggestions": [],
             "frame_suggestions": [],
+            "kit_hardware_suggestions": [],
+            "esc_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -3353,6 +3559,8 @@ class JarvisOrchestrator:
             "motor_suggestions": [],
             "propeller_suggestions": [],
             "frame_suggestions": [],
+            "kit_hardware_suggestions": [],
+            "esc_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -3448,6 +3656,8 @@ class JarvisOrchestrator:
             "motor_suggestions": [],
             "propeller_suggestions": [],
             "battery_suggestions": [],
+            "kit_hardware_suggestions": [],
+            "esc_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -3534,6 +3744,177 @@ class JarvisOrchestrator:
             if components.get(k) is None or components[k].completeness == "low"
         ]
         still_missing = self._with_prop_adapter_ask(still_missing, expected_keys, updated_state)
+        if not still_missing:
+            self._set_pending_next_block()
+            result: dict[str, Any] = {
+                "status": "ok",
+                "action": "component_description_saved",
+                "message": saved_msg,
+            }
+            return self._append_arch_progress_hint(result)
+
+        follow_up = self._component_prompt_for_first_missing(still_missing)
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": f"{saved_msg} {follow_up}",
+        }
+
+    def _offer_kit_hardware_catalog(
+        self, session: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """Kit SKUs D B1: catalog list bridge for a kit single-key wizard
+        (``power_connector``/``signal_harness``) — mirrors
+        ``_offer_component_frame_catalog``, one shared function for both
+        holes (the ``kit_key`` is whatever ``expected_keys[0]`` is; the
+        library filter ensures the connector wizard never lists the harness
+        row and vice versa). Clears every peer suggestion list, including
+        the other kit hole's own — offering a new list retires any other
+        family's pending pick (★4 cross-family rule, unchanged).
+        """
+        from jarvis.core.kit_hardware_catalog_assist import (
+            build_kit_hardware_catalog_suggestions,
+            format_kit_hardware_catalog_suggestions,
+        )
+
+        kit_key = expected_keys[0]
+        suggestions = build_kit_hardware_catalog_suggestions(kit_key)
+        updated = session.model_copy(update={
+            "kit_hardware_suggestions": suggestions,
+            "motor_suggestions": [],
+            "propeller_suggestions": [],
+            "battery_suggestions": [],
+            "frame_suggestions": [],
+            "esc_suggestions": [],
+        })
+        self.state_manager.set_runtime_session(updated)
+        return {
+            "status": "interactive",
+            "action": "component_description_prompt",
+            "message": format_kit_hardware_catalog_suggestions(suggestions),
+            "kit_hardware_suggestions": suggestions,
+        }
+
+    def _apply_kit_hardware_catalog_pick(
+        self, suggestion: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """Kit SKUs D B1: bind a catalog pick for a kit single-key wizard —
+        mirrors ``_apply_component_frame_catalog_pick``'s shape, but the
+        writer is the same ``set_control_component`` the kit free-text
+        relabel already uses (no new physics writer) — a kit hole was
+        always display/BOM-only, never a calc/PASS input, so there is
+        nothing to recompute here, unlike the motor/battery picks.
+        """
+        from jarvis.core.catalog_bind import bind_kit_hardware_from_catalog
+
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": "No hay proyecto activo. Crea uno primero.",
+            }
+        spec = bind_kit_hardware_from_catalog(suggestion["name"])
+        updated_state = set_control_component(project_state, spec)
+        self.workspace_manager.save_state(updated_state)
+
+        cleared = self.state_manager.get_runtime_session().model_copy(
+            update={"kit_hardware_suggestions": []}
+        )
+        self.state_manager.set_runtime_session(cleared)
+
+        identity_bits = [b for b in (suggestion.get("manufacturer"), suggestion.get("model")) if b]
+        identity = " ".join(identity_bits) if identity_bits else suggestion.get("name", spec.suggested_key)
+        saved_msg = f"{spec.suggested_key.replace('_', ' ').capitalize()} elegido: {identity}."
+
+        components = updated_state.design_properties.components
+        still_missing = [
+            k for k in expected_keys
+            if components.get(k) is None or components[k].completeness == "low"
+        ]
+        if not still_missing:
+            self._set_pending_next_block()
+            result: dict[str, Any] = {
+                "status": "ok",
+                "action": "component_description_saved",
+                "message": saved_msg,
+            }
+            return self._append_arch_progress_hint(result)
+
+        follow_up = self._component_prompt_for_first_missing(still_missing)
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": f"{saved_msg} {follow_up}",
+        }
+
+    def _offer_component_esc_catalog(
+        self, session: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """ESC visor rebind B1: catalog list for the IDLE singleton ESC
+        wizard (``expected_keys == ["esc"]``). Suggestions come only from
+        ``build_esc_catalog_suggestions`` (``list_escs()``, no ranking).
+        Clears every peer suggestion list (★4).
+        """
+        from jarvis.core.esc_catalog_assist import (
+            build_esc_catalog_suggestions,
+            format_esc_catalog_suggestions,
+        )
+
+        suggestions = build_esc_catalog_suggestions()
+        updated = session.model_copy(update={
+            "esc_suggestions": suggestions,
+            "motor_suggestions": [],
+            "propeller_suggestions": [],
+            "battery_suggestions": [],
+            "frame_suggestions": [],
+            "kit_hardware_suggestions": [],
+        })
+        self.state_manager.set_runtime_session(updated)
+        return {
+            "status": "interactive",
+            "action": "component_description_prompt",
+            "message": format_esc_catalog_suggestions(suggestions),
+            "esc_suggestions": suggestions,
+        }
+
+    def _apply_component_esc_catalog_pick(
+        self, suggestion: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """ESC visor rebind B1: bind a catalog pick with ``base=`` the live
+        ESC spec so ``declared_box_pose`` / ``mounted_on`` survive. Writer is
+        the existing ``set_control_component``.
+        """
+        from jarvis.core.catalog_bind import bind_esc_from_catalog
+
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": "No hay proyecto activo. Crea uno primero.",
+            }
+        existing = project_state.design_properties.components.get("esc")
+        spec = bind_esc_from_catalog(suggestion["name"], base=existing)
+        updated_state = set_control_component(project_state, spec)
+        self.workspace_manager.save_state(updated_state)
+
+        cleared = self.state_manager.get_runtime_session().model_copy(
+            update={"esc_suggestions": []}
+        )
+        self.state_manager.set_runtime_session(cleared)
+
+        identity_bits = [b for b in (suggestion.get("manufacturer"), suggestion.get("model")) if b]
+        identity = " ".join(identity_bits) if identity_bits else suggestion.get("name", spec.suggested_key)
+        saved_msg = f"ESC elegido: {identity}."
+
+        components = updated_state.design_properties.components
+        still_missing = [
+            k for k in expected_keys
+            if components.get(k) is None or components[k].completeness == "low"
+        ]
         if not still_missing:
             self._set_pending_next_block()
             result: dict[str, Any] = {
@@ -3742,6 +4123,54 @@ class JarvisOrchestrator:
                 picked = frame_match_suggestion_by_input(user_input, session.frame_suggestions)
                 if picked is not None:
                     return self._apply_component_frame_catalog_pick(picked, expected_keys)
+
+        # Kit SKUs D B1: kit-hardware catalog help-choose / pick bridge —
+        # same ★4 gate shape as motors/propellers/battery/frame
+        # (_wants_catalog_help, not bare key membership), but scoped to
+        # expected_keys[0] being one of the two kit holes directly (never
+        # "esc in expected_keys" — that gate is prop_adapter/propulsion-
+        # specific and would be wrong here; a kit-hardware wizard is always
+        # a pure single-key scope). Reuses the SAME single shared assist
+        # module/offer/apply pair for both holes.
+        kit_hardware_wants_help = (
+            expected_keys
+            and expected_keys[0] in _KIT_HARDWARE_KEYS
+            and _wants_catalog_help(gate_components.get(expected_keys[0]))
+        )
+        if kit_hardware_wants_help or (
+            expected_keys and expected_keys[0] in _KIT_HARDWARE_KEYS and session.kit_hardware_suggestions
+        ):
+            from jarvis.core.kit_hardware_catalog_assist import (
+                is_help_choose_phrase as kit_hardware_is_help_choose_phrase,
+                match_suggestion_by_input as kit_hardware_match_suggestion_by_input,
+            )
+
+            if kit_hardware_wants_help and kit_hardware_is_help_choose_phrase(user_input):
+                return self._offer_kit_hardware_catalog(session, expected_keys)
+            if session.kit_hardware_suggestions:
+                picked = kit_hardware_match_suggestion_by_input(
+                    user_input, session.kit_hardware_suggestions
+                )
+                if picked is not None:
+                    return self._apply_kit_hardware_catalog_pick(picked, expected_keys)
+
+        # ESC visor rebind B1: singleton IDLE wizard only. ``"esc" in
+        # expected_keys`` is forbidden as the gate — that would steal picks
+        # inside the propulsion composite ["motors","propellers","esc"].
+        if expected_keys == ["esc"]:
+            from jarvis.core.esc_catalog_assist import (
+                is_help_choose_phrase as esc_is_help_choose_phrase,
+                match_suggestion_by_input as esc_match_suggestion_by_input,
+            )
+
+            if esc_is_help_choose_phrase(user_input):
+                return self._offer_component_esc_catalog(session, expected_keys)
+            if session.esc_suggestions:
+                picked = esc_match_suggestion_by_input(
+                    user_input, session.esc_suggestions
+                )
+                if picked is not None:
+                    return self._apply_component_esc_catalog_pick(picked, expected_keys)
 
         # ── Affirmative: user confirmed — emit context-specific prompt ────────
         if self._is_affirmative(user_input):

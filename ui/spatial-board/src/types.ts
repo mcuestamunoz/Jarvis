@@ -58,6 +58,16 @@ export type SpatialNode = SpatialRect & {
    * many solid copies to draw.
    */
   solidCopies?: number;
+  /**
+   * Visor X stations (Visor X stations from cited wheelbase B1). Present
+   * only alongside `solidCopies === 4`, and only when the sibling `frame`
+   * declares `configuration === "quad_x"` AND a finite positive
+   * `wheelbase_mm` (motor-to-motor). Four declared-mm points (L->+X,
+   * W->+Y, H->+Z; Z is 0 this Buy), length always matches `solidCopies`
+   * when present. Absent (any other N, or a missing/wrong frame fact) ->
+   * the visor keeps today's presentation row.
+   */
+  solidCopyOffsetsMm?: { xMm: number; yMm: number; zMm: number }[];
 };
 
 export type ContentBounds = {

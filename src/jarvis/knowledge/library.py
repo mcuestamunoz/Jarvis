@@ -267,6 +267,41 @@ class FrameSpec:
 
 
 @dataclass(frozen=True)
+class KitHardwareSpec:
+    """Kit SKUs D B1 — catalog entry for a kit-hole hardware item
+    (``power_connector``/``signal_harness``, ``kit_key`` below — the frozen
+    pair; the loader rejects any other value). Identity + the cited
+    electrical/physical IDENTIFYING facts only.
+
+    Deliberately NO geometry field on this type at all — not ``length_mm``,
+    not ``width_mm``, not ``height_mm``, not any ``diameter_*``: neither
+    seeded row states dimensions, and adding the field here would invite a
+    future seed to guess one rather than leave it honestly absent. A
+    cable's own length, when a page states one, is catalog-only
+    (``cable_length_options_mm``) — never a box axis; ``bind_kit_hardware_
+    from_catalog`` must never project it as ``length_mm``.
+    """
+
+    name: str
+    kit_key: str
+    manufacturer: str | None = None
+    model: str | None = None
+    part_number: str | None = None
+    color: str | None = None
+    pin_config: str | None = None
+    pin_count: int | None = None
+    pitch_mm: float | None = None
+    wire_gauge_awg: int | None = None
+    connector_gender: str | None = None
+    # Catalog-only — a cable length fact, never projected as a geometry
+    # property (see class docstring).
+    cable_length_options_mm: tuple[int, ...] | None = None
+    source_url: str | None = None
+    identity_status: str | None = None
+    source_note: str | None = None
+
+
+@dataclass(frozen=True)
 class PropellerSpec:
     """Catalog v1 (Impl A) entry: a real propeller."""
 
@@ -310,6 +345,7 @@ class ComponentLibrary:
         self._propellers: dict[str, PropellerSpec] | None = None
         self._escs: dict[str, EscSpec] | None = None
         self._frames: dict[str, FrameSpec] | None = None
+        self._kit_hardware: dict[str, KitHardwareSpec] | None = None
 
     # ── Materials ────────────────────────────────────────────────────────────
 
@@ -915,6 +951,91 @@ class ComponentLibrary:
         """Return True if *name* is in the frame library (no exception)."""
         try:
             self.get_frame(name)
+            return True
+        except KeyError:
+            return False
+
+    # ── Kit hardware (Kit SKUs D B1) ──────────────────────────────────────────
+    # One small, unified family for both kit holes (power_connector/
+    # signal_harness) — discriminated by each row's own `kit_key`, never two
+    # MotorSpec-sized families for two single-row, structurally-thin shapes.
+
+    _KIT_HARDWARE_KEYS: frozenset[str] = frozenset({"power_connector", "signal_harness"})
+
+    @staticmethod
+    def _kit_hardware_from_raw(name: str, data: dict) -> KitHardwareSpec:
+        kit_key = data.get("kit_key")
+        if kit_key not in ComponentLibrary._KIT_HARDWARE_KEYS:
+            allowed = ", ".join(sorted(ComponentLibrary._KIT_HARDWARE_KEYS))
+            raise ValueError(
+                f"Kit hardware '{name}': kit_key '{kit_key}' inválido — "
+                f"debe ser uno de: {allowed}."
+            )
+        cable_lengths = data.get("cable_length_options_mm")
+        return KitHardwareSpec(
+            name=name,
+            kit_key=kit_key,
+            manufacturer=data.get("manufacturer"),
+            model=data.get("model"),
+            part_number=data.get("part_number"),
+            color=data.get("color"),
+            pin_config=data.get("pin_config"),
+            pin_count=(
+                int(data["pin_count"]) if data.get("pin_count") is not None else None
+            ),
+            pitch_mm=(
+                float(data["pitch_mm"]) if data.get("pitch_mm") is not None else None
+            ),
+            wire_gauge_awg=(
+                int(data["wire_gauge_awg"]) if data.get("wire_gauge_awg") is not None else None
+            ),
+            connector_gender=data.get("connector_gender"),
+            cable_length_options_mm=(
+                tuple(int(x) for x in cable_lengths) if cable_lengths else None
+            ),
+            source_url=data.get("source_url"),
+            identity_status=data.get("identity_status"),
+            source_note=data.get("source_note"),
+        )
+
+    def _load_kit_hardware(self) -> dict[str, KitHardwareSpec]:
+        if self._kit_hardware is not None:
+            return self._kit_hardware
+        path = self._root / "kit_hardware" / "_datos.json"
+        if not path.exists():
+            self._kit_hardware = {}
+            return self._kit_hardware
+        raw: dict[str, dict] = json.loads(path.read_text(encoding="utf-8"))
+        self._kit_hardware = {
+            _normalize_name(name): self._kit_hardware_from_raw(name, data)
+            for name, data in raw.items()
+        }
+        return self._kit_hardware
+
+    def get_kit_hardware(self, name: str) -> KitHardwareSpec:
+        """Return exact kit hardware SKU by name. KeyError if not found."""
+        canonical = _normalize_name(name)
+        items = self._load_kit_hardware()
+        if canonical not in items:
+            available = ", ".join(sorted(items)) or "(vacío)"
+            raise KeyError(
+                f"Kit hardware '{name}' no está en la biblioteca. Disponibles: {available}"
+            )
+        return items[canonical]
+
+    def list_kit_hardware(self, *, kit_key: str | None = None) -> list[KitHardwareSpec]:
+        """Return kit hardware SKUs sorted by name, optionally filtered to
+        one `kit_key` — the connector wizard must never list harness rows
+        and vice versa."""
+        items = sorted(self._load_kit_hardware().values(), key=lambda k: k.name)
+        if kit_key is not None:
+            items = [k for k in items if k.kit_key == kit_key]
+        return items
+
+    def has_kit_hardware(self, name: str) -> bool:
+        """Return True if *name* is in the kit hardware library (no exception)."""
+        try:
+            self.get_kit_hardware(name)
             return True
         except KeyError:
             return False

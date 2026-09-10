@@ -111,13 +111,15 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
             mounted_on if mounted_on and mounted_on in components else None
         )
         declared_box_pose = _declared_box_pose_dto(spec, components)
-        solid_copies = _solid_copies(spec)
+        solid_copies = _solid_copies(spec, components)
+        solid_copy_offsets_mm = _solid_copy_offsets_mm(spec, components, solid_copies)
         _emit(
             key, col, spec.name or "", "part" if spec.parent_key else "component", fields,
             geometry=geometry,
             mounted_on=mounted_dto,
             declared_box_pose=declared_box_pose,
             solid_copies=solid_copies,
+            solid_copy_offsets_mm=solid_copy_offsets_mm,
         )
 
     def place_slot(key: str, col: int) -> None:
@@ -134,6 +136,7 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
         mounted_on: str | None = None,
         declared_box_pose: dict[str, Any] | None = None,
         solid_copies: int | None = None,
+        solid_copy_offsets_mm: list[dict[str, float]] | None = None,
     ) -> None:
         height = _default_height(len(fields))
         y = next_y.get(col, ORIGIN_Y)
@@ -156,6 +159,8 @@ def project_spatial_nodes(state: ProjectState) -> list[dict[str, Any]]:
             node["declaredBoxPose"] = declared_box_pose
         if solid_copies is not None:
             node["solidCopies"] = solid_copies
+        if solid_copy_offsets_mm is not None:
+            node["solidCopyOffsetsMm"] = solid_copy_offsets_mm
         nodes.append(node)
         next_y[col] = y + height + ROW_GAP
         emitted.add(key)
@@ -362,23 +367,15 @@ _SOLID_COPIES_MIN = 2
 _SOLID_COPIES_MAX = 16
 
 
-def _solid_copies(spec: ComponentSpec) -> int | None:
-    """Motor visor copies B1 — how many solid copies to draw for this ONE
-    ``ComponentSpec`` (never N specs, never N BOM nodes). Omitted (``None``)
-    unless the spec IS motors, a real solid already exists for it
-    (``_geometry_from_spec``), and its own ``motor_count`` property is a
-    whole number in ``[2, 16]``. Missing, ``1``, ``0``, non-integer, or out
-    of range all omit — the visor then shows exactly what it showed before
-    this Buy (0 or 1 solid, from ``geometry`` alone)."""
-    if spec.suggested_key != "motors":
-        return None
-    if _geometry_from_spec(spec) is None:
-        return None
-    prop = (spec.properties or {}).get("motor_count")
-    if prop is None or prop.value is None:
+def _parse_solid_copies_count(raw_value: Any) -> int | None:
+    """Shared whole-number-in-[2,16] gate for a solid-copy count — never a
+    public API, just avoids duplicating the float/is_integer/range check
+    between motors' own ``motor_count`` read and propellers' cross-read of
+    motors' ``motor_count`` (Propeller visor copies B1)."""
+    if raw_value is None:
         return None
     try:
-        raw = float(prop.value)
+        raw = float(raw_value)
     except (TypeError, ValueError):
         return None
     if not raw.is_integer():
@@ -387,6 +384,235 @@ def _solid_copies(spec: ComponentSpec) -> int | None:
     if not (_SOLID_COPIES_MIN <= count <= _SOLID_COPIES_MAX):
         return None
     return count
+
+
+def _solid_copies(
+    spec: ComponentSpec, components: dict[str, ComponentSpec]
+) -> int | None:
+    """How many solid copies to draw for this ONE ``ComponentSpec`` (never
+    N specs, never N BOM nodes). Omitted (``None``) unless a real solid
+    already exists for THIS spec (``_geometry_from_spec``) and a
+    ``motor_count`` whole number in ``[2, 16]`` is found — missing, ``1``,
+    ``0``, non-integer, or out of range all omit, so the visor shows
+    exactly what it showed before this Buy (0 or 1 solid, from
+    ``geometry`` alone).
+
+    Motor visor copies B1 (unchanged, byte-identical): for ``motors``, the
+    count comes from THIS spec's own ``motor_count`` property only.
+
+    Propeller visor copies B1 / Prop adapter visor X copies B1: for
+    ``propellers`` and ``prop_adapter`` alike, geometry is this spec's OWN
+    (a propeller/adapter may have dims with no motor Ø, or vice versa — the
+    two gates are independent), but the count is a CROSS-read of the
+    sibling ``motors`` spec's own ``motor_count`` property — the same
+    documented "1 per motor" convention ``project_closure._bom_quantity``
+    already ships for propellers, applied here to a second family and this
+    second (visor) surface. Never ``current_parameters["motor_count"]``
+    (that stays the params-first source `_bom_quantity` itself uses —
+    untouched here), never a dedicated ``*_count`` field (none exists),
+    never a default of 4, never ``configuration=quad_x``. Any other key
+    always omits.
+    """
+    if spec.suggested_key == "motors":
+        if _geometry_from_spec(spec) is None:
+            return None
+        prop = (spec.properties or {}).get("motor_count")
+        return _parse_solid_copies_count(prop.value if prop is not None else None)
+    if spec.suggested_key in ("propellers", "prop_adapter"):
+        # Prop adapter visor X copies B1: `prop_adapter` follows the exact
+        # same pattern as `propellers` (own geometry gate, cross-read of
+        # motors' `motor_count`, any valid N in [2,16] gets a row) —
+        # deliberately NOT the stricter frame_arm gate below. One adapter
+        # per motor is a real, honest fallback shape for any N (unlike an
+        # arm, which only means something at its own quad-X station); the
+        # station OFFSETS (`_solid_copy_offsets_mm`) still only apply when
+        # N==4 and quad_x+wheelbase hold — this branch only decides the
+        # copy COUNT.
+        if _geometry_from_spec(spec) is None:
+            return None
+        motors_spec = components.get("motors")
+        if motors_spec is None:
+            return None
+        prop = (motors_spec.properties or {}).get("motor_count")
+        return _parse_solid_copies_count(prop.value if prop is not None else None)
+    if spec.suggested_key == "frame_arm":
+        # Frame arm envelope + visor X copies B1: unlike motors/propellers,
+        # a "row of N arms" is not an honest fallback — an arm's whole
+        # reason for being N copies is sitting at the N quad-X motor
+        # stations, so this gate is deliberately STRICTER than the
+        # propellers cross-read above: copies are emitted ONLY when the
+        # count is exactly 4 AND the frame's own quad_x+wheelbase facts
+        # hold (the same gate `_solid_copy_offsets_mm` uses for the
+        # offsets themselves) — never a bare N=3 row, never a fake
+        # 3-station X. Any other count, or missing quad_x/wheelbase, omits
+        # entirely — the arm then renders as ONE single box, not a row.
+        if _geometry_from_spec(spec) is None:
+            return None
+        motors_spec = components.get("motors")
+        if motors_spec is None:
+            return None
+        prop = (motors_spec.properties or {}).get("motor_count")
+        count = _parse_solid_copies_count(prop.value if prop is not None else None)
+        if count != _QUAD_X_STATION_COUNT:
+            return None
+        if _quad_x_wheelbase_mm(components) is None:
+            return None
+        return count
+    if spec.suggested_key == "frame_standoff":
+        # Frame standoff x4 at Main Plate corners B1 — a DIFFERENT gate and
+        # formula from every branch above: fixed count of 4 this Buy, never
+        # read from motors/motor_count/quad_x/wheelbase (that math belongs
+        # to the quad-X families only — a standoff sandwich post is a
+        # Main-Plate-footprint fact, not a propulsion one). Count and
+        # offsets are computed by the SAME helper
+        # (`_frame_standoff_corner_offsets_mm`) so they can never drift
+        # apart; a missing/non-box standoff or Main Plate, or a standoff
+        # footprint larger than the plate in either axis, omits both.
+        if _frame_standoff_corner_offsets_mm(spec, components) is not None:
+            return _STANDOFF_CORNER_COUNT
+        return None
+    return None
+
+
+# Visor X stations B1 — four declared-mm stations, derived ONLY from a
+# CITED frame fact (`configuration == "quad_x"` + `wheelbase_mm`, motor-to-
+# motor per the Rooster source_note) and the same `motor_count == 4` gate
+# `_solid_copies` already enforces. Never a default, never inferred from N
+# alone (`quad_x` with N=3 stays a row), never read from
+# `current_parameters`. Z is 0 this Buy (coplanar silhouette) — height_mm
+# is a card fact only, never stacked here.
+_QUAD_X_STATION_COUNT = 4
+
+
+def _quad_x_wheelbase_mm(components: dict[str, ComponentSpec]) -> float | None:
+    """The one shared frame-fact gate for both motors and propellers: frame
+    must exist, declare `configuration == "quad_x"` (exact string, never
+    inferred from a motor count) AND a finite positive `wheelbase_mm`.
+    Either missing/wrong → None, so callers keep today's row."""
+    frame = components.get("frame")
+    if frame is None:
+        return None
+    props = frame.properties or {}
+    config = props.get("configuration")
+    if config is None or config.value != "quad_x":
+        return None
+    wheelbase = props.get("wheelbase_mm")
+    if wheelbase is None or wheelbase.value is None:
+        return None
+    try:
+        wheelbase_mm = float(wheelbase.value)
+    except (TypeError, ValueError):
+        return None
+    if not (wheelbase_mm > 0):
+        return None
+    return wheelbase_mm
+
+
+def _quad_x_station_points(wheelbase_mm: float) -> list[dict[str, float]]:
+    """Opposite motor centers = `wheelbase_mm` (cited motor-to-motor);
+    center-to-motor = W/2; quad-X at 45°. Index 0..3 = FR, FL, RL, RR in
+    the declared frame (L->+X, W->+Y, H->+Z), Z=0. Opposite pair (0 vs 2,
+    1 vs 3) distance is exactly `wheelbase_mm`."""
+    a = wheelbase_mm / (2 * (2 ** 0.5))
+    return [
+        {"xMm": a, "yMm": a, "zMm": 0.0},
+        {"xMm": a, "yMm": -a, "zMm": 0.0},
+        {"xMm": -a, "yMm": -a, "zMm": 0.0},
+        {"xMm": -a, "yMm": a, "zMm": 0.0},
+    ]
+
+
+# Frame standoff x4 at Main Plate corners B1 — a fixed count, unrelated to
+# the quad-X families above. `_STANDOFF_CORNER_COUNT` is a separate
+# constant (even though it happens to also be 4) to keep this concept
+# textually distinct from `_QUAD_X_STATION_COUNT` — a future N!=4 declared
+# `standoff_count` Buy changes only this constant/branch, never the
+# quad-X ones.
+_STANDOFF_CORNER_COUNT = 4
+
+
+def _main_plate_corner_points(
+    plate_geometry: dict[str, float | str], standoff_geometry: dict[str, float | str]
+) -> list[dict[str, float]] | None:
+    """Four Main Plate corner points in the declared plate axes (L->+X,
+    W->+Y), Z=0 — NOT wheelbase math, no 45°, never `_quad_x_station_points`.
+    `hx = Lp/2 - Ls/2`, `hy = Wp/2 - Ws/2` (half the plate footprint minus
+    half the standoff's own footprint, so a post sits inset from the plate
+    edge by its own half-width rather than centered on the edge itself).
+    Either inset going negative (a standoff footprint larger than the
+    plate in that axis) fails closed — `None`, never a negative/inverted
+    inset. Index order FR/FL/RL/RR, mirroring the quad-X convention purely
+    for readability."""
+    hx = plate_geometry["length_mm"] / 2 - standoff_geometry["length_mm"] / 2
+    hy = plate_geometry["width_mm"] / 2 - standoff_geometry["width_mm"] / 2
+    if hx < 0 or hy < 0:
+        return None
+    return [
+        {"xMm": hx, "yMm": hy, "zMm": 0.0},
+        {"xMm": hx, "yMm": -hy, "zMm": 0.0},
+        {"xMm": -hx, "yMm": -hy, "zMm": 0.0},
+        {"xMm": -hx, "yMm": hy, "zMm": 0.0},
+    ]
+
+
+def _frame_standoff_corner_offsets_mm(
+    standoff_spec: ComponentSpec, components: dict[str, ComponentSpec]
+) -> list[dict[str, float]] | None:
+    """The ONE gate + formula shared by `_solid_copies` (decides
+    ``count == 4``) and `_solid_copy_offsets_mm` (emits the actual points)
+    for `frame_standoff`, so the two can never drift apart. Requires the
+    standoff's OWN geometry to be a box (`_geometry_from_spec`) AND the
+    literal `frame_plate` key (Main Plate — never an ordinal sibling like
+    `frame_plate_2`) to exist with a box geometry. Fixed count of 4 this
+    Buy — never reads motors/motor_count/quad_x/wheelbase; a declared,
+    generalist `standoff_count` is a later, separate Buy."""
+    standoff_geometry = _geometry_from_spec(standoff_spec)
+    if standoff_geometry is None or standoff_geometry.get("shape") != "box":
+        return None
+    plate_spec = components.get("frame_plate")
+    if plate_spec is None:
+        return None
+    plate_geometry = _geometry_from_spec(plate_spec)
+    if plate_geometry is None or plate_geometry.get("shape") != "box":
+        return None
+    return _main_plate_corner_points(plate_geometry, standoff_geometry)
+
+
+def _solid_copy_offsets_mm(
+    spec: ComponentSpec, components: dict[str, ComponentSpec], solid_copies: int | None
+) -> list[dict[str, float]] | None:
+    """Additive DTO alongside `solidCopies` — four declared-mm points for
+    `motors`/`propellers`/`frame_arm`/`prop_adapter` iff the count is
+    EXACTLY 4 (never coerced) and the frame's own `quad_x` + `wheelbase_mm`
+    facts hold (`_quad_x_wheelbase_mm`). `solid_copies` is passed in rather
+    than recomputed so the emitted `solidCopies` and `solidCopyOffsetsMm`
+    counts can never drift apart — both come from the exact same
+    already-computed number. Independent of the spec's OWN geometry gate
+    (already enforced by `_solid_copies` itself returning ``None`` when
+    geometry is absent) — a mute-Ø motors spec with `solid_copies is None`
+    always omits here too, but propellers/frame_arm/prop_adapter can still
+    station on the same points as long as ITS OWN `_solid_copies` is 4
+    (for `frame_arm`, `_solid_copies` already re-checks this same
+    wheelbase gate itself, so the two calls never disagree; for
+    `prop_adapter`, this function's own wheelbase check below is the ONLY
+    place that gate is enforced — its `_solid_copies` branch does not
+    re-check it, exactly mirroring propellers).
+
+    `frame_standoff` is a SEPARATE branch entirely — Main Plate corner
+    points via `_frame_standoff_corner_offsets_mm`, never the quad-X
+    wheelbase math above."""
+    if spec.suggested_key == "frame_standoff":
+        if solid_copies != _STANDOFF_CORNER_COUNT:
+            return None
+        return _frame_standoff_corner_offsets_mm(spec, components)
+    if spec.suggested_key not in ("motors", "propellers", "frame_arm", "prop_adapter"):
+        return None
+    if solid_copies != _QUAD_X_STATION_COUNT:
+        return None
+    wheelbase_mm = _quad_x_wheelbase_mm(components)
+    if wheelbase_mm is None:
+        return None
+    return _quad_x_station_points(wheelbase_mm)
 
 
 def _fields(spec: ComponentSpec, components: dict[str, ComponentSpec]) -> list[dict[str, str]]:
@@ -418,6 +644,13 @@ def _fields(spec: ComponentSpec, components: dict[str, ComponentSpec]) -> list[d
             fields.append({"label": "Δy mm", "value": _format_number(pose.y_mm)})
         if pose.z_mm is not None:
             fields.append({"label": "Δz mm", "value": _format_number(pose.z_mm)})
+        # Geometry assembly fit B1-min: same gate as the pose text above
+        # (origin already confirmed a box) — a screening-only fact, never
+        # "cabe"/VERIFIED, never a new declaredBoxPose/machine DTO key.
+        from jarvis.core.pose_envelope_screening import format_screening, screen_posed_envelope
+
+        screening = screen_posed_envelope(spec, components)
+        fields.append({"label": "sobres", "value": format_screening(screening)})
     return fields
 
 

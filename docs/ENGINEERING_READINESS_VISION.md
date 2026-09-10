@@ -1,8 +1,8 @@
 # Engineering Readiness Vision
 
-**Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure ✅ §11; Structure + spatial board + Geometry `representar`/glyphs/`mounted_on`/visualizar-3D ✅ — §8; **PRIORIDAD = kit SKUs D REVIEWED, wait ★ B1**; `"cabe"` last)  
+**Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure ✅ §11; Structure + spatial board + Geometry ladder ✅ — §8; **Continuity spatial assembly ✅ @ v0.4.0**; **PRIORIDAD = wait Engineer ★** drag→pose / cola)  
 **Type:** Vision / To-be  
-**Date:** 2026-09-09 (tag **v0.3.8** · suite **2514**; kit B1-min CLOSED; Rooster plates B2 REVIEWED; Prop/Energy = HD-004 wall; System Optimization **deferred** until pain)
+**Date:** 2026-09-10 (tag **v0.4.0** · suite **2652**; Prop/Energy = HD-004 wall; System Optimization **deferred** until pain)
 
 ---
 
@@ -330,12 +330,13 @@ Out of scope (debt / MEASURE wall): tip-clearance / FEA / CAD · `mounts_on` · 
 > Sensors BOM: GNSS vs bare `sensor_type` honesty tails — Control PASS * unchanged (sensors-blind).  
 > **Not** glyphs · **not** pose/assembly · **not** fit.
 
-### ★ Geometry spatial progression — LOCKED (2026-09-07) + 3D horizon (2026-09-08)
+### ★ Geometry spatial progression — LOCKED (2026-09-07) + 3D horizon (2026-09-08) + spatial assembly feature (2026-09-10)
 
 > Glyphs / relation locks: [progression](../.jes/artifacts/engineer_lock_geometry_spatial_representation_progression.md) · [assembly relation CLOSED](../.jes/artifacts/engineer_lock_geometry_assembly_relation_rung_closed.md)  
-> **Horizonte de producto (Engineer 2026-09-08):** [3D placement](../.jes/artifacts/engineer_lock_geometry_3d_placement_horizon.md) — visualizar-3D **CLOSED** (sólidos CSS 3D + click-inspect); más tarde colocar (`mounted_on` guía) → más tarde `"cabe"` vs esa situación.  
-> **PRIORIDAD:** Kit SKUs D [REVIEWED](../.jes/artifacts/investigation_review_kit_connector_harness_skus_d.md) — wait ★ B1. `"cabe"` last.  
-> Glifo 2D ya shipped. Relación `mounted_on` CLOSED. Fit stub sigue QUEUED.
+> **Horizonte:** [3D placement](../.jes/artifacts/engineer_lock_geometry_3d_placement_horizon.md) — visualizar + colocar Continuity **SHIPPED**.  
+> **Feature de producto (potente) — SHIPPED @ v0.4.0:** [Continuity spatial assembly](../.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md) — envelopes + pose + multi-hop + assembly root + visor copies (X + standoff corners); LLM no inventa mm. Suite **2652**.  
+> **Siguiente ★:** Board drag/resize → mismos writers ([nota](../.jes/artifacts/engineer_note_board_drag_place_concept.md)) · `standoff_count` · plate noun · sourced #4.  
+> Fit stub sigue QUEUED (no VERIFIED).
 
 ### System-level Optimization — DEFERRED (Engineer lock 2026-09-05)
 
@@ -363,7 +364,7 @@ Allowed later (optional): investigation of *what evidence schema to ingest when 
 - No new source of truth replaces ProjectState.
 - No LLM authority over engineering next-step decisions.
 - No implicit rewrite of existing acquisition/continuity contracts — Continuity remains next-step copy authority; see [`PROJECT_CONTINUITY.md`](./PROJECT_CONTINUITY.md).
-- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. **As of 2026-09-09** tag **v0.3.8** · suite **2523**; kit B1-min CLOSED; Rooster Included plates B2 CLOSED; adapter B1 REVIEWED; **PRIORIDAD = kit SKUs D REVIEWED (wait ★ B1)**. `"cabe"` last. Board B1 layout-on-disk is named debt, not PRIORIDAD. System Optimization **deferred** until pain. Prop/Energy experimental = **HD-004 wall**. MEASURE/CAD is not the default.
+- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. **As of 2026-09-10** tag **v0.4.0** · suite **2652**; Continuity spatial assembly CLOSED; **PRIORIDAD = wait Engineer ★** (drag→pose investigation first candidate). Board B1 layout-on-disk is named debt, not PRIORIDAD. System Optimization **deferred** until pain. Prop/Energy experimental = **HD-004 wall**. MEASURE/CAD is not the default.
 - **Hardware-gated physics** (T1/T2 lab before any sibling field) lives in [`HARDWARE_DEBT.md`](./HARDWARE_DEBT.md) — **debt register, never 🔴 PRIORIDAD ACTUAL** (Engineer: no lab equipment). Includes HD-004 OP→consumption for autonomy. Not in the software/product queue.
 
 ---

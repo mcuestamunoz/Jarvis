@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-08  
 **Authority:** Engineer (vision after Conn walk ACCEPT + Board review)  
-**Status:** ★ LOCKED — visualizar-3D **CLOSED**; Continuity pose B1 **CLOSED** @ **2456**; demo reds R1/R2 **CLOSED**; next queue = [mapping path](engineer_lock_geometry_3d_mapping_path.md)  
+**Status:** ★ LOCKED — visualizar + Continuity place **SHIPPED**. Product feature: [Continuity spatial assembly](engineer_lock_continuity_spatial_assembly_feature.md). Next = arms X / loose / sourced dims.  
 **Parents:**
 - [engineer_lock_geometry_physical_representation_axis.md](engineer_lock_geometry_physical_representation_axis.md)
 - [engineer_lock_geometry_spatial_representation_progression.md](engineer_lock_geometry_spatial_representation_progression.md)
@@ -13,12 +13,12 @@
 
 ## Locked product horizon
 
-Keep **today’s Board** (cards + declared `mounted_on` edges). Evolve it, in order, to:
+Keep **today’s Board** (cards + declared `mounted_on` edges). The horizon below is **largely landed** as Continuity spatial assembly — see [feature lock](engineer_lock_continuity_spatial_assembly_feature.md). Remaining work is completeness (arms X, loose parts, sourced dims), not inventing the placement idea.
 
-1. **3D at scale** — a three-dimensional image of each component/part from **already declared** physical envelope (the same fuel glyphs use today). Not CAD. Not a second model of record.
-2. **Click a solid → today’s card** — identity, numbers, `"montado en"`. The card remains the inspect surface.
-3. **Place in space** — move pieces to their physical location. Declared **connections guide** placement (`mounted_on` graph already shipped). Board drag/`localStorage` layout is **not** that placement.
-4. **Later `"cabe"`** must be checked against that **spatial situation**, not against card-lane overlap.
+1. **3D at scale** — ✅ CSS 3D solids from declared/cited envelopes. Not CAD.
+2. **Click a solid → today’s card** — ✅
+3. **Place in space** — ✅ Continuity pose + multi-hop + Main Plate assembly root; `mounted_on` remains guide only.
+4. **Later `"cabe"`** — B1-min screening ✅; full VERIFIED fit still QUEUED.
 
 Do **not** flatten the Geometry ladder. This horizon **is** the ladder, named in product language:
 

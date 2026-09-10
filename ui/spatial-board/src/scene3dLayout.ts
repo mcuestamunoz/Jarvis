@@ -27,45 +27,106 @@ export function layoutSolidsRow(
 
 export type SolidLayout = { id: string; originX: number; originY: number; originZ: number };
 
+// Visor assembly root B1 — the exact, single root key this Buy recognizes.
+// Never `frame_plate_2`/any other plate, never `frame` root — silently
+// picking a different plate as "the" assembly root is explicitly forbidden
+// (locked #2); a `frame_plate` that isn't a box (no envelope declared yet)
+// also does not activate root behavior.
+const ASSEMBLY_ROOT_ID = "frame_plate";
+
+type PoseItem = {
+  id: string;
+  geometry: SpatialGeometry;
+  declaredBoxPose?: { originKey: string; xMm?: number; yMm?: number; zMm?: number };
+  offsetMm?: { xMm: number; yMm: number; zMm: number };
+};
+
+type CenterPx = { x: number; y: number; z: number };
+
 /**
- * Scene3D-from-pose B1 — the placement algorithm. Every item first gets a
- * row slot via the unchanged `layoutSolidsRow` above (so an item with a
- * broken/missing pose still renders, never vanishes). An item whose
- * `declaredBoxPose.originKey` resolves to another BOX-shaped item in the
- * same list is then repositioned to a center-to-center offset from that
- * origin's own row slot — single-level only, never recursing into the
- * origin's own pose (no chain composition; see the parent IC's own
- * cycle-detection-gap finding for why).
+ * Scene3D-from-pose + multi-hop B1 — placement algorithm. Every item first
+ * gets a row slot via `layoutSolidsRow` (broken/missing pose never vanishes).
+ * An item whose `declaredBoxPose.originKey` resolves to a BOX-shaped item is
+ * placed center-to-center from that origin's **composed** center: if the
+ * origin is itself posed (to another box), walk the chain (Pose multi-hop B1).
+ * Cycle → break on the revisited id's row-slot center (or world 0 if root).
  *
- * Axis remap (locked, derived from Solid3D's existing, already-shipped
- * face geometry): declared +X -> CSS X (`originX`, aligned), declared +Z
- * -> CSS Y (`originY`), declared +Y -> CSS Z/depth (`originZ`) — Y and Z
- * swap relative to the declared schema order.
+ * Axis remap: declared +X -> CSS X (`originX`), +Z -> CSS Y (`originY`),
+ * +Y -> CSS Z/depth (`originZ`). Wrapper top-left correction on X/Y only.
  *
- * Center correction: `.sb-solid` wrappers are anchored top-left, not
- * centered, on both their X and Y (CSS height) axes, so those two axes
- * need a `+/- wrapperExtent/2` correction; the CSS Z/depth axis is already
- * symmetric about 0 in the existing face code, so `originZ` needs no such
- * correction.
+ * Visor assembly root B1: `frame_plate` box → world (0,0,0). `offsetMm`
+ * stations stay absolute around world 0 and never enter the pose chain.
+ * N1 tidy: root + `offsetMm` items are excluded from the row cursor.
  */
 export function layoutSolidsFromPose(
-  items: {
-    id: string;
-    geometry: SpatialGeometry;
-    declaredBoxPose?: { originKey: string; xMm?: number; yMm?: number; zMm?: number };
-  }[],
+  items: PoseItem[],
   gapPx: number,
   pxPerMm?: number,
 ): SolidLayout[] {
+  const root = items.find(
+    (item) => item.id === ASSEMBLY_ROOT_ID && item.geometry.shape === "box",
+  );
+
+  const rowItems = items.filter(
+    (item) => !item.offsetMm && !(root && item.id === root.id),
+  );
   const slots = layoutSolidsRow(
-    items.map((item) => ({ id: item.id, geometry: item.geometry })),
+    rowItems.map((item) => ({ id: item.id, geometry: item.geometry })),
     gapPx,
     pxPerMm,
   );
   const slotXById = new Map(slots.map((slot) => [slot.id, slot.originX]));
   const itemById = new Map(items.map((item) => [item.id, item]));
 
+  const rowSlotCenter = (id: string): CenterPx => {
+    if (root && id === root.id) return { x: 0, y: 0, z: 0 };
+    const target = itemById.get(id);
+    if (!target) return { x: 0, y: 0, z: 0 };
+    const wrap = solidWrapperPx(target.geometry, pxPerMm);
+    const slotX = slotXById.get(id) ?? 0;
+    return { x: slotX + wrap.width / 2, y: wrap.height / 2, z: 0 };
+  };
+
+  const resolveComposedCenter = (id: string, visiting: Set<string>): CenterPx => {
+    if (root && id === root.id) return { x: 0, y: 0, z: 0 };
+    if (visiting.has(id)) return rowSlotCenter(id);
+
+    const target = itemById.get(id);
+    if (!target) return { x: 0, y: 0, z: 0 };
+
+    const pose = target.declaredBoxPose;
+    const origin = pose ? itemById.get(pose.originKey) : undefined;
+    if (!pose || !origin || origin.geometry.shape !== "box") {
+      return rowSlotCenter(id);
+    }
+
+    const nextVisiting = new Set(visiting);
+    nextVisiting.add(id);
+    const parent = resolveComposedCenter(pose.originKey, nextVisiting);
+    return {
+      x: parent.x + mmToPx(pose.xMm ?? 0, pxPerMm),
+      y: parent.y + mmToPx(pose.zMm ?? 0, pxPerMm),
+      z: parent.z + mmToPx(pose.yMm ?? 0, pxPerMm),
+    };
+  };
+
   return items.map((item) => {
+    if (root && item.id === root.id) {
+      const wrap = solidWrapperPx(item.geometry, pxPerMm);
+      return { id: item.id, originX: -wrap.width / 2, originY: -wrap.height / 2, originZ: 0 };
+    }
+
+    // Visor X stations — absolute mm around world 0; never pose-composed.
+    if (item.offsetMm) {
+      const wrap = solidWrapperPx(item.geometry, pxPerMm);
+      return {
+        id: item.id,
+        originX: mmToPx(item.offsetMm.xMm, pxPerMm) - wrap.width / 2,
+        originY: mmToPx(item.offsetMm.zMm, pxPerMm) - wrap.height / 2,
+        originZ: mmToPx(item.offsetMm.yMm, pxPerMm),
+      };
+    }
+
     const slotX = slotXById.get(item.id) ?? 0;
     const pose = item.declaredBoxPose;
     const origin = pose ? itemById.get(pose.originKey) : undefined;
@@ -74,21 +135,17 @@ export function layoutSolidsFromPose(
       return { id: item.id, originX: slotX, originY: 0, originZ: 0 };
     }
 
-    const originSlotX = slotXById.get(pose.originKey) ?? 0;
-    const originWrap = solidWrapperPx(origin.geometry, pxPerMm);
+    const originCenter = resolveComposedCenter(pose.originKey, new Set());
     const childWrap = solidWrapperPx(item.geometry, pxPerMm);
-    const originCenterX = originSlotX + originWrap.width / 2;
-    const originCenterY = originWrap.height / 2;
-
     const xMm = pose.xMm ?? 0;
     const yMm = pose.yMm ?? 0;
     const zMm = pose.zMm ?? 0;
 
     return {
       id: item.id,
-      originX: originCenterX + mmToPx(xMm, pxPerMm) - childWrap.width / 2,
-      originY: originCenterY + mmToPx(zMm, pxPerMm) - childWrap.height / 2,
-      originZ: mmToPx(yMm, pxPerMm),
+      originX: originCenter.x + mmToPx(xMm, pxPerMm) - childWrap.width / 2,
+      originY: originCenter.y + mmToPx(zMm, pxPerMm) - childWrap.height / 2,
+      originZ: originCenter.z + mmToPx(yMm, pxPerMm),
     };
   });
 }
@@ -127,18 +184,30 @@ export type ExpandedSolid = {
   selectId: string;
   geometry: SpatialGeometry;
   declaredBoxPose?: { originKey: string; xMm?: number; yMm?: number; zMm?: number };
+  offsetMm?: { xMm: number; yMm: number; zMm: number };
 };
 
 /**
- * Motor visor copies B1 — turns one `motors` node with `solidCopies: N`
- * into N presentation-only layout entries sharing one `selectId` (so
- * clicking any copy still selects the ONE `motors` card — never N
- * `ComponentSpec`/BOM nodes). A copied node's `declaredBoxPose` is
- * deliberately stripped (composing pose onto N copies would stack them at
- * the same point); an uncopied node (no `solidCopies`, or `< 2`) passes
- * through as a single entry with its pose intact, in input order.
- * `layoutId` is what `layoutSolidsFromPose`/`clusterCenterPx` must use as
- * their own `id` — three nodes sharing `id: "motors"` would collide.
+ * Motor visor copies B1 — turns one node with `solidCopies: N` into N
+ * presentation-only layout entries sharing one `selectId` (so clicking any
+ * copy still selects the ONE card — never N `ComponentSpec`/BOM nodes).
+ * A copied node's `declaredBoxPose` is deliberately stripped (composing
+ * pose onto N copies would stack them at the same point); an uncopied node
+ * (no `solidCopies`, or `< 2`) passes through as a single entry with its
+ * pose intact, in input order. `layoutId` is what
+ * `layoutSolidsFromPose`/`clusterCenterPx` must use as their own `id` —
+ * three nodes sharing `id: "motors"` would collide.
+ *
+ * Key-agnostic by construction — Propeller visor copies B1 relies on this:
+ * a `propellers` node with `solidCopies: N` (cross-read from the sibling
+ * `motors` spec's own `motor_count`, projected server-side) expands the
+ * same way, with no `id === "motors"` special-case here.
+ *
+ * Visor X stations B1: when the node also carries `solidCopyOffsetsMm`
+ * with EXACTLY `solidCopies` points, each copy `i` gets that point as its
+ * `offsetMm` instead of a row slot (see `layoutSolidsFromPose`). A length
+ * mismatch (or no offsets at all) falls back to the plain row, same as
+ * before this Buy — never a partial/misaligned station set.
  */
 export function expandSolidCopies(
   nodes: {
@@ -146,13 +215,23 @@ export function expandSolidCopies(
     geometry: SpatialGeometry;
     declaredBoxPose?: { originKey: string; xMm?: number; yMm?: number; zMm?: number };
     solidCopies?: number;
+    solidCopyOffsetsMm?: { xMm: number; yMm: number; zMm: number }[];
   }[],
 ): ExpandedSolid[] {
   const result: ExpandedSolid[] = [];
   for (const node of nodes) {
     if (typeof node.solidCopies === "number" && node.solidCopies >= 2) {
+      const offsets =
+        node.solidCopyOffsetsMm && node.solidCopyOffsetsMm.length === node.solidCopies
+          ? node.solidCopyOffsetsMm
+          : undefined;
       for (let i = 0; i < node.solidCopies; i++) {
-        result.push({ layoutId: `${node.id}#${i}`, selectId: node.id, geometry: node.geometry });
+        result.push({
+          layoutId: `${node.id}#${i}`,
+          selectId: node.id,
+          geometry: node.geometry,
+          offsetMm: offsets ? offsets[i] : undefined,
+        });
       }
     } else {
       result.push({

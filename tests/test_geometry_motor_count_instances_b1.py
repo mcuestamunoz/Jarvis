@@ -49,11 +49,17 @@ def _nodes_by_id(state: ProjectState) -> dict[str, dict]:
 
 
 def test_p1_motor_count_3_with_disk_geometry_yields_solid_copies_3():
+    """Propeller visor copies B1 (implementation_contract_geometry_
+    propeller_visor_copies_b1.md §3.1): the fixture's propeller row already
+    has real disk geometry, so it now ALSO gets solidCopies == 3 — the
+    same N, cross-read from the sibling motors spec's own motor_count.
+    This is a required amendment, not a weaken (see
+    test_geometry_propeller_visor_copies_b1.py for the full P1-P10 suite)."""
     nodes = _nodes_by_id(_state(_motors_spec(motor_count=3)))
     motors = nodes["motors"]
     assert motors["geometry"] == {"shape": "disk", "diameter_mm": 27.9}
     assert motors["solidCopies"] == 3
-    assert "solidCopies" not in nodes["propellers"]
+    assert nodes["propellers"]["solidCopies"] == 3
     assert sum(1 for n in nodes.values() if n["id"] == "motors") == 1
 
 

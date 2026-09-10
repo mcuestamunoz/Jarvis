@@ -11,7 +11,7 @@
 | `adapters/cli/main.py` | Terminal loop; renders results (`render_response`, `render_startup_context`) |
 | `adapters/mcp/server.py` | MCP tool server exposing Jarvis actions |
 | `adapters/mcp/session_manager.py` | MCP-side session bookkeeping |
-| `adapters/cli/board.py` (`jarvis board`) + `workspace/spatial_board.py` | Spatial board visor launcher + read-only projector (`ProjectState` → cards/`kind: "slot"` for declared-architecture holes; geometry dims as ordinary fields when present; optional `geometry` + `declaredBoxPose` DTOs). No writer, no BOM/ERF/Continuity import — CLI stays the engineering mutation surface. Layout overlay is browser `localStorage` (B1 debt). Glyphs / CSS 3D / Scene3D-from-pose are derived visor, not Entry writers. |
+| `adapters/cli/board.py` (`jarvis board`) + `workspace/spatial_board.py` | Spatial board launcher + read-only projector (`ProjectState` → cards/`slot`; `geometry`, `declaredBoxPose`, `solidCopies`/`solidCopyOffsetsMm` — quad-X + Main Plate corner stations). Mutation = CLI/writers/Continuity — not the visor. Card layout overlay = browser `localStorage` (not pose). **Continuity spatial assembly @ v0.4.0** — feature lock: `.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`. Drag→writers = concept only. |
 
 ## Important functions
 

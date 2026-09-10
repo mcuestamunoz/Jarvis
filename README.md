@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.3.8**
+**v0.4.0**
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -26,7 +26,7 @@ python -m jarvis.main --chat
 jarvis --chat
 ```
 
-**Pizarra** (visor de componentes; huecos de arquitectura declarada se muestran como slots, no es BOM/completeness; el CLI sigue mutando el diseño):
+**Pizarra** (visor 3D + Continuity spatial assembly; huecos de arquitectura = slots, no BOM; mutación = CLI / Continuity):
 
 ```bash
 jarvis board
@@ -47,27 +47,25 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
-## What v0.3.8 includes
+## What v0.4.0 includes
 
-- Everything in **v0.3.7** (Structure representation arc + `jarvis board` UI), plus the spatial projector that 0.3.7 gitignored (`src/jarvis/workspace/spatial_board.py`).
-- Everything through **v0.3.6** (experimental prop/energy construction + Structure A + fail-routing), plus the closed **Structure representation** arc:
-- Claim hygiene + control parity (`PASS *` honesty)
-- Structure Foundations / Catalog Foundation IC-1→3 (frame seed + bind + assist)
-- Structure honesty `PASS *` · Parts Graph Fase 1 · G-N1 free-text root+parts
-- IDLE catalog rebind (frame / motors / propellers / battery)
-- Arm `thickness_mm` + curated multi-plate assembly (`plates[]`, ordinal siblings, labels)
-- Spatial board visor (`jarvis board`)
-- Locks: Prop/Energy experimental = HD-004 wall; System Optimization deferred until demonstrated pain
+- Everything through **v0.3.8** (Structure arc + spatial board projector), plus **Continuity spatial assembly** (*situar el mapa*):
+  - Declared / cited envelopes (battery, sensors, kit, plates, arm, adapter, standoff, cage, …)
+  - Continuity box-local pose (multi-hop) + Main Plate assembly root
+  - Visor multiplicity: motors / hélices / arms / adapter on quad-X; standoffs ×4 on Main Plate corners
+  - One BOM key per family — copies are presentation-only
+  - LLM does **not** invent millimetres
+- Feature lock: [`.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`](.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md)
+- Live suite **2652**. Card layout overlay still `localStorage` (B1 debt ≠ pose SoT)
+- Locks unchanged: Prop/Energy = HD-004 wall; System Optimization deferred until pain
 
-## On the tree after v0.3.8 (no new tag)
+## Next (not in this tag)
 
-Package version remains **0.3.8**. Live suite **2336**. The working tree also has:
+- Board **drag / resize → same pose/envelope writers** ([concept note](.jes/artifacts/engineer_note_board_drag_place_concept.md))
+- Declared `standoff_count` · plate label noun (`placa HD Cam`) · sourced dims #4
+- Fit VERIFIED still QUEUED
 
-- **B3 honest absence:** declared-architecture holes → `kind: "slot"`. Suite **2310**.
-- **Geometry `representar`:** Battery / Motor / ESC catalog envelopes + FC Pixhawk 4 identity-linked box (44×84×12 mm). Suites through **2332**.
-- **Sensors BOM honesty:** declarative tails distinguish GNSS vs bare `sensor_type` (suite **2336**) — claim ladder, not geometry.
-- Layout overlay still in browser `localStorage` (B1 `spatial_layout.json` = named debt, not PRIORIDAD).
-- **PRIORIDAD:** Geometry **visualizar** — Board glyph vocabulary investigation ([lock](.jes/artifacts/engineer_lock_geometry_spatial_representation_progression.md) · [contract](.jes/artifacts/investigation_contract_geometry_board_glyph_vocabulary.md)). Progression: dims → glyphs → pose → assembly → fit (no jump to “cabe”). See `docs/IMPLEMENTATION_TASKS.md`.
+See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Docs
 
@@ -85,6 +83,7 @@ Package version remains **0.3.8**. Live suite **2336**. The working tree also ha
 
 ## Tags
 
+`v0.4.0` / `checkpoint-continuity-spatial-assembly` — Continuity spatial assembly (*situar el mapa*); suite **2652**.  
 `v0.3.8` / `checkpoint-spatial-board-projector` — ship `spatial_board.py` (was gitignored); `/workspace/` ignore.  
 `v0.3.7` / `checkpoint-structure-representation-closed` — Structure representation arc closed (catalog→parts→rebind→plates); suite **2294**.  
 `v0.3.6` / `checkpoint-experimental-prop-energy-closed` — experimental prop/energy/Structure A/fail-routing construction closed; knowledge-parity phase starts.  

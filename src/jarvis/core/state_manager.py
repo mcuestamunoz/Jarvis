@@ -13,6 +13,7 @@ MAX_HISTORY_TURNS = 6
 # (no serializable), project_draft / iteration_draft (wizards reinician solos),
 # motor_suggestions, propeller_suggestions (Prop-1: same tier as motor_suggestions),
 # battery_suggestions (Bat-1: same tier as motor_suggestions/propeller_suggestions),
+# esc_suggestions (ESC visor rebind B1: same tier — IDLE singleton only),
 # semantic_state, memory_context, handoff_context (FN-024:
 # operation-scoped, runtime-only by design — same tier as last_exploration_result,
 # must never survive a process restart or be readable from a different project).

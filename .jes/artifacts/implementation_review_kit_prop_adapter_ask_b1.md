@@ -87,4 +87,4 @@ IC §3.3 named it; T3 is sequential. Catalog-pick path is covered by the battery
 
 ## Phase
 
-Implementation **REVIEWED PASS WITH NOTES**. Engineer smoke: [implementation_contract_kit_prop_adapter_ask_b1.md](implementation_contract_kit_prop_adapter_ask_b1.md) §6. Record `engineer_smoke_kit_prop_adapter_ask_b1.md`. Package `0.3.8` · suite **2523**.
+Implementation **CLOSED**. Engineer smoke: [engineer_smoke_kit_prop_adapter_ask_b1.md](engineer_smoke_kit_prop_adapter_ask_b1.md) **ACCEPT** (`autonomía-de-5min`: skip then `con adaptador/collet`). Package `0.3.8` · suite **2523**.

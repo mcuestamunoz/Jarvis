@@ -6,7 +6,7 @@
 **Implementer:** Claude Code  
 **Reviewer:** Cursor against this IC after the edit
 
-**Status:** IMPLEMENTED — REVIEWED PASS WITH NOTES @ **2523** — Engineer smoke  
+**Status:** CLOSED — REVIEWED PASS WITH NOTES @ **2523** + smoke **ACCEPT**  
 **Parents:**
 - Engineer ★ **`B1`** (2026-09-09) — “escribe ic” after investigation review
 - [investigation_review_kit_prop_adapter_ask_b0.md](investigation_review_kit_prop_adapter_ask_b0.md) **PASS WITH NOTES**
@@ -276,11 +276,12 @@ Record `engineer_smoke_kit_prop_adapter_ask_b1.md`.
 
 ## 7. Done when
 
-- [ ] T0–T8 green; full pytest green  
-- [ ] `git diff` shows **no** new strings inside `BLOCK_TO_COMPONENTS` lists  
-- [ ] No catalog seed, no version bump, no geometry, no shaft/hub comparison  
-- [ ] Report lists existing-test updates  
-- [ ] Report written  
+- [x] T0–T8 green; full pytest green  
+- [x] `git diff` shows **no** new strings inside `BLOCK_TO_COMPONENTS` lists  
+- [x] No catalog seed, no version bump, no geometry, no shaft/hub comparison  
+- [x] Report lists existing-test updates  
+- [x] Report written  
+- [x] Engineer smoke §6 **ACCEPT**  
 
 ---
 

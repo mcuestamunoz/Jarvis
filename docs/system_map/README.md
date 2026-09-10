@@ -1,7 +1,7 @@
 # Jarvis System Map — Navigation Guide
 
 **Version:** SYS-MAP-002 (split/navigability delta of SYS-MAP-001, reviewed PASS WITH NOTES)  
-**Date:** 2026-08-10 (subsystem deltas: 2026-08-18 post-ERF-1 — C-107–C-110; 2026-08-19 post-ERF-2 — C-111–C-112; 2026-08-31 post–Project Closure — IC 1–3 doc sync; 2026-09-01 post–Motor OP Voltage Coherence @ v0.3.4 — MOP-1…MOP-4 doc sync, no new C-xxx; **2026-09-05** Structure plate multiplicity B2 CLOSED @ suite **2294**; **2026-09-06** spatial board + B3 @ **2310**; **2026-09-07** Geometry `representar` + sensors honesty @ **2336**, Board glyph investigation OPEN — no new C-xxx)  
+**Date:** 2026-08-10 (subsystem deltas through **2026-09-10** Continuity spatial assembly @ **v0.4.0** / suite **2652** — no new C-xxx; C-094-class visor. Prior: Structure **2294** · board B3 **2310** · representar **2336**)  
 **Type:** As-is architecture documentation. Zero product behavior changes.
 
 ## How to navigate

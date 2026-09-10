@@ -58,7 +58,7 @@ añadir 20 keys a BLOCK_TO_COMPONENTS esta semana
 
 1. ~~Investigation~~ **REVIEWED** — [review](investigation_review_assembly_kit_template_b0.md) · [next steps](engineer_next_assembly_kit_template.md)  
 2. ~~B1-min~~ **CLOSED** — [smoke](engineer_smoke_assembly_kit_template_b1.md) **ACCEPT**.  
-3. Later ★: ~~B2 HD/VTX plate text~~ **CLOSED** + ACCEPT · ~~`prop_adapter`~~ **B1 REVIEWED** @ **2523** · kit SKUs **D OPEN** [contract](investigation_contract_kit_connector_harness_skus_d.md). Geometry L×W / GetFPV helix / `"cabe"` stay **other** queues.
+3. Later ★: ~~B2 HD/VTX plate text~~ **CLOSED** + ACCEPT · ~~`prop_adapter`~~ **CLOSED** + ACCEPT · ~~kit SKUs D~~ **CLOSED** + ACCEPT. Geometry L×W / GetFPV helix / `"cabe"` stay **other** queues.
 
 ---
 

@@ -79,10 +79,16 @@ export function Scene3D({ nodes, selectedId, onSelect }: Props) {
       geometry: n.geometry,
       declaredBoxPose: n.declaredBoxPose,
       solidCopies: n.solidCopies,
+      solidCopyOffsetsMm: n.solidCopyOffsetsMm,
     })),
   );
   const laidOut = layoutSolidsFromPose(
-    expanded.map((e) => ({ id: e.layoutId, geometry: e.geometry, declaredBoxPose: e.declaredBoxPose })),
+    expanded.map((e) => ({
+      id: e.layoutId,
+      geometry: e.geometry,
+      declaredBoxPose: e.declaredBoxPose,
+      offsetMm: e.offsetMm,
+    })),
     GAP_PX,
   );
   const originById = new Map(laidOut.map((l) => [l.id, l]));

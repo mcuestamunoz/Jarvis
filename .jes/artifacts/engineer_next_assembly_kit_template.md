@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-09  
 **Authority:** Cursor (JES) after reviewing Claude’s report  
-**Status:** Ordered queue — B1-min **CLOSED**. B2 plates **CLOSED**. Prop adapter B1 **REVIEWED** @ **2523**. Kit SKUs **D** [investigation OPEN](investigation_contract_kit_connector_harness_skus_d.md).  
+**Status:** Ordered queue — kit **CLOSED**. `"cabe"` B1-min **CLOSED** + ACCEPT.  
 **Parents:**
 - [investigation_review_assembly_kit_template_b0.md](investigation_review_assembly_kit_template_b0.md) **PASS WITH NOTES**
 - [investigation_report_assembly_kit_template_b0.md](investigation_report_assembly_kit_template_b0.md)
@@ -136,11 +136,11 @@ Ordered, do not skip:
 | # | Buy | Why later |
 |---|---|---|
 | A | **B2 seed** Rooster HD Cam + Rear VTX plates (Armattan Included, thickness only) | **CLOSED** [smoke](engineer_smoke_geometry_rooster_included_plates_b2.md) **ACCEPT** |
-| B | `prop_adapter` ask after hélices (temporal gate; no hub/shaft inference) | **REVIEWED** — wait ★ **B1** [review](investigation_review_kit_prop_adapter_ask_b0.md) |
+| B | `prop_adapter` ask after hélices (temporal gate; no hub/shaft inference) | **CLOSED** [smoke](engineer_smoke_kit_prop_adapter_ask_b1.md) **ACCEPT** |
 | C | FPV `vtx` / `receiver` as kit keys (N+2) | Overlap with `sensors` — investigate before adding |
-| D | Catalog SKUs for XT60 / harness **after** holes exist | **REVIEWED** [review](investigation_review_kit_connector_harness_skus_d.md) — wait ★ **B1**
+| D | Catalog SKUs for XT60 / harness **after** holes exist | **CLOSED** [smoke](engineer_smoke_kit_connector_harness_skus_d.md) **ACCEPT** |
 | E | Engineer-**declared** Rooster plate L×W if a box is wanted | Geometry; pages have no footprint |
-| F | `"cabe"` / fit | Mapping rung 5; still **QUEUED** |
+| F | `"cabe"` / fit | **CLOSED** [smoke](engineer_smoke_geometry_assembly_fit_cabe_b1.md) **ACCEPT** |
 | G | GetFPV helix census / Dinoblades new SKU | Catalog G, not P-kit |
 
 ---

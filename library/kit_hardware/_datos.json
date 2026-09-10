@@ -1,0 +1,27 @@
+{
+  "pololu_xt60_pair": {
+    "kit_key": "power_connector",
+    "manufacturer": "Pololu",
+    "model": "XT60 Connector Male-Female Pair, Yellow",
+    "part_number": "2175",
+    "color": "yellow",
+    "pin_config": "1x2",
+    "identity_status": "verified",
+    "source_url": "https://www.pololu.com/product/2175",
+    "source_note": "Pololu product page (item #2175, re-fetched 2026-09-09). Specs table states: color yellow, pin configuration 1x2, pin type straight. Page prose separately calls these 'high-current (60 A)' connectors — that is marketing copy, not a specs-table field, so current_a is NOT seeded here (review N4). No mass, no dimensions stated anywhere on the page — both omitted, not guessed."
+  },
+  "pihut_jst_sh_6pin_cab1009": {
+    "kit_key": "signal_harness",
+    "manufacturer": "The Pi Hut",
+    "model": "JST-SH Cable - 6 Pin",
+    "part_number": "CAB1009",
+    "pin_count": 6,
+    "pitch_mm": 1.0,
+    "wire_gauge_awg": 26,
+    "connector_gender": "female_both_ends",
+    "cable_length_options_mm": [100, 300],
+    "identity_status": "verified",
+    "source_url": "https://thepihut.com/products/jst-sh-cable-6-pin-pack-of-4",
+    "source_note": "The Pi Hut product page (SKU CAB1009, re-fetched 2026-09-09). States: 6 pins, 1.0mm pin spacing, 26AWG wire, female JST-SH connectors on both ends, cable length options 100mm or 300mm (catalog-only cable_length_options_mm — NOT projected as length_mm, a 1-D cable length is not a 3-axis box). No mass stated — omitted, not guessed."
+  }
+}

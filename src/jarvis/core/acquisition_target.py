@@ -136,8 +136,8 @@ COMPONENT_PROMPTS: dict[str, str] = {
     "motors":            "Describe los motores. Ej: '4x 2306 2400KV 50W'",
     "propellers":        "Describe las hélices. Ej: '10x4.5' o 'hélices de carbono'",
     "esc":               "Describe el ESC. Ej: 'ESC 30A'",
-    "power_connector":   "Describe el conector de potencia batería-ESC. Ej: 'XT60' — puedes dejarlo pendiente si aún no lo sabes.",
-    "signal_harness":    "Describe el harness/cableado de señal ESC-controladora. Ej: 'cable JST-SH 6 pines' — puedes dejarlo pendiente si aún no lo sabes.",
+    "power_connector":   "Describe el conector de potencia batería-ESC. Ej: 'XT60' — puedes dejarlo pendiente si aún no lo sabes. Di 'ayúdame a elegir' para ver el catálogo.",
+    "signal_harness":    "Describe el harness/cableado de señal ESC-controladora. Ej: 'cable JST-SH 6 pines' — puedes dejarlo pendiente si aún no lo sabes. Di 'ayúdame a elegir' para ver el catálogo.",
     "prop_adapter":      "¿Cómo montas la hélice? Va directa al eje, o con adaptador/collet/tuerca campana. Si no lo sabes, dilo — el hueco queda pendiente.",
 }
 

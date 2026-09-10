@@ -85,4 +85,4 @@ Pi Hut 100/300 mm must not become `length_mm` for `_geometry_from_spec`. Bind pr
 
 ## Phase
 
-Investigation **REVIEWED PASS WITH NOTES**. Wait Engineer ★ **B1** (or B2 / B0). Then Cursor writes the IC. Package `0.3.8` · suite **2523** · commit `4e7abec`.
+Investigation **REVIEWED PASS WITH NOTES**. Engineer ★ **B1** (2026-09-09). IC: [implementation_contract_kit_connector_harness_skus_d.md](implementation_contract_kit_connector_harness_skus_d.md). Package `0.3.8` · suite **2523** · commit `3600b37`.

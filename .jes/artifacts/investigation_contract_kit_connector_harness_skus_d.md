@@ -7,7 +7,7 @@
 **Reviewer:** Cursor (Investigation Review)  
 **Output (you write this):** `.jes/artifacts/investigation_report_kit_connector_harness_skus_d.md`
 
-**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · wait Engineer ★ Buy **B1** (recommended; B2 = bind-only)  
+**Status:** INVESTIGATION REVIEWED — PASS WITH NOTES · Engineer ★ **B1** · IC [implementation_contract_kit_connector_harness_skus_d.md](implementation_contract_kit_connector_harness_skus_d.md)  
 **Parents:**
 - Engineer ★ **`D`** (2026-09-09) — [engineer_next_assembly_kit_template.md](engineer_next_assembly_kit_template.md) §3 D
 - [engineer_lock_assembly_kit_template.md](engineer_lock_assembly_kit_template.md) — *template first, then catalog bind into named holes*

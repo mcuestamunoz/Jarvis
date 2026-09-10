@@ -3,7 +3,7 @@
 **Project:** Jarvis  
 **Date:** 2026-09-07  
 **Author:** JES / Cursor (Engineer Interface)  
-**Status:** **QUEUED — DO NOT IMPLEMENT**  
+**Status:** **QUEUED STUB — superseded.** Implement [implementation_contract_geometry_assembly_fit_cabe_b1.md](implementation_contract_geometry_assembly_fit_cabe_b1.md) instead. Do not implement this file.  
 **Queue position:** **3 of 3** (after pose investigation / B1+)
 
 **Parents:**

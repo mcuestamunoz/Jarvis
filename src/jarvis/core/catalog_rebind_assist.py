@@ -1,9 +1,9 @@
 """IDLE catalog rebind — resolve which family the user named.
 
 B2 shipped frame-only (``is_frame_rebind_phrase``). B3 extends the same
-bridge to motors / propellers / battery. Bare ``"ayúdame a elegir"`` (no
-family noun) returns ``None`` so FN-005's motor→propeller→battery triage
-stays unchanged.
+bridge to motors / propellers / battery. ESC visor rebind B1 adds ``esc``.
+Bare ``"ayúdame a elegir"`` (no family noun) returns ``None`` so FN-005's
+motor→propeller→battery triage stays unchanged.
 
 Phrases that name a SKU/value after the family (e.g. ``"definir bateria
 lipo_6s_10000mah"``) also return ``None`` — those keep the existing
@@ -16,18 +16,19 @@ from typing import Literal
 
 from jarvis.core.motor_catalog_assist import _normalize_help
 
-CatalogRebindKey = Literal["frame", "motors", "propellers", "battery"]
+CatalogRebindKey = Literal["frame", "motors", "propellers", "battery", "esc"]
 
 _REBIND_VERB_RE = re.compile(r"\b(?:cambiar|cambia|definir|define|modificar|modifica)\b")
 _HELP_CHOOSE_SOFT_RE = re.compile(r"\bayudame\b.*\b(?:elegir|escoger)\b")
 
 # Priority when multiple nouns appear (pathological): frame > motors >
-# propellers > battery. Normal user phrases name exactly one family.
+# propellers > battery > esc. Normal user phrases name exactly one family.
 _FAMILY_NOUN_PATTERNS: tuple[tuple[CatalogRebindKey, re.Pattern[str]], ...] = (
     ("frame", re.compile(r"\b(?:frame|chasis)\b")),
     ("motors", re.compile(r"\b(?:motores|motor)\b")),
     ("propellers", re.compile(r"\b(?:helices|helice|propellers|propeller)\b")),
     ("battery", re.compile(r"\b(?:baterias|bateria|batteries|battery)\b")),
+    ("esc", re.compile(r"\besc\b")),
 )
 
 # Tokens stripped when checking that the phrase is a pure reopen request
@@ -36,7 +37,7 @@ _PURE_PHRASE_STRIP_RE = re.compile(
     r"\b(?:ayudame|elegir|escoger|cambiar|cambia|definir|define|modificar|modifica|"
     r"el|la|los|las|de|del|un|una|al|a|"
     r"frame|chasis|motores|motor|helices|helice|propellers|propeller|"
-    r"baterias|bateria|batteries|battery)\b"
+    r"baterias|bateria|batteries|battery|esc)\b"
 )
 
 

@@ -516,6 +516,8 @@ def _bom_sku_resolved(catalog_ref: dict[str, str] | None) -> bool:
         return default_library.has_esc(sku)
     if family == "frame":
         return default_library.has_frame(sku)  # Structure Catalog Foundation IC-2
+    if family == "kit_hardware":
+        return default_library.has_kit_hardware(sku)  # Kit SKUs D B1
     return False  # no v1 resolve path for other families (★2)
 
 

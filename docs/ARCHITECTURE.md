@@ -98,7 +98,9 @@ Input de usuario
 
 > **Autoridad:** el estado del proyecto / Continuity / Acquisition Target eligen el *siguiente objetivo de ingeniería*. El LLM interpreta lenguaje; no inventa el gap pendiente. Sin Conversation Engine. Step D (Guided Engineering ampliado) y Create→BOM: fuera de este mapa hasta aprobación explícita — ver `docs/PROJECT_CONTINUITY.md` e `IMPLEMENTATION_TASKS.md`.
 
-**Visor espacial (as-is):** `jarvis board` lanza `ui/spatial-board/` (`127.0.0.1:5173`). `workspace/spatial_board.project_spatial_nodes` proyecta `ProjectState` a cards (`component`/`part`) y, desde B3, `kind: "slot"` para claves esperadas de bloques **declarados** que aún no están en `components`. Solo lectura (dos GET). El CLI / writers mutan el diseño. Layout `{x,y,w,h}` vive en `localStorage` (B1 `spatial_layout.json` no shipped). No es superficie v1 de mutación.
+**Visor espacial (as-is):** `jarvis board` → `ui/spatial-board/` (`127.0.0.1:5173`). `workspace/spatial_board.project_spatial_nodes` proyecta `ProjectState` a cards (`component`/`part`/`slot`) y DTOs de visor (`geometry`, `declaredBoxPose`, `solidCopies` / `solidCopyOffsetsMm`). Solo lectura (GETs); mutación = CLI / writers / Continuity IDLE.
+
+**Feature de producto — Continuity spatial assembly** (*situar el mapa*) — **checkpoint `v0.4.0`:** envelopes tipados/citados + pose Continuity (origen = caja; multi-hop) + Main Plate assembly root + copias de visor (motores/hélices/brazos/adaptador en quad-X; standoffs ×4 en esquinas de Main Plate). `mounted_on` guía relación, **no** milímetros. Screening AABB ≠ fit VERIFIED. El LLM no inventa cotas. SoT: [`.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`](../.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md). Layout 2D de cards `{x,y,w,h}` = `localStorage` (no es pose). **Cola:** drag/resize Board → mismos writers ([nota](../.jes/artifacts/engineer_note_board_drag_place_concept.md)); `standoff_count` generalista; plate label noun; sourced dims #4.
 
 ## Capas Del Sistema
 
@@ -1504,8 +1506,8 @@ Implementado:
 - **Project Closure arc (IC 1–3, `checkpoint-closure-policy`, 2026-08-31)**: Requirements explicit-none + G26 write path (`checkpoint-requirements-closure`); battery catalog pick + G27 hardening (`checkpoint-battery-catalog-bind-ux`); closure policy doc sync + propeller `sku_resolved` display fix (`checkpoint-closure-policy`). Suite **1976**. Product contract: `ENGINEERING_READINESS_VISION.md` §11. Deferred at the time: G24, H5 ESC catalog, frame SKU catalog, `catalog_bound`→verdict wiring.
 - **Structure representation arc (2026-09-04→05, post-`v0.3.6`):** Frame catalog IC-1→3 · honesty `PASS *` · Parts Graph Fase 1 · G-N1 · IDLE rebind B2+B3 · arm `thickness_mm` · plate multiplicity (`PlateSeed`/`plates[]`/ordinal siblings/`label`) — suite **2294** at Structure close. M0; Structure PASS evidence unchanged; free-text multi-plate + MEASURE wall = debt. Detail: `ENGINEERING_READINESS_VISION.md` §8 + `PHYSICAL_COMPONENT_CATALOG_V1.md` §13.
 - **Spatial board (2026-09-05→06):** viewport + projector hotfix **v0.3.8** + B3 honest-absence slots — suite **2310**. Visor read-only; slots ≠ BOM. Layout still `localStorage`.
-- **Geometry `representar` + sensors claim-copy (2026-09-06→07):** Battery/Motor/ESC catalog envelopes + FC Pixhawk 4 identity-linked dims (`aerial.FLIGHT_CONTROLLER_DIMENSIONS`) + sensors BOM honesty tails — live suite **2336**. Package still **0.3.8**. Glyphs/pose/fit **out**.
-- **1976 tests** at Project Closure close; **2294** plate multiplicity; **2310** B3 slots; **2336** as of sensors BOM honesty (2026-09-07)
+- **Geometry `representar` + sensors claim-copy (2026-09-06→07):** Battery/Motor/ESC catalog envelopes + FC Pixhawk 4 identity-linked dims + sensors BOM honesty — suite **2336**. Package **0.3.8**.
+- **Continuity spatial assembly (2026-09-08→10) → tag `v0.4.0`:** CSS 3D + click-inspect · Continuity pose · Scene3D-from-pose · multi-hop · assembly root · declared envelopes (battery/sensors/kit/plates/arm/loose) · visor X (motors/props/arms/adapter) · standoff ×4 Main Plate corners · plate/kit/loose pose subjects. Suite **2652**. Feature lock: `.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`. Fit VERIFIED QUEUED. Next ★: Board drag→pose investigation · `standoff_count` · plate noun · sourced #4.
 
 Pendiente:
 

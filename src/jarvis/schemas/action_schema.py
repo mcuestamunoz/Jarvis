@@ -136,7 +136,7 @@ class CatalogRef(BaseModel):
     docs/PHYSICAL_COMPONENT_CATALOG_V1.md, decision 1A.
     """
 
-    family: Literal["motor", "battery", "propeller", "esc", "frame"]
+    family: Literal["motor", "battery", "propeller", "esc", "frame", "kit_hardware"]
     sku: str
 
 
@@ -302,6 +302,16 @@ class InteractiveSessionState(BaseModel):
     # lists above — runtime-only (see state_manager._PERSISTED_SESSION_FIELDS
     # comment).
     frame_suggestions: list[dict] = Field(default_factory=list)
+    # Kit SKUs D B1: same tier as the four suggestion lists above —
+    # runtime-only (see state_manager._PERSISTED_SESSION_FIELDS comment),
+    # shared by both kit-hardware keys (power_connector/signal_harness) —
+    # the offer function filters by the active key, so a stale list from
+    # the other key is never shown.
+    kit_hardware_suggestions: list[dict] = Field(default_factory=list)
+    # ESC visor rebind B1: same tier as the five suggestion lists above —
+    # runtime-only (see state_manager._PERSISTED_SESSION_FIELDS comment).
+    # IDLE singleton ``expected_keys == ["esc"]`` only.
+    esc_suggestions: list[dict] = Field(default_factory=list)
     pending_param_definitions: list[str] = Field(default_factory=list)
     collected_params: dict[str, float] = Field(default_factory=dict)
     param_definition_reason: str = ""

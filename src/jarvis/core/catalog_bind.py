@@ -250,10 +250,10 @@ def bind_esc_from_catalog(
 
     Projects ``continuous_current_a`` from the catalog into ``current_a`` —
     the property ``electrical_compatibility`` already reads for per-channel
-    ESC-vs-motor comparison. No CLI/UX entry point calls this yet — no ESC
-    catalog-pick wizard exists in Continuity/orchestrator; exposed as a
-    deterministic, test-callable/script-callable API mirroring
-    ``bind_battery_from_catalog``.
+    ESC-vs-motor comparison. Cited L×W×H (when present) project as the ESC
+    box envelope. IDLE ``cambiar esc`` / singleton pick call this with
+    ``base=`` the live spec so ``declared_box_pose`` / ``mounted_on`` survive.
+    Not a propulsion-composite wizard.
     """
     lib = library or default_library
     spec = lib.get_esc(sku)
@@ -297,6 +297,72 @@ def bind_esc_from_catalog(
         suggested_key="esc",
         inference_confidence=0.95,
         completeness="high",
+        source="declared",
+        properties=projected,
+        catalog_ref=catalog_ref,
+    )
+
+
+def bind_kit_hardware_from_catalog(
+    sku: str,
+    *,
+    library: ComponentLibrary | None = None,
+    base: ComponentSpec | None = None,
+) -> ComponentSpec:
+    """Kit SKUs D B1 — project a catalog kit-hardware SKU (a
+    ``power_connector``/``signal_harness`` row) into a ``ComponentSpec``
+    with ``catalog_ref`` set.
+
+    ``suggested_key``/``component_type`` come from the row's own ``kit_key``
+    (never hardcoded here) — the same bind function serves both kit holes,
+    matching the unified ``KitHardwareSpec`` family. Projects only the
+    cited scalar identity/electrical fields that are NOT geometry keys
+    (``pin_count``, ``pitch_mm``, ``wire_gauge_awg``, ``color``,
+    ``pin_config``) — never ``length_mm``/``width_mm``/``height_mm``/any
+    ``diameter_*`` (neither seeded row states a dimension, and
+    ``cable_length_options_mm`` is catalog-only, never projected as
+    ``length_mm``). Completeness is promoted to at least ``"medium"`` —
+    identity-only, same floor the kit free-text relabel already uses —
+    never forced down if the caller's own ``base`` was already higher.
+    """
+    lib = library or default_library
+    spec = lib.get_kit_hardware(sku)
+    catalog_ref = CatalogRef(family="kit_hardware", sku=sku)
+    projected: dict[str, PropertyValue] = {}
+    if spec.pin_count is not None:
+        projected["pin_count"] = PropertyValue(
+            value=spec.pin_count, confidence=0.9, source="declared"
+        )
+    if spec.pitch_mm is not None:
+        projected["pitch_mm"] = PropertyValue(
+            value=spec.pitch_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.wire_gauge_awg is not None:
+        projected["wire_gauge_awg"] = PropertyValue(
+            value=spec.wire_gauge_awg, unit="AWG", confidence=0.9, source="declared"
+        )
+    if spec.color is not None:
+        projected["color"] = PropertyValue(
+            value=spec.color, confidence=0.9, source="declared"
+        )
+    if spec.pin_config is not None:
+        projected["pin_config"] = PropertyValue(
+            value=spec.pin_config, confidence=0.9, source="declared"
+        )
+    if base is not None:
+        merged_properties = {**(base.properties or {}), **projected}
+        promoted = "medium" if (base.completeness or "low") == "low" else base.completeness
+        return base.model_copy(update={
+            "properties": merged_properties,
+            "completeness": promoted,
+            "catalog_ref": catalog_ref,
+        })
+    return ComponentSpec(
+        name=spec.name,
+        component_type=spec.kit_key,
+        suggested_key=spec.kit_key,
+        inference_confidence=0.9,
+        completeness="medium",
         source="declared",
         properties=projected,
         catalog_ref=catalog_ref,

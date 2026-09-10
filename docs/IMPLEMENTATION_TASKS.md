@@ -6,19 +6,72 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.3.8`** / `checkpoint-spatial-board-projector` (paquete `0.3.8`). Suite viva **2514**.  
-> **PRIORIDAD AHORA:** Kit SKUs **D REVIEWED** — wait ★ **B1** (help-choose into existing holes). Adapter B1 **REVIEWED** @ **2523**. Kit B1-min **CLOSED**. Fit QUEUED.  
-> **Eje ★:** [review](../.jes/artifacts/investigation_review_kit_connector_harness_skus_d.md).  
-> **Cola:** **★ D B1** → IC → `"cabe"` last.
+> **Base:** tag **`v0.4.0`** / `checkpoint-continuity-spatial-assembly` (paquete `0.4.0`). Suite viva **2652**.  
+> **PRIORIDAD AHORA:** (vacío de código) — Continuity spatial assembly **CLOSED @ v0.4.0**. Siguiente ★: investigación **Board drag→pose** ([nota](../.jes/artifacts/engineer_note_board_drag_place_concept.md)) o cola B4/plate noun/#4.  
+> **Feature:** [Continuity spatial assembly](../.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md).  
+> **Cola:** B4 `standoff_count` · plate label noun · #4 sourced · drag-place investigation.  
+> **Role:** Claude = `src/`/`ui/`. Cursor = IC/review/PRIORIDAD only.
 
-### 🟡 INVESTIGATION REVIEWED — Kit SKUs D (XT60 / harness) (2026-09-09) · PASS WITH NOTES
+### 🟢 CERRADO — Frame standoff ×4 corners B1 (2026-09-10) · suite **2652** + ACCEPT
 
-> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_kit_connector_harness_skus_d.md) · [report](../.jes/artifacts/investigation_report_kit_connector_harness_skus_d.md) · [review](../.jes/artifacts/investigation_review_kit_connector_harness_skus_d.md).  
-> **★:** `B1` (recommended: 1+1 cited rows + bind + kit help-choose) · `B2` (bind-only, no picker) · `B0` park. **Forbidden:** scrape, 3D, XT60-vs-battery inference.
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_frame_standoff_corners_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_frame_standoff_corners_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_frame_standoff_corners_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_geometry_frame_standoff_corners_b1.md) **ACCEPT**. 5min: 4 pilares en esquinas Main Plate (±47.5), no en X motores.
 
-### 🟡 REVIEWED — Prop adapter ask B1 (2026-09-09) · suite **2523**
+### 🟢 CERRADO — Prop adapter visor X B1 (2026-09-10) · suite **2646** + ACCEPT
 
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_kit_prop_adapter_ask_b1.md) · [report](../.jes/artifacts/implementation_report_kit_prop_adapter_ask_b1.md) · [review](../.jes/artifacts/implementation_review_kit_prop_adapter_ask_b1.md) **PASS WITH NOTES**. Engineer ★ **D** (proceed). Sequential wizard: hélices → mount Brief → ESC. `"definir esc"` does not steal to adapter (N1).
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_prop_adapter_visor_x_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_prop_adapter_visor_x_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_prop_adapter_visor_x_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_geometry_prop_adapter_visor_x_b1.md) **ACCEPT**. 5min: 4 adaptadores en la X · una card.
+
+### 🟡 LANDING — Loose structure envelope+pose B1 (2026-09-10) · suite **2640** · review/smoke pending
+
+> **IC / Report:** [IC](../.jes/artifacts/implementation_contract_geometry_loose_structure_envelope_pose_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_loose_structure_envelope_pose_b1.md). Allowlist adapter/standoff/cage/caps + pose subjects. Engineer walk: poses + dims on 5min; multiplicity adapter = **next** IC.
+
+### 🟢 CERRADO — Frame arm envelope + visor X B1 (2026-09-10) · suite **2622** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_frame_arm_visor_x_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_frame_arm_visor_x_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_frame_arm_visor_x_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_geometry_frame_arm_visor_x_b1.md) **ACCEPT**. 5min: brazo 80×20×4 → 4 cajas en la X · una card. “parece un dron.”
+
+### 🟢 CERRADO — Declared battery + Main Plate envelope B1 (2026-09-09) · suite **2583** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_declared_battery_plate_envelope_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_declared_battery_plate_envelope_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_declared_battery_plate_envelope_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_geometry_declared_battery_plate_envelope_b1.md) **ACCEPT**. 5min: battery 80×34×22 declared; Main Plate 100×100 H=4 from thickness; wheelbase still 230.
+
+### 🟢 CERRADO — ESC visor rebind B1 (2026-09-09) · suite **2573** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_esc_visor_rebind_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_esc_visor_rebind_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_esc_visor_rebind_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_geometry_esc_visor_rebind_b1.md) **ACCEPT**. 5min: Hobbywing box 50×21.6×12; pose 5/0/0 vs FC survived; screening overlap (not VERIFIED). X disks unchanged. Gap X-vs-stack is two origins, not this Buy.
+
+### 🟢 CERRADO — Visor X stations B1 (2026-09-09) · suite **2562** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_visor_x_stations_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_visor_x_stations_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_visor_x_stations_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_geometry_visor_x_stations_b1.md) **ACCEPT**. 5min: Rooster 230/`quad_x` + RaceSpec → 4+4 in X. Motor disk inside hélice (Z=0). 10min N=3 stays row.
+
+### 🟢 CERRADO — Motor visor rebind B1 (2026-09-09) · suite **2555** · smoked with stations
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_motor_visor_rebind_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_motor_visor_rebind_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_motor_visor_rebind_b1.md) **PASS WITH NOTES**. Glue tests @ 2555. Live 5min RaceSpec walked with visor X smoke.
+
+### 🟢 CERRADO — Propeller visor copies B1 (2026-09-09) · suite **2550** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_propeller_visor_copies_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_propeller_visor_copies_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_propeller_visor_copies_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_geometry_propeller_visor_copies_b1.md) **ACCEPT**. 5min: **4** disks, one hélices card, motors invisible. 10min projector: **3**. Not an X of 230.
+
+### 🟢 CERRADO (investigación) — 4 motors + hélices in space (2026-09-09) · ★ B1-copies-prop → IC
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_quadrotor_kit_in_space_b0.md) · [report](../.jes/artifacts/investigation_report_geometry_quadrotor_kit_in_space_b0.md) · [review](../.jes/artifacts/investigation_review_geometry_quadrotor_kit_in_space_b0.md) **PASS WITH NOTES**.
+
+### 🟢 CERRADO — Geometry assembly fit B1-min (2026-09-09) · suite **2540** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_assembly_fit_cabe_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_assembly_fit_cabe_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_assembly_fit_cabe_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_geometry_assembly_fit_cabe_b1.md) **ACCEPT**. 5min: ESC sin caja → no compara. 10min: `sobres se solapan — screening, no verificado`. Sim FAIL on 10min is energy, not fit.
+
+### 🟡 INVESTIGATION REVIEWED — `"cabe"` / fit vs spatial situation (2026-09-09) · PASS WITH NOTES · ★ B1-min
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_geometry_assembly_fit_cabe_b0.md) · [report](../.jes/artifacts/investigation_report_geometry_assembly_fit_cabe_b0.md) · [review](../.jes/artifacts/investigation_review_geometry_assembly_fit_cabe_b0.md).  
+> Live: one incomplete pose `esc→FC` on `autonomía-de-10min`. Default Buy: AABB in declared mm, fail-closed missing axis, never `"cabe"`/VERIFIED. Visor `?? 0` must not leak.
+
+### 🟢 CERRADO — Kit SKUs D B1 (2026-09-09) · suite **2532** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_kit_connector_harness_skus_d.md) · [report](../.jes/artifacts/implementation_report_kit_connector_harness_skus_d.md) · [review](../.jes/artifacts/implementation_review_kit_connector_harness_skus_d.md) · [smoke](../.jes/artifacts/engineer_smoke_kit_connector_harness_skus_d.md) **ACCEPT**. Free-text `XT60` still valid; harness `ayúdame a elegir` → `#1` CAB1009. Hover 2.94. No 3D kit solid.
+
+### 🟢 CERRADO (investigación) — Kit SKUs D (2026-09-09) · ★ B1 → IC
+
+> **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_kit_connector_harness_skus_d.md) · [report](../.jes/artifacts/investigation_report_kit_connector_harness_skus_d.md) · [review](../.jes/artifacts/investigation_review_kit_connector_harness_skus_d.md) **PASS WITH NOTES**.
+
+### 🟢 CERRADO — Prop adapter ask B1 (2026-09-09) · suite **2523** + ACCEPT
+
+> **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_kit_prop_adapter_ask_b1.md) · [report](../.jes/artifacts/implementation_report_kit_prop_adapter_ask_b1.md) · [review](../.jes/artifacts/implementation_review_kit_prop_adapter_ask_b1.md) · [smoke](../.jes/artifacts/engineer_smoke_kit_prop_adapter_ask_b1.md) **ACCEPT**. `definir adapter` → `no lo sé` deja hueco; `con adaptador/collet` cierra BOM. 4/4 y margen 2.94 intactos. Autonomy gap is energy, not adapter. `"definir esc"` does not steal (N1).
 
 ### 🟢 CERRADO (investigación) — Prop adapter ask after hélices (2026-09-09) · ★ B1 → IC
 
@@ -88,7 +141,7 @@
 
 ### 🔒 LOCKED — 3D mapping path · five rungs (2026-09-08)
 
-> **Lock:** [engineer_lock_geometry_3d_mapping_path.md](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Rungs 1–3 CLOSED. Rung 4 **B0**. Kit B1-min **CLOSED**. Rooster plates **B2 CLOSED**. Prop adapter ask **REVIEWED** (wait ★ B1).
+> **Lock:** [engineer_lock_geometry_3d_mapping_path.md](../.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md). Rungs 1–3 CLOSED. Rung 4 **B0**. Kit B1-min **CLOSED**. Rooster plates **B2 CLOSED**. Prop adapter ask **CLOSED** + ACCEPT.
 
 ### 🟢 CERRADO (walk) — Pre-assembly reds R1/R2 (2026-09-08) · CLI · no IC
 

@@ -6,18 +6,16 @@
  *   ~/.cursor/projects/<workspace>/canvases/jarvis-system-map.canvas.tsx
  *
  * Counts: 65 unique C-xxx in ID space (CONNECTIONS.md canonical registry):
- *   63 connected · 1 removed (C-032 G23) · 2 partial (C-081, C-108) · 10 forbidden.
+ *   63 connected · 1 removed (C-032 G23) · 2 partial (C-081, C-108) · 12 forbidden.
  * Updated 2026-08-10 FN-024 · 2026-08-12 FN-025/026 · 2026-08-18 ERF-1 · 2026-08-19 ERF-2.
  * Updated 2026-08-20 G21/G22 (C-030 catalog bind UX) · G23 (C-032 REMOVED — FN-015 deleted).
- * Updated 2026-09-04 v0.3.6 — experimental construction closed; claim hygiene
- * B4 CLOSED (suite 2160); control parity CLOSED (suite 2164).
- * Updated 2026-09-05 — Structure plate multiplicity B2 CLOSED (suite 2294).
- * Updated 2026-09-06 — Spatial board visor + B3 slots on live tree (suite 2310);
- * PRIORIDAD = Board glyph vocabulary investigation (visualizar). Suite 2336.
- * Board is derived visor, no new C-xxx. Progression: dims → glyphs → pose → fit.
- * Prior: v0.3.4 MOP.
- * Updated 2026-09-01 Phase 2.5–2.7-B + Option A — C-060 detail only (product writer); no new C-xxx.
- * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's software queue.
+ * Updated 2026-09-04→05 — v0.3.6 / claim hygiene / Structure plate multiplicity (2294).
+ * Updated 2026-09-06→07 — Spatial board visor + Geometry representar (2310→2336).
+ * Updated 2026-09-08→10 — Continuity spatial assembly → tag v0.4.0 / suite 2652:
+ * envelopes + pose + multi-hop + assembly root + solidCopies (quad-X +
+ * standoff corners) + plate/kit/loose subjects. No new C-xxx (C-094-class).
+ * PRIORIDAD = wait Engineer ★ (Board drag→pose concept). Fit VERIFIED QUEUED.
+ * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's queue.
  * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
  * Internal G23 anti-LLM gate (confusion phrase → re-ask / project_status) is not a C-xxx edge.
  */
@@ -223,6 +221,8 @@ const FORBIDDEN = [
   ["Goal Planner → write params", "zero writes in goal_planner"],
   ["Inference → write components", "only via C-091 writers"],
   ["Analyze → choose next gap", "analyze returns string only"],
+  ["Spatial board visor → writers / DEFINE / catalog", "U1 visor — GET only by design"],
+  ["LLM → invent mute L×W / pose mm", "declared or cited only — feature lock"],
 ];
 
 const BANDS = [
@@ -441,15 +441,18 @@ export default function JarvisSystemMapCanvas() {
         </Text>
       </Stack>
 
-      <Callout tone="neutral" title="Product queue — Geometry visualizar (v0.3.8 · suite 2336)">
-        Baseline tag v0.3.8 · live suite 2336. Structure CLOSED. Geometry
-        representar (Battery/Motor/ESC/FC) + sensors BOM honesty CLOSED.
-        Spatial board = read-only visor (no new C-xxx). PRIORIDAD = Board
-        glyph vocabulary investigation — no IC, no code. Progression lock:
-        dims → glyphs → pose → assembly → fit (no jump to “cabe”).
-        Prop/Energy = HD-004 wall. System Optimization deferred. Board B1
-        layout-on-disk is named debt, not PRIORIDAD. C-081 and C-108 remain
-        deferred map debt. HD-* never PRIORIDAD without lab.
+      <Callout
+        tone="info"
+        title="Product queue — Continuity spatial assembly SHIPPED (v0.4.0 · suite 2652)"
+      >
+        Feature closed: situar el mapa — envelopes + pose + multi-hop +
+        Main Plate root + solidCopies (motors/props/arms/adapter on X;
+        standoffs ×4 on Main Plate corners). No new C-xxx. Lock:
+        .jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md.
+        PRIORIDAD: wait Engineer ★ — Board drag/resize → same writers
+        (concept note) or cola (standoff_count / plate noun / sourced #4).
+        Fit VERIFIED QUEUED. C-081 / C-108 deferred. HD-* never PRIORIDAD
+        without lab. Board B1 layout-on-disk = named debt.
       </Callout>
 
       <Grid columns={6} gap={12}>
@@ -515,9 +518,20 @@ export default function JarvisSystemMapCanvas() {
         ProjectState / Acquisition own acquisition targets. Gap registry +
         assembly rollup: engineering_readiness (ERF-1/2, C-107/C-111). Human
         next-step copy: Continuity (C-108 partial for catalog gap only). LLM
-        narrates only. ActionPolicy = CREATE_PROJECT | ITERATE | CALCULATE |
+        narrates only — never invents mute geometry mm. Spatial assembly
+        writers = Continuity declare assists → component_writers; visor is
+        read-only. ActionPolicy = CREATE_PROJECT | ITERATE | CALCULATE |
         SIMULATE. G23: FN-015 deleted — no `ayúdame a definir` product path;
         confusion phrases → short re-ask (wizard) or Continuity (IDLE).
+      </Callout>
+
+      <Callout tone="success" title="Shipped — Continuity spatial assembly @ v0.4.0 (2026-09-08→10)">
+        Envelope declare · pose (electronics / plate / kit / loose) ·
+        Scene3D-from-pose · multi-hop · assembly root · motor/prop/arm/adapter
+        X · standoff Main Plate corners · screening “cabe” B1-min. Open:
+        Board drag→writers · standoff_count · plate noun · sourced dims ·
+        fit VERIFIED. Registry unchanged — 63 connected · 1 removed · 2
+        partial. Suite 2652.
       </Callout>
 
       {filter !== "forbidden" ? (

@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-08  
 **Authority:** Engineer (`Viuelvo con lo de antes` — solutions for 3D mapping; document then work)  
-**Status:** ★ LOCKED — ordered queue. Items **1–3 CLOSED**. B2 **REVIEWED**. Rung **4 B0** (no sourced Rooster box). Kit template B1-min **CLOSED**. Fit still **QUEUED**.  
+**Status:** ★ LOCKED — ordered queue. Items **1–3 CLOSED**. Rung **4 B0**. Kit / adapter / SKUs D **CLOSED**. `"cabe"` B1-min **CLOSED**.  
 **Parents:**
 - [engineer_lock_geometry_3d_placement_horizon.md](engineer_lock_geometry_3d_placement_horizon.md)
 - [engineer_lock_geometry_pre_assembly_honesty.md](engineer_lock_geometry_pre_assembly_honesty.md) — R1/R2 **CLOSED** CLI; envelope ≠ reconstructed part
@@ -15,7 +15,7 @@
 
 ## Locked reading
 
-The visor already draws **declared** envelopes. Rungs 1–3 **CLOSED**. Rung 4 **B0**. Kit template **B1-min CLOSED**. Rooster Included plates **B2 CLOSED**. Prop adapter ask **B1 IC APPROVED** ([IC](implementation_contract_kit_prop_adapter_ask_b1.md)). Fit still **QUEUED**.
+The visor already draws **declared** envelopes. Rungs 1–3 **CLOSED**. Rung 4 **B0**. Kit template **B1-min CLOSED**. Rooster Included plates **B2 CLOSED**. Prop adapter ask **CLOSED** + ACCEPT ([smoke](engineer_smoke_kit_prop_adapter_ask_b1.md)). `"cabe"` investigation **OPEN** ([contract](investigation_contract_geometry_assembly_fit_cabe_b0.md)).
 
 Two products (do not collapse):
 
@@ -65,9 +65,9 @@ origen, ejes L→+X W→+Y H→+Z declarados. Aún no es el Rooster ni “cabe.�
 
 [Review](investigation_review_geometry_plate_lw_sourced_b1.md) **PASS WITH NOTES**. Rooster: **no** cited footprint. Gap holds. No wheelbase-as-box. Optional text plates / Engineer-declared L×W = later ★. [Kit-template frontier](engineer_lock_assembly_kit_template.md) is a **different** product (novice assemble list), not this rung.
 
-### 5. `"cabe"` last
+### 5. `"cabe"` last — **CLOSED** @ **2540** + smoke ACCEPT
 
-Fit stub stays **QUEUED**. Compare against a **spatial situation** (after 1, and whatever of 2–4 shipped), never card-lane overlap.
+[Smoke](engineer_smoke_geometry_assembly_fit_cabe_b1.md) **ACCEPT**. Stub [fit IC](implementation_contract_geometry_assembly_fit_compare.md) remains historical.
 
 ---
 
@@ -79,4 +79,4 @@ Full catalog refresh · Here3 unfreeze · battery L/W/H remap · `istand` · STE
 
 ## Mode
 
-Rung **1–3 CLOSED**. Rung 4 **B0**. Kit template investigation READY. Package `0.3.8`.
+Rung **1–3 CLOSED**. Rung 4 **B0**. `"cabe"` investigation OPEN. Package `0.3.8` · suite **2532**.

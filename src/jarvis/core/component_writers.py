@@ -47,7 +47,7 @@ from jarvis.core.catalog_bind import (
     bind_motor_from_catalog,
     bind_propeller_from_catalog,
 )
-from jarvis.domains.aerial import _frame_completeness, _structure_part_completeness
+from jarvis.domains.aerial import _frame_completeness, _structure_part_completeness, is_frame_plate_key
 from jarvis.knowledge.library import _OP_VOLTAGE_EPSILON_V, default_library, resolve_operating_point
 from jarvis.schemas.action_schema import CatalogRef, ComponentSpec, PropertyValue
 from jarvis.tools.electricity import estimate_battery_mass_kg
@@ -341,6 +341,105 @@ def set_component_declared_box_pose(project_state: Any, component_key: str, pose
                 "no puede ser origen de pose."
             )
         updated_spec = spec.model_copy(update={"declared_box_pose": pose})
+
+    updated_components = {**components, component_key: updated_spec}
+    updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
+    return project_state.model_copy(update={"design_properties": updated_dp})
+
+
+# Declared sensors + kit envelope B1 / Frame arm envelope + visor X copies
+# B1 / Loose structure/kit envelopes + pose subjects B1: the writer's
+# allowlist grew by exactly these literal keys, alongside
+# `is_frame_plate_key` (checked by predicate). Each of `prop_adapter`,
+# `frame_standoff`, `frame_cage`, `frame_caps` is a single fixed key — never
+# N siblings the way plates use ordinals. Still never `frame` root, motors,
+# ESC, FC, propellers, or any other key — `ValueError` for every one of
+# those, same as before this Buy.
+_ENVELOPE_ALLOWED_LITERAL_KEYS = frozenset({
+    "battery", "sensors", "power_connector", "signal_harness", "frame_arm",
+    "prop_adapter", "frame_standoff", "frame_cage", "frame_caps",
+})
+
+
+def set_component_declared_box_envelope(
+    project_state: Any,
+    component_key: str,
+    length_mm: float | None,
+    width_mm: float | None,
+    height_mm: float | None,
+) -> Any:
+    """Declared battery/sensors/kit/arm/loose-structure envelope + Main
+    Plate L×W B1 — único punto de escritura para el triple
+    ``length_mm``/``width_mm``/``height_mm`` DECLARADO (texto libre del
+    Engineer, ``source="declared"``), sobre exactamente estas familias:
+    ``battery``, ``sensors``, ``power_connector``, ``signal_harness``,
+    ``frame_arm``, ``prop_adapter``, ``frame_standoff``, ``frame_cage``,
+    ``frame_caps`` (claves literales, ``_ENVELOPE_ALLOWED_LITERAL_KEYS``) y
+    cualquier ``frame_plate*`` (``is_frame_plate_key``). Nunca ``frame``
+    root, motores, ESC, FC, hélices ni cualquier otra clave —
+    ``ValueError`` para cualquiera de esas, nunca un sobre inventado.
+
+    SET (los tres floats finitos y > 0): fusiona SOLO esas tres claves en
+    ``spec.properties`` — preserva ``catalog_ref``, ``declared_box_pose``,
+    ``mounted_on``, ``name``, ``parent_key`` y cualquier otra propiedad
+    (incluida ``thickness_mm`` de una placa o de un brazo, o los campos
+    pin/pitch de un kit: este writer nunca los toca ni los borra). Nunca
+    pasa por
+    ``set_battery_component`` ni por ningún bind de catálogo — los físicos
+    de energía (``battery_capacity_wh``/``mass_g``/``cell_count``/
+    ``catalog_ref``) y la identidad de kit quedan intactos, y estos mm nunca
+    entran en ``current_parameters`` — son display-only (``representar``),
+    igual que el envelope citado de catálogo (Battery envelope catalog B1).
+
+    CLEAR (los tres ``None``): pop de las tres claves si presentes —
+    idempotente (mismo estado devuelto) si ya están ausentes.
+
+    Returns the updated ProjectState (not persisted — caller must save).
+    """
+    if component_key not in _ENVELOPE_ALLOWED_LITERAL_KEYS and not is_frame_plate_key(component_key):
+        raise ValueError(
+            f"'{component_key}' no admite un sobre L×W×H declarado — "
+            "solo 'battery', 'sensors', 'power_connector', 'signal_harness', "
+            "'frame_arm', 'prop_adapter', 'frame_standoff', 'frame_cage', "
+            "'frame_caps' o una placa del frame."
+        )
+
+    components = project_state.design_properties.components
+    spec = components.get(component_key)
+    if spec is None:
+        raise ValueError(f"'{component_key}' no declarado — no se puede fijar el sobre.")
+
+    all_none = length_mm is None and width_mm is None and height_mm is None
+    if all_none:
+        props = dict(spec.properties or {})
+        changed = False
+        for key in ("length_mm", "width_mm", "height_mm"):
+            if props.pop(key, None) is not None:
+                changed = True
+        if not changed:
+            return project_state
+        updated_spec = spec.model_copy(update={"properties": props})
+    else:
+        for label, value in (
+            ("length_mm", length_mm), ("width_mm", width_mm), ("height_mm", height_mm),
+        ):
+            if value is None or not (float(value) > 0):
+                raise ValueError(
+                    f"'{label}' debe ser un número finito mayor que 0 para declarar el sobre."
+                )
+        merged_properties = {
+            **(spec.properties or {}),
+            "length_mm": PropertyValue(
+                value=float(length_mm), unit="mm", confidence=0.9, source="declared"
+            ),
+            "width_mm": PropertyValue(
+                value=float(width_mm), unit="mm", confidence=0.9, source="declared"
+            ),
+            "height_mm": PropertyValue(
+                value=float(height_mm), unit="mm", confidence=0.9, source="declared"
+            ),
+        }
+        updated_spec = spec.model_copy(update={"properties": merged_properties})
 
     updated_components = {**components, component_key: updated_spec}
     updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
