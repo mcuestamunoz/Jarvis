@@ -1,0 +1,14 @@
+---
+description: JES role split — Cursor drafts ICs; Claude implements
+alwaysApply: true
+---
+
+# JES implementation role split
+
+When an Implementation Contract (IC) is approved / Engineer says proceed on a Buy:
+
+- **Cursor (this agent):** write or refine the IC, cola notes, PRIORIDAD, and **review** after code exists. Do **not** implement `src/`, `ui/`, `tests/`, or `library/` for that IC.
+- **Claude Code:** implement the IC and write the implementation report.
+- **Cursor again:** independent implementation review against the IC (do not treat same-session self-PASS as review of record).
+
+Exceptions only if the Engineer explicitly says Cursor should implement (e.g. “implementa tú” / “Cursor code”).

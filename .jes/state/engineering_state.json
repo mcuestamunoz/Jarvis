@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Board drag pose B1 REVIEWED PASS @ 2668 — await Engineer smoke. LLM pending deactivate annotated.",
+  "cycle_intent": "B1-plate-box IC READY FOR ★ (data-gated §0.1). Mount standard assist B1 REVIEWED PASS @ 2763 — smoke still pending.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "in_progress",
-  "current_mode": "Idle — await Engineer smoke Situar (board_drag_pose_b1)",
-  "active_operation": "await_engineer_smoke_board_drag_pose_b1",
+  "current_mode": "Await Engineer ★ + §0.1 bag for plate-box; smoke mount_standard_assist_b1 + prior pending smokes",
+  "active_operation": "await_star_plate_box_b1_and_smoke_mount_assist",
   "movement_trigger": {
-    "type": "engineer_smoke",
-    "note": "2026-09-10 review PASS WITH NOTES — Situar battery/FC/ESC; LLM deactivate note filed"
+    "type": "engineer_star_or_smoke",
+    "note": "2026-09-13 plate-box IC drafted; mount assist review PASS WITH NOTES — N4 engineering_state checkout risk flagged."
   },
   "relevant_workflow_phases": [
     "Verification"
@@ -298,6 +298,9 @@
     "geometry_3d_rendering_tech_investigation": "REVIEWED_PASS_WITH_NOTES_BUY_B1",
     "geometry_board_css3d_solids_b1_ic": "CLOSED_PASS_WITH_NOTES_2429_SMOKE_ACCEPT",
     "geometry_assembly_fit_compare_ic": "QUEUED_STUB_BLOCKED",
-    "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310"
+    "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310",
+    "board_drone_default_layout_b0_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_KEPT_BUY_B1_MOUNT_STANDARD_ASSIST",
+    "mount_standard_assist_b1_ic": "REVIEWED_PASS_WITH_NOTES_AWAIT_ENGINEER_SMOKE_2763",
+    "geometry_plate_box_b1_ic": "READY_FOR_STAR_DATA_GATED"
   }
 }

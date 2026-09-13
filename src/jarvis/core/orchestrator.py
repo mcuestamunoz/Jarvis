@@ -993,6 +993,19 @@ class JarvisOrchestrator:
                 return mount_result
 
         # ─────────────────────────────────────────────────────────────────────
+        # ── Mount standard assist B1: IDLE "montajes estándar" / "qué falta
+        # montar" lists undeclared, in-scope standard mounts (prop→motor,
+        # motor→arm, aviónica→placa/frame) plus the exact phrase to type —
+        # suggest-only, never writes. Checked right after the mount-declare
+        # bridge (same conceptual family) so a checklist request never falls
+        # into unrelated triage.
+        if current_session.mode == OrchestratorMode.IDLE:
+            checklist_result = self._try_handle_mount_standard_assist(user_input)
+            if checklist_result is not None:
+                self._track_turn(user_input, checklist_result)
+                return checklist_result
+
+        # ─────────────────────────────────────────────────────────────────────
         # ── Catalog-bound Property Freshness B1: IDLE "actualiza/refresca X
         # desde catálogo" re-projects a catalog-bound component's physicals
         # from the current seed via refresh_component_from_catalog.
@@ -1888,6 +1901,40 @@ class JarvisOrchestrator:
         return {
             "status": "ok",
             "action": "component_description_saved",
+            "message": message,
+        }
+
+    def _try_handle_mount_standard_assist(self, user_input: str) -> dict | None:
+        """Mount standard assist B1: IDLE "montajes estándar" / "qué falta
+        montar" lists which in-scope standard mounts (prop→motor,
+        motor→arm, aviónica→placa/frame) are still undeclared on the
+        CURRENT project, plus the exact Continuity phrase that would
+        declare each — the user retypes that phrase (or a candidate key
+        for ambiguous rows) in a following turn, which then flows through
+        the existing, unchanged _try_handle_mounted_on_declare bridge.
+
+        Suggest-only: this method never calls a writer and never mutates
+        ProjectState. Returns None when the phrase isn't a checklist
+        request at all, so the caller falls through to normal routing.
+        """
+        from jarvis.core.mount_standard_assist import (
+            build_mount_standard_checklist,
+            format_mount_standard_checklist,
+            is_mount_standard_assist_trigger,
+        )
+
+        if not is_mount_standard_assist_trigger(user_input):
+            return None
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        suggestions = build_mount_standard_checklist(components)
+        message = format_mount_standard_checklist(suggestions)
+        return {
+            "status": "ok",
+            "action": "mount_standard_checklist",
             "message": message,
         }
 
