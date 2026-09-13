@@ -223,13 +223,20 @@ def format_silhouette_checklist(assessment: SilhouetteAssessment) -> str:
         lines.append(line)
 
     if assessment.verdict == "silueta_estimada":
+        # Fit relations checklist B1 (lock #9): scoped to THIS checklist
+        # only — never implies project Requirements/ASSEMBLY READY, which
+        # is a separate, independent verdict (see fit_relations_assist.py
+        # for the concrete relations this silhouette footer never claims).
         lines.append(
-            "Nada crítico pendiente — silueta con placa ESTIMADA; "
-            "sustituye L×W por una medida real cuando llegue el frame "
-            "para quitar el *."
+            "Silueta: sin bloqueos críticos dentro de este checklist — "
+            "placa ESTIMADA; sustituye L×W por una medida real cuando "
+            "llegue el frame para quitar el *."
         )
     elif assessment.verdict == "silueta":
-        lines.append("Nada crítico pendiente — silueta con placa declarada, sin *.")
+        lines.append(
+            "Silueta: sin bloqueos críticos dentro de este checklist — "
+            "placa declarada, sin *."
+        )
     elif missing_rows:
         lines.append("Escribe la frase sugerida para avanzar — nada se declara solo.")
 

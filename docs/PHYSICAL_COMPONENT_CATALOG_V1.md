@@ -13,7 +13,7 @@
 
 **Explicitly not this document:** Implementation code · full Impl A/B/C/D contracts · H5/C-081 · ESC catalog · Conversation Engine / Step D · Create→BOM implementation details  
 
-**Next:** see `docs/IMPLEMENTATION_TASKS.md` PRIORIDAD (Board glyph / **visualizar** investigation OPEN; Geometry `representar` CLOSED @ **2336**).
+**Next:** see `docs/IMPLEMENTATION_TASKS.md` PRIORIDAD (await Engineer next ★ after craft-montage / fit-relations CLOSED @ **2873**; holds plate-box / Path N).
 
 ---
 

@@ -13,7 +13,11 @@
  * Updated 2026-09-06→07 — Spatial board visor + Geometry representar (2310→2336).
  * Updated 2026-09-08→10 — Continuity spatial assembly → v0.4.0; Board Situar → v0.4.1
  * (suite 2669 / UI 80): C-113 drag→pose + free camera + standoff count gate.
- * PRIORIDAD = Fit VERIFIED (investigation). Cola: IDLE part count / N≠4 / sourced #4.
+ * Updated 2026-09-13 — Craft montage honesty (still v0.4.1 · suite 2873 · UI 103):
+ * estimated plate · Path F · layout pack · mount-standard · silhouette checklist ·
+ * arm radial · fit-relations checklist. No new C-xxx (suggest-only IDLE).
+ * PRIORIDAD = await Engineer next ★. Holds: plate-box / Path N.
+ * Natural next: disk-station attest or measured plate.
  * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's queue.
  * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
  * Internal G23 anti-LLM gate (confusion phrase → re-ask / project_status) is not a C-xxx edge.
@@ -442,15 +446,15 @@ export default function JarvisSystemMapCanvas() {
 
       <Callout
         tone="info"
-        title="Product queue — Board Situar SHIPPED (v0.4.1 · suite 2669 · UI 80)"
+        title="Product queue — craft montage CLOSED through fit-relations (v0.4.1 · suite 2873 · UI 103)"
       >
-        Continuity spatial assembly + C-113 Situar (drag→pose, free camera,
-        screen-plane) + standoff count gate. Lock:
-        .jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md.
-        PRIORIDAD: Fit VERIFIED (investigation — beyond “cabe” screening).
-        Cola: IDLE part count / N≠4 standoffs / sourced #4 / LLM pending deactivate.
-        C-081 / C-108 deferred. HD-* never PRIORIDAD
-        without lab. Board B1 layout-on-disk = named debt.
+        Continuity spatial assembly + C-113 Situar remain shipped. Craft montage
+        honesty layer (2026-09-13): estimated plate · Path F · layout pack ·
+        mount-standard · silhouette checklist · arm radial · fit-relations —
+        suggest-only IDLE; no new C-xxx. PRIORIDAD: await Engineer next ★.
+        Holds: B1-plate-box / Path N. Natural next: disk-station attest or
+        measured plate. C-081 / C-108 deferred. HD-* never PRIORIDAD without lab.
+        Board B1 layout-on-disk = named debt.
       </Callout>
 
       <Grid columns={6} gap={12}>
@@ -523,12 +527,12 @@ export default function JarvisSystemMapCanvas() {
         confusion phrases → short re-ask (wizard) or Continuity (IDLE).
       </Callout>
 
-      <Callout tone="success" title="Shipped — Continuity + Board Situar @ v0.4.1 (2026-09-10)">
+      <Callout tone="success" title="Shipped — Continuity + craft montage @ v0.4.1 (2026-09-13)">
         Envelope declare · pose · Scene3D-from-pose · multi-hop · assembly root ·
-        visor X · standoff corners · screening “cabe” B1-min · **C-113 Situar**
-        (free camera, screen-plane drag) · standoff count gate. Open:
-        Fit VERIFIED · IDLE part count · N≠4 · sourced dims. Registry:
-        63 connected · 1 removed · 2 partial (+ C-113). Suite 2669 · UI 80.
+        visor X / radial arms · standoff corners · screening “cabe” B1-min ·
+        **C-113 Situar** · fit attestation · silhouette checklist · fit-relations
+        checklist. Open holds: plate-box L×W · Path N disk origin. Registry
+        unchanged: 63 connected · 1 removed · 2 partial (+ C-113). Suite 2873 · UI 103.
       </Callout>
 
       {filter !== "forbidden" ? (

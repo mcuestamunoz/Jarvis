@@ -36,6 +36,8 @@
 
 > Note: G21/G22 (motors catalog bind in component sub-mode + IDLE re-bind) and G9-A (readiness-first catalog surface) also landed since this table was last fully re-derived (2026-08-10) and are not yet reflected checkpoint-by-checkpoint here — only the G23 removal (this table's specific mandate) has been applied. A full re-derivation is due.
 
+> **Craft montage IDLE assists (2026-09-13, no new C-xxx):** before intent/LLM, Runtime bridges include suggest-only handlers such as `_try_handle_silhouette_product_b_assist`, `_try_handle_fit_relations_assist`, mount-standard / Path F / layout-pack / envelope-declare / pose / fit-attest — pure Continuity helpers; never writers. Evidence: `orchestrator.py` + `fit_relations_assist.py` / `silhouette_product_b_assist.py`.
+
 ### Nested — `ITERATE_INTERACTIVE`
 ```text
 resolve_intent → "project_status"/"analyze" → soft-interrupt (wizard_reprompt attached)   C-051

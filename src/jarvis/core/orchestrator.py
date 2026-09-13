@@ -1059,6 +1059,24 @@ class JarvisOrchestrator:
                 return silhouette_result
 
         # ─────────────────────────────────────────────────────────────────────
+        # ── Fit relations checklist B1: IDLE "relaciones" / "fit" / "qué
+        # falta verificar" / "verificaciones de encaje" lists NAMED
+        # assembly relations (FC/ESC/battery/sensors -> plate; motors ->
+        # frame_arm; propellers -> motors) — what's missing to screen,
+        # what already screens overlap and is ready for the Engineer's own
+        # attest phrase, what's already attested, what's honestly n/a
+        # (disk pairs). Suggest-only, never writes; reuses screen_posed_
+        # envelope + the existing attest/mount/pose bridges. Checked right
+        # after the silhouette checklist (same conceptual "what's missing"
+        # family) so a relations question never falls into unrelated
+        # triage.
+        if current_session.mode == OrchestratorMode.IDLE:
+            fit_relations_result = self._try_handle_fit_relations_assist(user_input)
+            if fit_relations_result is not None:
+                self._track_turn(user_input, fit_relations_result)
+                return fit_relations_result
+
+        # ─────────────────────────────────────────────────────────────────────
         # ── Catalog-bound Property Freshness B1: IDLE "actualiza/refresca X
         # desde catálogo" re-projects a catalog-bound component's physicals
         # from the current seed via refresh_component_from_catalog.
@@ -2138,6 +2156,44 @@ class JarvisOrchestrator:
         return {
             "status": "ok",
             "action": "silhouette_checklist",
+            "message": message,
+        }
+
+    def _try_handle_fit_relations_assist(self, user_input: str) -> dict | None:
+        """Fit relations checklist B1: IDLE "relaciones" / "fit" / "qué
+        falta verificar" / "verificaciones de encaje" lists NAMED assembly
+        relations (child -> plate/arm/motors) — what's missing to screen,
+        what already screens overlap and is ready for the Engineer's own
+        "declaro verificado" phrase, what's already attested, and what's
+        honestly n/a (disk pairs). Every suggested phrase is one a sibling
+        assist or existing bridge already accepts (mount_standard_assist /
+        craft_montage_stack_assist / layout_pack_assist / the pose-declare
+        and fit-attestation bridges); the user retypes it in a following
+        turn.
+
+        Suggest-only: this method never calls a writer (including
+        ``set_component_declared_fit_attestation``) and never mutates
+        ProjectState. Returns None when the phrase isn't a relations
+        question at all, so the caller falls through to normal routing.
+        """
+        from jarvis.core.fit_relations_assist import (
+            assess_fit_relations,
+            format_fit_relations_checklist,
+            is_fit_relations_assist_trigger,
+        )
+
+        if not is_fit_relations_assist_trigger(user_input):
+            return None
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        assessment = assess_fit_relations(components)
+        message = format_fit_relations_checklist(assessment)
+        return {
+            "status": "ok",
+            "action": "fit_relations_checklist",
             "message": message,
         }
 

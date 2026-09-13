@@ -6,22 +6,26 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.4.1`**. Suite viva **2858** · UI **103**.  
+> **Base:** tag **`v0.4.1`**. Suite viva **2873** · UI **103**.  
 > **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
-> **PRIORIDAD AHORA:** craft montage arco **estable** — siguiente: **`B1-plate-box`** (caliper / L×W citada para quitar \*) cuando haya medida · o lateral G1.  
+> **PRIORIDAD AHORA:** **await Engineer next ★** — fit-relations **CLOSED** (smoke ACCEPT 10min). Holds: `B1-plate-box` · Path N. Natural next: disk-station attest **or** measured plate when bag ready.  
+> **Holds:** plate-box · Path N. **Later:** disk-station attest · frame-parts progressive.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Craft montage (activa)
+### 📋 COLA — Craft montage / geometry validation (activa)
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
 | **2** | **`B1-plate-box`** | **B0 HOLD** | L×W medida/citada (quita \* de B\*) | Caliper / cite bag |
 | **3** | **`B1-stack-rule` Path N** | **B0 HOLD** | Disk origin imposible | No reabrir sin ★ |
+| — | Disk-station fit attest | Queued | motors/props screening+attest | ★ · [note](../.jes/artifacts/engineer_note_fit_attest_all_components.md) |
+| — | Frame-parts progressive | Idea | Placas/standoffs opcionales; required placa+brazos | ★ / B0 |
 
 ### ✅ Cerrado este arco (craft montage 2026-09-13) — no reabrir
 
 | ★ | Estado |
 |---|---|
+| **`B1-fit-relations-checklist`** | CLOSED · review PASS · **smoke ACCEPT** (10min) |
 | **`B1-arm-radial-visor` + mount tip** | CLOSED · smoke ACCEPT (Board 10min) |
 | **`B1-silhouette-product-b` Path S1** | CLOSED · smoke ACCEPT |
 | **`B1-mount-standard-assist`** | CLOSED · smoke ACCEPT |
@@ -42,6 +46,10 @@
 | Continuity kit-tip spam (G1) | Parked lateral — after #6 |
 | User catalog contribution · fit attest all · Option B caliper | Parked — Engineer ★ aparte |
 | Disk-as-pose-origin / LLM invent Δmm | **Parked forever** unless ★ |
+
+### 🟢 CLOSED — Fit relations checklist B1 (`B1-fit-relations-checklist`) (2026-09-13) · suite **2873** · review PASS · **smoke ACCEPT**
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_fit_relations_checklist_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_fit_relations_checklist_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_fit_relations_checklist_b1.md). Engineer smoke ACCEPT 2026-09-13 on 10-min: `parece un dron` → B\* + scoped footer; `relaciones` → 0 listas · 0 attested · 4 blocked (`estimated_dims`) · 2 n/a disk.
 
 ### 🟢 CLOSED — Layout pack cited B1 (`B1-layout-pack-cited`) (2026-09-13) · suite **2830** · review PASS · **smoke ACCEPT**
 

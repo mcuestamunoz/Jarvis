@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "B1-arm-radial-visor + B1-mount-tip-parse-align IMPLEMENTED (2026-09-13) @ suite 2858 (was 2844) / UI 103 (was 99) — Part A: mount_standard_assist ambiguous tip now uses the parseable Spanish noun instead of the bare key; mounted_on_declare_assist SET path accepts an exact declared key as a fallback when no noun matches (locked SET-only, CLEAR untouched); singular \"montaje estandar\" trigger added. Part B: new _frame_arm_radial_offsets_mm (spatial_board.py) — frame_arm quad-X offsets are L-aware (declared length_mm placed along the origin->station ray; distal end at station when L<=R, else centered on R/2, L never rescaled) + yawDeg=atan2(station.y,station.x); motors/propellers/prop_adapter unchanged (raw station points). yawDeg threaded end-to-end into the UI (types.ts/scene3dLayout.ts/Solid3D.tsx rotateY) — sign algebraically derived, NOT visually confirmed (no browser in this environment); Engineer smoke is the real check. 4 pre-existing tests asserting the now-superseded \"arm==raw station\" behavior were updated to the new locked formula. 14 new Python tests + 4 new UI tests, full suite green both sides. No writer/version/workspace/ change. Awaiting Cursor review + Engineer smoke.",
+  "cycle_intent": "B1-fit-relations-checklist CLOSED (2026-09-13) — Cursor review PASS WITH NOTES + Engineer smoke ACCEPT on 10-min-autonomia (parece un dron B* scoped footer; relaciones 0/0/4 blocked estimated_dims / 2 n/a disk). Suite 2873 · UI 103 · v0.4.1 unchanged. Await Engineer next star — holds plate-box / Path N; natural next disk-station attest or measured plate.",
   "scope": "geometry_3d_mapping_path",
-  "execution_status": "in_progress",
-  "current_mode": "Await Cursor review + Engineer smoke (arm_radial_mount_tip_b1) + prior pending smokes (mount_standard_assist_b1, Situar experience B1, multibox UX fix, Structure A class slack, #4* stack)",
-  "active_operation": "await_review_smoke_arm_radial_mount_tip_b1",
+  "execution_status": "idle",
+  "current_mode": "Await Engineer next Buy (craft-montage arc closed through fit-relations; holds plate-box / Path N)",
+  "active_operation": "await_engineer_next_star",
   "movement_trigger": {
-    "type": "cursor_review_then_engineer_smoke",
-    "note": "2026-09-13 arm_radial_mount_tip_b1 implemented @ suite 2858 (was 2844) / UI 103 (was 99) — implementation_report_geometry_arm_radial_mount_tip_b1.md. rotateY sign unverified visually (no browser); Engineer smoke §3.B is the real check. No workspace/ change, no version bump."
+    "type": "await_engineer_star",
+    "note": "2026-09-13 fit_relations_checklist_b1 CLOSED_SMOKE_ACCEPT @ suite 2873. Docs sync: system map / ARCHITECTURE / PRIORIDAD."
   },
   "relevant_workflow_phases": [
     "Verification"
@@ -308,6 +308,7 @@
     "geometry_craft_montage_path_f_b1_ic": "CLOSED_SMOKE_ACCEPT_N1_CLOSED_2830",
     "geometry_layout_pack_cited_b1_ic": "CLOSED_SMOKE_ACCEPT_2830",
     "board_silhouette_product_b_b1_ic": "CLOSED_SMOKE_ACCEPT_2844",
-    "geometry_arm_radial_mount_tip_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_2858"
+    "geometry_arm_radial_mount_tip_b1_ic": "CLOSED_SMOKE_ACCEPT_2858",
+    "geometry_fit_relations_checklist_b1_ic": "CLOSED_SMOKE_ACCEPT_2873"
   }
 }
