@@ -522,6 +522,7 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
               originX={(origin?.originX ?? 0) + (preview?.dxPx ?? 0)}
               originY={(origin?.originY ?? 0) + (preview?.dyPx ?? 0)}
               originZ={(origin?.originZ ?? 0) + (preview?.dzPx ?? 0)}
+              yawDeg={origin?.yawDeg}
               draggable={draggable}
               needsOrigin={needsOrigin}
               pointerEventsNone={pointerEventsNone}

@@ -230,7 +230,11 @@ def test_p8_motors_propellers_arm_adapter_regressions_still_green():
     assert nodes["prop_adapter"]["solidCopies"] == 4
     quad_x_offsets = nodes["motors"]["solidCopyOffsetsMm"]
     assert nodes["propellers"]["solidCopyOffsetsMm"] == quad_x_offsets
-    assert nodes["frame_arm"]["solidCopyOffsetsMm"] == quad_x_offsets
     assert nodes["prop_adapter"]["solidCopyOffsetsMm"] == quad_x_offsets
     assert nodes["frame_standoff"]["solidCopies"] == 4
     assert nodes["frame_standoff"]["solidCopyOffsetsMm"] != quad_x_offsets
+    # Arm radial Visor B1: frame_arm is L-aware (own declared L=80mm),
+    # not the raw quad-X station point motors/propellers/prop_adapter
+    # keep unchanged — see test_geometry_arm_radial_mount_tip_b1.py.
+    assert nodes["frame_arm"]["solidCopyOffsetsMm"] != quad_x_offsets
+    assert nodes["frame_arm"]["solidCopyOffsetsMm"][0]["yawDeg"] == pytest.approx(45.0)

@@ -27,6 +27,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
 from jarvis.schemas.state_schema import DesignProperties, ProjectState
 from jarvis.workspace.spatial_board import project_spatial_nodes
@@ -123,6 +125,12 @@ def test_p4_exactly_one_prop_adapter_node():
 
 
 def test_p5_motors_propellers_frame_arm_copy_regressions_still_green():
+    """Arm radial Visor B1: motors/propellers/prop_adapter still share the
+    exact same raw quad-X station points (unchanged) — `frame_arm` alone
+    now gets its OWN L-aware diagonal placement (see
+    test_geometry_arm_radial_mount_tip_b1.py for the full formula
+    coverage), so it is asserted separately rather than folded into the
+    shared `offsets` equality."""
     nodes = _nodes_by_id(_state({
         "motors": _motors_spec(motor_count=4),
         "propellers": _propellers_spec(),
@@ -141,11 +149,18 @@ def test_p5_motors_propellers_frame_arm_copy_regressions_still_green():
     assert nodes["propellers"]["solidCopies"] == 4
     assert nodes["frame_arm"]["solidCopies"] == 4
     assert nodes["prop_adapter"]["solidCopies"] == 4
-    # All four families share the exact same quad-X station points.
+    # Motors/propellers/prop_adapter share the exact same raw quad-X
+    # station points — unchanged by this Buy.
     offsets = nodes["motors"]["solidCopyOffsetsMm"]
     assert nodes["propellers"]["solidCopyOffsetsMm"] == offsets
-    assert nodes["frame_arm"]["solidCopyOffsetsMm"] == offsets
     assert nodes["prop_adapter"]["solidCopyOffsetsMm"] == offsets
+    # frame_arm is L-aware (declared L=80mm <= R~115mm here) — not the
+    # raw station, and carries its own yawDeg.
+    arm_offsets = nodes["frame_arm"]["solidCopyOffsetsMm"]
+    assert arm_offsets != offsets
+    assert arm_offsets[0]["xMm"] == pytest.approx(53.03300858899105)
+    assert arm_offsets[0]["yMm"] == pytest.approx(53.03300858899105)
+    assert arm_offsets[0]["yawDeg"] == pytest.approx(45.0)
 
 
 def test_p6_library_and_version_untouched():

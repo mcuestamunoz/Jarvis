@@ -66,8 +66,14 @@ export type SpatialNode = SpatialRect & {
    * W->+Y, H->+Z; Z is 0 this Buy), length always matches `solidCopies`
    * when present. Absent (any other N, or a missing/wrong frame fact) ->
    * the visor keeps today's presentation row.
+   *
+   * Arm radial Visor B1: on a `frame_arm` node ONLY, each point also
+   * carries `yawDeg` — the declared angle (degrees) from the assembly
+   * origin to that motor station, so the box's own declared-length axis
+   * can be rotated to point along the ray (`Solid3D`'s `rotateY`).
+   * Motors/propellers/prop_adapter points never carry `yawDeg`.
    */
-  solidCopyOffsetsMm?: { xMm: number; yMm: number; zMm: number }[];
+  solidCopyOffsetsMm?: { xMm: number; yMm: number; zMm: number; yawDeg?: number }[];
 };
 
 export type ContentBounds = {

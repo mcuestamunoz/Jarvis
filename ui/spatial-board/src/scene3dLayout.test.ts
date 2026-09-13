@@ -425,3 +425,49 @@ describe("Pose multi-hop composition B1", () => {
     expect(motorLaid.originY).toBeCloseTo(0 - motorWrap.height / 2);
   });
 });
+
+describe("Arm radial Visor B1 — yawDeg threading (B6)", () => {
+  const armBox = { shape: "box" as const, length_mm: 80, width_mm: 20, height_mm: 4 };
+
+  it("U25: offsetMm.yawDeg threads through to SolidLayout.yawDeg unchanged", () => {
+    const arm = {
+      id: "frame_arm#0",
+      geometry: armBox,
+      offsetMm: { xMm: 53.033, yMm: 53.033, zMm: 0, yawDeg: 45 },
+    };
+    const laid = layoutSolidsFromPose([arm], 24, 0.5);
+    expect(laid.find((l) => l.id === "frame_arm#0")?.yawDeg).toBe(45);
+  });
+
+  it("U26: a station item with no yawDeg (motors/propellers/prop_adapter) never gets one", () => {
+    const motor = {
+      id: "motors#0",
+      geometry: { shape: "disk" as const, diameter_mm: 27.9 },
+      offsetMm: { xMm: 81.317, yMm: 81.317, zMm: 0 },
+    };
+    const laid = layoutSolidsFromPose([motor], 24, 0.5);
+    expect(laid.find((l) => l.id === "motors#0")?.yawDeg).toBeUndefined();
+  });
+
+  it("U27: root/posed/row-fallback items never carry a yawDeg", () => {
+    const plate = { id: "frame_plate", geometry: { shape: "box" as const, length_mm: 100, width_mm: 100, height_mm: 4 } };
+    const fc = {
+      id: "flight_controller",
+      geometry: armBox,
+      declaredBoxPose: { originKey: "frame_plate", zMm: 8 },
+    };
+    const row = { id: "esc", geometry: armBox };
+    const laid = layoutSolidsFromPose([plate, fc, row], 24, 0.5);
+    for (const l of laid) expect(l.yawDeg).toBeUndefined();
+  });
+
+  it("U28: expandSolidCopies passes solidCopyOffsetsMm.yawDeg through as offsetMm.yawDeg", () => {
+    const offsets = [
+      { xMm: 53.033, yMm: 53.033, zMm: 0, yawDeg: 45 },
+      { xMm: 53.033, yMm: -53.033, zMm: 0, yawDeg: -45 },
+    ];
+    const nodes = [{ id: "frame_arm", geometry: armBox, solidCopies: 2, solidCopyOffsetsMm: offsets }];
+    const expanded = expandSolidCopies(nodes);
+    expect(expanded.map((e) => e.offsetMm)).toEqual(offsets);
+  });
+});

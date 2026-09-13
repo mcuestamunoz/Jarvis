@@ -206,7 +206,14 @@ def parse_mounted_on_declare(user_input: str, components: dict) -> MountDeclareR
     # awareness. Scoping to "before en" means the target segment's own
     # nouns can never leak into subject resolution.
     subject_segment = normalized[:en_match.start()] if en_match else normalized
-    subject = _resolve_subject(subject_segment)
+    # Mount tip/parse align B1 (lock #3): nouns first (existing table),
+    # else an exact declared component key typed literally (mirrors
+    # _resolve_target's own exact-key-first discipline) — so a checklist
+    # tip or a user who types the raw key ("flight_controller montado en
+    # frame_plate", "sensors montado en placa") still parses as SET
+    # instead of silently falling through to NONE. Locked to the SET path
+    # only (the IC's own arrow notation); CLEAR is unchanged.
+    subject = _resolve_subject(subject_segment) or _exact_key_match(subject_segment, components)
     if subject is None:
         return _NONE
 

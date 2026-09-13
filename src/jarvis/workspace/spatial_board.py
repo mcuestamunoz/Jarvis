@@ -35,6 +35,7 @@ pero el campo de texto puede seguir mostrando la clave guardada.
 from __future__ import annotations
 
 import json
+import math
 import sys
 from pathlib import Path
 from typing import Any
@@ -657,6 +658,62 @@ def _frame_standoff_layout_offsets_mm(
     return corners + midpoints
 
 
+def _frame_arm_radial_offsets_mm(
+    spec: ComponentSpec, components: dict[str, ComponentSpec]
+) -> list[dict[str, float]] | None:
+    """Arm radial Visor B1 (IC §0.1, L-aware placement) — `frame_arm`'s OWN
+    offsets, diagonal beams from the assembly origin toward each motor
+    station, distinct from the raw `_quad_x_station_points` motors/
+    propellers/prop_adapter still use unchanged.
+
+    L comes ONLY from the arm's own declared `length_mm` box dimension —
+    never from wheelbase, never rescaled to fit. For each station:
+    ``R = hypot(station.x, station.y)`` (radial gap origin->motor),
+    ``û = station / R`` (unit vector toward the motor). If the declared
+    L fits inside the gap (``L <= R``), the box's DISTAL end (toward the
+    motor) sits exactly on the station, so the center is pulled back by
+    ``L/2`` along ``û``. If L is longer than the gap, the geometry is
+    NEVER shrunk to fit — the box is centered on the available span
+    (``R/2``) instead, so it may honestly overhang past the motor or the
+    origin. ``yawDeg = atan2(station.y, station.x)`` (degrees) — the
+    declared angle from the assembly origin to that station; the
+    frontend rotates the box's own declared-length axis to match (see
+    `ui/spatial-board/src/Solid3D.tsx`).
+
+    Returns `None` (never a partial/rescaled result) when the arm has no
+    box geometry, its `length_mm` isn't a positive number, or the
+    wheelbase gate this function shares with the caller doesn't hold."""
+    geometry = _geometry_from_spec(spec)
+    if geometry is None or geometry.get("shape") != "box":
+        return None
+    length_mm = geometry.get("length_mm")
+    if length_mm is None or not (length_mm > 0):
+        return None
+
+    wheelbase_mm = _quad_x_wheelbase_mm(components)
+    if wheelbase_mm is None:
+        return None
+
+    offsets: list[dict[str, float]] = []
+    for station in _quad_x_station_points(wheelbase_mm):
+        sx, sy = station["xMm"], station["yMm"]
+        radius_mm = math.hypot(sx, sy)
+        if not (radius_mm > 0):
+            return None
+        ux, uy = sx / radius_mm, sy / radius_mm
+        if length_mm <= radius_mm:
+            center_x = sx - ux * (length_mm / 2.0)
+            center_y = sy - uy * (length_mm / 2.0)
+        else:
+            center_x = ux * (radius_mm / 2.0)
+            center_y = uy * (radius_mm / 2.0)
+        offsets.append({
+            "xMm": center_x, "yMm": center_y, "zMm": 0.0,
+            "yawDeg": math.degrees(math.atan2(sy, sx)),
+        })
+    return offsets
+
+
 def _solid_copy_offsets_mm(
     spec: ComponentSpec, components: dict[str, ComponentSpec], solid_copies: int | None
 ) -> list[dict[str, float]] | None:
@@ -679,7 +736,15 @@ def _solid_copy_offsets_mm(
 
     `frame_standoff` is a SEPARATE branch entirely — Main Plate perimeter
     points via `_frame_standoff_layout_offsets_mm`, never the quad-X
-    wheelbase math above."""
+    wheelbase math above.
+
+    Arm radial Visor B1: `frame_arm` is ALSO a separate branch from
+    motors/propellers/prop_adapter — same `solid_copies == 4` gate (which
+    for `frame_arm` already implies the wheelbase fact per `_solid_copies`
+    above), but the points themselves come from `_frame_arm_radial_offsets_
+    mm`'s L-aware diagonal placement, never the raw
+    `_quad_x_station_points` motors/propellers/prop_adapter keep using
+    unchanged."""
     if spec.suggested_key == "frame_standoff":
         if solid_copies not in _STANDOFF_LAYOUT_COUNTS:
             return None
@@ -688,6 +753,8 @@ def _solid_copy_offsets_mm(
         return None
     if solid_copies != _QUAD_X_STATION_COUNT:
         return None
+    if spec.suggested_key == "frame_arm":
+        return _frame_arm_radial_offsets_mm(spec, components)
     wheelbase_mm = _quad_x_wheelbase_mm(components)
     if wheelbase_mm is None:
         return None
@@ -702,6 +769,22 @@ def _fields(spec: ComponentSpec, components: dict[str, ComponentSpec]) -> list[d
     sku = spec.catalog_ref.sku if spec.catalog_ref else None
     if sku:
         fields.append({"label": "SKU", "value": sku})
+    # Estimated-temporary plate envelope B1 (lock #8 disclosure, thin-UI
+    # fallback): any of length_mm/width_mm/height_mm carrying
+    # source="estimated_temporary" gets one mandatory, unmissable field —
+    # never silently folded into the plain per-property rows above, which
+    # only ever show value+unit, never source.
+    if any(
+        (prop := spec.properties.get(key)) is not None and prop.source == "estimated_temporary"
+        for key in ("length_mm", "width_mm", "height_mm")
+    ):
+        fields.append({
+            "label": "geometría",
+            "value": (
+                "ESTIMADA TEMPORAL · evidencia: ninguna · "
+                "sustituir al llegar el frame: SÍ"
+            ),
+        })
     # Geometry Assembly Espacial B1: a declared mount relation shows as a
     # plain text field — orthogonal to parent_key / kind / lane. B2 adds a
     # separate machine ``mountedOn`` on the node DTO when the target exists.

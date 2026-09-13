@@ -35,7 +35,9 @@ from jarvis.domains.aerial import is_frame_plate_key
 # "montajes estándar" (literal, specific) and "qué falta montar"
 # (conversational). Accent/case-insensitive via _normalize_help, same as
 # every other IDLE phrase gate in this codebase (motor/catalog assists).
-_TRIGGER_RE = re.compile(r"montajes\s+estandar|que\s+falta\s+montar")
+# Mount tip/parse align B1 (lock #4): "montaje" singular also triggers —
+# thin, one-character widening (`montajes?`), never a new gate concept.
+_TRIGGER_RE = re.compile(r"montajes?\s+estandar|que\s+falta\s+montar")
 
 
 def is_mount_standard_assist_trigger(user_input: str) -> bool:
@@ -121,8 +123,14 @@ def build_mount_standard_checklist(components: dict[str, Any]) -> list[MountSugg
             # worth surfacing when the subject has NO mount at all yet; a
             # subject already mounted on anything is not "undeclared."
             if current is None:
+                # Mount tip/parse align B1 (lock #2): the retype tip uses
+                # the parseable Spanish noun+participle (same table as the
+                # "suggested" branch below), never the bare component key —
+                # "flight_controller"/"sensors" typed literally used to
+                # silently fail _resolve_subject's noun-only table.
                 suggestions.append(MountSuggestion(
                     subject=key, kind="ambiguous", candidates=plate,
+                    example_phrase=f"{noun} {participle} en <clave>",
                     reason="aviónica sobre placa — varias placas declaradas",
                 ))
             continue
@@ -156,7 +164,7 @@ def format_mount_standard_checklist(suggestions: list[MountSuggestion]) -> str:
             lines.append(
                 f"  {i}. {s.subject}: hay varias placas declaradas "
                 f"({', '.join(s.candidates)}) — indica cuál con "
-                f"'{s.subject} montado en <clave>'."
+                f"'{s.example_phrase}'."
             )
         else:
             lines.append(f"  {i}. {s.subject} → {s.target}: escribe \"{s.example_phrase}\"")

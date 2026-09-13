@@ -17,8 +17,15 @@ seed (arm_thickness_mm stays a card fact only).
   P1  Writer SET frame_arm 3 mm -> properties source=declared
   P2  Parser "declara el brazo A x B x C mm" -> SET frame_arm
   P3  Projector: arm box + motors count 4 + quad_x + wheelbase ->
-      solidCopies==4, offsets length 4, SAME points as motors' own
-      stations
+      solidCopies==4, offsets length 4. Superseded by Arm radial Visor +
+      Mount tip/parse align B1 (2026-09-13, `B1-arm-radial-visor`): the
+      arm's own offsets are no longer identical to motors' raw station
+      points — they are L-aware (declared arm `length_mm` placed along
+      the origin->station ray, distal end at the station when L fits the
+      gap) plus a `yawDeg` per point; motors/propellers/prop_adapter keep
+      the exact raw station points unchanged. See
+      test_geometry_arm_radial_mount_tip_b1.py for the full L-aware
+      formula coverage (L<=R, L>R, yaw, gate-omit).
   P4  N=3 or missing quad_x -> arm stays a SINGLE box, no solidCopies at
       all (documented choice — never a "row of 3")
   P5  No length_mm invented on the Rooster's arm_thickness_mm seed
@@ -91,7 +98,15 @@ def test_p2_parser_brazo_phrase_sets_frame_arm():
     assert (result.length_mm, result.width_mm, result.height_mm) == (80.0, 20.0, 4.0)
 
 
-def test_p3_projector_arm_stations_match_motors_with_count_4_and_quad_x():
+def test_p3_projector_arm_stations_are_l_aware_not_raw_motor_stations():
+    """Arm radial Visor B1: the arm's own offsets are the L-aware
+    diagonal placement (declared L=80mm along the origin->station ray;
+    wheelbase=230mm here puts the radial gap R at ~115mm per station, so
+    L<=R and the box's distal end sits on the station) — never identical
+    to motors' raw station points (that was the pre-`B1-arm-radial-visor`
+    behavior this test used to assert; see
+    test_geometry_arm_radial_mount_tip_b1.py for the full formula
+    coverage)."""
     components = {
         "motors": _motors_spec(motor_count=4),
         "frame_arm": ComponentSpec(
@@ -111,8 +126,14 @@ def test_p3_projector_arm_stations_match_motors_with_count_4_and_quad_x():
 
     assert arm["solidCopies"] == 4
     assert len(arm["solidCopyOffsetsMm"]) == 4
-    assert arm["solidCopyOffsetsMm"] == motors["solidCopyOffsetsMm"]
+    assert arm["solidCopyOffsetsMm"] != motors["solidCopyOffsetsMm"]
     assert sum(1 for n in nodes.values() if n["id"] == "frame_arm") == 1
+
+    first = arm["solidCopyOffsetsMm"][0]
+    assert first["xMm"] == pytest.approx(53.03300858899105)
+    assert first["yMm"] == pytest.approx(53.03300858899105)
+    assert first["yawDeg"] == pytest.approx(45.0)
+    assert "yawDeg" not in motors["solidCopyOffsetsMm"][0]
 
 
 @pytest.mark.parametrize("motor_count,configuration", [

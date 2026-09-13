@@ -9,6 +9,14 @@ type Props = {
   originX?: number;
   originY?: number;
   originZ?: number;
+  /**
+   * Arm radial Visor B1 — degrees, rotates the box about its own center
+   * so its declared-length axis (local `w`, CSS X) points along the
+   * origin->station ray before the box is translated to `originX/Y/Z`.
+   * `undefined`/disks never rotate. See the derivation comment on the
+   * `rotateY` transform below for the sign convention.
+   */
+  yawDeg?: number;
   /** Board drag → Continuity pose B1 — situar mode only; undefined outside it. */
   draggable?: boolean;
   needsOrigin?: boolean;
@@ -32,10 +40,24 @@ type Props = {
  * accident.
  */
 export function Solid3D({
-  id, geometry, selected, onSelect, originX = 0, originY = 0, originZ = 0,
+  id, geometry, selected, onSelect, originX = 0, originY = 0, originZ = 0, yawDeg,
   draggable = false, needsOrigin = false, onDragStart, pointerEventsNone = false,
 }: Props) {
   const extent = solidExtentPx(geometry);
+  // Arm radial Visor B1 — declared +X (length) -> CSS X, declared +Y
+  // (width) -> CSS Z/depth (module-level axis remap, see
+  // scene3dLayout.ts). The projector's `yawDeg = atan2(station.y,
+  // station.x)` is the declared angle a local +X unit vector must end up
+  // pointing at. Per the CSS Transforms rotateY(a) matrix
+  // (x' = cos(a)x + sin(a)z, z' = -sin(a)x + cos(a)z), a local (1,0,0)
+  // lands at world (cos(a), 0, -sin(a)) — so `a = -yawDeg` is the angle
+  // that makes it land at (cos(yawDeg), 0, sin(yawDeg)), matching the
+  // declared (x, y) direction 1:1 (no negation elsewhere in the Y->Z
+  // remap). Written as `translate3d(...) rotateY(...)` in the transform
+  // string below — `rotateY` (rightmost) applies first, about the box's
+  // own local center, and `translate3d` then moves the already-rotated
+  // box to its world position, never rotating about the world origin.
+  const rotateYDeg = yawDeg !== undefined ? -yawDeg : 0;
 
   const handleMouseDown = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -56,7 +78,10 @@ export function Solid3D({
         data-node-id={id}
         aria-current={selected ? "true" : undefined}
         onMouseDown={handleMouseDown}
-        style={{ transform: `translate3d(${originX}px, ${originY}px, ${originZ}px)`, width: w, height: h }}
+        style={{
+          transform: `translate3d(${originX}px, ${originY}px, ${originZ}px) rotateY(${rotateYDeg}deg)`,
+          width: w, height: h,
+        }}
       >
         <div className="sb-solid__cuboid" style={{ width: w, height: h }}>
           <div className="sb-solid__face sb-solid__face--front" style={{ width: w, height: h, transform: `translateZ(${d / 2}px)` }} />

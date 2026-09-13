@@ -33,6 +33,8 @@ proving the CORNER FORMULA itself, independent of the count gate.
 """
 from __future__ import annotations
 
+import pytest
+
 from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
 from jarvis.schemas.state_schema import DesignProperties, ProjectState
 from jarvis.workspace.spatial_board import project_spatial_nodes
@@ -209,8 +211,12 @@ def test_p6_motors_propellers_arm_adapter_regressions_still_green():
     assert nodes["prop_adapter"]["solidCopies"] == 4
     quad_x_offsets = nodes["motors"]["solidCopyOffsetsMm"]
     assert nodes["propellers"]["solidCopyOffsetsMm"] == quad_x_offsets
-    assert nodes["frame_arm"]["solidCopyOffsetsMm"] == quad_x_offsets
     assert nodes["prop_adapter"]["solidCopyOffsetsMm"] == quad_x_offsets
+    # Arm radial Visor B1: frame_arm is L-aware (own declared L=80mm),
+    # not the raw quad-X station point motors/propellers/prop_adapter
+    # keep unchanged — see test_geometry_arm_radial_mount_tip_b1.py.
+    assert nodes["frame_arm"]["solidCopyOffsetsMm"] != quad_x_offsets
+    assert nodes["frame_arm"]["solidCopyOffsetsMm"][0]["yawDeg"] == pytest.approx(45.0)
     # Standoff still stationed on the plate footprint, not the quad-X set.
     assert nodes["frame_standoff"]["solidCopies"] == 4
     assert nodes["frame_standoff"]["solidCopyOffsetsMm"] != quad_x_offsets

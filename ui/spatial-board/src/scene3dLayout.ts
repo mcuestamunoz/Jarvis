@@ -25,7 +25,16 @@ export function layoutSolidsRow(
   return result;
 }
 
-export type SolidLayout = { id: string; originX: number; originY: number; originZ: number };
+export type SolidLayout = {
+  id: string;
+  originX: number;
+  originY: number;
+  originZ: number;
+  /** Arm radial Visor B1 — degrees, threaded from `offsetMm.yawDeg` only
+   * (station items); every other placement path (root/pose/row) omits it,
+   * so `Solid3D` treats a missing value as no rotation. */
+  yawDeg?: number;
+};
 
 // Visor assembly root B1 — the exact, single root key this Buy recognizes.
 // Never `frame_plate_2`/any other plate, never `frame` root — silently
@@ -38,7 +47,7 @@ type PoseItem = {
   id: string;
   geometry: SpatialGeometry;
   declaredBoxPose?: { originKey: string; xMm?: number; yMm?: number; zMm?: number };
-  offsetMm?: { xMm: number; yMm: number; zMm: number };
+  offsetMm?: { xMm: number; yMm: number; zMm: number; yawDeg?: number };
 };
 
 type CenterPx = { x: number; y: number; z: number };
@@ -124,6 +133,7 @@ export function layoutSolidsFromPose(
         originX: mmToPx(item.offsetMm.xMm, pxPerMm) - wrap.width / 2,
         originY: mmToPx(item.offsetMm.zMm, pxPerMm) - wrap.height / 2,
         originZ: mmToPx(item.offsetMm.yMm, pxPerMm),
+        yawDeg: item.offsetMm.yawDeg,
       };
     }
 
@@ -184,7 +194,7 @@ export type ExpandedSolid = {
   selectId: string;
   geometry: SpatialGeometry;
   declaredBoxPose?: { originKey: string; xMm?: number; yMm?: number; zMm?: number };
-  offsetMm?: { xMm: number; yMm: number; zMm: number };
+  offsetMm?: { xMm: number; yMm: number; zMm: number; yawDeg?: number };
 };
 
 /**
@@ -215,7 +225,7 @@ export function expandSolidCopies(
     geometry: SpatialGeometry;
     declaredBoxPose?: { originKey: string; xMm?: number; yMm?: number; zMm?: number };
     solidCopies?: number;
-    solidCopyOffsetsMm?: { xMm: number; yMm: number; zMm: number }[];
+    solidCopyOffsetsMm?: { xMm: number; yMm: number; zMm: number; yawDeg?: number }[];
   }[],
 ): ExpandedSolid[] {
   const result: ExpandedSolid[] = [];
