@@ -555,8 +555,9 @@ def _clear_fit_attestations_after_geometry_change(
     components: dict[str, Any], component_key: str, updated_spec: Any
 ) -> dict[str, Any]:
     """Fit attestation B1 — shared by ``set_component_declared_box_envelope``
-    only (a pose write never changes geometry, so it only ever clears its
-    OWN attestation — see that writer's own inline hook). Clears
+    (and Estimated-temporary plate envelope B1's own writer, below) — a
+    pose write never changes geometry, so it only ever clears its OWN
+    attestation, see that writer's own inline hook. Clears
     ``component_key``'s own attestation AND any sibling's whose
     ``declared_box_pose.origin_key`` is ``component_key`` — same
     "divergence clears a stale label" discipline ``catalog_bind.py``
@@ -574,6 +575,82 @@ def _clear_fit_attestations_after_geometry_change(
         ):
             result[key] = _cleared_fit_attestation(sibling)
     return result
+
+
+def set_estimated_temporary_plate_envelope(
+    project_state: Any,
+    component_key: str,
+    length_mm: float,
+    width_mm: float,
+    height_mm: float,
+) -> Any:
+    """Estimated-temporary plate envelope B1 — único punto de escritura
+    para un sobre L×W×H de **placa** con ``source="estimated_temporary"``.
+
+    Scoped EXCLUSIVELY to ``is_frame_plate_key`` — never ``battery``,
+    ``sensors``, any kit/loose-structure key, ``frame_arm``, ``frame``
+    root, motors, ESC, FC, or propellers: ``ValueError`` for any of those,
+    same discipline as ``set_component_declared_box_envelope``'s own
+    allowlist, but narrower (this Buy's own lock #2 — provisional dims are
+    plate-only; every other family stays ``declared``-only, unchanged).
+
+    A provisional number carries NO evidence — every axis is REQUIRED
+    (all three floats finite and > 0; no CLEAR variant here, since the
+    existing "quita el sobre de X" / a later plain ``declared`` write
+    already clear or overwrite these same three keys regardless of their
+    prior ``source``, per this Buy's own replace-path lock #9 — no second
+    clear path needed).
+
+    Low, fixed ``confidence=0.3`` (vs. ``declared``'s 0.9) — a visible,
+    deliberate signal this number is asserted without measurement, never
+    tuned per-call. Merges only ``length_mm``/``width_mm``/``height_mm``
+    — preserves every other property (``thickness_mm``, ``label``,
+    ``catalog_ref``, ``mounted_on``, etc.) exactly like the sibling
+    writer.
+
+    Reuses ``_clear_fit_attestations_after_geometry_change`` — an
+    estimated geometry write is still a geometry write, and any fit
+    attestation resting on the OLD dims (declared or estimated) is
+    exactly as stale as after any other envelope change.
+
+    Returns the updated ProjectState (not persisted — caller must save).
+    """
+    if not is_frame_plate_key(component_key):
+        raise ValueError(
+            f"'{component_key}' no admite un sobre estimado-temporal — "
+            "solo una placa del frame (frame_plate / frame_plate_2 / ...)."
+        )
+
+    components = project_state.design_properties.components
+    spec = components.get(component_key)
+    if spec is None:
+        raise ValueError(f"'{component_key}' no declarado — no se puede fijar el sobre estimado.")
+
+    for label, value in (
+        ("length_mm", length_mm), ("width_mm", width_mm), ("height_mm", height_mm),
+    ):
+        if value is None or not (float(value) > 0):
+            raise ValueError(
+                f"'{label}' debe ser un número finito mayor que 0 para declarar el sobre estimado."
+            )
+
+    merged_properties = {
+        **(spec.properties or {}),
+        "length_mm": PropertyValue(
+            value=float(length_mm), unit="mm", confidence=0.3, source="estimated_temporary"
+        ),
+        "width_mm": PropertyValue(
+            value=float(width_mm), unit="mm", confidence=0.3, source="estimated_temporary"
+        ),
+        "height_mm": PropertyValue(
+            value=float(height_mm), unit="mm", confidence=0.3, source="estimated_temporary"
+        ),
+    }
+    updated_spec = spec.model_copy(update={"properties": merged_properties})
+
+    updated_components = _clear_fit_attestations_after_geometry_change(components, component_key, updated_spec)
+    updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
+    return project_state.model_copy(update={"design_properties": updated_dp})
 
 
 # Motor Geometry B1 (Minimum Geometric KNOW): bind_motor_from_catalog is the

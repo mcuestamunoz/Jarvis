@@ -31,11 +31,27 @@ ScreeningStatus = Literal[
     "origin_unusable",
     "child_not_box",
     "pose_incomplete",
+    "estimated_dims",
     "overlap",
     "no_overlap",
 ]
 
 _AXIS_NAMES = ("x", "y", "z")
+
+# Estimated-temporary plate envelope B1 gate (a): a "cabe"/fit screening
+# must never answer overlap/no_overlap using a box whose L×W×H carries NO
+# evidence (source="estimated_temporary") — refuse instead, same "screening,
+# no verificado" honesty class as every other refusal here, checked before
+# any axis/overlap math runs.
+_BOX_DIM_KEYS = ("length_mm", "width_mm", "height_mm")
+
+
+def _is_estimated_temporary_box(spec: ComponentSpec) -> bool:
+    props = spec.properties or {}
+    return any(
+        (prop := props.get(key)) is not None and getattr(prop, "source", None) == "estimated_temporary"
+        for key in _BOX_DIM_KEYS
+    )
 
 
 @dataclass(frozen=True)
@@ -70,6 +86,9 @@ def screen_posed_envelope(
     child_geometry = _geometry_from_spec(child)
     if child_geometry is None or child_geometry.get("shape") != "box":
         return Screening(status="child_not_box")
+
+    if _is_estimated_temporary_box(origin) or _is_estimated_temporary_box(child):
+        return Screening(status="estimated_dims")
 
     axis_values = (pose.x_mm, pose.y_mm, pose.z_mm)
     missing = tuple(name for name, value in zip(_AXIS_NAMES, axis_values) if value is None)
@@ -112,6 +131,11 @@ def format_screening(screening: Screening) -> str:
         return "Los sobres se solapan en los ejes declarados — screening, no verificado."
     if screening.status == "no_overlap":
         return "Los sobres no se solapan en los ejes declarados — screening, no verificado."
+    if screening.status == "estimated_dims":
+        return (
+            "Jarvis no verifica ensamblaje físico; al menos una caja usa "
+            "geometría ESTIMATED_TEMPORARY (provisional, sin evidencia) — no se compara."
+        )
     if screening.status == "origin_unusable":
         return (
             "Jarvis no verifica ensamblaje físico; el origen de la pose "

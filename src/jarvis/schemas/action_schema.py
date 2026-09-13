@@ -124,7 +124,13 @@ class PropertyValue(BaseModel):
     value: str | float | int | None = None
     unit: str | None = None
     confidence: float = 0.0
-    source: Literal["declared", "inferred", "calculated"] = "inferred"
+    # "estimated_temporary" — Estimated-temporary plate envelope B1: an
+    # Engineer-typed provisional number with NO evidence, explicitly
+    # honesty-gated (never a fit/"cabe" input, never a fit-attestation
+    # input — see pose_envelope_screening's "estimated_dims" status).
+    # Not the full UNKNOWN/VERIFIED/SECONDARY/INFERRED/ESTIMATED_TEMPORARY
+    # taxonomy (named debt, out of this Buy) — just this one literal.
+    source: Literal["declared", "inferred", "calculated", "estimated_temporary"] = "inferred"
 
 
 class CatalogRef(BaseModel):
