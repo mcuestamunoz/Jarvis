@@ -252,3 +252,40 @@ def test_bound_frame_still_triggers_level_a_gap_when_prop_oversized(tmp_path: Pa
     # _CREATE declares propeller_diameter_in=10.0 -> 5" frame is incompatible.
     readiness = build_engineering_readiness(state)
     assert any(g.gap_type == "GAP-FRAME-PROP-SIZE" for g in readiness.gaps)
+
+
+# ── 8 — mid-architecture re-pick: bound frame still honors help-choose ─────
+
+def test_bound_frame_help_choose_reoffers_catalog_mid_architecture(tmp_path: Path):
+    """Regression: IDLE rebind is blocked while architecture has a pending
+    block, and `_wants_catalog_help` is False once catalog_ref is set — bare
+    "ayúdame a elegir" used to fall through to the class-gap re-ask instead
+    of listing frames. Singleton frame wizard must re-offer (G18 motors escape).
+    """
+    from jarvis.core.catalog_bind import bind_frame_from_catalog
+    from jarvis.core.component_writers import set_frame_material
+
+    o = _fresh(tmp_path)
+    llm = _RefuseLLM()
+    state = o.state_manager.load_active_project(o.workspace_manager)
+    bound = bind_frame_from_catalog("armattan_rooster_5in")
+    state = set_frame_material(
+        state,
+        material=bound.properties.get("material").value if "material" in bound.properties else None,
+        mass_kg=bound.properties["mass_kg"].value,
+        size_class_inch=bound.properties["size_class_inch"].value,
+        catalog_ref=bound.catalog_ref,
+        component_name=bound.name,
+    )
+    o.workspace_manager.save_state(state)
+
+    _open_frame_wizard(o)
+    frame = o.state_manager.load_active_project(o.workspace_manager).design_properties.components["frame"]
+    assert frame.catalog_ref is not None
+
+    result = o.handle_user_text("ayúdame a elegir", llm)
+    assert result["status"] == "interactive"
+    suggestions = result.get("frame_suggestions") or []
+    assert suggestions, "bound mid-architecture help-choose must list frames"
+    assert any(s["name"] == "geprc_gep_racer_5in" for s in suggestions)
+    assert "Frames del catálogo" in (result.get("message") or "")

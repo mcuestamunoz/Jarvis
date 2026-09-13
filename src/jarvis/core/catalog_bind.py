@@ -82,6 +82,9 @@ def bind_motor_from_catalog(
     if base is not None:
         merged_properties = {**(base.properties or {}), **projected}
         return base.model_copy(update={
+            "name": sku,
+            "component_type": "propulsion_active",
+            "suggested_key": "motors",
             "properties": merged_properties,
             "completeness": "high",
             "catalog_ref": catalog_ref,
@@ -89,6 +92,8 @@ def bind_motor_from_catalog(
             # component so component_resolver derives per_motor_max_thrust_n
             # from it on every recalculation.
             "output_magnitude": "thrust_n",
+            "inference_confidence": 0.95,
+            "source": "declared",
         })
     return ComponentSpec(
         name=sku,
@@ -148,10 +153,17 @@ def bind_battery_from_catalog(
         )
     if base is not None:
         merged_properties = {**(base.properties or {}), **projected}
+        # Same stub-key trap as bind_esc_from_catalog — architecture stubs
+        # have suggested_key=None; writers key off suggested_key.
         return base.model_copy(update={
+            "name": sku,
+            "component_type": "energy_storage",
+            "suggested_key": "battery",
             "properties": merged_properties,
             "completeness": "high",
             "catalog_ref": catalog_ref,
+            "inference_confidence": 0.95,
+            "source": "declared",
         })
     return ComponentSpec(
         name=sku,
@@ -224,9 +236,14 @@ def bind_propeller_from_catalog(
     if base is not None:
         merged_properties = {**(base.properties or {}), **projected}
         return base.model_copy(update={
+            "name": sku,
+            "component_type": "propulsion_passive",
+            "suggested_key": "propellers",
             "properties": merged_properties,
             "completeness": "high",
             "catalog_ref": catalog_ref,
+            "inference_confidence": 0.95,
+            "source": "declared",
         })
     return ComponentSpec(
         name=sku,
@@ -286,10 +303,19 @@ def bind_esc_from_catalog(
         )
     if base is not None:
         merged_properties = {**(base.properties or {}), **projected}
+        # Architecture stubs are ComponentSpec(completeness=low) with
+        # suggested_key=None. Merging only catalog_ref/completeness onto that
+        # stub leaves suggested_key unset; set_control_component then writes
+        # under "generic_control" and the esc hole stays low forever (smoke loop).
         return base.model_copy(update={
+            "name": sku,
+            "component_type": "power_control",
+            "suggested_key": "esc",
             "properties": merged_properties,
             "completeness": "high",
             "catalog_ref": catalog_ref,
+            "inference_confidence": 0.95,
+            "source": "declared",
         })
     return ComponentSpec(
         name=sku,
@@ -353,9 +379,14 @@ def bind_kit_hardware_from_catalog(
         merged_properties = {**(base.properties or {}), **projected}
         promoted = "medium" if (base.completeness or "low") == "low" else base.completeness
         return base.model_copy(update={
+            "name": spec.name,
+            "component_type": spec.kit_key,
+            "suggested_key": spec.kit_key,
             "properties": merged_properties,
             "completeness": promoted,
             "catalog_ref": catalog_ref,
+            "inference_confidence": 0.9,
+            "source": "declared",
         })
     return ComponentSpec(
         name=spec.name,
@@ -441,10 +472,15 @@ def bind_frame_from_catalog(
         merged_properties = {**(base.properties or {}), **projected}
         completeness, missing_fields = _frame_completeness(merged_properties)
         return base.model_copy(update={
+            "name": sku,
+            "component_type": "structure",
+            "suggested_key": "frame",
             "properties": merged_properties,
             "completeness": completeness,
             "missing_fields": missing_fields,
             "catalog_ref": catalog_ref,
+            "inference_confidence": 0.95,
+            "source": "declared",
         })
     completeness, missing_fields = _frame_completeness(projected)
     return ComponentSpec(

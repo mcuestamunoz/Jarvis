@@ -19,5 +19,26 @@
     "width_mm": 21.6,
     "height_mm": 12.0,
     "source_note": "HOBBYWING official: 40A continuous / 60A peak, 2-6S LiPo, no BEC. Individual ESC for multicopters (550/650 class quads). source_url normalized to the www. mirror (a.hobbywing.com fails TLS validation). Page states size \"50.0x21.6x12.0mm\" and weight \"15g\" for part_number 30901001 (International Version B, no output wires) — verbatim print order mapped to length/width/height. Version A (part 30901013, with output wires) is 42.0x21.6x12.0mm / 18.5g — NOT seeded, different part_number. Catalog hygiene (ESC XRotor variant coherence IC): mass_g corrected from a prior 26g to the page's own stated 15g for this exact PN — 26 matched neither this variant (15g) nor Version A (18.5g), was not an average or unit-conversion artifact of either, and no cited primary source was ever found for it; its origin is undocumented/unknown."
+  },
+  "speedybee_bls_60a_30x30_4in1": {
+    "manufacturer": "SpeedyBee",
+    "model": "BLS 60A 30x30 4-in-1 ESC",
+    "part_number": "SB-BLS-60A",
+    "identity_status": "verified",
+    "esc_topology": "4in1",
+    "channels": 4,
+    "continuous_current_a": 60,
+    "burst_current_a": 80,
+    "continuous_current_source": "manufacturer_spec",
+    "voltage_min": 9.0,
+    "voltage_max": 25.2,
+    "cells_min": 3,
+    "cells_max": 6,
+    "mass_g": 23.5,
+    "source_url": "https://www.speedybee.com/speedybee-bls-60a-30x30-4-in-1-esc/",
+    "length_mm": 45.6,
+    "width_mm": 44.0,
+    "height_mm": 8.0,
+    "source_note": "Engineer purchase-ground-truth (2026-09-10), re-fetched same day. SpeedyBee official: \"Continuous Current: 60A * 4\" (per-channel, 4 independent outputs on one board — esc_topology=4in1, channels=4, continuous_current_a modeled as the per-channel figure same as continuous_current_a's existing single-ESC convention) / \"Burst Current: 80A (10 sec)\". Power input 3-6S LiPo (cells_min/max) — voltage_min/max derived per the SAME per-cell convention hobbywing_xrotor_40a_6s already uses (3.0V/cell floor, 4.2V/cell full charge): 3S->9.0V, 6S->25.2V (both rows share the 6S ceiling). Page states \"Dimension: 45.6(L) * 44(W) *8mm(H)\" — explicitly labeled axis order (N1), mapped directly. Weight 23.5g. BLHeli_S J-H-40 firmware and current-sensor Scale=400/Offset=0 are noted on the page but not modeled (no firmware/sensor-calibration schema fields exist). Mounting 30.5x30.5mm, 4mm holes — noted, not a schema field (no mount_pattern key exists for ESCs). Availability: page shows \"Discontinued\" on this re-fetch (2026-09-10) — Engineer still cites this as the real purchase identity (a part they will order/receive regardless of listed availability); seeded as cited, no replacement SKU invented."
   }
 }

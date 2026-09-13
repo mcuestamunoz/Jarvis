@@ -104,6 +104,8 @@ def test_t9_only_cited_propellers_have_mass_g():
     """Propeller cited seeds B2 (implementation_contract_geometry_propeller_
     cited_seeds_b2.md §3.5): the cited set grew from {gf_5045x3} to
     {gf_5045x3, dal_7040, apc_10x6_ep} — a required census update, not a
-    weaken (every other row's mass_g is still None, unchanged)."""
+    weaken (every other row's mass_g is still None, unchanged). #4e
+    Sourced prop Gemfan Hurricane MCK B1 added a fourth cited row
+    (gemfan_hurricane_mck_51466_3_v2)."""
     with_mass = {p.name for p in default_library.list_propellers() if p.mass_g is not None}
-    assert with_mass == {"gf_5045x3", "dal_7040", "apc_10x6_ep"}
+    assert with_mass == {"gf_5045x3", "dal_7040", "apc_10x6_ep", "gemfan_hurricane_mck_51466_3_v2"}

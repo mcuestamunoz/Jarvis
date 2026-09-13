@@ -2,8 +2,9 @@
 
 Covers implementation_contract_geometry_esc_visor_rebind_b1.md §3/§4:
 bind_esc_from_catalog(base=existing) preserves pose; IDLE cambiar esc
-offers the 1-row Hobbywing catalog; pick is singleton expected_keys==["esc"]
-only (not the propulsion composite).
+offers the ESC catalog (Hobbywing here; #4c Sourced ESC SpeedyBee B1
+later added a second Class A row); pick is singleton
+expected_keys==["esc"] only (not the propulsion composite).
 """
 from __future__ import annotations
 
@@ -121,12 +122,17 @@ def test_p2_freeform_esc_has_no_geometry():
     assert node.get("declaredBoxPose", {}).get("originKey") == "flight_controller"
 
 
-def test_p3_library_hobbywing_box_and_single_row():
+def test_p3_library_hobbywing_box_present():
+    # #4c Sourced ESC SpeedyBee B1 added a second Class A row
+    # (speedybee_bls_60a_30x30_4in1) — this test no longer asserts a
+    # single-row catalog, only that Hobbywing's own dims are unchanged
+    # and it's still present.
     spec = default_library.get_esc(_HOBBYWING)
     assert spec.length_mm == pytest.approx(50.0)
     assert spec.width_mm == pytest.approx(21.6)
     assert spec.height_mm == pytest.approx(12.0)
-    assert [e.name for e in default_library.list_escs()] == [_HOBBYWING]
+    names = [e.name for e in default_library.list_escs()]
+    assert _HOBBYWING in names
 
 
 @pytest.mark.parametrize(
@@ -274,3 +280,33 @@ def test_p7_composite_propulsion_does_not_apply_esc_pick(tmp_path: Path):
     state = orch.state_manager.load_active_project(orch.workspace_manager)
     esc = state.design_properties.components["esc"]
     assert esc.catalog_ref is None
+
+
+def test_architecture_stub_base_writes_esc_not_generic_control():
+    """Architecture stubs are ComponentSpec(completeness=low) with no
+    suggested_key. Catalog bind must still land under ``esc``, not
+    ``generic_control`` (15min smoke loop 2026-09-11)."""
+    stub = ComponentSpec(completeness="low", source="declared")
+    assert stub.suggested_key is None
+    bound = bind_esc_from_catalog("speedybee_bls_60a_30x30_4in1", base=stub)
+    assert bound.suggested_key == "esc"
+    assert bound.component_type == "power_control"
+    assert bound.completeness == "high"
+    assert bound.catalog_ref == CatalogRef(
+        family="esc", sku="speedybee_bls_60a_30x30_4in1"
+    )
+
+    state = ProjectState(
+        project_id="p",
+        project_slug="demo",
+        objective="demo",
+        workspace_path="/tmp/demo",
+        current_parameters={},
+        design_properties=DesignProperties(components={"esc": stub}),
+    )
+    updated = set_control_component(state, bound)
+    assert "generic_control" not in updated.design_properties.components
+    esc = updated.design_properties.components["esc"]
+    assert esc.catalog_ref.sku == "speedybee_bls_60a_30x30_4in1"
+    assert esc.completeness == "high"
+    assert esc.properties["length_mm"].value == pytest.approx(45.6)

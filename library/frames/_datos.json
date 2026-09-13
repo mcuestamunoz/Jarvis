@@ -84,5 +84,28 @@
     "identity_status": "verified",
     "source_url": "https://armattanquads.com/products/rooster-1",
     "source_note": "Manufacturer's own product page (armattanquads.com) states approx. 125g frame weight, Compressed-X configuration (mapped to quad_x), 230mm motor-to-motor @5in, carbon fiber main plate/arms (arm thickness 4mm), titanium cage, aluminum standoffs. Plate thicknesses curated from the page's own spec list (not the full Included kit): Main Plate 4mm (carbon), Top/LiPo plate 2mm, Small front/rear (top) plates 1.5mm each. No explicit arm/plate/standoff counts stated on the page — left unset, not inferred from the X-configuration name. Rooster Included plates B2 (live re-fetch 2026-09-09): the page's own Carbon Fiber Included list also states '1x 1.5mm HD Cam plate' and '1x 2mm Rear VTX plates (Standard and TBS)' — seeded as two more curated plate rows (never split into two siblings — one Included line stays one PlateSeed). Its Specification table additionally states 'Max Stack Height: 22mm' — seeded as the root-only max_stack_height_mm, never height_mm/body_*/a box glyph input. Still no plate or airframe L×W stated anywhere on the page. Still not the full hardware bag — nylon standoffs, bolt/nut counts, LiPo strap, camera foam, 28.5mm camera mount, and 30.5mm stack mount remain unseeded."
+  },
+  "geprc_gep_racer_5in": {
+    "manufacturer": "GEPRC",
+    "model": "GEP-RACER Frame",
+    "mass_g": 78,
+    "size_class_inch": 5,
+    "wheelbase_mm": 208,
+    "configuration": "quad_x",
+    "arm_thickness_mm": 5.0,
+    "arm_material": "fibra de carbono (T700)",
+    "plates": [
+      {"label": "Top plate", "thickness_mm": 2.0},
+      {"label": "Aluminum plate", "thickness_mm": 2.0},
+      {"label": "Bottom plate", "thickness_mm": 2.0}
+    ],
+    "body_length_mm": 175,
+    "body_width_mm": 173,
+    "standoffs": [
+      {"height_mm": 24, "count": 4}
+    ],
+    "identity_status": "verified",
+    "source_url": "https://geprc.com/product/gep-racer-frame/",
+    "source_note": "Engineer purchase-ground-truth (2026-09-11), re-fetched same day; corroborated by the parts listing at https://geprc.com/product/gep-racer-frame-parts/ (UTM stripped). Page states \"Dimensions: 175mm×173mm\" and \"Wheelbase: 208mm\" plus a photo with blue callouts 175/173/208 — the Engineer's own 2026-09-11 photo review confirms 208mm is the diagonal motor-to-motor distance (wheelbase_mm) while 175x173mm is the OUTER envelope of the assembled airframe (tip/outer motor-mount extent) — root body_length_mm/body_width_mm ONLY (same iFlight XL7 'Body dimensions' precedent: representar text, never a plate box glyph, never copied onto any frame_plate* child). Configuration mapped quad_x (racing X) — page never states 'deadcat'. Weight 78g (photo discloses ±2g). Propeller size 5in stated on page. Arms: thickness 5.0mm, material stated as T700 carbon (translated 'fibra de carbono' per this catalog's own convention, grade preserved parenthetically) — no arm L×W stated. Top/Aluminum/Bottom plate: thickness 2.0mm each, THICKNESS ONLY — no plate L×W stated anywhere on the page or photo; 'Aluminum' lives only in that plate's own label, never asserted as a material field beyond what the label itself states, and 175x173 must NEVER be copied onto any of these three plates (locked, Engineer 2026-09-11). Standoff: aluminum column, page callout 'M3*6*24mm', Includes 4x — seeded as standoff height_mm=24, count=4 ONLY; 'M3*6*24' is a thread-length callout (M3 thread, 6mm engagement or head, 24mm overall length), NOT an outer diameter — no standoff Ø/cross-section is stated anywhere, so none is seeded (locked, do not read M3x6x24 as Ø6). Mount hole facts noted only, never a schema field: FC mount 30.5/25.5/20mm selectable, motor mount 16x16mm, VTX mount 20mm, camera space 14mm. Per-part L×W (plate/arm) and standoff cross-section remain UNKNOWN pending an authentic CAD citation or a physical caliper measurement — investigated 2026-09-11 (CAD path closed B0, no authentic file found; see investigation_report_geometry_gep_racer_part_cad_b0.md) — never estimated from this row's own 175x173/208 numbers."
   }
 }

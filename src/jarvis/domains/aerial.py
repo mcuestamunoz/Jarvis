@@ -532,6 +532,13 @@ FLIGHT_CONTROLLER_MAP: dict[str, str] = {
     "betaflight":     "betaflight",
     "naze32":         "naze32",
     "matek":          "matek",
+    # Sourced FC + GPS envelopes B1 — SpeedyBee F405 V4, purchase-ground-
+    # truth citation (see FLIGHT_CONTROLLER_DIMENSIONS below). Longest
+    # aliases first; a bare "f405" or bare "betaflight" never matches any
+    # of these three, so neither ever picks up dims.
+    "speedybee f405 v4": "speedybee_f405_v4",
+    "speedybee f405":    "speedybee_f405_v4",
+    "f405 v4":           "speedybee_f405_v4",
 }
 
 # Geometry axis (Minimum Geometric KNOW, FC B1) — identity-linked declared
@@ -558,6 +565,21 @@ FLIGHT_CONTROLLER_DIMENSIONS: dict[str, dict[str, object]] = {
             "to length/width/height. No mounting hole pattern stated on "
             "either page — not claimed. Pixhawk 4 Mini not seeded (no usable "
             "spec page found this session)."
+        ),
+    },
+    "speedybee_f405_v4": {
+        "length_mm": 41.6,
+        "width_mm": 39.4,
+        "height_mm": 7.8,
+        "source_urls": (
+            "https://www.getfpv.com/speedybee-f405-v4-flight-controller-30x30.html",
+        ),
+        "source_note": (
+            "GetFPV product page (\"Dimension: 41.6(L) x 39.4(W) x 7.8(H)mm\") — "
+            "labeled axis order (L/W/H), mapped directly (N1). Weight 10.5g and "
+            "the 30.5x30.5mm/4mm mounting-hole pattern are noted on the page but "
+            "not modeled (no mounting-pattern schema field exists) — never "
+            "confused with the board's own L/W/H box."
         ),
     },
 }
@@ -631,10 +653,47 @@ GPS_MAP: dict[str, str] = {
     "here3":  "here3",
     "here+":  "here_plus",
     "here2":  "here2",
+    # Sourced FC + GPS envelopes B1 — Holybro M10, purchase-ground-truth
+    # citation (see GPS_DIMENSIONS below). Both longer than bare "m10", so
+    # a message naming Holybro never falls through to the generic
+    # ublox_m10 identity — but a bare "m10" alone still resolves to
+    # ublox_m10, WITHOUT dims (GPS_DIMENSIONS has no entry for it).
+    "holybro m10 gps": "holybro_m10",
+    "holybro m10":     "holybro_m10",
     "m8n":    "ublox_m8n",
     "m9n":    "ublox_m9n",
     "m10":    "ublox_m10",
     "gps":    "generic_gps",
+}
+
+# Geometry axis (Minimum Geometric KNOW, GPS B1) — identity-linked
+# declared box, the SAME pattern FLIGHT_CONTROLLER_DIMENSIONS already
+# uses (no `library/sensors/`, no SensorSpec, no bind function, no
+# `catalog_ref`). Keyed by the same canonical model string GPS_MAP
+# already produces. Sourced-only, one entry (holybro_m10) — never
+# back-filled onto `ublox_m10`/`here3`/etc. this Buy didn't verify. The
+# module's separate 25x25x4mm antenna is a distinct submodule, disclosed
+# in `source_note` only — never folded into this box.
+GPS_DIMENSIONS: dict[str, dict[str, object]] = {
+    "holybro_m10": {
+        "length_mm": 50.0,
+        "width_mm": 50.0,
+        "height_mm": 14.4,
+        "source_urls": (
+            "https://holybro.com/products/m10-gps",
+            "https://www.hobbydrone.cz/gps-module-holybro-m10-gps-module-standard/",
+        ),
+        "source_note": (
+            "Engineer purchase SoT: Holybro store (https://holybro.com/products/"
+            "m10-gps) states \"Dimension: φ50 x14.4 mm\" — circular footprint. "
+            "Board box uses G1 bounding square 50×50×14.4 (cylinder inscribed in "
+            "square), disclosed here; not a second invented envelope. HobbyDrone "
+            "corroboration quoted unlabeled \"50 x 50 x 14,4 mm\" (same numeric "
+            "bound). Weight 32g noted but not modeled. Separate 25×25×4mm antenna "
+            "is a submodule, never folded into this box. M10 V2 is a different "
+            "product — not this entry."
+        ),
+    },
 }
 
 # Bug 66: sensor types beyond GPS (IMU, barometer, compass).
@@ -692,6 +751,17 @@ def extract_sensor_properties(normalized: str) -> dict[str, PropertyValue]:
         props["gps_model"] = PropertyValue(
             value=found_model, unit=None, confidence=found_confidence, source="declared"
         )
+        # Sourced FC + GPS envelopes B1: identity-linked from GPS_DIMENSIONS,
+        # never parsed from the user's own message (mirrors
+        # extract_flight_controller_properties's own FLIGHT_CONTROLLER_
+        # DIMENSIONS attach). Absent for every model this Buy didn't cite
+        # (e.g. bare "m10" -> ublox_m10, no entry -> no dims).
+        gps_dims = GPS_DIMENSIONS.get(found_model)
+        if gps_dims is not None:
+            for key in ("length_mm", "width_mm", "height_mm"):
+                props[key] = PropertyValue(
+                    value=gps_dims[key], unit="mm", confidence=found_confidence, source="declared"
+                )
 
     # ── Sensor type (Bug 66: IMU, barometer, compass) ─────────────────────────
     # Bug 68: use word-boundary regex instead of plain substring so that 'imu'
@@ -781,16 +851,25 @@ aerial_registry = ComponentRuleRegistry([
         missing_field_hints=("Describe material y masa del frame. Ej: 'fibra de carbono 450g'",),
     ),
     ComponentRule(
-        keywords=("pixhawk", "controladora", "flight controller", "ardupilot", "betaflight", "naze32", "matek"),
+        # "speedybee"/"f405": Geometry #4b sourced SpeedyBee F405 V4 — without
+        # these stems, bare "SpeedyBee F405 V4" never matched the rule keyword
+        # gate and fell to generic_component (smoke 2026-09-12). Extractor
+        # still refuses dims on bare "f405" alone (T2); keyword only opens
+        # the rule so infer_component_for_key / force-bind can run.
+        keywords=(
+            "pixhawk", "controladora", "flight controller", "ardupilot",
+            "betaflight", "naze32", "matek", "speedybee", "f405",
+        ),
         component_type="flight_controller",
         suggested_key="flight_controller",
         inference_confidence=0.85,
         property_extractor=extract_flight_controller_properties,
         completeness_evaluator=_flight_controller_completeness,
-        missing_field_hints=("Indica el modelo exacto. Ej: 'Pixhawk 4' o 'Betaflight F7'",),
+        missing_field_hints=("Indica el modelo exacto. Ej: 'Pixhawk 4' o 'SpeedyBee F405 V4'",),
     ),
     ComponentRule(
         keywords=("gps", "m8n", "m9n", "m10", "here3", "here+", "here2", "gnss",
+                  "holybro",
                   "imu", "inercial", "barometro", "barómetro", "sensor", "sensores",
                   "magnetometro", "magnetómetro", "brujula", "brújula", "giroscopio"),
         component_type="sensors",

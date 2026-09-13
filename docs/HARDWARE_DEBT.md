@@ -93,6 +93,25 @@ No añadir filas genéricas de “LiPo típico” o “η típica de ESC”.
 
 ---
 
+## HD-005 — Craft OP XING-E + Gemfan 51466-3 + 4S (#4d follow-on)
+
+| Campo | Valor |
+|---|---|
+| **Estado** | **OPEN** — retargeted 2026-09-11. Catalog seed of XING-E is **not** gated here anymore (see reopen [IC #4d](../.jes/artifacts/implementation_contract_geometry_sourced_motor_xing_e_pro_b1.md): manufacturer OP 6045 @ 16 V anchors `thrust_n`). **Nunca** 🔴 PRIORIDAD solo por Board. |
+| **SKU** | `iflight_xing_e_pro_2207_2450` (seed via #4d reopen ★ — Level 1 manufacturer OP) |
+| **Qué ya no es esta deuda** | Falta de `thrust_n` bare para poder cargar la fila. El ancla fabricante (6045 / 16 V / ~16.46 N) es válida como OP de catálogo; **no** valida el craft. |
+| **Falta** | Operating point (o estimación explícita) del combo real: **XING-E 2207 2450KV + `gemfan_hurricane_mck_51466_3_v2` + 4S (Tattu)**. Hoy: sin fila exacta; resolve debe caer a fallback fabricante / legacy — nunca fingir match 51466. |
+| **Por qué** | Cambiar 6045 (2 palas) → 51466-3 (pitch 3.6) + pack 4S real puede mover thrust/I/RPM/P/η de forma **incierta**. No afirmar “variación pequeña”. |
+| **T1** | Estimación documentada (método + números) marcada `estimated` / confidence LOW–MEDIUM / verification pending — solo con Engineer ★ bag. |
+| **T2** | Thrust stand: mismo motor + Hurricane MCK 51466-3 + 4S · ≥1 punto (preferible varios). Log thrust (gf/N), V, I, prop. |
+| **No cierra** | Prestar thrust EMAX · relabelar OP 6045 como si fuera 51466 · HD-004 autonomía validada |
+| **Complejidad** | Media–alta (banco) o baja (estimate bag ★). |
+| **Desbloquea** | Level 2/3 craft OP en catálogo o declare assist; mejores sim/DSE para el stack de compra. |
+| **Spec** | [IC #4d reopen](../.jes/artifacts/implementation_contract_geometry_sourced_motor_xing_e_pro_b1.md) · historical T3 report/review retained |
+| **Boundary** | Misma disciplina HD-* — no “siguiente” automático de producto |
+
+---
+
 ## Más adelante (no abierto)
 
 Validación de vuelo / vehículo completo. Necesita HD-001…004 (o etiquetas honestas de que siguen faltando). No mezclar en HD-001/002.

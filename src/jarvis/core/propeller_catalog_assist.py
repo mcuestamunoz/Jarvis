@@ -59,7 +59,7 @@ def build_propeller_catalog_suggestions(
     project_state: Any,
     *,
     library: ComponentLibrary | None = None,
-    limit: int = 5,
+    limit: int = 6,
 ) -> list[PropellerSuggestion]:
     """Ranked catalog propeller candidates compatible with the bound motor.
 
@@ -72,6 +72,16 @@ def build_propeller_catalog_suggestions(
     motors (a list that disagrees with what a gap/predicate can actually
     justify). The caller shows an honest "bind a motor first" message
     instead (``format_propeller_catalog_suggestions`` on an empty list).
+
+    ``limit`` bumped 5->6 (#4e Sourced prop Gemfan Hurricane MCK B1,
+    Engineer-approved): a 6th 5"-class propeller (`gemfan_hurricane_
+    mck_51466_3_v2`) became compatible with `emax_rs2205s_2300` and, being
+    alphabetically earlier, pushed `hq_5045_bn` — a propeller with real
+    seeded ``operating_points`` on that exact motor row — out of the
+    default top-5 window. Widening the cap by exactly the delta this Buy
+    introduced restores reachability without changing the ranking rule
+    itself (still alphabetical via ``list_propellers()``, still no
+    per-SKU special-casing).
     """
     lib = library or default_library
     motor_sku = _bound_motor_sku(project_state) if project_state is not None else None

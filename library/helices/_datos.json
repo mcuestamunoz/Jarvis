@@ -126,5 +126,20 @@
     "hub_thickness_mm": 9.5,
     "source_note": "EMAX shop listing ('★2 Pairs 5045 3 Blade Propeller ABS CW-CCW For Mini Quadcopter', page's own Product Code 0106003102 — re-fetched 2026-09-09). Page states: Material ABS, 3 blades, weight 4.5 grams per prop, hub diameter 5mm, hub thickness 9.5mm, diameter 5in, pitch 4.5in, pack contents 2xCW and 2xCCW (1 full set per pack). Page does not state a weight tolerance or a shaft bore/hole diameter distinct from the hub — both omitted, not invented. Note: the page's own 'Product Code' (0106003102) does not match this row's existing part_number (PMAB5045-3, sourced separately); part_number kept as-is per lock since the page does not contradict the physical bag values (mass/diameter/pitch/material/blade count all match).",
     "tags": ["gf5045", "tri-blade", "5inch", "abs", "pmab5045-3"]
+  },
+  "gemfan_hurricane_mck_51466_3_v2": {
+    "diameter_in": 5.189,
+    "pitch_in": 3.6,
+    "mass_g": 4.2,
+    "manufacturer": "Gemfan",
+    "model": "Hurricane MCK 51466-3 V2 PC Durable (Midnight Gray)",
+    "identity_status": "verified",
+    "source_url": "https://www.hobbydrone.cz/hurricane-mck-51466-3-v2-pc-durable-midnight-gray-2ccw-2cw-/",
+    "blade_count": 3,
+    "material": "PC",
+    "hub_thickness_mm": 6.8,
+    "shaft_bore_mm": 5,
+    "source_note": "Engineer purchase-ground-truth (2026-09-10), re-fetched same day, HobbyDrone product page. Page states \"Prop Diameter: 131.8mm\" — this is the ONE stated diameter figure; diameter_in derived as 131.8/25.4 = 5.1890 (rounded to 4 places), never the bare \"5 inch\" category the model-code prefix (\"514\") might suggest on its own. \"Pitch: 3.6inch\" mapped directly to pitch_in — NEVER 4.66 (the trailing model-code digits \"66\" are not a pitch value; this page states pitch explicitly, no digit-decode needed or used). \"Weight: 4.2g\", \"Center Thickness: 6.8mm\" -> hub_thickness_mm, \"Center Hole Dia: M5\" -> shaft_bore_mm=5 (a BORE/hole diameter, not an outer hub OD — hub_diameter_mm deliberately omitted since the page never states the hub's own outer diameter). \"Number of blades: 3\" (also the model's own \"-3\" suffix). Material PC (polycarbonate). Color Midnight Gray and package contents (2CW+2CCW per pack) noted here only — neither is a catalog physics field. Motor compatibility note: page states \"suitable for 2207-2306 and up\" motors — a qualitative fit note, never modeled as compatible_kv_band (no numeric KV band was ever stated, so none is invented).",
+    "tags": ["gemfan-hurricane", "tri-blade", "mck", "pc", "51466-3-v2"]
   }
 }

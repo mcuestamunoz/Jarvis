@@ -111,7 +111,11 @@ def test_t7_gf_5045x3_bag_unchanged():
 
 
 def test_t8_list_propellers_includes_new_sku_18_rows():
+    # #4e Sourced prop Gemfan Hurricane MCK B1 added a 19th row
+    # (gemfan_hurricane_mck_51466_3_v2) — count bumped from 18 to 19,
+    # both new SKUs still asserted present.
     all_props = default_library.list_propellers()
     names = [p.name for p in all_props]
     assert "apc_10x6_ep" in names
-    assert len(all_props) == 18
+    assert "gemfan_hurricane_mck_51466_3_v2" in names
+    assert len(all_props) == 19
