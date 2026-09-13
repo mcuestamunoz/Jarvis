@@ -3,13 +3,18 @@
 implementation_contract_dse_apply_honest.md
 
 Walk (Engineer CLI, autonomia-15min): after watts-recovery pick
-sunnysky_r2305_2500 (220 W nameplate) + lipo_4s_5000mah (74 Wh, catalog_ref
+sunnysky_r2205_2500 (756 W nameplate) + lipo_4s_5000mah (74 Wh, catalog_ref
 set), "optimiza para autonomía" -> "aplica la mejor" on a mixed
-params_delta ({battery_capacity_wh_factor: 2.0, motor_power_w_factor: 0.75})
-must not invent a lower motor_power_w (165 W) next to a catalog SKU that
-declares 220 W, and must not leave the battery at 148 Wh with
-catalog_ref=None and name still lipo_4s_5000mah when 148 Wh is exactly
-lipo_4s_10000mah's catalog energy.
+params_delta ({battery_capacity_wh_factor: 1.8, motor_power_w_factor: 0.75})
+must not invent a lower motor_power_w (567 W) next to a catalog SKU that
+declares 756 W, and must not leave the battery at 133.2 Wh with
+catalog_ref=None and name still lipo_4s_5000mah when 133.2 Wh is exactly
+lipo_6s_6000mah's catalog energy.
+
+Catalog sourced-only purge B1 redirect: sunnysky_r2305_2500 and
+lipo_4s_10000mah had no source_url and were deleted; sunnysky_r2205_2500
+and lipo_6s_6000mah are real, sourced KEEP rows with an analogous
+nameplate-W / exact-Wh-match role.
 """
 from __future__ import annotations
 
@@ -61,11 +66,11 @@ def _fresh(tmp_path: Path) -> JarvisOrchestrator:
     return o
 
 
-def _bind_r2305_and_5000mah(o: JarvisOrchestrator, *, motor_count: int = 4) -> None:
-    """r2305 (220W nameplate) + gemfan_5045_hbn + lipo_4s_5000mah (74 Wh)."""
+def _bind_r2205_and_5000mah(o: JarvisOrchestrator, *, motor_count: int = 4) -> None:
+    """r2205 (756W nameplate) + gemfan_5045_hbn + lipo_4s_5000mah (74 Wh)."""
     ps = o.state_manager.load_active_project(o.workspace_manager)
     ps = ps.model_copy(update={"current_parameters": {**ps.current_parameters, "motor_count": motor_count}})
-    m = default_library.get_motor("sunnysky_r2305_2500")
+    m = default_library.get_motor("sunnysky_r2205_2500")
     motor_spec = bind_motor_from_catalog({
         "name": m.name, "max_watts": m.max_watts, "thrust_n": m.thrust_n,
         "kv_rating": m.kv_rating, "weight_g": m.weight_g, "is_generic": m.is_generic,
@@ -129,13 +134,13 @@ def _seed_exploration(o: JarvisOrchestrator, *, params_delta: dict) -> None:
 
 def test_mixed_apply_keeps_nameplate_w_and_binds_battery_sku(tmp_path: Path):
     o = _fresh(tmp_path)
-    _bind_r2305_and_5000mah(o)
+    _bind_r2205_and_5000mah(o)
     ps = o.state_manager.load_active_project(o.workspace_manager)
-    assert ps.current_parameters["motor_power_w"] == 220
+    assert ps.current_parameters["motor_power_w"] == 756
     assert ps.current_parameters["battery_capacity_wh"] == 74.0
 
     _seed_exploration(o, params_delta={
-        "battery_capacity_wh_factor": 2.0, "motor_power_w_factor": 0.75,
+        "battery_capacity_wh_factor": 1.8, "motor_power_w_factor": 0.75,
     })
 
     result = o._handle_apply_exploration()
@@ -143,26 +148,26 @@ def test_mixed_apply_keeps_nameplate_w_and_binds_battery_sku(tmp_path: Path):
     message = result["message"]
 
     ps = o.state_manager.load_active_project(o.workspace_manager)
-    assert ps.current_parameters["motor_power_w"] == 220
-    assert ps.current_parameters["battery_capacity_wh"] == 148.0
-    assert ps.current_parameters["battery_mass_kg"] == 0.98
+    assert ps.current_parameters["motor_power_w"] == 756
+    assert ps.current_parameters["battery_capacity_wh"] == 133.2
+    assert ps.current_parameters["battery_mass_kg"] == 0.793
 
     battery = ps.design_properties.components["battery"]
     assert battery.catalog_ref is not None
-    assert battery.catalog_ref.sku == "lipo_4s_10000mah"
-    assert battery.name == "lipo_4s_10000mah"
+    assert battery.catalog_ref.sku == "lipo_6s_6000mah"
+    assert battery.name == "lipo_6s_6000mah"
 
     motors = ps.design_properties.components["motors"]
     assert motors.catalog_ref is not None
-    assert motors.catalog_ref.sku == "sunnysky_r2305_2500"
+    assert motors.catalog_ref.sku == "sunnysky_r2205_2500"
 
-    assert "sunnysky_r2305_2500 declara 220 W de placa" in message
-    assert "Batería vinculada a lipo_4s_10000mah (148 Wh" in message
+    assert "sunnysky_r2205_2500 declara 756 W de placa" in message
+    assert "Batería vinculada a lipo_6s_6000mah (133.2 Wh" in message
 
 
 def test_unmatched_wh_stays_parametric(tmp_path: Path):
     o = _fresh(tmp_path)
-    _bind_r2305_and_5000mah(o)
+    _bind_r2205_and_5000mah(o)
 
     _seed_exploration(o, params_delta={"battery_capacity_wh_factor": 2.5})  # 185 Wh — no pack
 
@@ -172,7 +177,7 @@ def test_unmatched_wh_stays_parametric(tmp_path: Path):
 
     ps = o.state_manager.load_active_project(o.workspace_manager)
     assert ps.current_parameters["battery_capacity_wh"] == 185.0
-    assert ps.current_parameters["motor_power_w"] == 220
+    assert ps.current_parameters["motor_power_w"] == 756
 
     battery = ps.design_properties.components["battery"]
     assert battery.catalog_ref is None
@@ -183,18 +188,18 @@ def test_unmatched_wh_stays_parametric(tmp_path: Path):
 
 def test_wh_only_delta_binds_battery_motor_untouched(tmp_path: Path):
     o = _fresh(tmp_path)
-    _bind_r2305_and_5000mah(o)
+    _bind_r2205_and_5000mah(o)
 
-    _seed_exploration(o, params_delta={"battery_capacity_wh_factor": 2.0})
+    _seed_exploration(o, params_delta={"battery_capacity_wh_factor": 1.8})
 
     result = o._handle_apply_exploration()
     assert result["status"] == "ok"
 
     ps = o.state_manager.load_active_project(o.workspace_manager)
-    assert ps.current_parameters["motor_power_w"] == 220
+    assert ps.current_parameters["motor_power_w"] == 756
     battery = ps.design_properties.components["battery"]
-    assert battery.catalog_ref.sku == "lipo_4s_10000mah"
-    assert ps.current_parameters["battery_capacity_wh"] == 148.0
+    assert battery.catalog_ref.sku == "lipo_6s_6000mah"
+    assert ps.current_parameters["battery_capacity_wh"] == 133.2
 
 
 def test_unbound_motor_delta_writes_invented_w_battery_still_binds(tmp_path: Path):
@@ -226,30 +231,33 @@ def test_unbound_motor_delta_writes_invented_w_battery_still_binds(tmp_path: Pat
     )
 
     _seed_exploration(o, params_delta={
-        "battery_capacity_wh_factor": 2.0, "motor_power_w_factor": 0.75,
+        "battery_capacity_wh_factor": 1.8, "motor_power_w_factor": 0.75,
     })
 
     result = o._handle_apply_exploration()
     assert result["status"] == "ok"
 
     ps = o.state_manager.load_active_project(o.workspace_manager)
+    # Freeform motor_power_w=220 here is an arbitrary starting value, never
+    # tied to any catalog SKU (that's this test's own documented point) —
+    # unaffected by the catalog purge: 220 * 0.75 = 165, unchanged.
     assert ps.current_parameters["motor_power_w"] == 165.0
     battery = ps.design_properties.components["battery"]
-    assert battery.catalog_ref.sku == "lipo_4s_10000mah"
+    assert battery.catalog_ref.sku == "lipo_6s_6000mah"
 
 
 def test_two_or_more_matches_refuses_apply(tmp_path: Path, monkeypatch):
     o = _fresh(tmp_path)
-    _bind_r2305_and_5000mah(o)
+    _bind_r2205_and_5000mah(o)
     ps_before = o.state_manager.load_active_project(o.workspace_manager)
     params_before = dict(ps_before.current_parameters)
 
     monkeypatch.setattr(
         "jarvis.core.catalog_bind.find_battery_skus_for_energy_wh",
-        lambda energy_wh, **kw: ["lipo_4s_10000mah", "fake_other_pack_148wh"],
+        lambda energy_wh, **kw: ["lipo_6s_6000mah", "fake_other_pack_133_2wh"],
     )
 
-    _seed_exploration(o, params_delta={"battery_capacity_wh_factor": 2.0})
+    _seed_exploration(o, params_delta={"battery_capacity_wh_factor": 1.8})
 
     result = o._handle_apply_exploration()
     assert result["status"] == "error"
@@ -261,11 +269,11 @@ def test_two_or_more_matches_refuses_apply(tmp_path: Path, monkeypatch):
 
 
 def test_find_unique_battery_sku_for_energy_wh():
-    assert find_unique_battery_sku_for_energy_wh(148.0) == "lipo_4s_10000mah"
+    assert find_unique_battery_sku_for_energy_wh(133.2) == "lipo_6s_6000mah"
     assert find_unique_battery_sku_for_energy_wh(74.0) == "lipo_4s_5000mah"
     assert find_unique_battery_sku_for_energy_wh(185.0) is None
 
 
 def test_find_battery_skus_for_energy_wh_count():
-    assert find_battery_skus_for_energy_wh(148.0) == ["lipo_4s_10000mah"]
+    assert find_battery_skus_for_energy_wh(133.2) == ["lipo_6s_6000mah"]
     assert find_battery_skus_for_energy_wh(185.0) == []

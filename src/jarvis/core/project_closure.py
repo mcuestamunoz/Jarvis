@@ -81,7 +81,7 @@ def catalog_bound_motor_lacks_nameplate_watts(design_properties: Any) -> bool:
     architecture-progress/energy-nag purposes, regardless of whether that
     SKU declares watts). This one answers a narrower, different question:
     does the *specific bound SKU* actually lack a nameplate ``max_watts`` —
-    so the CTA is never shown for a SKU (like ``sunnysky_r2305_2500``, 220W)
+    so the CTA is never shown for a SKU (like ``sunnysky_r2205_2500``, 756W)
     that does declare watts, while a genuinely watts-less SKU (like
     ``emax_rs2205s_2300``) still gets it. True only when identity-bound
     *and* the library lookup confirms ``max_watts is None``; a SKU missing

@@ -372,10 +372,13 @@ def test_battery_bind_projects_declared_envelope():
     assert bound.properties["height_mm"].value == pytest.approx(75.0)
 
 
-def test_battery_bind_omits_envelope_when_unsourced():
-    bound = bind_battery_from_catalog("lipo_4s_10000mah")
-    for key in ("length_mm", "width_mm", "height_mm"):
-        assert key not in bound.properties
+# test_battery_bind_omits_envelope_when_unsourced removed (catalog
+# sourced-only purge B1): its subject, lipo_4s_10000mah, had no
+# source_url and no cited envelope — deleted entirely by ★1/★2. Every
+# surviving KEEP battery has a full, cited L×W×H envelope (a sourced
+# product page usually states its dimensions too), so no real row is left
+# to prove "envelope omitted when unsourced" — this is this Buy's own
+# intended outcome, not a gap.
 
 
 # ── 8. Unbound battery → still heuristic mass (regression) ─────────────────
@@ -657,11 +660,13 @@ def test_iterate_numeric_mutation_diverging_capacity_clears_battery_catalog_ref(
 
 # ── Propeller bind (helper + tests only — no existing pick UX, per 2.1.D) ──
 
+# Catalog sourced-only purge B1 redirect: apc_10x4_5 had no source_url
+# and was deleted; apc_10x6_ep is a real, sourced KEEP 10" propeller.
 def test_bind_propeller_from_catalog_sets_catalog_ref():
-    spec = bind_propeller_from_catalog("apc_10x4_5")
-    assert spec.catalog_ref == CatalogRef(family="propeller", sku="apc_10x4_5")
+    spec = bind_propeller_from_catalog("apc_10x6_ep")
+    assert spec.catalog_ref == CatalogRef(family="propeller", sku="apc_10x6_ep")
     assert spec.properties["diameter_in"].value == 10.0
-    assert spec.properties["pitch_in"].value == 4.5
+    assert spec.properties["pitch_in"].value == 6.0
 
 
 # ── Regressions: FN-022...026 smoke ─────────────────────────────────────────

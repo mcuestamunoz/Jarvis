@@ -63,25 +63,34 @@ def build_battery_catalog_suggestions(
     project_state: Any,
     *,
     library: ComponentLibrary | None = None,
-    limit: int = 10,
+    limit: int | None = None,
 ) -> list[BatterySuggestion]:
     """Ranked catalog battery candidates.
 
     ★1 (locked, Bat-2): suggestions come only from ``ComponentLibrary.
-    list_batteries()`` — the full v1 seed (contract §3 Option A: "capped at
-    N — 10 entries — honest full v1 catalog"; ``limit=10`` therefore shows
-    every seed battery unfiltered, unlike motors/propellers' narrower
-    design-space-filtered ``limit=5``) — never a hardcoded SKU, never
-    invented rows. *project_state* is accepted (unused today) for call-site
-    symmetry with ``build_motor_catalog_suggestions``/
+    list_batteries()`` — the full sourced-only seed, never a hardcoded SKU,
+    never invented rows. *project_state* is accepted (unused today) for
+    call-site symmetry with ``build_motor_catalog_suggestions``/
     ``build_propeller_catalog_suggestions`` and to leave room for a future,
     explicitly-scoped filter without changing every caller's signature.
+
+    Catalog sourced-only purge + battery rebind P0 (★4/Bat-list): default
+    ``limit=None`` shows **every** remaining library battery, unfiltered —
+    the prior fixed ``limit=10`` silently truncated an alphabetically-
+    sorted catalog past 10 rows (Tattu, sorting last, never appeared —
+    field_note_smoke_rebind_battery_sensor_bugs_b0.md's own bug #1). A
+    battery list is a fixed, small, sourced-only inventory by design (★1's
+    own gate) — there is no "too many to show" case this needs to guard
+    against, unlike motors/propellers' deliberately narrower design-space-
+    filtered lists. ``limit`` stays overridable (not removed) only so a
+    caller can opt into a narrower slice later without a signature change.
     """
     lib = library or default_library
     matches = lib.list_batteries()
+    selected = matches if limit is None else matches[:limit]
     return [
         battery_spec_to_suggestion(b, idx=i + 1)
-        for i, b in enumerate(matches[:limit])
+        for i, b in enumerate(selected)
     ]
 
 

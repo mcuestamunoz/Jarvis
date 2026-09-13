@@ -173,7 +173,7 @@ def _closed_bound(tmp_path: Path) -> JarvisOrchestrator:
         "max_watts": motor.max_watts or 200, "is_generic": motor.is_generic,
     })
     ps = set_motor_component(ps, motor_bind, motor.max_watts or 200)
-    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5030"))
+    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5045_hbn"))
     ps = set_battery_component(ps, bind_battery_from_catalog("lipo_4s_5000mah"), 74.0)
     frame_bind = bind_frame_from_catalog("armattan_rooster_5in")
     ps = set_frame_material(

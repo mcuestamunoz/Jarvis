@@ -11,6 +11,8 @@ from __future__ import annotations
 import inspect
 from types import SimpleNamespace
 
+import pytest
+
 from jarvis.core.engineering_readiness import (
     Gap,
     GapEvidence,
@@ -113,8 +115,29 @@ def test_gap_motor_catalog_unresolved_absent_when_matches_found():
 # ── G9-A: bound catalog_ref awareness ───────────────────────────────────────
 # brotherhobby_avenger_2500: thrust_n=9.5, max_thrust_n=11.5, kv 2300-2700,
 # compatible_prop_inch=(5,) — real library fixture, not invented.
+#
+# Catalog sourced-only purge B1 note: this row had no source_url and was
+# deleted from the real catalog. The two "covers"/"underspec" tests below
+# need this exact envelope back (their boundary math is tuned to it) —
+# see _brotherhobby_in_library fixture, which injects it into the real
+# library singleton for those tests only (never touches disk). The
+# "missing from library" test right after these deliberately uses a
+# different, never-real sku and needs no fixture.
 
 _BOUND_SKU = "brotherhobby_avenger_2500"
+
+
+@pytest.fixture
+def _brotherhobby_in_library(monkeypatch):
+    from jarvis.knowledge.library import MotorSpec, default_library
+
+    default_library._load_motors()
+    synthetic = MotorSpec(
+        name=_BOUND_SKU, thrust_n=9.5, kv_rating=2500, weight_g=32.0,
+        compatible_prop_inch=(5,), min_thrust_n=9.5, max_thrust_n=11.5,
+        kv_min=2300, kv_max=2700, max_watts=280.0,
+    )
+    monkeypatch.setitem(default_library._motors, _BOUND_SKU, synthetic)
 
 
 def _bound_state(*, required_thrust_n: float, sku: str = _BOUND_SKU):
@@ -139,7 +162,7 @@ def _bound_state(*, required_thrust_n: float, sku: str = _BOUND_SKU):
     )
 
 
-def test_gap_motor_catalog_unresolved_absent_when_bound_sku_covers():
+def test_gap_motor_catalog_unresolved_absent_when_bound_sku_covers(_brotherhobby_in_library):
     # required_thrust_n=60 / motor_count=6 = 10.0 N/motor — within
     # brotherhobby_avenger_2500's [9.5, 11.5] N envelope; prop_inch=5.0 matches
     # its (5,) compatible list; kv=2500 within its [2300, 2700] band.
@@ -157,7 +180,7 @@ def test_gap_motor_catalog_unresolved_absent_when_bound_sku_covers():
     assert result.subsystems["catalog"].verdict == "PASS"
 
 
-def test_gap_motor_catalog_unresolved_bound_sku_underspec():
+def test_gap_motor_catalog_unresolved_bound_sku_underspec(_brotherhobby_in_library):
     # required_thrust_n=90 / motor_count=6 = 15.0 N/motor — past the bound
     # SKU's 11.5 N ceiling.
     state = _bound_state(required_thrust_n=90.0)

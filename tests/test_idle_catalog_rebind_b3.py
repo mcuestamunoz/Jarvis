@@ -68,7 +68,7 @@ def _closed_bound(tmp_path: Path) -> JarvisOrchestrator:
         "max_watts": motor.max_watts or 200, "is_generic": motor.is_generic,
     })
     ps = set_motor_component(ps, motor_bind, motor.max_watts or 200)
-    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5030"))
+    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5045_hbn"))
     ps = set_battery_component(ps, bind_battery_from_catalog("lipo_4s_5000mah"), 74.0)
     frame_bind = bind_frame_from_catalog("armattan_rooster_5in")
     ps = set_frame_material(
@@ -204,14 +204,17 @@ def test_battery_rebind_pick_binds_new_sku(tmp_path: Path):
     orch = _closed_bound(tmp_path)
     _reset_idle(orch)
     offer = orch.handle_user_text("cambiar batería", _RefuseLLM())
+    # Catalog sourced-only purge B1 redirect: lipo_4s_10000mah had no
+    # source_url and was deleted — tattu_2300mah_4s_75c_xt60 (sourced,
+    # distinct from the bound lipo_4s_5000mah) is this Buy's own smoke SKU.
     idx = next(
-        s["idx"] for s in offer["battery_suggestions"] if s["name"] == "lipo_4s_10000mah"
+        s["idx"] for s in offer["battery_suggestions"] if s["name"] == "tattu_2300mah_4s_75c_xt60"
     )
     pick = orch.handle_user_text(str(idx), _RefuseLLM())
     assert pick["status"] == "ok"
     state = orch.state_manager.load_active_project(orch.workspace_manager)
     battery = state.design_properties.components["battery"]
-    assert battery.catalog_ref == CatalogRef(family="battery", sku="lipo_4s_10000mah")
+    assert battery.catalog_ref == CatalogRef(family="battery", sku="tattu_2300mah_4s_75c_xt60")
 
 
 def test_bare_ayudame_resolver_none_and_no_forced_family(tmp_path: Path):

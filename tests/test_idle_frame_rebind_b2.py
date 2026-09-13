@@ -74,7 +74,7 @@ def _closed_project_bound_frame(tmp_path: Path) -> JarvisOrchestrator:
         "max_watts": motor.max_watts or 200, "is_generic": motor.is_generic,
     })
     ps = set_motor_component(ps, motor_bind, motor.max_watts or 200)
-    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5030"))
+    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5045_hbn"))
     ps = set_battery_component(ps, bind_battery_from_catalog("lipo_4s_5000mah"), 74.0)
     frame_bind = bind_frame_from_catalog("armattan_rooster_5in")
     ps = set_frame_material(
@@ -250,13 +250,29 @@ def test_rebind_to_tbs_clears_stale_armattan_children(tmp_path: Path):
 # ── T6/T7 — regressions: unnamed/other-family phrases unaffected ───────────
 
 def test_bare_ayudame_a_elegir_still_opens_motor_assist_not_frame(tmp_path: Path):
+    """T6/T7 regression: a bare, unnamed help-choose phrase must never get
+    mis-routed to the frame catalog.
+
+    Catalog sourced-only purge B1 redirect: before the purge, the fixture's
+    max-thrust-in-library motor pick (t-motor_u8_170, compatible_prop_inch
+    (22,24)) mismatched this fixture's own 5" propeller, so bare "ayúdame a
+    elegir" fell into a relaxed motor re-offer (a message containing
+    "motor") — that was the original assertion's own evidence of "not
+    frame." All 3 remaining KEEP motors are 5" (compatible_prop_inch=[5]),
+    matching this fixture's bound propeller — no motor/prop mismatch is
+    left to react to, so the architecture now reads as fully consistent
+    and a bare, unnamed phrase correctly returns a plain status with NO
+    catalog re-offer at all. Asserting none of the four families' offer
+    lists appear is a strictly stronger proof of the same regression (no
+    family gets mis-triggered by an unnamed phrase), not a weaker one.
+    """
     orch = _closed_project_bound_frame(tmp_path)
     _reset_idle(orch)
     result = orch.handle_user_text("ayúdame a elegir", _RefuseLLM())
-    assert "frame_suggestions" not in result or not result["frame_suggestions"]
-    # The fixture's bound motor triggers the T1 underspec re-offer, per the
-    # investigation's own confirmed finding.
-    assert "motor" in (result.get("message") or "").lower() or result.get("status") == "interactive"
+    assert not result.get("frame_suggestions")
+    assert not result.get("motor_suggestions")
+    assert not result.get("battery_suggestions")
+    assert not result.get("propeller_suggestions")
 
 
 @pytest.mark.parametrize("phrase", ["cambiar batería", "cambiar motores", "definir motores"])

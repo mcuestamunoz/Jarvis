@@ -87,7 +87,7 @@ def test_battery_help_choose_lists_catalog_including_seed_sku(tmp_path):
     result = orc.handle_user_text("ayúdame a elegir", llm)
     suggestions = result.get("battery_suggestions") or []
     assert suggestions, "battery_suggestions empty"
-    assert any(s["name"] == "lipo_6s_10000mah" for s in suggestions)
+    assert any(s["name"] == "lipo_6s_6000mah" for s in suggestions)
 
 
 def test_battery_pick_binds_catalog_ref_and_real_energy_mass_cells(tmp_path):
@@ -97,15 +97,15 @@ def test_battery_pick_binds_catalog_ref_and_real_energy_mass_cells(tmp_path):
 
     result = orc.handle_user_text("ayúdame a elegir", llm)
     suggestions = result["battery_suggestions"]
-    idx = next(s["idx"] for s in suggestions if s["name"] == "lipo_6s_10000mah")
+    idx = next(s["idx"] for s in suggestions if s["name"] == "lipo_6s_6000mah")
     pick = orc.handle_user_text(str(idx), llm)
     assert pick["status"] == "ok"
 
     state = orc.state_manager.load_active_project(orc.workspace_manager)
     battery = state.design_properties.components["battery"]
-    assert battery.catalog_ref == CatalogRef(family="battery", sku="lipo_6s_10000mah")
-    seed = default_library.get_battery("lipo_6s_10000mah")
-    assert state.current_parameters["battery_capacity_wh"] == seed.energy_wh == 222.0
+    assert battery.catalog_ref == CatalogRef(family="battery", sku="lipo_6s_6000mah")
+    seed = default_library.get_battery("lipo_6s_6000mah")
+    assert state.current_parameters["battery_capacity_wh"] == seed.energy_wh == 133.2
     assert state.current_parameters["battery_mass_kg"] == pytest.approx(seed.mass_g / 1000.0)
     assert state.current_parameters["battery_cell_count"] == seed.cells == 6
 
@@ -130,7 +130,7 @@ def test_battery_pick_does_not_regress_already_resolved_propulsion_op(tmp_path):
     thrust_before = before.current_parameters.get("per_motor_max_thrust_n")
 
     result = orc.handle_user_text("ayúdame a elegir", llm)
-    idx = next(s["idx"] for s in result["battery_suggestions"] if s["name"] == "lipo_6s_10000mah")
+    idx = next(s["idx"] for s in result["battery_suggestions"] if s["name"] == "lipo_6s_6000mah")
     orc.handle_user_text(str(idx), llm)
 
     after = orc.state_manager.load_active_project(orc.workspace_manager)
@@ -141,20 +141,40 @@ def test_battery_pick_does_not_regress_already_resolved_propulsion_op(tmp_path):
 
 
 def test_autonomy_min_reflects_real_sku_wh_after_calcular(tmp_path):
+    """Catalog sourced-only purge B1 redirect: _drive_to_battery_wizard's
+    "pick #1" motor now resolves to emax_rs2205s_2300, which honestly
+    declares no nameplate max_watts — autonomy_min cannot be computed at
+    all from a watts-less motor (None, by design, not a bug). This test's
+    own point is autonomy reflecting the battery's real Wh, not the
+    motor's wattage-declaration status, so it rebinds to a watts-bearing
+    KEEP motor (sunnysky_r2205_2500) right before checking autonomy."""
     orc = _fresh_orchestrator(tmp_path)
     llm = _RefuseLLM()
     _drive_to_battery_wizard(orc, llm)
 
+    state = orc.state_manager.load_active_project(orc.workspace_manager)
+    m = default_library.get_motor("sunnysky_r2205_2500")
+    motor_spec = bind_motor_from_catalog({
+        "name": m.name, "max_watts": m.max_watts, "thrust_n": m.thrust_n,
+        "kv_rating": m.kv_rating, "weight_g": m.weight_g, "is_generic": m.is_generic,
+    })
+    state = set_motor_component(state, motor_spec, m.max_watts)
+    orc.workspace_manager.save_state(state)
+
     result = orc.handle_user_text("ayúdame a elegir", llm)
-    idx = next(s["idx"] for s in result["battery_suggestions"] if s["name"] == "lipo_6s_10000mah")
+    idx = next(s["idx"] for s in result["battery_suggestions"] if s["name"] == "lipo_6s_6000mah")
     orc.handle_user_text(str(idx), llm)
 
     calc = orc.handle_user_text("calcular", llm)
     assert calc["status"] == "ok"
     state = orc.state_manager.load_active_project(orc.workspace_manager)
     autonomy = state.latest_results["calculations"]["autonomy_min"]
-    assert autonomy is not None and autonomy > 5.0, (
-        f"autonomy_min={autonomy} looks like a 6Wh-class collapse, not 222 Wh"
+    # sunnysky_r2205_2500's real 756W nameplate draws down 133.2 Wh in ~2.6
+    # min — real physics, not a bug. A genuine G27-class collapse (battery
+    # silently corrupted to 6.0 Wh instead of 133.2) would instead land
+    # around 0.12 min (2.6 * 6/133.2) — comfortably below this threshold.
+    assert autonomy is not None and autonomy > 1.0, (
+        f"autonomy_min={autonomy} looks like a 6Wh-class collapse, not 133.2 Wh"
     )
 
 
@@ -269,11 +289,11 @@ def test_g27_post_bind_adapter_is_stateless_never_touches_catalog_ref(tmp_path):
     project_state access and therefore cannot clear a bound catalog_ref by
     itself. Confirmed here: adapting the G27 phrase against a project that
     already has a catalog-bound battery leaves the on-disk catalog_ref
-    completely untouched, and still resolves to the correct 222 Wh (or a
+    completely untouched, and still resolves to the correct 133.2 Wh (or a
     refusal) rather than corrupting it to 6.0."""
     orc = _fresh_orchestrator(tmp_path)
     state = orc.state_manager.load_active_project(orc.workspace_manager)
-    battery_spec = bind_battery_from_catalog("lipo_6s_10000mah")
+    battery_spec = bind_battery_from_catalog("lipo_6s_6000mah")
     state = set_battery_component(
         state, battery_spec, battery_spec.properties["battery_capacity_wh"].value
     )

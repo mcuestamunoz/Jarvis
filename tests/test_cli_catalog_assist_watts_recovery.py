@@ -95,7 +95,10 @@ def test_idle_emax_no_w_opens_watts_filtered_list(tmp_path: Path):
     message = result.get("message", "")
     assert result.get("action") != "project_status"
     assert "Solo candidatos con W de placa" in message
-    assert "sunnysky_r2305_2500" in message or "emax_rs2205_2300" in message
+    # Catalog sourced-only purge B1 redirect: sunnysky_r2305_2500 /
+    # emax_rs2205_2300 had no source_url and were deleted; sunnysky_r2205_2500
+    # is a real, sourced KEEP motor that declares watts.
+    assert "sunnysky_r2205_2500" in message
     assert "emax_rs2205s_2300" not in message
     assert "No inventes motor_power_w" not in message or "W de placa" in message
     suggestions = o.state_manager.get_runtime_session().motor_suggestions or []
@@ -103,9 +106,12 @@ def test_idle_emax_no_w_opens_watts_filtered_list(tmp_path: Path):
     assert all(s.get("max_watts") is not None for s in suggestions)
 
 
-def test_idle_r2305_with_watts_stays_g21(tmp_path: Path):
+# Catalog sourced-only purge B1 redirect: sunnysky_r2305_2500 had no
+# source_url and was deleted; sunnysky_r2205_2500 is a real, sourced KEEP
+# motor that also declares watts.
+def test_idle_r2205_with_watts_stays_g21(tmp_path: Path):
     o = _fresh(tmp_path)
-    _bind(o, motor_sku="sunnysky_r2305_2500")
+    _bind(o, motor_sku="sunnysky_r2205_2500")
     o.handle_user_text("calcular", _RefuseLLM())
     o.handle_user_text("simular", _RefuseLLM())
 

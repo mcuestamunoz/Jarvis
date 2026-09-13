@@ -67,7 +67,7 @@ def _make_energy_project_catalog_bound_no_watts(tmp_path: Path) -> tuple[JarvisO
         "kv_rating": m.kv_rating, "weight_g": m.weight_g, "is_generic": m.is_generic,
     })
     ps = set_motor_component(ps, motor_spec, m.max_watts)
-    battery_spec = bind_battery_from_catalog("lipo_4s_10000mah")
+    battery_spec = bind_battery_from_catalog("lipo_4s_5000mah")  # catalog sourced-only purge B1 redirect
     ps = set_battery_component(
         ps, battery_spec, battery_spec.properties["battery_capacity_wh"].value
     )
@@ -277,7 +277,7 @@ def test_reasoning_missing_energy_catalog_bound_motor_no_watts_label():
 
 def test_reasoning_missing_energy_catalog_bound_motor_with_watts_no_cta():
     """T1 (implementation_contract_cli_catalog_assist_t1.md §2.6): a bound
-    SKU that DOES declare nameplate watts (sunnysky_r2305_2500, 220W) must
+    SKU that DOES declare nameplate watts (sunnysky_r2205_2500, 756W) must
     never see the "no declara vatios" CTA — that copy is now gated on
     catalog_bound_motor_lacks_nameplate_watts, not the identity-only
     catalog_bound_motor_covers_power_w. The old CTA (from the identity
@@ -290,7 +290,7 @@ def test_reasoning_missing_energy_catalog_bound_motor_with_watts_no_cta():
         "current_parameters": {"battery_capacity_wh": 148.0},
         "design_properties": {
             "components": {
-                "motors": {"catalog_ref": {"family": "motor", "sku": "sunnysky_r2305_2500"}}
+                "motors": {"catalog_ref": {"family": "motor", "sku": "sunnysky_r2205_2500"}}
             }
         },
     }
@@ -310,10 +310,10 @@ def test_reasoning_missing_energy_stale_signal_with_both_params_present_no_decla
     layer = ReasoningLayer()
     context = {
         "last_simulation": {"energy_status": "missing_energy_parameters"},
-        "current_parameters": {"battery_capacity_wh": 148.0, "motor_power_w": 220.0},
+        "current_parameters": {"battery_capacity_wh": 148.0, "motor_power_w": 756.0},
         "design_properties": {
             "components": {
-                "motors": {"catalog_ref": {"family": "motor", "sku": "sunnysky_r2305_2500"}}
+                "motors": {"catalog_ref": {"family": "motor", "sku": "sunnysky_r2205_2500"}}
             }
         },
     }

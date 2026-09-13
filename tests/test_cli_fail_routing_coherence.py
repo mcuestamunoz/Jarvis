@@ -63,12 +63,22 @@ def _fresh(tmp_path: Path) -> JarvisOrchestrator:
     return o
 
 
-def _build_walk_project(o: JarvisOrchestrator, *, motor_sku: str) -> None:
+def _build_walk_project(
+    o: JarvisOrchestrator, *, motor_sku: str,
+    battery_sku: str = "lipo_6s_6000mah", payload_kg: float = 1.0,
+) -> None:
     """Field fixture: 4 motors, propeller D=5in, battery, frame class 5in,
-    ESC + control, architecture 4/4."""
+    ESC + control, architecture 4/4.
+
+    Catalog sourced-only purge B1 redirect: this fixture used to default to
+    gemfan_5030 / lipo_4s_10000mah / a weak no-watts DROP motor at
+    payload_kg=1.0 to naturally reach a thrust-fail state. Every KEEP motor
+    is stronger (10-16.5N vs the old 7.5-8N), so callers needing a genuine
+    thrust fail now pass a heavier ``payload_kg`` explicitly (see call
+    sites below for the specific, empirically-verified values)."""
     ps = o.state_manager.load_active_project(o.workspace_manager)
     ps = ps.model_copy(update={
-        "current_parameters": {**ps.current_parameters, "motor_count": 4},
+        "current_parameters": {**ps.current_parameters, "motor_count": 4, "payload_kg": payload_kg},
         "parsed_constraints": {"autonomy_min": 10.0},
     })
     m = default_library.get_motor(motor_sku)
@@ -77,8 +87,8 @@ def _build_walk_project(o: JarvisOrchestrator, *, motor_sku: str) -> None:
         "kv_rating": m.kv_rating, "weight_g": m.weight_g, "is_generic": m.is_generic,
     })
     ps = set_motor_component(ps, motor_spec, m.max_watts)
-    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5030"))
-    battery_spec = bind_battery_from_catalog("lipo_4s_10000mah")
+    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5045_hbn"))
+    battery_spec = bind_battery_from_catalog(battery_sku)
     ps = set_battery_component(
         ps, battery_spec, battery_spec.properties["battery_capacity_wh"].value
     )
@@ -116,7 +126,7 @@ def _build_walk_project(o: JarvisOrchestrator, *, motor_sku: str) -> None:
 def test_frame_wizard_pvc_650g_asks_size_class_not_mass_material_on_save(tmp_path: Path):
     o = _fresh(tmp_path)
     ps = o.state_manager.load_active_project(o.workspace_manager)
-    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5030"))  # D known
+    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5045_hbn"))  # D known
     o.workspace_manager.save_state(ps)
 
     session = o.state_manager.runtime_state.session
@@ -147,7 +157,7 @@ def test_frame_wizard_unrecognized_reply_asks_size_class_from_persisted_state(tm
     non-affirmative phrase to keep testing exactly that."""
     o = _fresh(tmp_path)
     ps = o.state_manager.load_active_project(o.workspace_manager)
-    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5030"))
+    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5045_hbn"))
     o.workspace_manager.save_state(ps)
 
     session = o.state_manager.runtime_state.session
@@ -173,7 +183,7 @@ def test_frame_wizard_ayudame_a_elegir_opens_frame_catalog(tmp_path: Path):
     missing-datum prompt."""
     o = _fresh(tmp_path)
     ps = o.state_manager.load_active_project(o.workspace_manager)
-    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5030"))
+    ps = set_propeller_component(ps, bind_propeller_from_catalog("gemfan_5045_hbn"))
     o.workspace_manager.save_state(ps)
 
     session = o.state_manager.runtime_state.session
@@ -196,8 +206,18 @@ def test_frame_wizard_ayudame_a_elegir_opens_frame_catalog(tmp_path: Path):
 
 
 def test_thrust_fail_autonomy_below_real_walk_no_false_pass_no_warning_line(tmp_path: Path):
+    # Catalog sourced-only purge B1 redirect: emax_rs2205_2300 (weak,
+    # no-watts DROP motor) reached this fail+autonomy-below state at
+    # payload_kg=1.0. Every KEEP motor is stronger, so this uses a
+    # watts-declaring KEEP motor (sunnysky_r2205_2500, needed so
+    # autonomy_min is even computable) at a heavier, empirically-verified
+    # payload that genuinely fails thrust while also missing the 10-min
+    # restriction — real physics throughout, no injected state.
     o = _fresh(tmp_path)
-    _build_walk_project(o, motor_sku="emax_rs2205_2300")
+    _build_walk_project(
+        o, motor_sku="sunnysky_r2205_2500",
+        battery_sku="tattu_2300mah_4s_75c_xt60", payload_kg=5.0,
+    )
     o.handle_user_text("calcular", _RefuseLLM())
     o.handle_user_text("simular", _RefuseLLM())
 
@@ -218,10 +238,42 @@ def test_thrust_fail_autonomy_below_real_walk_no_false_pass_no_warning_line(tmp_
 
 
 def test_thrust_fail_autonomy_met_no_optimizar_cta(tmp_path: Path):
+    """Catalog sourced-only purge B1 redirect: the prior fixture
+    (sunnysky_r2305_2500, 220W/7.5N) reached "thrust fails but autonomy is
+    comfortably met" at payload_kg=1.0 with a real KEEP-sized battery.
+    Every KEEP motor is 10-16.5N and needs near-max-rated power to fail
+    thrust at all — at that power draw, no KEEP battery (max 133.2 Wh)
+    sustains 10+ minutes, so this exact combination is no longer reachable
+    from real catalog hardware alone. The thrust-fail state itself is
+    still 100% real physics (payload_kg=5.0, same as the sibling test
+    above); only the warnings/autonomy_min fields — which is what this
+    COPY/CTA-suppression test actually exercises, not the physics engine
+    — are then set directly to represent "autonomy met" honestly, the
+    same synthetic-SimulationResult pattern test_impl_c_catalog_aware_dse.py
+    already uses for its own exploration-candidate fixtures."""
     o = _fresh(tmp_path)
-    _build_walk_project(o, motor_sku="sunnysky_r2305_2500")
+    _build_walk_project(
+        o, motor_sku="sunnysky_r2205_2500",
+        battery_sku="tattu_2300mah_4s_75c_xt60", payload_kg=5.0,
+    )
     o.handle_user_text("calcular", _RefuseLLM())
     o.handle_user_text("simular", _RefuseLLM())
+
+    ps = o.state_manager.load_active_project(o.workspace_manager)
+    sim = dict(ps.latest_results.get("simulation") or {})
+    assert sim.get("status") == "fail"  # real physics: thrust genuinely fails
+    sim["warnings"] = []
+    sim["autonomy_min"] = 15.0
+    # derive_physical_requirements reads calculations["autonomy_min"] FIRST,
+    # falling back to simulation's only when the calc one is None — both
+    # must agree "autonomy met" for _autonomy_objective_undemonstrated to
+    # see it that way.
+    calc = dict(ps.latest_results.get("calculations") or {})
+    calc["autonomy_min"] = 15.0
+    ps = ps.model_copy(update={
+        "latest_results": {**ps.latest_results, "simulation": sim, "calculations": calc},
+    })
+    o.workspace_manager.save_state(ps)
 
     ps = o.state_manager.load_active_project(o.workspace_manager)
     sim = ps.latest_results.get("simulation") or {}
@@ -329,10 +381,30 @@ def test_thrust_fail_autonomy_below_names_both_never_claims_pass():
 
 
 def test_append_arch_progress_hint_suppressed_on_thrust_fail_autonomy_met(tmp_path: Path):
+    """Catalog sourced-only purge B1 redirect: see
+    test_thrust_fail_autonomy_met_no_optimizar_cta's own docstring above —
+    same real-thrust-fail-then-honest-autonomy-override pattern."""
     o = _fresh(tmp_path)
-    _build_walk_project(o, motor_sku="sunnysky_r2305_2500")
+    _build_walk_project(
+        o, motor_sku="sunnysky_r2205_2500",
+        battery_sku="tattu_2300mah_4s_75c_xt60", payload_kg=5.0,
+    )
     o.handle_user_text("calcular", _RefuseLLM())
     o.handle_user_text("simular", _RefuseLLM())
+
+    ps = o.state_manager.load_active_project(o.workspace_manager)
+    sim = dict(ps.latest_results.get("simulation") or {})
+    assert sim.get("status") == "fail"
+    sim["warnings"] = []
+    sim["autonomy_min"] = 15.0
+    # derive_physical_requirements reads calculations["autonomy_min"] FIRST,
+    # falling back to simulation's only when the calc one is None.
+    calc = dict(ps.latest_results.get("calculations") or {})
+    calc["autonomy_min"] = 15.0
+    ps = ps.model_copy(update={
+        "latest_results": {**ps.latest_results, "simulation": sim, "calculations": calc},
+    })
+    o.workspace_manager.save_state(ps)
 
     result = o._append_arch_progress_hint({"status": "ok", "message": "base"})
     assert "puedes optimizar o simular" not in result["message"]

@@ -76,9 +76,12 @@ def test_t4_emax_and_hobbywing_unchanged():
     emax = default_library.get_motor("emax_rs2205s_2300")
     assert emax.thrust_n == pytest.approx(10.042)
     assert emax.diameter_mm == pytest.approx(27.9)
-    hobby = default_library.get_motor("hobbywing_xrotor_2207_2450")
-    assert hobby.thrust_n == pytest.approx(11.5)
-    assert hobby.kv_rating == 2450
+    # Catalog sourced-only purge B1 redirect: hobbywing_xrotor_2207_2450
+    # had no source_url and was deleted; sunnysky_r2205_2500 is a real,
+    # sourced KEEP sibling motor, still unaffected by the xing_e_pro work.
+    sibling = default_library.get_motor("sunnysky_r2205_2500")
+    assert sibling.thrust_n == pytest.approx(12.5525)
+    assert sibling.kv_rating == 2500
 
 
 def test_t5_no_1800_2750_and_no_craft_prop_op():

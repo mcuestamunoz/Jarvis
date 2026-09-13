@@ -17,6 +17,8 @@ from jarvis.core.engineering_readiness import (
     build_engineering_readiness,
     resolve_motor_catalog_surface,
 )
+import pytest
+
 from jarvis.core.motor_catalog_assist import MotorSuggestion
 from jarvis.core.orchestrator import JarvisOrchestrator
 
@@ -27,6 +29,26 @@ _SUGGESTION: MotorSuggestion = {
     "idx": 1, "name": _BOUND_SKU, "thrust_n": 9.5, "kv_rating": 2500,
     "weight_g": 32.0, "max_watts": 280.0, "is_generic": False,
 }
+
+
+@pytest.fixture
+def _brotherhobby_in_library(monkeypatch):
+    """Catalog sourced-only purge B1 note: brotherhobby_avenger_2500 had
+    no source_url and was deleted from the real catalog. This file's own
+    boundary math ([9.5, 11.5]N / kv[2300,2700] / prop(5,)) is deliberately
+    tuned to this exact synthetic envelope, which no surviving KEEP motor
+    shares — injects the same row back into the real library singleton
+    for this test only (monkeypatch.setitem, auto-reverted, never touches
+    disk), same pattern used elsewhere this session for an analogous gap."""
+    from jarvis.knowledge.library import MotorSpec, default_library
+
+    default_library._load_motors()
+    synthetic = MotorSpec(
+        name=_BOUND_SKU, thrust_n=9.5, kv_rating=2500, weight_g=32.0,
+        compatible_prop_inch=(5,), min_thrust_n=9.5, max_thrust_n=11.5,
+        kv_min=2300, kv_max=2700, max_watts=280.0,
+    )
+    monkeypatch.setitem(default_library._motors, _BOUND_SKU, synthetic)
 
 
 def _project_with_bound_motor(tmp_path: Path, *, required_thrust_n: float, motor_count: int = 6):
@@ -74,7 +96,7 @@ def _project_with_bound_motor(tmp_path: Path, *, required_thrust_n: float, motor
 
 # ── Slice 2: orchestrator dedup smoke ────────────────────────────────────────
 
-def test_build_startup_context_motor_catalog_gap_from_readiness(tmp_path: Path):
+def test_build_startup_context_motor_catalog_gap_from_readiness(tmp_path: Path, _brotherhobby_in_library):
     """Scenario B through orchestrator.build_startup_context — catalog surface
     is plucked from readiness (readiness-first wiring)."""
     orch = _project_with_bound_motor(tmp_path, required_thrust_n=60.0)  # 10.0 N/motor
@@ -127,7 +149,7 @@ def test_build_startup_context_motor_catalog_gap_underspec_delegates(tmp_path: P
 
 # ── Slice 3: interaction regressions ─────────────────────────────────────────
 
-def test_g9b_demotion_still_applies_with_bound_sku_underspec(tmp_path: Path):
+def test_g9b_demotion_still_applies_with_bound_sku_underspec(tmp_path: Path, _brotherhobby_in_library):
     """G9-B (catalog_gap_covered_by_declared_thrust): PASS + declared thrust
     covers the physics floor still demotes the catalog gap to a WARNING
     (CATALOG-GAP-DEMOTED-POST-PASS), even when the gap itself now comes from

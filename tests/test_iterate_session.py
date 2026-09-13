@@ -484,14 +484,18 @@ def _start_define_session(session: IterateInteractiveSession, project_id: str = 
 
 
 def test_motor_kv_without_thrust_triggers_suggestion_not_autoset():
-    """Defining a motor with KV but no thrust must show suggestions and stay at step 2."""
+    """Defining a motor with KV but no thrust must show suggestions and stay at step 2.
+
+    Catalog sourced-only purge B1 redirect: 920KV had no real match left
+    (every KEEP motor is 2300+KV) — 2300KV matches emax_rs2205s_2300 +
+    iflight_xing_e_pro_2207_2450, still triggering a real suggestion list."""
     session = IterateInteractiveSession()
     s = _start_define_session(session)
-    # Define 4 motors 920KV — no thrust declared
-    resp = session.answer(s, "4 motores 920KV")
+    # Define 4 motors 2300KV — no thrust declared
+    resp = session.answer(s, "4 motores 2300KV")
     # Must stay at step 2 waiting for motor selection
     assert resp["step"] == 2, "KV-only motor must stay at step 2 for motor suggestion"
-    assert "920" in resp["message"] or "motor" in resp["message"].lower()
+    assert "2300" in resp["message"] or "motor" in resp["message"].lower()
     # draft must NOT have thrust_n auto-set
     draft = resp["iteration_draft"]
     patch = draft.get("component_patch") or {}
@@ -501,10 +505,13 @@ def test_motor_kv_without_thrust_triggers_suggestion_not_autoset():
 
 
 def test_motor_kv_suggestion_user_picks_option():
-    """User picks a suggestion number → thrust_n applied and session advances to step 3."""
+    """User picks a suggestion number → thrust_n applied and session advances to step 3.
+
+    Catalog sourced-only purge B1 redirect: see test_motor_kv_without_
+    thrust_triggers_suggestion_not_autoset above (920KV -> 2300KV)."""
     session = IterateInteractiveSession()
     s = _start_define_session(session, "m2")
-    resp = session.answer(s, "4 motores 920KV")
+    resp = session.answer(s, "4 motores 2300KV")
     assert resp["step"] == 2
     suggestions = resp.get("motor_suggestions") or []
     assert len(suggestions) > 0, "must have motor suggestions when KV known but no thrust"

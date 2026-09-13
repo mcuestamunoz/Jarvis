@@ -32,13 +32,12 @@ def test_t2_sunnysky_r2205_2500_height_mm_none():
     assert motor.height_mm is None
 
 
-def test_t3_sunnysky_r2305_2500_height_mm_none():
-    motor = default_library.get_motor("sunnysky_r2305_2500")
-    assert motor.height_mm is None
-
-
-def test_t4_emax_rs2205_2300_sibling_height_mm_none():
-    motor = default_library.get_motor("emax_rs2205_2300")
+# Catalog sourced-only purge B1 redirect: sunnysky_r2305_2500 and
+# emax_rs2205_2300 (both previously checked here) had no source_url and
+# were deleted; sunnysky_r2205_2500 is a real, sourced KEEP sibling motor
+# that also honestly omits height_mm (confirmed live).
+def test_t3_sunnysky_r2205_2500_height_mm_none():
+    motor = default_library.get_motor("sunnysky_r2205_2500")
     assert motor.height_mm is None
 
 

@@ -187,7 +187,7 @@ def test_g21_idle_help_choose_noop_when_catalog_ref_set(tmp_path: Path):
     from jarvis.schemas.action_schema import CatalogRef
 
     o = _project_with_unbound_freeform_motor(
-        tmp_path, catalog_ref=CatalogRef(family="motor", sku="brotherhobby_avenger_2500")
+        tmp_path, catalog_ref=CatalogRef(family="motor", sku="emax_rs2205s_2300")  # catalog sourced-only purge B1 redirect
     )
 
     result = o.handle_user_text("ayúdame a elegir", _FakeLLM())
@@ -207,7 +207,7 @@ def test_g21_idle_help_choose_noop_when_catalog_ref_set(tmp_path: Path):
 def test_g21_idle_help_choose_reopens_motor_list_when_bound_sku_underspec(tmp_path: Path):
     """T1 (implementation_contract_cli_catalog_assist_t1.md §2.2/§3): the
     field walk fixture (inspección-autonomía-mínima-5-minutos/eb61a0ed6fe2)
-    — motor bound to ``sunnysky_r2305_2500``, propeller bound to
+    — motor bound to ``emax_rs2205s_2300``, propeller bound to
     ``gf_5045x3``, battery re-bound to a heavy 6S pack — drifts the bound
     motor underspec after ``calcular``/``simular``. IDLE 'ayúdame a elegir'
     must reopen the numbered motor catalog list (or the honest empty-search
@@ -228,14 +228,14 @@ def test_g21_idle_help_choose_reopens_motor_list_when_bound_sku_underspec(tmp_pa
     o = _fresh(tmp_path)
     ps = o.state_manager.load_active_project(o.workspace_manager)
     ps = ps.model_copy(update={"current_parameters": {**ps.current_parameters, "motor_count": 2}})
-    m = default_library.get_motor("sunnysky_r2305_2500")
+    m = default_library.get_motor("emax_rs2205s_2300")  # catalog sourced-only purge B1 redirect
     motor_spec = bind_motor_from_catalog({
         "name": m.name, "max_watts": m.max_watts, "thrust_n": m.thrust_n,
         "kv_rating": m.kv_rating, "weight_g": m.weight_g, "is_generic": m.is_generic,
     })
     ps = set_motor_component(ps, motor_spec, m.max_watts)
     ps = set_propeller_component(ps, bind_propeller_from_catalog("gf_5045x3"))
-    battery_spec = bind_battery_from_catalog("lipo_6s_10000mah")
+    battery_spec = bind_battery_from_catalog("lipo_6s_6000mah")  # catalog sourced-only purge B1 redirect
     ps = set_battery_component(ps, battery_spec, battery_spec.properties["battery_capacity_wh"].value)
     o.workspace_manager.save_state(ps)
 

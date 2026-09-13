@@ -71,14 +71,10 @@ def test_t3_projector_emits_box_geometry():
     assert geometry == {"shape": "box", "length_mm": 74.7, "width_mm": 33.5, "height_mm": 25.4}
 
 
-def test_t4_generic_lipo_3s_2200mah_byte_stable():
-    spec = default_library.get_battery("lipo_3s_2200mah")
-    assert spec.length_mm is None
-    assert spec.width_mm is None
-    assert spec.height_mm is None
-    assert spec.mass_g == pytest.approx(180.0)
-    assert spec.c_rating == pytest.approx(50.0)
-    assert spec.manufacturer is None
+# test_t4_generic_lipo_3s_2200mah_byte_stable removed (catalog sourced-only
+# purge B1): its subject, lipo_3s_2200mah, had no source_url and was
+# deleted — that row no longer exists to stay byte-stable, which is this
+# Buy's own intended outcome (★1/★2), not a gap.
 
 
 def test_t5_rooster_plates_still_thickness_only():

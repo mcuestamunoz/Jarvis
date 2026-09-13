@@ -46,8 +46,12 @@ class _RefuseLLM:
 
 
 # Real library fixtures — same as test_impl_c_catalog_aware_dse.py.
-_SKU_A = "brotherhobby_avenger_2500"  # thrust_n=9.5, kv 2300-2700, prop (5,)
-_SKU_B = "sunnysky_r2305_2500"        # thrust_n=7.5, kv 2300-2700, prop (5,)
+# Catalog sourced-only purge B1 redirect: the prior fixtures
+# (brotherhobby_avenger_2500, sunnysky_r2305_2500) had no source_url and
+# were deleted. Two distinct, real, sourced KEEP motors — the test reads
+# each SKU's own thrust_n/max_watts dynamically, never a hardcoded number.
+_SKU_A = "emax_rs2205s_2300"          # thrust_n=10.042, kv 2300, prop (5,)
+_SKU_B = "sunnysky_r2205_2500"        # thrust_n=12.5525, kv 2500, prop (5,)
 
 _CREATE_PARAMS_BASE = {
     "vehicle_type": "dron",

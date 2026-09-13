@@ -32,7 +32,9 @@ from jarvis.core.project_closure import build_component_bom, format_bom_lines
 from jarvis.knowledge.library import default_library
 from jarvis.schemas.action_schema import CatalogRef, ComponentSpec, PropertyValue
 
-_SKU = "brotherhobby_avenger_2500"  # thrust_n=9.5, kv 2300-2700, prop (5,)
+# Catalog sourced-only purge B1 redirect: brotherhobby_avenger_2500 had no
+# source_url and was deleted; emax_rs2205s_2300 is a real, sourced KEEP motor.
+_SKU = "emax_rs2205s_2300"  # thrust_n=10.042, kv 2300, prop (5,)
 
 
 def _real_battery_sku() -> str:

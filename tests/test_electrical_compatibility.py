@@ -158,7 +158,10 @@ def test_i_motor_a_prefers_motor_op_current_over_catalog_max_current_a(monkeypat
     currently declares max_current_a (confirmed live), so this ordering is
     proven via a monkeypatched MotorSpec — same pattern as
     test_prop_motor_mismatch_calls_library above."""
-    sku = "brotherhobby_avenger_2500"
+    # Catalog sourced-only purge B1 redirect: brotherhobby_avenger_2500 had
+    # no source_url and was deleted; emax_rs2205s_2300 is a real, sourced
+    # KEEP motor, still with no max_current_a of its own (confirmed live).
+    sku = "emax_rs2205s_2300"
     real_spec = default_library.get_motor(sku)
     fake_spec = replace(real_spec, max_current_a=20.0)
     monkeypatch.setattr(default_library, "get_motor", lambda name: fake_spec if name == sku else real_spec)
@@ -274,35 +277,57 @@ def test_esc_undefined_mutually_exclusive_with_undersized():
 
 # ── Battery discharge ─────────────────────────────────────────────────────
 
-def test_battery_discharge_exceeded_sku():
+def test_battery_discharge_exceeded_sku(monkeypatch):
+    """Catalog sourced-only purge B1 redirect: lipo_2s_850mah had no
+    source_url and was deleted. Every surviving KEEP battery declares
+    max_continuous_current_a directly (★1's own gate), so the "derived
+    from c_rating * capacity_mah" fallback path this test exercises has no
+    real, unsourced row left to prove it against — same monkeypatch
+    pattern test_i_motor_a_prefers_motor_op_current_over_catalog_max_
+    current_a above already uses for an analogous gap on the motor side.
+    gens_ace_2200mah_3s_35c_gtech's own real c_rating(35)/capacity_mah(2200)
+    give the identical derived value (77A) its real max_continuous_current_a
+    already states — only the "direct field absent" precondition is faked."""
+    sku = "gens_ace_2200mah_3s_35c_gtech"
+    real_spec = default_library.get_battery(sku)
+    fake_spec = replace(real_spec, max_continuous_current_a=None)
+    monkeypatch.setattr(default_library, "get_battery", lambda name: fake_spec if name == sku else real_spec)
+
     battery_spec = ComponentSpec(
         suggested_key="battery", completeness="high", source="declared",
-        catalog_ref=CatalogRef(family="battery", sku="lipo_2s_850mah"),
+        catalog_ref=CatalogRef(family="battery", sku=sku),
     )
-    # lipo_2s_850mah: c_rating=75, capacity_mah=850 -> limit = 75 * 0.85 = 63.75A
+    # gens_ace_2200mah_3s_35c_gtech (max_continuous_current_a faked to
+    # None): c_rating=35, capacity_mah=2200 -> limit = 35 * 2.2 = 77A.
+    # battery_cell_count must match this SKU's own real 3S identity (the
+    # bound battery's catalog_ref now resolves voltage) -> 222W / 11.1V =
+    # 20A/motor -> total 80A, still above the 77A limit.
     state = _project_state(
         current_parameters={
             "vehicle_type": "dron",
             "motor_count": 4,
-            "motor_power_w": 222.0,  # 30A/motor -> total 120A, well above 63.75A limit
-            "battery_cell_count": 2,
+            "motor_power_w": 222.0,
+            "battery_cell_count": 3,
         },
         design_properties=_design_properties(
             components={"motors": _motor_spec_declared(), "battery": battery_spec},
         ),
     )
     result = evaluate_electrical_compatibility(state)
-    assert result.battery_limit_a == 63.75
-    assert result.i_total_a == 120.0
+    assert result.battery_limit_a == 77.0
+    assert result.i_total_a == 80.0
     assert result.battery_discharge == "exceeded"
 
 
 def test_battery_discharge_within_limit_sku():
+    # Catalog sourced-only purge B1 redirect: lipo_6s_22000mah had no
+    # source_url and was deleted; lipo_6s_6000mah is a real, sourced KEEP
+    # battery that also declares max_continuous_current_a directly.
     battery_spec = ComponentSpec(
         suggested_key="battery", completeness="high", source="declared",
-        catalog_ref=CatalogRef(family="battery", sku="lipo_6s_22000mah"),
+        catalog_ref=CatalogRef(family="battery", sku="lipo_6s_6000mah"),
     )
-    # lipo_6s_22000mah: max_continuous_current_a=220A directly.
+    # lipo_6s_6000mah: max_continuous_current_a=600A directly.
     state = _project_state(
         current_parameters={
             "vehicle_type": "dron",
@@ -362,29 +387,29 @@ def test_prop_motor_mismatch_calls_library(monkeypatch):
 
     motors = ComponentSpec(
         suggested_key="motors", completeness="high", source="declared",
-        catalog_ref=CatalogRef(family="motor", sku="brotherhobby_avenger_2500"),
+        catalog_ref=CatalogRef(family="motor", sku="emax_rs2205s_2300"),
     )
     propellers = ComponentSpec(
         suggested_key="propellers", completeness="high", source="declared",
-        catalog_ref=CatalogRef(family="propeller", sku="apc_10x4_5"),  # 10in vs motor's 5in
+        catalog_ref=CatalogRef(family="propeller", sku="apc_10x6_ep"),  # 10in vs motor's 5in
     )
     state = _project_state(
         design_properties=_design_properties(components={"motors": motors, "propellers": propellers}),
     )
     result = evaluate_electrical_compatibility(state)
 
-    assert calls == [("brotherhobby_avenger_2500", "apc_10x4_5")]
+    assert calls == [("emax_rs2205s_2300", "apc_10x6_ep")]
     assert result.prop_motor == "mismatch"
 
 
 def test_prop_motor_compatible_real_pair():
     motors = ComponentSpec(
         suggested_key="motors", completeness="high", source="declared",
-        catalog_ref=CatalogRef(family="motor", sku="brotherhobby_avenger_2500"),
+        catalog_ref=CatalogRef(family="motor", sku="emax_rs2205s_2300"),
     )
     propellers = ComponentSpec(
         suggested_key="propellers", completeness="high", source="declared",
-        catalog_ref=CatalogRef(family="propeller", sku="gemfan_5030"),  # 5in, matches
+        catalog_ref=CatalogRef(family="propeller", sku="gemfan_5045_hbn"),  # 5in, matches
     )
     state = _project_state(
         design_properties=_design_properties(components={"motors": motors, "propellers": propellers}),
@@ -396,7 +421,7 @@ def test_prop_motor_compatible_real_pair():
 def test_prop_motor_unverifiable_when_only_one_bound():
     motors = ComponentSpec(
         suggested_key="motors", completeness="high", source="declared",
-        catalog_ref=CatalogRef(family="motor", sku="brotherhobby_avenger_2500"),
+        catalog_ref=CatalogRef(family="motor", sku="emax_rs2205s_2300"),
     )
     propellers = ComponentSpec(suggested_key="propellers", completeness="high", source="declared")
     state = _project_state(

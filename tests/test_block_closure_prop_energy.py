@@ -163,7 +163,9 @@ def test_unverifiable_discharge_does_not_claim_exceeded():
         })
         ps = set_motor_component(ps, motor_spec, m.max_watts)
 
-        battery_spec = bind_battery_from_catalog("lipo_4s_10000mah")
+        # Catalog sourced-only purge B1 redirect: lipo_4s_10000mah had no
+        # source_url and was deleted; lipo_4s_5000mah is a real, sourced KEEP battery.
+        battery_spec = bind_battery_from_catalog("lipo_4s_5000mah")
         ps = set_battery_component(ps, battery_spec, battery_spec.properties["battery_capacity_wh"].value)
         ps = ps.model_copy(update={"parsed_constraints": {"autonomy_min": 5.0}})
         orch.workspace_manager.save_state(ps)
@@ -226,15 +228,17 @@ def test_battery_rebind_definir_bateria():
     with tempfile.TemporaryDirectory() as tmp:
         orch = _build_combo_a(Path(tmp), motor_count=2, payload_kg=0.5, bind_esc=False)
         llm = _RefuseLLM()
-        result = orch.handle_user_text("definir bateria lipo_6s_10000mah", llm)
+        # Catalog sourced-only purge B1 redirect: lipo_6s_10000mah had no
+        # source_url and was deleted; lipo_6s_6000mah is a real, sourced KEEP battery.
+        result = orch.handle_user_text("definir bateria lipo_6s_6000mah", llm)
         assert result["status"] == "ok"
 
         ps = orch.state_manager.load_active_project(orch.workspace_manager)
         ref = ps.design_properties.components["battery"].catalog_ref
         assert ref is not None
         assert ref.family == "battery"
-        assert ref.sku == "lipo_6s_10000mah"
-        assert ps.current_parameters["battery_capacity_wh"] == pytest.approx(222.0)
+        assert ref.sku == "lipo_6s_6000mah"
+        assert ps.current_parameters["battery_capacity_wh"] == pytest.approx(133.2)
         assert ps.current_parameters["battery_capacity_wh"] != 6.0
 
 
@@ -242,15 +246,17 @@ def test_battery_rebind_cambia_la_bateria_a():
     with tempfile.TemporaryDirectory() as tmp:
         orch = _build_combo_a(Path(tmp), motor_count=2, payload_kg=0.5, bind_esc=False)
         llm = _RefuseLLM()
-        result = orch.handle_user_text("cambia la bateria a lipo_6s_10000mah", llm)
+        # Catalog sourced-only purge B1 redirect: lipo_6s_10000mah had no
+        # source_url and was deleted; lipo_6s_6000mah is a real, sourced KEEP battery.
+        result = orch.handle_user_text("cambia la bateria a lipo_6s_6000mah", llm)
         assert result["status"] == "ok"
 
         ps = orch.state_manager.load_active_project(orch.workspace_manager)
         ref = ps.design_properties.components["battery"].catalog_ref
         assert ref is not None
         assert ref.family == "battery"
-        assert ref.sku == "lipo_6s_10000mah"
-        assert ps.current_parameters["battery_capacity_wh"] == pytest.approx(222.0)
+        assert ref.sku == "lipo_6s_6000mah"
+        assert ps.current_parameters["battery_capacity_wh"] == pytest.approx(133.2)
         assert ps.current_parameters["battery_capacity_wh"] != 6.0
 
 

@@ -57,7 +57,7 @@ def _abstract_candidate(score: float, label: str = "abstract") -> ExplorationCan
     )
 
 
-def _catalog_candidate(score: float, sku: str = "sunnysky_r2305_2500") -> ExplorationCandidate:
+def _catalog_candidate(score: float, sku: str = "sunnysky_r2205_2500") -> ExplorationCandidate:
     motor_spec = ComponentSpec(
         suggested_key="motors", completeness="high", source="declared",
         properties={"motor_count": PropertyValue(value=4)},
@@ -151,7 +151,7 @@ def test_finalize_viable_result_length_respects_short_input():
 
 # ── Primary gate — real explore(), no G24-TF ────────────────────────────────
 
-_BOUND_SKU = "brotherhobby_avenger_2500"
+_BOUND_SKU = "emax_rs2205s_2300"  # catalog sourced-only purge B1 redirect
 
 
 def _project_with_bound_motor(tmp_path: Path) -> JarvisOrchestrator:

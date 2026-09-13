@@ -13,8 +13,14 @@ design_explorer's candidate cache, see ★-locked note in that file).
                        OP-1/OP-2 (HOLD — excluded from resolver),
                        OP-3 (16V/gemfan_5045_hbn measured_test, 13.4841N)
   sunnysky_r2205_2500 — OP-4 (14.8V/gf_5045x3, 12.5525N, rpm=27082)
-  emax_rs2205_2300    — UNCHANGED legacy (no OP data; do not confuse with S)
-  sunnysky_r2305_2500 — UNCHANGED legacy (untouched)
+
+Catalog sourced-only purge B1 redirect: the "legacy_estimate" (zero
+operating_points) regression coverage used to lean on two unsourced
+siblings (emax_rs2205_2300, sunnysky_r2305_2500) and one unsourced motor
+fixture (brotherhobby_avenger_2500) — all three had no source_url and
+were deleted. That coverage now uses the ``legacy_motor_sku`` fixture
+(a synthetic, zero-OP motor injected into the real library singleton for
+one test only, never written to disk) — see its own docstring below.
 """
 from __future__ import annotations
 
@@ -52,6 +58,37 @@ def _fresh_project(tmp_path: Path) -> JarvisOrchestrator:
     orch = JarvisOrchestrator(workspace_root=tmp_path)
     orch.handle({"action": "create_project", "parameters": dict(_CREATE_PARAMS)})
     return orch
+
+
+_LEGACY_MOTOR_SKU = "_test_legacy_motor_no_op_b1"
+
+
+@pytest.fixture
+def legacy_motor_sku(monkeypatch):
+    """Catalog sourced-only purge B1 redirect: every surviving real motor
+    row (emax_rs2205s_2300 / sunnysky_r2205_2500 / iflight_xing_e_pro_2207_
+    2450) now carries curated ``operating_points`` — the prior fixtures
+    for this file's "legacy_estimate" regression coverage
+    (brotherhobby_avenger_2500, emax_rs2205_2300, sunnysky_r2305_2500) all
+    had no ``source_url`` and were deleted. ``set_motor_component`` has no
+    ``library=`` override seam (it always resolves through the process
+    singleton ``default_library``), so the only way to keep this real,
+    important production path covered — without seeding a fake row into
+    the actual catalog file — is to inject ONE synthetic, clearly-marked,
+    zero-``operating_points`` motor into that singleton's already-cached
+    dict via ``monkeypatch.setitem`` (auto-reverted at test teardown,
+    never touches disk).
+    """
+    from jarvis.knowledge.library import MotorSpec, default_library
+
+    default_library._load_motors()  # ensure the cache dict exists
+    synthetic = MotorSpec(
+        name=_LEGACY_MOTOR_SKU, thrust_n=9.5, kv_rating=2500, weight_g=32.0,
+        compatible_prop_inch=(5,), min_thrust_n=7.6, max_thrust_n=11.875,
+        kv_min=2350, kv_max=2650, max_watts=280.0,
+    )
+    monkeypatch.setitem(default_library._motors, _LEGACY_MOTOR_SKU, synthetic)
+    return _LEGACY_MOTOR_SKU
 
 
 # ── 1. resolve_operating_point — pure resolver contract ─────────────────────
@@ -100,21 +137,25 @@ def test_fallback_when_no_propeller_bound():
     assert r.source_type == "manufacturer_test"
 
 
-def test_legacy_path_for_unenriched_motor():
-    """emax_rs2205_2300 (non-S) deliberately carries no operating_points —
-    must never see the RS2205S table (locked: do not copy OPs across SKUs)."""
-    r = resolve_operating_point("emax_rs2205_2300")
+def test_legacy_path_for_unenriched_motor(legacy_motor_sku):
+    """A catalog motor with zero operating_points must resolve
+    legacy_estimate from its own bare thrust_n — never borrow another
+    SKU's curated table (locked: do not copy OPs across SKUs). Catalog
+    sourced-only purge B1 redirect: see legacy_motor_sku fixture."""
+    r = resolve_operating_point(legacy_motor_sku)
     assert r.resolution_type == "legacy_estimate"
     assert r.source_type == "estimated"
-    assert r.thrust_n == pytest.approx(default_library.get_motor("emax_rs2205_2300").thrust_n)
-    assert r.thrust_n == pytest.approx(8.0)
+    assert r.thrust_n == pytest.approx(default_library.get_motor(legacy_motor_sku).thrust_n)
+    assert r.thrust_n == pytest.approx(9.5)
 
 
-def test_sunnysky_r2305_2500_untouched_legacy():
-    """Locked: sunnysky_r2305_2500 must never be overwritten with R2205 data."""
-    r = resolve_operating_point("sunnysky_r2305_2500")
+def test_sunnysky_r2305_2500_untouched_legacy(legacy_motor_sku):
+    """Locked: a motor with no operating_points must never be overwritten
+    with a sibling/other SKU's OP data. Catalog sourced-only purge B1
+    redirect: see legacy_motor_sku fixture."""
+    r = resolve_operating_point(legacy_motor_sku)
     assert r.resolution_type == "legacy_estimate"
-    assert r.thrust_n == pytest.approx(7.5)
+    assert r.thrust_n == pytest.approx(9.5)
 
 
 def test_sunnysky_r2205_2500_exact_match():
@@ -309,14 +350,14 @@ def test_bridge_legacy_path_for_freeform_motor_unchanged(tmp_path: Path):
     assert "propulsion_resolution" not in updated.current_parameters
 
 
-def test_bridge_legacy_resolution_for_catalog_motor_without_op_data(tmp_path: Path):
+def test_bridge_legacy_resolution_for_catalog_motor_without_op_data(tmp_path: Path, legacy_motor_sku):
     """A catalog-bound motor with zero operating_points (e.g. the pre-P2-1
     brotherhobby_avenger_2500 fixture) still gets a typed propulsion_resolution
     (legacy_estimate), and the numeric thrust is byte-identical to before
     P2-1 — the regression contract for every already-seeded SKU."""
     orch = _fresh_project(tmp_path)
     ps = orch.state_manager.load_active_project(orch.workspace_manager)
-    sku = "brotherhobby_avenger_2500"
+    sku = legacy_motor_sku
     motor_spec = bind_motor_from_catalog(_suggestion_for(sku))
     updated = set_motor_component(ps, motor_spec, default_library.get_motor(sku).max_watts)
 
@@ -387,10 +428,10 @@ def test_estado_hides_line_for_freeform_motor(tmp_path: Path):
 # ── 4. Regression: named Impl C/D suites stay green (spot check here too) ──
 
 
-def test_regression_brotherhobby_bind_still_works(tmp_path: Path):
+def test_regression_brotherhobby_bind_still_works(tmp_path: Path, legacy_motor_sku):
     orch = _fresh_project(tmp_path)
     ps = orch.state_manager.load_active_project(orch.workspace_manager)
-    sku = "brotherhobby_avenger_2500"
+    sku = legacy_motor_sku
     motor_spec = bind_motor_from_catalog(_suggestion_for(sku))
     updated = set_motor_component(ps, motor_spec, default_library.get_motor(sku).max_watts)
     assert updated.design_properties.components["motors"].catalog_ref.sku == sku
@@ -496,13 +537,13 @@ def test_op_mirror_fallback_also_tagged_calculated(tmp_path: Path):
     assert motors.properties["thrust_n"].source == "calculated"
 
 
-def test_op_mirror_legacy_estimate_stays_declared(tmp_path: Path):
+def test_op_mirror_legacy_estimate_stays_declared(tmp_path: Path, legacy_motor_sku):
     """legacy_estimate never mirrors (no operating_points[] on file at all) —
     the bare spec.properties["thrust_n"] set by bind_motor_from_catalog keeps
     its original "declared" tag, unchanged by N1."""
     orch = _fresh_project(tmp_path)
     ps = orch.state_manager.load_active_project(orch.workspace_manager)
-    sku = "brotherhobby_avenger_2500"
+    sku = legacy_motor_sku
     motor_spec = bind_motor_from_catalog(_suggestion_for(sku))
     updated = set_motor_component(ps, motor_spec, default_library.get_motor(sku).max_watts)
 
@@ -512,12 +553,12 @@ def test_op_mirror_legacy_estimate_stays_declared(tmp_path: Path):
     assert motors.properties["thrust_n"].source == "declared"
 
 
-def test_bridge_legacy_estimate_no_motor_op_keys(tmp_path: Path):
+def test_bridge_legacy_estimate_no_motor_op_keys(tmp_path: Path, legacy_motor_sku):
     """legacy_estimate (no operating_points match at all) must carry zero
     motor_op_* keys — motor_power_w stays the catalog rating, unaffected."""
     orch = _fresh_project(tmp_path)
     ps = orch.state_manager.load_active_project(orch.workspace_manager)
-    sku = "brotherhobby_avenger_2500"
+    sku = legacy_motor_sku
     motor_spec = bind_motor_from_catalog(_suggestion_for(sku))
     updated = set_motor_component(ps, motor_spec, default_library.get_motor(sku).max_watts)
 
@@ -552,7 +593,7 @@ def test_bridge_freeform_motor_no_motor_op_keys(tmp_path: Path):
     assert "motor_op_rpm" not in updated.current_parameters
 
 
-def test_bridge_pops_stale_motor_op_keys_on_divergence_to_legacy(tmp_path: Path):
+def test_bridge_pops_stale_motor_op_keys_on_divergence_to_legacy(tmp_path: Path, legacy_motor_sku):
     """A prior exact/fallback bind's motor_op_* keys must not survive a
     later write that resolves to legacy_estimate (e.g. switching to a SKU
     with no operating_points data) — regression for the ★-locked "pop when
@@ -560,7 +601,7 @@ def test_bridge_pops_stale_motor_op_keys_on_divergence_to_legacy(tmp_path: Path)
     _, exact_state = _bound_exact_op_state(tmp_path)
     assert "motor_op_power_w" in exact_state.current_parameters
 
-    legacy_sku = "brotherhobby_avenger_2500"
+    legacy_sku = legacy_motor_sku
     legacy_spec = bind_motor_from_catalog(_suggestion_for(legacy_sku))
     diverged = set_motor_component(
         exact_state, legacy_spec, default_library.get_motor(legacy_sku).max_watts
@@ -634,12 +675,12 @@ def test_estado_shows_op_electrical_line_when_resolved(tmp_path: Path):
     assert "Propulsión (OP eléctrico): power=485.3 W · current=30.3 A" in rendered
 
 
-def test_estado_hides_op_electrical_line_for_legacy(tmp_path: Path):
+def test_estado_hides_op_electrical_line_for_legacy(tmp_path: Path, legacy_motor_sku):
     from jarvis.adapters.cli.main import render_startup_context
 
     orch = _fresh_project(tmp_path)
     ps = orch.state_manager.load_active_project(orch.workspace_manager)
-    sku = "brotherhobby_avenger_2500"
+    sku = legacy_motor_sku
     motor_spec = bind_motor_from_catalog(_suggestion_for(sku))
     updated = set_motor_component(ps, motor_spec, default_library.get_motor(sku).max_watts)
     orch.workspace_manager.save_state(updated)

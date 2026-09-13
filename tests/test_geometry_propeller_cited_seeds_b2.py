@@ -59,13 +59,16 @@ def test_t3_apc_10x6_ep_bag():
     assert spec.model == "10x6EP"
 
 
-def test_t4_bind_apc_10x6_ep_and_apc_10x4_5_stay_distinct():
+def test_t4_bind_apc_10x6_ep_and_hq_5045_bn_stay_distinct():
+    # Catalog sourced-only purge B1 redirect: apc_10x4_5 had no source_url
+    # and was deleted; hq_5045_bn is a real, sourced KEEP prop that also
+    # omits mass_g (confirmed live) — same distinctness proof either way.
     ep = bind_propeller_from_catalog("apc_10x6_ep")
     assert ep.properties["pitch_in"].value == pytest.approx(6.0)
     assert ep.properties["mass_g"].value == pytest.approx(20.1)
     assert ep.properties["shaft_bore_mm"].value == pytest.approx(6.35)
 
-    mr = bind_propeller_from_catalog("apc_10x4_5")
+    mr = bind_propeller_from_catalog("hq_5045_bn")
     assert mr.properties["pitch_in"].value == pytest.approx(4.5)
     assert "mass_g" not in mr.properties
 
@@ -118,4 +121,5 @@ def test_t8_list_propellers_includes_new_sku_18_rows():
     names = [p.name for p in all_props]
     assert "apc_10x6_ep" in names
     assert "gemfan_hurricane_mck_51466_3_v2" in names
-    assert len(all_props) == 19
+    # Catalog sourced-only purge B1: 13 unsourced rows deleted, 6 remain.
+    assert len(all_props) == 6

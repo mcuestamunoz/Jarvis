@@ -66,7 +66,7 @@ class _RefuseLLM:
 
 _MOTOR_SKU = "emax_rs2205s_2300"
 _PROP_SKU = "hq_5045_bn"
-_BATTERY_SKU = "lipo_6s_10000mah"  # 6S / 22.2V nominal
+_BATTERY_SKU = "lipo_6s_6000mah"  # 6S / 22.2V nominal (catalog sourced-only purge B1 redirect)
 _SUNNYSKY_MOTOR_SKU = "sunnysky_r2205_2500"
 _SUNNYSKY_PROP_SKU = "gf_5045x3"
 _SUNNYSKY_BATTERY_SKU = "lipo_4s_1500mah"  # 4S / 14.8V — exact OP + motor_op_power_w
@@ -281,7 +281,7 @@ def test_motor_op_unchanged_on_compatible_battery_bind_when_voltage_validated(tm
     prop_spec = bind_propeller_from_catalog("gf_5045x3")
     ps = set_propeller_component(ps, prop_spec)
 
-    b1 = bind_battery_from_catalog("lipo_4s_10000mah")
+    b1 = bind_battery_from_catalog("lipo_4s_5000mah")  # catalog sourced-only purge B1 redirect
     ps = set_battery_component(ps, b1, b1.properties["battery_capacity_wh"].value)
 
     m = default_library.get_motor("sunnysky_r2205_2500")

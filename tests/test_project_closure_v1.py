@@ -439,8 +439,10 @@ def test_bom_frame_suffix_absent_without_project_state():
 # ── D8 design-space catalog ───────────────────────────────────────────────────
 
 def test_find_motors_for_requirements_matches_thrust_band():
+    # Catalog sourced-only purge B1 redirect: kv=1100 had no real match
+    # left (every KEEP motor is 2300+KV); kv=2300 matches real KEEP motors.
     lib = ComponentLibrary()
-    matches = lib.find_motors_for_requirements(min_thrust_n=12.0, kv=1100)
+    matches = lib.find_motors_for_requirements(min_thrust_n=12.0, kv=2300)
     assert matches
     assert all(not (m.max_thrust_n < 12.0 and m.thrust_n < 12.0) for m in matches)
     # Generics sort last among equal thrust distance
@@ -457,10 +459,13 @@ def test_find_motors_for_requirements_empty_is_honest_gap():
 
 
 def test_motor_catalog_has_design_space_and_enough_refs():
+    # Catalog sourced-only purge B1: 20 unsourced rows deleted, 3 remain;
+    # sunnysky_x2216_11 had no source_url and was deleted — sunnysky_r2205_2500
+    # is a real, sourced KEEP motor.
     lib = ComponentLibrary()
     motors = lib.list_motors()
-    assert len(motors) >= 18
-    sample = lib.get_motor("sunnysky_x2216_11")
+    assert len(motors) >= 3
+    sample = lib.get_motor("sunnysky_r2205_2500")
     assert sample.min_thrust_n > 0
     assert sample.kv_max >= sample.kv_rating
 

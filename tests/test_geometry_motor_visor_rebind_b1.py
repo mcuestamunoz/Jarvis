@@ -19,6 +19,8 @@ seam already holds.
 """
 from __future__ import annotations
 
+import pytest
+
 from jarvis.core.catalog_bind import bind_motor_from_catalog
 from jarvis.core.component_writers import set_motor_component
 from jarvis.core.motor_catalog_assist import motor_spec_to_suggestion
@@ -92,7 +94,27 @@ def test_p2_s_sku_rebind_with_motor_count_3_yields_3_not_coerced_to_4():
     assert nodes["propellers"]["solidCopies"] == 3
 
 
-def test_p3_mute_sku_rebind_stays_invisible_propellers_unaffected():
+@pytest.fixture
+def _mute_sku_in_library(monkeypatch):
+    """Catalog sourced-only purge B1 note: emax_rs2205_2300 (the "mute",
+    no-diameter sibling this P3/P4 pair needs) had no source_url and was
+    deleted from the real catalog. test_p1/test_p2 never actually look it
+    up (they only ever rebind TO _S_SKU), so only P3/P4 need this —
+    injects a synthetic mute row under the SAME key into the real library
+    singleton for this test only (monkeypatch.setitem, auto-reverted,
+    never touches disk), same pattern used elsewhere in this session for
+    an analogous "unsourced sibling no longer exists" gap."""
+    from jarvis.knowledge.library import MotorSpec, default_library
+
+    default_library._load_motors()
+    synthetic = MotorSpec(
+        name=_MUTE_SKU, thrust_n=8.0, kv_rating=2300, weight_g=30.0,
+        compatible_prop_inch=(5,),
+    )
+    monkeypatch.setitem(default_library._motors, _MUTE_SKU, synthetic)
+
+
+def test_p3_mute_sku_rebind_stays_invisible_propellers_unaffected(_mute_sku_in_library):
     initial = _state(_mute_motors_spec(motor_count=4), current_parameters={"motor_count": 4})
     updated = _rebind(initial, _MUTE_SKU)
 
@@ -106,7 +128,7 @@ def test_p3_mute_sku_rebind_stays_invisible_propellers_unaffected():
     assert nodes["propellers"]["solidCopies"] == 4
 
 
-def test_p4_library_mute_sku_has_no_diameter_s_row_does():
+def test_p4_library_mute_sku_has_no_diameter_s_row_does(_mute_sku_in_library):
     assert default_library.get_motor(_MUTE_SKU).diameter_mm is None
     assert default_library.get_motor(_S_SKU).diameter_mm == 27.9
 

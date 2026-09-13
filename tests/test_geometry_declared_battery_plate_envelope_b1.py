@@ -244,7 +244,23 @@ def test_p8_respecto_phrase_is_none():
     assert result.kind == "NONE"
 
 
-def test_p9_refresh_from_catalog_preserves_declared_dims():
+def test_p9_refresh_from_catalog_preserves_declared_dims(monkeypatch):
+    """Catalog sourced-only purge B1 note: _live_components()'s battery
+    catalog_ref (lipo_3s_2200mah) had no source_url and was deleted — only
+    this test actually re-resolves it via refresh_component_from_catalog
+    (every other _live_components() caller just checks the literal SKU
+    string, unaffected). This test's own point is that a declared box
+    envelope survives a catalog refresh regardless of catalog specifics,
+    so it injects a minimal synthetic row under the same key into the
+    real library singleton (monkeypatch.setitem, auto-reverted, never
+    touches disk) rather than changing the shared fixture everyone else
+    still asserts the literal SKU string against."""
+    from jarvis.knowledge.library import BatterySpec, default_library
+
+    default_library._load_batteries()
+    synthetic = BatterySpec(name="lipo_3s_2200mah", chemistry="lipo", energy_wh=24.42, mass_g=180.0, cells=3)
+    monkeypatch.setitem(default_library._batteries, "lipo_3s_2200mah", synthetic)
+
     state = _state(_live_components())
     with_box = set_component_declared_box_envelope(state, "battery", 80.0, 34.0, 22.0)
     refreshed = refresh_component_from_catalog(with_box, "battery")

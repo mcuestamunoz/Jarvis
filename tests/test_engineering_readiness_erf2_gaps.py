@@ -118,19 +118,34 @@ def test_sim_pass_esc_undersized_not_ready():
     assert result.overall == "NOT_ASSEMBLY_READY"
 
 
-def test_gap_battery_discharge_exceeded():
+def test_gap_battery_discharge_exceeded(monkeypatch):
+    from jarvis.knowledge.library import default_library
     from jarvis.schemas.action_schema import CatalogRef
+
+    # Catalog sourced-only purge B1 redirect: lipo_2s_850mah had no
+    # source_url and was deleted. Every surviving KEEP battery declares
+    # max_continuous_current_a directly, so the "derived from c_rating"
+    # path needs a monkeypatched real KEEP row (same pattern
+    # test_electrical_compatibility.py's own analogous fix uses) —
+    # gens_ace_2200mah_3s_35c_gtech: c_rating=35, capacity_mah=2200 ->
+    # derived limit = 35 * 2.2 = 77A (its own real max_continuous_current_a
+    # already states this same value).
+    sku = "gens_ace_2200mah_3s_35c_gtech"
+    real_spec = default_library.get_battery(sku)
+    from dataclasses import replace as _replace
+    fake_spec = _replace(real_spec, max_continuous_current_a=None)
+    monkeypatch.setattr(default_library, "get_battery", lambda name: fake_spec if name == sku else real_spec)
 
     battery = ComponentSpec(
         suggested_key="battery", completeness="high", source="declared",
-        catalog_ref=CatalogRef(family="battery", sku="lipo_2s_850mah"),  # limit ~63.75A
+        catalog_ref=CatalogRef(family="battery", sku=sku),  # derived limit ~77A
     )
     state = _project_state(
         current_parameters={
             "vehicle_type": "dron",
             "motor_count": 4,
-            "motor_power_w": 222.0,  # 30A/motor -> 120A total, exceeds 63.75A
-            "battery_cell_count": 2,
+            "motor_power_w": 222.0,  # 3S (11.1V): 20A/motor -> 80A total, exceeds 77A
+            "battery_cell_count": 3,
         },
         design_properties=_design_properties(
             components={"motors": _motors_declared(), "battery": battery},
@@ -144,13 +159,16 @@ def test_gap_battery_discharge_exceeded():
 def test_gap_prop_motor_mismatch():
     from jarvis.schemas.action_schema import CatalogRef
 
+    # Catalog sourced-only purge B1 redirect: brotherhobby_avenger_2500 /
+    # apc_10x4_5 had no source_url and were deleted; emax_rs2205s_2300 (5")
+    # and apc_10x6_ep (10") are real, sourced KEEP rows with the same mismatch.
     motors = ComponentSpec(
         suggested_key="motors", completeness="high", source="declared",
-        catalog_ref=CatalogRef(family="motor", sku="brotherhobby_avenger_2500"),  # 5in
+        catalog_ref=CatalogRef(family="motor", sku="emax_rs2205s_2300"),  # 5in
     )
     propellers = ComponentSpec(
         suggested_key="propellers", completeness="high", source="declared",
-        catalog_ref=CatalogRef(family="propeller", sku="apc_10x4_5"),  # 10in, mismatch
+        catalog_ref=CatalogRef(family="propeller", sku="apc_10x6_ep"),  # 10in, mismatch
     )
     state = _project_state(
         design_properties=_design_properties(components={"motors": motors, "propellers": propellers}),

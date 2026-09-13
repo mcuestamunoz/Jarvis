@@ -233,11 +233,13 @@ def test_format_candidate_line_detailed_and_quick_forms():
 
 
 def test_fn007_catalog_pick_applies_coherent_bundle_no_false_gap(tmp_path: Path):
-    """FN-007 acceptance scenario: before=count 4 / stale thrust 470N, pick sunnysky_x2212_980
-    (11N, 260W, 980KV, 58g — real catalog entry). After the pick: motor_count stays 4
-    (not collapsed to 1), stale thrust is replaced (not left at 470), available total
-    thrust = 4 x 11 = 44N, and continuity does not flag the picked candidate as
-    insufficient (no false catalog gap)."""
+    """FN-007 acceptance scenario: before=count 4 / stale thrust 470N, pick
+    sunnysky_r2205_2500 (12.5525N, 756W, 2500KV, 30g — real, sourced KEEP
+    catalog entry; the prior fixture, sunnysky_x2212_980, had no source_url
+    and was deleted by the catalog sourced-only purge B1). After the pick:
+    motor_count stays 4 (not collapsed to 1), stale thrust is replaced (not
+    left at 470), available total thrust = 4 x 12.5525, and continuity does
+    not flag the picked candidate as insufficient (no false catalog gap)."""
     orch = _energy_project(tmp_path)
     before = orch.state_manager.load_active_project(orch.workspace_manager)
     assert before.current_parameters.get("motor_count") == 4
@@ -248,7 +250,7 @@ def test_fn007_catalog_pick_applies_coherent_bundle_no_false_gap(tmp_path: Path)
     orch.workspace_manager.save_state(before.model_copy(update={"current_parameters": stale_params}))
 
     orch.start_define_missing_params(["motor_power_w"], reason=MISSING_ENERGY_PARAMETERS)
-    result = orch.param_definition_session.answer("sunnysky_x2212_980")
+    result = orch.param_definition_session.answer("sunnysky_r2205_2500")
     assert result["status"] == "ok"
 
     after = orch.state_manager.load_active_project(orch.workspace_manager)
@@ -258,16 +260,16 @@ def test_fn007_catalog_pick_applies_coherent_bundle_no_false_gap(tmp_path: Path)
     assert after.design_properties.components["motors"].properties["motor_count"].value == 4
 
     # stale thrust is replaced by the picked motor's, not left at 470
-    assert after.current_parameters["per_motor_max_thrust_n"] == pytest.approx(11.0)
-    assert after.current_parameters["motor_power_w"] == pytest.approx(260.0)
+    assert after.current_parameters["per_motor_max_thrust_n"] == pytest.approx(12.5525)
+    assert after.current_parameters["motor_power_w"] == pytest.approx(756.0)
 
     # coherent bundle: KV + weight land on the component too
     motors_props = after.design_properties.components["motors"].properties
-    assert motors_props["kv_rating"].value == 980
-    assert motors_props["weight_g"].value == pytest.approx(58.0)
+    assert motors_props["kv_rating"].value == 2500
+    assert motors_props["weight_g"].value == pytest.approx(30.0)
 
-    # total disponible = 4 x 11
-    assert result["calculations"]["available_total_thrust_n"] == pytest.approx(44.0)
+    # total disponible = 4 x 12.5525
+    assert result["calculations"]["available_total_thrust_n"] == pytest.approx(50.21)
 
     # continuity must not declare the just-selected candidate insufficient
     ctx = orch.build_startup_context()
@@ -294,17 +296,24 @@ def test_bare_watts_still_applies(tmp_path: Path):
 
 
 def test_define_wizard_pick_applies_watts(tmp_path: Path):
+    """Catalog sourced-only purge B1 note: not every real KEEP motor
+    declares a nameplate max_watts (e.g. emax_rs2205s_2300 honestly
+    doesn't) — this test's own point is that picking a watts-DECLARING
+    suggestion applies its watts, so it picks the first suggestion that
+    actually has one rather than assuming index 0 does."""
     orch = _energy_project(tmp_path)
     orch.start_define_missing_params(["motor_power_w"], reason=MISSING_ENERGY_PARAMETERS)
     help_result = orch.param_definition_session.answer("ayúdame a elegir")
     suggestions = help_result.get("motor_suggestions") or []
-    if not suggestions:
-        pytest.skip("no catalog matches for fixture thrust band")
-    pick = orch.param_definition_session.answer("1")
+    watts_suggestions = [s for s in suggestions if s.get("max_watts") is not None]
+    if not watts_suggestions:
+        pytest.skip("no watts-declaring catalog matches for fixture thrust band")
+    idx = watts_suggestions[0]["idx"]
+    pick = orch.param_definition_session.answer(str(idx))
     assert pick["status"] == "ok"
     saved = orch.state_manager.load_active_project(orch.workspace_manager)
     assert saved.current_parameters.get("motor_power_w") == pytest.approx(
-        float(suggestions[0]["max_watts"])
+        float(watts_suggestions[0]["max_watts"])
     )
     motors = saved.design_properties.components.get("motors")
     assert motors is not None
@@ -312,12 +321,16 @@ def test_define_wizard_pick_applies_watts(tmp_path: Path):
 
 
 def test_catalog_key_as_model_applies(tmp_path: Path):
+    """Catalog sourced-only purge B1 note: motors[0] (alphabetically first)
+    is now emax_rs2205s_2300, which honestly declares no nameplate
+    max_watts — picks the first watts-declaring motor instead, per this
+    test's own actual point (typing a catalog key applies its watts)."""
     orch = _energy_project(tmp_path)
     orch.start_define_missing_params(["motor_power_w"], reason=MISSING_ENERGY_PARAMETERS)
     motors = default_library.list_motors()
-    # Pick a motor that covers ~4N band if possible, else first
-    name = motors[0].name
-    watts = motors[0].max_watts
+    motor = next(m for m in motors if m.max_watts is not None)
+    name = motor.name
+    watts = motor.max_watts
     result = orch.param_definition_session.answer(name)
     assert result["status"] == "ok"
     saved = orch.state_manager.load_active_project(orch.workspace_manager)

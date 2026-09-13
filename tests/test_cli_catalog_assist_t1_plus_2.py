@@ -10,6 +10,8 @@ from __future__ import annotations
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from jarvis.core.engineering_readiness import bound_motor_sku_is_underspec
 from jarvis.core.motor_catalog_assist import (
     build_motor_catalog_suggestions,
@@ -42,7 +44,7 @@ _CREATE_PARAMS = {
 }
 
 
-def _bind_combo(o: JarvisOrchestrator, *, motor_sku: str, motor_count: int = 2):
+def _bind_combo(o: JarvisOrchestrator, *, motor_sku: str, motor_count: int = 2, payload_kg: float | None = None):
     from jarvis.core.catalog_bind import (
         bind_battery_from_catalog,
         bind_motor_from_catalog,
@@ -55,9 +57,10 @@ def _bind_combo(o: JarvisOrchestrator, *, motor_sku: str, motor_count: int = 2):
     )
 
     ps = o.state_manager.load_active_project(o.workspace_manager)
-    ps = ps.model_copy(
-        update={"current_parameters": {**ps.current_parameters, "motor_count": motor_count}}
-    )
+    params = {**ps.current_parameters, "motor_count": motor_count}
+    if payload_kg is not None:
+        params["payload_kg"] = payload_kg
+    ps = ps.model_copy(update={"current_parameters": params})
     m = default_library.get_motor(motor_sku)
     motor_spec = bind_motor_from_catalog({
         "name": m.name, "max_watts": m.max_watts, "thrust_n": m.thrust_n,
@@ -65,7 +68,9 @@ def _bind_combo(o: JarvisOrchestrator, *, motor_sku: str, motor_count: int = 2):
     })
     ps = set_motor_component(ps, motor_spec, m.max_watts)
     ps = set_propeller_component(ps, bind_propeller_from_catalog("gf_5045x3"))
-    battery_spec = bind_battery_from_catalog("lipo_6s_10000mah")
+    # Catalog sourced-only purge B1 redirect: lipo_6s_10000mah had no
+    # source_url and was deleted; lipo_6s_6000mah is a real, sourced KEEP battery.
+    battery_spec = bind_battery_from_catalog("lipo_6s_6000mah")
     ps = set_battery_component(ps, battery_spec, battery_spec.properties["battery_capacity_wh"].value)
     o.workspace_manager.save_state(ps)
 
@@ -76,9 +81,39 @@ def _fresh(tmp_path: Path) -> JarvisOrchestrator:
     return o
 
 
-def test_underspec_offer_names_t1_and_relaxed_with_frankenstein_warning(tmp_path: Path):
+_RELAXED_ONLY_MOTOR_SKU = "_test_relaxed_only_motor_b1"
+
+
+@pytest.fixture
+def relaxed_only_motor_sku(monkeypatch):
+    """Catalog sourced-only purge B1 redirect: the "strict search excludes
+    on KV, relaxed (KV-dropped) search still finds it via thrust alone"
+    scenario used sunnysky_r2305_2500 as the strict-excluded/relaxed-only
+    candidate. Every surviving KEEP motor (2300-2500KV, 5") shares an
+    explicit, deliberately wide, overlapping kv_min/kv_max band by design
+    (real racing-motor design spaces) — none is mutually kv-exclusive with
+    emax_rs2205s_2300 (the bound motor these tests use), so there is no
+    real SKU left that is thrust-coverable yet kv-excluded from strict.
+    Injects one synthetic motor (kv 1800, prop 10") into the real library
+    singleton for this test only (monkeypatch.setitem, auto-reverted,
+    never touches disk) — same pattern test_phase2_lookup_operating_
+    point.py's legacy_motor_sku fixture already uses for an analogous gap.
+    """
+    from jarvis.knowledge.library import MotorSpec, default_library
+
+    default_library._load_motors()
+    synthetic = MotorSpec(
+        name=_RELAXED_ONLY_MOTOR_SKU, thrust_n=14.5, kv_rating=1800, weight_g=30.0,
+        compatible_prop_inch=(10,), min_thrust_n=11.6, max_thrust_n=18.125,
+        kv_min=1700, kv_max=1900, max_watts=300.0,
+    )
+    monkeypatch.setitem(default_library._motors, _RELAXED_ONLY_MOTOR_SKU, synthetic)
+    return _RELAXED_ONLY_MOTOR_SKU
+
+
+def test_underspec_offer_names_t1_and_relaxed_with_frankenstein_warning(tmp_path: Path, relaxed_only_motor_sku):
     o = _fresh(tmp_path)
-    _bind_combo(o, motor_sku="sunnysky_r2305_2500", motor_count=2)
+    _bind_combo(o, motor_sku="emax_rs2205s_2300", motor_count=2, payload_kg=1.0)
     o.handle_user_text("calcular", _RefuseLLM())
     o.handle_user_text("simular", _RefuseLLM())
 
@@ -140,9 +175,9 @@ def test_g22_default_search_still_empty_on_strict_miss():
     assert build_motor_catalog_suggestions(project_state) == []
 
 
-def test_pick_mismatch_does_not_unbind_propeller(tmp_path: Path):
+def test_pick_mismatch_does_not_unbind_propeller(tmp_path: Path, relaxed_only_motor_sku):
     o = _fresh(tmp_path)
-    _bind_combo(o, motor_sku="sunnysky_r2305_2500", motor_count=2)
+    _bind_combo(o, motor_sku="emax_rs2205s_2300", motor_count=2, payload_kg=1.0)
     o.handle_user_text("calcular", _RefuseLLM())
     o.handle_user_text("simular", _RefuseLLM())
     o._try_start_assisted_motor_help()
@@ -159,9 +194,9 @@ def test_pick_mismatch_does_not_unbind_propeller(tmp_path: Path):
     assert ps.design_properties.components["motors"].catalog_ref.sku == mismatch["name"]
 
 
-def test_continuity_underspec_names_relaxed_filters(tmp_path: Path):
+def test_continuity_underspec_names_relaxed_filters(tmp_path: Path, relaxed_only_motor_sku):
     o = _fresh(tmp_path)
-    _bind_combo(o, motor_sku="sunnysky_r2305_2500", motor_count=2)
+    _bind_combo(o, motor_sku="emax_rs2205s_2300", motor_count=2, payload_kg=1.0)
     o.handle_user_text("calcular", _RefuseLLM())
     o.handle_user_text("simular", _RefuseLLM())
     ps = o.state_manager.load_active_project(o.workspace_manager)

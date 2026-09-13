@@ -469,7 +469,7 @@ class ReasoningLayer:
         motor catalog-bound at all" (correct for architecture-progress/energy
         -nag gating, unchanged), which is a different question from "does
         *this* bound SKU actually lack nameplate watts" (this CTA's claim).
-        A SKU that does declare watts (e.g. ``sunnysky_r2305_2500``, 220W)
+        A SKU that does declare watts (e.g. ``sunnysky_r2205_2500``, 756W)
         must never see this copy.
         """
         return catalog_bound_motor_lacks_nameplate_watts(context.get("design_properties"))

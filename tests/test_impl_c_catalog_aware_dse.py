@@ -44,9 +44,15 @@ class _RefuseLLM:
         raise AssertionError("LLM.generate must not be called")
 
 
-# brotherhobby_avenger_2500: thrust_n=9.5, max_thrust_n=11.5, kv 2300-2700,
-# compatible_prop_inch=(5,) — real library fixture, used throughout G9-A/G21/G22.
-_BOUND_SKU = "brotherhobby_avenger_2500"
+# emax_rs2205s_2300: thrust_n=10.042 (band [8.03, 12.55], derived — no
+# explicit min/max in the seed row), compatible_prop_inch=(5,) — real,
+# sourced library fixture (catalog sourced-only purge B1 redirect: the
+# prior fixture, brotherhobby_avenger_2500, had no source_url and was
+# deleted). The two other KEEP 5" motors (sunnysky_r2205_2500 thrust_n
+# 12.55, iflight_xing_e_pro_2207_2450 thrust_n 16.46) sit at higher thrust
+# bands, so a design-space search for MORE thrust (aumentar_payload) still
+# has real catalog matches distinct from this bound SKU.
+_BOUND_SKU = "emax_rs2205s_2300"
 
 _CREATE_PARAMS_BASE = {
     "vehicle_type": "dron",

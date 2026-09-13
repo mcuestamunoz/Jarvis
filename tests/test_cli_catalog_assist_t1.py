@@ -64,7 +64,9 @@ def _bind_combo(o: JarvisOrchestrator, *, motor_sku: str, motor_count: int = 2):
     })
     ps = set_motor_component(ps, motor_spec, m.max_watts)
     ps = set_propeller_component(ps, bind_propeller_from_catalog("gf_5045x3"))
-    battery_spec = bind_battery_from_catalog("lipo_6s_10000mah")
+    # Catalog sourced-only purge B1 redirect: lipo_6s_10000mah had no
+    # source_url and was deleted; lipo_6s_6000mah is a real, sourced KEEP battery.
+    battery_spec = bind_battery_from_catalog("lipo_6s_6000mah")
     ps = set_battery_component(ps, battery_spec, battery_spec.properties["battery_capacity_wh"].value)
     o.workspace_manager.save_state(ps)
 
@@ -79,8 +81,12 @@ def test_idle_underspec_opens_component_motor_catalog(tmp_path: Path):
     """§2.2 — underspec: IDLE help-choose opens the COMPONENT motor catalog
     (not a bare estado reprint), via the existing _offer_component_motor_
     catalog bridge, no new search."""
+    # Catalog sourced-only purge B1 redirect: sunnysky_r2305_2500 (7.5N)
+    # reached underspec at motor_count=2; every KEEP motor is stronger
+    # (10-16.5N), so motor_count=1 is used instead to reproduce a genuine
+    # underspec state with real, sourced hardware (empirically verified).
     o = _fresh(tmp_path)
-    _bind_combo(o, motor_sku="sunnysky_r2305_2500", motor_count=2)
+    _bind_combo(o, motor_sku="emax_rs2205s_2300", motor_count=1)
     o.handle_user_text("calcular", _RefuseLLM())
     o.handle_user_text("simular", _RefuseLLM())
 
@@ -129,9 +135,11 @@ def test_component_gate_reopens_motor_list_when_underspec_in_composite_wizard(tm
     """§2.3 — composite ["motors","propellers"] wizard: motors_want_help
     must OR in bound_motor_sku_is_underspec so a drifted bound SKU still
     gets re-offered even though _wants_catalog_help alone reads any bound
-    catalog_ref as "done"."""
+    catalog_ref as "done". Catalog sourced-only purge B1 redirect: see
+    test_idle_underspec_opens_component_motor_catalog above (motor_count=1
+    reproduces underspec with real KEEP hardware)."""
     o = _fresh(tmp_path)
-    _bind_combo(o, motor_sku="sunnysky_r2305_2500", motor_count=2)
+    _bind_combo(o, motor_sku="emax_rs2205s_2300", motor_count=1)
     o.handle_user_text("calcular", _RefuseLLM())
     o.handle_user_text("simular", _RefuseLLM())
 
@@ -184,9 +192,11 @@ def test_definir_motor_help_choose_lists_catalog_when_covering(tmp_path: Path):
     """G18 motors-only wizard: the user already asked to redefine motors.
     Help-choose must show the numbered catalog even if the bound SKU still
     covers thrust — the autonomia-15min reprint of the Acquisition Brief.
-    IDLE covering + composite covering stay G21/T1 (tests above)."""
+    IDLE covering + composite covering stay G21/T1 (tests above).
+    Catalog sourced-only purge B1 redirect: any KEEP motor covers
+    comfortably at motor_count=4/payload_kg=0.5 (empirically verified)."""
     o = _fresh(tmp_path)
-    _bind_combo(o, motor_sku="sunnysky_r2305_2500", motor_count=4)
+    _bind_combo(o, motor_sku="emax_rs2205s_2300", motor_count=4)
     o.handle_user_text("calcular", _RefuseLLM())
     o.handle_user_text("simular", _RefuseLLM())
 

@@ -30,10 +30,13 @@ _LIB = ComponentLibrary()
 # ── 1. Motors load; existing known SKU works (regression) ──────────────────
 
 def test_get_motor_exact_name_still_works():
-    spec = _LIB.get_motor("generic_920kv")
+    # Catalog sourced-only purge B1 redirect: generic_920kv had no
+    # source_url and was deleted; emax_rs2205s_2300 is a real, sourced
+    # KEEP motor with the same "exact name lookup" shape.
+    spec = _LIB.get_motor("emax_rs2205s_2300")
     assert isinstance(spec, MotorSpec)
-    assert spec.kv_rating == 920
-    assert spec.thrust_n == 10.0
+    assert spec.kv_rating == 2300
+    assert spec.thrust_n == 10.042
 
 
 # ── 2. D8-style find_motors_for_requirements smoke (regression) ────────────
@@ -46,8 +49,26 @@ def test_find_motors_for_requirements_still_works():
 
 # ── 3. Enriched optional motor fields ───────────────────────────────────────
 
-def test_motor_optional_enrichment_fields_default_none():
-    spec = _LIB.get_motor("generic_920kv")
+def test_motor_optional_enrichment_fields_default_none(tmp_path: Path):
+    # Catalog sourced-only purge B1 redirect: every surviving real motor row
+    # now has a source_url (that's the whole point of ★1) — none can prove
+    # "field absent -> defaults None" any more. A minimal synthetic fixture
+    # (same tmp_path pattern as test_motor_optional_enrichment_fields_load_
+    # when_present below) isolates this schema-default check from catalog
+    # content entirely.
+    (tmp_path / "motores").mkdir()
+    (tmp_path / "materiales").mkdir()
+    (tmp_path / "baterias").mkdir()
+    (tmp_path / "helices").mkdir()
+    (tmp_path / "motores" / "_datos.json").write_text(
+        '{"bare_motor": {"thrust_n": 10.0, "kv_rating": 920, "weight_g": 60}}',
+        encoding="utf-8",
+    )
+    (tmp_path / "materiales" / "_datos.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "baterias" / "_datos.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "helices" / "_datos.json").write_text("{}", encoding="utf-8")
+    lib = ComponentLibrary(library_root=tmp_path)
+    spec = lib.get_motor("bare_motor")
     assert spec.manufacturer is None
     assert spec.model is None
     assert spec.compatible_prop_ids == ()
@@ -125,15 +146,15 @@ def test_sunnysky_r2205_2500_declared_envelope_no_shaft():
     assert spec.shaft_diameter_mm is None
 
 
-def test_motor_envelope_omitted_for_unsourced_sibling_sku():
-    """emax_rs2205_2300 (no trailing "s") has no source_url — distinct SKU
-    from the sourced emax_rs2205s_2300; must never inherit its sibling's
-    dims."""
-    spec = _LIB.get_motor("emax_rs2205_2300")
-    assert spec.stator_diameter_mm is None
-    assert spec.stator_height_mm is None
-    assert spec.diameter_mm is None
-    assert spec.shaft_diameter_mm is None
+# test_motor_envelope_omitted_for_unsourced_sibling_sku removed (catalog
+# sourced-only purge B1): its subject, emax_rs2205_2300 — an unsourced
+# sibling of emax_rs2205s_2300 kept around only to prove it never inherited
+# its sibling's dims — no longer exists in the catalog at all post-purge,
+# which is this Buy's own intended outcome (★1/★2), not a gap. The
+# isolation behavior it tested (a synthetic per-row envelope, never
+# inherited across SKUs) is still covered structurally by
+# test_motor_optional_enrichment_fields_load_when_present below, which
+# builds an isolated single-row library from scratch.
 
 
 def test_motor_optional_enrichment_fields_load_when_present(tmp_path: Path):
@@ -234,13 +255,14 @@ def test_lipo_6s_6000mah_declared_envelope_verbatim_print_order():
     assert spec.height_mm == pytest.approx(41.0)
 
 
-def test_battery_envelope_omitted_when_unsourced():
-    """No cited dims on this row's seed -> all three stay None, never
-    invented."""
-    spec = _LIB.get_battery("lipo_4s_10000mah")
-    assert spec.length_mm is None
-    assert spec.width_mm is None
-    assert spec.height_mm is None
+# test_battery_envelope_omitted_when_unsourced removed (catalog
+# sourced-only purge B1): its subject, lipo_4s_10000mah, had no source_url
+# and no cited envelope — deleted entirely by ★1/★2, which is this Buy's
+# own intended outcome, not a gap. The general "field absent in JSON ->
+# stays None, never invented" schema default is still proven for this same
+# Optional[float]=None field shape by test_motor_optional_enrichment_
+# fields_default_none's synthetic single-row library above (MotorSpec and
+# BatterySpec share the identical dataclass-default mechanism).
 
 
 def test_all_seed_batteries_have_required_fields():
@@ -257,7 +279,10 @@ def test_battery_unknown_raises_keyerror():
 
 
 def test_has_battery():
-    assert _LIB.has_battery("lipo_3s_2200mah") is True
+    # Catalog sourced-only purge B1 redirect: lipo_3s_2200mah had no
+    # source_url and was deleted; gens_ace_2200mah_3s_35c_gtech is a real,
+    # sourced KEEP battery.
+    assert _LIB.has_battery("gens_ace_2200mah_3s_35c_gtech") is True
     assert _LIB.has_battery("no_existe_xyz") is False
 
 
@@ -307,10 +332,12 @@ def test_battery_missing_voltage_identity_raises(tmp_path: Path):
 # ── 5. Propellers load; get_propeller; diameter/pitch preserved ────────────
 
 def test_propellers_load_and_get_by_id():
-    spec = _LIB.get_propeller("apc_10x4_5")
+    # Catalog sourced-only purge B1 redirect: apc_10x4_5 had no source_url
+    # and was deleted; apc_10x6_ep is a real, sourced KEEP 10" propeller.
+    spec = _LIB.get_propeller("apc_10x6_ep")
     assert isinstance(spec, PropellerSpec)
     assert spec.diameter_in == 10.0
-    assert spec.pitch_in == 4.5
+    assert spec.pitch_in == 6.0
 
 
 def test_gf_5045x3_curated_identity_and_mass():
@@ -355,14 +382,18 @@ def test_propeller_unknown_raises_keyerror():
 
 
 def test_has_propeller():
-    assert _LIB.has_propeller("gemfan_5030") is True
+    # Catalog sourced-only purge B1 redirect: gemfan_5030 had no source_url
+    # and was deleted; gemfan_5045_hbn is a real, sourced KEEP propeller.
+    assert _LIB.has_propeller("gemfan_5045_hbn") is True
     assert _LIB.has_propeller("no_existe_xyz") is False
 
 
 def test_find_propellers_by_diameter():
+    # Catalog sourced-only purge B1 redirect: apc_10x4_5 had no source_url
+    # and was deleted; apc_10x6_ep is the only remaining ~10" KEEP prop.
     results = _LIB.find_propellers(diameter_in=10.0, tolerance=1.0)
     names = [p.name for p in results]
-    assert "apc_10x4_5" in names
+    assert "apc_10x6_ep" in names
     assert all(abs(p.diameter_in - 10.0) <= 1.0 for p in results)
 
 
@@ -620,13 +651,16 @@ def test_unknown_sku_never_fabricated():
 # ── 7. match_motor_propeller — explicit + fallback + honest False ──────────
 
 def test_match_motor_propeller_diameter_fallback_true():
-    # sunnysky_x2216_11.compatible_prop_inch == (10, 11); apc_10x4_5 diameter 10"
-    assert _LIB.match_motor_propeller("sunnysky_x2216_11", "apc_10x4_5") is True
+    # Catalog sourced-only purge B1 redirect: sunnysky_x2216_11 (10-11")
+    # and tmotor_22x6_7 had no source_url and were deleted. All 3 KEEP
+    # motors declare compatible_prop_inch=[5]; emax_rs2205s_2300 +
+    # gemfan_5045_hbn (5.0") is within the 1.0" fallback tolerance.
+    assert _LIB.match_motor_propeller("emax_rs2205s_2300", "gemfan_5045_hbn") is True
 
 
 def test_match_motor_propeller_diameter_fallback_false_not_fabricated():
-    # sunnysky_x2216_11 wants 10-11"; tmotor_22x6_7 is 22" — no match, no invented True
-    assert _LIB.match_motor_propeller("sunnysky_x2216_11", "tmotor_22x6_7") is False
+    # emax_rs2205s_2300 wants ~5"; apc_10x6_ep is 10" — no match, no invented True
+    assert _LIB.match_motor_propeller("emax_rs2205s_2300", "apc_10x6_ep") is False
 
 
 def test_match_motor_propeller_explicit_compatible_prop_ids(tmp_path: Path):

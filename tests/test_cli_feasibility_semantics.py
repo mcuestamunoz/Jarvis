@@ -58,7 +58,7 @@ def _field_fixture_state(tmp_root: Path):
     })
     ps = set_motor_component(ps, motor_spec, m.max_watts)
 
-    battery_spec = bind_battery_from_catalog("lipo_4s_10000mah")
+    battery_spec = bind_battery_from_catalog("lipo_4s_5000mah")  # catalog sourced-only purge B1 redirect
     ps = set_battery_component(
         ps, battery_spec, battery_spec.properties["battery_capacity_wh"].value
     )

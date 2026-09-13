@@ -65,13 +65,19 @@ def test_t4_bind_gf_5045x3_projects_bag():
     assert "shaft_bore_mm" not in spec.properties
 
 
-def test_t5_bind_gemfan_5030_no_mass_g_key():
-    spec = bind_propeller_from_catalog("gemfan_5030")
+# Catalog sourced-only purge B1 redirect: gemfan_5030 had no source_url
+# and was deleted; gemfan_5045_hbn is a real, sourced KEEP prop that also
+# happens to omit mass_g (confirmed live).
+def test_t5_bind_gemfan_5045_hbn_no_mass_g_key():
+    spec = bind_propeller_from_catalog("gemfan_5045_hbn")
     assert "mass_g" not in spec.properties
 
 
-def test_t6_bind_tmotor_15x5_no_mass_g_key():
-    spec = bind_propeller_from_catalog("tmotor_15x5")
+# Catalog sourced-only purge B1 redirect: tmotor_15x5 had no source_url
+# and was deleted; hq_5045_bn is a real, sourced KEEP prop that also
+# omits mass_g (confirmed live).
+def test_t6_bind_hq_5045_bn_no_mass_g_key():
+    spec = bind_propeller_from_catalog("hq_5045_bn")
     assert "mass_g" not in spec.properties
 
 
@@ -93,11 +99,14 @@ def test_t7_geometry_still_disk_hub_shown_as_text():
     assert {"label": "hub_thickness_mm", "value": "9.5 mm"} in node["fields"]
 
 
-def test_t8_tmotor_22x6_7_pitch_and_key_unchanged():
-    spec = default_library.get_propeller("tmotor_22x6_7")
-    assert spec.pitch_in == pytest.approx(6.7)
+# Catalog sourced-only purge B1 redirect: tmotor_22x6_7 had no
+# source_url and was deleted; hq_5045_bn is a real, sourced KEEP prop
+# that also omits mass_g.
+def test_t8_hq_5045_bn_pitch_and_key_unchanged():
+    spec = default_library.get_propeller("hq_5045_bn")
+    assert spec.pitch_in == pytest.approx(4.5)
     assert spec.mass_g is None
-    assert spec.name == "tmotor_22x6_7"
+    assert spec.name == "hq_5045_bn"
 
 
 def test_t9_only_cited_propellers_have_mass_g():

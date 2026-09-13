@@ -35,9 +35,9 @@ class _RefuseLLM:
         raise AssertionError("LLM must not be called")
 
 
-# brotherhobby_avenger_2500: thrust_n=9.5, kv 2300-2700, compatible_prop_inch=(5,)
-# — same real library fixture used throughout G9-A/G21/G22/Impl C.
-_BOUND_SKU = "brotherhobby_avenger_2500"
+# Catalog sourced-only purge B1 redirect: brotherhobby_avenger_2500 had no
+# source_url and was deleted; emax_rs2205s_2300 is a real, sourced KEEP motor.
+_BOUND_SKU = "emax_rs2205s_2300"
 
 _CREATE_PARAMS_BASE = {
     "vehicle_type": "dron",

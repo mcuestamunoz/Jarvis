@@ -84,7 +84,6 @@ def test_t5_other_lipo_4s_rows_unchanged():
     assert spektrum.width_mm == pytest.approx(47.7)
     assert spektrum.height_mm == pytest.approx(40.7)
     assert spektrum.mass_g == pytest.approx(498.0)
-
-    plain_10000 = default_library.get_battery("lipo_4s_10000mah")
-    assert plain_10000.length_mm is None
-    assert plain_10000.mass_g == pytest.approx(980.0)
+    # lipo_4s_10000mah (previously checked here) had no source_url and was
+    # deleted by the catalog sourced-only purge B1 — its own sibling-
+    # isolation coverage is gone with it, per that Buy's own intent.
