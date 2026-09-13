@@ -91,12 +91,9 @@ def build_acquisition_brief(key: str, project_state: Any | None) -> dict[str, st
     lines.append("")
     lines.append("Puedes:")
     lines.append(f"  • {question}")
-    if key in ("motors", "propellers", "battery", "frame"):
-        # G21 ★4 / Prop-6 / Bat-5 / Structure Catalog Foundation IC-3: motors,
-        # propellers, battery, and frame are the component-sub-mode keys with
-        # a live catalog bind entry point (Impl B + Prop-3 + Bat-3 +
-        # frame_catalog_assist) — advertise it here. flight_controller/
-        # sensors still have no bind path (no catalog exists for them).
+    if key in ("motors", "propellers", "battery", "frame", "flight_controller", "sensors", "esc"):
+        # Catalog / identity numbered list: Class A binds (motors…frame/esc)
+        # plus #4b FC/GPS dim-table identity assist.
         lines.append(
             "  • decir 'ayúdame a elegir' para ver candidatos numerados del catálogo"
         )

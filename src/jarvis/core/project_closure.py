@@ -159,20 +159,36 @@ def propeller_diameter_in(project_state: Any) -> float | None:
     return None
 
 
+# Structure A LEVEL A class slack (5.x-on-5), Engineer-ratified 2026-09-11
+# (implementation_contract_structure_a_class_slack_b1.md, Option A): FPV
+# "frame 5\"" is a commercial size CLASS (props commonly run 5.0-5.25in on
+# a nominal-5" frame), not a geometric ceiling of exactly 5.000in. This is
+# the ONE named constant frame_class_compatibility_state's own predicate
+# reads — never a magic number at any call site, never a second slack
+# value introduced elsewhere. Still convention, not clearance: does not
+# claim the propeller physically fits the arm/plate, never touches
+# thrust/power/RPM/Ct, never becomes a "cabe"/VERIFIED claim.
+FRAME_CLASS_SLACK_IN = 0.25
+
+
 def frame_class_compatibility_state(project_state: Any) -> str:
-    """Structure A (§2.2): class-compatibility screening state — LEVEL A, not
-    a geometric fit proof.
+    """Structure A (§2.2), widened by the LEVEL A class slack Buy: class-
+    compatibility screening state — LEVEL A, not a geometric fit proof.
 
     Returns one of:
       "not_required"       — no known propeller diameter; size not required.
       "missing"             — D known, frame declares no size_class_inch.
-      "class_compatible"    — D known, class set, D <= size_class_inch.
-      "class_incompatible"  — D known, class set, D > size_class_inch.
+      "class_compatible"    — D known, class set, D <= size_class_inch + FRAME_CLASS_SLACK_IN.
+      "class_incompatible"  — D known, class set, D >  size_class_inch + FRAME_CLASS_SLACK_IN.
 
     Single shared predicate — both ``_block_progress_status`` copies and the
     ERF-2 gap builders call this so architecture progress and the Gap
     Registry can never disagree on the state. Never copies size_class_inch
-    from the propeller, never adds slack, never touches thrust/power/RPM/Ct.
+    from the propeller, never touches thrust/power/RPM/Ct. ``FRAME_CLASS_
+    SLACK_IN`` is a commercial-class convention allowance (e.g. a sourced
+    5.189in propeller reads as compatible with a declared 5in frame class)
+    — it is NOT a clearance budget and proves nothing about whether the
+    propeller physically fits the frame's arms/plates/stack.
     """
     diameter_in = propeller_diameter_in(project_state)
     if diameter_in is None:
@@ -191,7 +207,11 @@ def frame_class_compatibility_state(project_state: Any) -> str:
     except (TypeError, ValueError):
         return "missing"
 
-    return "class_compatible" if diameter_in <= size_class_inch else "class_incompatible"
+    return (
+        "class_compatible"
+        if diameter_in <= size_class_inch + FRAME_CLASS_SLACK_IN
+        else "class_incompatible"
+    )
 
 
 def frame_size_blocks_structure_complete(design_properties: Any, params: dict[str, Any]) -> bool:
@@ -283,7 +303,8 @@ def frame_next_missing_question(project_state: Any) -> str | None:
         d_bit = f"{float(diameter_in):g}" if diameter_in is not None else "declarada"
         c_bit = f"{float(size_class_inch):g}" if size_class_inch is not None else "declarada"
         return (
-            f"La hélice ({d_bit} in) supera la clase de frame declarada ({c_bit} in) "
+            f"La hélice ({d_bit} in) supera la clase de frame declarada ({c_bit} in), "
+            f"incluso con el margen de clase habitual ({FRAME_CLASS_SLACK_IN:g} in) "
             "— compatibilidad de clase nivel A, no verificada. Declara una clase de "
             "frame mayor (ej. 'frame 6 pulgadas') o cambia de hélice."
         )

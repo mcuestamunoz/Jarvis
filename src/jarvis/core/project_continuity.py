@@ -132,7 +132,7 @@ def _frame_class_next_step(project_state: Any, readiness: Any | None) -> tuple[s
     gap_types = {g.gap_type for g in (readiness.gaps or [])}
 
     if "GAP-FRAME-PROP-SIZE" in gap_types:
-        from jarvis.core.project_closure import propeller_diameter_in
+        from jarvis.core.project_closure import FRAME_CLASS_SLACK_IN, propeller_diameter_in
 
         diameter_in = propeller_diameter_in(project_state)
         components = getattr(getattr(project_state, "design_properties", None), "components", None) or {}
@@ -141,7 +141,8 @@ def _frame_class_next_step(project_state: Any, readiness: Any | None) -> tuple[s
         size_class_inch = size_prop.value if size_prop is not None else None
         step = (
             f"La hélice ({diameter_in:g} in) supera la clase de frame declarada "
-            f"({size_class_inch:g} in). Compatibilidad de clase nivel A: no establecida. "
+            f"({size_class_inch:g} in), incluso con el margen de clase habitual "
+            f"({FRAME_CLASS_SLACK_IN:g} in). Compatibilidad de clase nivel A: no establecida. "
             "Declara un frame de clase mayor o una hélice menor. Esto no cambia el PASS "
             "de empuje ni demuestra interferencia geométrica."
         )

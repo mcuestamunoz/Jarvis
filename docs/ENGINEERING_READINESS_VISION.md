@@ -28,6 +28,8 @@ This document is **not** an as-is architecture map and **must not** be used as e
   - `.jes/state/engineering_state.json`
 - **Target vision truth (this document):**
   - `docs/ENGINEERING_READINESS_VISION.md`
+- **Platform capability vision (separate to-be axis — not this document):**
+  - `docs/PLATFORM_CAPABILITY_VISION.md` — future Skills / Capabilities / physical-system software; directional only; does not own this readiness queue
 
 Rule: this vision evolves independently until an implementation contract is approved.  
 Only implemented and validated behavior moves into `ARCHITECTURE.md` and `docs/system_map/*`.

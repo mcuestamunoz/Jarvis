@@ -226,6 +226,14 @@ _KIT_HARDWARE_KEYS = frozenset({"power_connector", "signal_harness"})
 # folded into IntentResolver.DECLARE_BLOCK_VERB_PATTERNS.
 _CABE_WORD_RE = re.compile(r"\bcabe\b", re.IGNORECASE)
 
+# Fit attestation B1 — a HUMAN sign-off gate, deliberately distinct from
+# `_CABE_WORD_RE` (a screening query) and from the pose declare grammar's
+# own `declara(r)` + `mm` + `respecto` gate (a geometry write). "declaro
+# verificado" never contains "mm"/"respecto", so it can never be mistaken
+# for a pose SET by that grammar's own AND-gate.
+_DECLARO_VERIFICADO_RE = re.compile(r"\bdeclaro\s+verificad[oa]\b", re.IGNORECASE)
+_QUITA_VERIFICACION_RE = re.compile(r"\bquit[ao]r?\s+(?:la\s+)?verificaci[oó]n\b", re.IGNORECASE)
+
 # ── Proactive question hints for component-driven blocks in build_startup_context ─
 _BLOCK_COMPONENT_HINTS: dict[str, str] = {
     "structure":  "describe el frame (material y masa). Ej: 'carbono 450g'",
@@ -1062,6 +1070,35 @@ class JarvisOrchestrator:
             if cabe_result is not None:
                 self._track_turn(user_input, cabe_result)
                 return cabe_result
+
+        # ─────────────────────────────────────────────────────────────────────
+        # ── Fit attestation B1: IDLE "declaro verificado el X" / "quito/quita
+        # la verificación de X" calls set_component_declared_fit_attestation
+        # directly. Deterministic parse only (never LLM, never a wizard).
+        # Checked right after the cabe bridge (mutually exclusive gates —
+        # "declaro verificado" never matches "cabe", "cabe" never matches
+        # "declaro verificado"), before FN-005's help-choose chain, same
+        # reason as every other deterministic IDLE bridge above.
+        if current_session.mode == OrchestratorMode.IDLE:
+            attest_result = self._try_handle_fit_attestation(user_input)
+            if attest_result is not None:
+                self._track_turn(user_input, attest_result)
+                return attest_result
+
+        # ─────────────────────────────────────────────────────────────────────
+        # ── IDLE frame-part count declare B1: IDLE "6 standoffs" / "6
+        # separadores" / "standoffs aluminio" / "4 brazos fibra" upserts
+        # frame part children directly via the EXISTING upsert_frame_part
+        # writer — the SAME feature G-N1's DEFINE_MISSING wizard-only
+        # parts-only branch already ships, reachable here without opening
+        # that wizard. Deterministic parse only (never LLM). Checked right
+        # after the fit-attestation bridge, before FN-005's help-choose
+        # chain, same reason as every other deterministic IDLE bridge above.
+        if current_session.mode == OrchestratorMode.IDLE:
+            frame_part_result = self._try_handle_idle_frame_part_declare(user_input)
+            if frame_part_result is not None:
+                self._track_turn(user_input, frame_part_result)
+                return frame_part_result
 
         # ─────────────────────────────────────────────────────────────────────
         # ── FN-005: "ayúdame a elegir" while IDLE → open assisted motor flow ─
@@ -2252,6 +2289,163 @@ class JarvisOrchestrator:
             "message": format_screening(screening),
         }
 
+    def _try_handle_fit_attestation(self, user_input: str) -> dict | None:
+        """Fit attestation B1: IDLE "declaro verificado el X" / "quito/quita
+        la verificación de X" calls set_component_declared_fit_attestation
+        directly. Deterministic parse only (never LLM, never Scene3D).
+
+        HUMAN evidence, not a stronger geometric proof: this bridge never
+        touches ``pose_envelope_screening``'s own "screening, no verificado"
+        copy — it only ever records that the Engineer looked at an
+        ALREADY-``overlap``-screened pair and signed off by their own
+        judgment. The writer itself refuses (``ValueError``) any component
+        whose current screening isn't ``overlap`` — this bridge only ever
+        surfaces that refusal honestly, never grants it early or silently.
+
+        Resolves the named subject via the SAME subject-noun table
+        ``mounted_on_declare_assist`` already uses (fc/esc/motor(es)/
+        bateria/sensor(es)/helice(s)) — no second alias table, same
+        discipline as ``_try_handle_cabe_screening``. A bare phrase with no
+        named subject: for SET, the eligible set is components currently
+        screened ``overlap``; for CLEAR, the eligible set is components
+        with a current ``declared_fit_attestation`` — exactly one in the
+        eligible set proceeds, zero gets an honest "nothing eligible"
+        message, more than one asks which (never guesses).
+        """
+        is_set = bool(_DECLARO_VERIFICADO_RE.search(user_input))
+        is_clear = bool(_QUITA_VERIFICACION_RE.search(user_input))
+        if not is_set and not is_clear:
+            return None
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = project_state.design_properties.components or {}
+
+        from jarvis.core.component_writers import set_component_declared_fit_attestation
+        from jarvis.core.motor_catalog_assist import _normalize_help
+        from jarvis.core.mounted_on_declare_assist import resolve_component_subject_noun
+        from jarvis.core.pose_envelope_screening import screen_posed_envelope
+
+        normalized = _normalize_help(user_input)
+        subject_key = resolve_component_subject_noun(normalized)
+        if subject_key is not None and subject_key in components:
+            component_key = subject_key
+        else:
+            if is_set:
+                eligible = sorted(
+                    k for k, spec in components.items()
+                    if screen_posed_envelope(spec, components).status == "overlap"
+                )
+                empty_message = (
+                    "Jarvis no verifica ensamblaje físico; ningún par tiene "
+                    "screening en solape todavía para declarar verificado."
+                )
+            else:
+                eligible = sorted(
+                    k for k, spec in components.items()
+                    if getattr(spec, "declared_fit_attestation", None) is not None
+                )
+                empty_message = "Ningún componente tiene verificación declarada todavía."
+
+            if len(eligible) == 1:
+                component_key = eligible[0]
+            elif not eligible:
+                return {
+                    "status": "ok",
+                    "action": "fit_attestation_screening",
+                    "message": empty_message,
+                }
+            else:
+                return {
+                    "status": "interactive",
+                    "action": "component_description_prompt",
+                    "message": f"¿Cuál componente? Elegibles: {', '.join(eligible)}.",
+                }
+
+        try:
+            updated_state = set_component_declared_fit_attestation(project_state, component_key, attest=is_set)
+        except ValueError as exc:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": str(exc),
+            }
+        self.workspace_manager.save_state(updated_state)
+
+        if is_set:
+            message = (
+                f"Declarado verificado por el Engineer: {component_key} — "
+                "no es una comprobación geométrica de Jarvis."
+            )
+        else:
+            message = f"Verificación de {component_key} eliminada."
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": message,
+        }
+
+    def _try_handle_idle_frame_part_declare(self, user_input: str) -> dict | None:
+        """IDLE frame-part count declare B1: IDLE "6 standoffs" / "6
+        separadores" / "standoffs aluminio" / "4 brazos fibra" upserts
+        frame part children directly via the EXISTING ``upsert_frame_part``
+        writer, using the SAME extract (``extract_all_frame_part_
+        properties``) G-N1's DEFINE_MISSING wizard-only parts-only branch
+        already uses (this method's own ``expected_keys and expected_keys[0]
+        == "frame"`` twin, further up in this file). Deliberately
+        DUPLICATED rather than shared — the wizard branch also drives
+        `still_missing`/`_set_pending_next_block` transitions this bridge
+        must never touch, so extracting a shared helper would risk that
+        already-tested wizard path for a feature this IDLE bridge does not
+        need (per the IC's own explicit allowance to duplicate the gate
+        rather than refactor the wizard into a shared risk).
+
+        Never touches the LLM, never opens ``DEFINE_MISSING``, never calls
+        ``_set_pending_next_block`` — stays IDLE. Requires an active
+        project with a declared, non-``low``-completeness ``frame`` (else
+        ``None`` — never invents a frame). A root-shaped update
+        (``mass_kg``/``size_class_inch``/``configuration``/``wheelbase_mm``
+        present in ``extract_frame_properties``) is NOT this bridge — those
+        stay on the existing root/wizard/LLM paths, same root guard as
+        G-N1's own.
+        """
+        from jarvis.domains.aerial import extract_all_frame_part_properties, extract_frame_properties
+
+        normalized = user_input.lower()
+        declared_parts = extract_all_frame_part_properties(normalized)
+        if not declared_parts:
+            return None
+        root_props = extract_frame_properties(normalized)
+        has_root_update = any(
+            k in root_props for k in ("mass_kg", "size_class_inch", "configuration", "wheelbase_mm")
+        )
+        if has_root_update:
+            return None
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        frame_spec = project_state.design_properties.components.get("frame")
+        if frame_spec is None or (frame_spec.completeness or "low") == "low":
+            return None
+
+        updated_state = project_state
+        part_bits: list[str] = []
+        for part_key, part_props in declared_parts:
+            updated_state = upsert_frame_part(updated_state, part_key, part_props)
+            label = part_key.removeprefix("frame_")
+            count_prop = part_props.get("count")
+            if count_prop is not None and count_prop.value is not None:
+                part_bits.append(f"{label}×{int(count_prop.value)}")
+            else:
+                part_bits.append(label)
+        self.workspace_manager.save_state(updated_state)
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": "Frame partes: " + ", ".join(part_bits) + ".",
+        }
+
     def _try_start_acquisition_from_mention(self, user_input: str) -> dict | None:
         """FN-014: unified block ∪ component acquisition gate for IDLE (including
         IDLE re-dispatch after an iterate-wizard preempt).
@@ -3371,6 +3565,7 @@ class JarvisOrchestrator:
         updated = session.model_copy(update={
             "motor_suggestions": suggestions, "propeller_suggestions": [], "battery_suggestions": [],
             "frame_suggestions": [], "kit_hardware_suggestions": [], "esc_suggestions": [],
+            "flight_controller_suggestions": [], "sensor_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         if not suggestions:
@@ -3502,6 +3697,8 @@ class JarvisOrchestrator:
             "frame_suggestions": [],
             "kit_hardware_suggestions": [],
             "esc_suggestions": [],
+            "flight_controller_suggestions": [],
+            "sensor_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -3608,6 +3805,8 @@ class JarvisOrchestrator:
             "frame_suggestions": [],
             "kit_hardware_suggestions": [],
             "esc_suggestions": [],
+            "flight_controller_suggestions": [],
+            "sensor_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -3705,6 +3904,8 @@ class JarvisOrchestrator:
             "battery_suggestions": [],
             "kit_hardware_suggestions": [],
             "esc_suggestions": [],
+            "flight_controller_suggestions": [],
+            "sensor_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -3833,6 +4034,8 @@ class JarvisOrchestrator:
             "battery_suggestions": [],
             "frame_suggestions": [],
             "esc_suggestions": [],
+            "flight_controller_suggestions": [],
+            "sensor_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -3917,6 +4120,8 @@ class JarvisOrchestrator:
             "battery_suggestions": [],
             "frame_suggestions": [],
             "kit_hardware_suggestions": [],
+            "flight_controller_suggestions": [],
+            "sensor_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -3962,6 +4167,143 @@ class JarvisOrchestrator:
             k for k in expected_keys
             if components.get(k) is None or components[k].completeness == "low"
         ]
+        if not still_missing:
+            self._set_pending_next_block()
+            result: dict[str, Any] = {
+                "status": "ok",
+                "action": "component_description_saved",
+                "message": saved_msg,
+            }
+            return self._append_arch_progress_hint(result)
+
+        follow_up = self._component_prompt_for_first_missing(still_missing)
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": f"{saved_msg} {follow_up}",
+        }
+
+    def _control_identity_peer_clear(self) -> dict[str, list]:
+        """Clear every numbered suggestion list when offering a control identity pick."""
+        return {
+            "motor_suggestions": [],
+            "propeller_suggestions": [],
+            "battery_suggestions": [],
+            "frame_suggestions": [],
+            "kit_hardware_suggestions": [],
+            "esc_suggestions": [],
+            "flight_controller_suggestions": [],
+            "sensor_suggestions": [],
+        }
+
+    def _offer_flight_controller_identity_catalog(
+        self, session: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        from jarvis.core.control_identity_catalog_assist import (
+            build_flight_controller_identity_suggestions,
+            format_control_identity_suggestions,
+        )
+
+        suggestions = build_flight_controller_identity_suggestions()
+        peers = self._control_identity_peer_clear()
+        peers["flight_controller_suggestions"] = suggestions
+        updated = session.model_copy(update=peers)
+        self.state_manager.set_runtime_session(updated)
+        return {
+            "status": "interactive",
+            "action": "component_description_prompt",
+            "message": format_control_identity_suggestions(
+                suggestions, family="flight_controller"
+            ),
+            "flight_controller_suggestions": suggestions,
+        }
+
+    def _offer_sensor_identity_catalog(
+        self, session: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        from jarvis.core.control_identity_catalog_assist import (
+            build_sensor_identity_suggestions,
+            format_control_identity_suggestions,
+        )
+
+        suggestions = build_sensor_identity_suggestions()
+        peers = self._control_identity_peer_clear()
+        peers["sensor_suggestions"] = suggestions
+        updated = session.model_copy(update=peers)
+        self.state_manager.set_runtime_session(updated)
+        return {
+            "status": "interactive",
+            "action": "component_description_prompt",
+            "message": format_control_identity_suggestions(
+                suggestions, family="sensors"
+            ),
+            "sensor_suggestions": suggestions,
+        }
+
+    def _apply_control_identity_catalog_pick(
+        self,
+        suggestion: Any,
+        expected_keys: list[str],
+        *,
+        family: str,
+    ) -> dict[str, Any]:
+        """Apply a #4b identity-table pick via the same free-text extract path."""
+        from jarvis.core.component_inference import infer_component_for_key
+        from jarvis.domains.aerial import aerial_registry
+
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": "No hay proyecto activo. Crea uno primero.",
+            }
+
+        declare_text = suggestion.get("declare_text") or suggestion.get("label") or ""
+        spec = infer_component_for_key(declare_text, family, registry=aerial_registry)
+        if spec is None or spec.completeness == "low":
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": self._component_prompt_for_first_missing(expected_keys),
+            }
+
+        updated_state = set_control_component(project_state, spec)
+        self.workspace_manager.save_state(updated_state)
+
+        cleared = self.state_manager.get_runtime_session().model_copy(
+            update={
+                "flight_controller_suggestions": [],
+                "sensor_suggestions": [],
+            }
+        )
+        # Advance wizard pending to remaining gaps (same as free-text save).
+        components = updated_state.design_properties.components
+        still_missing = [
+            k for k in expected_keys
+            if components.get(k) is None or components[k].completeness == "low"
+        ]
+        cleared = cleared.model_copy(
+            update={
+                "pending_missing_params": still_missing,
+                "pending_param_definitions": still_missing,
+            }
+        )
+        self.state_manager.set_runtime_session(cleared)
+
+        label = suggestion.get("label") or declare_text
+        box = (
+            f"{suggestion.get('length_mm'):g}×{suggestion.get('width_mm'):g}×"
+            f"{suggestion.get('height_mm'):g} mm"
+            if suggestion.get("length_mm") is not None
+            else ""
+        )
+        saved_msg = (
+            f"{'Controladora elegida' if family == 'flight_controller' else 'Sensor/GPS elegido'}"
+            f": {label}" + (f" ({box})." if box else ".")
+        )
+
         if not still_missing:
             self._set_pending_next_block()
             result: dict[str, Any] = {
@@ -4157,7 +4499,26 @@ class JarvisOrchestrator:
         # Structure Catalog Foundation IC-3: frame catalog help-choose / pick
         # bridge — same ★4 gate shape as motors/propellers/battery
         # (_wants_catalog_help, not bare key membership).
-        frame_wants_help = "frame" in expected_keys and _wants_catalog_help(gate_components.get("frame"))
+        # Mid-architecture "definir frame" cannot use IDLE rebind (that
+        # bridge requires `_next_pending_block is None`), so a catalog-bound
+        # frame that is still the acquisition target (class gap, re-pick,
+        # upgrade) must still honor bare "ayúdame a elegir" — same escape
+        # G18 already gives motors-only redefine. Scope to expected_keys[0]
+        # == "frame" so a later composite never steals help-choose from a
+        # non-frame head key.
+        from jarvis.core.frame_catalog_assist import (
+            is_help_choose_phrase as _frame_help_choose,
+        )
+
+        _frame_active_redefine = (
+            bool(expected_keys)
+            and expected_keys[0] == "frame"
+            and _frame_help_choose(user_input)
+        )
+        frame_wants_help = "frame" in expected_keys and (
+            _wants_catalog_help(gate_components.get("frame"))
+            or _frame_active_redefine
+        )
         if frame_wants_help or ("frame" in expected_keys and session.frame_suggestions):
             from jarvis.core.frame_catalog_assist import (
                 is_help_choose_phrase as frame_is_help_choose_phrase,
@@ -4218,6 +4579,45 @@ class JarvisOrchestrator:
                 )
                 if picked is not None:
                     return self._apply_component_esc_catalog_pick(picked, expected_keys)
+
+        # Control identity assist (#4b dim tables): head-key only so a
+        # composite ["flight_controller","sensors"] offers FC first, then
+        # sensors after FC binds — never steals a later sibling's turn.
+        if expected_keys and expected_keys[0] == "flight_controller":
+            from jarvis.core.control_identity_catalog_assist import (
+                is_help_choose_phrase as _fc_help,
+                match_suggestion_by_input as _fc_match,
+            )
+
+            fc_wants = _wants_catalog_help(gate_components.get("flight_controller")) or _fc_help(
+                user_input
+            )
+            if fc_wants and _fc_help(user_input):
+                return self._offer_flight_controller_identity_catalog(session, expected_keys)
+            if session.flight_controller_suggestions:
+                picked = _fc_match(user_input, session.flight_controller_suggestions)
+                if picked is not None:
+                    return self._apply_control_identity_catalog_pick(
+                        picked, expected_keys, family="flight_controller"
+                    )
+
+        if expected_keys and expected_keys[0] == "sensors":
+            from jarvis.core.control_identity_catalog_assist import (
+                is_help_choose_phrase as _sensor_help,
+                match_suggestion_by_input as _sensor_match,
+            )
+
+            sensors_wants = _wants_catalog_help(gate_components.get("sensors")) or _sensor_help(
+                user_input
+            )
+            if sensors_wants and _sensor_help(user_input):
+                return self._offer_sensor_identity_catalog(session, expected_keys)
+            if session.sensor_suggestions:
+                picked = _sensor_match(user_input, session.sensor_suggestions)
+                if picked is not None:
+                    return self._apply_control_identity_catalog_pick(
+                        picked, expected_keys, family="sensors"
+                    )
 
         # ── Affirmative: user confirmed — emit context-specific prompt ────────
         if self._is_affirmative(user_input):
@@ -4311,6 +4711,27 @@ class JarvisOrchestrator:
             s.suggested_key == "generic_component" for s in specs
         ):
             forced = infer_component_for_key(user_input, "frame", registry=aerial_registry)
+            if forced is not None and forced.completeness != "low":
+                specs = [forced]
+        # Geometry #4b smoke 2026-09-12: "SpeedyBee F405 V4" / "Holybro M10"
+        # extract correctly via infer_component_for_key but the ComponentRule
+        # keyword gate used to miss them (no "speedybee"/"holybro" stem), so
+        # infer_components returned generic_component and the wizard re-asked
+        # forever. Same force shape as frame/motors/propellers.
+        if "flight_controller" in expected_keys and all(
+            s.suggested_key == "generic_component" for s in specs
+        ):
+            forced = infer_component_for_key(
+                user_input, "flight_controller", registry=aerial_registry
+            )
+            if forced is not None and forced.completeness != "low":
+                specs = [forced]
+        if "sensors" in expected_keys and all(
+            s.suggested_key == "generic_component" for s in specs
+        ):
+            forced = infer_component_for_key(
+                user_input, "sensors", registry=aerial_registry
+            )
             if forced is not None and forced.completeness != "low":
                 specs = [forced]
         # Assembly kit template B1-min: power_connector/signal_harness have

@@ -30,6 +30,7 @@ from jarvis.core.project_closure import (
     classify_component,
     component_presence_tier,
     derive_physical_requirements,
+    FRAME_CLASS_SLACK_IN,
     frame_class_compatibility_state,
     frame_size_blocks_structure_complete,
     param_present_for_architecture,
@@ -934,6 +935,12 @@ def _frame_class_gaps(project_state: Any) -> list[Gap]:
         GapEvidence(
             source="project_closure.frame_class_compatibility_state",
             fact=f"size_class_inch={size_class_inch}",
+        )
+    )
+    evidence.append(
+        GapEvidence(
+            source="project_closure.FRAME_CLASS_SLACK_IN",
+            fact=f"slack_in={FRAME_CLASS_SLACK_IN}",
         )
     )
     return [

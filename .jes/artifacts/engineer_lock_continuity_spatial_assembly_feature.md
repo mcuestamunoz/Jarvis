@@ -71,6 +71,7 @@ Screening `"cabe"` / sobres = AABB honesty, **not** VERIFIED fit.
 - Board drag → pose B1 — [IC](implementation_contract_board_drag_pose_b1.md) PRIORIDAD  
 - IDLE frame-part count declare — [nota](engineer_note_idle_frame_part_count_declare.md) **cola** (real frames 6/8)  
 - N≠4 standoff layout · #4 sourced dims  
+- User catalog contribution — [nota](engineer_note_user_catalog_contribution.md) **cola after #4**  
 - Plate label noun (`placa HD Cam`) — **dropped from cola** (leave as-is)  
 
 Keep `declara…` grammar; UI drag is another input to the **same** writers — not a second SoT.

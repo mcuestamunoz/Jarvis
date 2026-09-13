@@ -2,7 +2,9 @@
 
 > **Turn order, authority, and handoff status are now maintained in [`docs/system_map/`](system_map/README.md) (SYS-MAP-002)** — a navigable tree: master picture, a first-class `C-xxx` connection registry with evidence, an authority table, reference flows (`FLOW-001`…`007`), and per-subsystem module/function detail. This file remains the conceptual/narrative overview; update the system map first when routing or authority changes.
 >
-> **Target vision (to-be):** [`docs/ENGINEERING_READINESS_VISION.md`](ENGINEERING_READINESS_VISION.md). Keep this file as as-is architecture; move only implemented/validated behavior here.
+> **Target vision (to-be):** [`docs/ENGINEERING_READINESS_VISION.md`](ENGINEERING_READINESS_VISION.md) (engineering readiness / assembly-ready).  
+> **Platform vision (to-be):** [`docs/PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md) (skills / capabilities / physical systems — directional only).  
+> Keep this file as as-is architecture; move only implemented/validated behavior here.
 
 ## Modelo conceptual del sistema
 
