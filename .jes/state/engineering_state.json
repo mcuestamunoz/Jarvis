@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "B1-plate-box IC READY FOR ★ (data-gated §0.1). Mount standard assist B1 REVIEWED PASS @ 2763 — smoke still pending.",
+  "cycle_intent": "B1-arm-radial-visor + B1-mount-tip-parse-align IMPLEMENTED (2026-09-13) @ suite 2858 (was 2844) / UI 103 (was 99) — Part A: mount_standard_assist ambiguous tip now uses the parseable Spanish noun instead of the bare key; mounted_on_declare_assist SET path accepts an exact declared key as a fallback when no noun matches (locked SET-only, CLEAR untouched); singular \"montaje estandar\" trigger added. Part B: new _frame_arm_radial_offsets_mm (spatial_board.py) — frame_arm quad-X offsets are L-aware (declared length_mm placed along the origin->station ray; distal end at station when L<=R, else centered on R/2, L never rescaled) + yawDeg=atan2(station.y,station.x); motors/propellers/prop_adapter unchanged (raw station points). yawDeg threaded end-to-end into the UI (types.ts/scene3dLayout.ts/Solid3D.tsx rotateY) — sign algebraically derived, NOT visually confirmed (no browser in this environment); Engineer smoke is the real check. 4 pre-existing tests asserting the now-superseded \"arm==raw station\" behavior were updated to the new locked formula. 14 new Python tests + 4 new UI tests, full suite green both sides. No writer/version/workspace/ change. Awaiting Cursor review + Engineer smoke.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "in_progress",
-  "current_mode": "Await Engineer ★ + §0.1 bag for plate-box; smoke mount_standard_assist_b1 + prior pending smokes",
-  "active_operation": "await_star_plate_box_b1_and_smoke_mount_assist",
+  "current_mode": "Await Cursor review + Engineer smoke (arm_radial_mount_tip_b1) + prior pending smokes (mount_standard_assist_b1, Situar experience B1, multibox UX fix, Structure A class slack, #4* stack)",
+  "active_operation": "await_review_smoke_arm_radial_mount_tip_b1",
   "movement_trigger": {
-    "type": "engineer_star_or_smoke",
-    "note": "2026-09-13 plate-box IC drafted; mount assist review PASS WITH NOTES — N4 engineering_state checkout risk flagged."
+    "type": "cursor_review_then_engineer_smoke",
+    "note": "2026-09-13 arm_radial_mount_tip_b1 implemented @ suite 2858 (was 2844) / UI 103 (was 99) — implementation_report_geometry_arm_radial_mount_tip_b1.md. rotateY sign unverified visually (no browser); Engineer smoke §3.B is the real check. No workspace/ change, no version bump."
   },
   "relevant_workflow_phases": [
     "Verification"
@@ -300,7 +300,14 @@
     "geometry_assembly_fit_compare_ic": "QUEUED_STUB_BLOCKED",
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310",
     "board_drone_default_layout_b0_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_KEPT_BUY_B1_MOUNT_STANDARD_ASSIST",
-    "mount_standard_assist_b1_ic": "REVIEWED_PASS_WITH_NOTES_AWAIT_ENGINEER_SMOKE_2763",
-    "geometry_plate_box_b1_ic": "READY_FOR_STAR_DATA_GATED"
+    "mount_standard_assist_b1_ic": "CLOSED_SMOKE_ACCEPT_2763",
+    "geometry_plate_box_b1_ic": "B0_HOLD_REVIEWED_PASS_AWAIT_BAG",
+    "geometry_stack_rule_b1_ic": "B0_HOLD_REVIEWED_PASS_PATH_N_DEAD_PATH_F_AWAIT_PLATE",
+    "geometry_estimated_temporary_plate_b1_ic": "CLOSED_SMOKED_2785",
+    "catalog_sourced_only_purge_battery_rebind_b1_ic": "CLOSED_SMOKE_ACCEPT_2796",
+    "geometry_craft_montage_path_f_b1_ic": "CLOSED_SMOKE_ACCEPT_N1_CLOSED_2830",
+    "geometry_layout_pack_cited_b1_ic": "CLOSED_SMOKE_ACCEPT_2830",
+    "board_silhouette_product_b_b1_ic": "CLOSED_SMOKE_ACCEPT_2844",
+    "geometry_arm_radial_mount_tip_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_2858"
   }
 }

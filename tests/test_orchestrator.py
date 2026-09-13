@@ -408,7 +408,9 @@ def test_iterate_motor_suggestions_survive_orchestrator_session_rehydration(tmp_
     )
     orchestrator.handle({"action": "iterate", "raw_user_input": "sí"})
 
-    suggestions = orchestrator.handle({"action": "iterate", "raw_user_input": "4 motores 920KV"})
+    # Catalog sourced-only purge B1 redirect: 920KV had no real match left
+    # (every KEEP motor is 2300+KV); 2300KV matches real KEEP motors.
+    suggestions = orchestrator.handle({"action": "iterate", "raw_user_input": "4 motores 2300KV"})
     assert suggestions["step"] == 2
     assert suggestions["motor_suggestions"]
 
@@ -764,7 +766,9 @@ class TestIterateWizardPreemption:
         })
         assert start["step"] == 2
 
-        result = orchestrator.handle_user_text("4 motores 920KV", MagicMock())
+        # Catalog sourced-only purge B1 redirect: 920KV had no real match left
+        # (every KEEP motor is 2300+KV); 2300KV matches real KEEP motors.
+        result = orchestrator.handle_user_text("4 motores 2300KV", MagicMock())
 
         assert result.get("preempted_iterate") is not True
         assert orchestrator.state_manager.runtime_state.session.mode == OrchestratorMode.ITERATE_INTERACTIVE

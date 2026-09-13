@@ -6,94 +6,137 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.4.1`**. Suite viva **2763** · UI **99** (+ Situar experience B1).  
-> **PRIORIDAD AHORA:** **`B1-plate-box`** — IC READY FOR ★ · **data-gated** ([contract](../.jes/artifacts/implementation_contract_geometry_plate_box_b1.md)). Fill §0.1 caliper/cita bag before Claude implements. Mount standard assist B1 = review PASS · smoke still pending.  
-> **Role:** Cursor IC/review · **Claude implementa** only after ★ + bag — Cursor no code.  
-> **Hardware debt (no cola):** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
+> **Base:** tag **`v0.4.1`**. Suite viva **2858** · UI **103**.  
+> **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
+> **PRIORIDAD AHORA:** craft montage arco **estable** — siguiente: **`B1-plate-box`** (caliper / L×W citada para quitar \*) cuando haya medida · o lateral G1.  
+> **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Layout / montaje (orden locked · [nota](../.jes/artifacts/engineer_note_board_situar_work_cola.md))
+### 📋 COLA — Craft montage (activa)
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
-| **1** | **`B1-mount-standard-assist`** | **LANDING** · review PASS · **smoke pending** | Checklist montajes estándar (suggest-only) | Engineer smoke §3 |
-| **2** | **`B1-plate-box`** | **AHORA** · IC READY FOR ★ | L×W `frame_plate` → activa assembly root | §0.1 caliper/cita (no inventar) |
-| **3** | **`B1-stack-rule`** | Cola | Apilar/centrar por envelopes (copy honesta) | Tras placa (o prop→motor ★) |
-| **4** | **`B1-layout-pack-cited`** | Cola | Pack de poses de kit con autoridad | Tabla citada / medida |
-| **5** | Silueta Product B | Cola | Visor “parece un dron” | Tras placa/brazos |
-| — | Subject-vocab (`arm`/kit) | Parked | Ampliar sujetos Continuity | ★ aparte |
-| — | LLM auto-pose / inventar placa | Parked | — | Forever unless ★ |
+| **2** | **`B1-plate-box`** | **B0 HOLD** | L×W medida/citada (quita \* de B\*) | Caliper / cite bag |
+| **3** | **`B1-stack-rule` Path N** | **B0 HOLD** | Disk origin imposible | No reabrir sin ★ |
 
-### 📋 COLA — Lateral / landings (no bloquean #1; Engineer walk)
+### ✅ Cerrado este arco (craft montage 2026-09-13) — no reabrir
+
+| ★ | Estado |
+|---|---|
+| **`B1-arm-radial-visor` + mount tip** | CLOSED · smoke ACCEPT (Board 10min) |
+| **`B1-silhouette-product-b` Path S1** | CLOSED · smoke ACCEPT |
+| **`B1-mount-standard-assist`** | CLOSED · smoke ACCEPT |
+| **`B1-estimated-temporary-plate`** | CLOSED · smoked (10min/5min en uso) |
+| **`B1-craft-montage-path-f`** | CLOSED · smoke ACCEPT · N1 closed |
+| **`B1-layout-pack-cited`** | CLOSED · smoke ACCEPT |
+| **`B1-catalog-sourced-only-purge-battery-rebind`** | CLOSED · smoke ACCEPT |
+| Visor X arms (stations) → radial L-aware | CLOSED · smoke ACCEPT (Board 10min) |
+
+### 📋 COLA — Lateral / backlog (no bloquean silueta; smoke absorbido o aplazado)
 
 | Ítem | Estado |
 |---|---|
-| Situar experience B1 (S1–S5) | Review PASS · **smoke pending** |
-| Situar multi-box UX B1 + fix | Review PASS · **re-smoke pending** |
-| Structure A class slack | Review PASS · **smoke pending** |
-| #4 / #4b–g sourced dims landings | Varios · **review y/o smoke pending** |
-| Loose structure envelope+pose | **review/smoke pending** |
-| [User catalog contribution](../.jes/artifacts/engineer_note_user_catalog_contribution.md) | Cola after #4 · no IC |
-| LLM pending deactivate · optional C-114 · **fit attest all** · Option B caliper | Cola #4* si se persigue |
+| Situar experience B1 · Situar multi-box UX | **CLOSED** · smoke **absorbed** en walks Board craft-montage 10min/5min (2026-09-13) — reabrir solo si regresa bug UX |
+| Structure A class slack | **CLOSED** · smoke absorbed (5min Structure PASS / class_compatible en arco) |
+| #4 / #4b–g sourced dims + MY5 frame | **CLOSED** · catalog **in use** on live projects (formal per-SKU smoke walk optional; no bloquea cola) |
+| Loose structure envelope+pose | Backlog review — no PRIORIDAD |
+| Continuity kit-tip spam (G1) | Parked lateral — after #6 |
+| User catalog contribution · fit attest all · Option B caliper | Parked — Engineer ★ aparte |
+| Disk-as-pose-origin / LLM invent Δmm | **Parked forever** unless ★ |
 
-### 🟡 IC READY FOR ★ — Main-plate box / assembly root B1 (`B1-plate-box`) (2026-09-13)
+### 🟢 CLOSED — Layout pack cited B1 (`B1-layout-pack-cited`) (2026-09-13) · suite **2830** · review PASS · **smoke ACCEPT**
 
-> **IC:** [implementation_contract_geometry_plate_box_b1.md](../.jes/artifacts/implementation_contract_geometry_plate_box_b1.md). Data-gated: fill §0.1 caliper/cita before implement. Root code already shipped; Continuity plate L×W declare already shipped. Forbidden: invent from body 175×173.
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_layout_pack_cited_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_layout_pack_cited_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_layout_pack_cited_b1.md). Engineer smoke ACCEPT 2026-09-13 (list + clear/retype on 10min). Path F N1 closed in same cycle. Residual notes: second-pack listing · optional SKU gate · mount key-tip FN (orthogonal).
 
-### 🟡 LANDING — Mount standard assist B1 (2026-09-13) · suite **2763** · review PASS · Engineer smoke pending
+### 🟢 CLOSED — Craft montage Path F on plate B1 (`B1-craft-montage-path-f`) (2026-09-13) · suite **2830** · **smoke ACCEPT** · **N1 CLOSED**
 
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_mount_standard_assist_b1.md) · [report](../.jes/artifacts/implementation_report_mount_standard_assist_b1.md) · [review](../.jes/artifacts/implementation_review_mount_standard_assist_b1.md) **PASS WITH NOTES**. New `mount_standard_assist.py` (pure, suggest-only) + IDLE `"montajes estándar"` / `"qué falta montar"`; retype phrase to confirm via existing declare bridge. N1 retype UX · N2 stack-any-mount omit · N4 engineering_state checkout risk flagged. Next cola: **`B1-plate-box`**.
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_craft_montage_path_f_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_craft_montage_path_f_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_craft_montage_path_f_b1.md). Suggest→retype centered stack; N1 `kind=done` closed with layout-pack cycle.
+
+### 🟢 CLOSED — Catalog sourced-only purge + battery rebind P0 (`B1-catalog-sourced-only-purge-battery-rebind`) (2026-09-13) · suite **2796** · review PASS · **smoke ACCEPT**
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_catalog_sourced_only_purge_battery_rebind_b1.md) · [report](../.jes/artifacts/implementation_report_catalog_sourced_only_purge_battery_rebind_b1.md) · [review](../.jes/artifacts/implementation_review_catalog_sourced_only_purge_battery_rebind_b1.md). Engineer smoke OK 2026-09-13.
+
+### 🟢 CLOSED — Estimated-temporary plate B1 (`B1-estimated-temporary-plate`) (2026-09-13) · suite **2785** · review PASS · **smoke ACCEPT**
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_estimated_temporary_plate_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_estimated_temporary_plate_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_estimated_temporary_plate_b1.md). Live on 10min/5min (`declara frame_plate estimada …`); Product B\* path locked. Caliper replace = `B1-plate-box` later.
+
+### 🟢 CLOSED — Arm radial Visor + Mount tip/parse B1 (2026-09-13) · suite **2858** · UI **103** · review PASS · **smoke ACCEPT**
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_arm_radial_mount_tip_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_arm_radial_mount_tip_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_arm_radial_mount_tip_b1.md). Engineer Board 10min: brazos diagonales L-aware — “se ve perfecto”. Part A keys/tips OK.
+
+### 🟢 CLOSED — Silhouette Product B B1 Path S1 (`B1-silhouette-product-b`) (2026-09-13) · suite **2844** · review PASS · **smoke ACCEPT**
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_board_silhouette_product_b_b1.md) · [report](../.jes/artifacts/implementation_report_board_silhouette_product_b_b1.md) · [review](../.jes/artifacts/implementation_review_board_silhouette_product_b_b1.md). Engineer smoke ACCEPT 2026-09-13 on 10-min: remount esc → **silueta estimada (B\*)**.
+
+### ⚪ SUPERSEDED — Arm radial stub FN (absorbed into combined IC above)
+
+### 🟢 CLOSED — #4g+ Sourced frame HGLRC MY5 B1 (2026-09-13) · catalog-only · **in use / smoke absorbed**
+
+> **IC / Report:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_frame_hglrc_my5_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_frame_hglrc_my5_b1.md). SKU `hglrc_my5_5in` on 10min+5min. Does not unlock plate-box L×W.
+
+### 🟠 B0 HOLD — Envelope stack rule B1 (`B1-stack-rule`) (2026-09-13) · review PASS
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_stack_rule_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_stack_rule_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_stack_rule_b1.md) **PASS WITH NOTES**. Path N schema-impossible (disk origin vs pose writer). Path F only after plate box. N1: prior “Path N now” IC lean corrected.
+
+### 🟠 B0 HOLD — Main-plate box / assembly root B1 (`B1-plate-box`) (2026-09-13) · review PASS
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_plate_box_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_plate_box_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_plate_box_b1.md) **PASS**. §0.1 empty; honest hold; zero code. Re-enter with filled bag + ★ path C/D/E. Estimated path covers layout until then.
+
+### 🟢 CLOSED — Mount standard assist B1 (2026-09-13) · suite **2763** · review PASS · **smoke ACCEPT**
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_mount_standard_assist_b1.md) · [report](../.jes/artifacts/implementation_report_mount_standard_assist_b1.md) · [review](../.jes/artifacts/implementation_review_mount_standard_assist_b1.md). Engineer smoke ACCEPT on 10min (props/motors/esc/battery + FC/sensors via Spanish nouns). Residual: [FN tip/parse keys](../.jes/artifacts/field_note_mount_ambiguous_tip_parse_mismatch_b0.md) = cola **5b**.
 
 ### 🟢 INVESTIGATION REVIEWED — Drone default layout B0 (2026-09-13) · PASS WITH NOTES · ★ assist taken
 
 > **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_board_drone_default_layout_b0.md) · [report](../.jes/artifacts/investigation_report_board_drone_default_layout_b0.md) · [review](../.jes/artifacts/investigation_review_board_drone_default_layout_b0.md).
 
-### 🟡 LANDING — Board Situar experience B1 (2026-09-12) · UI **99** · review PASS · smoke pending
+### 🟢 CLOSED — Board Situar experience B1 (2026-09-12) · UI **99** · review PASS · **smoke absorbed 2026-09-13**
 
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_board_situar_experience_b1.md) · [report](../.jes/artifacts/implementation_report_board_situar_experience_b1.md) · [review](../.jes/artifacts/implementation_review_board_situar_experience_b1.md) **PASS WITH NOTES**. E1 A+B · E2 `isSolidHitThrough(busy)` · E3 `resolveClusterCenter` + Recentrar 3D.
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_board_situar_experience_b1.md) · [report](../.jes/artifacts/implementation_report_board_situar_experience_b1.md) · [review](../.jes/artifacts/implementation_review_board_situar_experience_b1.md). Absorbed via craft-montage Board walks on 10min/5min.
 
-### 🟡 LANDING — Board Situar multi-box UX B1 + fix (2026-09-12) · UI **91** · fix review PASS · re-smoke pending
+### 🟢 CLOSED — Board Situar multi-box UX B1 + fix (2026-09-12) · UI **91** · fix review PASS · **smoke absorbed 2026-09-13**
 
-> **IC / Report / Reviews:** [IC](../.jes/artifacts/implementation_contract_board_situar_multibox_ux_b1.md) · [report §Fix](../.jes/artifacts/implementation_report_board_situar_multibox_ux_b1.md) · [review](../.jes/artifacts/implementation_review_board_situar_multibox_ux_b1.md) · [review fix](../.jes/artifacts/implementation_review_board_situar_multibox_ux_b1_fix.md) **PASS WITH NOTES**.
+> **IC / Report / Reviews:** [IC](../.jes/artifacts/implementation_contract_board_situar_multibox_ux_b1.md) · [report §Fix](../.jes/artifacts/implementation_report_board_situar_multibox_ux_b1.md) · [review](../.jes/artifacts/implementation_review_board_situar_multibox_ux_b1.md) · [review fix](../.jes/artifacts/implementation_review_board_situar_multibox_ux_b1_fix.md). Absorbed via same Board walks.
 
 ### 🟢 INVESTIGATION REVIEWED — Board Situar realism + novice situar path B0 (2026-09-12) · PASS WITH NOTES · ★ Buy taken
 
 > **Contract / Report / Review:** [contract](../.jes/artifacts/investigation_contract_board_situar_realism_novice_b0.md) · [report](../.jes/artifacts/investigation_report_board_situar_realism_novice_b0.md) · [review](../.jes/artifacts/investigation_review_board_situar_realism_novice_b0.md). Lean taken: **`B1-ux-situar`**.
 
-### 🟢 REVIEW PASS — Structure A LEVEL A class slack B1 (2026-09-11) · suite **2742** · Engineer smoke pending
+### 🟢 CLOSED — Structure A LEVEL A class slack B1 (2026-09-11) · suite **2742** · review PASS · **smoke absorbed**
 
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_structure_a_class_slack_b1.md) · [report](../.jes/artifacts/implementation_report_structure_a_class_slack_b1.md) · [review](../.jes/artifacts/implementation_review_structure_a_class_slack_b1.md) **PASS WITH NOTES**. ★ Option A · `FRAME_CLASS_SLACK_IN=0.25`. Gemfan 5.189 + GEP-Racer class 5 → `class_compatible`; live 5min zero class gaps · Structure PASS. Still LEVEL A convention, never “cabe”.
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_structure_a_class_slack_b1.md) · [report](../.jes/artifacts/implementation_report_structure_a_class_slack_b1.md) · [review](../.jes/artifacts/implementation_review_structure_a_class_slack_b1.md). ★ Option A · `FRAME_CLASS_SLACK_IN=0.25`. Live 5min class gaps cleared in arco.
 
-### 🟢 REVIEW PASS — #4g Sourced frame GEPRC GEP-Racer B1 (P1 partial) (2026-09-11) · suite **2735** · Engineer smoke pending
+### 🟢 CLOSED — #4g Sourced frame GEPRC GEP-Racer B1 (P1 partial) (2026-09-11) · suite **2735** · catalog landed
 
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_frame_gep_racer_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_frame_gep_racer_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_sourced_frame_gep_racer_b1.md) **PASS WITH NOTES**. New Class A frame SKU `geprc_gep_racer_5in` (wheelbase 208 · body 175×173 · mass 78g · arm 5.0mm · 3× 2.0mm plates Top/Aluminum/Bottom · standoff h24×4); `armattan_rooster_5in` byte-stable. 5min frame rebound — P1 plate/arm/standoff L×W and standoff Ø stay UNKNOWN (never copied from 175×173/M3×6×24), stale Rooster plate/arm/standoff L×W and the Rooster-only `frame_cage` cleared. Catalog ready for use; Option B caliper still open for per-part boxes.
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_frame_gep_racer_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_frame_gep_racer_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_sourced_frame_gep_racer_b1.md). Catalog ready; Option B caliper still open for per-part boxes (`B1-plate-box`).
 
-### 🟡 LANDING — #4d Sourced motor XING-E Pro 2207 2450KV B1 (2026-09-11) · ★ Path A-pending-verification
+### 🟢 CLOSED — #4d Sourced motor XING-E Pro 2207 2450KV B1 (2026-09-11) · catalog landed · HD-005 OP verification remains
 
-> **IC / Report:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_motor_xing_e_pro_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_motor_xing_e_pro_b1.md). SKU `iflight_xing_e_pro_2207_2450` (Ø**28.5** · H**33.1** · shaft **5** · **33.8 g** · KV **2450** · `thrust_n` **16.46** from OEM chart 6045@16V/100%). `partially_verified` + OP confidence **0.85** + **VERIFICATION PENDING**. Live chart on `shop.iflight.com`. 15min rebound. EMAX/Hobbywing untouched. Craft 51466 = HD-005. Tests T1–T6 green.
+> **IC / Report:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_motor_xing_e_pro_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_motor_xing_e_pro_b1.md). In use; craft 51466 OP = HD-005.
 
 ### ⚪ CLOSED B0 + REVIEW PASS — #4g-A GEP-Racer part envelopes from CAD (2026-09-11)
 
 > **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_gep_racer_part_cad_b1.md) · [report](../.jes/artifacts/investigation_report_geometry_gep_racer_part_cad_b0.md) · [review](../.jes/artifacts/investigation_review_geometry_gep_racer_part_cad_b0.md) **PASS**. Phase 0: no authentic CAD; no invent; plate/arm L×W + standoff Ø stay absent. Option B caliper deferred until physical unit.
 
-### 🟡 LANDING — #4f Sourced battery Tattu 2300mAh 4S 75C XT60 B1 (2026-09-11) · suite **2723** · smoke pending
+### 🟢 CLOSED — #4f Sourced battery Tattu 2300mAh 4S 75C XT60 B1 (2026-09-11) · suite **2723** · catalog landed
 
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_battery_tattu_2300_4s_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_battery_tattu_2300_4s_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_sourced_battery_tattu_2300_4s_b1.md) **PASS WITH NOTES**. SKU `tattu_2300mah_4s_75c_xt60` (105×35×29 · 270 g · 4S · 75C · 34.04 Wh); GenS Ace catalog row kept; 5min rebound (fresh bind). Agotado disclosed.
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_battery_tattu_2300_4s_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_battery_tattu_2300_4s_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_sourced_battery_tattu_2300_4s_b1.md). In use on live projects.
 
-### 🟡 LANDING — #4e Sourced prop Gemfan Hurricane MCK 51466-3 V2 B1 (2026-09-11) · suite **2718** · smoke pending
+### 🟢 CLOSED — #4e Sourced prop Gemfan Hurricane MCK 51466-3 V2 B1 (2026-09-11) · suite **2718** · catalog landed
 
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_prop_gemfan_51466_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_prop_gemfan_51466_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_sourced_prop_gemfan_51466_b1.md) **PASS WITH NOTES**. SKU `gemfan_hurricane_mck_51466_3_v2` (Ø131.8·pitch 3.6·4.2g·hub 6.8·M5 bore, no hub OD); `gf_5045x3` stable. Fresh bind (N1). Assist limit 5→6 Engineer-gated (N2).
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_prop_gemfan_51466_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_prop_gemfan_51466_b1.md) · [review](../.jes/artifacts/implementation_review_geometry_sourced_prop_gemfan_51466_b1.md). In use; HD-005 for craft OP.
 
-### 🟡 LANDING — #4c Sourced ESC SpeedyBee BLS 60A 4-in-1 B1 (2026-09-10) · suite **2713** · review/smoke pending
+### 🟢 CLOSED — #4c Sourced ESC SpeedyBee BLS 60A 4-in-1 B1 (2026-09-10) · suite **2713** · catalog landed
 
-> **IC / Report:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_esc_speedybee_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_esc_speedybee_b1.md). New Class A ESC SKU `speedybee_bls_60a_30x30_4in1` (45.6×44×8mm, 23.5g, 60A×4ch 4-in-1, burst 80A) from Engineer purchase citation (page shows Discontinued — cited as real purchase identity regardless, disclosed in `source_note`); `hobbywing_xrotor_40a_6s` byte-stable. 5min ESC rebound to the new SKU (pose/mount preserved; its now-geometrically-stale `declared_fit_attestation` explicitly cleared). Fixed one now-stale "single ESC row" golden assertion in `test_geometry_esc_visor_rebind_b1.py` (not weakened — updated to reflect the now-2-row catalog).
+> **IC / Report:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_esc_speedybee_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_esc_speedybee_b1.md). In use on live projects.
 
-### 🟡 LANDING — #4b Sourced FC + GPS envelopes B1 (2026-09-10) · suite **2708** · review/smoke pending
+### 🟢 CLOSED — #4b Sourced FC + GPS envelopes B1 (2026-09-10) · suite **2708** · catalog landed
 
-> **IC / Report:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_fc_gps_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_fc_gps_b1.md). SpeedyBee F405 V4 **41.6×39.4×7.8** via `FLIGHT_CONTROLLER_DIMENSIONS` (new aliases, bare "f405"/"betaflight" still dims-less) · Holybro M10 **50×50×14.4** via new `GPS_DIMENSIONS` (`holybro_m10`; bare `"m10"` still resolves `ublox_m10` without dims). No `library/fc|sensors`, no bind. 5min live re-declare left to Engineer smoke (not scripted this cycle — the IC's own Files table names only `aerial.py`/tests, unlike #4's battery rebind).
+> **IC / Report:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_fc_gps_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_fc_gps_b1.md). In use on live projects (FC/GPS boxes).
 
-### 🟡 LANDING — #4 Sourced dims B1 battery (2026-09-10) · suite **2703** · review/smoke pending
+### 🟢 CLOSED — #4 Sourced dims B1 battery (2026-09-10) · suite **2703** · catalog landed
 
-> **IC / Report:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_dims_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_dims_b1.md). SKU `gens_ace_2200mah_3s_35c_gtech` (74.7×33.5×25.4 · 143g · 35C); generic untouched; 5min rebound. N1: `source="declared"` on projected mm.
+> **IC / Report:** [IC](../.jes/artifacts/implementation_contract_geometry_sourced_dims_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_sourced_dims_b1.md). Catalog path superseded/extended by later Tattu + purge; no longer PRIORIDAD.
+
 ### 🟢 CERRADO (código + review + smoke) — Standoff visor layout N≠4 B7 (2026-09-10) · suite **2697** + ACCEPT
 
 > **IC / Report / Review / Smoke:** [IC](../.jes/artifacts/implementation_contract_geometry_standoff_layout_n_ne4_b7.md) · [report](../.jes/artifacts/implementation_report_geometry_standoff_layout_n_ne4_b7.md) · [review](../.jes/artifacts/implementation_review_geometry_standoff_layout_n_ne4_b7.md) **PASS WITH NOTES** · [smoke](../.jes/artifacts/engineer_smoke_geometry_standoff_layout_n_ne4_b7.md) **ACCEPT**. Option A: `count` 4/6/8 perimeter; other N omit.

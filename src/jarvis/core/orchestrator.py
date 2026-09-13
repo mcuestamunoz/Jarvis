@@ -1014,6 +1014,51 @@ class JarvisOrchestrator:
                 return checklist_result
 
         # ─────────────────────────────────────────────────────────────────────
+        # ── Craft montage Path F B1: IDLE "apilar en placa" / "proponer
+        # stack centrado" lists undeclared, box-only centered-stack pose
+        # proposals (FC/ESC/battery/sensors onto a boxed frame_plate*,
+        # cited or estimated_temporary) plus the exact Continuity pose
+        # phrase — suggest-only, never writes. Checked right after the
+        # mount-standard-assist checklist (same conceptual family — "what's
+        # still missing") so a stack request never falls into unrelated
+        # triage.
+        if current_session.mode == OrchestratorMode.IDLE:
+            stack_result = self._try_handle_craft_montage_stack_assist(user_input)
+            if stack_result is not None:
+                self._track_turn(user_input, stack_result)
+                return stack_result
+
+        # ─────────────────────────────────────────────────────────────────────
+        # ── Cited kit layout pack B1: IDLE "layout pack" / "aplicar layout
+        # <pack_id>" lists a NAMED, disclosed pose+mount pack (e.g.
+        # hglrc_my5_flush_stack_b1) — pose Δmm recomputed live from the
+        # exact Path F formula, mount phrases from the existing mount-
+        # declare grammar. Suggest-only, never writes. Checked right after
+        # the Path F checklist (same conceptual family) so a pack request
+        # never falls into unrelated triage.
+        if current_session.mode == OrchestratorMode.IDLE:
+            pack_result = self._try_handle_layout_pack_assist(user_input)
+            if pack_result is not None:
+                self._track_turn(user_input, pack_result)
+                return pack_result
+
+        # ─────────────────────────────────────────────────────────────────────
+        # ── Silhouette Product B assist B1 (Path S1): IDLE "silueta" /
+        # "parece un dron" / "product b" answers racimo (A) vs silueta
+        # estimada (B*) vs silueta (B) from live Continuity — plate box
+        # authority + stack pose/mount completeness for present subjects.
+        # Suggest-only, never writes; every suggested phrase is one the
+        # sibling assists above (or the pose/mount-declare bridges) already
+        # accept. Checked right after the layout-pack checklist (same
+        # conceptual "what's missing" family) so a silhouette question
+        # never falls into unrelated triage.
+        if current_session.mode == OrchestratorMode.IDLE:
+            silhouette_result = self._try_handle_silhouette_product_b_assist(user_input)
+            if silhouette_result is not None:
+                self._track_turn(user_input, silhouette_result)
+                return silhouette_result
+
+        # ─────────────────────────────────────────────────────────────────────
         # ── Catalog-bound Property Freshness B1: IDLE "actualiza/refresca X
         # desde catálogo" re-projects a catalog-bound component's physicals
         # from the current seed via refresh_component_from_catalog.
@@ -1041,6 +1086,23 @@ class JarvisOrchestrator:
             if pose_result is not None:
                 self._track_turn(user_input, pose_result)
                 return pose_result
+
+        # ─────────────────────────────────────────────────────────────────────
+        # ── Estimated-temporary plate envelope B1: IDLE "declara la placa
+        # principal estimada/temporal/provisional L x W [x H] mm" calls
+        # set_estimated_temporary_plate_envelope directly (source=
+        # estimated_temporary, plate-only). Checked BEFORE the plain
+        # declared-envelope bridge below — its gate is a strict superset
+        # (same dims shape + a provisional keyword) so a provisional
+        # phrase must never be silently claimed as ordinary "declared" by
+        # the next bridge. Returns None for any phrase lacking the
+        # provisional keyword, so plain plate/battery/etc. declares are
+        # completely unaffected.
+        if current_session.mode == OrchestratorMode.IDLE:
+            estimated_result = self._try_handle_estimated_temporary_plate_declare(user_input)
+            if estimated_result is not None:
+                self._track_turn(user_input, estimated_result)
+                return estimated_result
 
         # ─────────────────────────────────────────────────────────────────────
         # ── Declared battery envelope + Main Plate L×W B1: IDLE "declara la
@@ -1975,6 +2037,110 @@ class JarvisOrchestrator:
             "message": message,
         }
 
+    def _try_handle_craft_montage_stack_assist(self, user_input: str) -> dict | None:
+        """Craft montage Path F B1: IDLE "apilar en placa" / "proponer
+        stack centrado" lists undeclared, box-only centered-stack pose
+        proposals (FC/ESC/battery/sensors onto a boxed frame_plate*,
+        cited or estimated_temporary) plus the exact Continuity pose
+        phrase — the user retypes that phrase in a following turn, which
+        then flows through the existing, unchanged
+        _try_handle_declared_box_pose bridge (same retype-to-confirm class
+        as mount_standard_assist).
+
+        Suggest-only: this method never calls a writer and never mutates
+        ProjectState. Returns None when the phrase isn't a checklist
+        request at all, so the caller falls through to normal routing.
+        """
+        from jarvis.core.craft_montage_stack_assist import (
+            format_path_f_stack,
+            is_craft_montage_stack_trigger,
+            propose_path_f_stack,
+        )
+
+        if not is_craft_montage_stack_trigger(user_input):
+            return None
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        proposals = propose_path_f_stack(components)
+        message = format_path_f_stack(proposals)
+        return {
+            "status": "ok",
+            "action": "craft_montage_stack_checklist",
+            "message": message,
+        }
+
+    def _try_handle_layout_pack_assist(self, user_input: str) -> dict | None:
+        """Cited kit layout pack B1: IDLE "layout pack" / "aplicar layout
+        <pack_id>" lists a NAMED pose+mount pack — the user retypes a
+        shown phrase in a following turn, which then flows through the
+        existing, unchanged pose-declare and mount-declare bridges (same
+        retype-to-confirm class as craft_montage_stack_assist /
+        mount_standard_assist).
+
+        Suggest-only: this method never calls a writer and never mutates
+        ProjectState. Returns None when the phrase isn't a pack trigger at
+        all, so the caller falls through to normal routing.
+        """
+        from jarvis.core.layout_pack_assist import (
+            format_layout_pack,
+            propose_layout_pack,
+            resolve_layout_pack_trigger,
+        )
+
+        pack_id = resolve_layout_pack_trigger(user_input)
+        if pack_id is None:
+            return None
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        rows = propose_layout_pack(pack_id, components)
+        message = format_layout_pack(pack_id, rows)
+        return {
+            "status": "ok",
+            "action": "layout_pack_checklist",
+            "message": message,
+        }
+
+    def _try_handle_silhouette_product_b_assist(self, user_input: str) -> dict | None:
+        """Silhouette Product B assist B1 (Path S1): IDLE "silueta" /
+        "parece un dron" / "product b" answers racimo (A) vs silueta
+        estimada (B*) vs silueta (B) from the CURRENT project's live plate
+        box authority and stack pose/mount completeness — every suggested
+        phrase is one a sibling assist (mount_standard_assist /
+        craft_montage_stack_assist / layout_pack_assist) or the existing
+        pose/mount-declare bridges already accepts; the user retypes it in
+        a following turn.
+
+        Suggest-only: this method never calls a writer and never mutates
+        ProjectState. Returns None when the phrase isn't a silhouette
+        question at all, so the caller falls through to normal routing.
+        """
+        from jarvis.core.silhouette_product_b_assist import (
+            assess_silhouette,
+            format_silhouette_checklist,
+            is_silhouette_assist_trigger,
+        )
+
+        if not is_silhouette_assist_trigger(user_input):
+            return None
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        assessment = assess_silhouette(components)
+        message = format_silhouette_checklist(assessment)
+        return {
+            "status": "ok",
+            "action": "silhouette_checklist",
+            "message": message,
+        }
+
     def _try_handle_catalog_refresh(self, user_input: str) -> dict | None:
         """Catalog-bound Property Freshness B1: IDLE "actualiza/refresca X
         desde catálogo" re-projects a catalog-bound component's physicals
@@ -2124,6 +2290,103 @@ class JarvisOrchestrator:
             )
         else:
             message = f"Pose declarada de {component_key} eliminada."
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": message,
+        }
+
+    def _try_handle_estimated_temporary_plate_declare(self, user_input: str) -> dict | None:
+        """Estimated-temporary plate envelope B1: IDLE "declara la placa
+        principal estimada/temporal/provisional L x W [x H] mm" calls
+        set_estimated_temporary_plate_envelope directly.
+
+        Deterministic parse only (estimated_temporary_plate_assist) —
+        never LLM, never a catalog seed, never any family besides a
+        frame-plate key. Returns None when the phrase isn't this grammar
+        at all (no provisional keyword, or not an envelope-declare shape),
+        so it falls through unchanged — including to the plain declared-
+        envelope bridge below for a non-provisional plate/battery/etc.
+        phrase.
+        """
+        from jarvis.core.estimated_temporary_plate_assist import parse_estimated_temporary_plate_declare
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        result = parse_estimated_temporary_plate_declare(user_input, components)
+        if result.kind == "NONE":
+            return None
+
+        if result.kind == "INCOMPLETE":
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": (
+                    "Indica qué placa (por ejemplo frame_plate o \"placa principal\" "
+                    "si ya la etiquetaste así) y las medidas provisionales en mm, por "
+                    'ejemplo: "declara frame_plate estimada 120 x 55 mm".'
+                ),
+            }
+
+        if result.kind == "AMBIGUOUS_PLATE":
+            if result.candidates:
+                options = ", ".join(f"{k} ({label})" for k, label in result.candidates)
+                message = f"Hay varias placas declaradas. Indica cuál: {options}."
+            else:
+                message = (
+                    "No encontré esa placa declarada. "
+                    "Indica una clave ya declarada (por ejemplo frame_plate)."
+                )
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": message,
+            }
+
+        component_key = result.component_key
+        if component_key not in components:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": f"'{component_key}' aún no declarado — no se puede fijar el sobre estimado.",
+            }
+
+        height_mm = result.height_mm
+        thickness_note = False
+        if height_mm is None:
+            spec = components[component_key]
+            thickness_prop = (spec.properties or {}).get("thickness_mm")
+            height_mm = thickness_prop.value if thickness_prop is not None else None
+            thickness_note = True
+
+        from jarvis.core.component_writers import set_estimated_temporary_plate_envelope
+
+        try:
+            updated_state = set_estimated_temporary_plate_envelope(
+                project_state, component_key, result.length_mm, result.width_mm, height_mm
+            )
+        except ValueError as exc:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": str(exc),
+            }
+        self.workspace_manager.save_state(updated_state)
+
+        def _fmt(value: float) -> str:
+            return str(int(value)) if float(value).is_integer() else str(value)
+
+        dims_desc = f"{_fmt(result.length_mm)} x {_fmt(result.width_mm)} x {_fmt(height_mm)} mm"
+        message = (
+            f"Declarado (ESTIMATED_TEMPORARY): {component_key} {dims_desc} "
+            "(source=estimated_temporary). PLACA · GEOMETRÍA ESTIMADA TEMPORAL · "
+            "evidencia: ninguna · sustituir al llegar el frame: SÍ. Jarvis no "
+            "valida \"cabe\" ni \"declaro verificado\" con estas medidas."
+        )
+        if thickness_note:
+            message += f" Alto tomado del thickness_mm citado ({_fmt(height_mm)} mm)."
         return {
             "status": "ok",
             "action": "component_description_saved",
@@ -4482,15 +4745,46 @@ class JarvisOrchestrator:
         # shape as motors/propellers (_wants_catalog_help, not bare key
         # membership) so a composite energy wizard ["battery","motors"]
         # doesn't starve this branch once motors is bound.
-        battery_wants_help = "battery" in expected_keys and _wants_catalog_help(gate_components.get("battery"))
-        if battery_wants_help or ("battery" in expected_keys and session.battery_suggestions):
-            from jarvis.core.battery_catalog_assist import (
-                is_help_choose_phrase as battery_is_help_choose_phrase,
-                match_suggestion_by_input as battery_match_suggestion_by_input,
-            )
+        #
+        # Bat-help (catalog sourced-only purge + battery rebind P0): same
+        # G18 fix motors already has — "cambiar bateria" REBIND leaves the
+        # battery catalog-bound (_wants_catalog_help reads that as "done"),
+        # so a later bare "ayúdame a elegir" in that same battery-only
+        # wizard would otherwise fall through this whole block (picked via
+        # neither branch below) and loop back to a fresh "Vamos a definir
+        # la batería..." Brief instead of re-showing the list — exactly
+        # field_note_smoke_rebind_battery_sensor_bugs_b0.md's bug #2.
+        from jarvis.core.battery_catalog_assist import (
+            battery_spec_to_suggestion,
+            detect_battery_sku_token,
+            is_help_choose_phrase as battery_is_help_choose_phrase,
+            match_suggestion_by_input as battery_match_suggestion_by_input,
+        )
 
+        _battery_only_redefine = expected_keys == ["battery"]
+        battery_wants_help = "battery" in expected_keys and (
+            _wants_catalog_help(gate_components.get("battery"))
+            or (_battery_only_redefine and battery_is_help_choose_phrase(user_input))
+        )
+        if battery_wants_help or ("battery" in expected_keys and session.battery_suggestions):
             if battery_wants_help and battery_is_help_choose_phrase(user_input):
                 return self._offer_component_battery_catalog(session, expected_keys)
+
+            # Bat-sku (catalog sourced-only purge + battery rebind P0):
+            # free text naming a live SKU anywhere in the phrase (e.g.
+            # "quiero la tattu_2300mah_4s_75c_xt60") binds directly — a
+            # stricter check than battery_match_suggestion_by_input below,
+            # which only matches a bare/near-exact name against the
+            # CURRENTLY OFFERED list. Same detect_battery_sku_token the OLD
+            # battery_capacity_wh scalar wizard already uses (param_
+            # definition_session.py) — reused, not duplicated.
+            battery_sku = detect_battery_sku_token(user_input)
+            if battery_sku is not None:
+                from jarvis.knowledge.library import default_library as _battery_default_library
+
+                picked = battery_spec_to_suggestion(_battery_default_library.get_battery(battery_sku))
+                return self._apply_component_battery_catalog_pick(picked, expected_keys)
+
             if session.battery_suggestions:
                 picked = battery_match_suggestion_by_input(user_input, session.battery_suggestions)
                 if picked is not None:
