@@ -137,6 +137,23 @@ function applyDragPose(statePath: string, payload: unknown): { nodes: unknown } 
   ]);
 }
 
+/**
+ * Fit attestation B1 — "Declarar verificado" / "Quitar verificación" —
+ * the SECOND (and, by design, only other) mutation route this plugin
+ * exposes. Bridges to `jarvis.workspace.board_fit_attestation_bridge`,
+ * which does the REAL work (load -> `set_component_declared_fit_
+ * attestation` -> save -> reproject) — same `spawnSync` shape as
+ * `applyDragPose`, one extra arg (the JSON payload). No LLM, no
+ * orchestrator, no second schema.
+ */
+function applyFitAttestation(statePath: string, payload: unknown): { nodes: unknown } {
+  return runPythonBridge([
+    "jarvis.workspace.board_fit_attestation_bridge",
+    statePath,
+    JSON.stringify(payload),
+  ]);
+}
+
 function readRequestBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
     let data = "";
@@ -221,6 +238,40 @@ export function jarvisProjectsPlugin(): Plugin {
                   sendJson(res, applyDragPose(statePath, payload));
                 } catch (err) {
                   const message = err instanceof Error ? err.message : "pose write failed";
+                  sendJson(res, { error: message }, 400);
+                }
+              })
+              .catch(() => sendJson(res, { error: "failed to read request body" }, 400));
+            return;
+          }
+
+          // Fit attestation B1 — the SECOND mutation route on this plugin.
+          // Exactly this one path, exactly this one shape
+          // ({component_key, attest}), bridged straight to the existing
+          // `set_component_declared_fit_attestation` writer — the writer
+          // itself refuses anything not currently screened `overlap`, this
+          // route never grants that early.
+          const attestMatch = /^\/api\/projects\/([^/]+)\/fit-attestation$/.exec(pathname);
+          if (attestMatch) {
+            const id = decodeURIComponent(attestMatch[1]);
+            const statePath = statePathFor(id);
+            if (!statePath) {
+              sendJson(res, { error: "project not found" }, 404);
+              return;
+            }
+            readRequestBody(req)
+              .then((body) => {
+                let payload: unknown;
+                try {
+                  payload = JSON.parse(body);
+                } catch {
+                  sendJson(res, { error: "invalid JSON body" }, 400);
+                  return;
+                }
+                try {
+                  sendJson(res, applyFitAttestation(statePath, payload));
+                } catch (err) {
+                  const message = err instanceof Error ? err.message : "fit attestation write failed";
                   sendJson(res, { error: message }, 400);
                 }
               })

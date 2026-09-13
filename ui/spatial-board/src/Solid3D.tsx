@@ -13,6 +13,13 @@ type Props = {
   draggable?: boolean;
   needsOrigin?: boolean;
   onDragStart?: (event: React.MouseEvent, id: string) => void;
+  /**
+   * Situar nested-hit hotfix: when Situar is ON and another solid is
+   * already selected (usually from the 2D card), non-selected solids
+   * must not steal pointer events — otherwise an outer/overlapping box
+   * (FC, plate) captures the ESC forever.
+   */
+  pointerEventsNone?: boolean;
 };
 
 /**
@@ -26,7 +33,7 @@ type Props = {
  */
 export function Solid3D({
   id, geometry, selected, onSelect, originX = 0, originY = 0, originZ = 0,
-  draggable = false, needsOrigin = false, onDragStart,
+  draggable = false, needsOrigin = false, onDragStart, pointerEventsNone = false,
 }: Props) {
   const extent = solidExtentPx(geometry);
 
@@ -37,7 +44,9 @@ export function Solid3D({
   };
 
   const modifierClass =
-    `${draggable ? " sb-solid--draggable" : ""}${needsOrigin ? " sb-solid--needs-origin" : ""}`;
+    `${draggable ? " sb-solid--draggable" : ""}` +
+    `${needsOrigin ? " sb-solid--needs-origin" : ""}` +
+    `${pointerEventsNone ? " sb-solid--hit-through" : ""}`;
 
   if (geometry.shape === "box") {
     const { x: w, y: d, z: h } = extent;

@@ -92,6 +92,11 @@ html, body, #root {
 .sb-viewport {
   position: relative;
   flex: 1;
+  /* Situar experience B1 (E1, Option A) — a documented floor (locked
+     number, IC §1 E1) so Situar ON can never squeeze the 2D card row
+     toward unusability; see `.sb-scene3d--situar`'s own comment for the
+     matching height reduction on the 3D side. */
+  min-height: 280px;
   overflow: hidden;
   cursor: grab;
   background-image: radial-gradient(#2a2a2a 1px, transparent 1px);
@@ -307,8 +312,13 @@ html, body, #root {
    .sb-world (mixing 2D absolute layout with preserve-3d on the same nodes
    is not viable). Presentation only: no pose, no "cabe", no fit claim.
    Situar UX B1: default height is a real, usable pane (>=420px, capped so
-   it doesn't dominate a short viewport); Situar ON expands it further
-   (>=56vh) so a genuine top-down placement pass has room to work in. */
+   it doesn't dominate a short viewport); Situar ON expands it further.
+   Situar experience B1 (E1, Option A): the ON height's own floor/vh share
+   dropped from 420px/56vh to 360px/50vh (cap 560px) — on a typical 700px
+   laptop viewport the old floor alone (420px) left the 2D `.sb-viewport`
+   under ~230px after the toolbar; the new numbers, combined with
+   `.sb-viewport`'s own `min-height` below, guarantee the 2D card row a
+   real, documented minimum instead of being squeezed toward zero. */
 .sb-scene3d {
   height: max(420px, min(50vh, 640px));
   flex-shrink: 0;
@@ -321,7 +331,7 @@ html, body, #root {
 }
 
 .sb-scene3d--situar {
-  height: max(420px, 56vh);
+  height: max(360px, min(50vh, 560px));
 }
 
 .sb-scene3d__world {
@@ -374,6 +384,20 @@ html, body, #root {
   cursor: grab;
 }
 
+/* Situar nested-hit hotfix — non-selected solids become click-through so
+   an overlapping outer box cannot steal the selected (card-picked) piece.
+   Multi-box UX B1: also dim faces so N>1 nearby boxes look pass-through
+   (background drag still moves the selected piece, not the dimmed peer). */
+.sb-solid--hit-through {
+  pointer-events: none;
+}
+
+.sb-solid--hit-through .sb-solid__face,
+.sb-solid--hit-through .sb-solid__disk-face {
+  opacity: 0.35;
+  border-style: dashed;
+}
+
 .sb-solid--needs-origin .sb-solid__face,
 .sb-solid--needs-origin .sb-solid__disk-face {
   border-style: dashed;
@@ -399,18 +423,88 @@ html, body, #root {
   border-color: #f0c419;
 }
 
+/* Situar experience B1 (E3) — manual escape hatch for the frozen cluster
+   center; same visual family as the Situar toggle, opposite corner. */
+.sb-scene3d__recenter-toggle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  font-size: 12px;
+  padding: 4px 8px;
+  background: #1f1f1f;
+  color: #e0e0e0;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 /* Situar free camera B1 — the toggle no longer changes the camera, so a
    short hint replaces the old "top-down" affordance to explain the three
-   gestures that now coexist. */
+   gestures that now coexist. Right edge stops short of the "Recentrar 3D"
+   button (Situar experience B1, E3) so the text never runs under it. */
 .sb-scene3d__situar-hint {
   position: absolute;
   top: 8px;
   left: 76px;
-  right: 8px;
+  right: 112px;
   z-index: 2;
   font-size: 11px;
   color: #9a9a9a;
   pointer-events: none;
+}
+
+/* Situar experience B1 (E1, Option B) — a compact in-pane piece strip so
+   picking a piece never depends on the 2D card row having room at the
+   same time. Sits just above the origin-picker/pose-error row (both
+   anchored at bottom:8px) rather than sharing its slot, since a picker
+   can legitimately be open at the same time as the strip is visible. */
+.sb-scene3d__piece-strip {
+  position: absolute;
+  bottom: 44px;
+  left: 8px;
+  right: 8px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 72px;
+  overflow-y: auto;
+}
+
+.sb-scene3d__piece-chip {
+  font-size: 11px;
+  padding: 3px 10px;
+  background: #1f1f1f;
+  color: #cfcfcf;
+  border: 1px solid #3a3a3a;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.sb-scene3d__piece-chip--selected {
+  background: #f0c419;
+  color: #161616;
+  border-color: #f0c419;
+}
+
+.sb-scene3d__attest-toggle {
+  position: absolute;
+  top: 40px;
+  left: 8px;
+  z-index: 2;
+  font-size: 12px;
+  padding: 4px 8px;
+  background: #1f1f1f;
+  color: #e0e0e0;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sb-scene3d__attest-toggle:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .sb-scene3d__origin-picker,

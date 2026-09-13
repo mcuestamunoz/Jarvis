@@ -1,8 +1,11 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { computeDragPosePayload, computeDragPreviewOffsetPx, isDraggableSolid } from "./boardPoseDrag";
-import { postDragPose } from "./projects";
+import { isOverlapScreeningCopy } from "./fitAttestationUi";
+import { postDragPose, postFitAttestation } from "./projects";
 import { clusterCenterPx, expandSolidCopies, layoutSolidsFromPose } from "./scene3dLayout";
 import { clampZoom } from "./scene3dScale";
+import { isSolidHitThrough, resolveClusterCenter } from "./situarInteractionState";
+import { formatOriginCandidateLabel, rankBoxOriginCandidates } from "./situarOriginCandidates";
 import { Solid3D } from "./Solid3D";
 import type { SpatialNode } from "./types";
 
@@ -82,6 +85,7 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
   const [pickerOriginKey, setPickerOriginKey] = useState("");
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState<string | null>(null);
+  const [attesting, setAttesting] = useState(false);
   // Situar UX B1 — live drag preview, mirroring the 2D card's own
   // preview/commit split. Never persisted; cleared on every mouseup
   // regardless of outcome (see onSolidDragUp).
@@ -104,6 +108,16 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
     startTilt: typeof DEFAULT_TILT;
   } | null>(null);
   const solidDragRef = useRef<SolidDragState | null>(null);
+  // Situar experience B1 (E3) — the cluster center captured once Situar
+  // turns on (or at the next manual "Recentrar 3D"); `null` means "not
+  // captured yet, use the live value" (see `resolveClusterCenter`). Reset
+  // to `null` whenever Situar turns off, so the NEXT time it turns on
+  // captures a fresh baseline rather than reusing a stale one.
+  const situarFrozenClusterRef = useRef<{ x: number; y: number } | null>(null);
+  // Value itself is never read — bumping it only forces the re-render that
+  // "Recentrar 3D" needs after clearing the ref above (mutating a ref
+  // alone does not schedule one).
+  const [, setRecenterTick] = useState(0);
 
   const onMove = useCallback((event: MouseEvent) => {
     const d = dragRef.current;
@@ -121,16 +135,6 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
     document.removeEventListener("mousemove", onMove);
     document.removeEventListener("mouseup", onUp);
   }, [onMove]);
-
-  const onBackgroundMouseDown = (event: React.MouseEvent) => {
-    // Board Situar free camera B1: orbit stays live even while situating
-    // — a solid's own mousedown already `stopPropagation()`s (Solid3D.tsx)
-    // before it ever reaches here, so the two gestures never collide.
-    if (event.button !== 0) return;
-    dragRef.current = { startX: event.clientX, startY: event.clientY, startTilt: tilt };
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
-  };
 
   const onWheel = (event: React.WheelEvent) => {
     event.preventDefault();
@@ -171,10 +175,14 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
   const onSolidDragUp = useCallback(() => {
     const d = solidDragRef.current;
     solidDragRef.current = null;
-    setDragPreview(null);
     document.removeEventListener("mousemove", onSolidDragMove);
     document.removeEventListener("mouseup", onSolidDragUp);
-    if (!d || !d.moved || !projectId) return;
+    if (!d || !d.moved || !projectId) {
+      // Nothing was actually dragged (or no live project) — no POST is
+      // coming, so there is no async gap to bridge; clear the preview now.
+      setDragPreview(null);
+      return;
+    }
     const payload = computeDragPosePayload({
       componentKey: d.nodeId,
       originKey: d.originKey,
@@ -188,11 +196,35 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
     });
     setPosting(true);
     setPostError(null);
+    // Situar drop honesty fix (2026-09-12): do NOT clear `dragPreview`
+    // here. The old behavior cleared it immediately on mouseup, which made
+    // the solid visibly SNAP BACK to its stale pre-drag layout position for
+    // the whole POST+refetch round trip, then jump again once fresh nodes
+    // arrived — reading as "it jumped away" even for the piece the
+    // Engineer actually meant to move. The preview now stays live (holding
+    // the solid exactly where it was dropped) until the `nodes` effect
+    // below sees the re-fetched, committed pose and clears it — see that
+    // effect's own comment. On failure, clear immediately (nothing will
+    // ever commit, so there's nothing to hold the preview for).
     postDragPose(projectId, payload)
       .then(() => onPoseCommitted?.())
-      .catch((err: unknown) => setPostError(err instanceof Error ? err.message : "pose write failed"))
+      .catch((err: unknown) => {
+        setPostError(err instanceof Error ? err.message : "pose write failed");
+        setDragPreview(null);
+      })
       .finally(() => setPosting(false));
   }, [onSolidDragMove, projectId, onPoseCommitted]);
+
+  // Situar drop honesty fix (2026-09-12): clear a pending preview only once
+  // the PARENT's re-fetched `nodes` prop actually lands (a new array
+  // reference after `onPoseCommitted` → `refetch`). Until then the preview
+  // offset keeps the just-dropped solid visually anchored at the drop
+  // point — see `onSolidDragUp`'s own comment for why. A no-op whenever no
+  // preview is pending (including the very first render).
+  useEffect(() => {
+    setDragPreview((current) => (current ? null : current));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes]);
 
   const handleSolidDragStart = (event: React.MouseEvent, id: string) => {
     if (!situar || posting) return;
@@ -221,6 +253,62 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
     };
     document.addEventListener("mousemove", onSolidDragMove);
     document.addEventListener("mouseup", onSolidDragUp);
+  };
+
+  const onBackgroundMouseDown = (event: React.MouseEvent) => {
+    if (event.button !== 0) return;
+    // Nested-hit hotfix #2 (Engineer: still couldn't grab ESC inside a
+    // box): CSS 3D hit-testing does not match visuals — clicks on the
+    // nested solid fall through to this pane after outer boxes are
+    // pointer-events:none. With Situar ON + a card-selected draggable,
+    // treat pane mousedown as pose-drag for THAT solid. Alt/Meta+drag
+    // keeps camera orbit available.
+    if (
+      situar &&
+      selectedId &&
+      !event.altKey &&
+      !event.metaKey
+    ) {
+      const node = solids.find((n) => n.id === selectedId);
+      if (node && isDraggableSolid(node)) {
+        handleSolidDragStart(event, selectedId);
+        return;
+      }
+    }
+    dragRef.current = { startX: event.clientX, startY: event.clientY, startTilt: tilt };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  };
+
+  // Fit attestation B1 — "Declarar verificado" / "Quitar verificación".
+  // Singleton-only (never a `solidCopies >= 2` station, same guarantee
+  // `isDraggableSolid` already gives the drag path — this is the ONE
+  // shared gate, not a second multiplicity rule): the button only ever
+  // targets the currently SELECTED singleton solid. Eligibility mirrors
+  // the writer's overlap gate via `isOverlapScreeningCopy` (NOT bare
+  // `"se solapan"` — that false-positives on `"no se solapan"`). The
+  // writer remains the one true gate; this is only a UX hint.
+  const selectedSolid = selectedId ? solids.find((n) => n.id === selectedId) : undefined;
+  const selectedSingleton = selectedSolid && isDraggableSolid(selectedSolid);
+  const selectedSobres = selectedSingleton
+    ? selectedSolid.fields.find((f) => f.label === "sobres")
+    : undefined;
+  const selectedAttested = selectedSingleton
+    ? selectedSolid.fields.some((f) => f.label === "verificación")
+    : false;
+  const canAttest = Boolean(
+    selectedSobres && isOverlapScreeningCopy(selectedSobres.value) && !selectedAttested,
+  );
+  const canClearAttest = Boolean(selectedSingleton && selectedAttested);
+
+  const handleFitAttestation = (attest: boolean) => {
+    if (!projectId || !selectedId || posting || attesting) return;
+    setAttesting(true);
+    setPostError(null);
+    postFitAttestation(projectId, { component_key: selectedId, attest })
+      .then(() => onPoseCommitted?.())
+      .catch((err: unknown) => setPostError(err instanceof Error ? err.message : "fit attestation write failed"))
+      .finally(() => setAttesting(false));
   };
 
   const confirmPickedOrigin = () => {
@@ -263,13 +351,38 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
     GAP_PX,
   );
   const originById = new Map(laidOut.map((l) => [l.id, l]));
-  const cluster = clusterCenterPx(
+  // Situar experience B1 (E3, supersedes the narrower drop-only freeze):
+  // while Situar is ON, the world's camera-center translate stays fixed at
+  // whatever it was the moment Situar turned on (or the last "Recentrar
+  // 3D"), never recomputed from the live layout — including across a
+  // settled drop. Recomputing on every settle re-centers the ENTIRE scene
+  // whenever ANY one piece's bounding box changes, so every untouched
+  // peer visibly slides — "the racimo re-centers on every drop" from the
+  // Engineer's own field note. `resolveClusterCenter` (pure, unit-tested)
+  // makes the decision; this component only owns WHEN to (re)capture the
+  // frozen value: on the first render with Situar on and nothing captured
+  // yet, or right after "Recentrar 3D" clears the ref.
+  const liveCluster = clusterCenterPx(
     laidOut,
     expanded.map((e) => ({ id: e.layoutId, geometry: e.geometry })),
   );
+  if (situar && situarFrozenClusterRef.current === null) {
+    situarFrozenClusterRef.current = liveCluster;
+  }
+  const cluster = resolveClusterCenter({
+    situar,
+    liveCenter: liveCluster,
+    frozenCenter: situarFrozenClusterRef.current,
+  });
+  // E2 — nested-hit is only load-bearing WHILE a drag/preview/POST is
+  // actually in flight (see `isSolidHitThrough`'s own docstring); idle
+  // selection alone must never make peers click-through.
+  const situarBusy = Boolean(dragPreview) || posting;
   const draggableBySelectId = new Map(solids.map((n) => [n.id, isDraggableSolid(n)]));
+  // Board Situar multi-box UX B1 — rank preferred (mountedOn / placa raíz)
+  // first; always keep the full box fallback when mounts are empty.
   const boxOriginCandidates = pickerNodeId
-    ? solids.filter((n) => n.geometry?.shape === "box" && n.id !== pickerNodeId).map((n) => n.id)
+    ? rankBoxOriginCandidates(pickerNodeId, solids)
     : [];
 
   return (
@@ -284,7 +397,14 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
           className={`sb-scene3d__situar-toggle${situar ? " sb-scene3d__situar-toggle--on" : ""}`}
           onMouseDown={(event) => event.stopPropagation()}
           onClick={() => {
-            setSituar((s) => !s);
+            setSituar((s) => {
+              const next = !s;
+              // E3: turning OFF drops the frozen baseline so the NEXT time
+              // Situar turns on captures a fresh one, never a stale value
+              // from a previous session.
+              if (!next) situarFrozenClusterRef.current = null;
+              return next;
+            });
             setPickerNodeId(null);
             setPostError(null);
           }}
@@ -293,8 +413,64 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
         </button>
       ) : null}
       {situar ? (
+        <button
+          type="button"
+          className="sb-scene3d__recenter-toggle"
+          onMouseDown={(event) => event.stopPropagation()}
+          onClick={() => {
+            situarFrozenClusterRef.current = null;
+            setRecenterTick((t) => t + 1);
+          }}
+        >
+          Recentrar 3D
+        </button>
+      ) : null}
+      {projectId && canAttest ? (
+        <button
+          type="button"
+          className="sb-scene3d__attest-toggle"
+          disabled={attesting}
+          onMouseDown={(event) => event.stopPropagation()}
+          onClick={() => handleFitAttestation(true)}
+        >
+          Declarar verificado
+        </button>
+      ) : null}
+      {projectId && canClearAttest ? (
+        <button
+          type="button"
+          className="sb-scene3d__attest-toggle"
+          disabled={attesting}
+          onMouseDown={(event) => event.stopPropagation()}
+          onClick={() => handleFitAttestation(false)}
+        >
+          Quitar verificación
+        </button>
+      ) : null}
+      {situar ? (
         <div className="sb-scene3d__situar-hint">
-          fondo: órbita · arrastre: sigue el cursor (plano pantalla) · Shift+arrastre: profundidad (Y)
+          click en una caja: elegir · arrastre (fondo o caja): mueve la seleccionada ·
+          Alt+arrastre: órbita · Shift: profundidad (Y)
+        </div>
+      ) : null}
+      {situar ? (
+        // E1 (Option B) — a compact piece strip inside the 3D pane itself,
+        // so picking a piece never depends on the 2D card row having
+        // enough room to be usable at the same time. Lists only
+        // situar-draggable singletons (same `isDraggableSolid` gate the
+        // drag arm itself uses) — copies/disks are never listed here
+        // since they can never be selected-to-drag either.
+        <div className="sb-scene3d__piece-strip" onMouseDown={(event) => event.stopPropagation()}>
+          {solids.filter(isDraggableSolid).map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              className={`sb-scene3d__piece-chip${s.id === selectedId ? " sb-scene3d__piece-chip--selected" : ""}`}
+              onClick={() => onSelect(s.id)}
+            >
+              {s.id}
+            </button>
+          ))}
         </div>
       ) : null}
       <div
@@ -303,7 +479,16 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
           transform: `translate(${-cluster.x}px, ${-cluster.y}px) scale(${zoom}) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
         }}
       >
-        {expanded.map((e) => {
+        {[...expanded]
+          .sort((a, b) => {
+            // Paint selected last so its faces win sibling hit-tests when
+            // bounds do overlap in 2D projection.
+            if (!selectedId) return 0;
+            if (a.selectId === selectedId && b.selectId !== selectedId) return 1;
+            if (b.selectId === selectedId && a.selectId !== selectedId) return -1;
+            return 0;
+          })
+          .map((e) => {
           const origin = originById.get(e.layoutId);
           // Copies (`layoutId !== selectId`) never drag — same guarantee
           // as `isDraggableSolid`'s own `solidCopies >= 2` check, applied
@@ -311,11 +496,21 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
           const isSingleton = e.layoutId === e.selectId;
           const draggable = situar && isSingleton && Boolean(draggableBySelectId.get(e.selectId));
           const needsOrigin = draggable && !e.declaredBoxPose?.originKey;
-          // Situar UX B1 — live preview: only the one solid currently
-          // being dragged gets its rendered origin nudged by the pointer
-          // offset (world px, same space originX/Y already render in).
-          // Never persisted — a fresh GET after commit is what actually
-          // moves it for real (see onPoseCommitted).
+          // Situar experience B1 (E2): peers are click-through ONLY while
+          // a drag/preview/POST is actually live (`situarBusy`) — idle
+          // selection alone must let a click on a different draggable
+          // solid select it (the Engineer's own "click another box under
+          // the cursor → ignored" complaint). The ACCEPT nested-hit smoke
+          // (card esc → drag anywhere in pane moves esc) still holds:
+          // once a drag/preview starts, peers go click-through exactly as
+          // before, so a background click near a peer still moves the
+          // piece actually being dragged.
+          const pointerEventsNone = isSolidHitThrough({
+            situar,
+            selectedId,
+            solidId: e.selectId,
+            busy: situarBusy,
+          });
           const preview = dragPreview?.nodeId === e.selectId ? dragPreview : null;
           return (
             <Solid3D
@@ -329,6 +524,7 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
               originZ={(origin?.originZ ?? 0) + (preview?.dzPx ?? 0)}
               draggable={draggable}
               needsOrigin={needsOrigin}
+              pointerEventsNone={pointerEventsNone}
               onDragStart={draggable ? handleSolidDragStart : undefined}
             />
           );
@@ -339,8 +535,8 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
           <span>Origen para {pickerNodeId}:</span>
           <select value={pickerOriginKey} onChange={(event) => setPickerOriginKey(event.target.value)}>
             <option value="">— elegir —</option>
-            {boxOriginCandidates.map((key) => (
-              <option key={key} value={key}>{key}</option>
+            {boxOriginCandidates.map((c) => (
+              <option key={c.id} value={c.id}>{formatOriginCandidateLabel(c)}</option>
             ))}
           </select>
           <button type="button" disabled={!pickerOriginKey || posting} onClick={confirmPickedOrigin}>
