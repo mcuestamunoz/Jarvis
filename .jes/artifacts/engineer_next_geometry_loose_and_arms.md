@@ -27,9 +27,10 @@ Forbidden without ★: invent arm L from 230 · invent plate footprints · Conve
 | **B3** | [IC](implementation_contract_geometry_frame_standoff_corners_b1.md) — standoff ×4 Main Plate corners | **CLOSED** + ACCEPT ([smoke](engineer_smoke_geometry_frame_standoff_corners_b1.md)) |
 | **B4** | [IC](implementation_contract_geometry_standoff_count_gate_b4.md) — count gate (N=4 corners; missing/≠4 omit) | **CLOSED** review PASS @ **2661** |
 | **B5** | [IC](implementation_contract_board_drag_pose_b1.md) — Board drag → pose | **CLOSED** review PASS @ **2668** · smoke pending |
-| **B6** | IDLE frame-part count declare (`6 standoffs` → `count`, no LLM) | **Cola** — [nota](engineer_note_idle_frame_part_count_declare.md) |
-| **B7** | Standoff visor layout N≠4 (6/8 …) | **Cola** — after B6 can set count; B4-min still omit if N≠4 |
-| **#4** | Sourced dims auto-fill (cited only) | Cola |
+| **B6** | IDLE frame-part count declare (`6 standoffs` → `count`, no LLM) | **CLOSED** + ACCEPT with B7 |
+| **B7** | Standoff visor layout N≠4 (6/8 …) | **CLOSED** + ACCEPT @ **2697** — [smoke](engineer_smoke_geometry_standoff_layout_n_ne4_b7.md) |
+| **#4** | Sourced dims auto-fill (cited only) | **IC DRAFT** — [implementation_contract_geometry_sourced_dims_b1.md](implementation_contract_geometry_sourced_dims_b1.md) · await citation bags |
+| **#4b** | User catalog contribution | **Cola after #4** — [nota](engineer_note_user_catalog_contribution.md) · no IC |
 
 ---
 

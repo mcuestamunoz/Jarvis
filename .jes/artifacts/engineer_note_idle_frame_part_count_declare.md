@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-10  
 **Authority:** Engineer — IDLE `6 standoffs` jumped LLM; real frames use 6/8 posts, not only 4  
-**Status:** COLA — not PRIORIDAD · no IC until ★ after Board drag B1 (or insert)  
+**Status:** ★ IMPLEMENTED · review **PASS WITH NOTES** · smoke **ACCEPT** with B7 walk ([smoke](engineer_smoke_geometry_standoff_layout_n_ne4_b7.md)) · suite **2686**  
 **Parents:** G-N1 parts-only (wizard-only today) · [standoff count gate B4-min](implementation_contract_geometry_standoff_count_gate_b4.md) CLOSED @ **2661**
 
 ---

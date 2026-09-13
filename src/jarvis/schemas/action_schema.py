@@ -164,6 +164,32 @@ class DeclaredBoxPose(BaseModel):
     z_mm: float | None = None
 
 
+class DeclaredFitAttestation(BaseModel):
+    """Fit attestation B1 — an Engineer-declared "I looked at this and it's
+    fine" sign-off on ONE already-screened posed pair. HUMAN evidence, not a
+    stronger geometric proof: this field exists precisely so Jarvis can use
+    the word "verificado" honestly, by attributing it explicitly to the
+    Engineer's own judgment rather than to any computation of Jarvis's own
+    (see ``pose_envelope_screening.py``, which stays "screening, no
+    verificado" forever — this field never changes that copy).
+
+    ``fingerprint`` is a stable string over the exact tuple that made the
+    attestation true at the time it was declared — see
+    ``component_writers.compute_fit_attestation_fingerprint`` for the
+    locked field order. Any subsequent write (via
+    ``set_component_declared_box_pose``/``set_component_declared_box_
+    envelope``) that could change ANY of those inputs clears this field —
+    the same "divergence clears a stale label" discipline
+    ``catalog_bind.py`` already uses for ``catalog_ref``, applied here to a
+    new field rather than inventing a second pattern. A stale/mismatched
+    fingerprint must be treated as absent by every reader — never a lying
+    seal survives a geometry/pose change.
+    """
+
+    attested_at: str
+    fingerprint: str
+
+
 class ComponentSpec(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -216,6 +242,14 @@ class ComponentSpec(BaseModel):
     # layout. Additive, default None — every existing/serialized project
     # deserializes unchanged.
     declared_box_pose: DeclaredBoxPose | None = None
+    # Fit attestation B1 — optional Engineer sign-off on this spec's own
+    # posed pair (see DeclaredFitAttestation's own docstring). Set only via
+    # component_writers.set_component_declared_fit_attestation — never
+    # inferred, never a byproduct of screening alone (screening.status ==
+    # "overlap" is a PRECONDITION for the writer, not something that sets
+    # this field by itself). Additive, default None — every existing/
+    # serialized project deserializes unchanged.
+    declared_fit_attestation: DeclaredFitAttestation | None = None
 
 
 class IterationOperation(str, Enum):
@@ -312,6 +346,10 @@ class InteractiveSessionState(BaseModel):
     # runtime-only (see state_manager._PERSISTED_SESSION_FIELDS comment).
     # IDLE singleton ``expected_keys == ["esc"]`` only.
     esc_suggestions: list[dict] = Field(default_factory=list)
+    # Control identity assist (FC/GPS dim tables #4b): same runtime-only
+    # tier — not Class A library SKUs; numbered picks map to declare phrases.
+    flight_controller_suggestions: list[dict] = Field(default_factory=list)
+    sensor_suggestions: list[dict] = Field(default_factory=list)
     pending_param_definitions: list[str] = Field(default_factory=list)
     collected_params: dict[str, float] = Field(default_factory=dict)
     param_definition_reason: str = ""

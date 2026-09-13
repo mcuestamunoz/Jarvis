@@ -342,6 +342,104 @@ def set_component_declared_box_pose(project_state: Any, component_key: str, pose
             )
         updated_spec = spec.model_copy(update={"declared_box_pose": pose})
 
+    # Fit attestation B1: a pose write on THIS key changes x_mm/y_mm/z_mm —
+    # fingerprint inputs for this spec's OWN attestation (never a sibling's,
+    # since a pose write never touches geometry/L×W×H). Always-clear,
+    # regardless of whether the values actually differ — simpler and
+    # fail-closed, per the IC's own explicit allowance for B1.
+    updated_spec = _cleared_fit_attestation(updated_spec)
+
+    updated_components = {**components, component_key: updated_spec}
+    updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
+    return project_state.model_copy(update={"design_properties": updated_dp})
+
+
+def _cleared_fit_attestation(spec: Any) -> Any:
+    """Fit attestation B1 — pop a stale/no-longer-valid
+    ``declared_fit_attestation``. Idempotent no-op (returns the same
+    object) when already ``None``, matching every other writer's own
+    idempotence discipline."""
+    if getattr(spec, "declared_fit_attestation", None) is None:
+        return spec
+    return spec.model_copy(update={"declared_fit_attestation": None})
+
+
+def compute_fit_attestation_fingerprint(pose: Any, child_geometry: dict, origin_geometry: dict) -> str:
+    """Fit attestation B1 — the ONE stable string over the exact tuple that
+    made an attestation true at declare time. Locked field order (tests
+    pin this): ``origin_key, x_mm, y_mm, z_mm, child L/W/H, origin L/W/H``.
+    Never a cryptographic hash — a plain, readable, deterministic string
+    join is sufficient (this is an equality check against a later
+    recomputation, not a security boundary)."""
+    parts = (
+        pose.origin_key,
+        pose.x_mm, pose.y_mm, pose.z_mm,
+        child_geometry["length_mm"], child_geometry["width_mm"], child_geometry["height_mm"],
+        origin_geometry["length_mm"], origin_geometry["width_mm"], origin_geometry["height_mm"],
+    )
+    return "|".join(str(part) for part in parts)
+
+
+def set_component_declared_fit_attestation(project_state: Any, component_key: str, attest: bool) -> Any:
+    """Fit attestation B1 — único punto de escritura para
+    ``ComponentSpec.declared_fit_attestation``.
+
+    HUMAN evidence, not a stronger geometric proof: this writer never
+    changes ``pose_envelope_screening.screen_posed_envelope``'s own verdict
+    or copy ("screening, no verificado" stays exactly as it is) — it only
+    ever records that the Engineer looked at an ALREADY-``overlap``-screened
+    pair and declared it fine by their own judgment.
+
+    ``attest=False`` clears the field (idempotent — a no-op, same object
+    returned, when already ``None``). ``attest=True`` requires
+    ``component_key`` to exist AND ``screen_posed_envelope(spec,
+    components).status == "overlap"`` — every other status
+    (``no_overlap``/``pose_incomplete``/``origin_unusable``/
+    ``child_not_box``/``no_pose``) raises ``ValueError`` rather than
+    granting a silent or partial attestation. The fingerprint is computed
+    from the exact pose + both boxes' geometry at this moment
+    (``compute_fit_attestation_fingerprint``) — a later
+    ``set_component_declared_box_pose``/``set_component_declared_box_
+    envelope`` on this component or its origin clears it automatically
+    (see those writers' own hooks), the same "divergence clears a stale
+    label" discipline ``catalog_bind.py`` already uses for ``catalog_ref``.
+
+    Returns the updated ProjectState (not persisted — caller must save).
+    """
+    from datetime import datetime, timezone
+
+    from jarvis.core.pose_envelope_screening import screen_posed_envelope
+    from jarvis.schemas.action_schema import DeclaredFitAttestation
+    from jarvis.workspace.spatial_board import _geometry_from_spec
+
+    components = project_state.design_properties.components
+    spec = components.get(component_key)
+    if spec is None:
+        raise ValueError(f"'{component_key}' no declarado — no se puede fijar la verificación.")
+
+    if not attest:
+        updated_spec = _cleared_fit_attestation(spec)
+        if updated_spec is spec:
+            return project_state
+    else:
+        screening = screen_posed_envelope(spec, components)
+        if screening.status != "overlap":
+            raise ValueError(
+                f"'{component_key}' no tiene screening en solape ({screening.status}) — "
+                "no se puede declarar verificado. Jarvis nunca lo concede en silencio."
+            )
+        pose = spec.declared_box_pose
+        origin_spec = components[pose.origin_key]
+        child_geometry = _geometry_from_spec(spec)
+        origin_geometry = _geometry_from_spec(origin_spec)
+        fingerprint = compute_fit_attestation_fingerprint(pose, child_geometry, origin_geometry)
+        updated_spec = spec.model_copy(update={
+            "declared_fit_attestation": DeclaredFitAttestation(
+                attested_at=datetime.now(timezone.utc).isoformat(),
+                fingerprint=fingerprint,
+            )
+        })
+
     updated_components = {**components, component_key: updated_spec}
     updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
     return project_state.model_copy(update={"design_properties": updated_dp})
@@ -441,9 +539,41 @@ def set_component_declared_box_envelope(
         }
         updated_spec = spec.model_copy(update={"properties": merged_properties})
 
-    updated_components = {**components, component_key: updated_spec}
+    # Fit attestation B1: this component's OWN L×W×H just changed — a
+    # fingerprint input both for ITS OWN attestation AND for any sibling
+    # child whose declared_box_pose.origin_key names this key (the
+    # origin's geometry is a fingerprint input for that child's
+    # attestation too). Always-clear on any envelope write to a touched
+    # key, per the IC's own explicit allowance for B1 — never compares old
+    # vs new geometry values.
+    updated_components = _clear_fit_attestations_after_geometry_change(components, component_key, updated_spec)
     updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
     return project_state.model_copy(update={"design_properties": updated_dp})
+
+
+def _clear_fit_attestations_after_geometry_change(
+    components: dict[str, Any], component_key: str, updated_spec: Any
+) -> dict[str, Any]:
+    """Fit attestation B1 — shared by ``set_component_declared_box_envelope``
+    only (a pose write never changes geometry, so it only ever clears its
+    OWN attestation — see that writer's own inline hook). Clears
+    ``component_key``'s own attestation AND any sibling's whose
+    ``declared_box_pose.origin_key`` is ``component_key`` — same
+    "divergence clears a stale label" discipline ``catalog_bind.py``
+    already uses for ``catalog_ref``, applied here instead of inventing a
+    second pattern."""
+    result = {**components, component_key: _cleared_fit_attestation(updated_spec)}
+    for key, sibling in components.items():
+        if key == component_key:
+            continue
+        pose = getattr(sibling, "declared_box_pose", None)
+        if (
+            pose is not None
+            and pose.origin_key == component_key
+            and getattr(sibling, "declared_fit_attestation", None) is not None
+        ):
+            result[key] = _cleared_fit_attestation(sibling)
+    return result
 
 
 # Motor Geometry B1 (Minimum Geometric KNOW): bind_motor_from_catalog is the

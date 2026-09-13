@@ -61,3 +61,33 @@ export async function postDragPose(projectId: string, payload: DragPosePayload):
     throw new Error(message);
   }
 }
+
+export type FitAttestationPayload = {
+  component_key: string;
+  attest: boolean;
+};
+
+/**
+ * Fit attestation B1 — "Declarar verificado" / "Quitar verificación".
+ * Body shape mirrors `set_component_declared_fit_attestation` 1:1. On a
+ * writer rejection (e.g. screening isn't `overlap`) the server responds
+ * 4xx with `{error: "<the writer's own ValueError message>"}` — surfaced
+ * verbatim, same discipline `postDragPose` already follows.
+ */
+export async function postFitAttestation(projectId: string, payload: FitAttestationPayload): Promise<void> {
+  const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}/fit-attestation`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    let message = `fit-attestation ${res.status}`;
+    try {
+      const body = (await res.json()) as { error?: string };
+      if (body.error) message = body.error;
+    } catch {
+      // keep the generic status-based message
+    }
+    throw new Error(message);
+  }
+}

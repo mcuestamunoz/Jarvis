@@ -460,18 +460,22 @@ def _solid_copies(
         return count
     if spec.suggested_key == "frame_standoff":
         # Frame standoff x4 at Main Plate corners B1 / Standoff count gate
-        # B4-min — a DIFFERENT gate and formula from every branch above:
-        # never read from motors/motor_count/quad_x/wheelbase (that math
-        # belongs to the quad-X families only — a standoff sandwich post is
-        # a Main-Plate-footprint fact, not a propulsion one). Count and
-        # offsets are computed by the SAME helper
-        # (`_frame_standoff_corner_offsets_mm`) so they can never drift
-        # apart; a missing/non-4 declared `count`, a missing/non-box
-        # standoff or Main Plate, or a standoff footprint larger than the
-        # plate in either axis, all omit both — never a silent default of 4.
-        if _frame_standoff_corner_offsets_mm(spec, components) is not None:
-            return _STANDOFF_CORNER_COUNT
-        return None
+        # B4-min / Standoff visor layout N≠4 B7 — a DIFFERENT gate and
+        # formula from every branch above: never read from motors/
+        # motor_count/quad_x/wheelbase (that math belongs to the quad-X
+        # families only — a standoff sandwich post is a Main-Plate-
+        # footprint fact, not a propulsion one). Count and offsets are
+        # computed by the SAME helper (`_frame_standoff_layout_offsets_mm`)
+        # so they can never drift apart; the returned count is the actual
+        # number of offsets emitted (never a separately-parsed number that
+        # could disagree) — a missing/unaccepted declared `count` (only
+        # {4,6,8} accepted — B7), a missing/non-box standoff or Main Plate,
+        # or a standoff footprint larger than the plate in either axis, all
+        # omit both — never a silent default.
+        offsets = _frame_standoff_layout_offsets_mm(spec, components)
+        if offsets is None:
+            return None
+        return len(offsets)
     return None
 
 
@@ -523,16 +527,19 @@ def _quad_x_station_points(wheelbase_mm: float) -> list[dict[str, float]]:
     ]
 
 
-# Frame standoff x4 at Main Plate corners B1 / Standoff count gate B4-min —
-# `_STANDOFF_CORNER_COUNT` is the ONLY corner layout size this Buy knows
-# how to draw, never a default emitted when `count` is absent (B3's own
-# unconditional-4 behavior is superseded — see
-# `_frame_standoff_corner_offsets_mm`'s own count read below). A separate
-# constant from `_QUAD_X_STATION_COUNT` (even though it happens to also be
-# 4) keeps this concept textually distinct — a future N!=4 declared
-# `standoff_count` layout Buy changes only this constant/branch, never the
-# quad-X ones.
+# Frame standoff x4 at Main Plate corners B1 / Standoff count gate B4-min /
+# Standoff visor layout N≠4 B7 — `_STANDOFF_CORNER_COUNT` (4) is the base
+# corner-only layout; `_STANDOFF_LAYOUT_COUNTS` (4, 6, 8) is the full set
+# of declared counts this Buy knows how to place on the Main Plate
+# perimeter. Never a default emitted when `count` is absent or any other
+# valid-range N (B3's own unconditional-4 behavior is superseded — see
+# `_frame_standoff_layout_offsets_mm`'s own count read below). A separate
+# constant from `_QUAD_X_STATION_COUNT` (even though 4 is shared) keeps
+# this concept textually distinct — a row fallback or Engineer-typed
+# per-post offsets for other N is a later, separate Buy, never invented
+# here.
 _STANDOFF_CORNER_COUNT = 4
+_STANDOFF_LAYOUT_COUNTS = (4, 6, 8)
 
 
 def _main_plate_corner_points(
@@ -559,21 +566,59 @@ def _main_plate_corner_points(
     ]
 
 
-def _frame_standoff_corner_offsets_mm(
+def _standoff_perimeter_midpoints_mm(
+    plate_geometry: dict[str, float | str], standoff_geometry: dict[str, float | str], count: int
+) -> list[dict[str, float]] | None:
+    """Standoff visor layout N≠4 B7 (IC §0.1) — N=6/8 perimeter midpoints,
+    ADDITIVE to the 4 corners (never a replacement for them). Recomputes
+    the same `hx`/`hy` inset formula `_main_plate_corner_points` already
+    uses (duplicated here rather than shared, so that function's own
+    tested corner-only contract never has to change shape for this Buy) —
+    fails closed (``None``) on the same negative-inset condition.
+
+    N=6: midpoints of the plate's LONGER edge pair only — if
+    ``Lp >= Wp`` the long edges sit at constant ``y = ±hy``; otherwise at
+    constant ``x = ±hx``. The ``Lp == Wp`` tie is locked toward the
+    ``y``-edge branch (the IC's own locked fixture: a 100×100 plate's
+    count=6 mids land on ``(0, ±hy)``).
+
+    N=8: all four edge centers, ``(±hx, 0)`` and ``(0, ±hy)``.
+
+    Any other ``count`` returns ``None`` — the caller only ever passes 6
+    or 8 here (the 4-only path never reaches this function)."""
+    hx = plate_geometry["length_mm"] / 2 - standoff_geometry["length_mm"] / 2
+    hy = plate_geometry["width_mm"] / 2 - standoff_geometry["width_mm"] / 2
+    if hx < 0 or hy < 0:
+        return None
+    if count == 6:
+        if plate_geometry["length_mm"] >= plate_geometry["width_mm"]:
+            return [{"xMm": 0.0, "yMm": hy, "zMm": 0.0}, {"xMm": 0.0, "yMm": -hy, "zMm": 0.0}]
+        return [{"xMm": hx, "yMm": 0.0, "zMm": 0.0}, {"xMm": -hx, "yMm": 0.0, "zMm": 0.0}]
+    if count == 8:
+        return [
+            {"xMm": hx, "yMm": 0.0, "zMm": 0.0},
+            {"xMm": -hx, "yMm": 0.0, "zMm": 0.0},
+            {"xMm": 0.0, "yMm": hy, "zMm": 0.0},
+            {"xMm": 0.0, "yMm": -hy, "zMm": 0.0},
+        ]
+    return None
+
+
+def _frame_standoff_layout_offsets_mm(
     standoff_spec: ComponentSpec, components: dict[str, ComponentSpec]
 ) -> list[dict[str, float]] | None:
-    """The ONE gate + formula shared by `_solid_copies` (decides
-    ``count == 4``) and `_solid_copy_offsets_mm` (emits the actual points)
-    for `frame_standoff`, so the two can never drift apart.
+    """The ONE gate + formula shared by `_solid_copies` (decides the
+    layout count, as ``len()`` of this function's own result) and
+    `_solid_copy_offsets_mm` (emits the actual points) for
+    `frame_standoff`, so the two can never drift apart.
 
-    Standoff count gate B4-min: requires the standoff's OWN declared
-    ``properties["count"]`` to parse (same whole-number-in-[2,16] gate as
-    every other family, `_parse_solid_copies_count`) to EXACTLY 4 — the
-    same source `frame_part_specs_from_catalog` already projects from a
-    catalog `FrameSpec.standoff_count` when a seed states it. Missing,
-    non-numeric, out-of-range, or any N != 4 all omit — this deliberately
-    supersedes the prior Buy's unconditional 4 (B3, Frame standoff x4 at
-    Main Plate corners B1); there is no default here anymore. Never reads
+    Standoff count gate B4-min, widened by Standoff visor layout N≠4 B7:
+    requires the standoff's OWN declared ``properties["count"]`` to parse
+    (same whole-number-in-[2,16] gate as every other family,
+    `_parse_solid_copies_count`) to EXACTLY one of ``_STANDOFF_LAYOUT_
+    COUNTS`` (4, 6, 8) — any other in-range N (2, 3, 5, 7, 9..16),
+    missing, or non-numeric all omit (fail-closed — B7 widens the ACCEPTED
+    set, never the fallback for a rejected N). Never reads
     `library`/`get_frame` directly, never `motor_count`/`quad_x`/
     `current_parameters` — this is a Main-Plate-footprint fact tied to the
     standoff's own declared property, not a propulsion one.
@@ -581,11 +626,16 @@ def _frame_standoff_corner_offsets_mm(
     Also requires the standoff's OWN geometry to be a box
     (`_geometry_from_spec`) AND the literal `frame_plate` key (Main Plate
     — never an ordinal sibling like `frame_plate_2`) to exist with a box
-    geometry — unchanged from B3. N != 4 layouts (a declared row, or
-    Engineer-typed per-post offsets) are a later, separate Buy."""
+    geometry — unchanged from B3/B4-min.
+
+    N=4 returns exactly `_main_plate_corner_points`'s own 4 points,
+    byte-identical to every prior Buy. N=6/8 append
+    `_standoff_perimeter_midpoints_mm`'s own additive points. A row layout
+    for other N, or Engineer-typed per-post offsets, are a later, separate
+    Buy (never invented here)."""
     count_prop = (standoff_spec.properties or {}).get("count")
     count = _parse_solid_copies_count(count_prop.value if count_prop is not None else None)
-    if count != _STANDOFF_CORNER_COUNT:
+    if count not in _STANDOFF_LAYOUT_COUNTS:
         return None
     standoff_geometry = _geometry_from_spec(standoff_spec)
     if standoff_geometry is None or standoff_geometry.get("shape") != "box":
@@ -596,7 +646,15 @@ def _frame_standoff_corner_offsets_mm(
     plate_geometry = _geometry_from_spec(plate_spec)
     if plate_geometry is None or plate_geometry.get("shape") != "box":
         return None
-    return _main_plate_corner_points(plate_geometry, standoff_geometry)
+    corners = _main_plate_corner_points(plate_geometry, standoff_geometry)
+    if corners is None:
+        return None
+    if count == _STANDOFF_CORNER_COUNT:
+        return corners
+    midpoints = _standoff_perimeter_midpoints_mm(plate_geometry, standoff_geometry, count)
+    if midpoints is None:
+        return None
+    return corners + midpoints
 
 
 def _solid_copy_offsets_mm(
@@ -619,13 +677,13 @@ def _solid_copy_offsets_mm(
     place that gate is enforced — its `_solid_copies` branch does not
     re-check it, exactly mirroring propellers).
 
-    `frame_standoff` is a SEPARATE branch entirely — Main Plate corner
-    points via `_frame_standoff_corner_offsets_mm`, never the quad-X
+    `frame_standoff` is a SEPARATE branch entirely — Main Plate perimeter
+    points via `_frame_standoff_layout_offsets_mm`, never the quad-X
     wheelbase math above."""
     if spec.suggested_key == "frame_standoff":
-        if solid_copies != _STANDOFF_CORNER_COUNT:
+        if solid_copies not in _STANDOFF_LAYOUT_COUNTS:
             return None
-        return _frame_standoff_corner_offsets_mm(spec, components)
+        return _frame_standoff_layout_offsets_mm(spec, components)
     if spec.suggested_key not in ("motors", "propellers", "frame_arm", "prop_adapter"):
         return None
     if solid_copies != _QUAD_X_STATION_COUNT:
@@ -672,6 +730,32 @@ def _fields(spec: ComponentSpec, components: dict[str, ComponentSpec]) -> list[d
 
         screening = screen_posed_envelope(spec, components)
         fields.append({"label": "sobres", "value": format_screening(screening)})
+
+        # Fit attestation B1: a distinct HUMAN sign-off line, never a
+        # rename of the "screening, no verificado" text above it. The
+        # fingerprint is recomputed here (same locked field order as
+        # component_writers.compute_fit_attestation_fingerprint) and
+        # compared against the stored one — write paths already clear a
+        # stale attestation on disk, but the projector independently
+        # treats any mismatch as absent too, so a race between a pose/
+        # envelope write and a read never shows a lying seal.
+        attestation = spec.declared_fit_attestation
+        if attestation is not None:
+            origin_spec = components.get(pose.origin_key)
+            child_geometry = _geometry_from_spec(spec)
+            origin_geometry = _geometry_from_spec(origin_spec) if origin_spec is not None else None
+            if child_geometry is not None and origin_geometry is not None:
+                from jarvis.core.component_writers import compute_fit_attestation_fingerprint
+
+                current_fingerprint = compute_fit_attestation_fingerprint(pose, child_geometry, origin_geometry)
+                if current_fingerprint == attestation.fingerprint:
+                    fields.append({
+                        "label": "verificación",
+                        "value": (
+                            "Declarado verificado por el Engineer — no es una "
+                            "comprobación geométrica de Jarvis."
+                        ),
+                    })
     return fields
 
 

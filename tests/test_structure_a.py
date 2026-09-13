@@ -345,3 +345,76 @@ def test_no_propeller_diameter_structure_still_complete_no_gap():
         "structure", state.design_properties, state.current_parameters
     )
     assert status == "complete"
+
+
+# ── LEVEL A class slack (5.x-on-5), implementation_contract_structure_a_
+# class_slack_b1.md — Option A, FRAME_CLASS_SLACK_IN=0.25. Still convention,
+# never geometric fit: a 5.189in sourced propeller (e.g. Gemfan Hurricane
+# MCK 51466-3) now screens compatible against a declared 5in frame class. ──
+
+
+def test_t1_class_slack_covers_sourced_5189_prop_on_5in_class():
+    from jarvis.core.project_closure import frame_class_compatibility_state
+
+    state = _state(diameter_in=5.189, size_class_inch=5.0)
+    assert frame_class_compatibility_state(state) == "class_compatible"
+
+    result = build_engineering_readiness(state)
+    gap_types = [g.gap_type for g in result.gaps]
+    assert "GAP-FRAME-PROP-SIZE" not in gap_types
+    assert "GAP-FRAME-SIZE-MISSING" not in gap_types
+
+    status = JarvisOrchestrator._block_progress_status(
+        "structure", state.design_properties, state.current_parameters
+    )
+    assert status == "complete"
+
+
+def test_t2_six_inch_prop_on_5in_class_still_incompatible():
+    from jarvis.core.project_closure import frame_class_compatibility_state
+
+    state = _state(diameter_in=6.0, size_class_inch=5.0)
+    assert frame_class_compatibility_state(state) == "class_incompatible"
+
+    result = build_engineering_readiness(state)
+    gap_types = [g.gap_type for g in result.gaps]
+    assert "GAP-FRAME-PROP-SIZE" in gap_types
+
+
+def test_t3_exact_class_match_unchanged_happy_path():
+    from jarvis.core.project_closure import frame_class_compatibility_state
+
+    state = _state(diameter_in=5.0, size_class_inch=5.0)
+    assert frame_class_compatibility_state(state) == "class_compatible"
+
+
+def test_t4_missing_class_unchanged_by_slack():
+    from jarvis.core.project_closure import frame_class_compatibility_state
+
+    state = _state(diameter_in=5.189, size_class_inch=None)
+    assert frame_class_compatibility_state(state) == "missing"
+
+
+def test_t5_live_shaped_gep_racer_and_gemfan_51466_no_class_gap():
+    """Live-shaped: GEP-Racer's own declared size_class_inch=5 plus the
+    Gemfan Hurricane MCK 51466-3's own sourced diameter_in=5.189 (both
+    from #4* catalog seeds) must not trip GAP-FRAME-PROP-SIZE."""
+    state = _state(diameter_in=5.189, size_class_inch=5.0)
+    result = build_engineering_readiness(state)
+    gap_types = [g.gap_type for g in result.gaps]
+    assert "GAP-FRAME-PROP-SIZE" not in gap_types
+
+
+def test_t6_slack_evidence_fact_and_no_forbidden_copy():
+    from jarvis.core.project_closure import FRAME_CLASS_SLACK_IN
+
+    state = _state(diameter_in=6.0, size_class_inch=5.0)
+    result = build_engineering_readiness(state)
+    misfit_gap = next(g for g in result.gaps if g.gap_type == "GAP-FRAME-PROP-SIZE")
+    facts = [e.fact for e in misfit_gap.evidence]
+    assert any(f"slack_in={FRAME_CLASS_SLACK_IN}" == f for f in facts)
+
+    forbidden = ("cabe", "verificado", "verified", "does not fit", "fits", "misfit geométrico")
+    title_lower = misfit_gap.title.lower()
+    for word in forbidden:
+        assert word not in title_lower
