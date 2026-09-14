@@ -540,6 +540,9 @@ FLIGHT_CONTROLLER_MAP: dict[str, str] = {
     "speedybee f405 v4": "speedybee_f405_v4",
     "speedybee f405":    "speedybee_f405_v4",
     "f405 v4":           "speedybee_f405_v4",
+    # Skystars F4 V4 — library/fc/skystars_f4_v4 (no L×W×H cited yet).
+    "skystars f4 v4": "skystars_f4_v4",
+    "skystars f4":    "skystars_f4_v4",
 }
 
 # Geometry axis (Minimum Geometric KNOW, FC B1), relocated by Relocate FC +

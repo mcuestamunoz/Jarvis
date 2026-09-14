@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "B1-library-fc-sensors CLOSED (2026-09-14) — Cursor review PASS WITH NOTES + Engineer smoke ACCEPT. library/fc + library/sensors live; aerial DIMENSIONS deleted. Disk-axial Visor also CLOSED. Suite 2911 · UI 105 · v0.4.1. Await Engineer next star — holds plate-box / Path N; natural next disk-station attest or measured plate.",
+  "cycle_intent": "B1-user-guide-craft-montage (documentation Buy) IMPLEMENTED (2026-09-14) -- Phase 0: .jes/artifacts/inventory_user_facing_commands_craft_montage_b0.md written first per the STOP gate -- 14 orchestrator _try_handle_* IDLE bridges enumerated in dispatch order, 19 *_assist.py modules traced to their exact regex/trigger, catalog help-choose (shared HELP_CHOOSE_PHRASES) + rebind (5 families: frame/motors/propellers/battery/esc -- FC/sensors excluded, confirmed gap) gates read from code, Board Situar UI copy read verbatim from Scene3D.tsx, ~35 smoke/review artifacts cross-checked. Phase 1: docs/USER_GUIDE_CRAFT_MONTAGE.md published, 406 lines, 12 sections (added a worked end-to-end example section beyond the suggested TOC, using 10-min-autonomia's real live identities/poses). 16 example phrases spot-checked live through real parsers before publishing (>= the required 10) -- caught and fixed a hand-computed arithmetic slip in 2 of 4 Path F pose z-values by re-deriving them from the live project state instead of computing by hand, then re-parsed the corrected phrases to confirm. No src/ui/tests/library change, no version bump, no workspace/ write (read-only validation only), no docs/IMPLEMENTATION_TASKS.md PRIORIDAD edit (explicit IC lock -- Cursor owns cola by default for this Buy). implementation_report_user_guide_craft_montage_b1.md documents method, TOC, 6 named gaps (FC rebind/refresh unwired, ESC-only-catalog envelope, bind_esc_from_catalog stale-leak, disk-station attest unbuilt, single-pack layout limit), and what was deferred. Awaiting Cursor review + Engineer walk of the cheatsheet on 10-min-autonomia.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "Await Engineer next Buy (library FC/sensors + disk-axial closed; holds plate-box / Path N)",
-  "active_operation": "await_engineer_next_star",
+  "current_mode": "Await Cursor review + Engineer cheatsheet walk (user_guide_craft_montage_b1, doc-only) + prior pending smokes (estimated_temporary_esc_skystars_b1, mount_standard_assist_b1, Situar experience B1, multibox UX fix, Structure A class slack, #4* stack)",
+  "active_operation": "await_review_walk_user_guide_craft_montage_b1",
   "movement_trigger": {
-    "type": "await_engineer_star",
-    "note": "2026-09-14 library_fc_sensors_b1 CLOSED_SMOKE_ACCEPT @ suite 2911."
+    "type": "cursor_review_then_engineer_walk",
+    "note": "2026-09-14 user_guide_craft_montage_b1 (doc-only Buy) implemented — implementation_report_user_guide_craft_montage_b1.md + docs/USER_GUIDE_CRAFT_MONTAGE.md + inventory artifact. No src/ui/tests/library change, no version bump, no workspace/ mutation."
   },
   "relevant_workflow_phases": [
     "Verification"
@@ -311,6 +311,8 @@
     "geometry_arm_radial_mount_tip_b1_ic": "CLOSED_SMOKE_ACCEPT_2858",
     "geometry_fit_relations_checklist_b1_ic": "CLOSED_SMOKE_ACCEPT_2873",
     "geometry_disk_axial_visor_b1_ic": "CLOSED_SMOKE_ACCEPT_2892",
-    "library_fc_sensors_b1_ic": "CLOSED_SMOKE_ACCEPT_2911"
+    "library_fc_sensors_b1_ic": "CLOSED_SMOKE_ACCEPT_2911",
+    "geometry_estimated_temporary_esc_skystars_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_2929",
+    "user_guide_craft_montage_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_WALK_DOC_ONLY"
   }
 }

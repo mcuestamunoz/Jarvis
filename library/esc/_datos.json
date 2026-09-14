@@ -40,5 +40,23 @@
     "width_mm": 44.0,
     "height_mm": 8.0,
     "source_note": "Engineer purchase-ground-truth (2026-09-10), re-fetched same day. SpeedyBee official: \"Continuous Current: 60A * 4\" (per-channel, 4 independent outputs on one board — esc_topology=4in1, channels=4, continuous_current_a modeled as the per-channel figure same as continuous_current_a's existing single-ESC convention) / \"Burst Current: 80A (10 sec)\". Power input 3-6S LiPo (cells_min/max) — voltage_min/max derived per the SAME per-cell convention hobbywing_xrotor_40a_6s already uses (3.0V/cell floor, 4.2V/cell full charge): 3S->9.0V, 6S->25.2V (both rows share the 6S ceiling). Page states \"Dimension: 45.6(L) * 44(W) *8mm(H)\" — explicitly labeled axis order (N1), mapped directly. Weight 23.5g. BLHeli_S J-H-40 firmware and current-sensor Scale=400/Offset=0 are noted on the page but not modeled (no firmware/sensor-calibration schema fields exist). Mounting 30.5x30.5mm, 4mm holes — noted, not a schema field (no mount_pattern key exists for ESCs). Availability: page shows \"Discontinued\" on this re-fetch (2026-09-10) — Engineer still cites this as the real purchase identity (a part they will order/receive regardless of listed availability); seeded as cited, no replacement SKU invented."
+  },
+  "skystars_ko50a_ii_bls": {
+    "manufacturer": "Skystars",
+    "model": "KO50A II BLS",
+    "identity_status": "verified",
+    "esc_topology": "4in1",
+    "channels": 4,
+    "continuous_current_a": 50,
+    "continuous_current_source": "manufacturer_spec",
+    "voltage_min": 9.0,
+    "voltage_max": 25.2,
+    "cells_min": 3,
+    "cells_max": 6,
+    "mass_g": 13.3,
+    "source_url": "https://www.rotorama.com/product/skystars-f4-v2-ko50a-bls",
+    "length_mm": 41.0,
+    "width_mm": 46.0,
+    "source_note": "Exact Rotorama product identified as Skystars F4 V4 + KO50A II BLS (same stack page as skystars_f4_v4). Page specifies a 50A ESC, 3-6S power, current sensor, BLHeli_S firmware and 30.5x30.5mm M3 mounting with softmount — firmware/mount/current-sensor details disclosed here only (no EscSpec fields for them yet). The standalone KO50A listing specifies 41x46mm size and 13.3g mass (mapped to length_mm/width_mm/mass_g); KO50 family documented with DShot 150/300/600 (note only). Exact part number, height_mm, burst_current_a, current-sensor scale/offset, connector pinout and thermal derating for the KO50A II revision remain UNKNOWN — omitted, never invented. voltage_min/max use the same 3S→9.0V / 6S→25.2V per-cell convention as speedybee_bls_60a_30x30_4in1."
   }
 }

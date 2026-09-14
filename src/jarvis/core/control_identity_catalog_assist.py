@@ -38,6 +38,7 @@ ControlFamily = Literal["flight_controller", "sensors"]
 _FC_DECLARE: dict[str, str] = {
     "pixhawk_4": "Pixhawk 4",
     "speedybee_f405_v4": "SpeedyBee F405 V4",
+    "skystars_f4_v4": "Skystars F4 V4",
 }
 
 _GPS_DECLARE: dict[str, str] = {

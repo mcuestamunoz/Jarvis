@@ -6,16 +6,18 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.4.1`**. Suite viva **2911** · UI **105**.  
+> **Base:** tag **`v0.4.1`**. Suite viva **2929** · UI **105**.  
 > **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
-> **PRIORIDAD AHORA:** **await Engineer next ★** — P0 library FC/sensors **CLOSED** (smoke ACCEPT). Holds: `B1-plate-box` · Path N. Natural next: disk-station attest **or** measured plate when bag ready.  
-> **Holds:** plate-box · Path N. **Later:** disk-station attest · frame-parts progressive.  
+> **PRIORIDAD AHORA:** **`B1-user-guide-craft-montage`** — Cursor review **PASS WITH NOTES** · **await Engineer cheatsheet walk** on 10-min ([IC](../.jes/artifacts/implementation_contract_user_guide_craft_montage_b1.md) · [inventory](../.jes/artifacts/inventory_user_facing_commands_craft_montage_b0.md) · [guide](USER_GUIDE_CRAFT_MONTAGE.md) · [review](../.jes/artifacts/implementation_review_user_guide_craft_montage_b1.md)). Parallel: ESC estimated-H smoke still pending.  
+> **Holds:** plate-box · Path N. **Later:** bind-esc omit-key hygiene · disk-station attest · FC Skystars box.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Craft montage / geometry validation (activa)
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
+| **0** | **`B1-user-guide-craft-montage`** | **review PASS** · smoke pending | Inventario + `docs/USER_GUIDE_CRAFT_MONTAGE.md` | Engineer cheatsheet · [review](../.jes/artifacts/implementation_review_user_guide_craft_montage_b1.md) |
+| **1** | **`B1-estimated-temporary-esc-skystars`** | **review PASS** · smoke pending | ESC H estimada 8 mm on 10-min; catalog sin H | Engineer smoke · [review](../.jes/artifacts/implementation_review_geometry_estimated_temporary_esc_skystars_b1.md) |
 | **2** | **`B1-plate-box`** | **B0 HOLD** | L×W medida/citada (quita \* de B\*) | Caliper / cite bag |
 | **3** | **`B1-stack-rule` Path N** | **B0 HOLD** | Disk origin imposible | No reabrir sin ★ |
 | — | Disk-station fit attest | Queued | motors/props screening+attest | ★ · [note](../.jes/artifacts/engineer_note_fit_attest_all_components.md) |
@@ -48,6 +50,10 @@
 | Continuity kit-tip spam (G1) | Parked lateral — after #6 |
 | User catalog contribution · fit attest all · Option B caliper | Parked — Engineer ★ aparte |
 | Disk-as-pose-origin / LLM invent Δmm | **Parked forever** unless ★ |
+
+### 🟡 LANDING — Estimated-temporary ESC height Skystars B1 (`B1-estimated-temporary-esc-skystars`) (2026-09-14) · suite **2929** · await review/smoke
+
+> **IC / Report:** [IC](../.jes/artifacts/implementation_contract_geometry_estimated_temporary_esc_skystars_b1.md) · [report](../.jes/artifacts/implementation_report_geometry_estimated_temporary_esc_skystars_b1.md). §0.1 originally empty (`height_mm: ?`) — IC's own Status line called for a B0 hold; asked the Engineer directly rather than shipping on an empty bag. Engineer filled it in conversation: `height_mm: 8` (their own choice, after being shown SpeedyBee's own 8.0mm as one reference point — never agent-defaulted), `projects: 10-min-autonomía`. New additive writer `set_estimated_temporary_esc_height` (ESC-only, requires prior cited L×W, writes only H as `estimated_temporary`) + `estimated_temporary_esc_assist.py` IDLE grammar (`declara el esc estimado H mm`). `library/esc/_datos.json` untouched (still no `height_mm` for `skystars_ko50a_ii_bls`). Screening/attest/fit-relations gates all refuse with **zero code changes** (already treat any `estimated_temporary` box dim as blocked). **Found and neutralized in the same operation** (not a shipped bug): `bind_esc_from_catalog`'s cross-SKU rebind can leak a stale property from the OLD SKU when the NEW one's catalog row omits that key (e.g. Skystars has no height_mm, so a bare rebind alone would have left SpeedyBee's old 8.0mm sitting there mislabeled `declared`) — flagged as a separate, out-of-scope debt on `bind_esc_from_catalog` itself; this Buy's own writer sequence (rebind → estimate) already overwrites it correctly in the live result. Live-applied to `10-min-autonomía`: ESC rebound SpeedyBee→Skystars KO50A II, H=8mm estimated, pose/mount preserved. 18 new tests, no version bump.
 
 ### 🟢 CLOSED — Library FC + sensors B1 (`B1-library-fc-sensors`) (2026-09-14) · **P0** · suite **2911** · review PASS · **smoke ACCEPT**
 

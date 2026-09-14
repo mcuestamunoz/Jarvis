@@ -129,8 +129,19 @@ def test_l5_bare_m10_still_no_dims():
 def test_l6_fc_suggestions_come_from_library_not_aerial_dict():
     suggestions = build_flight_controller_identity_suggestions()
     keys = {s["model_key"] for s in suggestions}
-    assert keys == {spec.name for spec in default_library.list_fcs()}
+    # Assist lists only rows with a full cited L×W×H box — SKUs without
+    # envelope (e.g. skystars_f4_v4) stay in list_fcs() but not here.
+    boxed = {
+        spec.name
+        for spec in default_library.list_fcs()
+        if spec.length_mm is not None
+        and spec.width_mm is not None
+        and spec.height_mm is not None
+    }
+    assert keys == boxed
     assert keys == {"pixhawk_4", "speedybee_f405_v4"}
+    assert default_library.has_fc("skystars_f4_v4")
+    assert "skystars_f4_v4" not in keys
 
 
 def test_l6_sensor_suggestions_come_from_library():

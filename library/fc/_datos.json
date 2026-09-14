@@ -18,5 +18,12 @@
     "height_mm": 7.8,
     "source_url": "https://www.getfpv.com/speedybee-f405-v4-flight-controller-30x30.html",
     "source_note": "GetFPV product page (\"Dimension: 41.6(L) x 39.4(W) x 7.8(H)mm\") — labeled axis order (L/W/H), mapped directly (N1). Weight 10.5g and the 30.5x30.5mm/4mm mounting-hole pattern are noted on the page but not modeled (no mounting-pattern schema field exists) — never confused with the board's own L/W/H box."
+  },
+  "skystars_f4_v4": {
+    "manufacturer": "Skystars",
+    "model": "F4 V4",
+    "identity_status": "verified",
+    "source_url": "https://www.rotorama.com/product/skystars-f4-v2-ko50a-bls",
+    "source_note": "Rotorama product page for the exact Skystars F4 V4 + KO50A II BLS stack (page path still says f4-v2; identity modeled as F4 V4 per page copy). Manufacturer/model identified as Skystars F4 V4. Page specifies 3-6S power, STM32F405 MCU, 16MB blackbox, ICM42688P IMU, integrated barometer, 5V@3A and 10V@2A BECs, 30.5x30.5mm M3 mounting with softmount, DJI FPV connector, LED pads, and current sensor — disclosed here only (no FcSpec fields for MCU/IMU/BEC/mount yet). Exact part number, board L×W×H and mass are not stated on the source and remain UNKNOWN — length_mm/width_mm/height_mm/mass deliberately omitted, never invented."
   }
 }

@@ -653,6 +653,88 @@ def set_estimated_temporary_plate_envelope(
     return project_state.model_copy(update={"design_properties": updated_dp})
 
 
+def set_estimated_temporary_esc_height(
+    project_state: Any,
+    component_key: str,
+    height_mm: float,
+) -> Any:
+    """Estimated-temporary ESC height B1 (`B1-estimated-temporary-esc-
+    skystars`) — único punto de escritura para un `height_mm` de **ESC**
+    con `source="estimated_temporary"`.
+
+    An ADDITIVE helper, deliberately separate from ``set_estimated_
+    temporary_plate_envelope`` above rather than broadening that writer's
+    own plate-only allowlist (this Buy's own lock #6) — the two families
+    have different honesty shapes: a plate's provisional write sets all
+    three axes at once (no prior cited fact to preserve), while an ESC's
+    hybrid write sets ONLY the one axis catalog evidence never covered,
+    deliberately preserving the catalog's own cited `length_mm`/
+    `width_mm` (and every other property) untouched.
+
+    Scoped EXCLUSIVELY to the literal ``"esc"`` key (never a family
+    predicate — ESC has no ordinal siblings the way `frame_plate*` does):
+    ``ValueError`` for any other key. Requires the ESC to ALREADY carry
+    cited `length_mm` AND `width_mm` (any source) — this writer exists
+    specifically for the hybrid "L×W cited, H unknown" case (Skystars
+    KO50A II's own catalog row), never as a way to seed a lone `height_mm`
+    onto an otherwise-boxless ESC (that would still not be a box at all,
+    and this writer's own name/contract promises a hybrid completion, not
+    a standalone axis).
+
+    Low, fixed ``confidence=0.3`` (vs. `declared`'s 0.9) — same visible,
+    deliberate under-confidence signal ``set_estimated_temporary_plate_
+    envelope`` already uses, never tuned per-call. Merges only
+    `height_mm` — `length_mm`/`width_mm`/every other property (mass_g,
+    `catalog_ref`, `mounted_on`, etc.) survive untouched.
+
+    Replace path (lock #11): a future catalog `height_mm` for the bound
+    SKU is picked up automatically the next time `refresh_component_from_
+    catalog` runs — `bind_esc_from_catalog`'s own `base=` merge already
+    overwrites whatever `height_mm` was here (estimated or not) the
+    moment the catalog spec itself has one; no new code needed for that
+    path, only confirmed by a regression test.
+
+    Reuses ``_clear_fit_attestations_after_geometry_change`` — same
+    "a geometry write invalidates any resting attestation" discipline as
+    every other envelope writer.
+
+    Returns the updated ProjectState (not persisted — caller must save).
+    """
+    if component_key != "esc":
+        raise ValueError(
+            f"'{component_key}' no admite una altura ESC estimada-temporal — solo 'esc'."
+        )
+
+    components = project_state.design_properties.components
+    spec = components.get(component_key)
+    if spec is None:
+        raise ValueError(f"'{component_key}' no declarado — no se puede fijar la altura estimada.")
+
+    props = spec.properties or {}
+    length_prop = props.get("length_mm")
+    width_prop = props.get("width_mm")
+    if length_prop is None or length_prop.value is None or width_prop is None or width_prop.value is None:
+        raise ValueError(
+            "El ESC no tiene L×W citada todavía — la altura estimada solo completa "
+            "un sobre híbrido (L×W ya conocidas), nunca crea una caja desde cero."
+        )
+
+    if height_mm is None or not (float(height_mm) > 0):
+        raise ValueError("'height_mm' debe ser un número finito mayor que 0 para declarar la altura estimada.")
+
+    merged_properties = {
+        **props,
+        "height_mm": PropertyValue(
+            value=float(height_mm), unit="mm", confidence=0.3, source="estimated_temporary"
+        ),
+    }
+    updated_spec = spec.model_copy(update={"properties": merged_properties})
+
+    updated_components = _clear_fit_attestations_after_geometry_change(components, component_key, updated_spec)
+    updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
+    return project_state.model_copy(update={"design_properties": updated_dp})
+
+
 # Motor Geometry B1 (Minimum Geometric KNOW): bind_motor_from_catalog is the
 # one binder whose first argument is a MotorSuggestion dict, not a bare SKU
 # string — it's the only bind of the five whose input isn't already the

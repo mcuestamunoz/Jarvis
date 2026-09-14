@@ -1123,6 +1123,24 @@ class JarvisOrchestrator:
                 return estimated_result
 
         # ─────────────────────────────────────────────────────────────────────
+        # ── Estimated-temporary ESC height B1: IDLE "declara el esc
+        # estimado/temporal/provisional H mm" calls set_estimated_
+        # temporary_esc_height directly (source=estimated_temporary,
+        # ESC-only, height axis only — the ESC's own cited L×W stay
+        # untouched). Checked right after the plate's own provisional
+        # bridge (same conceptual family) and BEFORE the plain declared-
+        # envelope bridge below, same "provisional keyword narrows the
+        # gate" reasoning as the plate bridge. Returns None for any
+        # phrase lacking the provisional keyword or naming a different
+        # subject, so plain ESC/plate/battery/etc. declares are
+        # completely unaffected.
+        if current_session.mode == OrchestratorMode.IDLE:
+            estimated_esc_result = self._try_handle_estimated_temporary_esc_height_declare(user_input)
+            if estimated_esc_result is not None:
+                self._track_turn(user_input, estimated_esc_result)
+                return estimated_esc_result
+
+        # ─────────────────────────────────────────────────────────────────────
         # ── Declared battery envelope + Main Plate L×W B1: IDLE "declara la
         # batería/la placa principal L x W [x H] mm" / "quita el sobre de X"
         # calls set_component_declared_box_envelope directly. Deterministic
@@ -2443,6 +2461,85 @@ class JarvisOrchestrator:
         )
         if thickness_note:
             message += f" Alto tomado del thickness_mm citado ({_fmt(height_mm)} mm)."
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": message,
+        }
+
+    def _try_handle_estimated_temporary_esc_height_declare(self, user_input: str) -> dict | None:
+        """Estimated-temporary ESC height B1: IDLE "declara el esc
+        estimado/temporal/provisional H mm" calls set_estimated_temporary_
+        esc_height directly.
+
+        Deterministic parse only (estimated_temporary_esc_assist) — never
+        LLM, never a catalog seed. A hybrid completion: the ESC's own
+        cited `length_mm`/`width_mm` (from catalog bind) stay untouched;
+        only `height_mm` is written, `source=estimated_temporary`.
+        Returns None when the phrase isn't this grammar at all (no
+        provisional keyword, or a different subject), so it falls
+        through unchanged.
+        """
+        from jarvis.core.estimated_temporary_esc_assist import parse_estimated_temporary_esc_height_declare
+
+        result = parse_estimated_temporary_esc_height_declare(user_input)
+        if result.kind == "NONE":
+            return None
+
+        if result.kind == "INCOMPLETE":
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": (
+                    "Indica la altura provisional del ESC en mm, por ejemplo: "
+                    '"declara el esc estimado 9.5 mm".'
+                ),
+            }
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        component_key = result.component_key
+        if component_key not in components:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": "'esc' aún no declarado — no se puede fijar la altura estimada.",
+            }
+
+        from jarvis.core.component_writers import set_estimated_temporary_esc_height
+
+        try:
+            updated_state = set_estimated_temporary_esc_height(project_state, component_key, result.height_mm)
+        except ValueError as exc:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": str(exc),
+            }
+        self.workspace_manager.save_state(updated_state)
+
+        esc_spec = updated_state.design_properties.components[component_key]
+        esc_props = esc_spec.properties or {}
+
+        def _fmt(value: float) -> str:
+            return str(int(value)) if float(value).is_integer() else str(value)
+
+        length_prop = esc_props.get("length_mm")
+        width_prop = esc_props.get("width_mm")
+        lw_desc = (
+            f"{_fmt(length_prop.value)}×{_fmt(width_prop.value)}"
+            if length_prop is not None and width_prop is not None
+            else "?"
+        )
+        message = (
+            f"Declarado (ESTIMATED_TEMPORARY): esc H {_fmt(result.height_mm)} mm "
+            "(source=estimated_temporary). ESC · H ESTIMADA TEMPORAL · L×W citada "
+            f"({lw_desc}) · evidencia H: ninguna ficha de esta revisión · sustituir "
+            "al citar/medir H: SÍ. Jarvis no valida \"cabe\" ni \"declaro verificado\" "
+            "con esta altura."
+        )
         return {
             "status": "ok",
             "action": "component_description_saved",
