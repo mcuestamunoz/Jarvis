@@ -1,8 +1,8 @@
 # Engineer note — Board Situar work cola (post multi-box UX)
 
-**Date:** 2026-09-14 (synced — disk-axial CLOSED · library FC/sensors LANDING)  
-**Authority:** Engineer mentor reflection + smoke ACCEPT silueta / fit / disk-axial  
-**Status:** P0 library FC/sensors awaiting Engineer smoke  
+**Date:** 2026-09-14 (synced — library FC/sensors CLOSED)  
+**Authority:** Engineer mentor reflection + smoke ACCEPT silueta / fit / disk-axial / library P0  
+**Status:** Craft-montage catalog honesty closed · await next ★  
 
 ---
 
@@ -13,13 +13,12 @@
 
 `relaciones` / `fit` = suggest-only fit relations. Not ASSEMBLY READY. Estimated plate blocks attest.
 
-**P0:** FC/GPS physical SoT in `library/fc` + `library/sensors` — not in `aerial.py`. [IC](implementation_contract_library_fc_sensors_b1.md) · [review PASS](implementation_review_library_fc_sensors_b1.md).
+FC/GPS physical SoT = `library/fc` + `library/sensors` only — not in `aerial.py`.
 
 ## Order (activa)
 
 | # | ★ | Qué | Gate |
 |---|---|---|---|
-| **P0** | **`B1-library-fc-sensors`** | FC+GPS → `library/fc` + `library/sensors` | **LANDING** · smoke §3 |
 | **2** | **`B1-plate-box`** | L×W medida (quita \*) | B0 HOLD |
 | **3** | Stack Path N | Disk origin | B0 HOLD |
 | — | Disk-station attest | motors/props screening+attest | ★ · [note](engineer_note_fit_attest_all_components.md) |
@@ -28,4 +27,4 @@
 
 ## Cerrado este arco
 
-Disk axial Visor · Fit relations · Arm radial + mount tip · Silhouette S1 · mount-standard · estimated plate · Path F · layout-pack · purge
+Library FC/sensors P0 · Disk axial Visor · Fit relations · Arm radial + mount tip · Silhouette S1 · mount-standard · estimated plate · Path F · layout-pack · purge

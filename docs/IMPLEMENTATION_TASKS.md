@@ -8,7 +8,7 @@
 
 > **Base:** tag **`v0.4.1`**. Suite viva **2911** · UI **105**.  
 > **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
-> **PRIORIDAD AHORA:** **P0 `B1-library-fc-sensors`** — Cursor review **PASS WITH NOTES** · Engineer smoke §3 ([review](../.jes/artifacts/implementation_review_library_fc_sensors_b1.md)). Disk-axial **CLOSED** (smoke ACCEPT).  
+> **PRIORIDAD AHORA:** **await Engineer next ★** — P0 library FC/sensors **CLOSED** (smoke ACCEPT). Holds: `B1-plate-box` · Path N. Natural next: disk-station attest **or** measured plate when bag ready.  
 > **Holds:** plate-box · Path N. **Later:** disk-station attest · frame-parts progressive.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
@@ -16,7 +16,6 @@
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
-| **P0** | **`B1-library-fc-sensors`** | **LANDING** · review PASS · smoke | FC+GPS SoT → `library/fc` + `library/sensors` | 10min §3 |
 | **2** | **`B1-plate-box`** | **B0 HOLD** | L×W medida/citada (quita \* de B\*) | Caliper / cite bag |
 | **3** | **`B1-stack-rule` Path N** | **B0 HOLD** | Disk origin imposible | No reabrir sin ★ |
 | — | Disk-station fit attest | Queued | motors/props screening+attest | ★ · [note](../.jes/artifacts/engineer_note_fit_attest_all_components.md) |
@@ -26,6 +25,7 @@
 
 | ★ | Estado |
 |---|---|
+| **`B1-library-fc-sensors`** | CLOSED · review PASS · **smoke ACCEPT** (P0) |
 | **`B1-disk-axial-visor`** | CLOSED · review PASS · **smoke ACCEPT** (10min Board) |
 | **`B1-fit-relations-checklist`** | CLOSED · review PASS · **smoke ACCEPT** (10min) |
 | **`B1-arm-radial-visor` + mount tip** | CLOSED · smoke ACCEPT (Board 10min) |
@@ -49,9 +49,9 @@
 | User catalog contribution · fit attest all · Option B caliper | Parked — Engineer ★ aparte |
 | Disk-as-pose-origin / LLM invent Δmm | **Parked forever** unless ★ |
 
-### 🟡 LANDING — Library FC + sensors B1 (`B1-library-fc-sensors`) (2026-09-14) · **P0** · suite **2911** · review **PASS WITH NOTES** · smoke pending
+### 🟢 CLOSED — Library FC + sensors B1 (`B1-library-fc-sensors`) (2026-09-14) · **P0** · suite **2911** · review PASS · **smoke ACCEPT**
 
-> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_library_fc_sensors_b1.md) · [report](../.jes/artifacts/implementation_report_library_fc_sensors_b1.md) · [review](../.jes/artifacts/implementation_review_library_fc_sensors_b1.md). `library/fc` + `library/sensors`; aerial DIMENSIONS deleted. Binds additive (N1: no new IDLE rebind). Live 10-min envelopes unchanged. Smoke: files on disk + cards 41.6×39.4×7.8 / 50×50×14.4.
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_library_fc_sensors_b1.md) · [report](../.jes/artifacts/implementation_report_library_fc_sensors_b1.md) · [review](../.jes/artifacts/implementation_review_library_fc_sensors_b1.md). Engineer smoke ACCEPT 2026-09-14. `library/fc` + `library/sensors`; aerial DIMENSIONS deleted.
 
 ### 🟢 CLOSED — Disk axial Visor B1 (`B1-disk-axial-visor`) (2026-09-14) · suite **2892** · UI **105** · review PASS · **smoke ACCEPT**
 

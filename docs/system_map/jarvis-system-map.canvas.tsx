@@ -448,13 +448,12 @@ export default function JarvisSystemMapCanvas() {
 
       <Callout
         tone="info"
-        title="Product queue — P0 library FC/sensors LANDING (v0.4.1 · suite 2911 · UI 105)"
+        title="Product queue — await next ★ (v0.4.1 · suite 2911 · UI 105)"
       >
-        Disk-axial Visor CLOSED (cited Ø+H → cylinder). FC/GPS physical SoT
-        now in library/fc + library/sensors via ComponentLibrary — aerial.py
-        keeps language maps only. PRIORIDAD: Engineer smoke on library
-        relocate. Holds: B1-plate-box / Path N. Later: disk-station attest.
-        C-081 / C-108 deferred. HD-* never PRIORIDAD without lab.
+        Library FC/sensors P0 + disk-axial Visor CLOSED. FC/GPS SoT in
+        library/fc + library/sensors. PRIORIDAD: await Engineer next ★.
+        Holds: B1-plate-box / Path N. Natural next: disk-station attest or
+        measured plate. C-081 / C-108 deferred. HD-* never PRIORIDAD without lab.
       </Callout>
 
       <Grid columns={6} gap={12}>

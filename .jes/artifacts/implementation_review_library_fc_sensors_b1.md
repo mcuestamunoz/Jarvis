@@ -58,6 +58,12 @@
 
 ---
 
+## Engineer smoke ACCEPT (2026-09-14)
+
+Engineer **ACCEPT** — library files on disk; live FC/GPS envelopes unchanged. **Buy CLOSED.**
+
+---
+
 ## Related: Disk axial Visor smoke
 
 Engineer **ACCEPT** 2026-09-14 (Board screenshot: motors/props show axial cylinder depth). Buy **`B1-disk-axial-visor` CLOSED**.

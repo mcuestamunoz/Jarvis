@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "B1-library-fc-sensors LANDING (2026-09-14) — Cursor review PASS WITH NOTES; Engineer smoke §3 pending. library/fc + library/sensors live; aerial DIMENSIONS deleted. Disk-axial Visor CLOSED (smoke ACCEPT). Suite 2911 · UI 105 · v0.4.1.",
+  "cycle_intent": "B1-library-fc-sensors CLOSED (2026-09-14) — Cursor review PASS WITH NOTES + Engineer smoke ACCEPT. library/fc + library/sensors live; aerial DIMENSIONS deleted. Disk-axial Visor also CLOSED. Suite 2911 · UI 105 · v0.4.1. Await Engineer next star — holds plate-box / Path N; natural next disk-station attest or measured plate.",
   "scope": "geometry_3d_mapping_path",
-  "execution_status": "in_progress",
-  "current_mode": "Await Engineer smoke (library_fc_sensors_b1); disk_axial_visor_b1 CLOSED_SMOKE_ACCEPT",
-  "active_operation": "await_engineer_smoke_library_fc_sensors_b1",
+  "execution_status": "idle",
+  "current_mode": "Await Engineer next Buy (library FC/sensors + disk-axial closed; holds plate-box / Path N)",
+  "active_operation": "await_engineer_next_star",
   "movement_trigger": {
-    "type": "engineer_smoke",
-    "note": "2026-09-14 library_fc_sensors_b1 review PASS WITH NOTES @ suite 2911. Code+docs pushed 73a8780; living docs sync follow-up."
+    "type": "await_engineer_star",
+    "note": "2026-09-14 library_fc_sensors_b1 CLOSED_SMOKE_ACCEPT @ suite 2911."
   },
   "relevant_workflow_phases": [
     "Verification"
@@ -311,6 +311,6 @@
     "geometry_arm_radial_mount_tip_b1_ic": "CLOSED_SMOKE_ACCEPT_2858",
     "geometry_fit_relations_checklist_b1_ic": "CLOSED_SMOKE_ACCEPT_2873",
     "geometry_disk_axial_visor_b1_ic": "CLOSED_SMOKE_ACCEPT_2892",
-    "library_fc_sensors_b1_ic": "REVIEWED_PASS_WITH_NOTES_AWAIT_ENGINEER_SMOKE_2911"
+    "library_fc_sensors_b1_ic": "CLOSED_SMOKE_ACCEPT_2911"
   }
 }
