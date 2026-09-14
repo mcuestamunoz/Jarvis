@@ -1,0 +1,12 @@
+{
+  "holybro_m10": {
+    "manufacturer": "Holybro",
+    "model": "M10 GPS",
+    "identity_status": "verified",
+    "length_mm": 50.0,
+    "width_mm": 50.0,
+    "height_mm": 14.4,
+    "source_url": "https://holybro.com/products/m10-gps",
+    "source_note": "Engineer purchase SoT: Holybro store (https://holybro.com/products/m10-gps) states \"Dimension: φ50 x14.4 mm\" — circular footprint. Board box uses G1 bounding square 50×50×14.4 (cylinder inscribed in square), disclosed here; not a second invented envelope. HobbyDrone corroboration quoted unlabeled \"50 x 50 x 14,4 mm\" (same numeric bound). Weight 32g noted but not modeled. Separate 25×25×4mm antenna is a submodule, never folded into this box. M10 V2 is a different product — not this entry. (HobbyDrone: https://www.hobbydrone.cz/gps-module-holybro-m10-gps-module-standard/)"
+  }
+}

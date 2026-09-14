@@ -15,6 +15,7 @@ import re
 
 from jarvis.core.component_rules import ComponentRule, ComponentRuleRegistry
 from jarvis.domains.materials import MATERIAL_ALIASES, resolve_material_alias
+from jarvis.knowledge.library import default_library
 from jarvis.schemas.action_schema import PropertyValue
 
 
@@ -532,68 +533,34 @@ FLIGHT_CONTROLLER_MAP: dict[str, str] = {
     "betaflight":     "betaflight",
     "naze32":         "naze32",
     "matek":          "matek",
-    # Sourced FC + GPS envelopes B1 — SpeedyBee F405 V4, purchase-ground-
-    # truth citation (see FLIGHT_CONTROLLER_DIMENSIONS below). Longest
-    # aliases first; a bare "f405" or bare "betaflight" never matches any
-    # of these three, so neither ever picks up dims.
+    # SpeedyBee F405 V4, purchase-ground-truth citation now in
+    # `library/fc/_datos.json` (`B1-library-fc-sensors`). Longest aliases
+    # first; a bare "f405" or bare "betaflight" never matches any of
+    # these three, so neither ever picks up dims.
     "speedybee f405 v4": "speedybee_f405_v4",
     "speedybee f405":    "speedybee_f405_v4",
     "f405 v4":           "speedybee_f405_v4",
 }
 
-# Geometry axis (Minimum Geometric KNOW, FC B1) — identity-linked declared
-# box, NOT a catalog family. Keyed by the same canonical model string
-# FLIGHT_CONTROLLER_MAP already produces. No `library/fc/`, no `FcSpec`, no
-# bind function, no `catalog_ref` — this is the free-text/Structure-style
-# pattern (a value attached once a keyword/identity is recognized), not the
-# Battery/Motor/ESC catalog-bind pattern, because there is no SKU identity
-# here cleaner than the model string this system already names correctly.
-# Sourced-only, one entry (pixhawk_4) — never back-filled onto a model this
-# investigation didn't verify (investigation report §C/§D).
-FLIGHT_CONTROLLER_DIMENSIONS: dict[str, dict[str, object]] = {
-    "pixhawk_4": {
-        "length_mm": 44.0,
-        "width_mm": 84.0,
-        "height_mm": 12.0,
-        "source_urls": (
-            "https://docs.px4.io/main/en/flight_controller/pixhawk4.html",
-            "https://holybro.com/products/pixhawk-4",
-        ),
-        "source_note": (
-            "PX4 official docs (\"Dimensions: 44x84x12mm\") and Holybro's own "
-            "product page (\"44x84x12mm\") agree. Verbatim print order mapped "
-            "to length/width/height. No mounting hole pattern stated on "
-            "either page — not claimed. Pixhawk 4 Mini not seeded (no usable "
-            "spec page found this session)."
-        ),
-    },
-    "speedybee_f405_v4": {
-        "length_mm": 41.6,
-        "width_mm": 39.4,
-        "height_mm": 7.8,
-        "source_urls": (
-            "https://www.getfpv.com/speedybee-f405-v4-flight-controller-30x30.html",
-        ),
-        "source_note": (
-            "GetFPV product page (\"Dimension: 41.6(L) x 39.4(W) x 7.8(H)mm\") — "
-            "labeled axis order (L/W/H), mapped directly (N1). Weight 10.5g and "
-            "the 30.5x30.5mm/4mm mounting-hole pattern are noted on the page but "
-            "not modeled (no mounting-pattern schema field exists) — never "
-            "confused with the board's own L/W/H box."
-        ),
-    },
-}
-
-
+# Geometry axis (Minimum Geometric KNOW, FC B1), relocated by Relocate FC +
+# GPS envelopes into `library/` B1 (`B1-library-fc-sensors`) — the sourced
+# box for a recognized model now lives in `library/fc/_datos.json`
+# (`ComponentLibrary.get_fc`), keyed by the same canonical model string
+# FLIGHT_CONTROLLER_MAP already produces. This module never holds the
+# physical dimensions itself anymore — only the alias→canonical-id
+# language map above. Still not catalog-bound BY THIS extractor (no
+# `catalog_ref` set here) — see `catalog_bind.bind_flight_controller_
+# from_catalog` for the separate, explicit catalog-bind path this Buy
+# also adds.
 def extract_flight_controller_properties(normalized: str) -> dict[str, PropertyValue]:
     """Extract model from a flight controller description.
 
-    Geometry axis (FC B1): a recognized model with an entry in
-    ``FLIGHT_CONTROLLER_DIMENSIONS`` also gets ``length_mm``/``width_mm``/
-    ``height_mm`` attached — identity-linked from a sourced table, never
-    parsed from the user's own message (no mm digit in ``normalized`` is
-    ever read for this). Not catalog-bound: no ``catalog_ref`` is set by
-    this function or anywhere downstream of it.
+    Geometry axis (FC B1, relocated by `B1-library-fc-sensors`): a
+    recognized model with a `library/fc/` entry also gets
+    ``length_mm``/``width_mm``/``height_mm`` attached — identity-linked
+    from the catalog, never parsed from the user's own message (no mm
+    digit in ``normalized`` is ever read for this). Not catalog-bound: no
+    ``catalog_ref`` is set by this function or anywhere downstream of it.
 
     Examples:
         "Pixhawk 4"            → {model: "pixhawk_4",  confidence=0.9,
@@ -619,12 +586,17 @@ def extract_flight_controller_properties(normalized: str) -> dict[str, PropertyV
         props["model"] = PropertyValue(
             value=found_model, unit=None, confidence=found_confidence, source="declared"
         )
-        dims = FLIGHT_CONTROLLER_DIMENSIONS.get(found_model)
-        if dims is not None:
+        try:
+            fc_spec = default_library.get_fc(found_model)
+        except KeyError:
+            fc_spec = None
+        if fc_spec is not None:
             for key in ("length_mm", "width_mm", "height_mm"):
-                props[key] = PropertyValue(
-                    value=dims[key], unit="mm", confidence=found_confidence, source="declared"
-                )
+                value = getattr(fc_spec, key)
+                if value is not None:
+                    props[key] = PropertyValue(
+                        value=value, unit="mm", confidence=found_confidence, source="declared"
+                    )
     return props
 
 
@@ -653,11 +625,11 @@ GPS_MAP: dict[str, str] = {
     "here3":  "here3",
     "here+":  "here_plus",
     "here2":  "here2",
-    # Sourced FC + GPS envelopes B1 — Holybro M10, purchase-ground-truth
-    # citation (see GPS_DIMENSIONS below). Both longer than bare "m10", so
-    # a message naming Holybro never falls through to the generic
-    # ublox_m10 identity — but a bare "m10" alone still resolves to
-    # ublox_m10, WITHOUT dims (GPS_DIMENSIONS has no entry for it).
+    # Holybro M10, purchase-ground-truth citation now in
+    # `library/sensors/_datos.json` (`B1-library-fc-sensors`). Both longer
+    # than bare "m10", so a message naming Holybro never falls through to
+    # the generic ublox_m10 identity — but a bare "m10" alone still
+    # resolves to ublox_m10, WITHOUT dims (no library row for it).
     "holybro m10 gps": "holybro_m10",
     "holybro m10":     "holybro_m10",
     "m8n":    "ublox_m8n",
@@ -666,35 +638,16 @@ GPS_MAP: dict[str, str] = {
     "gps":    "generic_gps",
 }
 
-# Geometry axis (Minimum Geometric KNOW, GPS B1) — identity-linked
-# declared box, the SAME pattern FLIGHT_CONTROLLER_DIMENSIONS already
-# uses (no `library/sensors/`, no SensorSpec, no bind function, no
-# `catalog_ref`). Keyed by the same canonical model string GPS_MAP
-# already produces. Sourced-only, one entry (holybro_m10) — never
-# back-filled onto `ublox_m10`/`here3`/etc. this Buy didn't verify. The
-# module's separate 25x25x4mm antenna is a distinct submodule, disclosed
-# in `source_note` only — never folded into this box.
-GPS_DIMENSIONS: dict[str, dict[str, object]] = {
-    "holybro_m10": {
-        "length_mm": 50.0,
-        "width_mm": 50.0,
-        "height_mm": 14.4,
-        "source_urls": (
-            "https://holybro.com/products/m10-gps",
-            "https://www.hobbydrone.cz/gps-module-holybro-m10-gps-module-standard/",
-        ),
-        "source_note": (
-            "Engineer purchase SoT: Holybro store (https://holybro.com/products/"
-            "m10-gps) states \"Dimension: φ50 x14.4 mm\" — circular footprint. "
-            "Board box uses G1 bounding square 50×50×14.4 (cylinder inscribed in "
-            "square), disclosed here; not a second invented envelope. HobbyDrone "
-            "corroboration quoted unlabeled \"50 x 50 x 14,4 mm\" (same numeric "
-            "bound). Weight 32g noted but not modeled. Separate 25×25×4mm antenna "
-            "is a submodule, never folded into this box. M10 V2 is a different "
-            "product — not this entry."
-        ),
-    },
-}
+# Geometry axis (Minimum Geometric KNOW, GPS B1), relocated by Relocate
+# FC + GPS envelopes into `library/` B1 (`B1-library-fc-sensors`) — the
+# sourced box for a recognized model now lives in
+# `library/sensors/_datos.json` (`ComponentLibrary.get_sensor`; GPS
+# modules are rows in the `sensors` family, never a separate top-level
+# one), keyed by the same canonical model string GPS_MAP already
+# produces. This module never holds the physical dimensions itself
+# anymore. The module's separate 25x25x4mm antenna is a distinct
+# submodule, disclosed in the catalog row's own `source_note` only —
+# never folded into this box.
 
 # Bug 66: sensor types beyond GPS (IMU, barometer, compass).
 # component_inference.py passes text as text.lower() — diacritics are PRESERVED.
@@ -751,17 +704,23 @@ def extract_sensor_properties(normalized: str) -> dict[str, PropertyValue]:
         props["gps_model"] = PropertyValue(
             value=found_model, unit=None, confidence=found_confidence, source="declared"
         )
-        # Sourced FC + GPS envelopes B1: identity-linked from GPS_DIMENSIONS,
-        # never parsed from the user's own message (mirrors
-        # extract_flight_controller_properties's own FLIGHT_CONTROLLER_
-        # DIMENSIONS attach). Absent for every model this Buy didn't cite
-        # (e.g. bare "m10" -> ublox_m10, no entry -> no dims).
-        gps_dims = GPS_DIMENSIONS.get(found_model)
-        if gps_dims is not None:
+        # Relocate FC + GPS envelopes into `library/` B1: identity-linked
+        # from `library/sensors/` via ComponentLibrary.get_sensor, never
+        # parsed from the user's own message (mirrors extract_flight_
+        # controller_properties's own library lookup). Absent for every
+        # model this Buy didn't cite (e.g. bare "m10" -> ublox_m10, no
+        # library row -> no dims).
+        try:
+            sensor_spec = default_library.get_sensor(found_model)
+        except KeyError:
+            sensor_spec = None
+        if sensor_spec is not None:
             for key in ("length_mm", "width_mm", "height_mm"):
-                props[key] = PropertyValue(
-                    value=gps_dims[key], unit="mm", confidence=found_confidence, source="declared"
-                )
+                value = getattr(sensor_spec, key)
+                if value is not None:
+                    props[key] = PropertyValue(
+                        value=value, unit="mm", confidence=found_confidence, source="declared"
+                    )
 
     # ── Sensor type (Bug 66: IMU, barometer, compass) ─────────────────────────
     # Bug 68: use word-boundary regex instead of plain substring so that 'imu'

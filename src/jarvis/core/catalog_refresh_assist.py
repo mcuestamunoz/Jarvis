@@ -20,8 +20,14 @@ from jarvis.core.motor_catalog_assist import _normalize_help
 
 _GATE_RE = re.compile(r"\b(?:actualiza(?:r)?|refresca(?:r)?)\b")
 
-# Exactly the 5 catalog-bindable families locked by §3.2 — no flight_controller
-# (FC has no CatalogRef.family/bind path at all; out of scope per this IC).
+# Exactly the 5 catalog-bindable families locked by §3.2 — no
+# flight_controller/sensors here. `B1-library-fc-sensors` (2026-09-14)
+# DID add a bind path for both (`catalog_bind.bind_flight_controller_
+# from_catalog` / `bind_sensor_from_catalog`), so the old "FC has no
+# CatalogRef.family/bind path at all" is no longer literally true — but
+# wiring a NEW "actualiza el fc" refresh trigger was explicitly out of
+# that Buy's own minimal-surface scope (no new acquisition flow), so this
+# gate still excludes both families until a separate ★ asks for it.
 _SUBJECT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("esc", re.compile(r"\besc\b")),
     ("motors", re.compile(r"\b(?:motores|motor)\b")),

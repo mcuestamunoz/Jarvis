@@ -14,14 +14,22 @@ export type SpatialRect = {
 };
 
 /**
- * Board glyphs (Geometry Progression Lock B1, `visualizar`) — a
- * declarative 2D shape hint computed server-side by the projector from
+ * Board glyphs (Geometry Progression Lock B1, `visualizar`), extended by
+ * Disk axial Visor from cited dims B1 (`B1-disk-axial-visor`) — a
+ * declarative 2D/3D shape hint computed server-side by the projector from
  * dimensions already declared/sourced. Never present on `kind: "slot"`
  * nodes. Independent of `SpatialRect.width`/`height`, which stay the
  * card's on-canvas pixel layout (drag/resize state) — never physical mm.
+ *
+ * `cylinder`: emitted only when the component's own diameter path AND a
+ * cited axial fact both exist (Motor's `height_mm`, or Propeller's
+ * `hub_thickness_mm` when `height_mm` is absent) — never invented, never
+ * a substitute like Motor's `stator_height_mm`. `disk` remains the
+ * honest fallback when only a diameter is known.
  */
 export type SpatialGeometry =
   | { shape: "box"; length_mm: number; width_mm: number; height_mm: number }
+  | { shape: "cylinder"; diameter_mm: number; height_mm: number }
   | { shape: "disk"; diameter_mm: number };
 
 export type SpatialNode = SpatialRect & {

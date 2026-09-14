@@ -1,0 +1,22 @@
+{
+  "pixhawk_4": {
+    "manufacturer": "Holybro",
+    "model": "Pixhawk 4",
+    "identity_status": "verified",
+    "length_mm": 44.0,
+    "width_mm": 84.0,
+    "height_mm": 12.0,
+    "source_url": "https://docs.px4.io/main/en/flight_controller/pixhawk4.html",
+    "source_note": "PX4 official docs (\"Dimensions: 44x84x12mm\") and Holybro's own product page (\"44x84x12mm\") agree. Verbatim print order mapped to length/width/height. No mounting hole pattern stated on either page — not claimed. Pixhawk 4 Mini not seeded (no usable spec page found this session). (Holybro page: https://holybro.com/products/pixhawk-4)"
+  },
+  "speedybee_f405_v4": {
+    "manufacturer": "SpeedyBee",
+    "model": "F405 V4",
+    "identity_status": "verified",
+    "length_mm": 41.6,
+    "width_mm": 39.4,
+    "height_mm": 7.8,
+    "source_url": "https://www.getfpv.com/speedybee-f405-v4-flight-controller-30x30.html",
+    "source_note": "GetFPV product page (\"Dimension: 41.6(L) x 39.4(W) x 7.8(H)mm\") — labeled axis order (L/W/H), mapped directly (N1). Weight 10.5g and the 30.5x30.5mm/4mm mounting-hole pattern are noted on the page but not modeled (no mounting-pattern schema field exists) — never confused with the board's own L/W/H box."
+  }
+}

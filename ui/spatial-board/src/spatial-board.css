@@ -351,6 +351,14 @@ html, body, #root {
   transform-style: preserve-3d;
 }
 
+/* Disk axial Visor B1 — same preserve-3d wrapper role as the box's own
+   .sb-solid__cuboid; the caps/side segments inside reuse .sb-solid__disk-face
+   and .sb-solid__face directly, so no new face styling is needed here. */
+.sb-solid--cylinder .sb-solid__cylinder-body {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
 .sb-solid__face {
   position: absolute;
   top: 0;

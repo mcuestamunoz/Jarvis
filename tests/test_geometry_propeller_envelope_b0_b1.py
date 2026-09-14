@@ -8,8 +8,9 @@ Covers implementation_contract_geometry_propeller_envelope_b0_b1.md §3.1-3.7:
   T4  bind_propeller_from_catalog("gf_5045x3") projects the bag; diameter_in 5
   T5  bind gemfan_5030 -> no mass_g key
   T6  bind tmotor_15x5 -> no mass_g key
-  T7  project_spatial_nodes: diameter_in + hub_thickness_mm -> disk Ø 127,
-      hub field shown as text
+  T7  project_spatial_nodes: diameter_in + hub_thickness_mm -> CYLINDER
+      Ø 127 (Disk axial Visor B1, `B1-disk-axial-visor` superseded this
+      Buy's original "still disk" lock) — hub field still shown as text
   T8  tmotor_22x6_7.pitch_in == 6.7; mass_g None; key/pitch unchanged
   T9  among list_propellers(), only gf_5045x3 has mass_g is not None
 """
@@ -81,7 +82,11 @@ def test_t6_bind_hq_5045_bn_no_mass_g_key():
     assert "mass_g" not in spec.properties
 
 
-def test_t7_geometry_still_disk_hub_shown_as_text():
+def test_t7_geometry_is_cylinder_when_diameter_and_hub_thickness_both_cited():
+    """Disk axial Visor B1 (`B1-disk-axial-visor`) supersedes this Buy's
+    own original "still disk" lock — Ø + a cited `hub_thickness_mm`
+    together now emit a cylinder DTO (axial = hub thickness only, never
+    the full blade envelope). The hub field still shows as text too."""
     propellers = ComponentSpec(
         suggested_key="propellers", completeness="high",
         properties={
@@ -95,7 +100,7 @@ def test_t7_geometry_still_disk_hub_shown_as_text():
     )
     nodes = project_spatial_nodes(state)
     node = next(n for n in nodes if n["id"] == "propellers")
-    assert node["geometry"] == {"shape": "disk", "diameter_mm": 127.0}
+    assert node["geometry"] == {"shape": "cylinder", "diameter_mm": 127.0, "height_mm": 9.5}
     assert {"label": "hub_thickness_mm", "value": "9.5 mm"} in node["fields"]
 
 

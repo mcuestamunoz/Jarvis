@@ -67,6 +67,17 @@ describe("solidExtentPx", () => {
     expect(extent.y).toBeCloseTo(63.5);
     expect(extent.z).toBe(0);
   });
+
+  it("C8: cylinder 28.5 x 33.1 -> {x:14.25, y:14.25, z:16.55} at 0.5 (z > 0)", () => {
+    const extent = solidExtentPx(
+      { shape: "cylinder", diameter_mm: 28.5, height_mm: 33.1 },
+      0.5,
+    );
+    expect(extent.x).toBeCloseTo(14.25);
+    expect(extent.y).toBeCloseTo(14.25);
+    expect(extent.z).toBeCloseTo(16.55);
+    expect(extent.z).toBeGreaterThan(0);
+  });
 });
 
 describe("solidWrapperPx", () => {
@@ -83,5 +94,14 @@ describe("solidWrapperPx", () => {
     const wrap = solidWrapperPx({ shape: "disk", diameter_mm: 127 }, 0.5);
     expect(wrap.width).toBeCloseTo(63.5);
     expect(wrap.height).toBeCloseTo(63.5);
+  });
+
+  it("cylinder 28.5 x 33.1 at 0.5 -> {width:14.25, height:16.55} (box-style, not disk-style)", () => {
+    const wrap = solidWrapperPx(
+      { shape: "cylinder", diameter_mm: 28.5, height_mm: 33.1 },
+      0.5,
+    );
+    expect(wrap.width).toBeCloseTo(14.25);
+    expect(wrap.height).toBeCloseTo(16.55);
   });
 });

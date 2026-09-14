@@ -14,7 +14,9 @@ from the model code's trailing digits.
       blades 3, hub_thickness 6.8, shaft_bore 5, no invented
       hub_diameter_mm
   T2  bind_propeller_from_catalog projects the bag (source="declared")
-  T3  Projector emits disk geometry, diameter_mm ~= 131.8
+  T3  Projector emits CYLINDER geometry (Ø + hub_thickness_mm both
+      cited — Disk axial Visor B1, `B1-disk-axial-visor`), diameter_mm
+      ~= 131.8, height_mm == hub_thickness_mm == 6.8
   T4  gf_5045x3 unchanged (diameter/pitch/mass/hub bag)
   T5  Pitch is 3.6, never 4.66
 """
@@ -59,11 +61,15 @@ def test_t2_bind_projects_bag_declared():
     assert bound.catalog_ref.sku == _NEW_SKU
 
 
-def test_t3_projector_emits_disk_diameter_131_8mm():
+def test_t3_projector_emits_cylinder_diameter_131_8mm_hub_6_8mm():
+    """Disk axial Visor B1 (`B1-disk-axial-visor`): this SKU cites both a
+    diameter path and `hub_thickness_mm` — the projector now emits a
+    cylinder, axial = hub thickness only (never invented blade volume)."""
     bound = bind_propeller_from_catalog(_NEW_SKU)
     geometry = _geometry_from_spec(bound)
-    assert geometry["shape"] == "disk"
+    assert geometry["shape"] == "cylinder"
     assert geometry["diameter_mm"] == pytest.approx(131.8, abs=0.01)
+    assert geometry["height_mm"] == pytest.approx(6.8)
 
 
 def test_t4_gf_5045x3_unchanged():

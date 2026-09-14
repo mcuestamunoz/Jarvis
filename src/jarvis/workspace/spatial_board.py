@@ -269,23 +269,40 @@ _MM_PER_INCH = 25.4
 
 
 def _geometry_from_spec(spec: ComponentSpec) -> dict[str, float | str] | None:
-    """Board glyphs (Geometry Progression Lock B1, `visualizar`) — a
-    declarative 2D shape hint derived from whichever dimension
+    """Board glyphs (Geometry Progression Lock B1, `visualizar`), extended
+    by Disk axial Visor from cited dims B1 (`B1-disk-axial-visor`) — a
+    declarative 2D/3D shape hint derived from whichever dimension
     ``PropertyValue`` keys are actually present on ``spec``. Shape is
     chosen by which keys exist, never a hardcoded per-family table
-    (investigation report §C) — this is why Motor and Propeller, two
-    unrelated families, both resolve to ``disk`` today.
+    (investigation report §C).
 
-    ``box`` requires the full ``length_mm``/``width_mm``/``height_mm``
-    triple (a complete box always wins over any diameter also present).
-    ``disk`` requires exactly one diameter path: ``diameter_mm`` if
-    present, else ``diameter_in`` converted to an mm-equivalent purely for
-    drawing scale (a lossless physical-constant conversion, never altering
-    the declared unit shown in ``fields``). A diameter alongside an
-    unrelated height (e.g. Motor's ``stator_height_mm``) never becomes a
-    cylinder — this function never stitches two different physical
-    references together (investigation report §E). Returns ``None`` when
-    dims are insufficient — no partial/dashed geometry is ever invented.
+    Priority (fail-closed, never invents a missing dimension):
+
+    1. ``box`` — the full ``length_mm``/``width_mm``/``height_mm`` triple
+       (always wins over any diameter also present, unchanged).
+    2. ``cylinder`` — a diameter path (``diameter_mm``, else
+       ``diameter_in``->mm) **plus** a cited axial extent: Motor's own
+       ``height_mm`` property, or (when that's absent) Propeller's own
+       ``hub_thickness_mm`` property. Both come from properties already
+       declared/cited on THIS spec — never invented, never borrowed from
+       a sibling. This is Engineer's own explicit, Buy-scoped supersession
+       of this function's prior "diameter alongside an unrelated height
+       never becomes a cylinder" rule — it now applies ONLY to axial
+       facts that are NOT one of these two named, cited properties.
+       ``stator_height_mm`` (Motor) is a categorically different physical
+       reference (stator stack height, not overall body height) and is
+       NEVER read here, even when present alongside a diameter and no
+       ``height_mm`` — the same "no stitching two different physical
+       references together" discipline as this function's own history
+       (investigation report §E), narrowed rather than removed. Hub
+       thickness is a center/hub axial fact only, never the full blade
+       envelope, and the report/copy for it must say so.
+    3. ``disk`` — a diameter path alone (unchanged; ``diameter_in``
+       converted to an mm-equivalent purely for drawing scale, a
+       lossless physical-constant conversion, never altering the
+       declared unit shown in ``fields``).
+    4. ``None`` — dims insufficient (e.g. axial fact alone with no
+       diameter) — no partial/dashed geometry is ever invented.
     """
     props = spec.properties or {}
 
@@ -314,10 +331,14 @@ def _geometry_from_spec(spec: ComponentSpec) -> dict[str, float | str] | None:
         diameter_in = _num("diameter_in")
         if diameter_in is not None:
             diameter_mm = diameter_in * _MM_PER_INCH
-    if diameter_mm is not None:
-        return {"shape": "disk", "diameter_mm": diameter_mm}
+    if diameter_mm is None:
+        return None
 
-    return None
+    axial_mm = height_mm if height_mm is not None else _num("hub_thickness_mm")
+    if axial_mm is not None:
+        return {"shape": "cylinder", "diameter_mm": diameter_mm, "height_mm": axial_mm}
+
+    return {"shape": "disk", "diameter_mm": diameter_mm}
 
 
 # Geometry Pose Declared Box-Local Frame B1 — the ONE honesty label for

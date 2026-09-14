@@ -1,13 +1,21 @@
 """#4b Sourced FC + GPS envelopes B1.
 
 Covers implementation_contract_geometry_sourced_fc_gps_b1.md §0/§3 — two
-new identity-linked declared boxes from Engineer purchase-ground-truth
-citations, same pattern `FLIGHT_CONTROLLER_DIMENSIONS`/`pixhawk_4` already
-established (no `library/fc/`, no `library/sensors/`, no bind, no
-`catalog_ref`): SpeedyBee F405 V4 (FC, 41.6x39.4x7.8mm) and Holybro M10
-(GPS, new `GPS_DIMENSIONS` table, 50x50x14.4mm). A bare "f405"/"betaflight"
-never picks up SpeedyBee's dims; a bare "m10" still resolves to
-`ublox_m10` but WITHOUT dims — GPS_DIMENSIONS has no entry for it.
+identity-linked declared boxes from Engineer purchase-ground-truth
+citations: SpeedyBee F405 V4 (FC, 41.6x39.4x7.8mm) and Holybro M10 (GPS,
+50x50x14.4mm). A bare "f405"/"betaflight" never picks up SpeedyBee's
+dims; a bare "m10" still resolves to `ublox_m10` but WITHOUT dims — no
+`library/sensors/` row for it.
+
+RELOCATED by `B1-library-fc-sensors` (2026-09-14): this Buy's own original
+"no `library/fc/`, no `library/sensors/`, no bind, no `catalog_ref`" lock
+is explicitly SUPERSEDED — those two folders, `ComponentLibrary.get_fc`/
+`get_sensor`, and `bind_flight_controller_from_catalog`/`bind_sensor_
+from_catalog` now exist (see test_library_fc_sensors_b1.py for the
+dedicated loader/bind coverage). The extractors below are unchanged in
+BEHAVIOR (same dims, same aliases) — they now resolve dims via
+`ComponentLibrary` instead of the deleted `FLIGHT_CONTROLLER_DIMENSIONS`/
+`GPS_DIMENSIONS` dicts.
 
   T1  "SpeedyBee F405 V4" -> model=speedybee_f405_v4, 41.6/39.4/7.8
   T2  pixhawk_4 still 44/84/12; bare "betaflight"/"f405" no dims
@@ -20,10 +28,10 @@ from __future__ import annotations
 import pytest
 
 from jarvis.domains.aerial import (
-    GPS_DIMENSIONS,
     extract_flight_controller_properties,
     extract_sensor_properties,
 )
+from jarvis.knowledge.library import default_library
 from jarvis.schemas.action_schema import ComponentSpec, PropertyValue
 from jarvis.workspace.spatial_board import _geometry_from_spec
 
@@ -62,10 +70,11 @@ def test_t2_pixhawk4_regression_and_bare_terms_no_dims():
 def test_t3_holybro_m10_dims():
     props = extract_sensor_properties("holybro m10")
     assert props["gps_model"].value == "holybro_m10"
-    # Engineer SoT URL (holybro.com); HobbyDrone is corroboration only.
-    urls = GPS_DIMENSIONS["holybro_m10"]["source_urls"]
-    assert urls[0] == "https://holybro.com/products/m10-gps"
-    assert "φ50" in GPS_DIMENSIONS["holybro_m10"]["source_note"]
+    # Engineer SoT URL (holybro.com); HobbyDrone is corroboration only —
+    # now read from library/sensors/ via ComponentLibrary.
+    catalog_spec = default_library.get_sensor("holybro_m10")
+    assert catalog_spec.source_url == "https://holybro.com/products/m10-gps"
+    assert "φ50" in catalog_spec.source_note
     assert props["length_mm"].value == pytest.approx(50.0)
     assert props["length_mm"].unit == "mm"
     assert props["length_mm"].source == "declared"

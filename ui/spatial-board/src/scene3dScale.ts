@@ -52,10 +52,14 @@ export type SolidExtentPx = { x: number; y: number; z: number };
  * Display-axis extent of a solid, in px, at the given scale.
  * Box: length_mm -> x, width_mm -> y, height_mm -> z (a visor display
  * convention only, not a CAD/body reference frame — no pose implied).
- * Disk: diameter_mm -> x and y (its footprint), z is ALWAYS 0 — a disk is
- * a flat plane, never a cylinder; there is no sourced axial height to put
- * here (see Solid3D.tsx / _geometry_from_spec — the DTO itself carries no
- * height key for a disk, so there is nothing to invent even by accident).
+ * Cylinder (Disk axial Visor B1, `B1-disk-axial-visor`): diameter_mm ->
+ * x and y (its circular footprint), height_mm -> z — the ONE cited axial
+ * fact the projector already gated on (Motor `height_mm` or Propeller
+ * `hub_thickness_mm`; see `_geometry_from_spec`), never invented here.
+ * Disk: diameter_mm -> x and y (its footprint), z is ALWAYS 0 — a disk
+ * has no cited axial extent at all (that's exactly what makes it a disk
+ * and not a cylinder; see `_geometry_from_spec`), so there is nothing to
+ * invent even by accident.
  */
 export function solidExtentPx(
   geometry: SpatialGeometry,
@@ -68,6 +72,10 @@ export function solidExtentPx(
       z: mmToPx(geometry.height_mm, pxPerMm),
     };
   }
+  if (geometry.shape === "cylinder") {
+    const d = mmToPx(geometry.diameter_mm, pxPerMm);
+    return { x: d, y: d, z: mmToPx(geometry.height_mm, pxPerMm) };
+  }
   const d = mmToPx(geometry.diameter_mm, pxPerMm);
   return { x: d, y: d, z: 0 };
 }
@@ -79,17 +87,21 @@ export type SolidWrapperPx = { width: number; height: number };
  * div, in px: `Solid3D`'s box wrapper is `{width: extent.x, height: extent.z}`
  * (CSS width = declared length/+X, CSS height = declared height/+Z — the
  * depth/+Y axis lives entirely in `translateZ`, never in the wrapper's own
- * box). A disk wrapper is `{width: extent.x, height: extent.x}` — its own
- * CSS height/width are both the diameter (see `Solid3D`'s disk branch);
- * never `extent.z`, which is always 0 for a disk and is not its on-screen
- * height at all.
+ * box). Disk axial Visor B1: a cylinder wrapper uses the SAME formula as a
+ * box — `{width: extent.x, height: extent.z}` — since it also stands with
+ * its axial extent along the declared +Z/screen-vertical axis (diameter on
+ * X, cited height on screen height), never the disk-style square wrapper.
+ * A disk wrapper is `{width: extent.x, height: extent.x}` — its own CSS
+ * height/width are both the diameter (see `Solid3D`'s disk branch); never
+ * `extent.z`, which is always 0 for a disk and is not its on-screen height
+ * at all.
  */
 export function solidWrapperPx(
   geometry: SpatialGeometry,
   pxPerMm: number = SCENE3D.pxPerMm,
 ): SolidWrapperPx {
   const extent = solidExtentPx(geometry, pxPerMm);
-  if (geometry.shape === "box") {
+  if (geometry.shape === "box" || geometry.shape === "cylinder") {
     return { width: extent.x, height: extent.z };
   }
   return { width: extent.x, height: extent.x };

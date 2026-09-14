@@ -7,8 +7,10 @@ Covers implementation_contract_geometry_motor_height_cited_b1.md §3–3.4:
   T4  emax_rs2205_2300.height_mm is None (sibling, unsourced)
   T5  bind_motor_from_catalog projects height_mm for the EMAX RS2205S
   T6  bind_motor_from_catalog does not project height_mm for SunnySky R2205
-  T7  project_spatial_nodes: diameter_mm + height_mm still resolves to disk,
-      never a box/cylinder; height_mm still shows as a text field
+  T7  project_spatial_nodes: diameter_mm + height_mm resolves to a
+      CYLINDER (Disk axial Visor B1, `B1-disk-axial-visor`, superseded
+      this Buy's original "no cylinder" lock for cited axial dims) —
+      never a box; height_mm still shows as a text field too
 """
 from __future__ import annotations
 
@@ -57,7 +59,11 @@ def test_t6_bind_sunnysky_r2205_has_no_height_mm_key():
     assert "height_mm" not in spec.properties
 
 
-def test_t7_geometry_still_disk_never_cylinder_height_mm_shown_as_text():
+def test_t7_geometry_is_cylinder_when_diameter_and_height_mm_both_cited():
+    """Disk axial Visor B1 (`B1-disk-axial-visor`) supersedes this Buy's
+    own original "no cylinder" lock — Ø + a cited Motor `height_mm`
+    together now emit a cylinder DTO, never a box. `height_mm` still
+    shows as its own text field regardless (unchanged)."""
     motors = ComponentSpec(
         suggested_key="motors", completeness="high",
         properties={
@@ -71,5 +77,5 @@ def test_t7_geometry_still_disk_never_cylinder_height_mm_shown_as_text():
     )
     nodes = project_spatial_nodes(state)
     node = next(n for n in nodes if n["id"] == "motors")
-    assert node["geometry"] == {"shape": "disk", "diameter_mm": 27.9}
+    assert node["geometry"] == {"shape": "cylinder", "diameter_mm": 27.9, "height_mm": 31.7}
     assert {"label": "height_mm", "value": "31.7 mm"} in node["fields"]

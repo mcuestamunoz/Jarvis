@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "B1-fit-relations-checklist CLOSED (2026-09-13) — Cursor review PASS WITH NOTES + Engineer smoke ACCEPT on 10-min-autonomia (parece un dron B* scoped footer; relaciones 0/0/4 blocked estimated_dims / 2 n/a disk). Suite 2873 · UI 103 · v0.4.1 unchanged. Await Engineer next star — holds plate-box / Path N; natural next disk-station attest or measured plate.",
+  "cycle_intent": "B1-library-fc-sensors (P0 architecture correction) IMPLEMENTED (2026-09-14) @ suite 2911 (was 2892), UI unchanged 105 (backend/catalog-only cycle) -- supersedes #4b own \"no library/fc|sensors\" ban per Engineer 2026-09-14 failure finding. library/fc/_datos.json (pixhawk_4, speedybee_f405_v4) + library/sensors/_datos.json (holybro_m10) created; dims/citations migrated verbatim from the deleted FLIGHT_CONTROLLER_DIMENSIONS/GPS_DIMENSIONS dicts in aerial.py (source_urls tuple collapsed to the library-wide singular source_url convention, second URL preserved in source_note). New FcSpec/SensorSpec + get_fc/list_fcs/get_sensor/list_sensors in ComponentLibrary (mirrors EscSpec exactly). extract_flight_controller_properties/extract_sensor_properties now resolve dims via the library -- byte-identical output confirmed for every existing alias. control_identity_catalog_assist now lists from list_fcs/list_sensors; pick-apply UX unchanged (still free-text extractor path per lock #8). New additive bind_flight_controller_from_catalog/bind_sensor_from_catalog (mirrors bind_esc_from_catalog; CatalogRef.family Literal widened to add flight_controller/sensors) -- NOT yet wired to a live IDLE rebind trigger, flagged for Cursor as a deliberate minimal-surface reading of lock #3 (no prior FC/sensor rebind trigger existed to extend either). Live check on both projects: FC/sensor envelopes byte-identical before/after (10-min: SpeedyBee F405 V4 41.6x39.4x7.8 + Holybro M10 50x50x14.4, matching the IC's own smoke target exactly). 19 new tests, full suite green, no version bump, no workspace/ mutation (Path D live-project rewrite not taken, default no-edit). Awaiting Cursor review + Engineer smoke.",
   "scope": "geometry_3d_mapping_path",
-  "execution_status": "idle",
-  "current_mode": "Await Engineer next Buy (craft-montage arc closed through fit-relations; holds plate-box / Path N)",
-  "active_operation": "await_engineer_next_star",
+  "execution_status": "in_progress",
+  "current_mode": "Await Cursor review + Engineer smoke (library_fc_sensors_b1) + prior pending smokes (disk_axial_visor_b1 review PASS WITH NOTES awaiting Engineer smoke, mount_standard_assist_b1, Situar experience B1, multibox UX fix, Structure A class slack, #4* stack)",
+  "active_operation": "await_review_smoke_library_fc_sensors_b1",
   "movement_trigger": {
-    "type": "await_engineer_star",
-    "note": "2026-09-13 fit_relations_checklist_b1 CLOSED_SMOKE_ACCEPT @ suite 2873. Docs sync: system map / ARCHITECTURE / PRIORIDAD."
+    "type": "cursor_review_then_engineer_smoke",
+    "note": "2026-09-14 library_fc_sensors_b1 implemented @ suite 2911 (was 2892) — implementation_report_library_fc_sensors_b1.md. No workspace/ change, no version bump. Disk axial visor B1 already Cursor-reviewed PASS WITH NOTES, still awaiting Engineer smoke separately."
   },
   "relevant_workflow_phases": [
     "Verification"
@@ -309,6 +309,8 @@
     "geometry_layout_pack_cited_b1_ic": "CLOSED_SMOKE_ACCEPT_2830",
     "board_silhouette_product_b_b1_ic": "CLOSED_SMOKE_ACCEPT_2844",
     "geometry_arm_radial_mount_tip_b1_ic": "CLOSED_SMOKE_ACCEPT_2858",
-    "geometry_fit_relations_checklist_b1_ic": "CLOSED_SMOKE_ACCEPT_2873"
+    "geometry_fit_relations_checklist_b1_ic": "CLOSED_SMOKE_ACCEPT_2873",
+    "geometry_disk_axial_visor_b1_ic": "REVIEWED_PASS_WITH_NOTES_AWAIT_ENGINEER_SMOKE_2892",
+    "library_fc_sensors_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_2911"
   }
 }

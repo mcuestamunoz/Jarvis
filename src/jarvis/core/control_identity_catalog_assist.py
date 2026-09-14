@@ -1,18 +1,23 @@
-"""Assisted FC / GPS identity acquisition — numbered list from sourced
-dimension tables (Geometry #4b), not Class A ``library/`` SKUs.
+"""Assisted FC / GPS identity acquisition — numbered list from
+`library/fc/` / `library/sensors/` (Relocate FC + GPS envelopes into
+`library/` B1, `B1-library-fc-sensors`).
 
-``FLIGHT_CONTROLLER_DIMENSIONS`` / ``GPS_DIMENSIONS`` are the Engineer-
-cited identity envelopes already used by free-text declare. This module
-only formats those rows for ``ayúdame a elegir`` and maps a pick back to
-the same declare phrase the extractors already understand — no new
-``catalog_ref`` family, no bind, no fit claim.
+These two families now live in ``library/`` exactly like every other
+catalog family (``ComponentLibrary.list_fcs`` / ``list_sensors``) — this
+module never imports a dimension dict from ``jarvis.domains.aerial``
+anymore. The pick-application UX is UNCHANGED (IC lock #8): a pick still
+maps back to the SAME free-text declare phrase the extractors already
+understand — no new ``catalog_ref`` bind wired into this path, no fit
+claim. (A separate, explicit catalog-bind path — ``catalog_bind.
+bind_flight_controller_from_catalog`` / ``bind_sensor_from_catalog`` —
+exists for other callers, but this assist module does not use it.)
 """
 from __future__ import annotations
 
 from typing import Literal, TypedDict
 
 from jarvis.core.motor_catalog_assist import is_help_choose_phrase, match_suggestion_by_input
-from jarvis.domains.aerial import FLIGHT_CONTROLLER_DIMENSIONS, GPS_DIMENSIONS
+from jarvis.knowledge.library import default_library
 
 __all__ = [
     "ControlIdentitySuggestion",
@@ -25,8 +30,11 @@ __all__ = [
 
 ControlFamily = Literal["flight_controller", "sensors"]
 
-# Declare phrases that extract_* already resolve to the dim-table keys
-# (longest aliases preferred in aerial maps — these are the smoke phrases).
+# Declare phrases that extract_* already resolve to the same canonical
+# model id `library/fc|sensors` key off (longest aliases preferred in
+# aerial maps — these are the smoke phrases). Kept here (not derived from
+# `manufacturer`/`model`) since the extractor's own alias table is the
+# actual authority on what text round-trips.
 _FC_DECLARE: dict[str, str] = {
     "pixhawk_4": "Pixhawk 4",
     "speedybee_f405_v4": "SpeedyBee F405 V4",
@@ -52,46 +60,55 @@ class ControlIdentitySuggestion(TypedDict):
 def build_flight_controller_identity_suggestions(
     *, limit: int = 10
 ) -> list[ControlIdentitySuggestion]:
-    """Sourced FC envelopes from ``FLIGHT_CONTROLLER_DIMENSIONS`` — no ranking."""
+    """Sourced FC envelopes from ``library/fc/`` (``ComponentLibrary.
+    list_fcs``) — no ranking. Only rows with a full cited box (all of
+    length/width/height) are listed, matching this assist's own "con caja
+    citada" header."""
     out: list[ControlIdentitySuggestion] = []
-    for i, (key, dims) in enumerate(FLIGHT_CONTROLLER_DIMENSIONS.items()):
-        if i >= limit:
+    for i, spec in enumerate(default_library.list_fcs()):
+        if spec.length_mm is None or spec.width_mm is None or spec.height_mm is None:
+            continue
+        if len(out) >= limit:
             break
-        label = _FC_DECLARE.get(key, key.replace("_", " "))
+        label = _FC_DECLARE.get(spec.name, spec.name.replace("_", " "))
         out.append(
             {
-                "idx": i + 1,
+                "idx": len(out) + 1,
                 "name": label,  # match_suggestion_by_input keys off "name"
                 "family": "flight_controller",
-                "model_key": key,
+                "model_key": spec.name,
                 "declare_text": label,
                 "label": label,
-                "length_mm": float(dims["length_mm"]),  # type: ignore[arg-type]
-                "width_mm": float(dims["width_mm"]),  # type: ignore[arg-type]
-                "height_mm": float(dims["height_mm"]),  # type: ignore[arg-type]
+                "length_mm": spec.length_mm,
+                "width_mm": spec.width_mm,
+                "height_mm": spec.height_mm,
             }
         )
     return out
 
 
 def build_sensor_identity_suggestions(*, limit: int = 10) -> list[ControlIdentitySuggestion]:
-    """Sourced GPS envelopes from ``GPS_DIMENSIONS`` — no ranking."""
+    """Sourced GPS/sensor envelopes from ``library/sensors/``
+    (``ComponentLibrary.list_sensors``) — no ranking. Only rows with a
+    full cited box are listed."""
     out: list[ControlIdentitySuggestion] = []
-    for i, (key, dims) in enumerate(GPS_DIMENSIONS.items()):
-        if i >= limit:
+    for i, spec in enumerate(default_library.list_sensors()):
+        if spec.length_mm is None or spec.width_mm is None or spec.height_mm is None:
+            continue
+        if len(out) >= limit:
             break
-        label = _GPS_DECLARE.get(key, key.replace("_", " "))
+        label = _GPS_DECLARE.get(spec.name, spec.name.replace("_", " "))
         out.append(
             {
-                "idx": i + 1,
+                "idx": len(out) + 1,
                 "name": label,  # match_suggestion_by_input keys off "name"
                 "family": "sensors",
-                "model_key": key,
+                "model_key": spec.name,
                 "declare_text": label,
                 "label": label,
-                "length_mm": float(dims["length_mm"]),  # type: ignore[arg-type]
-                "width_mm": float(dims["width_mm"]),  # type: ignore[arg-type]
-                "height_mm": float(dims["height_mm"]),  # type: ignore[arg-type]
+                "length_mm": spec.length_mm,
+                "width_mm": spec.width_mm,
+                "height_mm": spec.height_mm,
             }
         )
     return out

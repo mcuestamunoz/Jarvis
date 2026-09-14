@@ -174,6 +174,51 @@ class EscSpec:
 
 
 @dataclass(frozen=True)
+class FcSpec:
+    """Catalog entry: a real flight controller.
+
+    Relocate FC + GPS envelopes into `library/` B1 (`B1-library-fc-
+    sensors`): this family's L×W×H previously lived as a hard-coded
+    ``FLIGHT_CONTROLLER_DIMENSIONS`` dict inside ``jarvis.domains.aerial``
+    (a language/domain-inference module under ``src/``) — an Engineer-
+    flagged architecture failure, since physical catalog facts must live
+    under repo-root ``library/`` with every other family. Same field
+    shape/convention as ``EscSpec`` (a flat PCB module, box envelope,
+    sourced-only, never invented)."""
+
+    name: str
+    manufacturer: str | None = None
+    model: str | None = None
+    identity_status: str | None = None
+    source_url: str | None = None
+    source_note: str | None = None
+    length_mm: float | None = None
+    width_mm: float | None = None
+    height_mm: float | None = None
+
+
+@dataclass(frozen=True)
+class SensorSpec:
+    """Catalog entry: a real GPS/sensor module (e.g. Holybro M10).
+
+    Relocate FC + GPS envelopes into `library/` B1 (`B1-library-fc-
+    sensors`): see ``FcSpec``'s own docstring for the corrected-failure
+    context — the same move applies to GPS/sensor identities, formerly
+    ``GPS_DIMENSIONS`` inside ``jarvis.domains.aerial``. GPS modules are
+    rows in THIS family, not a separate top-level catalog family."""
+
+    name: str
+    manufacturer: str | None = None
+    model: str | None = None
+    identity_status: str | None = None
+    source_url: str | None = None
+    source_note: str | None = None
+    length_mm: float | None = None
+    width_mm: float | None = None
+    height_mm: float | None = None
+
+
+@dataclass(frozen=True)
 class PlateSeed:
     """Structure B Frame Assembly Physical Model B2 — one curated, named
     plate on a frame's seed row. ``label`` is a verbatim-from-source display
@@ -346,6 +391,8 @@ class ComponentLibrary:
         self._escs: dict[str, EscSpec] | None = None
         self._frames: dict[str, FrameSpec] | None = None
         self._kit_hardware: dict[str, KitHardwareSpec] | None = None
+        self._fcs: dict[str, FcSpec] | None = None
+        self._sensors: dict[str, SensorSpec] | None = None
 
     # ── Materials ────────────────────────────────────────────────────────────
 
@@ -810,6 +857,113 @@ class ComponentLibrary:
         """Return True if *name* is in the ESC library (no exception)."""
         try:
             self.get_esc(name)
+            return True
+        except KeyError:
+            return False
+
+    # ── FC (Relocate FC + GPS envelopes into `library/` B1) ──────────────────
+
+    @staticmethod
+    def _fc_from_raw(name: str, data: dict) -> FcSpec:
+        return FcSpec(
+            name=name,
+            manufacturer=data.get("manufacturer"),
+            model=data.get("model"),
+            identity_status=data.get("identity_status"),
+            source_url=data.get("source_url"),
+            source_note=data.get("source_note"),
+            length_mm=float(data["length_mm"]) if data.get("length_mm") is not None else None,
+            width_mm=float(data["width_mm"]) if data.get("width_mm") is not None else None,
+            height_mm=float(data["height_mm"]) if data.get("height_mm") is not None else None,
+        )
+
+    def _load_fcs(self) -> dict[str, FcSpec]:
+        if self._fcs is not None:
+            return self._fcs
+        path = self._root / "fc" / "_datos.json"
+        if not path.exists():
+            self._fcs = {}
+            return self._fcs
+        raw: dict[str, dict] = json.loads(path.read_text(encoding="utf-8"))
+        self._fcs = {
+            _normalize_name(name): self._fc_from_raw(name, data)
+            for name, data in raw.items()
+        }
+        return self._fcs
+
+    def get_fc(self, name: str) -> FcSpec:
+        """Return exact flight controller by name. KeyError if not found."""
+        canonical = _normalize_name(name)
+        fcs = self._load_fcs()
+        if canonical not in fcs:
+            available = ", ".join(sorted(fcs)) or "(vacío)"
+            raise KeyError(
+                f"Controladora '{name}' no está en la biblioteca. Disponibles: {available}"
+            )
+        return fcs[canonical]
+
+    def list_fcs(self) -> list[FcSpec]:
+        """Return all flight controllers sorted by name."""
+        return sorted(self._load_fcs().values(), key=lambda f: f.name)
+
+    def has_fc(self, name: str) -> bool:
+        """Return True if *name* is in the FC library (no exception)."""
+        try:
+            self.get_fc(name)
+            return True
+        except KeyError:
+            return False
+
+    # ── Sensors (Relocate FC + GPS envelopes into `library/` B1) — GPS ──────
+    # modules are rows in THIS family, never a separate top-level family.
+
+    @staticmethod
+    def _sensor_from_raw(name: str, data: dict) -> SensorSpec:
+        return SensorSpec(
+            name=name,
+            manufacturer=data.get("manufacturer"),
+            model=data.get("model"),
+            identity_status=data.get("identity_status"),
+            source_url=data.get("source_url"),
+            source_note=data.get("source_note"),
+            length_mm=float(data["length_mm"]) if data.get("length_mm") is not None else None,
+            width_mm=float(data["width_mm"]) if data.get("width_mm") is not None else None,
+            height_mm=float(data["height_mm"]) if data.get("height_mm") is not None else None,
+        )
+
+    def _load_sensors(self) -> dict[str, SensorSpec]:
+        if self._sensors is not None:
+            return self._sensors
+        path = self._root / "sensors" / "_datos.json"
+        if not path.exists():
+            self._sensors = {}
+            return self._sensors
+        raw: dict[str, dict] = json.loads(path.read_text(encoding="utf-8"))
+        self._sensors = {
+            _normalize_name(name): self._sensor_from_raw(name, data)
+            for name, data in raw.items()
+        }
+        return self._sensors
+
+    def get_sensor(self, name: str) -> SensorSpec:
+        """Return exact sensor/GPS module by name. KeyError if not found."""
+        canonical = _normalize_name(name)
+        sensors = self._load_sensors()
+        if canonical not in sensors:
+            available = ", ".join(sorted(sensors)) or "(vacío)"
+            raise KeyError(
+                f"Sensor '{name}' no está en la biblioteca. Disponibles: {available}"
+            )
+        return sensors[canonical]
+
+    def list_sensors(self) -> list[SensorSpec]:
+        """Return all sensors/GPS modules sorted by name."""
+        return sorted(self._load_sensors().values(), key=lambda s: s.name)
+
+    def has_sensor(self, name: str) -> bool:
+        """Return True if *name* is in the sensors library (no exception)."""
+        try:
+            self.get_sensor(name)
             return True
         except KeyError:
             return False

@@ -6,7 +6,8 @@ after Engineer ★ — chart peak thrust usable, verification pending disclosure
   T1  get_motor bag: Ø28.5 · H33.1 · shaft 5 · 33.8 g · KV 2450 · thrust≈16.46
   T2  fallback OP manufacturer_test @ 16 V; note names 6045 and not craft 51466;
       note states VERIFICATION PENDING; confidence ≤ 0.85
-  T3  bind + projector → motor disk Ø28.5
+  T3  bind + projector → motor CYLINDER Ø28.5 × H33.1 (Disk axial Visor
+      B1, `B1-disk-axial-visor`: Ø + cited Motor `height_mm` both present)
   T4  emax_rs2205s_2300 + hobbywing_xrotor_2207_2450 unchanged
   T5  no 1800/2750 rows; no OP with gemfan_hurricane_mck_51466_3_v2
   T6  resolve without craft prop → fallback / legacy, not exact on 51466
@@ -61,15 +62,18 @@ def test_t2_fallback_op_manufacturer_chart_pending():
     assert "51466" in note
 
 
-def test_t3_bind_projects_disk_28_5():
+def test_t3_bind_projects_cylinder_28_5_by_33_1():
+    """Disk axial Visor B1 (`B1-disk-axial-visor`): this SKU cites both
+    diameter_mm and height_mm — the projector now emits a cylinder."""
     suggestion = motor_spec_to_suggestion(default_library.get_motor(_SKU))
     bound = bind_motor_from_catalog(suggestion)
     assert bound.catalog_ref.sku == _SKU
     assert bound.properties["diameter_mm"].value == pytest.approx(28.5)
     assert bound.properties["thrust_n"].value == pytest.approx(16.46, abs=0.01)
     geometry = _geometry_from_spec(bound)
-    assert geometry["shape"] == "disk"
+    assert geometry["shape"] == "cylinder"
     assert geometry["diameter_mm"] == pytest.approx(28.5)
+    assert geometry["height_mm"] == pytest.approx(33.1)
 
 
 def test_t4_emax_and_hobbywing_unchanged():

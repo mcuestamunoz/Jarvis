@@ -329,6 +329,119 @@ def bind_esc_from_catalog(
     )
 
 
+def bind_flight_controller_from_catalog(
+    sku: str,
+    *,
+    library: ComponentLibrary | None = None,
+    base: ComponentSpec | None = None,
+) -> ComponentSpec:
+    """Relocate FC + GPS envelopes into `library/` B1 (`B1-library-fc-
+    sensors`) — project a catalog flight-controller SKU into a
+    ``ComponentSpec`` with ``catalog_ref`` set, mirroring ``bind_esc_
+    from_catalog``'s own shape. ``catalog_ref.family == "flight_
+    controller"`` (matching this family's own ``suggested_key``/
+    ``component_type`` convention, not the shorter "fc" — chosen for
+    consistency with every other reader of this component, e.g.
+    ``mounted_on_declare_assist``'s subject table).
+
+    This is a SEPARATE, additive capability from the existing free-text
+    ``extract_flight_controller_properties`` path (which stays
+    uncatalog-bound, per IC lock #8) — no existing IDLE trigger calls this
+    function yet; it exists so a future rebind/refresh Buy has the same
+    ready-made seam ESC/motor/battery/frame already have, without this
+    Buy inventing a new acquisition flow itself.
+    """
+    lib = library or default_library
+    spec = lib.get_fc(sku)
+    catalog_ref = CatalogRef(family="flight_controller", sku=sku)
+    projected: dict[str, PropertyValue] = {}
+    if spec.length_mm is not None:
+        projected["length_mm"] = PropertyValue(
+            value=spec.length_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.width_mm is not None:
+        projected["width_mm"] = PropertyValue(
+            value=spec.width_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.height_mm is not None:
+        projected["height_mm"] = PropertyValue(
+            value=spec.height_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if base is not None:
+        merged_properties = {**(base.properties or {}), **projected}
+        return base.model_copy(update={
+            "name": sku,
+            "component_type": "flight_controller",
+            "suggested_key": "flight_controller",
+            "properties": merged_properties,
+            "completeness": "high",
+            "catalog_ref": catalog_ref,
+            "inference_confidence": 0.95,
+            "source": "declared",
+        })
+    return ComponentSpec(
+        name=sku,
+        component_type="flight_controller",
+        suggested_key="flight_controller",
+        inference_confidence=0.95,
+        completeness="high",
+        source="declared",
+        properties=projected,
+        catalog_ref=catalog_ref,
+    )
+
+
+def bind_sensor_from_catalog(
+    sku: str,
+    *,
+    library: ComponentLibrary | None = None,
+    base: ComponentSpec | None = None,
+) -> ComponentSpec:
+    """Relocate FC + GPS envelopes into `library/` B1 (`B1-library-fc-
+    sensors`) — project a catalog sensor/GPS SKU into a ``ComponentSpec``
+    with ``catalog_ref`` set. Same shape/rationale as ``bind_flight_
+    controller_from_catalog`` above; ``catalog_ref.family == "sensors"``
+    (matching this family's own ``suggested_key``/``component_type``)."""
+    lib = library or default_library
+    spec = lib.get_sensor(sku)
+    catalog_ref = CatalogRef(family="sensors", sku=sku)
+    projected: dict[str, PropertyValue] = {}
+    if spec.length_mm is not None:
+        projected["length_mm"] = PropertyValue(
+            value=spec.length_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.width_mm is not None:
+        projected["width_mm"] = PropertyValue(
+            value=spec.width_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.height_mm is not None:
+        projected["height_mm"] = PropertyValue(
+            value=spec.height_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if base is not None:
+        merged_properties = {**(base.properties or {}), **projected}
+        return base.model_copy(update={
+            "name": sku,
+            "component_type": "sensors",
+            "suggested_key": "sensors",
+            "properties": merged_properties,
+            "completeness": "high",
+            "catalog_ref": catalog_ref,
+            "inference_confidence": 0.95,
+            "source": "declared",
+        })
+    return ComponentSpec(
+        name=sku,
+        component_type="sensors",
+        suggested_key="sensors",
+        inference_confidence=0.95,
+        completeness="high",
+        source="declared",
+        properties=projected,
+        catalog_ref=catalog_ref,
+    )
+
+
 def bind_kit_hardware_from_catalog(
     sku: str,
     *,

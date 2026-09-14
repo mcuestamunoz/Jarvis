@@ -212,6 +212,14 @@ def test_p9_battery_and_placa_principal_regression_unchanged():
 
 
 def test_p10_no_library_seed_gains_length_mm():
+    """Guards against an INVENTED envelope creeping into a catalog row —
+    never touches a SKU with a real Engineer citation. `holybro_m10` is
+    the one explicit exception: `B1-library-fc-sensors` (2026-09-14)
+    relocated its dims here VERBATIM from the formerly hard-coded
+    `GPS_DIMENSIONS` dict in `aerial.py` (an Engineer purchase-ground-
+    truth citation, not an invention) — excluded by name, not silently
+    skipped, so a future SECOND sensor row gaining dims still fails this
+    guard exactly as before."""
     repo_root = Path(__file__).resolve().parents[1]
 
     kit_data_path = repo_root / "library" / "kit_hardware" / "_datos.json"
@@ -222,6 +230,8 @@ def test_p10_no_library_seed_gains_length_mm():
             assert "width_mm" not in row, f"{sku} unexpectedly gained width_mm"
             assert "height_mm" not in row, f"{sku} unexpectedly gained height_mm"
 
+    _CITED_SENSOR_EXCEPTIONS = {"holybro_m10"}  # B1-library-fc-sensors migration
+
     sensors_candidates = [
         repo_root / "library" / "sensores" / "_datos.json",
         repo_root / "library" / "sensors" / "_datos.json",
@@ -230,4 +240,6 @@ def test_p10_no_library_seed_gains_length_mm():
         if path.exists():
             sensors_data = json.loads(path.read_text(encoding="utf-8"))
             for sku, row in sensors_data.items():
+                if sku in _CITED_SENSOR_EXCEPTIONS:
+                    continue
                 assert "length_mm" not in row, f"{sku} unexpectedly gained length_mm"

@@ -142,7 +142,15 @@ class CatalogRef(BaseModel):
     docs/PHYSICAL_COMPONENT_CATALOG_V1.md, decision 1A.
     """
 
-    family: Literal["motor", "battery", "propeller", "esc", "frame", "kit_hardware"]
+    # Relocate FC + GPS envelopes into `library/` B1 (`B1-library-fc-
+    # sensors`): "flight_controller"/"sensors" added, matching those two
+    # families' own `suggested_key`/`component_type` convention (not the
+    # shorter "fc"/"sensor" — chosen for consistency with every other
+    # reader of these components).
+    family: Literal[
+        "motor", "battery", "propeller", "esc", "frame", "kit_hardware",
+        "flight_controller", "sensors",
+    ]
     sku: str
 
 

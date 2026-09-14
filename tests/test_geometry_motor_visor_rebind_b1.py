@@ -8,14 +8,16 @@ glued end to end for the RaceSpec SKU `emax_rs2205s_2300` (sourced
 seam already holds.
 
   P1  Bind S SKU + set_motor_component on motor_count=4 + prop disk ->
-      motors disk 27.9, solidCopies==4, catalog_ref.sku==S-SKU; one motors
-      node; propellers still solidCopies==4, still disk
+      motors CYLINDER 27.9x31.7 (Disk axial Visor B1, `B1-disk-axial-
+      visor` supersedes this file's original "disk" lock), solidCopies==4,
+      catalog_ref.sku==S-SKU; one motors node; propellers still
+      solidCopies==4, still disk (no hub_thickness_mm in this fixture)
   P2  Same with motor_count=3 -> motors solidCopies==3 (10min-shaped)
   P3  Bind mute emax_rs2205_2300 + motor_count=4 + prop disk -> motors no
       geometry, no solidCopies; propellers still 4
   P4  Library: emax_rs2205_2300.diameter_mm is None; S-row is 27.9
-  P5  height_mm 31.7 is a field on the motors node after P1 bind;
-      geometry.shape == "disk" (never a cylinder)
+  P5  height_mm 31.7 is a field on the motors node after P1 bind, AND
+      now also the cylinder DTO's own height_mm (superseded lock)
 """
 from __future__ import annotations
 
@@ -78,7 +80,7 @@ def test_p1_s_sku_rebind_with_motor_count_4_yields_4_motor_disks():
     nodes = _nodes_by_id(updated)
     motors = nodes["motors"]
     propellers = nodes["propellers"]
-    assert motors["geometry"] == {"shape": "disk", "diameter_mm": 27.9}
+    assert motors["geometry"] == {"shape": "cylinder", "diameter_mm": 27.9, "height_mm": 31.7}
     assert motors["solidCopies"] == 4
     assert sum(1 for n in nodes.values() if n["id"] == "motors") == 1
     assert propellers["geometry"] == {"shape": "disk", "diameter_mm": 127.0}
@@ -133,12 +135,16 @@ def test_p4_library_mute_sku_has_no_diameter_s_row_does(_mute_sku_in_library):
     assert default_library.get_motor(_S_SKU).diameter_mm == 27.9
 
 
-def test_p5_height_mm_is_a_card_field_never_a_cylinder():
+def test_p5_height_mm_is_a_card_field_and_now_the_cylinder_axial_extent():
+    """Disk axial Visor B1 (`B1-disk-axial-visor`) supersedes this file's
+    own original "never a cylinder" lock — height_mm still shows as its
+    own text field (unchanged) AND now also drives the cylinder DTO's
+    axial extent."""
     initial = _state(_mute_motors_spec(motor_count=4), current_parameters={"motor_count": 4})
     updated = _rebind(initial, _S_SKU)
 
     nodes = _nodes_by_id(updated)
     motors = nodes["motors"]
-    assert motors["geometry"]["shape"] == "disk"
+    assert motors["geometry"] == {"shape": "cylinder", "diameter_mm": 27.9, "height_mm": 31.7}
     field_labels = {f["label"]: f["value"] for f in motors["fields"]}
     assert field_labels["height_mm"] == "31.7 mm"
