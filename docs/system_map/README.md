@@ -1,7 +1,7 @@
 # Jarvis System Map — Navigation Guide
 
 **Version:** SYS-MAP-002 (split/navigability delta of SYS-MAP-001, reviewed PASS WITH NOTES)  
-**Date:** 2026-08-10 (subsystem deltas through **2026-09-13** craft montage honesty @ **v0.4.1** / suite **2873** — no new C-xxx; C-113 Situar + C-094-class visor. Prior: Continuity assembly **2652** · Structure **2294** · board B3 **2310** · representar **2336**)  
+**Date:** 2026-08-10 (subsystem deltas through **2026-09-14** disk-axial Visor + `library/fc|sensors` @ **v0.4.1** / suite **2911** — no new C-xxx; C-113 Situar + C-094-class visor. Prior: craft montage **2873** · Continuity assembly **2652**)  
 **Type:** As-is architecture documentation. Zero product behavior changes.
 
 ## How to navigate

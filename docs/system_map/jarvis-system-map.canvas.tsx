@@ -16,8 +16,10 @@
  * Updated 2026-09-13 — Craft montage honesty (still v0.4.1 · suite 2873 · UI 103):
  * estimated plate · Path F · layout pack · mount-standard · silhouette checklist ·
  * arm radial · fit-relations checklist. No new C-xxx (suggest-only IDLE).
- * PRIORIDAD = await Engineer next ★. Holds: plate-box / Path N.
- * Natural next: disk-station attest or measured plate.
+ * Updated 2026-09-14 — Disk-axial Visor cylinders + library/fc + library/sensors
+ * (suite 2911 · UI 105). FC/GPS SoT out of aerial.py. No new C-xxx.
+ * PRIORIDAD = P0 library-fc-sensors LANDING (review PASS · Engineer smoke).
+ * Holds: plate-box / Path N. Later: disk-station attest.
  * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's queue.
  * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
  * Internal G23 anti-LLM gate (confusion phrase → re-ask / project_status) is not a C-xxx edge.
@@ -446,15 +448,13 @@ export default function JarvisSystemMapCanvas() {
 
       <Callout
         tone="info"
-        title="Product queue — craft montage CLOSED through fit-relations (v0.4.1 · suite 2873 · UI 103)"
+        title="Product queue — P0 library FC/sensors LANDING (v0.4.1 · suite 2911 · UI 105)"
       >
-        Continuity spatial assembly + C-113 Situar remain shipped. Craft montage
-        honesty layer (2026-09-13): estimated plate · Path F · layout pack ·
-        mount-standard · silhouette checklist · arm radial · fit-relations —
-        suggest-only IDLE; no new C-xxx. PRIORIDAD: await Engineer next ★.
-        Holds: B1-plate-box / Path N. Natural next: disk-station attest or
-        measured plate. C-081 / C-108 deferred. HD-* never PRIORIDAD without lab.
-        Board B1 layout-on-disk = named debt.
+        Disk-axial Visor CLOSED (cited Ø+H → cylinder). FC/GPS physical SoT
+        now in library/fc + library/sensors via ComponentLibrary — aerial.py
+        keeps language maps only. PRIORIDAD: Engineer smoke on library
+        relocate. Holds: B1-plate-box / Path N. Later: disk-station attest.
+        C-081 / C-108 deferred. HD-* never PRIORIDAD without lab.
       </Callout>
 
       <Grid columns={6} gap={12}>
@@ -527,12 +527,13 @@ export default function JarvisSystemMapCanvas() {
         confusion phrases → short re-ask (wizard) or Continuity (IDLE).
       </Callout>
 
-      <Callout tone="success" title="Shipped — Continuity + craft montage @ v0.4.1 (2026-09-13)">
+      <Callout tone="success" title="Shipped — Continuity + craft montage @ v0.4.1 (2026-09-14)">
         Envelope declare · pose · Scene3D-from-pose · multi-hop · assembly root ·
-        visor X / radial arms · standoff corners · screening “cabe” B1-min ·
-        **C-113 Situar** · fit attestation · silhouette checklist · fit-relations
-        checklist. Open holds: plate-box L×W · Path N disk origin. Registry
-        unchanged: 63 connected · 1 removed · 2 partial (+ C-113). Suite 2873 · UI 103.
+        visor X / radial arms · disk-axial cylinders · standoff corners ·
+        screening “cabe” · C-113 Situar · fit attestation · silhouette ·
+        fit-relations · library/fc + library/sensors. Open holds: plate-box ·
+        Path N. Registry unchanged: 63 connected · 1 removed · 2 partial.
+        Suite 2911 · UI 105.
       </Callout>
 
       {filter !== "forbidden" ? (
