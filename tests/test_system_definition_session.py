@@ -442,9 +442,13 @@ def test_vehicle_type_alias_drone_resolves_dependency():
 # B1-mission-payload-identity (2026-09-15) — see the dedicated block below.
 
 
-def test_t1_dead_blocks_are_not_resolvable():
+def test_t1_previously_dead_blocks_now_resolvable_b1_extended_identity_rules():
+    """B1-extended-identity-rules closed the last 4 gated blocks — payload_bay
+    (payload), arm (manipulation), wheels (actuation, alongside motors),
+    gearbox (transmission) all now have identity ComponentRules. No block
+    in BLOCK_TO_COMPONENTS remains permanently gated."""
     for block in ("payload", "manipulation", "actuation", "transmission"):
-        assert block_components_are_resolvable(block) is False, block
+        assert block_components_are_resolvable(block) is True, block
 
 
 def test_t2_live_blocks_are_resolvable():
@@ -480,20 +484,21 @@ def test_t1_helper_respects_injected_registry():
     assert block_components_are_resolvable("perception", registry=camera_registry) is True
 
 
-def test_t4_mode_b_payload_still_refused_no_stub(tmp_path):
-    """`payload` has no ComponentRule for `payload_bay` — still refused,
-    unaffected by B1-mission-payload-identity (cameras/radio_module only)."""
+def test_t6_mode_b_payload_accepted_b1_extended_identity_rules(tmp_path):
+    """B1-extended-identity-rules: `payload` now resolves via the new
+    `payload_bay` ComponentRule — accepts and stubs, no longer refused."""
     orchestrator = _make_orchestrator_with_project(tmp_path, "dron")
     project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
     orchestrator.system_definition_session.start("dron", project_state)
     orchestrator.system_definition_session.answer("b")
 
     result = orchestrator.system_definition_session.answer("payload")
-    assert "todavía no puedo resolver" in result["message"].lower()
+    assert "todavía no puedo resolver" not in result["message"].lower()
+    assert "añadido" in result["message"].lower()
 
     orchestrator.system_definition_session.answer("listo")
     saved = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
-    assert "payload_bay" not in saved.design_properties.components
+    assert "payload_bay" in saved.design_properties.components
 
 
 # ── B1-mission-payload-identity (2026-09-15) ─────────────────────────────────
@@ -632,16 +637,18 @@ def test_t5_option_a_still_creates_default_stubs_unaffected(tmp_path):
 
 
 def test_step1_prompt_examples_are_all_resolvable(tmp_path):
-    """Lock #6/#11: the step-1 example copy must only advertise blocks that
-    currently pass the gate. 'cámara' is resolvable as of
-    B1-mission-payload-identity and is now the third example (lock #11);
-    'payload'/'comunicación' as a literal example are not advertised."""
+    """Lock #6/#11 (mission-payload-identity) + lock #9 (extended-identity-
+    rules): the step-1 example copy must only advertise blocks that
+    currently pass the gate. 'cámara' (mission-payload-identity) and
+    'payload' (extended-identity-rules) are both now resolvable and both
+    advertised."""
     orchestrator = _make_orchestrator_with_project(tmp_path, "dron")
     project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
     orchestrator.system_definition_session.start("dron", project_state)
     result = orchestrator.system_definition_session.answer("b")
     message = result["message"].lower()
     assert "cámara" in message or "camara" in message
-    assert "payload" not in message
+    assert "payload" in message
     from jarvis.core.system_architecture_catalog import normalize_block_alias, block_components_are_resolvable
     assert block_components_are_resolvable(normalize_block_alias("cámara")) is True
+    assert block_components_are_resolvable(normalize_block_alias("payload")) is True

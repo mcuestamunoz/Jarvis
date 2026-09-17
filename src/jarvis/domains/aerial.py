@@ -761,6 +761,15 @@ def _sensor_completeness(props: dict) -> tuple[str, list[str]]:
 # length_mm/width_mm/height_mm/mass_g/power_w. Model recognised → medium;
 # nothing recognised → low. No library/cameras catalog exists yet (debt).
 
+# B1-mission-payload-identity: identity-only opener. "vision"/"visión" kept
+# bare per Engineer lock — narrower Spanish forms ("visión artificial") are
+# covered by the substring "vision"/"visión" too. Named (not inline) so
+# B1-mission-mass-energy's mass-declare grammar can reuse the exact same
+# vocabulary — never a second, possibly-diverging keyword list.
+CAMERA_KEYWORDS: tuple[str, ...] = (
+    "camara", "cámara", "camaras", "cámaras", "camera", "fpv", "vision", "visión",
+)
+
 CAMERA_MODEL_MAP: dict[str, str] = {
     "runcam":   "runcam",
     "caddx":    "caddx",
@@ -814,6 +823,14 @@ def _camera_completeness(props: dict) -> tuple[str, list[str]]:
 # B1-mission-payload-identity (2026-09-15): identity-only, mirrors the
 # camera rule above. No library/radio catalog exists yet (debt).
 
+# "rx" deliberately excluded (too short — substring match would over-fire);
+# "receptor" covers the Spanish RX use case without that risk. Named (not
+# inline) so B1-mission-mass-energy's mass-declare grammar can reuse it.
+RADIO_KEYWORDS: tuple[str, ...] = (
+    "radio", "elrs", "expresslrs", "crossfire", "telemetria", "telemetría",
+    "telemetry", "emisor", "receptor",
+)
+
 RADIO_MODEL_MAP: dict[str, str] = {
     "expresslrs": "elrs",
     "elrs":       "elrs",
@@ -859,6 +876,216 @@ def _radio_completeness(props: dict) -> tuple[str, list[str]]:
     """
     if "model" not in props:
         return "low", ["protocolo o marca de radio (ej: ELRS, Crossfire, FrSky)"]
+    return "medium", []
+
+
+# ── Extended identity rules: payload bay ─────────────────────────────────────
+# B1-extended-identity-rules (2026-09-17): identity-only, mirrors cameras/
+# radio. No library/payload catalog exists yet (debt). No mass/volume/mm
+# ever invented — see 0.1 claim ceiling in the IC.
+
+_PAYLOAD_BAY_KEYWORDS = ("payload", "bahia", "bahía", "carga util", "carga útil")
+
+# Optional finer descriptors recognised ON TOP of the bare trigger — a more
+# specific phrase like "payload GoPro" keeps that specificity in the stored
+# model instead of collapsing to a generic label. Not a purchasable-SKU
+# claim (no library/payload catalog) — just a recognised descriptive word.
+_PAYLOAD_BAY_DESCRIPTOR_MAP: dict[str, str] = {
+    "camara termica": "thermal_payload_bay",
+    "cámara térmica": "thermal_payload_bay",
+    "termica": "thermal_payload_bay",
+    "térmica": "thermal_payload_bay",
+    "gopro": "gopro_bay",
+}
+
+
+def extract_payload_bay_properties(normalized: str) -> dict[str, PropertyValue]:
+    """Extract a payload bay's identity from freeform text.
+
+    Identity-only: sets ``model`` to a recognised finer descriptor when
+    present (e.g. "gopro"), else a generic label when only the bare
+    trigger word is present. Never parses or invents mm/g/W/volume.
+
+    Examples:
+        "payload GoPro bay" → {model: "gopro_bay"}
+        "bahía de carga"    → {model: "generic_payload_bay"}
+        "payload"  (bare)   → {model: "generic_payload_bay"}
+    """
+    props: dict[str, PropertyValue] = {}
+    lower = normalized.lower()
+    found_model: str | None = None
+    found_len = 0
+
+    for alias, canonical in _PAYLOAD_BAY_DESCRIPTOR_MAP.items():
+        if alias in lower and len(alias) > found_len:
+            found_model = canonical
+            found_len = len(alias)
+
+    if found_model is None and any(kw in lower for kw in _PAYLOAD_BAY_KEYWORDS):
+        found_model = "generic_payload_bay"
+
+    if found_model:
+        props["model"] = PropertyValue(
+            value=found_model, unit=None, confidence=0.7, source="declared"
+        )
+    return props
+
+
+def _payload_bay_completeness(props: dict) -> tuple[str, list[str]]:
+    """Evaluate completeness of payload bay identity properties.
+
+    Returns:
+        ("medium", []) — a payload-bay phrase recognised
+        ("low",    [...])— nothing recognised
+    """
+    if "model" not in props:
+        return "low", ["descripción de la bahía de carga (ej: 'bahía GoPro', 'payload cámara térmica')"]
+    return "medium", []
+
+
+# ── Extended identity rules: manipulator arm ─────────────────────────────────
+# B1-extended-identity-rules: `arm` is the MANIPULATOR key
+# (BLOCK_TO_COMPONENTS["manipulation"]) — categorically distinct from
+# `frame_arm` (Structure B's quad-X arm, extracted only via the "frame"
+# rule's own keyword gate). Keywords are deliberately qualified phrases
+# ONLY — never bare "brazo"/"arm" — so a free-text frame declare like
+# "4 brazos carbono" (which matches "carbono", the frame rule's own
+# keyword) is never stolen by this rule.
+_ARM_KEYWORDS = ("manipulador", "brazo robot", "robotic arm", "brazo manipulador")
+
+
+def extract_arm_properties(normalized: str) -> dict[str, PropertyValue]:
+    """Extract a manipulator arm's identity from freeform text.
+
+    Identity-only: every keyword in ``_ARM_KEYWORDS`` is already a
+    qualified, non-generic phrase (lock #5) — any match sets ``model``.
+    Never parses or invents mm/g/DOF/reach.
+
+    Examples:
+        "brazo manipulador" → {model: "robotic_arm"}
+        "robotic arm 6 DOF" → {model: "robotic_arm"} (DOF text ignored, never structured)
+    """
+    props: dict[str, PropertyValue] = {}
+    lower = normalized.lower()
+    if any(kw in lower for kw in _ARM_KEYWORDS):
+        props["model"] = PropertyValue(
+            value="robotic_arm", unit=None, confidence=0.7, source="declared"
+        )
+    return props
+
+
+def _arm_completeness(props: dict) -> tuple[str, list[str]]:
+    """Evaluate completeness of manipulator arm identity properties.
+
+    Returns:
+        ("medium", []) — a manipulator phrase recognised
+        ("low",    [...])— nothing recognised
+    """
+    if "model" not in props:
+        return "low", ["describe el brazo manipulador (ej: 'brazo manipulador', 'robotic arm')"]
+    return "medium", []
+
+
+# ── Extended identity rules: gearbox ──────────────────────────────────────────
+# B1-extended-identity-rules: identity-only. A cited ratio (e.g. "5:1") is
+# kept as opaque LABEL text on `model` — never a structured `gear_ratio`
+# engineering constraint (that would be inventing a physics input).
+
+_GEARBOX_KEYWORDS = ("gearbox", "caja de cambios", "reductor")
+_GEARBOX_RATIO_RE = re.compile(r"\b(\d+)\s*:\s*(\d+)\b")
+
+
+def extract_gearbox_properties(normalized: str) -> dict[str, PropertyValue]:
+    """Extract a gearbox's identity from freeform text.
+
+    Identity-only: a cited ratio (e.g. "5:1") becomes the ``model`` label
+    verbatim — never parsed into a numeric gear_ratio engineering
+    constraint. Bare trigger words alone (no ratio) stay unidentified,
+    same "opener insufficient" ladder as cameras/radio.
+
+    Examples:
+        "gearbox 5:1"           → {model: "gearbox_5_1"}
+        "reductor" (bare)       → {} (ratio not identified)
+    """
+    props: dict[str, PropertyValue] = {}
+    lower = normalized.lower()
+    ratio_match = _GEARBOX_RATIO_RE.search(lower)
+    if ratio_match:
+        props["model"] = PropertyValue(
+            value=f"gearbox_{ratio_match.group(1)}_{ratio_match.group(2)}",
+            unit=None, confidence=0.75, source="declared",
+        )
+    return props
+
+
+def _gearbox_completeness(props: dict) -> tuple[str, list[str]]:
+    """Evaluate completeness of gearbox identity properties.
+
+    Returns:
+        ("medium", []) — a ratio recognised
+        ("low",    [...])— nothing recognised
+    """
+    if "model" not in props:
+        return "low", ["indica el modelo/ratio del gearbox (ej: 'gearbox 5:1')"]
+    return "medium", []
+
+
+# ── Extended identity rules: wheels (actuation) ───────────────────────────────
+# B1-extended-identity-rules: aerial's own `wheels` key (BLOCK_TO_COMPONENTS
+# ["actuation"] — e.g. retractable landing-gear wheels), distinct from the
+# ground domain's own `wheels` rule (`ground.ground_registry`) which stays
+# untouched. Reuses `ground.extract_wheel_properties` (shared helper, lock
+# #4) for the numeric wheel_count fact — never a second copy of that regex
+# — and adds a wheel-TYPE descriptor recognition ("omni"/"mecanum"/
+# "estándar") so a countless phrase like "wheels omni" also reaches medium
+# (ground's own ladder only recognises a numeric count).
+
+_WHEEL_TYPE_MAP: dict[str, str] = {
+    "omnidireccional": "omni",
+    "omni": "omni",
+    "mecanum": "mecanum",
+    "estandar": "standard",
+    "estándar": "standard",
+    "standard": "standard",
+}
+
+
+def extract_aerial_wheels_properties(normalized: str) -> dict[str, PropertyValue]:
+    """Extract wheel identity for the aerial `wheels` key.
+
+    Identity-only: reuses ``ground.extract_wheel_properties`` for
+    ``wheel_count`` (a declared count, not invented geometry), then adds a
+    ``wheel_type`` descriptor when a recognised type word is present and no
+    count was found. Never parses or invents mm/g.
+
+    Examples:
+        "4 ruedas"      → {wheel_count: 4}
+        "wheels omni"   → {wheel_type: "omni"}
+        "rueda" (bare)  → {} (nothing recognised)
+    """
+    from jarvis.domains.ground import extract_wheel_properties
+
+    props = dict(extract_wheel_properties(normalized))
+    if "wheel_count" not in props:
+        lower = normalized.lower()
+        for alias, canonical in _WHEEL_TYPE_MAP.items():
+            if alias in lower:
+                props["wheel_type"] = PropertyValue(
+                    value=canonical, unit=None, confidence=0.7, source="declared"
+                )
+                break
+    return props
+
+
+def _aerial_wheels_completeness(props: dict) -> tuple[str, list[str]]:
+    """Evaluate completeness of aerial wheels identity properties.
+
+    Returns:
+        ("medium", []) — wheel_count or wheel_type recognised
+        ("low",    [...])— nothing recognised
+    """
+    if "wheel_count" not in props and "wheel_type" not in props:
+        return "low", ["número de ruedas o tipo (ej: '4 ruedas', 'wheels omni')"]
     return "medium", []
 
 
@@ -948,10 +1175,7 @@ aerial_registry = ComponentRuleRegistry([
         missing_field_hints=("Indica el modelo GPS o tipo de sensor. Ej: 'GPS M9N', 'IMU', 'barómetro'",),
     ),
     ComponentRule(
-        # B1-mission-payload-identity: identity-only opener. "vision"/"visión"
-        # kept bare per Engineer lock — narrower Spanish forms ("visión
-        # artificial") are covered by the substring "vision"/"visión" too.
-        keywords=("camara", "cámara", "camaras", "cámaras", "camera", "fpv", "vision", "visión"),
+        keywords=CAMERA_KEYWORDS,
         component_type="perception",
         suggested_key="cameras",
         inference_confidence=0.7,
@@ -960,16 +1184,60 @@ aerial_registry = ComponentRuleRegistry([
         missing_field_hints=("Indica la marca/modelo de cámara. Ej: 'cámara RunCam'",),
     ),
     ComponentRule(
-        # B1-mission-payload-identity: identity-only opener. "rx" deliberately
-        # excluded (too short — substring match would over-fire); "receptor"
-        # covers the Spanish RX use case without that risk.
-        keywords=("radio", "elrs", "expresslrs", "crossfire", "telemetria", "telemetría",
-                  "telemetry", "emisor", "receptor"),
+        keywords=RADIO_KEYWORDS,
         component_type="communication",
         suggested_key="radio_module",
         inference_confidence=0.7,
         property_extractor=extract_radio_properties,
         completeness_evaluator=_radio_completeness,
         missing_field_hints=("Indica el protocolo/marca de radio. Ej: 'radio ELRS'",),
+    ),
+    ComponentRule(
+        keywords=_PAYLOAD_BAY_KEYWORDS,
+        component_type="payload",
+        suggested_key="payload_bay",
+        inference_confidence=0.7,
+        property_extractor=extract_payload_bay_properties,
+        completeness_evaluator=_payload_bay_completeness,
+        missing_field_hints=("Describe la bahía de carga. Ej: 'bahía GoPro'",),
+    ),
+    ComponentRule(
+        # B1-extended-identity-rules: qualified phrases only (lock #5) —
+        # never bare "brazo"/"arm" — so free-text frame declares like
+        # "4 brazos carbono" (matched by "carbono", the frame rule's own
+        # keyword) are never stolen by this rule.
+        keywords=_ARM_KEYWORDS,
+        component_type="manipulation",
+        suggested_key="arm",
+        inference_confidence=0.7,
+        property_extractor=extract_arm_properties,
+        completeness_evaluator=_arm_completeness,
+        missing_field_hints=("Describe el brazo manipulador. Ej: 'brazo manipulador'",),
+    ),
+    ComponentRule(
+        keywords=_GEARBOX_KEYWORDS,
+        component_type="transmission",
+        suggested_key="gearbox",
+        inference_confidence=0.7,
+        property_extractor=extract_gearbox_properties,
+        completeness_evaluator=_gearbox_completeness,
+        missing_field_hints=("Indica el modelo/ratio del gearbox. Ej: 'gearbox 5:1'",),
+    ),
+    ComponentRule(
+        # Aerial's own `wheels` (actuation) — distinct rule instance from
+        # ground.ground_registry's own wheels rule; reuses ground's
+        # extractor as a shared helper (lock #4), never a second copy.
+        # Bare singular "wheel" deliberately EXCLUDED: it is a substring of
+        # "wheelbase" (a frame configuration term free-text frame declares
+        # already use, e.g. "quad-x wheelbase 230mm") — matches.matches()
+        # is plain substring, so "wheel" would steal every wheelbase
+        # declare. "wheels" (plural) does not have this collision.
+        keywords=("rueda", "wheels", "neumático", "neumatico", "tyre", "tire"),
+        component_type="rolling_passive",
+        suggested_key="wheels",
+        inference_confidence=0.65,
+        property_extractor=extract_aerial_wheels_properties,
+        completeness_evaluator=_aerial_wheels_completeness,
+        missing_field_hints=("Define número de ruedas o tipo. Ej: '4 ruedas'",),
     ),
 ])

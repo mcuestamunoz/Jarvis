@@ -155,11 +155,31 @@ def test_ground_registry_has_two_rules():
 # ── 4. Registry isolation ─────────────────────────────────────────────────────
 
 def test_aerial_registry_does_not_match_ground_specific_keywords():
-    """Ground-only keywords (par, torque, traccion, rueda) are not in aerial_registry."""
+    """Ground-only actuator keywords (par, torque, traccion) are not in
+    aerial_registry. `rueda`/"wheels" is INTENTIONALLY shared as of
+    B1-extended-identity-rules — aerial's own `wheels` key is identity-only
+    (wheel_count/wheel_type, e.g. retractable landing gear), distinct from
+    ground's `wheel_actuators`/`wheels` physics rules — see
+    test_ground_registry_does_not_match_aerial_specific_keywords below for
+    the other direction, and test_aerial_wheels_is_identity_only_not_ground_
+    physics for the cross-domain distinction itself."""
     assert aerial_registry.match("par 80nm", "par") is None
     assert aerial_registry.match("torque 50nm", "torque") is None
     assert aerial_registry.match("traccion 4wd", "traccion") is None
-    assert aerial_registry.match("4 ruedas", "rueda") is None
+    rule = aerial_registry.match("4 ruedas", "rueda")
+    assert rule is not None and rule.suggested_key == "wheels"
+
+
+def test_aerial_wheels_is_identity_only_not_ground_physics():
+    """Aerial's `wheels` rule is identity-only (wheel_count/wheel_type) —
+    never the torque/actuator physics ground's `wheel_actuators` rule
+    owns. Confirms the two domains stay semantically distinct despite
+    sharing the `wheels` suggested_key/keyword surface."""
+    rule = aerial_registry.match("4 ruedas", "rueda")
+    spec_props = rule.property_extractor("4 ruedas")
+    assert "wheel_count" in spec_props
+    assert "torque_nm" not in spec_props
+    assert rule.component_type == "rolling_passive"
 
 
 def test_ground_registry_does_not_match_aerial_specific_keywords():

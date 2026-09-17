@@ -286,7 +286,7 @@ class SystemDefinitionSession:
                 "step": 1,
                 "message": (
                     "¿Qué bloques quieres añadir o cambiar? (uno a uno, 'listo' para terminar)\n"
-                    "Ejemplos: 'batería', 'frame', 'cámara'"
+                    "Ejemplos: 'batería', 'frame', 'cámara', 'payload'"
                 ),
             }
 
@@ -348,6 +348,17 @@ class SystemDefinitionSession:
         "listo", "done", "terminar", "ya", "eso es", "eso es todo", "fin",
     })
 
+    # B1-system-definition-b-routing (2026-09-17, lock #4): a meta "add
+    # more blocks" phrase is NOT a block name — it must never append to
+    # `custom_blocks` (the honest-refuse pre-fix behavior registered these
+    # as junk custom blocks with no component expansion). ES+EN, exact set.
+    _META_ADD_MORE_PHRASES = frozenset({
+        "añadir bloques", "anadir bloques", "añadir bloque", "anadir bloque",
+        "add blocks", "add block",
+        "más bloques", "mas bloques",
+        "otro bloque", "otra vez",
+    })
+
     def _handle_custom_blocks(self, user_input: str, session, ctx: dict) -> dict:
         normalized = user_input.strip().lower()
 
@@ -363,6 +374,16 @@ class SystemDefinitionSession:
                 all_component_keys=component_keys,
                 ctx=ctx,
             )
+
+        if normalized in self._META_ADD_MORE_PHRASES:
+            # Meta phrase, not a block name — no-op reprompt, never appended
+            # to custom_blocks (lock #4).
+            return {
+                "status": "interactive",
+                "mode": OrchestratorMode.SYSTEM_DEFINITION.value,
+                "step": 1,
+                "message": "¿Qué bloque quieres añadir? (uno a uno, 'listo' para terminar)",
+            }
 
         block = normalize_block_alias(normalized)
         if block:

@@ -213,7 +213,18 @@ BLOCK_ALIASES: dict[str, str] = {
     "frame":                "structure",
     "control":              "control",
     "actuacion":            "actuation",
+    # B1-extended-identity-rules (2026-09-17): "ruedas"/"wheels" already
+    # resolve to a real ComponentRule (aerial_registry's own identity-only
+    # `wheels` rule) — without this alias, typing "ruedas" at step 1 fell
+    # through to the unexpanded free-text path (registered but never
+    # expanded to a component key), even though the block itself was
+    # already resolvable.
+    "ruedas":               "actuation",
+    "wheels":               "actuation",
     "transmision":          "transmission",
+    "gearbox":              "transmission",
+    "caja de cambios":      "transmission",
+    "reductor":             "transmission",
 }
 
 # ── Bloque → reason code de parameter_requirements ───────────────────────────
@@ -259,6 +270,10 @@ COMPONENT_MIRRORED_PARAMS: frozenset[str] = frozenset({
     # El invariante "user input beats component inference" requiere que no esté bloqueado.
     "propeller_diameter_in",    # canónico: components["propellers"].properties["diameter_in"]
     "propeller_pitch_in",       # canónico: components["propellers"].properties["pitch_in"] (U2)
+    "mission_payload_mass_kg",  # derivado: sum(components[cameras|radio_module].properties["mass_g"])/1000 —
+                                 # SOLO vía component_writers.set_mission_component_mass
+                                 # (B1-mission-mass-energy). User/datasheet-declared only,
+                                 # never invented from a model string.
 })
 
 

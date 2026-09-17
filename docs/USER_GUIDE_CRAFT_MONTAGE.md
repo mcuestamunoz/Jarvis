@@ -76,7 +76,7 @@ listo
 
 **Qué deberías ver:** bloques `perception` / `communication` **añadidos**. Tras `listo`, en `estado` aparecen stubs `cameras` y `radio_module`.
 
-Bloques que **aún no** se pueden añadir (Jarvis se niega a propósito): `payload`, `brazo`, ruedas, gearbox — no hay regla de componente detrás.
+`payload` (bahía de carga), `manipulación` (brazo manipulador — no confundir con `frame_arm`), `actuación` (ruedas) y `transmisión` (gearbox) **ya se pueden añadir** — identidad únicamente (`B1-extended-identity-rules`, 2026-09-17): sin catálogo, sin mm/g/W ni ratios como física real (un ratio de gearbox como "5:1" se guarda como texto, no como constante de ingeniería). No queda ningún bloque bloqueado por falta de regla.
 
 ### Declarar identidad (sin inventar mm/g)
 
@@ -90,6 +90,23 @@ radio ELRS
 **Qué deberías ver:** `Cameras registrado` / `Radio module registrado`; en `estado`, filas declarativas con el modelo. Completeness **medium** cuando la marca/protocolo está en el mapa interno (RunCam, Caddx, Foxeer, GoPro, Insta360 · ELRS, Crossfire, FrSky). Solo `cámara` / `radio` sin marca → low + pista.
 
 > 🟡 **No es catálogo físico.** No hay `library/cameras` ni masa/cotas citadas todavía — identidad de misión (“qué llevo”), no caja en Board ni acoplamiento a energía.
+
+### Declarar masa de misión (`B1-mission-mass-energy`, 2026-09-17)
+
+Una vez declarada la identidad, puedes declarar su masa — **tuya o de ficha, nunca inventada por Jarvis**:
+
+```text
+cámara 28 g
+```
+```text
+radio 3 g
+```
+
+**Qué deberías ver:** `Declarado: cámara 28 g (source=declared). Masa de misión total: 28 g (0.028 kg) — entra en el AUW.` Los gramos declarados **suman** al peso total (AUW) del proyecto junto a `payload_kg`, batería y motores — nunca sustituyen `payload_kg`. Si `payload_kg` ya contaba esos mismos gramos, Jarvis te avisa (no bloquea): un insight de doble conteo aparece en `estado`/`simular` pidiéndote reducir `payload_kg` a mano.
+
+Sin identidad declarada primero, la masa se **rechaza honestamente** (no crea la cámara/radio por ti): `'cámara' aún no declarado — declara primero la cámara.`
+
+`estado`/Continuity guía el siguiente hueco: identidad de cámara → identidad de radio → masa de cámara → masa de radio → revisar margen vs carga de misión (nunca "Aumentar carga útil" con misión activa). No incluye `power_w`/consumo de energía (autonomía) en esta versión — solo masa.
 
 Ver también: montaje honesto del craft en las secciones siguientes (placa → stack → Situar).
 
@@ -115,9 +132,7 @@ Jarvis lista SKUs citados de la familia que toque en ese momento (motor, hélice
 cambiar esc
 ```
 
-Reabre la lista de esa familia para volver a elegir. Funciona hoy para: **frame, motores, hélices, batería, esc**.
-
-> 🟡 **Trampa conocida:** `cambiar controladora` / `cambiar gps` **no** reabre nada todavía — la identidad de FC/GPS solo se cambia re-declarando el modelo en texto libre (ver §3.3) o mediante `ayúdame a elegir` cuando el flujo la ofrezca. Ver inventario, §10.1.
+Reabre la lista de esa familia para volver a elegir. Funciona hoy para: **frame, motores, hélices, batería, esc, controladora, gps** (`B1-catalog-hygiene-mission-suggestions`, 2026-09-17 — `cambiar controladora` / `cambiar fc` / `cambiar gps` / `cambiar sensores` reabren la misma lista numerada con caja citada que ya usa la primera declaración).
 
 ### 3.3 Declarar identidad a mano (FC / GPS / cámara / radio)
 
@@ -455,9 +470,8 @@ parece un dron
 
 - **`B1-plate-box`** (medida/citada de placa "de verdad") sigue en **await bag** — usa la ruta estimada (§4.2); el stack FC/ESC/batería/sensores→placa sigue bloqueado para `declaro verificado` mientras la placa sea 🟡.
 - **Path N** (motor/hélice como origen de pose) es **imposible por esquema** — HOLD; no reabrir.
-- **`cambiar controladora` / `cambiar gps`** no reabren el picker todavía (§3.2) — deuda conocida.
-- **`actualiza el fc` / `actualiza el gps`** no existen todavía, mismo motivo.
-- **Rebind ESC** a un SKU sin un dato que el anterior sí tenía puede dejar ese dato viejo como `declared` — deuda `bind_esc_from_catalog`.
+- **`cambiar controladora` / `cambiar gps`** ya reabren el picker (§3.2) y **`actualiza el fc` / `actualiza el gps`** ya funcionan — cerrado por `B1-catalog-hygiene-mission-suggestions` (2026-09-17).
+- **Rebind ESC/FC/GPS** a un SKU sin un dato que el anterior sí tenía ya no deja ese dato viejo mal etiquetado — cerrado por `B1-catalog-hygiene-mission-suggestions` (2026-09-17); un `actualiza` sobre el MISMO SKU sigue preservando lo que declaraste a mano (p. ej. una H estimada) sin tocarlo.
 - **Motores → brazo:** sí hay **alcance de estación** + `declaro verificado el motor` (§9). **Hélices → motores** sigue n/a (Buy aparte). AABB `cabe` sigue siendo solo cajas.
 - **`layout pack` (sin nombre)** solo funciona mientras exista exactamente un pack registrado.
 - Dims de catálogo = **aproximadas** hasta medida física ([lock](../.jes/artifacts/engineer_note_geometry_approx_until_verified.md)).

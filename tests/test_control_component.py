@@ -275,9 +275,9 @@ def test_aerial_registry_matches_gps_m9n_keyword():
 
 
 def test_aerial_registry_has_seven_rules():
-    """Registry must have exactly 9 rules after B1-mission-payload-identity
-    (cameras + radio_module identity rules added)."""
-    assert len(aerial_registry) == 9
+    """Registry must have exactly 13 rules after B1-extended-identity-rules
+    (payload_bay/arm/gearbox/wheels identity rules added)."""
+    assert len(aerial_registry) == 13
 
 
 # ── Commit 3: _set_control_component ─────────────────────────────────────────
