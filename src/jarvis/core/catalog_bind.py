@@ -21,6 +21,66 @@ from jarvis.schemas.action_schema import CatalogRef, ComponentSpec, PropertyValu
 from jarvis.tools.electricity import estimate_battery_mass_kg
 
 
+def _merge_base_properties_dropping_stale_catalog_keys(
+    base: ComponentSpec,
+    sku: str,
+    projected: dict[str, PropertyValue],
+    catalog_projected_keys: frozenset[str],
+) -> dict[str, PropertyValue]:
+    """Catalog rebind omit-key hygiene (`B1-catalog-hygiene-mission-
+    suggestions` lock A2) — the ONE merge helper every ``bind_*_from_
+    catalog(..., base=...)`` rebind path uses, so they can never drift.
+
+    Only drops stale keys on an actual SKU CHANGE (``base.catalog_ref`` is
+    ``None`` or names a different ``sku``) — a ``refresh_component_from_
+    catalog`` call re-binds the SAME sku (``catalog_ref.sku == sku``) to
+    re-project today's live catalog data onto an already-bound spec, and
+    must NEVER drop anything: an Engineer's own manually-declared envelope
+    (``set_component_declared_box_envelope``) or ``estimated_temporary``
+    value for a key the catalog still doesn't state is not catalog
+    residue — it is exactly the evidence those flows exist to let survive
+    a refresh (see ``test_p9_refresh_from_catalog_preserves_declared_
+    dims`` and ``test_replace_path_refresh_preserves_estimate_while_
+    catalog_still_lacks_h``). ``source`` alone cannot distinguish "prior
+    catalog projection" from "Engineer manual declare" — both use
+    ``source="declared"`` — so SKU identity is the actual signal, not the
+    property's own source tag.
+
+    On a genuine SKU change, a property key in *catalog_projected_keys*
+    that the new *projected* dict does NOT include this time means the
+    new SKU simply doesn't state that fact for the NEW physical object —
+    the OLD SKU's value for that key (whoever typed it) must never
+    survive mislabeled as belonging to the new SKU (e.g. a SpeedyBee
+    ESC's ``height_mm`` surviving a rebind to a Skystars row that has no
+    cited height).
+
+    Any base key OUTSIDE *catalog_projected_keys* (``mounted_on``-adjacent
+    free-text/user fields, or any property this bind function never
+    projects at all) is preserved untouched in both cases — this only
+    ever drops keys that this specific bind's own catalog projection owns,
+    and only on a real SKU swap.
+    """
+    base_props = dict(base.properties or {})
+    old_ref = getattr(base, "catalog_ref", None)
+    sku_changed = old_ref is None or old_ref.sku != sku
+    if sku_changed:
+        for key in catalog_projected_keys:
+            if key not in projected:
+                base_props.pop(key, None)
+    return {**base_props, **projected}
+
+
+# Every property key this bind function's own `projected` dict can ever
+# contain — used only to know which stale base keys to drop on rebind
+# (lock A2). Not a schema, not exhaustive of ComponentSpec.properties in
+# general — a motor's own free-text/user fields outside this set survive.
+_MOTOR_CATALOG_PROJECTED_KEYS = frozenset({
+    "thrust_n", "kv_rating", "weight_g", "power_w",
+    "stator_diameter_mm", "stator_height_mm", "diameter_mm",
+    "shaft_diameter_mm", "height_mm",
+})
+
+
 def bind_motor_from_catalog(
     suggestion: MotorSuggestion, *, base: ComponentSpec | None = None,
     library: ComponentLibrary | None = None,
@@ -80,7 +140,9 @@ def bind_motor_from_catalog(
                     value=dim_value, unit="mm", confidence=0.9, source="declared"
                 )
     if base is not None:
-        merged_properties = {**(base.properties or {}), **projected}
+        merged_properties = _merge_base_properties_dropping_stale_catalog_keys(
+            base, sku, projected, _MOTOR_CATALOG_PROJECTED_KEYS
+        )
         return base.model_copy(update={
             "name": sku,
             "component_type": "propulsion_active",
@@ -106,6 +168,12 @@ def bind_motor_from_catalog(
         output_magnitude="thrust_n",
         catalog_ref=catalog_ref,
     )
+
+
+_BATTERY_CATALOG_PROJECTED_KEYS = frozenset({
+    "battery_capacity_wh", "mass_g", "chemistry", "cell_count",
+    "length_mm", "width_mm", "height_mm",
+})
 
 
 def bind_battery_from_catalog(
@@ -152,7 +220,9 @@ def bind_battery_from_catalog(
             value=spec.height_mm, unit="mm", confidence=0.9, source="declared"
         )
     if base is not None:
-        merged_properties = {**(base.properties or {}), **projected}
+        merged_properties = _merge_base_properties_dropping_stale_catalog_keys(
+            base, sku, projected, _BATTERY_CATALOG_PROJECTED_KEYS
+        )
         # Same stub-key trap as bind_esc_from_catalog — architecture stubs
         # have suggested_key=None; writers key off suggested_key.
         return base.model_copy(update={
@@ -175,6 +245,12 @@ def bind_battery_from_catalog(
         properties=projected,
         catalog_ref=catalog_ref,
     )
+
+
+_PROPELLER_CATALOG_PROJECTED_KEYS = frozenset({
+    "diameter_in", "pitch_in", "mass_g", "blade_count", "material",
+    "hub_diameter_mm", "hub_thickness_mm", "mass_tolerance_g", "shaft_bore_mm",
+})
 
 
 def bind_propeller_from_catalog(
@@ -234,7 +310,9 @@ def bind_propeller_from_catalog(
             value=spec.shaft_bore_mm, unit="mm", confidence=0.9, source="declared"
         )
     if base is not None:
-        merged_properties = {**(base.properties or {}), **projected}
+        merged_properties = _merge_base_properties_dropping_stale_catalog_keys(
+            base, sku, projected, _PROPELLER_CATALOG_PROJECTED_KEYS
+        )
         return base.model_copy(update={
             "name": sku,
             "component_type": "propulsion_passive",
@@ -255,6 +333,11 @@ def bind_propeller_from_catalog(
         properties=projected,
         catalog_ref=catalog_ref,
     )
+
+
+_ESC_CATALOG_PROJECTED_KEYS = frozenset({
+    "current_a", "mass_g", "length_mm", "width_mm", "height_mm",
+})
 
 
 def bind_esc_from_catalog(
@@ -302,7 +385,9 @@ def bind_esc_from_catalog(
             value=spec.height_mm, unit="mm", confidence=0.9, source="declared"
         )
     if base is not None:
-        merged_properties = {**(base.properties or {}), **projected}
+        merged_properties = _merge_base_properties_dropping_stale_catalog_keys(
+            base, sku, projected, _ESC_CATALOG_PROJECTED_KEYS
+        )
         # Architecture stubs are ComponentSpec(completeness=low) with
         # suggested_key=None. Merging only catalog_ref/completeness onto that
         # stub leaves suggested_key unset; set_control_component then writes
@@ -327,6 +412,9 @@ def bind_esc_from_catalog(
         properties=projected,
         catalog_ref=catalog_ref,
     )
+
+
+_FLIGHT_CONTROLLER_CATALOG_PROJECTED_KEYS = frozenset({"length_mm", "width_mm", "height_mm"})
 
 
 def bind_flight_controller_from_catalog(
@@ -368,7 +456,9 @@ def bind_flight_controller_from_catalog(
             value=spec.height_mm, unit="mm", confidence=0.9, source="declared"
         )
     if base is not None:
-        merged_properties = {**(base.properties or {}), **projected}
+        merged_properties = _merge_base_properties_dropping_stale_catalog_keys(
+            base, sku, projected, _FLIGHT_CONTROLLER_CATALOG_PROJECTED_KEYS
+        )
         return base.model_copy(update={
             "name": sku,
             "component_type": "flight_controller",
@@ -389,6 +479,9 @@ def bind_flight_controller_from_catalog(
         properties=projected,
         catalog_ref=catalog_ref,
     )
+
+
+_SENSOR_CATALOG_PROJECTED_KEYS = frozenset({"length_mm", "width_mm", "height_mm"})
 
 
 def bind_sensor_from_catalog(
@@ -419,7 +512,9 @@ def bind_sensor_from_catalog(
             value=spec.height_mm, unit="mm", confidence=0.9, source="declared"
         )
     if base is not None:
-        merged_properties = {**(base.properties or {}), **projected}
+        merged_properties = _merge_base_properties_dropping_stale_catalog_keys(
+            base, sku, projected, _SENSOR_CATALOG_PROJECTED_KEYS
+        )
         return base.model_copy(update={
             "name": sku,
             "component_type": "sensors",
@@ -440,6 +535,11 @@ def bind_sensor_from_catalog(
         properties=projected,
         catalog_ref=catalog_ref,
     )
+
+
+_KIT_HARDWARE_CATALOG_PROJECTED_KEYS = frozenset({
+    "pin_count", "pitch_mm", "wire_gauge_awg", "color", "pin_config",
+})
 
 
 def bind_kit_hardware_from_catalog(
@@ -489,7 +589,9 @@ def bind_kit_hardware_from_catalog(
             value=spec.pin_config, confidence=0.9, source="declared"
         )
     if base is not None:
-        merged_properties = {**(base.properties or {}), **projected}
+        merged_properties = _merge_base_properties_dropping_stale_catalog_keys(
+            base, sku, projected, _KIT_HARDWARE_CATALOG_PROJECTED_KEYS
+        )
         promoted = "medium" if (base.completeness or "low") == "low" else base.completeness
         return base.model_copy(update={
             "name": spec.name,
@@ -511,6 +613,12 @@ def bind_kit_hardware_from_catalog(
         properties=projected,
         catalog_ref=catalog_ref,
     )
+
+
+_FRAME_CATALOG_PROJECTED_KEYS = frozenset({
+    "mass_kg", "size_class_inch", "material", "wheelbase_mm", "configuration",
+    "body_length_mm", "body_width_mm", "max_stack_height_mm",
+})
 
 
 def bind_frame_from_catalog(
@@ -582,7 +690,9 @@ def bind_frame_from_catalog(
             value=spec.max_stack_height_mm, unit="mm", confidence=0.9, source="declared"
         )
     if base is not None:
-        merged_properties = {**(base.properties or {}), **projected}
+        merged_properties = _merge_base_properties_dropping_stale_catalog_keys(
+            base, sku, projected, _FRAME_CATALOG_PROJECTED_KEYS
+        )
         completeness, missing_fields = _frame_completeness(merged_properties)
         return base.model_copy(update={
             "name": sku,

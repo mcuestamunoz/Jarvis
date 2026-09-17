@@ -12,7 +12,7 @@ from jarvis.core.parameter_requirements import (
     PARAMETER_REQUIREMENTS,
     REQUIREMENT_REASONS,
 )
-from jarvis.core.reasoning_layer import ReasoningLayer
+from jarvis.core.reasoning_layer import ReasoningLayer, filter_mission_gated_suggestions
 from jarvis.core.state_manager import StateManager
 from jarvis.schemas.action_schema import ActionName, IterationDraft, IterationOperation
 from jarvis.schemas.state_schema import DesignProperties, HistoryEntry
@@ -207,6 +207,15 @@ class IterateAction:
         simulation = self.simulator.evaluate(calculations, autonomy_threshold=autonomy_threshold)
         suggestions = self.suggestion_engine.generate_suggestions(simulation, calculations)
         suggestions_payload = [suggestion.model_dump() for suggestion in suggestions]
+        # Catalog hygiene B1 (`B1-catalog-hygiene-mission-suggestions` lock
+        # C2) — mission-gate the raw bullet list the same way ReasoningLayer
+        # gates its own suggested_actions, before either is built/rendered.
+        suggestions_payload = filter_mission_gated_suggestions(
+            suggestions_payload,
+            project_state.objective,
+            updated_parameters.get("restrictions"),
+            updated_design_properties.components,
+        )
         reasoning = self.reasoning_layer.build(
             {
                 "objective": project_state.objective,

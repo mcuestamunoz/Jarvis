@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer smoke
 
-**Status:** READY FOR ★  
+**Status:** CLOSED — Engineer smoke ACCEPT 2026-09-17  
 
 **Parents:**
 - Software closeout queue **#4** — [engineer_note_software_closeout_queue.md](engineer_note_software_closeout_queue.md)
@@ -131,10 +131,10 @@ y si la misión es vigilancia, simular tampoco te empuja a “más carga útil�
 
 ## 5. Done when
 
-- [ ] ★  
-- [ ] A + B + C + T1–T12 + report (+ guide trap patch)  
-- [ ] Cursor review PASS  
-- [ ] Engineer smoke ACCEPT (or waive)
+- [x] ★  
+- [x] A + B + C + T1–T12 + report (+ guide trap patch)  
+- [x] Cursor review PASS WITH NOTES — [review](implementation_review_catalog_hygiene_mission_suggestions_b1.md)  
+- [x] Engineer smoke ACCEPT (A SpeedyBee→Skystars no H leak · B `cambiar controladora` · C `simular` sin “aumentar la carga útil”)
 
 ---
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from jarvis.core.calculation_engine import CalculationEngine
+from jarvis.core.reasoning_layer import filter_mission_gated_suggestions
 from jarvis.core.state_manager import StateManager
 from jarvis.knowledge.library import ComponentLibrary, default_library
 from jarvis.schemas.action_schema import ActionName, CreateProjectParams
@@ -103,5 +104,12 @@ class CreateProjectAction:
             "state": updated_state.model_dump(),
             "calculations": calculations.model_dump(),
             "simulation": simulation.model_dump(),
-            "suggestions": [suggestion.model_dump() for suggestion in suggestions],
+            # Catalog hygiene B1 (`B1-catalog-hygiene-mission-suggestions`
+            # lock C2) — same mission gate as simulate/iterate's raw list.
+            "suggestions": filter_mission_gated_suggestions(
+                [suggestion.model_dump() for suggestion in suggestions],
+                params.objective,
+                params.restrictions,
+                updated_state.design_properties.components,
+            ),
         }

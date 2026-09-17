@@ -2,6 +2,11 @@
 
 B2 shipped frame-only (``is_frame_rebind_phrase``). B3 extends the same
 bridge to motors / propellers / battery. ESC visor rebind B1 adds ``esc``.
+Catalog hygiene B1 (`B1-catalog-hygiene-mission-suggestions`) adds
+``flight_controller`` (``"cambiar controladora"``/``"cambiar fc"``) and
+``sensors`` (``"cambiar gps"``/``"cambiar sensores"``) — same family-noun
+vocabulary ``mounted_on_declare_assist._SUBJECT_PATTERNS`` already uses for
+these two keys, reused here rather than a second, possibly-diverging list.
 Bare ``"ayúdame a elegir"`` (no family noun) returns ``None`` so FN-005's
 motor→propeller→battery triage stays unchanged.
 
@@ -16,19 +21,24 @@ from typing import Literal
 
 from jarvis.core.motor_catalog_assist import _normalize_help
 
-CatalogRebindKey = Literal["frame", "motors", "propellers", "battery", "esc"]
+CatalogRebindKey = Literal[
+    "frame", "motors", "propellers", "battery", "esc", "flight_controller", "sensors",
+]
 
 _REBIND_VERB_RE = re.compile(r"\b(?:cambiar|cambia|definir|define|modificar|modifica)\b")
 _HELP_CHOOSE_SOFT_RE = re.compile(r"\bayudame\b.*\b(?:elegir|escoger)\b")
 
 # Priority when multiple nouns appear (pathological): frame > motors >
-# propellers > battery > esc. Normal user phrases name exactly one family.
+# propellers > battery > esc > flight_controller > sensors. Normal user
+# phrases name exactly one family.
 _FAMILY_NOUN_PATTERNS: tuple[tuple[CatalogRebindKey, re.Pattern[str]], ...] = (
     ("frame", re.compile(r"\b(?:frame|chasis)\b")),
     ("motors", re.compile(r"\b(?:motores|motor)\b")),
     ("propellers", re.compile(r"\b(?:helices|helice|propellers|propeller)\b")),
     ("battery", re.compile(r"\b(?:baterias|bateria|batteries|battery)\b")),
     ("esc", re.compile(r"\besc\b")),
+    ("flight_controller", re.compile(r"\b(?:fc|flight\s*controller|controladora|pixhawk)\b")),
+    ("sensors", re.compile(r"\b(?:gps|sensores|sensor)\b")),
 )
 
 # Tokens stripped when checking that the phrase is a pure reopen request
@@ -37,7 +47,8 @@ _PURE_PHRASE_STRIP_RE = re.compile(
     r"\b(?:ayudame|elegir|escoger|cambiar|cambia|definir|define|modificar|modifica|"
     r"el|la|los|las|de|del|un|una|al|a|"
     r"frame|chasis|motores|motor|helices|helice|propellers|propeller|"
-    r"baterias|bateria|batteries|battery|esc)\b"
+    r"baterias|bateria|batteries|battery|esc|"
+    r"fc|flight|controller|controladora|pixhawk|gps|sensores|sensor)\b"
 )
 
 

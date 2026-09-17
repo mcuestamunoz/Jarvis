@@ -20,20 +20,20 @@ from jarvis.core.motor_catalog_assist import _normalize_help
 
 _GATE_RE = re.compile(r"\b(?:actualiza(?:r)?|refresca(?:r)?)\b")
 
-# Exactly the 5 catalog-bindable families locked by §3.2 — no
-# flight_controller/sensors here. `B1-library-fc-sensors` (2026-09-14)
-# DID add a bind path for both (`catalog_bind.bind_flight_controller_
-# from_catalog` / `bind_sensor_from_catalog`), so the old "FC has no
-# CatalogRef.family/bind path at all" is no longer literally true — but
-# wiring a NEW "actualiza el fc" refresh trigger was explicitly out of
-# that Buy's own minimal-surface scope (no new acquisition flow), so this
-# gate still excludes both families until a separate ★ asks for it.
+# The 5 catalog-bindable families locked by §3.2, plus flight_controller/
+# sensors (Catalog hygiene B1, `B1-catalog-hygiene-mission-suggestions`
+# lock B3) — both binds have existed since `B1-library-fc-sensors`
+# (2026-09-14); that Buy's own minimal-surface scope only excluded wiring
+# a NEW acquisition flow, not this refresh trigger. `_REFRESH_BINDERS` in
+# component_writers.py now has matching entries for both.
 _SUBJECT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("esc", re.compile(r"\besc\b")),
     ("motors", re.compile(r"\b(?:motores|motor)\b")),
     ("battery", re.compile(r"\b(?:baterias|bateria|batteries|battery)\b")),
     ("frame", re.compile(r"\b(?:frame|chasis)\b")),
     ("propellers", re.compile(r"\b(?:helices|helice|propellers|propeller)\b")),
+    ("flight_controller", re.compile(r"\b(?:fc|flight\s*controller|controladora|pixhawk)\b")),
+    ("sensors", re.compile(r"\b(?:gps|sensores|sensor)\b")),
 )
 
 
