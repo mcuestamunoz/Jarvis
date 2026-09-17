@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — **only after** Engineer ★ **and** §0.1 bag filled (or Path D fixture lock)  
 **Reviewer:** Cursor against this IC · Engineer smoke
 
-**Status:** READY FOR ★ — **data-gated** (no invent). Empty §0.1 = do **not** implement.  
+**Status:** B0 HOLD historically · **REOPENED awaiting bag** (Engineer dual-track 2026-09-15) — fill §0.1 + ★ path C/D/E before Claude implements. Parallel: [disk-station B0](investigation_contract_disk_station_fit_attest_b0.md). See [dual-track note](engineer_note_dual_track_plate_box_disk_station.md).  
 **Parents:**
 - [investigation_contract_board_drone_default_layout_b0.md](investigation_contract_board_drone_default_layout_b0.md) · [report](investigation_report_board_drone_default_layout_b0.md) · [review PASS](investigation_review_board_drone_default_layout_b0.md) — lean: plate-box **after** mount-assist  
 - Mount standard assist B1 — [review PASS](implementation_review_mount_standard_assist_b1.md) · smoke may still be pending  

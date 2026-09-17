@@ -6,11 +6,20 @@ machinery instead of any new geometry math.
 Next jump after Silhouette S1 (engineer_lock_silhouette_checklist_
 semantics.md): "parece un dron" answers a shape question; this module
 answers a CONCRETE one — for each in-scope relation, what's missing to
-screen it, what already screens `overlap` and is ready for the Engineer's
-own sign-off, what's already attested, and what's honestly `n/a` (a disk
-pair, screened at all only in a later, separate Buy). Never calls a
-writer: `screen_posed_envelope`/`format_screening` (pose_envelope_
-screening.py) and the fingerprint-validity check mirror spatial_board.py's
+screen it, what already screens `overlap` (or, for `motors`↔`frame_arm`,
+`station_reach_ok` — Disk-station radial reach B1, `B1-disk-station-
+reach`; or, for `propellers`↔`motors`, `catalog_pair_ok` — Disk-station
+catalog-pair B1, `B1-propellers-motors-catalog-pair`) and is ready for
+the Engineer's own sign-off (box/reach families only — catalog pairing
+has no attest path, IC lock #8), what's already attested, and what's
+honestly `n/a` (reserved for any future mount-only pair with no evidence
+class at all — none remain in `_MOUNT_ONLY_RELATIONS` today). Never calls
+a writer: `screen_posed_envelope`/`format_screening` (pose_envelope_
+screening.py) for the box family, `screen_station_reach`/`format_
+station_reach` (station_reach_screening.py) for `motors`↔`frame_arm`,
+`electrical_compatibility.prop_motor_pairing_outcome` (same authority
+ERF's `prop_motor` check already uses) for `propellers`↔`motors`, and the
+fingerprint-validity check for the reach family mirrors spatial_board.py's
 own read-only re-verification of `declared_fit_attestation`; the plate
 pick reuses `craft_montage_stack_assist._plate_box_origin`/
 `_is_estimated_temporary_box`; the "still needs a mount" warn row reuses
@@ -52,10 +61,16 @@ def is_fit_relations_assist_trigger(user_input: str) -> bool:
 
 # Locked relation set (IC §0 lock #5, fixed order): the four stack
 # subjects onto the single unambiguous boxed `frame_plate*` (screening
-# applies), then the two disk-only mount edges (screening is honestly
-# `n/a` — motors/propellers never get a declared box in this codebase
-# today). Reusing `craft_montage_stack_assist`'s own child order/nouns for
-# the plate family, never a second table.
+# applies), then the two disk-only mount edges — `motors`↔`frame_arm` gets
+# a real (non-AABB) station-reach screening (Disk-station radial reach B1,
+# `B1-disk-station-reach`); `propellers`↔`motors` gets a real catalog-pair
+# screening (Disk-station catalog-pair B1, `B1-propellers-motors-catalog-
+# pair` — reuses the same `match_motor_propeller` authority ERF's
+# `prop_motor` check already uses; no axial/shaft evidence class exists,
+# see investigation_report_disk_station_fit_attest_b0.md §C, so this is
+# deliberately pairing-only, never a reach/clearance claim). Reusing
+# `craft_montage_stack_assist`'s own child order/nouns for the plate
+# family, never a second table.
 _MOUNT_ONLY_RELATIONS: tuple[tuple[str, str], ...] = (
     ("motors", "frame_arm"),
     ("propellers", "motors"),
@@ -68,10 +83,18 @@ class FitRelationRow:
     ``no_box_child`` / ``no_box_origin`` / ``ambiguous_plate`` /
     ``estimated_dims`` / ``no_pose`` / ``screen_pose_incomplete`` /
     ``screen_no_overlap`` / ``screen_overlap`` / ``attested`` /
-    ``n_a_disk``. ``mount_warning`` is an INDEPENDENT annotation (IC §0
-    lock #7's own "optional warn row... does not block screening") — it
-    can be present alongside any status, since a relation can screen fine
-    while still lacking a declared `mounted_on`."""
+    ``n_a_disk`` (reserved — no live pair uses it today) /
+    ``station_reach_ok`` / ``station_reach_over`` /
+    ``station_reach_insufficient`` / ``station_reach_estimated`` (these
+    four, `B1-disk-station-reach`, apply ONLY to `motors`↔`frame_arm`) /
+    ``catalog_pair_ok`` / ``catalog_pair_mismatch`` /
+    ``catalog_pair_unverifiable`` (these three, `B1-propellers-motors-
+    catalog-pair`, apply ONLY to `propellers`↔`motors` — informational,
+    never `attested`, no human sign-off exists for this evidence class).
+    ``mount_warning`` is an INDEPENDENT annotation (IC §0 lock #7's own
+    "optional warn row... does not block screening") — it can be present
+    alongside any status, since a relation can screen fine while still
+    lacking a declared `mounted_on`."""
 
     child: str
     origin_key: str | None
@@ -218,6 +241,114 @@ def _plate_relation_row(
     )
 
 
+def _motor_reach_attestation_is_valid(
+    motor_spec: Any, frame_spec: Any, arm_spec: Any
+) -> bool:
+    """Disk-station radial reach B1 — re-derives the station-reach
+    fingerprint the same way `_attestation_is_valid` re-derives the box
+    fingerprint (never trusts a stored seal without recomputing)."""
+    from jarvis.core.component_writers import compute_station_reach_fingerprint
+
+    attestation = getattr(motor_spec, "declared_fit_attestation", None)
+    if attestation is None:
+        return False
+    current_fingerprint = compute_station_reach_fingerprint(frame_spec, arm_spec, motor_spec)
+    return current_fingerprint == attestation.fingerprint
+
+
+def _motors_frame_arm_reach_row(
+    child: str, origin: str, components: dict[str, Any], mount_warning: str | None
+) -> FitRelationRow:
+    """Disk-station radial reach B1 (`B1-disk-station-reach`) — real,
+    non-AABB screening for `motors` -> `frame_arm` only. See
+    `_propellers_motors_catalog_pair_row` for the sibling
+    `propellers` -> `motors` evidence class (catalog pairing, not reach —
+    B1-propellers-motors-catalog-pair, no axial facts exist to reuse this
+    same L-vs-R math there)."""
+    from jarvis.core.station_reach_screening import format_station_reach, screen_station_reach
+
+    motor_spec = components[child]
+    screening = screen_station_reach(motor_spec, origin, components)
+
+    if screening.status == "station_reach_ok":
+        frame_spec = components.get("frame")
+        arm_spec = components[origin]
+        if frame_spec is not None and _motor_reach_attestation_is_valid(motor_spec, frame_spec, arm_spec):
+            return FitRelationRow(
+                child=child, origin_key=origin, status="attested",
+                reason="verificado por el Engineer — no es una comprobación geométrica de Jarvis",
+                mount_warning=mount_warning,
+            )
+        return FitRelationRow(
+            child=child, origin_key=origin, status="station_reach_ok",
+            reason=format_station_reach(screening),
+            suggest=_attest_phrase("el motor"), mount_warning=mount_warning,
+        )
+
+    return FitRelationRow(
+        child=child, origin_key=origin, status=screening.status,
+        reason=format_station_reach(screening), mount_warning=mount_warning,
+    )
+
+
+_CATALOG_PAIR_STATUS_MAP: dict[str, str] = {
+    "compatible": "catalog_pair_ok",
+    "mismatch": "catalog_pair_mismatch",
+    "unverifiable": "catalog_pair_unverifiable",
+}
+
+
+def _format_catalog_pair(status: str) -> str:
+    """Locked Spanish copy (IC lock #6) — "emparejamiento de catálogo".
+    Deliberately avoids the literal forbidden tokens (never a synonym
+    dodge via reordering): "cabe", "alcance", "hub", "eje", "clearance",
+    "combo exacto de empuje", "VERIFIED" físico — including inside a
+    disclaimer clause, where a first draft of this copy accidentally used
+    "hub"/"eje" while explicitly saying they're NOT verified. Caught by
+    this Buy's own test T6 and rephrased below without those words at
+    all, not merely reworded around them."""
+    if status == "catalog_pair_ok":
+        return (
+            "Motor y hélice tienen emparejamiento de catálogo compatible "
+            "(ids o pulgadas compatibles) — no confirma dimensiones "
+            "mecánicas ni el rendimiento real de ese combo."
+        )
+    if status == "catalog_pair_mismatch":
+        return (
+            "Motor y hélice están en catálogo pero el emparejamiento no es "
+            "compatible (ni ids ni pulgadas coinciden) — no confirma "
+            "dimensiones mecánicas."
+        )
+    return (
+        "Jarvis no verifica emparejamiento de catálogo; falta SKU/familia "
+        "de motor y/o hélice, o no están en catálogo."
+    )
+
+
+def _propellers_motors_catalog_pair_row(
+    child: str, origin: str, components: dict[str, Any], mount_warning: str | None
+) -> FitRelationRow:
+    """Disk-station catalog-pair B1 (`B1-propellers-motors-catalog-pair`)
+    — replaces the unconditional `n_a_disk` for `propellers` -> `motors`
+    with the SAME catalog-pairing authority ERF's `prop_motor` check
+    already uses (`electrical_compatibility.prop_motor_pairing_outcome`),
+    never a second copy. Mount (`mounted_on`) and pairing are independent
+    signals (IC lock #4): this row's status never depends on whether
+    `propellers.mounted_on == "motors"` is declared — `mount_warning`
+    stays its own, separately-computed annotation, exactly as for every
+    other row in this checklist. No human attest exists for this evidence
+    class (IC lock #8) — `catalog_pair_ok` is informational only, never
+    `attested`, never offers a `suggest` phrase."""
+    from jarvis.core.electrical_compatibility import prop_motor_pairing_outcome
+
+    outcome = prop_motor_pairing_outcome(components)
+    status = _CATALOG_PAIR_STATUS_MAP[outcome]
+    return FitRelationRow(
+        child=child, origin_key=origin, status=status,
+        reason=_format_catalog_pair(status), mount_warning=mount_warning,
+    )
+
+
 def _mount_only_relation_row(
     child: str, origin: str, components: dict[str, Any], mount_suggestions_by_subject: dict[str, Any]
 ) -> FitRelationRow | None:
@@ -227,6 +358,10 @@ def _mount_only_relation_row(
             reason=f"'{origin}' no declarado todavía",
         )
     mount_warning = _mount_warning(mount_suggestions_by_subject, child)
+    if child == "motors" and origin == "frame_arm":
+        return _motors_frame_arm_reach_row(child, origin, components, mount_warning)
+    if child == "propellers" and origin == "motors":
+        return _propellers_motors_catalog_pair_row(child, origin, components, mount_warning)
     return FitRelationRow(
         child=child, origin_key=origin, status="n_a_disk",
         reason=(
@@ -242,10 +377,13 @@ def assess_fit_relations(components: dict[str, Any]) -> FitRelationsAssessment:
 
     Fixed relation order (IC §0 lock #5): flight_controller/esc/battery/
     sensors -> the single unambiguous boxed `frame_plate*`, then
-    motors -> frame_arm and propellers -> motors (mount-only, always
-    honestly `n_a_disk` for screening). A subject absent from the project
-    is skipped entirely (never demanded) — same "missing_child" honesty
-    every sibling assist in this family already uses.
+    motors -> frame_arm (Disk-station radial reach B1 — real
+    `station_reach_*` screening, `B1-disk-station-reach`) and
+    propellers -> motors (Disk-station catalog-pair B1 — real
+    `catalog_pair_*` screening, `B1-propellers-motors-catalog-pair`,
+    informational only — no attest path). A subject absent from the
+    project is skipped entirely (never demanded) — same "missing_child"
+    honesty every sibling assist in this family already uses.
     """
     mount_suggestions_by_subject = {s.subject: s for s in build_mount_standard_checklist(components)}
 
@@ -262,7 +400,7 @@ def assess_fit_relations(components: dict[str, Any]) -> FitRelationsAssessment:
         if row is not None:
             rows.append(row)
 
-    ready = sum(1 for r in rows if r.status == "screen_overlap")
+    ready = sum(1 for r in rows if r.status in ("screen_overlap", "station_reach_ok"))
     attested = sum(1 for r in rows if r.status == "attested")
     na = sum(1 for r in rows if r.status == "n_a_disk")
     blocked = len(rows) - ready - attested - na
@@ -275,7 +413,11 @@ def assess_fit_relations(components: dict[str, Any]) -> FitRelationsAssessment:
 def format_fit_relations_checklist(assessment: FitRelationsAssessment) -> str:
     """Locked Spanish copy — checklist-scoped verdict + row detail. Never
     claims Requirements/ASSEMBLY READY, never renames screening ->
-    VERIFIED, never claims a disk relation was screened."""
+    VERIFIED. `station_reach_*` rows (motors/frame_arm) say "alcance de
+    estación" — never AABB "cabe", never hub/blade clearance.
+    `catalog_pair_*` rows (propellers/motors) say "emparejamiento de
+    catálogo" — never cabe/alcance/hub/eje/clearance/"combo exacto de
+    empuje"/VERIFIED físico."""
     if not assessment.rows:
         return (
             "Relaciones de encaje: ningún par en el alcance de este "
@@ -291,12 +433,17 @@ def format_fit_relations_checklist(assessment: FitRelationsAssessment) -> str:
     for row in assessment.rows:
         if row.status == "attested":
             marker = "✓"
-        elif row.status == "screen_overlap":
+        elif row.status in ("screen_overlap", "station_reach_ok"):
             marker = "→"
         elif row.status == "n_a_disk":
             marker = "·"
         elif row.status == "ambiguous_plate":
             marker = "?"
+        elif row.status == "catalog_pair_ok":
+            # Informational match, never attestable (IC lock #8) — never
+            # the same "ready to declare verified" arrow as screen_overlap
+            # / station_reach_ok.
+            marker = "≈"
         else:
             marker = "✗"
         target = row.origin_key or "(placa)"

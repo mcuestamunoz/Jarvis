@@ -235,7 +235,13 @@ def test_r4_stale_fingerprint_never_shows_attested():
 # ── R5: motors/propellers n_a_disk; mount warn independent ──────────────
 
 
-def test_r5_motors_propellers_are_n_a_disk_with_mount_warning():
+def test_r5_propellers_uses_catalog_pair_motors_uses_station_reach():
+    """Disk-station radial reach B1 + catalog-pair B1: `motors` gets a
+    real `station_reach_*` screening (here `insufficient` — no
+    `frame.wheelbase_mm`/`configuration` in this fixture); `propellers`
+    gets a real `catalog_pair_*` screening (here `unverifiable` — neither
+    component has a `catalog_ref` in this fixture). Neither is `n_a_disk`
+    any more — that status is reserved, unused by any live pair today."""
     components = {
         "frame": ComponentSpec(suggested_key="frame", completeness="high"),
         "frame_arm": _box("frame_arm", 80.0, 20.0, 4.0),
@@ -250,9 +256,9 @@ def test_r5_motors_propellers_are_n_a_disk_with_mount_warning():
     }
     assessment = assess_fit_relations(components)
     by_child = {r.child: r for r in assessment.rows}
-    assert by_child["motors"].status == "n_a_disk"
-    assert by_child["propellers"].status == "n_a_disk"
-    assert assessment.na_count == 2
+    assert by_child["motors"].status == "station_reach_insufficient"
+    assert by_child["propellers"].status == "catalog_pair_unverifiable"
+    assert assessment.na_count == 0
     assert by_child["motors"].mount_warning is not None
     assert "brazo" in by_child["motors"].mount_warning
     assert by_child["propellers"].mount_warning is not None
@@ -269,7 +275,10 @@ def test_r5_mount_warning_absent_once_mounted():
     }
     assessment = assess_fit_relations(components)
     row = next(r for r in assessment.rows if r.child == "motors")
-    assert row.status == "n_a_disk"
+    # Still insufficient (no frame.wheelbase_mm/configuration in this
+    # fixture) — Disk-station radial reach B1 changed the STATUS name,
+    # not the mount_warning-is-independent behavior this test guards.
+    assert row.status == "station_reach_insufficient"
     assert row.mount_warning is None
 
 

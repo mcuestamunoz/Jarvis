@@ -291,8 +291,14 @@ def _battery_discharge(
 # ── §6.4 — prop_motor (★10 — library.match_motor_propeller only) ───────────
 
 
-def _prop_motor(project_state: Any) -> CheckOutcome:
-    components = _components(project_state)
+def prop_motor_pairing_outcome(components: dict[str, Any]) -> CheckOutcome:
+    """Pure, components-only core of the motor<->propeller catalog-pairing
+    check — extracted (B1-propellers-motors-catalog-pair) so this module's
+    own ERF facts and `fit_relations_assist`'s `propellers` -> `motors`
+    checklist row can NEVER drift apart: both call this exact function,
+    never two copies of the same catalog-membership logic. Callers that
+    only have a `ComponentSpec` dict (not a full `ProjectState`) can call
+    this directly."""
     motors = components.get("motors")
     propellers = components.get("propellers")
     motor_ref = getattr(motors, "catalog_ref", None) if motors is not None else None
@@ -306,6 +312,10 @@ def _prop_motor(project_state: Any) -> CheckOutcome:
     except KeyError:
         return "unverifiable"
     return "compatible" if matched else "mismatch"
+
+
+def _prop_motor(project_state: Any) -> CheckOutcome:
+    return prop_motor_pairing_outcome(_components(project_state))
 
 
 # ── public entry point ───────────────────────────────────────────────────────

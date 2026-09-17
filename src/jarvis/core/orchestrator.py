@@ -2741,6 +2741,7 @@ class JarvisOrchestrator:
         from jarvis.core.motor_catalog_assist import _normalize_help
         from jarvis.core.mounted_on_declare_assist import resolve_component_subject_noun
         from jarvis.core.pose_envelope_screening import screen_posed_envelope
+        from jarvis.core.station_reach_screening import screen_station_reach
 
         normalized = _normalize_help(user_input)
         subject_key = resolve_component_subject_noun(normalized)
@@ -2748,9 +2749,17 @@ class JarvisOrchestrator:
             component_key = subject_key
         else:
             if is_set:
+                # Disk-station radial reach B1: `motors` can never pass the
+                # box-overlap gate (disk, not box) — included here via its
+                # OWN evidence class so a bare "declaro verificado" finds it
+                # too when it's the only thing station-reach-ok, same as
+                # every box-family member already gets found by its own gate.
                 eligible = sorted(
                     k for k, spec in components.items()
-                    if screen_posed_envelope(spec, components).status == "overlap"
+                    if (
+                        screen_posed_envelope(spec, components).status == "overlap"
+                        or (k == "motors" and screen_station_reach(spec, "frame_arm", components).status == "station_reach_ok")
+                    )
                 )
                 empty_message = (
                     "Jarvis no verifica ensamblaje físico; ningún par tiene "
