@@ -1,6 +1,6 @@
 # Engineer note — Software closeout queue (no caliper / no bench)
 
-**Date:** 2026-09-17 (synced — #1–#3 CLOSED · next #4)  
+**Date:** 2026-09-17 (synced — #4 IC ready)  
 **Authority:** Engineer — park physical dims + lab; attack software closeout #1–#5  
 **Guide:** [`docs/USER_GUIDE_CRAFT_MONTAGE.md`](../../docs/USER_GUIDE_CRAFT_MONTAGE.md)
 
@@ -22,7 +22,7 @@
 | **1** | **`B1-continuity-mission-intent`** | **CLOSED** smoke ACCEPT | [review](implementation_review_continuity_mission_intent_b1.md) |
 | **2** | **`B1-wizard-mission-nudge`** | **CLOSED** smoke ACCEPT | [review](implementation_review_wizard_mission_nudge_b1.md) |
 | **3** | **`B1-propellers-motors-catalog-pair`** | **CLOSED** smoke ACCEPT | [review](implementation_review_propellers_motors_catalog_pair_b1.md) |
-| **4** | Hygiene bind-esc / FC-GPS (+ SuggestionEngine N1) | **Next ★** | — |
+| **4** | **`B1-catalog-hygiene-mission-suggestions`** | **IC ready for ★** | [IC](implementation_contract_catalog_hygiene_mission_suggestions_b1.md) |
 | **5** | More identity rules (payload/arm/…) | Queued | — |
 
 ## Already closed

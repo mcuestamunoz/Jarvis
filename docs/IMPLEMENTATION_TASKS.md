@@ -8,7 +8,7 @@
 
 > **Base:** tag **`v0.4.1`**. Suite viva **3006** · UI **105**.  
 > **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
-> **PRIORIDAD AHORA:** software closeout **#4** hygiene bind-esc / FC-GPS (+ SuggestionEngine N1) — next ★. **#3** `B1-propellers-motors-catalog-pair` **CLOSED** (smoke ACCEPT). Suite **3006**. Physical/lab parked. Guide: [`USER_GUIDE_CRAFT_MONTAGE.md`](USER_GUIDE_CRAFT_MONTAGE.md).  
+> **PRIORIDAD AHORA:** software closeout **#4** **`B1-catalog-hygiene-mission-suggestions`** — next ★ ([IC](../.jes/artifacts/implementation_contract_catalog_hygiene_mission_suggestions_b1.md)). Suite **3006**. Physical/lab parked. Guide: [`USER_GUIDE_CRAFT_MONTAGE.md`](USER_GUIDE_CRAFT_MONTAGE.md).  
 
 > **Parked (not software):** plate-box bag · Path N · HD-* · camera catalog physics · axial prop↔motor geometry.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
@@ -20,7 +20,7 @@
 | **1** | **`B1-continuity-mission-intent`** | **CLOSED** | Vigilancia ≠ "Aumentar carga útil" | [review](../.jes/artifacts/implementation_review_continuity_mission_intent_b1.md) · smoke ACCEPT |
 | **2** | **`B1-wizard-mission-nudge`** | **CLOSED** | Sugerir B (cámara/radio) al crear | [review](../.jes/artifacts/implementation_review_wizard_mission_nudge_b1.md) · smoke ACCEPT |
 | **3** | **`B1-propellers-motors-catalog-pair`** | **CLOSED** | `relaciones` pairing catálogo | [review](../.jes/artifacts/implementation_review_propellers_motors_catalog_pair_b1.md) · smoke ACCEPT |
-| **4** | Hygiene bind-esc / FC-GPS | **Next ★** | Localized IC (+ SuggestionEngine mission gate N1) | ★ · draft IC |
+| **4** | **`B1-catalog-hygiene-mission-suggestions`** | **IC ready** | bind-esc omit · FC/GPS rebind · SuggestionEngine N1 | ★ · [IC](../.jes/artifacts/implementation_contract_catalog_hygiene_mission_suggestions_b1.md) |
 | **5** | More identity rules | Queued | payload/arm/wheels/gearbox | ★ |
 
 ### 📋 COLA — Physical / schema (parked)

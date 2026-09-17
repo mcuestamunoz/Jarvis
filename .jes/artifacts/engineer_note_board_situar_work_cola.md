@@ -1,7 +1,7 @@
 # Engineer note — Board Situar / software closeout cola
 
-**Date:** 2026-09-17 (synced — #3 CLOSED smoke ACCEPT)  
-**Status:** Next ★ = #4 hygiene bind-esc / FC-GPS (+ SuggestionEngine N1) IC  
+**Date:** 2026-09-17 (synced — #4 IC ready · commits landed)  
+**Status:** Next ★ = `B1-catalog-hygiene-mission-suggestions`  
 
 ## Order (software · attack)
 
@@ -10,7 +10,7 @@
 | **1** | **`B1-continuity-mission-intent`** | Vigilancia ≠ aumentar carga | **CLOSED** smoke ACCEPT |
 | **2** | **`B1-wizard-mission-nudge`** | Sugerir B (cámara/radio) al crear | **CLOSED** smoke ACCEPT |
 | **3** | **`B1-propellers-motors-catalog-pair`** | `relaciones` pairing catálogo | **CLOSED** smoke ACCEPT |
-| **4** | Hygiene ESC/FC (+ SuggestionEngine N1) | Localized | ★ · draft IC |
+| **4** | **`B1-catalog-hygiene-mission-suggestions`** | bind-esc omit · FC/GPS rebind · SuggestionEngine N1 | ★ · [IC](implementation_contract_catalog_hygiene_mission_suggestions_b1.md) |
 | **5** | Identity payload/arm/… | Optional | ★ |
 
 ## Parked (physical / schema)
