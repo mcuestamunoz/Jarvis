@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "B1-catalog-hygiene-mission-suggestions IC ready ★ 2026-09-17 @ 3006 — after commits #1–#3 closed",
+  "cycle_intent": "Fase M: H1 routing await smoke; cola M2-M7 then Fase C control; stay 0.4.1 (2026-09-17) @ suite 3068",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "Await ★ B1-catalog-hygiene-mission-suggestions",
-  "active_operation": "await_star_catalog_hygiene_mission_suggestions_b1",
+  "current_mode": "Await Cursor review + Engineer smoke (system_definition_b_routing_b1) + prior pending reviews/smokes (mission_mass_energy_b1, extended_identity_rules_b1, catalog_hygiene_mission_suggestions_b1, propellers_motors_catalog_pair_b1, wizard_mission_nudge_b1, continuity_mission_intent_b1, disk_station_reach_b1, mission_payload_identity_b1, system_definition_block_gate_b1, user_guide_craft_montage_b1 doc walk, estimated_temporary_esc_skystars_b1, mount_standard_assist_b1, Situar experience B1, multibox UX fix, Structure A class slack, #4* stack)",
+  "active_operation": "await_review_smoke_system_definition_b_routing_b1",
   "movement_trigger": {
-    "type": "ic_ready",
-    "note": "implementation_contract_catalog_hygiene_mission_suggestions_b1.md"
+    "type": "cursor_review_then_engineer_smoke",
+    "note": "2026-09-17 system_definition_b_routing_b1 implemented @ suite 3068 (was 3058) — implementation_report_system_definition_b_routing_b1.md. SYSTEM_DEFINITION excluded from global component intercept (4th mode exclusion, mirrors 3 existing); meta 'add more blocks' phrases are now a no-op instead of junk custom blocks. No version bump, no workspace/ mutation."
   },
   "relevant_workflow_phases": [
     "Verification"
@@ -322,6 +322,9 @@
     "continuity_mission_intent_b1_ic": "CLOSED_SMOKE_ACCEPT_2985",
     "wizard_mission_nudge_b1_ic": "CLOSED_SMOKE_ACCEPT_2993",
     "propellers_motors_catalog_pair_b1_ic": "CLOSED_SMOKE_ACCEPT_3006",
-    "catalog_hygiene_mission_suggestions_b1_ic": "READY_FOR_STAR"
+    "catalog_hygiene_mission_suggestions_b1_ic": "CLOSED_SMOKE_ACCEPT_3027",
+    "extended_identity_rules_b1_ic": "REVIEW_PASS_WITH_NOTES_AWAIT_SMOKE_3044",
+    "mission_mass_energy_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_3058",
+    "system_definition_b_routing_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_3068"
   }
 }

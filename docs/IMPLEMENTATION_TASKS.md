@@ -6,9 +6,9 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.4.1`**. Suite viva **3006** · UI **105**.  
+> **Base:** tag **`v0.4.1`**. Suite viva **3068** · UI **105**.  
 > **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
-> **PRIORIDAD AHORA:** software closeout **#4** **`B1-catalog-hygiene-mission-suggestions`** — next ★ ([IC](../.jes/artifacts/implementation_contract_catalog_hygiene_mission_suggestions_b1.md)). Suite **3006**. Physical/lab parked. Guide: [`USER_GUIDE_CRAFT_MONTAGE.md`](USER_GUIDE_CRAFT_MONTAGE.md).  
+> **PRIORIDAD AHORA:** **`B1-system-definition-b-routing`** review **PASS** · await smoke ([review](../.jes/artifacts/implementation_review_system_definition_b_routing_b1.md)). Luego Fase M cola ([fase → control gate](../.jes/artifacts/engineer_note_fase_m_mission_craft_to_control_gate.md)): **M2** mount+endurance Continuity · **M3** `power_w` · **M4** VTX opt · **M7** close → Fase C control. Suite **3068**. Package **`0.4.1`** (no bump; valorar `0.4.2` en M7). Physical/lab parked. Guide: [`USER_GUIDE_CRAFT_MONTAGE.md`](USER_GUIDE_CRAFT_MONTAGE.md).  
 
 > **Parked (not software):** plate-box bag · Path N · HD-* · camera catalog physics · axial prop↔motor geometry.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
@@ -20,8 +20,27 @@
 | **1** | **`B1-continuity-mission-intent`** | **CLOSED** | Vigilancia ≠ "Aumentar carga útil" | [review](../.jes/artifacts/implementation_review_continuity_mission_intent_b1.md) · smoke ACCEPT |
 | **2** | **`B1-wizard-mission-nudge`** | **CLOSED** | Sugerir B (cámara/radio) al crear | [review](../.jes/artifacts/implementation_review_wizard_mission_nudge_b1.md) · smoke ACCEPT |
 | **3** | **`B1-propellers-motors-catalog-pair`** | **CLOSED** | `relaciones` pairing catálogo | [review](../.jes/artifacts/implementation_review_propellers_motors_catalog_pair_b1.md) · smoke ACCEPT |
-| **4** | **`B1-catalog-hygiene-mission-suggestions`** | **IC ready** | bind-esc omit · FC/GPS rebind · SuggestionEngine N1 | ★ · [IC](../.jes/artifacts/implementation_contract_catalog_hygiene_mission_suggestions_b1.md) |
-| **5** | More identity rules | Queued | payload/arm/wheels/gearbox | ★ |
+| **4** | **`B1-catalog-hygiene-mission-suggestions`** | **CLOSED** | bind-esc omit · FC/GPS rebind · SuggestionEngine N1 | [review](../.jes/artifacts/implementation_review_catalog_hygiene_mission_suggestions_b1.md) · smoke ACCEPT |
+| **5** | **`B1-extended-identity-rules`** | **CLOSED** | payload/arm/wheels/gearbox identidad | [review](../.jes/artifacts/implementation_review_extended_identity_rules_b1.md) · smoke ACCEPT |
+
+### 📋 COLA — Fase M (mission craft software → gate control)
+
+SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/engineer_note_fase_m_mission_craft_to_control_gate.md)
+
+| # | ★ | Estado | Qué | Gate |
+|---|---|---|---|---|
+| **H1** | **`B1-system-definition-b-routing`** | **Review PASS** | B owns turns vs intercept | [review](../.jes/artifacts/implementation_review_system_definition_b_routing_b1.md) · await smoke |
+| **P1** | **`B1-mission-mass-energy`** | **CLOSED** | `mass_g` → AUW + ladder mass | [review](../.jes/artifacts/implementation_review_mission_mass_energy_b1.md) · smoke ACCEPT |
+| **M2** | **`B1-mission-continuity-mount-endurance`** | **COLA** | Continuity: mount cámara/radio/FC + autonomía objetivo | Draft IC after H1 CLOSED |
+| **M3** | **`B1-mission-power-w`** | **COLA** | `power_w` misión → energía (sin claim vuelo) | After M2 or ★ parallel |
+| **M4** | VTX identity | **COLA / opt** | Identity vídeo enlace o checklist | Engineer ★ |
+| **M5** | `payload_kg` P2 | **COLA / if needed** | Displace vs P1 warn | Only if P1 hurts |
+| **M6** | Guide polish | **COLA soft** | Stale hélices line; mount one-pager | Anytime |
+| **M7** | Close Fase M → Fase C | **GATE** | Handoff a control de vuelo / enlace | M2 mínimo |
+
+### 📋 COLA — Fase C (después de M7 · no AHORA)
+
+Firmware FC · MAVLink/GCS · bind ELRS · PID/tuning · mission planner · app piloto — **fuera SoT** hasta ★ Fase C. Ver nota fase §Fuera.
 
 ### 📋 COLA — Physical / schema (parked)
 
@@ -30,11 +49,13 @@
 | — | **`B1-plate-box`** | **Await bag** | L×W medida/citada | Caliper / cite |
 | — | Path N | **B0 HOLD** | Disk origin | No reabrir |
 | — | Cited `library/cameras` | Park | Physics bags | Engineer |
+| — | HD-005 / HD-* | Park | Banco OP exacto | Never AHORA without lab |
 
 ### ✅ Cerrado este arco (craft montage + mission gate 2026-09-13→16) — no reabrir
 
 | ★ | Estado |
 |---|---|
+| **`B1-catalog-hygiene-mission-suggestions`** | CLOSED · review PASS WITH NOTES · **smoke ACCEPT** (omit-key · FC rebind · simular sin increase_payload) |
 | **`B1-propellers-motors-catalog-pair`** | CLOSED · review PASS WITH NOTES · **smoke ACCEPT** (`relaciones` ≈ catalog_pair_ok; reach intact) |
 | **`B1-wizard-mission-nudge`** | CLOSED · review PASS WITH NOTES · **smoke ACCEPT** (A/B/C nudge + B→cámara) |
 | **`B1-continuity-mission-intent`** | CLOSED · review PASS WITH NOTES · **smoke ACCEPT** (estado + Continuity post-simular; N1 SuggestionEngine on simular → #4) |

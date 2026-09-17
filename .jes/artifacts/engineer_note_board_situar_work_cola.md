@@ -1,26 +1,31 @@
-# Engineer note — Board Situar / software closeout cola
+# Engineer note — Board Situar / Fase M cola
 
-**Date:** 2026-09-17 (synced — #4 IC ready · commits landed)  
-**Status:** Next ★ = `B1-catalog-hygiene-mission-suggestions`  
+**Date:** 2026-09-17  
+**Status:** Await smoke H1 · then M2… · SoT [fase → control](engineer_note_fase_m_mission_craft_to_control_gate.md)
 
-## Order (software · attack)
+## Closed
 
-| # | ★ | Qué | Gate |
-|---|---|---|---|
-| **1** | **`B1-continuity-mission-intent`** | Vigilancia ≠ aumentar carga | **CLOSED** smoke ACCEPT |
-| **2** | **`B1-wizard-mission-nudge`** | Sugerir B (cámara/radio) al crear | **CLOSED** smoke ACCEPT |
-| **3** | **`B1-propellers-motors-catalog-pair`** | `relaciones` pairing catálogo | **CLOSED** smoke ACCEPT |
-| **4** | **`B1-catalog-hygiene-mission-suggestions`** | bind-esc omit · FC/GPS rebind · SuggestionEngine N1 | ★ · [IC](implementation_contract_catalog_hygiene_mission_suggestions_b1.md) |
-| **5** | Identity payload/arm/… | Optional | ★ |
+| # | ★ | Gate |
+|---|---|---|
+| **1–5** | software closeout | **CLOSED** |
+| **P1** | `B1-mission-mass-energy` | **CLOSED** |
 
-## Parked (physical / schema)
+## Active / cola
 
-| Item | Gate |
-|---|---|
-| plate-box | Bag |
-| Path N | HOLD |
-| Axial prop↔motor / HD-* / camera catalog physics | Lab / bags |
+| # | ★ | Estado |
+|---|---|---|
+| **H1** | `B1-system-definition-b-routing` | Review PASS · await smoke |
+| **M2** | mount + endurance Continuity | COLA (IC after H1) |
+| **M3** | mission `power_w` | COLA |
+| **M4** | VTX identity | COLA / opt |
+| **M5** | `payload_kg` P2 | only if P1 hurts |
+| **M6** | guide polish | soft |
+| **M7** | close Fase M → Fase C (control) | GATE |
 
-## Cerrado
+## Parked physical
 
-disk-station reach · propellers-motors catalog-pair · mission-payload identity · Continuity mission-intent · wizard mission nudge · block-gate · user guide · craft montage arc
+plate-box · Path N · HD-* · camera physics bags
+
+## Fase C (después M7 · no AHORA)
+
+Firmware · MAVLink · bind ELRS · PID · mission planner — fuera SoT hasta ★

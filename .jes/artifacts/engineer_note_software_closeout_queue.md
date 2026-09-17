@@ -1,30 +1,21 @@
 # Engineer note — Software closeout queue (no caliper / no bench)
 
-**Date:** 2026-09-17 (synced — #4 IC ready)  
-**Authority:** Engineer — park physical dims + lab; attack software closeout #1–#5  
+**Date:** 2026-09-17 (synced — #1–#5 **CLOSED**; Fase M open)  
+**Authority:** Engineer — park physical dims + lab; software closeout done  
 **Guide:** [`docs/USER_GUIDE_CRAFT_MONTAGE.md`](../../docs/USER_GUIDE_CRAFT_MONTAGE.md)
 
-## Explicitly OUT of this queue
+## Attack order
 
-| Item | Why |
-|---|---|
-| `B1-plate-box` / Option B caliper | Needs physical measure or OEM cite bag |
-| Path N | Schema HOLD |
-| HD-* / Prop-Energy bench | Lab wall |
-| Axial prop↔motor shaft/hub geometry | No live facts (disk-station B0 §C) |
-| `library/cameras` mass/dims | Needs Engineer bags |
-| Flight-stack firmware / MAVLink | Product OUT |
-
-## Attack order (activa)
-
-| # | ★ Buy / B0 | Estado | Artefacto |
+| # | ★ Buy | Estado | Artefacto |
 |---|---|---|---|
-| **1** | **`B1-continuity-mission-intent`** | **CLOSED** smoke ACCEPT | [review](implementation_review_continuity_mission_intent_b1.md) |
-| **2** | **`B1-wizard-mission-nudge`** | **CLOSED** smoke ACCEPT | [review](implementation_review_wizard_mission_nudge_b1.md) |
-| **3** | **`B1-propellers-motors-catalog-pair`** | **CLOSED** smoke ACCEPT | [review](implementation_review_propellers_motors_catalog_pair_b1.md) |
-| **4** | **`B1-catalog-hygiene-mission-suggestions`** | **IC ready for ★** | [IC](implementation_contract_catalog_hygiene_mission_suggestions_b1.md) |
-| **5** | More identity rules (payload/arm/…) | Queued | — |
+| **1–5** | (closed) | **CLOSED** smoke ACCEPT | reviews on file |
 
-## Already closed
+## After closeout — Fase M
 
-Montage spine · user guide · block gate · cameras/radio identity · Continuity mission-intent · wizard mission nudge · disk-station reach · propellers-motors catalog-pair · box fit attest ladder.
+SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](engineer_note_fase_m_mission_craft_to_control_gate.md)
+
+| # | ★ | Estado |
+|---|---|---|
+| **H1** | `B1-system-definition-b-routing` | Review PASS · await smoke |
+| **P1** | `B1-mission-mass-energy` | **CLOSED** |
+| **M2–M7** | mount/endurance · power_w · VTX · P2 · guide · gate→Fase C | COLA |
