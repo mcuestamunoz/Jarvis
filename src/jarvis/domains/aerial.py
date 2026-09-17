@@ -756,6 +756,112 @@ def _sensor_completeness(props: dict) -> tuple[str, list[str]]:
     return "medium", []
 
 
+# ── Mission payload identity: camera ─────────────────────────────────────────
+# B1-mission-payload-identity (2026-09-15): identity-only — never invents
+# length_mm/width_mm/height_mm/mass_g/power_w. Model recognised → medium;
+# nothing recognised → low. No library/cameras catalog exists yet (debt).
+
+CAMERA_MODEL_MAP: dict[str, str] = {
+    "runcam":   "runcam",
+    "caddx":    "caddx",
+    "foxeer":   "foxeer",
+    "gopro":    "gopro",
+    "insta360": "insta360",
+}
+
+
+def extract_camera_properties(normalized: str) -> dict[str, PropertyValue]:
+    """Extract a camera's identity (brand/model) from freeform text.
+
+    Identity-only: sets ``model`` when a recognised brand alias is present.
+    Never parses or invents mm/g/W — no geometry or mass field exists for
+    this component key.
+
+    Examples:
+        "cámara RunCam" → {model: "runcam", confidence=0.8}
+        "cámara" (bare) → {} (brand not identified)
+    """
+    props: dict[str, PropertyValue] = {}
+    lower = normalized.lower()
+    found_model: str | None = None
+    found_len = 0
+
+    for alias, canonical in CAMERA_MODEL_MAP.items():
+        if alias in lower and len(alias) > found_len:
+            found_model = canonical
+            found_len = len(alias)
+
+    if found_model:
+        props["model"] = PropertyValue(
+            value=found_model, unit=None, confidence=0.8, source="declared"
+        )
+    return props
+
+
+def _camera_completeness(props: dict) -> tuple[str, list[str]]:
+    """Evaluate completeness of camera identity properties.
+
+    Returns:
+        ("medium", []) — brand/model recognised
+        ("low",    [...])— nothing recognised
+    """
+    if "model" not in props:
+        return "low", ["modelo de cámara (ej: RunCam, GoPro, Caddx)"]
+    return "medium", []
+
+
+# ── Mission payload identity: radio / comms module ───────────────────────────
+# B1-mission-payload-identity (2026-09-15): identity-only, mirrors the
+# camera rule above. No library/radio catalog exists yet (debt).
+
+RADIO_MODEL_MAP: dict[str, str] = {
+    "expresslrs": "elrs",
+    "elrs":       "elrs",
+    "crossfire":  "crossfire",
+    "frsky":      "frsky",
+}
+
+
+def extract_radio_properties(normalized: str) -> dict[str, PropertyValue]:
+    """Extract a radio/comms module's identity (protocol/brand) from freeform text.
+
+    Identity-only: sets ``model`` when a recognised protocol/brand alias is
+    present. Never parses or invents mm/g/W.
+
+    Examples:
+        "radio ELRS"        → {model: "elrs", confidence=0.8}
+        "receptor Crossfire" → {model: "crossfire", confidence=0.8}
+        "radio" (bare)       → {} (protocol not identified)
+    """
+    props: dict[str, PropertyValue] = {}
+    lower = normalized.lower()
+    found_model: str | None = None
+    found_len = 0
+
+    for alias, canonical in RADIO_MODEL_MAP.items():
+        if alias in lower and len(alias) > found_len:
+            found_model = canonical
+            found_len = len(alias)
+
+    if found_model:
+        props["model"] = PropertyValue(
+            value=found_model, unit=None, confidence=0.8, source="declared"
+        )
+    return props
+
+
+def _radio_completeness(props: dict) -> tuple[str, list[str]]:
+    """Evaluate completeness of radio/comms identity properties.
+
+    Returns:
+        ("medium", []) — protocol/brand recognised
+        ("low",    [...])— nothing recognised
+    """
+    if "model" not in props:
+        return "low", ["protocolo o marca de radio (ej: ELRS, Crossfire, FrSky)"]
+    return "medium", []
+
+
 # ── Rule registry for aerial domain ─────────────────────────────────────────
 
 aerial_registry = ComponentRuleRegistry([
@@ -840,5 +946,30 @@ aerial_registry = ComponentRuleRegistry([
         property_extractor=extract_sensor_properties,
         completeness_evaluator=_sensor_completeness,
         missing_field_hints=("Indica el modelo GPS o tipo de sensor. Ej: 'GPS M9N', 'IMU', 'barómetro'",),
+    ),
+    ComponentRule(
+        # B1-mission-payload-identity: identity-only opener. "vision"/"visión"
+        # kept bare per Engineer lock — narrower Spanish forms ("visión
+        # artificial") are covered by the substring "vision"/"visión" too.
+        keywords=("camara", "cámara", "camaras", "cámaras", "camera", "fpv", "vision", "visión"),
+        component_type="perception",
+        suggested_key="cameras",
+        inference_confidence=0.7,
+        property_extractor=extract_camera_properties,
+        completeness_evaluator=_camera_completeness,
+        missing_field_hints=("Indica la marca/modelo de cámara. Ej: 'cámara RunCam'",),
+    ),
+    ComponentRule(
+        # B1-mission-payload-identity: identity-only opener. "rx" deliberately
+        # excluded (too short — substring match would over-fire); "receptor"
+        # covers the Spanish RX use case without that risk.
+        keywords=("radio", "elrs", "expresslrs", "crossfire", "telemetria", "telemetría",
+                  "telemetry", "emisor", "receptor"),
+        component_type="communication",
+        suggested_key="radio_module",
+        inference_confidence=0.7,
+        property_extractor=extract_radio_properties,
+        completeness_evaluator=_radio_completeness,
+        missing_field_hints=("Indica el protocolo/marca de radio. Ej: 'radio ELRS'",),
     ),
 ])

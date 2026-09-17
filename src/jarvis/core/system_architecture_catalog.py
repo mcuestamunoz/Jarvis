@@ -164,7 +164,12 @@ BLOCK_TO_COMPONENTS: dict[str, list[str]] = {
     "control":       ["flight_controller", "sensors"],
     "actuation":     ["motors", "wheels"],
     "transmission":  ["gearbox"],
-    "perception":    ["cameras", "lidar"],
+    # B1-mission-payload-identity (2026-09-15): "perception" narrowed to
+    # ["cameras"] only — "lidar" has no ComponentRule yet (named debt).
+    # BLOCK_ALIASES still maps the word "lidar" to this block (a user can
+    # say it), but it never expands to a lidar component key: only
+    # "cameras" is in the resolvability/expansion set below.
+    "perception":    ["cameras"],
     "communication": ["radio_module"],
     "payload":       ["payload_bay"],
     "manipulation":  ["arm"],
@@ -279,6 +284,30 @@ def blocks_to_component_keys(blocks: list[str]) -> list[str]:
                 seen.add(key)
                 keys.append(key)
     return keys
+
+
+def block_components_are_resolvable(block: str, registry: Any | None = None) -> bool:
+    """Gate SYSTEM_DEFINITION B-path B1 (`B1-system-definition-block-gate`)
+    — True iff EVERY component key ``BLOCK_TO_COMPONENTS[block]`` expands
+    to already has a matching ``ComponentRule.suggested_key`` in
+    *registry* (default: the live ``aerial_registry`` — a local import,
+    since ``aerial.py`` itself imports FROM this module and a module-level
+    import here would cycle). A block absent from ``BLOCK_TO_COMPONENTS``,
+    or mapping to an empty component list, is vacuously resolvable
+    (``all()`` over an empty sequence is ``True``) — that is exactly the
+    existing "unknown/no-alias free-text block" path (never invents keys
+    either way), unchanged by this gate.
+
+    This function answers ONLY "can Jarvis ever finish a component this
+    block would create" — it never decides whether to offer/accept a
+    block; callers (`system_definition_session.py`) own that branching.
+    """
+    if registry is None:
+        from jarvis.domains.aerial import aerial_registry as registry
+
+    component_keys = BLOCK_TO_COMPONENTS.get(block, [])
+    known = registry.known_suggested_keys()
+    return all(key in known for key in component_keys)
 
 
 # ── Assembly kit template B1-min ──────────────────────────────────────────────

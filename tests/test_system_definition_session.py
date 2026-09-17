@@ -8,6 +8,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from jarvis.core.system_architecture_catalog import (
+    block_components_are_resolvable,
     blocks_to_component_keys,
     get_domain_architecture,
     get_param_reason_for_block,
@@ -252,6 +253,11 @@ def test_answer_escape_clears_session(tmp_path):
 
 
 def test_answer_b_then_vision_then_listo(tmp_path):
+    """B1-mission-payload-identity: 'visión artificial' resolves to the
+    `perception` block, now narrowed to component keys=[`cameras`] only —
+    `cameras` has a `ComponentRule` (identity-only), so this now ACCEPTS
+    and creates a `cameras` stub. `lidar` is not in the expansion set
+    (named debt) and is never created."""
     orchestrator = _make_orchestrator_with_project(tmp_path, "dron")
     project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
     orchestrator.system_definition_session.start("dron", project_state)
@@ -261,14 +267,15 @@ def test_answer_b_then_vision_then_listo(tmp_path):
 
     r2 = orchestrator.system_definition_session.answer("visión artificial")
     assert r2["status"] == "interactive"
+    assert "todavía no puedo resolver" not in r2["message"].lower()
+    assert "añadido" in r2["message"].lower()
 
     r3 = orchestrator.system_definition_session.answer("listo")
     assert r3.get("status") in ("ok", "interactive")
 
     saved = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
-    # perception expands to both cameras AND lidar
     assert "cameras" in saved.design_properties.components
-    assert "lidar" in saved.design_properties.components
+    assert "lidar" not in saved.design_properties.components
 
 
 def test_custom_block_without_alias_not_expanded_to_component_keys(tmp_path):
@@ -420,3 +427,221 @@ def test_vehicle_type_alias_drone_resolves_dependency():
     deps = get_domain_dependencies("drone")
     assert deps == get_domain_dependencies("dron")
     assert deps != {}
+
+
+# ── Gate SYSTEM_DEFINITION B-path B1 (`B1-system-definition-block-gate`) ─────
+#
+# Covers implementation_contract_system_definition_block_gate_b1.md §2:
+#   T1  payload/manipulation/actuation/transmission
+#       -> NOT resolvable against the live aerial_registry
+#   T2  propulsion/energy/structure/control -> resolvable
+#   T3  Mode B -> a resolvable alias still works; Option A unaffected
+#   T4  Full pytest green (checked at the repo level)
+#
+# perception/communication moved to the resolvable set as of
+# B1-mission-payload-identity (2026-09-15) — see the dedicated block below.
+
+
+def test_t1_dead_blocks_are_not_resolvable():
+    for block in ("payload", "manipulation", "actuation", "transmission"):
+        assert block_components_are_resolvable(block) is False, block
+
+
+def test_t2_live_blocks_are_resolvable():
+    for block in ("propulsion", "energy", "structure", "control"):
+        assert block_components_are_resolvable(block) is True, block
+
+
+def test_t2_unknown_block_is_vacuously_resolvable():
+    """A block absent from BLOCK_TO_COMPONENTS (no known alias matched it
+    at all) is the existing free-text path, unrelated to this gate."""
+    assert block_components_are_resolvable("some_totally_unknown_block") is True
+
+
+def test_t1_helper_respects_injected_registry():
+    """The registry is a parameter, not a hardcoded global — an empty
+    registry makes even the live blocks unresolvable, and a registry that
+    knows 'cameras' makes perception resolvable. Proves the gate actually
+    reads the registry rather than special-casing block names."""
+    from jarvis.core.component_rules import ComponentRule, ComponentRuleRegistry
+
+    empty_registry = ComponentRuleRegistry()
+    assert block_components_are_resolvable("propulsion", registry=empty_registry) is False
+
+    camera_rule = ComponentRule(
+        keywords=("camara",), component_type="perception", suggested_key="cameras",
+        inference_confidence=0.7, property_extractor=lambda t: {}, completeness_evaluator=lambda p: ("low", []),
+    )
+    lidar_rule = ComponentRule(
+        keywords=("lidar",), component_type="perception", suggested_key="lidar",
+        inference_confidence=0.7, property_extractor=lambda t: {}, completeness_evaluator=lambda p: ("low", []),
+    )
+    camera_registry = ComponentRuleRegistry([camera_rule, lidar_rule])
+    assert block_components_are_resolvable("perception", registry=camera_registry) is True
+
+
+def test_t4_mode_b_payload_still_refused_no_stub(tmp_path):
+    """`payload` has no ComponentRule for `payload_bay` — still refused,
+    unaffected by B1-mission-payload-identity (cameras/radio_module only)."""
+    orchestrator = _make_orchestrator_with_project(tmp_path, "dron")
+    project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    orchestrator.system_definition_session.start("dron", project_state)
+    orchestrator.system_definition_session.answer("b")
+
+    result = orchestrator.system_definition_session.answer("payload")
+    assert "todavía no puedo resolver" in result["message"].lower()
+
+    orchestrator.system_definition_session.answer("listo")
+    saved = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    assert "payload_bay" not in saved.design_properties.components
+
+
+# ── B1-mission-payload-identity (2026-09-15) ─────────────────────────────────
+#
+# Covers implementation_contract_mission_payload_identity_b1.md §2:
+#   T1  block_components_are_resolvable("perception"/"communication") -> True
+#   T2  payload/manipulation/actuation/transmission still False (see above)
+#   T3  SYSTEM_DEFINITION B -> "cámara"/"visión artificial" -> accept; no lidar key
+#   T4  SYSTEM_DEFINITION B -> "comunicación" -> accept; radio_module present
+#   T5  Free-text identity: camera phrase + model -> suggested_key=cameras, medium
+#   T6  Free-text identity: radio phrase + model -> suggested_key=radio_module, medium
+#   T7  Extractors never attach length_mm/width_mm/height_mm/mass_g/power_w
+#   T8  Full pytest green (checked at the repo level)
+
+
+def test_mip_t1_perception_and_communication_are_resolvable():
+    assert block_components_are_resolvable("perception") is True
+    assert block_components_are_resolvable("communication") is True
+
+
+def test_mission_payload_identity_camara_accepted_no_lidar_stub(tmp_path):
+    orchestrator = _make_orchestrator_with_project(tmp_path, "dron")
+    project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    orchestrator.system_definition_session.start("dron", project_state)
+    orchestrator.system_definition_session.answer("b")
+
+    result = orchestrator.system_definition_session.answer("camara")
+    assert result["status"] == "interactive"
+    assert "todavía no puedo resolver" not in result["message"].lower()
+    assert "añadido" in result["message"].lower()
+
+    orchestrator.system_definition_session.answer("listo")
+    saved = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    assert "cameras" in saved.design_properties.components
+    assert "lidar" not in saved.design_properties.components
+    # The base architecture (propulsion/energy/structure/control) still applied.
+    assert "motors" in saved.design_properties.components
+
+
+def test_mission_payload_identity_comunicacion_accepted(tmp_path):
+    orchestrator = _make_orchestrator_with_project(tmp_path, "dron")
+    project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    orchestrator.system_definition_session.start("dron", project_state)
+    orchestrator.system_definition_session.answer("b")
+
+    r1 = orchestrator.system_definition_session.answer("comunicación")
+    assert "todavía no puedo resolver" not in r1["message"].lower()
+    assert "añadido" in r1["message"].lower()
+
+    orchestrator.system_definition_session.answer("listo")
+    saved = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    assert "radio_module" in saved.design_properties.components
+
+
+def test_mission_payload_identity_camera_freetext_model_reaches_medium():
+    from jarvis.core.component_inference import infer_component
+
+    spec = infer_component("cámara RunCam")
+    assert spec.suggested_key == "cameras"
+    assert spec.component_type == "perception"
+    assert spec.completeness == "medium"
+    assert spec.properties["model"].value == "runcam"
+
+
+def test_mission_payload_identity_bare_camara_stays_low_with_hint():
+    from jarvis.core.component_inference import infer_component
+
+    spec = infer_component("cámara")
+    assert spec.suggested_key == "cameras"
+    assert spec.completeness == "low"
+    assert spec.missing_fields
+
+
+def test_mission_payload_identity_radio_freetext_model_reaches_medium():
+    from jarvis.core.component_inference import infer_component
+
+    spec = infer_component("radio ELRS")
+    assert spec.suggested_key == "radio_module"
+    assert spec.component_type == "communication"
+    assert spec.completeness == "medium"
+    assert spec.properties["model"].value == "elrs"
+
+    spec2 = infer_component("receptor Crossfire")
+    assert spec2.suggested_key == "radio_module"
+    assert spec2.completeness == "medium"
+    assert spec2.properties["model"].value == "crossfire"
+
+
+def test_mission_payload_identity_bare_radio_stays_low_with_hint():
+    from jarvis.core.component_inference import infer_component
+
+    spec = infer_component("radio")
+    assert spec.suggested_key == "radio_module"
+    assert spec.completeness == "low"
+    assert spec.missing_fields
+
+
+def test_mission_payload_identity_never_invents_geometry_or_mass():
+    from jarvis.core.component_inference import infer_component
+
+    forbidden = {"length_mm", "width_mm", "height_mm", "mass_g", "power_w"}
+    camera_spec = infer_component("cámara RunCam 25mm 15g")
+    assert not (set(camera_spec.properties) & forbidden)
+    radio_spec = infer_component("radio ELRS 900MHz 10g")
+    assert not (set(radio_spec.properties) & forbidden)
+
+
+def test_t5_mode_b_resolvable_alias_still_works(tmp_path):
+    """A resolvable alias (structure/'frame') still adds normally — the
+    gate only refuses UNGROUNDED aliases, per lock #7."""
+    orchestrator = _make_orchestrator_with_project(tmp_path, "dron")
+    project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    orchestrator.system_definition_session.start("dron", project_state)
+    orchestrator.system_definition_session.answer("b")
+
+    result = orchestrator.system_definition_session.answer("frame")
+    assert "añadido" in result["message"].lower()
+    assert "todavía no puedo resolver" not in result["message"].lower()
+
+    orchestrator.system_definition_session.answer("listo")
+    saved = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    assert "frame" in saved.design_properties.components
+
+
+def test_t5_option_a_still_creates_default_stubs_unaffected(tmp_path):
+    orchestrator = _make_orchestrator_with_project(tmp_path, "dron")
+    project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    orchestrator.system_definition_session.start("dron", project_state)
+    result = orchestrator.system_definition_session.answer("a")
+    assert result["status"] == "ok"
+
+    saved = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    assert set(saved.design_properties.components.keys()) == {
+        "motors", "propellers", "esc", "battery", "frame", "flight_controller", "sensors",
+    }
+
+
+def test_step1_prompt_examples_are_all_resolvable(tmp_path):
+    """Lock #6/#11: the step-1 example copy must only advertise blocks that
+    currently pass the gate. 'cámara' is resolvable as of
+    B1-mission-payload-identity and is now the third example (lock #11);
+    'payload'/'comunicación' as a literal example are not advertised."""
+    orchestrator = _make_orchestrator_with_project(tmp_path, "dron")
+    project_state = orchestrator.state_manager.load_active_project(orchestrator.workspace_manager)
+    orchestrator.system_definition_session.start("dron", project_state)
+    result = orchestrator.system_definition_session.answer("b")
+    message = result["message"].lower()
+    assert "cámara" in message or "camara" in message
+    assert "payload" not in message
+    from jarvis.core.system_architecture_catalog import normalize_block_alias, block_components_are_resolvable
+    assert block_components_are_resolvable(normalize_block_alias("cámara")) is True

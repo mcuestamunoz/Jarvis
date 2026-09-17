@@ -96,5 +96,14 @@ class ComponentRuleRegistry:
                 return rule
         return None
 
+    def known_suggested_keys(self) -> frozenset[str]:
+        """Gate SYSTEM_DEFINITION B-path B1 — every `suggested_key` this
+        registry can actually resolve a component for. Used by
+        `system_architecture_catalog.block_components_are_resolvable` to
+        refuse offering a custom architecture block (e.g. "perception")
+        whose expected component keys (e.g. "cameras") have no rule here
+        yet — never a stub Jarvis can create but never later complete."""
+        return frozenset(rule.suggested_key for rule in self._rules)
+
     def __len__(self) -> int:
         return len(self._rules)

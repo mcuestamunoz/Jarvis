@@ -30,8 +30,10 @@ from __future__ import annotations
 from jarvis.config import ESCAPE_WORDS
 from jarvis.core.parameter_requirements import missing_params_for_reason
 from jarvis.core.priority_engine import compute_priority_order
+from jarvis.core.reasoning_layer import mission_intent_text_signal
 from jarvis.core.state_manager import StateManager
 from jarvis.core.system_architecture_catalog import (
+    block_components_are_resolvable,
     blocks_to_component_keys,
     get_domain_architecture,
     get_param_reason_for_block,
@@ -87,6 +89,37 @@ def _format_block_list(arch: dict) -> str:
     return "\n".join(f"  • {labels.get(b, b)}" for b in arch["blocks"])
 
 
+# B1-wizard-mission-nudge (2026-09-16): suggest-only, never "debes", never
+# refuses A/C. Locked copy.
+_MISSION_NUDGE_LINE = (
+    "Si tu misión necesita cámara o radio/enlace, elige B para añadirlos "
+    "ahora (luego 'cámara' / 'radio')."
+)
+
+# Component keys the nudge is ABOUT (mission-payload identity B1) — if
+# either is already declared, the nudge would be "escribe B" spam for
+# something the user already did, so it's suppressed regardless of
+# objective/restrictions text (IC §2 T3).
+_MISSION_NUDGE_ALREADY_DECLARED_KEYS: tuple[str, ...] = ("cameras", "radio_module")
+
+
+def _mission_nudge_applies(project_state) -> bool:
+    """B1-wizard-mission-nudge — True iff the project's objective/
+    restrictions text signals mission intent (reuses `reasoning_layer.
+    mission_intent_text_signal` — the SAME frozen keyword authority
+    `B1-continuity-mission-intent` uses, so Continuity and this wizard
+    nudge can never drift apart) AND neither `cameras` nor `radio_module`
+    is already declared. Deliberately text-only (never component-presence)
+    as the trigger — component presence alone would make the nudge fire
+    for a project that already has camera/radio identity and nothing left
+    to add via B."""
+    components = project_state.design_properties.components or {}
+    if any(key in components for key in _MISSION_NUDGE_ALREADY_DECLARED_KEYS):
+        return False
+    restrictions = (project_state.current_parameters or {}).get("restrictions")
+    return mission_intent_text_signal(project_state.objective, restrictions)
+
+
 class SystemDefinitionSession:
     def __init__(
         self,
@@ -127,7 +160,7 @@ class SystemDefinitionSession:
                 "message": (
                     f"No tengo una arquitectura base para '{vehicle_type}'.\n"
                     "Describe los bloques del sistema (uno a uno, 'listo' para terminar):\n"
-                    "Ejemplo: 'visión artificial', 'comunicación', 'payload'"
+                    "Ejemplo: 'batería', 'frame', 'control'"
                 ),
             }
 
@@ -163,18 +196,26 @@ class SystemDefinitionSession:
         )
         self.state_manager.set_runtime_session(session)
 
+        message = (
+            f"Para un {vehicle_type}, la arquitectura típica incluye:\n\n"
+            f"{block_list}\n\n"
+            f"{recommendation_line}\n\n"
+            f"  A — Usar esta arquitectura base\n"
+            f"  B — Añadir o modificar bloques\n"
+            f"  C — Saltar (definir después)"
+        ).strip()
+
+        # B1-wizard-mission-nudge (2026-09-16): suggest-only, never
+        # preselects B, never gates A/C, never stubs cameras/radio_module
+        # itself — see `_mission_nudge_applies`'s own docstring.
+        if _mission_nudge_applies(project_state):
+            message += f"\n\n{_MISSION_NUDGE_LINE}"
+
         return {
             "status": "interactive",
             "mode": OrchestratorMode.SYSTEM_DEFINITION.value,
             "step": 0,
-            "message": (
-                f"Para un {vehicle_type}, la arquitectura típica incluye:\n\n"
-                f"{block_list}\n\n"
-                f"{recommendation_line}\n\n"
-                f"  A — Usar esta arquitectura base\n"
-                f"  B — Añadir o modificar bloques\n"
-                f"  C — Saltar (definir después)"
-            ).strip(),
+            "message": message,
         }
 
     def answer(self, user_input: str) -> dict:
@@ -245,7 +286,7 @@ class SystemDefinitionSession:
                 "step": 1,
                 "message": (
                     "¿Qué bloques quieres añadir o cambiar? (uno a uno, 'listo' para terminar)\n"
-                    "Ejemplos: 'visión artificial', 'comunicación', 'payload'"
+                    "Ejemplos: 'batería', 'frame', 'cámara'"
                 ),
             }
 
@@ -262,6 +303,8 @@ class SystemDefinitionSession:
         # Alias de bloque directo → modo B implícito
         block = normalize_block_alias(normalized)
         if block:
+            if not block_components_are_resolvable(block):
+                return self._refuse_unresolvable_block(block, session, ctx)
             ctx_updated = {**ctx, "custom_blocks": ctx.get("custom_blocks", []) + [block]}
             updated = session.model_copy(update={"step": 1, "memory_context": ctx_updated})
             self.state_manager.set_runtime_session(updated)
@@ -277,6 +320,26 @@ class SystemDefinitionSession:
             "mode": OrchestratorMode.SYSTEM_DEFINITION.value,
             "step": 0,
             "message": "No entendí la opción. Responde A (usar base), B (personalizar) o C (saltar).",
+        }
+
+    # Gate SYSTEM_DEFINITION B-path B1 — shared refuse response for BOTH
+    # call sites (step 0's implicit-B alias and step 1's explicit custom-
+    # block loop): never appends the block to `custom_blocks`, never
+    # creates a stub, always stays in the step-1-style loop so the user
+    # can immediately try a different block or finish with "listo" — per
+    # lock #5, this must never silently ignore the input.
+    def _refuse_unresolvable_block(self, block: str, session, ctx: dict) -> dict:
+        updated = session.model_copy(update={"step": 1, "memory_context": ctx})
+        self.state_manager.set_runtime_session(updated)
+        return {
+            "status": "interactive",
+            "mode": OrchestratorMode.SYSTEM_DEFINITION.value,
+            "step": 1,
+            "message": (
+                f"Todavía no puedo resolver componentes reales para '{block}' "
+                "— no lo añado para no dejar un hueco que nunca podría completar. "
+                "¿Otro bloque? (o 'listo' para terminar)"
+            ),
         }
 
     # ── Step 1: modo B — bloques custom ──────────────────────────────────────
@@ -303,6 +366,8 @@ class SystemDefinitionSession:
 
         block = normalize_block_alias(normalized)
         if block:
+            if not block_components_are_resolvable(block):
+                return self._refuse_unresolvable_block(block, session, ctx)
             ctx_updated = {**ctx, "custom_blocks": ctx.get("custom_blocks", []) + [block]}
             updated = session.model_copy(update={"memory_context": ctx_updated})
             self.state_manager.set_runtime_session(updated)

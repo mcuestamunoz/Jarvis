@@ -174,6 +174,12 @@ def merge_frame_root_declared_properties(
         }
     )
     updated_components = {**project_state.design_properties.components, "frame": frame_spec}
+    # Disk-station radial reach B1: `configuration`/`wheelbase_mm` are
+    # fingerprint inputs for `motors`' station-reach attestation even
+    # though neither lives on `motors` itself — same "divergence clears a
+    # stale label" discipline as `_clear_fit_attestations_after_geometry_
+    # change`, applied to a fingerprint whose inputs live on a sibling.
+    updated_components = _clear_motors_station_reach_attestation(updated_components)
     updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
     return project_state.model_copy(update={"design_properties": updated_dp})
 
@@ -218,8 +224,26 @@ def upsert_frame_part(
         parent_key="frame",
     )
     updated_components = {**project_state.design_properties.components, part_key: part_spec}
+    if part_key == "frame_arm":
+        # Disk-station radial reach B1: the arm's own `length_mm` is a
+        # fingerprint input for `motors`' station-reach attestation — see
+        # `merge_frame_root_declared_properties`'s own identical hook.
+        updated_components = _clear_motors_station_reach_attestation(updated_components)
     updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
     return project_state.model_copy(update={"design_properties": updated_dp})
+
+
+def _clear_motors_station_reach_attestation(components: dict[str, Any]) -> dict[str, Any]:
+    """Disk-station radial reach B1 — always-clear (never diff-based,
+    mirroring every other attestation-clearing hook in this module) of
+    `motors`' `declared_fit_attestation` whenever a fingerprint input that
+    lives on a SIBLING component (`frame.configuration`/`wheelbase_mm`,
+    `frame_arm.length_mm`) is written. No-op when `motors` doesn't exist
+    or carries no attestation."""
+    motors = components.get("motors")
+    if motors is None or getattr(motors, "declared_fit_attestation", None) is None:
+        return components
+    return {**components, "motors": _cleared_fit_attestation(motors)}
 
 
 def clear_frame_part_children(project_state: Any) -> Any:
@@ -286,6 +310,14 @@ def set_component_mounted_on(
                 f"Destino de montaje '{target_key}' no declarado — no se puede fijar mounted_on."
             )
         updated_spec = spec.model_copy(update={"mounted_on": target_key})
+
+    # Disk-station radial reach B1: this component's OWN `mounted_on` is a
+    # fingerprint input for its own station-reach attestation (`compute_
+    # station_reach_fingerprint`) — always-clear on any mounted_on write,
+    # same discipline as every other attestation-clearing writer. A no-op
+    # for the box family (its fingerprint never reads `mounted_on`), so
+    # this is safe to apply unconditionally rather than special-casing.
+    updated_spec = _cleared_fit_attestation(updated_spec)
 
     updated_components = {**components, component_key: updated_spec}
     updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
@@ -380,6 +412,28 @@ def compute_fit_attestation_fingerprint(pose: Any, child_geometry: dict, origin_
     return "|".join(str(part) for part in parts)
 
 
+def compute_station_reach_fingerprint(frame: Any, origin: Any, child: Any) -> str:
+    """Disk-station radial reach B1 — the ONE stable string over the exact
+    tuple that made a station-reach attestation true at declare time.
+    Locked field order (tests pin this): ``wheelbase_mm, arm length_mm,
+    arm length_mm source, frame configuration, child mounted_on``. Never
+    reuses ``compute_fit_attestation_fingerprint`` (box L×W×H) — a disk/
+    cylinder child has no box geometry to hash. Only ever called after
+    ``station_reach_screening.screen_station_reach`` has already confirmed
+    ``station_reach_ok`` — every field indexed here is guaranteed present
+    by that precondition."""
+    wheelbase_prop = frame.properties["wheelbase_mm"]
+    length_prop = origin.properties["length_mm"]
+    parts = (
+        wheelbase_prop.value,
+        length_prop.value,
+        getattr(length_prop, "source", None),
+        frame.properties["configuration"].value,
+        child.mounted_on,
+    )
+    return "|".join(str(part) for part in parts)
+
+
 def set_component_declared_fit_attestation(project_state: Any, component_key: str, attest: bool) -> Any:
     """Fit attestation B1 — único punto de escritura para
     ``ComponentSpec.declared_fit_attestation``.
@@ -404,6 +458,13 @@ def set_component_declared_fit_attestation(project_state: Any, component_key: st
     (see those writers' own hooks), the same "divergence clears a stale
     label" discipline ``catalog_bind.py`` already uses for ``catalog_ref``.
 
+    Disk-station radial reach B1: ``component_key == "motors"`` branches
+    to ``station_reach_screening.screen_station_reach`` +
+    ``compute_station_reach_fingerprint`` instead — motors is a disk/
+    cylinder and can never legitimately pass the box-overlap gate above,
+    so this remains the single writer for the field while using a
+    distinct evidence class and fingerprint for this one key.
+
     Returns the updated ProjectState (not persisted — caller must save).
     """
     from datetime import datetime, timezone
@@ -421,6 +482,29 @@ def set_component_declared_fit_attestation(project_state: Any, component_key: st
         updated_spec = _cleared_fit_attestation(spec)
         if updated_spec is spec:
             return project_state
+    elif component_key == "motors":
+        # Disk-station radial reach B1: motors is a disk/cylinder, never a
+        # box — it is structurally incapable of an `overlap` screening
+        # (screen_posed_envelope would refuse it as child_not_box/no_pose
+        # today), so this branch is the ONLY path that can ever grant it a
+        # seal — the box-overlap branch below never runs for this key.
+        from jarvis.core.station_reach_screening import screen_station_reach
+
+        screening = screen_station_reach(spec, "frame_arm", components)
+        if screening.status != "station_reach_ok":
+            raise ValueError(
+                f"'{component_key}' no tiene alcance de estación OK ({screening.status}) — "
+                "no se puede declarar verificado. Jarvis nunca lo concede en silencio."
+            )
+        frame_spec = components["frame"]
+        origin_spec = components["frame_arm"]
+        fingerprint = compute_station_reach_fingerprint(frame_spec, origin_spec, spec)
+        updated_spec = spec.model_copy(update={
+            "declared_fit_attestation": DeclaredFitAttestation(
+                attested_at=datetime.now(timezone.utc).isoformat(),
+                fingerprint=fingerprint,
+            )
+        })
     else:
         screening = screen_posed_envelope(spec, components)
         if screening.status != "overlap":

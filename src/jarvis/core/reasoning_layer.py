@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from jarvis.core.parameter_requirements import (
@@ -23,6 +24,61 @@ CONFLICT_RULES: list[dict] = [
     {"condition": "low_margin", "blocks": ["increase_payload"], "reason": "margen de empuje insuficiente"},
     {"condition": "high_actuator_load", "blocks": ["increase_payload"], "reason": "carga de actuadores al límite"},
 ]
+
+# B1-continuity-mission-intent (2026-09-16): frozen, closed-vocabulary
+# keyword set — never open NLP, never an LLM call (IC lock #9). Deliberately
+# excludes bare short tokens that would risk substring over-match (e.g. no
+# bare "rx"). "vigilancia doméstica" is listed even though "vigilancia"
+# alone already covers it — kept for parity with the IC's own locked list.
+_MISSION_INTENT_KEYWORDS: tuple[str, ...] = (
+    "vigilancia", "vigilancia doméstica", "vigilancia domestica",
+    "surveillance", "inspección", "inspeccion", "inspection",
+    "fotografía", "fotografia", "photography",
+    "cámara", "camara", "camera", "fpv",
+    "comunicación", "comunicacion",
+    "telemetría", "telemetria",
+)
+
+_MISSION_INTENT_RE = re.compile(
+    r"\b(?:" + "|".join(re.escape(keyword) for keyword in _MISSION_INTENT_KEYWORDS) + r")\b",
+    re.IGNORECASE,
+)
+
+# Mission payload identity B1 (`B1-mission-payload-identity`) component keys —
+# presence alone (any completeness) is signal (B); completeness is read
+# separately by the caller to choose which alternate suggestion to show.
+_MISSION_COMPONENT_KEYS: tuple[str, ...] = ("cameras", "radio_module")
+
+
+def mission_intent_text_signal(objective: str | None, restrictions: str | None) -> bool:
+    """B1-continuity-mission-intent path (A) only — True iff the project's
+    own ``objective``/``restrictions`` free text contains a frozen mission
+    keyword (``_MISSION_INTENT_KEYWORDS``). Exposed separately (not just
+    inlined into ``mission_intent_active``) so callers that must NOT treat
+    already-declared `cameras`/`radio_module` as a trigger — e.g.
+    `B1-wizard-mission-nudge`'s SYSTEM_DEFINITION step-0 nudge, which wants
+    "mission text present" but not "already handled" — can reuse the exact
+    same keyword authority without pulling in path (B)."""
+    text = " ".join(part for part in (objective, restrictions) if part)
+    return bool(text) and bool(_MISSION_INTENT_RE.search(text))
+
+
+def mission_intent_active(
+    objective: str | None, restrictions: str | None, components: dict[str, Any] | None
+) -> bool:
+    """B1-continuity-mission-intent — True iff either:
+
+    (A) the project's own ``objective``/``restrictions`` free text contains
+        a frozen mission keyword (``mission_intent_text_signal``), or
+    (B) ``design_properties.components`` already declares ``cameras``
+        and/or ``radio_module`` (any completeness).
+
+    Pure, deterministic, closed-vocabulary — never an LLM call, never open
+    NLP. Unit-testable without a ``ProjectState``/CLI in the loop."""
+    if mission_intent_text_signal(objective, restrictions):
+        return True
+    components = components or {}
+    return any(key in components for key in _MISSION_COMPONENT_KEYS)
 
 
 class ReasoningLayer:
@@ -317,15 +373,19 @@ class ReasoningLayer:
             )
 
         if not enriched and signals["has_simulation"] and signals["high_margin"]:
-            enriched.append(
-                ReasoningSuggestion(
-                    action="iterate",
-                    label="Aumentar carga útil",
-                    reason="El margen de empuje actual permite explorar más carga útil.",
-                    priority=0.8,
-                    action_type="increase_payload",
+            mission_suggestion = self._mission_aware_high_margin_suggestion(context)
+            if mission_suggestion is not None:
+                enriched.append(mission_suggestion)
+            else:
+                enriched.append(
+                    ReasoningSuggestion(
+                        action="iterate",
+                        label="Aumentar carga útil",
+                        reason="El margen de empuje actual permite explorar más carga útil.",
+                        priority=0.8,
+                        action_type="increase_payload",
+                    )
                 )
-            )
 
         if signals.get("low_margin"):
             if any(s.action_type == "increase_thrust" for s in enriched):
@@ -395,6 +455,93 @@ class ReasoningLayer:
                 priority=0.7,
             )
         ]
+
+    def _mission_aware_high_margin_suggestion(self, context: dict[str, Any]) -> ReasoningSuggestion | None:
+        """B1-continuity-mission-intent — when the project's mission intent
+        is active (``mission_intent_active``), a high thrust margin must
+        not lead with "Aumentar carga útil" (IC lock #5): it returns an
+        alternate, mission-aware suggestion instead. Returns ``None`` when
+        mission intent is not active, so the caller falls back to today's
+        byte-identical `increase_payload` suggestion (IC lock #6).
+
+        Waterfall (IC lock #5a-d), first match wins:
+          a. ``cameras`` absent            -> declare it
+          b. ``cameras`` completeness low  -> complete its identity
+          c. ``radio_module`` absent       -> declare it
+          c. ``radio_module`` completeness low -> complete its identity
+          d. both present at medium+       -> soften to a mission/margin
+             review line — still never "Aumentar carga útil" (IC lock #5d,
+             the implementation's own choice of the two options offered).
+        """
+        objective = context.get("objective")
+        restrictions = (context.get("current_parameters") or {}).get("restrictions")
+        components = (context.get("design_properties") or {}).get("components") or {}
+
+        if not mission_intent_active(objective, restrictions, components):
+            return None
+
+        camera = components.get("cameras")
+        radio = components.get("radio_module")
+
+        if camera is None:
+            return ReasoningSuggestion(
+                action="iterate",
+                label="Declarar carga de misión (cámara)",
+                reason=(
+                    "El objetivo/restricciones del proyecto sugieren una misión de "
+                    "vigilancia/inspección — antes de aumentar carga útil genérica, "
+                    "declara la cámara (ej: 'cámara RunCam')."
+                ),
+                priority=0.8,
+                action_type="complete_mission_payload",
+            )
+        if camera.get("completeness") == "low":
+            return ReasoningSuggestion(
+                action="iterate",
+                label="Completar identidad de cámara",
+                reason=(
+                    "La cámara está declarada pero sin marca/modelo reconocido "
+                    "(ej: RunCam, Caddx, GoPro) — complétala antes de aumentar "
+                    "carga útil genérica."
+                ),
+                priority=0.8,
+                action_type="complete_mission_payload",
+            )
+        if radio is None:
+            return ReasoningSuggestion(
+                action="iterate",
+                label="Declarar carga de misión (radio)",
+                reason=(
+                    "El objetivo/restricciones del proyecto sugieren una misión con "
+                    "comunicación/telemetría — antes de aumentar carga útil genérica, "
+                    "declara el radio (ej: 'radio ELRS')."
+                ),
+                priority=0.8,
+                action_type="complete_mission_payload",
+            )
+        if radio.get("completeness") == "low":
+            return ReasoningSuggestion(
+                action="iterate",
+                label="Completar identidad de radio",
+                reason=(
+                    "El radio está declarado pero sin protocolo/marca reconocido "
+                    "(ej: ELRS, Crossfire) — complétalo antes de aumentar carga "
+                    "útil genérica."
+                ),
+                priority=0.8,
+                action_type="complete_mission_payload",
+            )
+        return ReasoningSuggestion(
+            action="iterate",
+            label="Revisar margen vs carga de misión",
+            reason=(
+                "La carga de misión (cámara/radio) ya está declarada — el margen "
+                "de empuje sobrante es una decisión de misión, no un aumento "
+                "genérico de carga útil."
+            ),
+            priority=0.8,
+            action_type="mission_margin_review",
+        )
 
     def _deduplicate(self, suggestions: list[ReasoningSuggestion]) -> list[ReasoningSuggestion]:
         """Keep at most one suggestion per action_type (highest priority wins).
