@@ -119,8 +119,17 @@ def test_t5_radio_low_after_camera_medium_gets_complete_radio_identity_label():
 
 
 def test_t5_both_medium_plus_softens_to_margin_review_5d():
+    """B1-mission-mass-energy extended this ladder with a mass-declare
+    step BEFORE the soft margin fallback — both identity AND mass must be
+    present to reach 'Revisar margen...' now (see
+    test_continuity_mission_mass_energy_b1.py for the mass-declare steps
+    themselves)."""
     label, action_type = _top_suggestion(_context(
-        "dron de vigilancia", {"cameras": {"completeness": "medium"}, "radio_module": {"completeness": "high"}}
+        "dron de vigilancia",
+        {
+            "cameras": {"completeness": "medium", "properties": {"model": {"value": "runcam"}, "mass_g": {"value": 28.0}}},
+            "radio_module": {"completeness": "high", "properties": {"model": {"value": "elrs"}, "mass_g": {"value": 3.0}}},
+        },
     ))
     assert label == "Revisar margen vs carga de misión"
     assert action_type == "mission_margin_review"
@@ -168,7 +177,10 @@ def test_t7_continuity_vigilancia_shaped_closed_design_never_shows_increase_payl
     medium+ completeness, high thrust margin."""
     context = _context(
         "dron de vigilancia doméstico",
-        {"cameras": {"completeness": "medium"}, "radio_module": {"completeness": "medium"}},
+        {
+            "cameras": {"completeness": "medium", "properties": {"model": {"value": "runcam"}, "mass_g": {"value": 28.0}}},
+            "radio_module": {"completeness": "medium", "properties": {"model": {"value": "elrs"}, "mass_g": {"value": 3.0}}},
+        },
         margin=3.6196,
     )
     reasoning = ReasoningLayer().build(context)

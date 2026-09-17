@@ -81,6 +81,32 @@ def mission_intent_active(
     return any(key in components for key in _MISSION_COMPONENT_KEYS)
 
 
+def filter_mission_gated_suggestions(
+    suggestions_payload: list[dict[str, Any]],
+    objective: str | None,
+    restrictions: str | None,
+    components: dict[str, Any] | None,
+) -> list[dict[str, Any]]:
+    """B1-catalog-hygiene-mission-suggestions lock C2 — the raw
+    ``SuggestionEngine`` bullet list (``Suggestion.model_dump()`` dicts:
+    ``type``/``reason``/``expected_effect``/``priority``) has no room for
+    the #1 waterfall's rich mission-aware alternate (that needs `label`/
+    `action_type`, fields this schema doesn't have) — when mission intent
+    is active, ``increase_payload`` entries are SUPPRESSED from this list
+    entirely rather than rewritten in place. The rich alternate still
+    surfaces separately via ``ReasoningLayer.build(...).suggested_actions``
+    (same ``mission_intent_active`` check, same waterfall, wired through
+    ``ReasoningLayer._collect_suggested_actions``'s own skip of injected
+    ``increase_payload`` entries) — this function only prevents the SAME
+    "Aumentar carga útil" bullet from ALSO appearing, unfiltered, in this
+    separate raw list. Neutral projects (mission not active): returns the
+    list unchanged, same object identity semantics as before (byte-
+    identical behavior, IC lock C3)."""
+    if not mission_intent_active(objective, restrictions, components):
+        return suggestions_payload
+    return [s for s in suggestions_payload if s.get("type") != "increase_payload"]
+
+
 class ReasoningLayer:
     def build(self, context: dict[str, Any], suggestions: list[dict[str, Any]] | None = None) -> ReasoningOutput:
         signals = self._extract_signals(context)
@@ -145,6 +171,9 @@ class ReasoningLayer:
 
         if signals["high_margin"]:
             insights.append(f"El sistema tiene un margen de empuje elevado ({margin}).")
+        double_count_insight = self._mission_mass_double_count_insight(context)
+        if double_count_insight is not None:
+            insights.append(double_count_insight)
         if signals["missing_physics_parameters"]:
             missing_params = self._detect_missing_physics_params(context)
             if missing_params:
@@ -360,6 +389,16 @@ class ReasoningLayer:
             suggestion_type = suggestion.get("type")
             if suggestion_type not in action_map:
                 continue
+            if suggestion_type == "increase_payload" and self._mission_intent_active_for(context):
+                # Catalog hygiene B1 (`B1-catalog-hygiene-mission-suggestions`
+                # lock C2) — an injected SuggestionEngine `increase_payload`
+                # entry must never bypass the #1 mission gate just because it
+                # arrived pre-built instead of through the "if not enriched"
+                # fallback below. Skipping it here (rather than appending)
+                # lets that SAME fallback fire afterward with the mission-
+                # aware alternate when nothing else got enriched — no
+                # duplicated waterfall logic.
+                continue
             action, label = action_map[suggestion_type]
             enriched.append(
                 ReasoningSuggestion(
@@ -456,26 +495,89 @@ class ReasoningLayer:
             )
         ]
 
-    def _mission_aware_high_margin_suggestion(self, context: dict[str, Any]) -> ReasoningSuggestion | None:
-        """B1-continuity-mission-intent — when the project's mission intent
-        is active (``mission_intent_active``), a high thrust margin must
-        not lead with "Aumentar carga útil" (IC lock #5): it returns an
-        alternate, mission-aware suggestion instead. Returns ``None`` when
-        mission intent is not active, so the caller falls back to today's
-        byte-identical `increase_payload` suggestion (IC lock #6).
+    def _mission_mass_double_count_insight(self, context: dict[str, Any]) -> str | None:
+        """B1-mission-mass-energy lock #10 — a plain-language warning
+        (never blocking) when BOTH ``payload_kg`` (the generic payload
+        parameter) AND declared mission mass (``mission_payload_mass_kg``,
+        the sum of ``cameras``/``radio_module`` ``mass_g``) are nonzero at
+        the same time: the two may be double-counting the same physical
+        grams. Fires independent of margin/mission-intent — a pure fact
+        about the two numbers, never a suggestion to act. Never silently
+        zeroes/displaces `payload_kg` (P1 lock #5) — this is only ever an
+        insight string."""
+        params = context.get("current_parameters") or {}
+        try:
+            payload_kg = float(params.get("payload_kg") or 0.0)
+        except (TypeError, ValueError):
+            payload_kg = 0.0
+        try:
+            mission_kg = float(params.get("mission_payload_mass_kg") or 0.0)
+        except (TypeError, ValueError):
+            mission_kg = 0.0
+        if payload_kg > 0.0 and mission_kg > 0.0:
+            return (
+                f"payload_kg ({payload_kg} kg) y masa de misión declarada "
+                f"({mission_kg} kg, cámara/radio) están sumando ambos al AUW — "
+                "si ya incluías esos gramos en payload_kg, redúcelo para no "
+                "contar dos veces."
+            )
+        return None
 
-        Waterfall (IC lock #5a-d), first match wins:
-          a. ``cameras`` absent            -> declare it
-          b. ``cameras`` completeness low  -> complete its identity
-          c. ``radio_module`` absent       -> declare it
-          c. ``radio_module`` completeness low -> complete its identity
-          d. both present at medium+       -> soften to a mission/margin
-             review line — still never "Aumentar carga útil" (IC lock #5d,
-             the implementation's own choice of the two options offered).
-        """
+    def _mission_context_fields(self, context: dict[str, Any]) -> tuple[Any, Any, dict[str, Any]]:
+        """Shared (objective, restrictions, components) extraction from a
+        ReasoningLayer ``context`` dict — used by both the mission-gate
+        check on injected suggestions and the mission-aware alternate
+        below, so the two can never read the context differently."""
         objective = context.get("objective")
         restrictions = (context.get("current_parameters") or {}).get("restrictions")
         components = (context.get("design_properties") or {}).get("components") or {}
+        return objective, restrictions, components
+
+    def _mission_intent_active_for(self, context: dict[str, Any]) -> bool:
+        return mission_intent_active(*self._mission_context_fields(context))
+
+    def _mission_aware_high_margin_suggestion(self, context: dict[str, Any]) -> ReasoningSuggestion | None:
+        """B1-continuity-mission-intent (extended by B1-mission-mass-energy)
+        — when the project's mission intent is active (``mission_intent_
+        active``), a high thrust margin must not lead with "Aumentar carga
+        útil" (IC lock #5): it returns an alternate, mission-aware
+        suggestion instead. Returns ``None`` when mission intent is not
+        active, so the caller falls back to today's byte-identical
+        `increase_payload` suggestion (IC lock #6).
+
+        Waterfall, first match wins:
+          a. ``cameras`` absent                -> declare it
+          b. ``cameras`` completeness low      -> complete its identity
+          c. ``radio_module`` absent           -> declare it
+          c. ``radio_module`` completeness low -> complete its identity
+          d. ``cameras`` has no ``mass_g``     -> declare its mass (B1-
+             mission-mass-energy lock #9a)
+          e. ``radio_module`` has no ``mass_g``-> declare its mass (#9b)
+          f. else                              -> soften to a mission/
+             margin review line — still never "Aumentar carga útil".
+
+        Lock #9c (mount reminder) and #9d (autonomy-target reminder) are
+        DELIBERATELY NOT WIRED — documented gaps, not oversights:
+          - 9c would need `mount_standard_assist`'s own target-resolution
+            logic extended to `cameras`/`radio_module`, but that module's
+            own `_STACK_SUBJECTS` tuple is explicitly locked ("never
+            widened without a new ★") to exactly `esc`/`flight_controller`/
+            `battery`/`sensors`. Widening it here would violate that
+            module's own lock, not this one's "reuse, don't invent a
+            second system" instruction — the honest move is to skip, not
+            to quietly bypass a different feature's explicit gate.
+          - 9d needs a deterministic autonomy-target read, but `context`
+            (this dict) only carries raw `current_parameters["restrictions"]`
+            text, never the derived `parsed_constraints["autonomy_min"]`
+            (computed by `ProjectState`'s own validator, not exposed here).
+            Re-deriving that regex a second time in this module would be
+            exactly the "duplicate keyword list" this IC's own lock #4 (via
+            B1-catalog-hygiene-mission-suggestions precedent) warns against.
+        Per lock #9d's own explicit permission ("else document gap and keep
+        ladder stop at 9c + soft margin"), the ladder here stops at the
+        mass-declare steps (d/e) and falls through to the soft margin (f).
+        """
+        objective, restrictions, components = self._mission_context_fields(context)
 
         if not mission_intent_active(objective, restrictions, components):
             return None
@@ -530,6 +632,30 @@ class ReasoningLayer:
                 ),
                 priority=0.8,
                 action_type="complete_mission_payload",
+            )
+        if "mass_g" not in (camera.get("properties") or {}):
+            return ReasoningSuggestion(
+                action="iterate",
+                label="Declara masa de cámara (g)",
+                reason=(
+                    "La cámara ya está identificada pero sin masa declarada "
+                    "(ej: 'cámara 28 g') — decláralas para que el AUW la "
+                    "cuente antes de aumentar carga útil genérica."
+                ),
+                priority=0.8,
+                action_type="declare_mission_mass",
+            )
+        if "mass_g" not in (radio.get("properties") or {}):
+            return ReasoningSuggestion(
+                action="iterate",
+                label="Declara masa de radio (g)",
+                reason=(
+                    "El radio ya está identificado pero sin masa declarada "
+                    "(ej: 'radio 3 g') — decláralas para que el AUW la "
+                    "cuente antes de aumentar carga útil genérica."
+                ),
+                priority=0.8,
+                action_type="declare_mission_mass",
             )
         return ReasoningSuggestion(
             action="iterate",

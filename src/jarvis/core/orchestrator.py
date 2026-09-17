@@ -488,6 +488,16 @@ class JarvisOrchestrator:
             return []
         if session.mode == OrchestratorMode.ITERATE_INTERACTIVE:
             return []
+        # B1-system-definition-b-routing (2026-09-17): SYSTEM_DEFINITION's
+        # own step-1 block-collection loop owns the turn until "listo"/
+        # escape, same class of exclusion as the three modes above. Without
+        # this, a block name that also happens to be a real ComponentRule
+        # keyword (e.g. "payload", "manipulador", "ruedas", "gearbox" — all
+        # four added by B1-extended-identity-rules) gets stolen here into
+        # `_handle_component_description` mid-B, instead of ever reaching
+        # `SystemDefinitionSession.answer()`.
+        if session.mode == OrchestratorMode.SYSTEM_DEFINITION:
+            return []
 
         specs = _si_infer_many(text, registry=_si_reg)
         accepted: list = []
@@ -581,9 +591,16 @@ class JarvisOrchestrator:
 
         Routing is based on the *type of input*, not the orchestrator mode.
         Rule: if the user describes a real physical component → always intercept,
-        regardless of mode — with two exceptions:
+        regardless of mode — with these exceptions:
           - CREATE_PROJECT_INTERACTIVE: would break the structured creation wizard
           - DEFINE_MISSING_PARAMETERS: already has its own per-reason intercept
+          - ITERATE_INTERACTIVE: its own wizard owns the turn
+          - SYSTEM_DEFINITION: step-1 block-collection owns the turn until
+            "listo"/escape (B1-system-definition-b-routing) — a block name
+            that also happens to be a ComponentRule keyword (e.g. "payload",
+            "manipulador") must never be stolen into the component flow
+            mid-B; identity declares resume working the moment the session
+            clears (IDLE, unchanged)
 
         Guards (all must pass to intercept):
           (0) not a strong action intent  — 'simula', 'calcula', 'itera'… are never
@@ -979,6 +996,21 @@ class JarvisOrchestrator:
                             result = self._offer_component_battery_catalog(
                                 updated, ["battery"]
                             )
+                        elif _rebind_key == "flight_controller":
+                            # Catalog hygiene B1 (`B1-catalog-hygiene-mission-
+                            # suggestions` lock B2) — reuses the SAME identity
+                            # offer/apply the first-time DEFINE_MISSING path
+                            # already uses (`_offer_flight_controller_identity_
+                            # catalog` / `_apply_control_identity_catalog_pick`
+                            # via `session.flight_controller_suggestions` on
+                            # the next turn) — never a parallel picker.
+                            result = self._offer_flight_controller_identity_catalog(
+                                updated, ["flight_controller"]
+                            )
+                        elif _rebind_key == "sensors":
+                            result = self._offer_sensor_identity_catalog(
+                                updated, ["sensors"]
+                            )
                         else:
                             raise AssertionError(
                                 f"unhandled idle catalog rebind key: {_rebind_key}"
@@ -1139,6 +1171,20 @@ class JarvisOrchestrator:
             if estimated_esc_result is not None:
                 self._track_turn(user_input, estimated_esc_result)
                 return estimated_esc_result
+
+        # ─────────────────────────────────────────────────────────────────────
+        # ── Mission mass declare B1 (`B1-mission-mass-energy`): IDLE "cámara
+        # <N> g" / "radio <N> g" (+ ES/EN aliases) calls set_mission_
+        # component_mass directly (cameras/radio_module only). User/datasheet
+        # -declared only — never invents grams from a model name. Checked
+        # right after the ESC provisional bridge (same "own dedicated grammar,
+        # own writer" family). Returns None for any phrase with no recognized
+        # camera/radio subject, so it never steals other declares.
+        if current_session.mode == OrchestratorMode.IDLE:
+            mission_mass_result = self._try_handle_mission_mass_declare(user_input)
+            if mission_mass_result is not None:
+                self._track_turn(user_input, mission_mass_result)
+                return mission_mass_result
 
         # ─────────────────────────────────────────────────────────────────────
         # ── Declared battery envelope + Main Plate L×W B1: IDLE "declara la
@@ -2539,6 +2585,67 @@ class JarvisOrchestrator:
             f"({lw_desc}) · evidencia H: ninguna ficha de esta revisión · sustituir "
             "al citar/medir H: SÍ. Jarvis no valida \"cabe\" ni \"declaro verificado\" "
             "con esta altura."
+        )
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": message,
+        }
+
+    def _try_handle_mission_mass_declare(self, user_input: str) -> dict | None:
+        """Mission mass declare B1 (`B1-mission-mass-energy`): IDLE "cámara
+        <N> g" / "radio <N> g" calls set_mission_component_mass directly.
+
+        Deterministic parse only (mission_mass_declare_assist) — never
+        LLM, never invents mass from a model name. Returns None when the
+        phrase isn't this grammar at all (no recognized camera/radio
+        subject), so it falls through unchanged.
+        """
+        from jarvis.core.mission_mass_declare_assist import parse_mission_mass_declare
+
+        result = parse_mission_mass_declare(user_input)
+        if result.kind == "NONE":
+            return None
+
+        if result.kind == "INCOMPLETE":
+            noun = "cámara" if result.component_key == "cameras" else "radio"
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": f'Indica la masa de {noun} en gramos, por ejemplo: "{noun} 28 g".',
+            }
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        component_key = result.component_key
+        if component_key not in components:
+            noun = "cámara" if component_key == "cameras" else "radio"
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": f"'{noun}' aún no declarado — declara primero la {noun}.",
+            }
+
+        from jarvis.core.component_writers import set_mission_component_mass
+
+        try:
+            updated_state = set_mission_component_mass(project_state, component_key, result.mass_g)
+        except ValueError as exc:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": str(exc),
+            }
+        self.workspace_manager.save_state(updated_state)
+
+        noun = "cámara" if component_key == "cameras" else "radio"
+        mission_kg = updated_state.current_parameters.get("mission_payload_mass_kg", 0.0)
+        message = (
+            f"Declarado: {noun} {result.mass_g:g} g (source=declared). "
+            f"Masa de misión total: {mission_kg * 1000:g} g "
+            f"({mission_kg:g} kg) — entra en el AUW."
         )
         return {
             "status": "ok",

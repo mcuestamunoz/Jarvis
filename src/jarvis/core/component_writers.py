@@ -43,9 +43,11 @@ from typing import Any
 from jarvis.core.catalog_bind import (
     bind_battery_from_catalog,
     bind_esc_from_catalog,
+    bind_flight_controller_from_catalog,
     bind_frame_from_catalog,
     bind_motor_from_catalog,
     bind_propeller_from_catalog,
+    bind_sensor_from_catalog,
 )
 from jarvis.domains.aerial import _frame_completeness, _structure_part_completeness, is_frame_plate_key
 from jarvis.knowledge.library import _OP_VOLTAGE_EPSILON_V, default_library, resolve_operating_point
@@ -831,6 +833,13 @@ _REFRESH_BINDERS: dict[str, Any] = {
     "propeller": bind_propeller_from_catalog,
     "esc": bind_esc_from_catalog,
     "frame": bind_frame_from_catalog,
+    # Catalog hygiene B1 (`B1-catalog-hygiene-mission-suggestions` lock B3):
+    # both binds have existed since `B1-library-fc-sensors` — only the
+    # refresh dispatch entry was missing (that Buy's own minimal-surface
+    # scope excluded wiring a new acquisition flow; this is not a new flow,
+    # just completing the existing refresh dispatch table).
+    "flight_controller": bind_flight_controller_from_catalog,
+    "sensors": bind_sensor_from_catalog,
 }
 
 
@@ -918,6 +927,65 @@ def set_control_component(project_state: Any, spec: Any) -> Any:
     updated_components = {**project_state.design_properties.components, key: spec}
     updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
     return project_state.model_copy(update={"design_properties": updated_dp})
+
+
+_MISSION_MASS_KEYS: tuple[str, ...] = ("cameras", "radio_module")
+
+
+def set_mission_component_mass(project_state: Any, component_key: str, mass_g: float | None) -> Any:
+    """B1-mission-mass-energy — único punto de escritura para ``mass_g`` en
+    los componentes de misión (``cameras``/``radio_module``) y su mirror
+    ``current_parameters["mission_payload_mass_kg"]``.
+
+    User/datasheet-DECLARED only — never invents mass from a model string
+    (mission-payload-identity's own claim ceiling extends here). Requires
+    *component_key* to already exist (fail-closed, ``ValueError``
+    otherwise) — this writer never auto-creates identity; declare the
+    camera/radio first (lock #7c).
+
+    ``mass_g=None`` clears the field. The mirror is always the SUM of
+    whatever ``mass_g`` is currently declared across BOTH mission keys,
+    recomputed from scratch on every write — never an incremental add/
+    subtract that could drift from the canonical per-component values.
+
+    Returns the updated ProjectState (not persisted — caller must save).
+    """
+    if component_key not in _MISSION_MASS_KEYS:
+        raise ValueError(
+            f"'{component_key}' no es una clave de masa de misión válida "
+            f"(solo {'/'.join(_MISSION_MASS_KEYS)})."
+        )
+    components = project_state.design_properties.components
+    spec = components.get(component_key)
+    if spec is None:
+        raise ValueError(f"'{component_key}' no declarado — declara primero la identidad.")
+
+    props = dict(spec.properties or {})
+    if mass_g is None:
+        props.pop("mass_g", None)
+    else:
+        props["mass_g"] = PropertyValue(value=mass_g, unit="g", confidence=0.9, source="declared")
+    updated_spec = spec.model_copy(update={"properties": props})
+
+    updated_components = {**components, component_key: updated_spec}
+    updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
+
+    total_g = 0.0
+    for key in _MISSION_MASS_KEYS:
+        candidate = updated_components.get(key)
+        if candidate is None:
+            continue
+        prop = (candidate.properties or {}).get("mass_g")
+        if prop is not None and prop.value is not None:
+            total_g += float(prop.value)
+
+    updated_params = dict(project_state.current_parameters or {})
+    updated_params["mission_payload_mass_kg"] = round(total_g / 1000.0, 4)
+
+    return project_state.model_copy(update={
+        "design_properties": updated_dp,
+        "current_parameters": updated_params,
+    })
 
 
 def _resolve_battery_voltage_v(components: dict[str, Any], current_parameters: dict[str, Any]) -> float | None:

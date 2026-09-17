@@ -216,9 +216,18 @@ class CalculationEngine:
         # unbound (free-text-declared) motor. Zero here reproduces today's exact
         # pre-Impl-B physics for every unbound project.
         motor_mass_kg = round(float(parameters.get("motor_mass_kg") or 0.0), 4)
+        # B1-mission-mass-energy: mission component mass (cameras/radio_module
+        # mass_g, user/datasheet-declared) — component_writers.
+        # set_mission_component_mass is the sole writer. P1: additive to
+        # total_mass alongside payload_kg (never displaces it); Continuity/
+        # reasoning_layer separately warns when both payload_kg and this are
+        # nonzero (possible double-count) — this engine never resolves that,
+        # it only sums declared facts. Zero when no mission mass declared.
+        mission_payload_mass_kg = round(float(parameters.get("mission_payload_mass_kg") or 0.0), 4)
 
         total_mass = calculate_total_mass(
-            payload_kg, structure_mass_kg + battery_mass_kg + motor_mass_kg
+            payload_kg,
+            structure_mass_kg + battery_mass_kg + motor_mass_kg + mission_payload_mass_kg,
         )
         tool_results.append(total_mass)
         total_mass_kg = total_mass.outputs["total_mass_kg"]
