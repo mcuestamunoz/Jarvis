@@ -77,7 +77,7 @@ Full detail: `00_entry/ENTRY_MAP.md` and `01_runtime/RUNTIME_MAP.md`; connection
 
 C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the same `HandoffContext` (Hybrid Operation-Scoped lifecycle — see `MISMATCHES.md`). **H1–H4 are all closed — 0 RED edges remain.** C-081 (H5) and C-108 remain 🟡 PARTIAL — **deferred map debt, not today's implementation queue.** Hardware lab is [`docs/HARDWARE_DEBT.md`](../HARDWARE_DEBT.md).
 
-**Product checkpoint `v0.4.1`:** Continuity spatial assembly + Board Situar (**C-113**) + craft montage honesty (2026-09-13→14): estimated plate · Path F · layout pack · mount-standard · silhouette checklist · arm radial · fit-relations · **disk-axial cylinders** · **`library/fc` + `library/sensors`** (FC/GPS SoT out of `aerial.py`). Suite **2911** · UI **105**. No new C-xxx. Feature locks under `.jes/artifacts/engineer_lock_*`. **PRIORIDAD AHORA:** await Engineer next ★ — holds `B1-plate-box` · Path N; natural next disk-station attest or measured plate. See `docs/IMPLEMENTATION_TASKS.md`. Spatial board remains a derived visor (mutation via C-113 only on Scene3D situar).
+**Product checkpoint `v0.4.1`:** Continuity spatial assembly + Board Situar (**C-113**) + craft montage + mission payload identity + **disk-station reach**, closed (2026-09-13→16): … · identity `cameras`/`radio_module` · station-reach `motors`↔`frame_arm` · user guide [`USER_GUIDE_CRAFT_MONTAGE.md`](../USER_GUIDE_CRAFT_MONTAGE.md). Suite **2968** · UI **105**. No new C-xxx. **PRIORIDAD AHORA:** software closeout lean Continuity intent ([note](../../.jes/artifacts/engineer_note_software_closeout_queue.md)); physical plate-box / Path N / HD-* parked. See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Subsystem index
 
@@ -97,7 +97,7 @@ C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the sa
 
 ## Registries
 
-- [`CONNECTIONS.md`](CONNECTIONS.md) — every edge, `C-001`…`C-110`, with evidence
+- [`CONNECTIONS.md`](CONNECTIONS.md) — every edge, `C-001`…`C-113` (66 unique, ID space sparse), with evidence
 - [`AUTHORITY.md`](AUTHORITY.md) — decision → authority → forbidden, verified against code
 - [`FLOWS.md`](FLOWS.md) — `FLOW-001`…`FLOW-007`, user-visible journeys tied to connection IDs
 - [`MISMATCHES.md`](MISMATCHES.md) — doc↔code discrepancies, sticky-state lesson, design-only appendix (handoff-context lifecycle, H5)

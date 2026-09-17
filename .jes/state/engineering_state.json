@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "B1-user-guide-craft-montage (documentation Buy) IMPLEMENTED (2026-09-14) -- Phase 0: .jes/artifacts/inventory_user_facing_commands_craft_montage_b0.md written first per the STOP gate -- 14 orchestrator _try_handle_* IDLE bridges enumerated in dispatch order, 19 *_assist.py modules traced to their exact regex/trigger, catalog help-choose (shared HELP_CHOOSE_PHRASES) + rebind (5 families: frame/motors/propellers/battery/esc -- FC/sensors excluded, confirmed gap) gates read from code, Board Situar UI copy read verbatim from Scene3D.tsx, ~35 smoke/review artifacts cross-checked. Phase 1: docs/USER_GUIDE_CRAFT_MONTAGE.md published, 406 lines, 12 sections (added a worked end-to-end example section beyond the suggested TOC, using 10-min-autonomia's real live identities/poses). 16 example phrases spot-checked live through real parsers before publishing (>= the required 10) -- caught and fixed a hand-computed arithmetic slip in 2 of 4 Path F pose z-values by re-deriving them from the live project state instead of computing by hand, then re-parsed the corrected phrases to confirm. No src/ui/tests/library change, no version bump, no workspace/ write (read-only validation only), no docs/IMPLEMENTATION_TASKS.md PRIORIDAD edit (explicit IC lock -- Cursor owns cola by default for this Buy). implementation_report_user_guide_craft_montage_b1.md documents method, TOC, 6 named gaps (FC rebind/refresh unwired, ESC-only-catalog envelope, bind_esc_from_catalog stale-leak, disk-station attest unbuilt, single-pack layout limit), and what was deferred. Awaiting Cursor review + Engineer walk of the cheatsheet on 10-min-autonomia.",
+  "cycle_intent": "B1-propellers-motors-catalog-pair CLOSED smoke ACCEPT 2026-09-17 @ 3006 — next #4 hygiene bind-esc/FC + SuggestionEngine N1 IC",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "Await Cursor review + Engineer cheatsheet walk (user_guide_craft_montage_b1, doc-only) + prior pending smokes (estimated_temporary_esc_skystars_b1, mount_standard_assist_b1, Situar experience B1, multibox UX fix, Structure A class slack, #4* stack)",
-  "active_operation": "await_review_walk_user_guide_craft_montage_b1",
+  "current_mode": "Draft IC #4 hygiene bind-esc / FC-GPS + SuggestionEngine N1",
+  "active_operation": "draft_ic_hygiene_bind_esc_fc_suggestion_n1",
   "movement_trigger": {
-    "type": "cursor_review_then_engineer_walk",
-    "note": "2026-09-14 user_guide_craft_montage_b1 (doc-only Buy) implemented — implementation_report_user_guide_craft_montage_b1.md + docs/USER_GUIDE_CRAFT_MONTAGE.md + inventory artifact. No src/ui/tests/library change, no version bump, no workspace/ mutation."
+    "type": "buy_closed",
+    "note": "propellers_motors_catalog_pair_b1 smoke ACCEPT; relaciones ≈ catalog_pair_ok"
   },
   "relevant_workflow_phases": [
     "Verification"
@@ -301,7 +301,7 @@
     "spatial_board_honest_absence_b3": "REVIEWED_PASS_WITH_NOTES_CLOSABLE_2310",
     "board_drone_default_layout_b0_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_KEPT_BUY_B1_MOUNT_STANDARD_ASSIST",
     "mount_standard_assist_b1_ic": "CLOSED_SMOKE_ACCEPT_2763",
-    "geometry_plate_box_b1_ic": "B0_HOLD_REVIEWED_PASS_AWAIT_BAG",
+    "geometry_plate_box_b1_ic": "REOPENED_AWAIT_BAG_2026_09_15",
     "geometry_stack_rule_b1_ic": "B0_HOLD_REVIEWED_PASS_PATH_N_DEAD_PATH_F_AWAIT_PLATE",
     "geometry_estimated_temporary_plate_b1_ic": "CLOSED_SMOKED_2785",
     "catalog_sourced_only_purge_battery_rebind_b1_ic": "CLOSED_SMOKE_ACCEPT_2796",
@@ -313,6 +313,14 @@
     "geometry_disk_axial_visor_b1_ic": "CLOSED_SMOKE_ACCEPT_2892",
     "library_fc_sensors_b1_ic": "CLOSED_SMOKE_ACCEPT_2911",
     "geometry_estimated_temporary_esc_skystars_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_2929",
-    "user_guide_craft_montage_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_WALK_DOC_ONLY"
+    "user_guide_craft_montage_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_WALK_DOC_ONLY",
+    "mission_functional_payload_holes_b0_investigation": "REVIEWED_PASS_WITH_NOTES_LEAN_B1_MIN_A",
+    "system_definition_block_gate_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_2938",
+    "mission_payload_identity_b1_ic": "CLOSED_SMOKE_ACCEPT_2945",
+    "disk_station_fit_attest_b0_investigation": "CLOSED_LEAN_D2_IC_DRAFTED",
+    "disk_station_reach_b1_ic": "CLOSED_SMOKE_ACCEPT_2968",
+    "continuity_mission_intent_b1_ic": "CLOSED_SMOKE_ACCEPT_2985",
+    "wizard_mission_nudge_b1_ic": "CLOSED_SMOKE_ACCEPT_2993",
+    "propellers_motors_catalog_pair_b1_ic": "CLOSED_SMOKE_ACCEPT_3006"
   }
 }

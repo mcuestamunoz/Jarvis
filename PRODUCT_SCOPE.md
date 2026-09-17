@@ -28,7 +28,7 @@ Detail: [docs/PROJECT_CONTINUITY.md](docs/PROJECT_CONTINUITY.md).
 - Aerial-first (inspection / photography / light delivery class).
 - Deterministic calculate / simulate / iterate / DSE.
 - CLI + MCP.
-- Spatial board visor (`jarvis board`) — **read-only** projection of `ProjectState` (cards + architecture slots; declared geometry as text, 2D glyphs, and CSS 3D solids when envelope exists; click-inspect; declared box-local pose as card text **and** one-hop Scene3D placement). Not a v1 mutation surface; CLI/MCP remain the engineering I/O. **Geometry queue:** [3D mapping path](.jes/artifacts/engineer_lock_geometry_3d_mapping_path.md) — Scene3D-from-pose **CLOSED**; wheelbase on the bound frame spec **CLOSED** (4-motor sketch is a later named ★); then cited motor height, sourced plate L×W; `"cabe"` last. Drag of cards is layout, not pose. One `ComponentSpec` = one card/solid; `motor_count` is a property, not N nodes, until a later named ★.
+- Spatial board visor (`jarvis board`) — projection of `ProjectState` (cards + architecture slots; declared geometry as text, 2D glyphs, and CSS 3D solids — box, disk, or cylinder when a cited axial fact exists — when envelope exists; click-inspect; declared box-local pose as card text **and** Scene3D placement). **Situar** (drag a solid to set/adjust its pose) IS a mutation surface as of `C-113` — but it writes through the exact same `set_component_declared_box_pose` writer CLI `declara…` uses, never a parallel path; CLI/MCP remain the primary engineering I/O for everything else. **Craft montage** (2026-09-13→15): mount-standard/Path-F-stack/layout-pack checklists, estimated-temporary plate + ESC height (disclosed, gated out of `cabe`/attest), arm radial placement, disk-axial cylinders, `parece un dron`/`relaciones` honesty checklists — see [`docs/USER_GUIDE_CRAFT_MONTAGE.md`](docs/USER_GUIDE_CRAFT_MONTAGE.md) for the full command path. Drag of 2D cards is layout, not pose. One `ComponentSpec` = one card/solid; `motor_count` is a property, not N nodes, until a later named ★.
 - Small curated motor catalog matched to **design space** (D8), not KV alone.
 - Simplified energy model with **visible honesty** when autonomy is a hard constraint.
 - Unified Project Continuity surface on status/startup.
@@ -38,7 +38,7 @@ Detail: [docs/PROJECT_CONTINUITY.md](docs/PROJECT_CONTINUITY.md).
 - CAD / FEM
 - Live marketplace / external catalog sync
 - Full ground-vehicle parity
-- Perception / comms / manipulation blocks ([FUTURO](docs/IMPLEMENTATION_TASKS.md))
+- Perception / comms / manipulation as **full physics** ([FUTURO](docs/IMPLEMENTATION_TASKS.md)) — identity-only `cameras` / `radio_module` **are** in scope as of 2026-09-15 (`B1-mission-payload-identity`): SYSTEM_DEFINITION **B** accepts `cámara`/`comunicación`; free-text `cámara RunCam` / `radio ELRS` reaches medium. Still refused until rules exist: `payload` / `brazo` / wheels / gearbox / lidar. No camera catalog mass/dims yet. Gate: `block_components_are_resolvable()`
 - Purchase / assembly / firmware **modules** (may appear later as *kinds of next step*)
 
 ## Acceptance checklist (E2E)

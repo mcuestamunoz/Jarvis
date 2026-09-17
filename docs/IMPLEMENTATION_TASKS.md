@@ -6,27 +6,44 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.4.1`**. Suite viva **2929** · UI **105**.  
+> **Base:** tag **`v0.4.1`**. Suite viva **3006** · UI **105**.  
 > **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
-> **PRIORIDAD AHORA:** **`B1-user-guide-craft-montage`** — Cursor review **PASS WITH NOTES** · **await Engineer cheatsheet walk** on 10-min ([IC](../.jes/artifacts/implementation_contract_user_guide_craft_montage_b1.md) · [inventory](../.jes/artifacts/inventory_user_facing_commands_craft_montage_b0.md) · [guide](USER_GUIDE_CRAFT_MONTAGE.md) · [review](../.jes/artifacts/implementation_review_user_guide_craft_montage_b1.md)). Parallel: ESC estimated-H smoke still pending.  
-> **Holds:** plate-box · Path N. **Later:** bind-esc omit-key hygiene · disk-station attest · FC Skystars box.  
+> **PRIORIDAD AHORA:** software closeout **#4** hygiene bind-esc / FC-GPS (+ SuggestionEngine N1) — next ★. **#3** `B1-propellers-motors-catalog-pair` **CLOSED** (smoke ACCEPT). Suite **3006**. Physical/lab parked. Guide: [`USER_GUIDE_CRAFT_MONTAGE.md`](USER_GUIDE_CRAFT_MONTAGE.md).  
+
+> **Parked (not software):** plate-box bag · Path N · HD-* · camera catalog physics · axial prop↔motor geometry.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Craft montage / geometry validation (activa)
+### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
-| **0** | **`B1-user-guide-craft-montage`** | **review PASS** · smoke pending | Inventario + `docs/USER_GUIDE_CRAFT_MONTAGE.md` | Engineer cheatsheet · [review](../.jes/artifacts/implementation_review_user_guide_craft_montage_b1.md) |
-| **1** | **`B1-estimated-temporary-esc-skystars`** | **review PASS** · smoke pending | ESC H estimada 8 mm on 10-min; catalog sin H | Engineer smoke · [review](../.jes/artifacts/implementation_review_geometry_estimated_temporary_esc_skystars_b1.md) |
-| **2** | **`B1-plate-box`** | **B0 HOLD** | L×W medida/citada (quita \* de B\*) | Caliper / cite bag |
-| **3** | **`B1-stack-rule` Path N** | **B0 HOLD** | Disk origin imposible | No reabrir sin ★ |
-| — | Disk-station fit attest | Queued | motors/props screening+attest | ★ · [note](../.jes/artifacts/engineer_note_fit_attest_all_components.md) |
-| — | Frame-parts progressive | Idea | Placas/standoffs opcionales; required placa+brazos | ★ / B0 |
+| **1** | **`B1-continuity-mission-intent`** | **CLOSED** | Vigilancia ≠ "Aumentar carga útil" | [review](../.jes/artifacts/implementation_review_continuity_mission_intent_b1.md) · smoke ACCEPT |
+| **2** | **`B1-wizard-mission-nudge`** | **CLOSED** | Sugerir B (cámara/radio) al crear | [review](../.jes/artifacts/implementation_review_wizard_mission_nudge_b1.md) · smoke ACCEPT |
+| **3** | **`B1-propellers-motors-catalog-pair`** | **CLOSED** | `relaciones` pairing catálogo | [review](../.jes/artifacts/implementation_review_propellers_motors_catalog_pair_b1.md) · smoke ACCEPT |
+| **4** | Hygiene bind-esc / FC-GPS | **Next ★** | Localized IC (+ SuggestionEngine mission gate N1) | ★ · draft IC |
+| **5** | More identity rules | Queued | payload/arm/wheels/gearbox | ★ |
 
-### ✅ Cerrado este arco (craft montage 2026-09-13→14) — no reabrir
+### 📋 COLA — Physical / schema (parked)
+
+| # | ★ | Estado | Qué | Gate |
+|---|---|---|---|---|
+| — | **`B1-plate-box`** | **Await bag** | L×W medida/citada | Caliper / cite |
+| — | Path N | **B0 HOLD** | Disk origin | No reabrir |
+| — | Cited `library/cameras` | Park | Physics bags | Engineer |
+
+### ✅ Cerrado este arco (craft montage + mission gate 2026-09-13→16) — no reabrir
 
 | ★ | Estado |
 |---|---|
+| **`B1-propellers-motors-catalog-pair`** | CLOSED · review PASS WITH NOTES · **smoke ACCEPT** (`relaciones` ≈ catalog_pair_ok; reach intact) |
+| **`B1-wizard-mission-nudge`** | CLOSED · review PASS WITH NOTES · **smoke ACCEPT** (A/B/C nudge + B→cámara) |
+| **`B1-continuity-mission-intent`** | CLOSED · review PASS WITH NOTES · **smoke ACCEPT** (estado + Continuity post-simular; N1 SuggestionEngine on simular → #4) |
+| **`B1-disk-station-reach`** | CLOSED · review PASS WITH NOTES · **smoke ACCEPT** |
+| **`B1-mission-payload-identity`** | CLOSED · review PASS WITH NOTES · **smoke ACCEPT** |
+| **`B1-system-definition-block-gate`** | CLOSED · review PASS · **smoke waived** |
+| **`B1-user-guide-craft-montage`** | CLOSED · review PASS · **smoke ACCEPT** (greenfield vigilancia) |
+| **`B1-estimated-temporary-esc-skystars`** | CLOSED · review PASS · **smoke ACCEPT** |
+| **`B0-mission-functional-payload-holes`** | Investigation CLOSED · lean (a) = gate shipped |
 | **`B1-library-fc-sensors`** | CLOSED · review PASS · **smoke ACCEPT** (P0) |
 | **`B1-disk-axial-visor`** | CLOSED · review PASS · **smoke ACCEPT** (10min Board) |
 | **`B1-fit-relations-checklist`** | CLOSED · review PASS · **smoke ACCEPT** (10min) |
@@ -50,6 +67,14 @@
 | Continuity kit-tip spam (G1) | Parked lateral — after #6 |
 | User catalog contribution · fit attest all · Option B caliper | Parked — Engineer ★ aparte |
 | Disk-as-pose-origin / LLM invent Δmm | **Parked forever** unless ★ |
+
+### 🟢 CLOSED — Mission payload identity (`B1-mission-payload-identity`) (2026-09-15) · suite **2945** · review PASS WITH NOTES · **smoke ACCEPT**
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_mission_payload_identity_b1.md) · [report](../.jes/artifacts/implementation_report_mission_payload_identity_b1.md) · [review](../.jes/artifacts/implementation_review_mission_payload_identity_b1.md). Identity-only `cameras` + `radio_module`; perception→`["cameras"]`; B accept cámara/comunicación; payload/brazo still refuse. Smoke: vigilancia free-text + throwaway B.
+
+### 🟢 CLOSED — Gate SYSTEM_DEFINITION B-path B1 (`B1-system-definition-block-gate`) (2026-09-15) · suite **2938** · review PASS · **smoke waived**
+
+> **IC / Report / Review:** [IC](../.jes/artifacts/implementation_contract_system_definition_block_gate_b1.md) · [report](../.jes/artifacts/implementation_report_system_definition_block_gate_b1.md) · [review](../.jes/artifacts/implementation_review_system_definition_block_gate_b1.md). Fail-closed gate; perception/comms later unlocked by mission-payload-identity.
 
 ### 🟡 LANDING — Estimated-temporary ESC height Skystars B1 (`B1-estimated-temporary-esc-skystars`) (2026-09-14) · suite **2929** · await review/smoke
 
@@ -2632,8 +2657,8 @@ grep -rn "motor_power_w" jarvis/ --include="*.py"
 | `structure` | `"component"` | — |
 | `control` | `"component"` | — |
 | `transmission` | `"param"` | — |
-| `perception` | `"component"` | — |
-| `communication` | `"component"` | — |
+| `perception` | `"component"` | ✅ identity `cameras` (`B1-mission-payload-identity`); lidar deuda |
+| `communication` | `"component"` | ✅ identity `radio_module` |
 
 ### Estado real en `system_architecture_catalog.py`
 
@@ -2740,8 +2765,8 @@ elif block_type == "composite":
 
 > Solo registro de existencia. No implementar, no diseñar hasta que un caso de uso real lo justifique.
 
-- `perception` → `cameras`, `lidar` — sin ComponentRule, sin physics
-- `communication` → `radio_module` — sin ComponentRule
+- `perception` → `cameras` — **identity shipped** (`B1-mission-payload-identity`); lidar key / physics / `library/cameras` = deuda
+- `communication` → `radio_module` — **identity shipped**; protocol/mass physics = deuda
 - `manipulation` → `arm` — sin ComponentRule
 - `payload` → `payload_bay` — sin ComponentRule
 - `actuation` / `transmission` — parcialmente cubiertos por wizard param-driven terrestre; sin component spec

@@ -60,5 +60,11 @@ En el Board 3D, Jarvis sitúa **cajas declaradas** (o citadas) en un marco en mi
 Contrato de producto: [`.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`](.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md).  
 Siguiente dirección de UX: arrastrar/ampliar en el Board escribiendo a los **mismos** writers ([nota](.jes/artifacts/engineer_note_board_drag_place_concept.md)).
 
+## Craft montage honesto (2026-09)
+
+De un proyecto vacío a un craft **montado de forma honesta** en el Board — placa (citada o `estimada`, marcada como tal), stack de aviónica montado y posado, motores/hélices en el Visor — todo con comandos reales, sin inventar milímetros ni declarar "listo" antes de tiempo. `parece un dron` y `relaciones` dicen explícitamente qué es geometría honesta y qué **no** es ASSEMBLY READY. Guía paso a paso: [`docs/USER_GUIDE_CRAFT_MONTAGE.md`](docs/USER_GUIDE_CRAFT_MONTAGE.md) (incluye arquitectura **B** + identidad `cámara`/`radio`).
+
+Cámara y radio se declaran como **identidad de misión** (modelo/protocolo → medium; sin mm/g inventados). Bloques sin regla (`payload`, `brazo`, …) siguen **rechazados** — Jarvis no crea un hueco que no podría completar.
+
 Si dentro de cinco años lees esto, la pregunta sigue siendo la misma:  
 **¿Jarvis sigue siendo el lugar donde la física no se negocia?**

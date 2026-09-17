@@ -16,7 +16,7 @@
 | `core/battery_catalog_assist.py` | IC 2 — assisted battery acquisition (numbered SKU list from `ComponentLibrary.list_batteries`, pick → `bind_battery_from_catalog`) |
 | `core/frame_catalog_assist.py` | Structure Catalog IC-3 — assisted frame acquisition (numbered SKU list / pick → bind + part projection) |
 | `core/catalog_rebind_assist.py` | IDLE rebind B2+B3 — `resolve_idle_catalog_rebind(phrase)` maps pure component phrases to family reopen after architecture 4/4 |
-| `core/catalog_bind.py` | `bind_motor_from_catalog` / `bind_propeller_from_catalog` / `bind_battery_from_catalog` / `bind_frame_from_catalog` / `frame_part_specs_from_catalog` — shared bind primitive; projects arm thickness + curated ordinal plates when seeded; `invalidate_diverged_catalog_refs` (G5 / G24D / frame diverge) |
+| `core/catalog_bind.py` | `bind_motor_from_catalog` / `bind_propeller_from_catalog` / `bind_battery_from_catalog` / `bind_frame_from_catalog` / `bind_flight_controller_from_catalog` / `bind_sensor_from_catalog` / `frame_part_specs_from_catalog` — shared bind primitive; projects arm thickness + curated ordinal plates when seeded; `invalidate_diverged_catalog_refs` (G5 / G24D / frame diverge) |
 
 ## Important functions (Level 2)
 
@@ -30,6 +30,7 @@
 - `param_definition_session.apply_and_recalculate` — **IC 1 (G26):** mid-session write of `current_parameters["restrictions"]` for constraint phrases; **`is_derived` gate** rejects direct writes of derived params (e.g. loose `autonomia=15`). Re-derives `parsed_constraints` via `ProjectState.model_copy` on save.
 - `param_definition_session.start(missing_params, reason)` — opens a wizard; for `MISSING_COMPONENT_DEFINITION` reasons, keeps `pending_missing_params` coherent with the live wizard (FN-017 B1) and uses `build_acquisition_brief` for the opening question (FN-018 C1b).
 - `param_definition_session.answer(user_input)` — the numeric-wizard turn handler; guards component keys from ever receiving a bare float (FN-016), handles skip phrases, keyword-bidirectional parsing, and clears to IDLE on its own completion (`clear_runtime_session` at the "all params answered" branch — this is why C-043's iterate-side symptom is *not* replicated here; this wizard already self-clears).
+- **SYSTEM_DEFINITION block-resolvability gate (B1, 2026-09-15):** `_refuse_unresolvable_block` checks `block_components_are_resolvable(block)` before accepting a typed block alias. Unresolvable → refuse (no stub). **Mission payload identity (same day):** `perception`/`communication` now resolvable via identity `cameras`/`radio_module` rules; still refused: `payload`/`manipulation`/`actuation`/`transmission`. See `.jes/artifacts/implementation_report_mission_payload_identity_b1.md` · user guide `docs/USER_GUIDE_CRAFT_MONTAGE.md` §2bis.
 
 ## Local state touched
 

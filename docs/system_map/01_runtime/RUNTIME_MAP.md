@@ -38,6 +38,8 @@
 
 > **Craft montage IDLE assists (2026-09-13, no new C-xxx):** before intent/LLM, Runtime bridges include suggest-only handlers such as `_try_handle_silhouette_product_b_assist`, `_try_handle_fit_relations_assist`, mount-standard / Path F / layout-pack / envelope-declare / pose / fit-attest — pure Continuity helpers; never writers. Evidence: `orchestrator.py` + `fit_relations_assist.py` / `silhouette_product_b_assist.py`.
 
+> **SYSTEM_DEFINITION block-resolvability gate (2026-09-15, no new C-xxx):** checkpoint 11 (`Mode: SYSTEM_DEFINITION`) now refuses an alias-typed block with no resolvable `ComponentRule` (`_refuse_unresolvable_block`) instead of appending a dead stub; `_try_handle_estimated_temporary_esc_height_declare` was also added to the same suggest-only bridge family as the craft-montage assists above.
+
 ### Nested — `ITERATE_INTERACTIVE`
 ```text
 resolve_intent → "project_status"/"analyze" → soft-interrupt (wizard_reprompt attached)   C-051

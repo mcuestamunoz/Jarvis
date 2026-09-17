@@ -43,6 +43,8 @@ CONNECTIONS.md
 
 **Disk-axial Visor + library FC/sensors P0 (2026-09-14, still `v0.4.1` — no new C-xxx):** `_geometry_from_spec` emits `cylinder` when Ø + cited axial (`height_mm` or `hub_thickness_mm`) both exist; diameter-only stays flat disk; screening/attest unchanged. **P0:** FC/GPS physical envelopes relocated to `library/fc/_datos.json` + `library/sensors/_datos.json` via `ComponentLibrary` (`FcSpec`/`SensorSpec`); `aerial.py` keeps alias maps only — supersedes #4b “no library/fc|sensors” ban. Additive binds exist; IDLE rebind trigger not invented this cycle. Suite **2911** · UI **105**. Queue: `docs/IMPLEMENTATION_TASKS.md` (library smoke · holds plate-box / Path N).
 
+**Craft montage + mission-gate + mission-payload identity closed (2026-09-15, still `v0.4.1` — no new C-xxx):** Estimated-temporary ESC height (Skystars) — suite **2929**. **B0** (`mission_functional_payload_holes_b0`) → gate **`B1-system-definition-block-gate`** (refuse unresolvable blocks) — suite **2938**. **`B1-mission-payload-identity`:** identity `ComponentRule`s for `cameras`/`radio_module`; perception→`["cameras"]`; unlocks SYSTEM_DEFINITION B for cámara/comunicación; payload/manipulation/actuation/transmission still refuse — suite **2945** · UI **105**. User guide: `docs/USER_GUIDE_CRAFT_MONTAGE.md`. Queue: `docs/IMPLEMENTATION_TASKS.md` (idle / holds plate-box · Path N).
+
 **Do not count** leading `| C-xxx |` table cells across the whole file as the registry size — several IDs are re-listed in derived summary tables. The only authoritative count is the length of **Canonical registry** below.
 
 Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror this registry; if they diverge, **this file wins**.

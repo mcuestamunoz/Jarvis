@@ -104,7 +104,7 @@ Input de usuario
 
 **Feature de producto — Continuity spatial assembly** (*situar el mapa*) — **checkpoint `v0.4.0` + patch `v0.4.1`:** envelopes tipados/citados + pose Continuity (origen = caja; multi-hop) + Main Plate assembly root + copias de visor (motores/hélices/brazos L-aware / adaptador en quad-X; standoffs ×4 en esquinas de Main Plate) + Board **Situar** (**C-113**: drag → mismo writer que `declara…`; free camera; plano pantalla). `mounted_on` guía relación, **no** milímetros. Screening AABB ≠ fit VERIFIED. El LLM no inventa cotas. SoT: [`.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`](../.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md). Layout 2D de cards `{x,y,w,h}` = `localStorage` (no es pose).
 
-**Craft montage honesty layer (2026-09-13→14, still `v0.4.1`):** estimated-temporary plate · Path F stack suggest · cited layout pack · mount-standard assist · silhouette checklist (`parece un dron` = declared checklist, never visual recognition — [lock](../.jes/artifacts/engineer_lock_silhouette_checklist_semantics.md)) · fit-relations checklist · **disk-axial Visor** (cited Ø+`height_mm` / Ø+`hub_thickness_mm` → `cylinder`; diameter-only stays flat disk) · **FC/GPS envelopes in `library/fc` + `library/sensors`** (ComponentLibrary; `aerial.py` = language maps only). Suite **2911** · UI **105**. **PRIORIDAD:** await Engineer next ★ — holds `B1-plate-box` · Path N; natural next disk-station attest or measured plate. Queue: [`docs/IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md).
+**Craft montage honesty layer (2026-09-13→16, still `v0.4.1`):** estimated-temporary plate · Path F · layout pack · mount-standard · silhouette · fit-relations · disk-axial Visor · `library/fc`+`sensors` · block gate · mission payload identity · **disk-station reach** (`motors`↔`frame_arm` L vs wheelbase radius + human seal) · **user guide** [`USER_GUIDE_CRAFT_MONTAGE.md`](USER_GUIDE_CRAFT_MONTAGE.md). Suite **2968** · UI **105**. **PRIORIDAD:** software closeout (Continuity intent lean) — physical plate-box/Path N/HD-* parked. Queue: [`IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md) · [closeout note](../.jes/artifacts/engineer_note_software_closeout_queue.md).
 
 ## Capas Del Sistema
 
@@ -632,10 +632,12 @@ system_definition_session.start(vehicle_type, project_state)
 
 answer(user_input)
   step=0 → A (aceptar base) | B (añadir bloques) | C (saltar)
-  step=1 → recoge bloques custom hasta "listo" | alias → bloque canónico | texto libre → registrado sin expandir
+  step=1 → recoge bloques custom hasta "listo" | alias → gate `block_components_are_resolvable()` → si resuelve: bloque canónico; si no: rechazo honesto sin persistir (`_refuse_unresolvable_block`) | texto libre → registrado sin expandir
   → _apply_and_finish() → persiste stubs + system_priority, cierra sesión
   → bridge: priority[0] → get_param_reason_for_block() → ParamDefinitionSession.start()
 ```
+
+Gate B1 (2026-09-15): un alias solo se acepta si todas las component keys de `BLOCK_TO_COMPONENTS[block]` tienen `suggested_key` match en `aerial_registry.known_suggested_keys()`. Hoy: `propulsion`/`energy`/`structure`/`control` **y** `perception`/`communication` (identity `cameras`/`radio_module`) resuelven; `payload`/`manipulation`/`actuation`/`transmission` se rechazan sin crear stub. `perception` expande solo a `["cameras"]` (lidar = deuda nombrada). Ver `block_components_are_resolvable()` en `system_architecture_catalog.py`.
 
 ### Catálogos de datos (sin imports de jarvis.schemas)
 
@@ -650,7 +652,7 @@ answer(user_input)
 - `COMPONENT_MIRRORED_PARAMS` — frozenset de params que son mirror de `components[*].properties`; solo escribibles via helpers (`battery_capacity_wh`, `motor_power_w`, `propeller_diameter_in`)
 - `VEHICLE_TYPE_ALIASES` — normaliza aliases (`"drone"` → `"dron"`, `"quadcopter"` → `"dron"`, etc.)
 - `BLOCK_ALIASES` — texto libre del usuario → bloque canónico (22 entradas)
-- API pública: `get_domain_architecture()`, `blocks_to_component_keys()`, `normalize_block_alias()`, `get_param_reason_for_block()`, `get_block_type()`
+- API pública: `get_domain_architecture()`, `blocks_to_component_keys()`, `normalize_block_alias()`, `get_param_reason_for_block()`, `get_block_type()`, `block_components_are_resolvable(block, registry=None)` (B1 gate)
 
 `core/system_dependency_catalog.py`:
 - `SYSTEM_DEPENDENCIES` — dependencias entre bloques por dominio
@@ -716,7 +718,7 @@ Contratos de comportamiento (Protocols, `runtime_checkable`):
 
 `ComponentRule` (frozen dataclass):
 
-- `keywords: frozenset[str]` — palabras clave que identifican este tipo de componente
+- `keywords: tuple[str, ...]` — palabras clave que identifican este tipo de componente
 - `component_type: str` — tipo semántico (`"propulsion_active"`, `"traction_active"`, etc.)
 
 `_COMPONENT_PROMPTS: dict[str, str]` — prompts UX por component key (`"frame"`, `"battery"`, `"motors"`, `"propellers"`, `"flight_controller"`, `"sensors"`). Usados en `_component_prompt_for_first_missing()` para guiar al usuario.
@@ -726,8 +728,8 @@ Contratos de comportamiento (Protocols, `runtime_checkable`):
 - `inference_confidence: float` — confianza base del match
 - `property_extractor: PropertyExtractor | None`
 - `completeness_evaluator: CompletenessEvaluator | None`
-- `missing_field_hints: list[str]` — preguntas de completeness
-- `extra_hints: list[str]` — preguntas adicionales opcionales
+- `missing_field_hints: tuple[str, ...]` — preguntas de completeness
+- `extra_hints: tuple[str, ...]` — preguntas adicionales opcionales
 - `output_magnitude: str | None` — clave de la propiedad que representa la magnitud física de salida del componente (ej. `"thrust_n"` para motor aéreo, `"torque_nm"` para motor de tracción). El resolver la usa para parametrizar elegibilidad y resolución de fuerza sin hardcodear nombres de dominio.
 - `matches(normalized: dict, name_lc: str) → bool` — matching por keywords
 
@@ -735,25 +737,31 @@ Contratos de comportamiento (Protocols, `runtime_checkable`):
 
 - lista ordenada de `ComponentRule`
 - `first-match-wins`
-- `register(rule)`, `match(normalized, name_lc) → ComponentRule | None`
+- `register(rule)`, `match(normalized, name_lc) → ComponentRule | None`, `known_suggested_keys() → frozenset[str]` — todo `suggested_key` que la registry puede resolver (B1 gate)
 
 ### Dominio aéreo
 
 Ubicación: `domains/aerial.py`
 
-Tres reglas registradas en `aerial_registry = ComponentRuleRegistry([propeller_rule, motor_rule, esc_rule])`:
+Siete reglas registradas en `aerial_registry = ComponentRuleRegistry([...])` (orden = first-match-wins):
 
 | Tipo | `component_type` | `suggested_key` | Propiedades extraídas |
 |---|---|---|---|
-| Motor brushless | `propulsion_active` | `motors` | `kv`, `thrust_n`, `motor_count`, `watts` |
 | Hélice | `propulsion_passive` | `propellers` | `diameter_in`, `pitch_in`, `count` |
-| ESC | `esc` | `esc` | `current_a` |
+| Motor brushless | `propulsion_active` | `motors` | `kv`, `thrust_n`, `motor_count`, `watts` |
+| ESC | `power_control` | `esc` | `current_a` |
+| Batería | `energy_storage` | `battery` | capacidad, celdas |
+| Frame | `structure` | `frame` | material, masa |
+| Flight controller | `flight_controller` | `flight_controller` | modelo |
+| Sensores/GPS | `sensors` | `sensors` | tipo, modelo |
+
+`known_suggested_keys()` sobre este registry devuelve exactamente `{propellers, motors, esc, battery, frame, flight_controller, sensors}` — el set que gatea `SYSTEM_DEFINITION` (ver gate B1 arriba).
 
 `_set_propeller_component(project_state, spec)` — extraído a `core/component_writers.py` (D6). Escribe en `components["propellers"]` y hace el bridge físico: lee `spec.properties["diameter_in"]` y escribe `current_parameters["propeller_diameter_in"]` (o elimina la clave si el valor es `None`). El engine recibe `propeller_diameter_in` como parámetro normal.
 
 Extractores usan regex sobre el nombre normalizado del componente (sin LLM).
 
-Campo `output_magnitude`: motor brushless → `"thrust_n"` · hélice y ESC → `None`.
+Campo `output_magnitude`: solo motor brushless → `"thrust_n"`; las otras seis reglas → `None`.
 
 ### Dominio terrestre
 
@@ -1460,7 +1468,7 @@ Implementado:
 - flujo `decide()` en iterate: proceed / confirm / clarify con límite de clarificación
 - bienvenida contextual en CLI con selección de proyecto existente
 - **arquitectura multi-dominio** — `ComponentRule` + `ComponentRuleRegistry` + Protocols
-- dominio aéreo: `domains/aerial.py` — motores brushless, hélices, ESC con extractores regex
+- dominio aéreo: `domains/aerial.py` — 7 reglas (motores, hélices, ESC, batería, frame, flight controller, sensores) con extractores regex
 - dominio terrestre: `domains/ground.py` — motores de tracción, ruedas pasivas, torque/rpm
 - `domains/registry_selector.py` — routing híbrido (vehicle_type + heurística de texto + default aéreo)
 - `component_inference.py` refactorizado como dispatcher con registro inyectable
@@ -1512,7 +1520,10 @@ Implementado:
 - **Spatial board (2026-09-05→06):** viewport + projector hotfix **v0.3.8** + B3 honest-absence slots — suite **2310**. Visor read-only; slots ≠ BOM. Layout still `localStorage`.
 - **Geometry `representar` + sensors claim-copy (2026-09-06→07):** Battery/Motor/ESC catalog envelopes + FC Pixhawk 4 identity-linked dims + sensors BOM honesty — suite **2336**. Package **0.3.8**.
 - **Continuity spatial assembly (2026-09-08→10) → tag `v0.4.0`; Board Situar patch → `v0.4.1`:** CSS 3D + click-inspect · Continuity pose · Scene3D-from-pose · multi-hop · assembly root · declared envelopes · visor X · standoff corners · **C-113** Situar drag (free camera, screen-plane) · standoff count gate. Feature lock: `.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`.
-- **Craft montage arc (2026-09-13→14, still `v0.4.1`):** sourced-only catalog purge + MY5 frame · estimated-temporary plate · Path F + layout pack · mount-standard · silhouette Product B\* checklist · arm radial L-aware Visor · fit-relations checklist · **disk-axial Visor cylinders** · **`library/fc` + `library/sensors`** (P0 relocate out of `aerial.py`). Suite **2911** · UI **105**. **PRIORIDAD:** library FC/sensors smoke · holds plate-box / Path N.
+- **Craft montage arc (2026-09-13→14, still `v0.4.1`):** sourced-only catalog purge + MY5 frame · estimated-temporary plate · Path F + layout pack · mount-standard · silhouette Product B\* checklist · arm radial L-aware Visor · fit-relations checklist · **disk-axial Visor cylinders** · **`library/fc` + `library/sensors`** (P0 relocate out of `aerial.py`). Suite **2911** · UI **105**.
+- **SYSTEM_DEFINITION block-gate (`B1-system-definition-block-gate`, 2026-09-15):** `block_components_are_resolvable()` + `ComponentRuleRegistry.known_suggested_keys()` — alias→bloque canónico gated; sin regla → rechazo sin stub. Suite **2938**.
+- **Mission payload identity (`B1-mission-payload-identity`, 2026-09-15):** `ComponentRule`s identidad para `cameras` + `radio_module`; SYSTEM_DEFINITION B acepta `cámara`/`comunicación`. Suite **2945**.
+- **Disk-station reach (`B1-disk-station-reach`, 2026-09-16):** `station_reach_screening` para `motors`↔`frame_arm`; `declaro verificado el motor` si reach-ok. Suite **2968**. Guía §9.
 
 Pendiente:
 

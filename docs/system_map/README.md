@@ -1,7 +1,7 @@
 # Jarvis System Map — Navigation Guide
 
 **Version:** SYS-MAP-002 (split/navigability delta of SYS-MAP-001, reviewed PASS WITH NOTES)  
-**Date:** 2026-08-10 (subsystem deltas through **2026-09-14** disk-axial Visor + `library/fc|sensors` @ **v0.4.1** / suite **2911** — no new C-xxx; C-113 Situar + C-094-class visor. Prior: craft montage **2873** · Continuity assembly **2652**)  
+**Date:** 2026-08-10 (subsystem deltas through **2026-09-15** craft montage + mission-payload identity + user guide @ **v0.4.1** / suite **2945** — no new C-xxx; C-113 Situar + C-094-class visor. Prior: block-gate **2938** · disk-axial + `library/fc|sensors` **2911** · Continuity assembly **2652**)  
 **Type:** As-is architecture documentation. Zero product behavior changes.
 
 ## How to navigate
@@ -11,14 +11,14 @@ Level 0/1 (whole system, human-legible)
   → JARVIS_SYSTEM_MAP.md
 
 Registries (first-class entities, referenced by ID from everywhere else)
-  → CONNECTIONS.md   (Canonical registry: 65 C-xxx — derived detail may repeat IDs; +10 forbidden apart. ERF-1: C-107–C-110; ERF-2: C-111–C-112)
+  → CONNECTIONS.md   (Canonical registry: 66 C-xxx, sparse through C-113 — derived detail may repeat IDs; +10 forbidden apart. ERF-1: C-107–C-110; ERF-2: C-111–C-112)
   → AUTHORITY.md      (decision → authority → forbidden, verified against code)
   → FLOWS.md          (FLOW-001…007 — reference user journeys, each step tied to C-xxx)
   → MISMATCHES.md      (doc↔code discrepancies + the FN-021 sticky-state lesson)
 
 Visual companion (diagrams + interactive canvas source)
-  → DIAGRAMS.md                      (mermaid + band index; mirrors 65 canonical)
-  → jarvis-system-map.canvas.tsx     (filterable graph — 65 / 64 / 2 / 0 / +10)
+  → DIAGRAMS.md                      (mermaid + band index; mirrors 66 canonical)
+  → jarvis-system-map.canvas.tsx     (filterable graph — 66 / 64 / 2 / 0 / +10)
 
 Design (pre-implementation — handoff continuity)
   → HANDOFF_CONTEXT_DESIGN.md        (transversal contract framing for C-042/C-043/C-025; no code)

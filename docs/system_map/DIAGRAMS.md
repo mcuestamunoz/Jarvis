@@ -2,7 +2,7 @@
 
 **Version:** SYS-MAP-002 visual companion  
 **Date:** 2026-08-10 (ERF-1 delta: 2026-08-18; ERF-2 delta: 2026-08-19)  
-**Canonical edge truth:** [`CONNECTIONS.md`](CONNECTIONS.md) → **Canonical registry** = **65** unique `C-xxx` (IDs sparse through C-112). Updated 2026-08-10 by FN-024 (C-042 fixed, C-105/C-106 added); updated 2026-08-12 by FN-025 (C-025/C-044 fixed) and FN-026 (C-043 fixed); updated 2026-08-18 by ERF-1 (C-107–C-110 added); updated 2026-08-19 by ERF-2 (C-111–C-112 added, C-107/C-110 updated).
+**Canonical edge truth:** [`CONNECTIONS.md`](CONNECTIONS.md) → **Canonical registry** = **66** unique `C-xxx` (IDs sparse through C-113). Updated 2026-08-10 by FN-024 (C-042 fixed, C-105/C-106 added); updated 2026-08-12 by FN-025 (C-025/C-044 fixed) and FN-026 (C-043 fixed); updated 2026-08-18 by ERF-1 (C-107–C-110 added); updated 2026-08-19 by ERF-2 (C-111–C-112 added, C-107/C-110 updated); C-113 added 2026-09-10 (Board Situar drag→pose).
 
 Interactive Cursor canvas (filterable graph + full table): [`jarvis-system-map.canvas.tsx`](jarvis-system-map.canvas.tsx).  
 To open beside chat in Cursor, sync that file into the project `canvases/` folder (see header comment in the `.tsx`).
@@ -12,15 +12,15 @@ To open beside chat in Cursor, sync that file into the project `canvases/` folde
 ```text
 CONNECTIONS.md
 │
-├── Canonical registry     → 65 C-xxx únicos
-├── Derived/detail views   → may repeat C-xxx (do not add to 63)
+├── Canonical registry     → 66 C-xxx únicos
+├── Derived/detail views   → may repeat C-xxx (do not add to 64)
 └── Forbidden transitions  → 10 (not C-xxx)
 ```
 
 | Set | Count | Notes |
 |---|---:|---|
-| Registry edges (canonical) | **65** | Only count this |
-| Connected 🟢 | **63** | of 65 (C-032 ⛔ removed) |
+| Registry edges (canonical) | **66** | Only count this |
+| Connected 🟢 | **64** | of 66 (C-032 ⛔ removed) |
 | Broken 🔴 | **0** | — |
 | Partial 🟡 | **2** | C-081, C-108 |
 | Forbidden transitions | **+10** | Not registry edges |
@@ -46,7 +46,7 @@ CONNECTIONS.md
 
 **Structure representation + IDLE rebind + assembly KNOW (2026-09-04→05):** Structure Foundations / Catalog IC-1→3 / honesty `PASS *` / Parts Graph + G-N1 / IDLE rebind B2+B3 / arm `thickness_mm` / plate multiplicity (`plates[]` + ordinal `frame_plate*` + `label`) — all CLOSED through suite **2294**. Display-only BOM children; Structure PASS evidence unchanged; free-text multi-plate remains debt. **No new C-xxx.**
 
-**Spatial board visor + B3 (2026-09-05→06):** Viewport + projector + slots CLOSED (**2310**). **Geometry `representar` (2026-09-07):** **2336**. **Continuity spatial assembly → `v0.4.0` (2026-09-08→10); Board Situar → `v0.4.1`:** CSS 3D · pose · multi-hop · assembly root · envelopes · visor X · standoff corners · **C-113** Situar · standoff count gate — feature lock `.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`. **Craft montage honesty (2026-09-13→14, still `v0.4.1`):** estimated plate · Path F · layout pack · mount-standard · silhouette · arm radial · fit-relations · disk-axial cylinders · **`library/fc` + `library/sensors`** — suite **2911** · UI **105** · no new C-xxx. **PRIORIDAD:** P0 library-fc-sensors smoke. Queue: `docs/IMPLEMENTATION_TASKS.md`.
+**Spatial board visor + B3 (2026-09-05→06):** Viewport + projector + slots CLOSED (**2310**). **Geometry `representar` (2026-09-07):** **2336**. **Continuity spatial assembly → `v0.4.0` (2026-09-08→10); Board Situar → `v0.4.1`:** CSS 3D · pose · multi-hop · assembly root · envelopes · visor X · standoff corners · **C-113** Situar · standoff count gate — feature lock `.jes/artifacts/engineer_lock_continuity_spatial_assembly_feature.md`. **Craft montage + mission payload arc, closed (2026-09-13→15, still `v0.4.1`):** estimated plate · Path F · layout pack · mount-standard · silhouette · arm radial · fit-relations · disk-axial cylinders · `library/fc` + `library/sensors` · estimated-temporary ESC height · SYSTEM_DEFINITION block-resolvability gate · identity `cameras`/`radio_module` (perception/comms unlock; payload/manipulation/… still refuse) · user guide `docs/USER_GUIDE_CRAFT_MONTAGE.md` — suite **2945** · UI **105** · no new C-xxx. **PRIORIDAD:** idle / Engineer next ★ (holds plate-box · Path N). Queue: `docs/IMPLEMENTATION_TASKS.md`.
 
 **Phase 2.5–2.7-B + Option A (2026-09-01):** Hover L1 + labeled L2 endurance envelope. User calculate/iterate wrap `build()` via `endurance_sweep_writer`; engine stays opt-in; DSE does not call the writer; CLI ESTIMATIVO on `calcular` and `estado`. **No new C-xxx** (C-060 detail only). Lab remainder is `docs/HARDWARE_DEBT.md`, not a map edge.
 

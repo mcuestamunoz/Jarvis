@@ -5,7 +5,7 @@
  * To open live in Cursor beside chat, copy/sync to the project canvases folder:
  *   ~/.cursor/projects/<workspace>/canvases/jarvis-system-map.canvas.tsx
  *
- * Counts: 65 unique C-xxx in ID space (CONNECTIONS.md canonical registry):
+ * Counts: 66 unique C-xxx in ID space (CONNECTIONS.md canonical registry):
  *   63 connected · 1 removed (C-032 G23) · 2 partial (C-081, C-108) · 12 forbidden.
  * Updated 2026-08-10 FN-024 · 2026-08-12 FN-025/026 · 2026-08-18 ERF-1 · 2026-08-19 ERF-2.
  * Updated 2026-08-20 G21/G22 (C-030 catalog bind UX) · G23 (C-032 REMOVED — FN-015 deleted).
@@ -18,8 +18,11 @@
  * arm radial · fit-relations checklist. No new C-xxx (suggest-only IDLE).
  * Updated 2026-09-14 — Disk-axial Visor cylinders + library/fc + library/sensors
  * (suite 2911 · UI 105). FC/GPS SoT out of aerial.py. No new C-xxx.
- * PRIORIDAD = P0 library-fc-sensors LANDING (review PASS · Engineer smoke).
- * Holds: plate-box / Path N. Later: disk-station attest.
+ * Updated 2026-09-15 — Mission payload identity CLOSED (suite 2945): cameras/radio_module
+ * identity rules unlock perception/comms; payload/manipulation/actuation/transmission still refuse.
+ * User guide: docs/USER_GUIDE_CRAFT_MONTAGE.md. Prior same-day: ESC estimated + block gate (2938).
+ * No new C-xxx. Craft montage + mission-payload arc CLOSED (2026-09-13→15).
+ * PRIORIDAD = idle / Engineer next ★. Holds: plate-box / Path N. Later: disk-station attest / camera catalog.
  * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's queue.
  * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
  * Internal G23 anti-LLM gate (confusion phrase → re-ask / project_status) is not a C-xxx edge.
@@ -448,12 +451,12 @@ export default function JarvisSystemMapCanvas() {
 
       <Callout
         tone="info"
-        title="Product queue — await next ★ (v0.4.1 · suite 2911 · UI 105)"
+        title="Product queue — idle (v0.4.1 · suite 2945 · UI 105)"
       >
-        Library FC/sensors P0 + disk-axial Visor CLOSED. FC/GPS SoT in
-        library/fc + library/sensors. PRIORIDAD: await Engineer next ★.
-        Holds: B1-plate-box / Path N. Natural next: disk-station attest or
-        measured plate. C-081 / C-108 deferred. HD-* never PRIORIDAD without lab.
+        Craft montage + mission-payload identity CLOSED. User guide:
+        docs/USER_GUIDE_CRAFT_MONTAGE.md. Perception/comms unlock at identity;
+        payload/brazo still refuse. Holds: B1-plate-box / Path N. C-081 /
+        C-108 deferred. HD-* never PRIORIDAD without lab.
       </Callout>
 
       <Grid columns={6} gap={12}>
@@ -526,13 +529,14 @@ export default function JarvisSystemMapCanvas() {
         confusion phrases → short re-ask (wizard) or Continuity (IDLE).
       </Callout>
 
-      <Callout tone="success" title="Shipped — Continuity + craft montage @ v0.4.1 (2026-09-14)">
+      <Callout tone="success" title="Shipped — Continuity + craft montage + mission gate @ v0.4.1 (2026-09-15)">
         Envelope declare · pose · Scene3D-from-pose · multi-hop · assembly root ·
         visor X / radial arms · disk-axial cylinders · standoff corners ·
         screening “cabe” · C-113 Situar · fit attestation · silhouette ·
-        fit-relations · library/fc + library/sensors. Open holds: plate-box ·
-        Path N. Registry unchanged: 63 connected · 1 removed · 2 partial.
-        Suite 2911 · UI 105.
+        fit-relations · library/fc + library/sensors · estimated-temporary ESC
+        (Skystars) · SYSTEM_DEFINITION block-resolvability gate. Open holds:
+        plate-box · Path N. Registry unchanged: 63 connected · 1 removed ·
+        2 partial. Suite 2945 · UI 105.
       </Callout>
 
       {filter !== "forbidden" ? (

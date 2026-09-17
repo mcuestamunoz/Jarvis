@@ -11,7 +11,7 @@
 | `adapters/cli/main.py` | Terminal loop; renders results (`render_response`, `render_startup_context`) |
 | `adapters/mcp/server.py` | MCP tool server exposing Jarvis actions |
 | `adapters/mcp/session_manager.py` | MCP-side session bookkeeping |
-| `adapters/cli/board.py` (`jarvis board`) + `workspace/spatial_board.py` | Spatial board launcher + read-only projector (`ProjectState` → cards/`slot`; `geometry`, `declaredBoxPose`, `solidCopies`/`solidCopyOffsetsMm` — quad-X radial L-aware arms + Main Plate corner stations). Mutation = CLI/writers/Continuity — not the visor. Card layout overlay = browser `localStorage` (not pose). **Continuity spatial assembly @ v0.4.0** + craft-montage honesty @ v0.4.1 (suite **2873**) — feature locks under `.jes/artifacts/engineer_lock_*`. Scene3D situar mutation = **C-113** only. |
+| `adapters/cli/board.py` (`jarvis board`) + `workspace/spatial_board.py` | Spatial board launcher + read-only projector (`ProjectState` → cards/`slot`; `geometry`, `declaredBoxPose`, `solidCopies`/`solidCopyOffsetsMm` — quad-X radial L-aware arms + Main Plate corner stations). Mutation = CLI/writers/Continuity — not the visor. Card layout overlay = browser `localStorage` (not pose). **Continuity spatial assembly @ v0.4.0** + craft-montage / mission-payload / user-guide @ v0.4.1 (suite **2945**) — feature locks under `.jes/artifacts/engineer_lock_*`. Scene3D situar mutation = **C-113** only. |
 
 ## Important functions
 

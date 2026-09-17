@@ -1,8 +1,8 @@
 # Engineering Readiness Vision
 
-**Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure ✅ §11; Structure + spatial board + Geometry ladder ✅ — §8; **Continuity spatial assembly ✅ @ v0.4.0**; **Board Situar ✅ @ v0.4.1**; **PRIORIDAD = Fit VERIFIED**)  
+**Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure ✅ §11; Structure + spatial board + Geometry ladder ✅ — §8; **Continuity spatial assembly ✅ @ v0.4.0**; **Board Situar ✅ @ v0.4.1**; **Craft montage + mission payload + disk-station reach ✅ (2026-09-13→16)** — see `docs/USER_GUIDE_CRAFT_MONTAGE.md`; **PRIORIDAD = software closeout lean Continuity intent** — physical plate-box / Path N / HD-* parked)  
 **Type:** Vision / To-be  
-**Date:** 2026-09-10 (tag **v0.4.1** · suite **2669** · UI **80**; Prop/Energy = HD-004 wall; System Optimization **deferred** until pain)
+**Date:** 2026-09-16 (tag **v0.4.1**, untagged patch tip · suite **2968** · UI **105**; Prop/Energy = HD-004 wall; System Optimization **deferred** until pain)
 
 ---
 
@@ -499,7 +499,7 @@ unchanged by this fix.
 | Item | Status |
 |---|---|
 | **G24** — DSE apply-by-index / catalog-row scoring | Deferred. Confirmed not a closure prerequisite — identity-display debt (stale `.name` after `catalog_ref` clears), not a rollup blocker. |
-| **H5 — ESC catalog** | Deferred. Requires a `CatalogRef.family` schema change (currently `Literal["motor","battery","propeller"]`) before any bind path is even possible. |
+| **H5 — ESC catalog** | **Done, superseded.** `bind_esc_from_catalog` shipped (ESC visor rebind B1); `CatalogRef.family` has since widened further to `Literal["motor","battery","propeller","esc","frame","kit_hardware","flight_controller","sensors"]` (Library FC/sensors P0, 2026-09-14). |
 | **Frame SKU catalog** | Deferred. Materials density (`library/materiales/`) is a different mechanism than a frame-as-SKU bind and was never in scope for this arc. |
 | **Conversation Engine / Step D** | Deferred. Out of scope for the entire closure arc per the original investigation contract. |
 | **`catalog_bound` → subsystem verdict wiring** | Deferred, not rejected. `SubsystemEvidence.catalog_bound` remains write-only (computed, never read by `_derive_subsystem_verdict`). Would be a rollup-semantics change requiring its own ★ decision — not assumed by this arc. |

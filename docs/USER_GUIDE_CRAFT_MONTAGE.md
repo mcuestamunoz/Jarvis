@@ -63,6 +63,38 @@ resumen del proyecto
 
 ---
 
+## 2bis. Arquitectura de misión (cámara / radio)
+
+Tras crear el proyecto, Jarvis ofrece arquitectura base (A/B/C). Para un craft de vigilancia (u otro con payload de misión):
+
+```text
+B
+cámara
+comunicación
+listo
+```
+
+**Qué deberías ver:** bloques `perception` / `communication` **añadidos**. Tras `listo`, en `estado` aparecen stubs `cameras` y `radio_module`.
+
+Bloques que **aún no** se pueden añadir (Jarvis se niega a propósito): `payload`, `brazo`, ruedas, gearbox — no hay regla de componente detrás.
+
+### Declarar identidad (sin inventar mm/g)
+
+```text
+cámara RunCam
+```
+```text
+radio ELRS
+```
+
+**Qué deberías ver:** `Cameras registrado` / `Radio module registrado`; en `estado`, filas declarativas con el modelo. Completeness **medium** cuando la marca/protocolo está en el mapa interno (RunCam, Caddx, Foxeer, GoPro, Insta360 · ELRS, Crossfire, FrSky). Solo `cámara` / `radio` sin marca → low + pista.
+
+> 🟡 **No es catálogo físico.** No hay `library/cameras` ni masa/cotas citadas todavía — identidad de misión (“qué llevo”), no caja en Board ni acoplamiento a energía.
+
+Ver también: montaje honesto del craft en las secciones siguientes (placa → stack → Situar).
+
+---
+
 ## 3. Identidad + catálogo
 
 Cada familia (motor, hélice, batería, ESC, frame, controladora/FC, GPS/sensor) se puede **elegir de catálogo** (identidad citada, con L×W×H cuando la ficha las trae) o declarar en texto libre (identidad sin caja, salvo excepciones).
@@ -87,7 +119,7 @@ Reabre la lista de esa familia para volver a elegir. Funciona hoy para: **frame,
 
 > 🟡 **Trampa conocida:** `cambiar controladora` / `cambiar gps` **no** reabre nada todavía — la identidad de FC/GPS solo se cambia re-declarando el modelo en texto libre (ver §3.3) o mediante `ayúdame a elegir` cuando el flujo la ofrezca. Ver inventario, §10.1.
 
-### 3.3 Declarar identidad a mano (FC / GPS)
+### 3.3 Declarar identidad a mano (FC / GPS / cámara / radio)
 
 ```text
 Pixhawk 4
@@ -98,8 +130,14 @@ SpeedyBee F405 V4
 ```text
 Holybro M10
 ```
+```text
+cámara RunCam
+```
+```text
+radio ELRS
+```
 
-**Qué deberías ver:** si el modelo tiene ficha citada (Pixhawk 4, SpeedyBee F405 V4, Holybro M10 hoy), la tarjeta ya trae L×W×H 📐 CITADO. Un modelo reconocido pero sin ficha (por ejemplo `Skystars F4 V4`) se declara igual, pero sin caja — identidad sola.
+**Qué deberías ver:** si el modelo tiene ficha citada (Pixhawk 4, SpeedyBee F405 V4, Holybro M10 hoy), la tarjeta ya trae L×W×H 📐 CITADO. Un modelo reconocido pero sin ficha (por ejemplo `Skystars F4 V4`) se declara igual, pero sin caja — identidad sola. Cámara/radio: solo identidad (marca/protocolo → medium); **sin** caja ni masa — ver §2bis.
 
 ### 3.4 Refrescar una vinculación existente
 
@@ -283,19 +321,34 @@ cabe el esc
 relaciones
 ```
 
-**Qué deberías ver:** una lista de las 6 relaciones (FC/ESC/batería/sensores→placa; motores→brazo; hélices→motores) con su estado (bloqueada / lista para declarar verificado / ya declarada / n/a disco) y un pie de página explícito: *"esto no es ASSEMBLY READY ni el estado del proyecto"*.
+**Qué deberías ver:** una lista de hasta 6 relaciones con pie *"esto no es ASSEMBLY READY…"*:
 
-### 9.3 Firmar como verificado (solo si el screening dio solape)
+| Relación | Qué mira Jarvis hoy |
+|---|---|
+| FC / ESC / batería / sensores → `frame_plate` | Screening AABB de cajas + pose (bloqueado si placa/hijo es 🟡 estimado) |
+| **motores → `frame_arm`** | **Alcance de estación** (L del brazo vs radio quad-X del wheelbase) — no es AABB de disco |
+| hélices → motores | Sigue **n/a disco** (aún no hay regla de alcance/axial) |
+
+Estados típicos: bloqueada · lista para declarar verificado (`→`) · ya declarada (`✓`) · n/a · alcance over/insufficient/estimated.
+
+### 9.3 Firmar como verificado
+
+Solo cuando la fila está **lista** (caja en solape, o motores en `station_reach_ok`):
 
 ```text
 declaro verificado el esc
 ```
+```text
+declaro verificado el motor
+```
 
-Se **niega** con un error si esa pareja no está en `overlap` ahora mismo — nunca lo concede en silencio. Para quitarlo:
+Se **niega** si no hay screening OK — nunca en silencio. El sello es juicio del Engineer, no “Jarvis midió el ensamblaje”. Para quitarlo:
 
 ```text
 quita la verificación
 ```
+
+> 📐 / 🟡: dims de catálogo o declaradas son **aproximadas** hasta medida física; el sello no convierte un número estimado en cita.
 
 ### 9.4 ¿Parece un dron?
 
@@ -339,7 +392,9 @@ declara la controladora a 0 mm en x, 0 mm en y, 4.9 mm en z respecto a frame_pla
 declara la bateria a 0 mm en x, 0 mm en y, 15.5 mm en z respecto a frame_plate
 declara el sensor a 0 mm en x, 0 mm en y, 8.2 mm en z respecto a frame_plate
 
-relaciones                               # bloqueadas por estimated_dims (placa/ESC 🟡) — esperado
+relaciones                               # stack placa bloqueado por estimated_dims (esperado);
+                                         # motors→frame_arm puede estar → listo (alcance)
+declaro verificado el motor              # si la fila motors está en alcance OK
 parece un dron                           # → silueta estimada (B*)
 ```
 
@@ -382,7 +437,8 @@ quita la pose del esc
 # Comprobación
 cabe
 relaciones
-declaro verificado el esc
+declaro verificado el esc              # caja en solape
+declaro verificado el motor            # alcance de estación OK
 quita la verificación
 parece un dron
 ```
@@ -397,13 +453,14 @@ parece un dron
 
 ### 12.2 Limitaciones conocidas (deuda con nombre, no bugs escondidos)
 
-- **`B1-plate-box`** (medida/citada de placa "de verdad") sigue en **B0 HOLD** — usa la ruta estimada (§4.2) mientras tanto.
-- **Path N** (motor/hélice como origen de pose) es **imposible por esquema** — un motor/hélice es un disco, nunca una caja; no hay ★ que lo reabra.
-- **`cambiar controladora` / `cambiar gps`** no reabren el picker todavía (§3.2) — deuda conocida (Library FC/sensors N1).
+- **`B1-plate-box`** (medida/citada de placa "de verdad") sigue en **await bag** — usa la ruta estimada (§4.2); el stack FC/ESC/batería/sensores→placa sigue bloqueado para `declaro verificado` mientras la placa sea 🟡.
+- **Path N** (motor/hélice como origen de pose) es **imposible por esquema** — HOLD; no reabrir.
+- **`cambiar controladora` / `cambiar gps`** no reabren el picker todavía (§3.2) — deuda conocida.
 - **`actualiza el fc` / `actualiza el gps`** no existen todavía, mismo motivo.
-- **Un rebind de ESC a un SKU sin un dato que el anterior sí tenía** puede dejar ese dato viejo etiquetado `declared` por error — encontrado durante el Buy de altura estimada del Skystars; declarado, no corregido ahí (deuda aparte sobre `bind_esc_from_catalog`).
-- **Motores/hélices nunca tienen verdicto de `cabe`/verificado**, aunque se vean como cilindro — el screening de disco es un Buy futuro, separado.
+- **Rebind ESC** a un SKU sin un dato que el anterior sí tenía puede dejar ese dato viejo como `declared` — deuda `bind_esc_from_catalog`.
+- **Motores → brazo:** sí hay **alcance de estación** + `declaro verificado el motor` (§9). **Hélices → motores** sigue n/a (Buy aparte). AABB `cabe` sigue siendo solo cajas.
 - **`layout pack` (sin nombre)** solo funciona mientras exista exactamente un pack registrado.
+- Dims de catálogo = **aproximadas** hasta medida física ([lock](../.jes/artifacts/engineer_note_geometry_approx_until_verified.md)).
 
 ---
 
