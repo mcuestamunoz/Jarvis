@@ -248,11 +248,31 @@ def test_t10_neutral_project_increase_payload_still_available():
 
 
 def test_t11_mission_intent_both_masses_set_soft_margin_never_increase_payload():
+    """B1-mission-continuity-mount-endurance extended the ladder further
+    with mount + autonomy-target steps after this test's mass-declare
+    terminal condition; B1-mission-power-w added a power-declare step after
+    that. No frame/plate component is declared here so the mount step has
+    no target to suggest (falls through); parsed_constraints carries
+    autonomy_min so the autonomy-target step also clears; both mission
+    components carry power_w so the power step clears too; vtx is declared
+    (B1-mission-vtx-identity's own ladder step) so that clears too,
+    reaching soft margin exactly as this test originally intended."""
     context = _reasoning_context(0.0, 0.031, objective="dron de vigilancia", margin=3.6196)
     context["design_properties"]["components"] = {
-        "cameras": {"completeness": "medium", "properties": {"model": {"value": "runcam"}, "mass_g": {"value": 28.0}}},
-        "radio_module": {"completeness": "medium", "properties": {"model": {"value": "elrs"}, "mass_g": {"value": 3.0}}},
+        "cameras": {
+            "completeness": "medium",
+            "properties": {"model": {"value": "runcam"}, "mass_g": {"value": 28.0}, "power_w": {"value": 1.0}},
+        },
+        "radio_module": {
+            "completeness": "medium",
+            "properties": {"model": {"value": "elrs"}, "mass_g": {"value": 3.0}, "power_w": {"value": 0.5}},
+        },
+        "vtx": {
+            "completeness": "high",
+            "properties": {"model": {"value": "hglrc"}, "mass_g": {"value": 4.8}},
+        },
     }
+    context["parsed_constraints"] = {"autonomy_min": 8.0}
     out = ReasoningLayer().build(context)
     assert out.suggested_actions[0].label == "Revisar margen vs carga de misión"
     assert out.suggested_actions[0].action_type != "increase_payload"

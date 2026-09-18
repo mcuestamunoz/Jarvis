@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer smoke
 
-**Status:** Implemented · Cursor review **PASS** · await Engineer smoke §3 (or waive)
+**Status:** **CLOSED** — Engineer smoke ACCEPT 2026-09-17 (H1 / añadir-bloques routing)
 
 **Parents:**
 - Engineer smoke ACCEPT on **`B1-extended-identity-rules`** (2026-09-17) — throwaway `prueba` · B → payload / manipulador / ruedas / gearbox
@@ -116,7 +116,7 @@ Throwaway dron → A/B/C → **B**:
 
 - [x] Intercept gate + meta no-op + T1–T8 + report  
 - [x] Cursor review PASS — [review](implementation_review_system_definition_b_routing_b1.md)  
-- [ ] Engineer smoke ACCEPT (or waive)
+- [x] Engineer smoke ACCEPT 2026-09-17 (H1 closed)
 
 ---
 

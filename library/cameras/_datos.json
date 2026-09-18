@@ -1,0 +1,14 @@
+{
+  "runcam_phoenix_2": {
+    "manufacturer": "RunCam",
+    "model": "Phoenix 2",
+    "identity_status": "verified",
+    "length_mm": 19.0,
+    "width_mm": 19.0,
+    "height_mm": 19.0,
+    "mass_g": 9.0,
+    "power_w": 1.0,
+    "source_url": "https://shop.runcam.com/runcam-phoenix-2/",
+    "source_note": "Engineer cite 2026-09-17: RunCam shop Phoenix 2. Net Weight 9g; Dimensions 19mm*19mm*19mm → L=W=H=19 (cube as printed). Lens 2.1mm M12 FOV155° (4:3), 1000TVL, 1/2\" CMOS, PAL/NTSC, 4:3/16:9, DC 5-36V, Current 200mA@5V / 85mA@12V — citation only; not power_w this Buy (M3). Housing ABS. No mount-hole pattern claimed. Not a generic \"RunCam\" brand bind. power_w=1.0 from 200mA@5V (P=I×V); 85mA@12V≈1.02W — Engineer ★ 2026-09-18."
+  }
+}

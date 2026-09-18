@@ -15,7 +15,7 @@ from jarvis.core.parameter_requirements import (
 from jarvis.core.reasoning_layer import ReasoningLayer, filter_mission_gated_suggestions
 from jarvis.core.state_manager import StateManager
 from jarvis.schemas.action_schema import ActionName, IterationDraft, IterationOperation
-from jarvis.schemas.state_schema import DesignProperties, HistoryEntry
+from jarvis.schemas.state_schema import DesignProperties, HistoryEntry, derive_parsed_constraints
 from jarvis.schemas.tool_schema import CalculationBundle, SimulationResult
 from jarvis.simulation.simulator import FlightSimulator
 from jarvis.suggestions.suggestion_engine import SuggestionEngine
@@ -226,6 +226,7 @@ class IterateAction:
                 "memory": project_state.memory.model_dump(),
                 "last_mutation": {"mode": "physical"},
                 "mutation_mode": "physical",
+                "parsed_constraints": derive_parsed_constraints(updated_parameters, project_state.objective),
             },
             suggestions=suggestions_payload,
         )
@@ -404,6 +405,7 @@ class IterateAction:
                 "memory": project_state.memory.model_dump(),
                 "last_mutation": declarative_mutation,
                 "mutation_mode": "declarative",
+                "parsed_constraints": derive_parsed_constraints(updated_parameters, project_state.objective),
             },
             suggestions=suggestions,
         )

@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Fase M: H1 routing await smoke; cola M2-M7 then Fase C control; stay 0.4.1 (2026-09-17) @ suite 3068",
+  "cycle_intent": "2026-09-18 B1-mission-vtx-identity ACCEPT CLOSED @ suite 3165, package 0.4.1 — M7 gate next (Fase M → Fase C).",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "Await Cursor review + Engineer smoke (system_definition_b_routing_b1) + prior pending reviews/smokes (mission_mass_energy_b1, extended_identity_rules_b1, catalog_hygiene_mission_suggestions_b1, propellers_motors_catalog_pair_b1, wizard_mission_nudge_b1, continuity_mission_intent_b1, disk_station_reach_b1, mission_payload_identity_b1, system_definition_block_gate_b1, user_guide_craft_montage_b1 doc walk, estimated_temporary_esc_skystars_b1, mount_standard_assist_b1, Situar experience B1, multibox UX fix, Structure A class slack, #4* stack)",
-  "active_operation": "await_review_smoke_system_definition_b_routing_b1",
+  "current_mode": "M7 gate — Fase M closeout",
+  "active_operation": "m7_fase_m_closeout_gate",
   "movement_trigger": {
-    "type": "cursor_review_then_engineer_smoke",
-    "note": "2026-09-17 system_definition_b_routing_b1 implemented @ suite 3068 (was 3058) — implementation_report_system_definition_b_routing_b1.md. SYSTEM_DEFINITION excluded from global component intercept (4th mode exclusion, mirrors 3 existing); meta 'add more blocks' phrases are now a no-op instead of junk custom blocks. No version bump, no workspace/ mutation."
+    "type": "engineer_accept",
+    "note": "2026-09-18 mission_vtx_identity_b1 ACCEPT CLOSED — smoke: ayúdame a elegir vtx → Zeus 800 → pick 1; cambiar vtx OK. Next: M7."
   },
   "relevant_workflow_phases": [
     "Verification"
@@ -325,6 +325,7 @@
     "catalog_hygiene_mission_suggestions_b1_ic": "CLOSED_SMOKE_ACCEPT_3027",
     "extended_identity_rules_b1_ic": "REVIEW_PASS_WITH_NOTES_AWAIT_SMOKE_3044",
     "mission_mass_energy_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_3058",
-    "system_definition_b_routing_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_3068"
+    "system_definition_b_routing_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_3068",
+    "mission_continuity_mount_endurance_b1_ic": "IMPLEMENTED_AWAIT_CURSOR_REVIEW_ENGINEER_SMOKE_3077"
   }
 }

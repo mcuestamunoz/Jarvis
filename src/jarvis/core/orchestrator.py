@@ -966,9 +966,23 @@ class JarvisOrchestrator:
                         getattr(project_state.design_properties, "components", None) or {}
                     )
                     existing = components.get(_rebind_key)
-                    # Swap / upgrade only — never steal first-time FN-009 /
-                    # FN-014 acquisition when the component is still absent.
-                    if existing is not None and not _is_stub_or_absent(existing):
+                    # Swap / upgrade when the component is already a real
+                    # declaration. First-time acquisition when ABSENT used to
+                    # fall through to FN-005 motor triage (then Continuity
+                    # estado) — smoke 2026-09-18: "ayúdame a elegir vtx" with
+                    # no vtx yet never opened the Zeus list. Named family
+                    # help-choose / cambiar for catalog families MUST open
+                    # that family's offer even on first acquire.
+                    _open_catalog = (
+                        existing is not None and not _is_stub_or_absent(existing)
+                    ) or (
+                        (existing is None or _is_stub_or_absent(existing))
+                        and _rebind_key in (
+                            "vtx", "cameras", "esc", "frame", "motors",
+                            "propellers", "battery", "flight_controller", "sensors",
+                        )
+                    )
+                    if _open_catalog:
                         updated = current_session.model_copy(update={
                             "mode": OrchestratorMode.DEFINE_MISSING_PARAMETERS,
                             "pending_missing_reason": MISSING_COMPONENT_DEFINITION,
@@ -1011,13 +1025,30 @@ class JarvisOrchestrator:
                             result = self._offer_sensor_identity_catalog(
                                 updated, ["sensors"]
                             )
+                        elif _rebind_key == "cameras":
+                            # First `library/cameras` seed (`B1-library-
+                            # cameras-seed` lock #11): "cambiar cámara" must
+                            # NOT be deferred to a follow-on Buy — reuses
+                            # the SAME offer the perception wizard's own
+                            # first-time acquisition already uses.
+                            result = self._offer_component_camera_catalog(
+                                updated, ["cameras"]
+                            )
+                        elif _rebind_key == "vtx":
+                            # First `library/vtx` seed (`B1-mission-vtx-
+                            # identity` lock #13): "cambiar vtx" / first
+                            # "ayúdame a elegir vtx" — same offer as the
+                            # video_link wizard path.
+                            result = self._offer_component_vtx_catalog(
+                                updated, ["vtx"]
+                            )
                         else:
                             raise AssertionError(
                                 f"unhandled idle catalog rebind key: {_rebind_key}"
                             )
                         self._track_turn(user_input, result)
                         return result
-                # else: pending gap, or component not yet present — FN-014 / FN-005
+                # else: pending architecture block — FN-014 / FN-005
 
         # ─────────────────────────────────────────────────────────────────────
         # ── Geometry Assembly Espacial — Continuity B1: IDLE "monta X en Y" /
@@ -1185,6 +1216,21 @@ class JarvisOrchestrator:
             if mission_mass_result is not None:
                 self._track_turn(user_input, mission_mass_result)
                 return mission_mass_result
+
+        # ─────────────────────────────────────────────────────────────────────
+        # ── Mission power declare B1 (`B1-mission-power-w`): IDLE "cámara
+        # <N> W" / "radio <N> W" (+ vatios alias) calls set_mission_
+        # component_power directly (cameras/radio_module only). User/
+        # datasheet-declared only — never invents watts from a model name
+        # or the Phoenix 2 citation's mA note. Checked right after the
+        # mission mass declare bridge (same "own dedicated grammar, own
+        # writer" family). Returns None for any phrase with no recognized
+        # camera/radio subject, so it never steals other declares.
+        if current_session.mode == OrchestratorMode.IDLE:
+            mission_power_result = self._try_handle_mission_power_declare(user_input)
+            if mission_power_result is not None:
+                self._track_turn(user_input, mission_power_result)
+                return mission_power_result
 
         # ─────────────────────────────────────────────────────────────────────
         # ── Declared battery envelope + Main Plate L×W B1: IDLE "declara la
@@ -2653,6 +2699,68 @@ class JarvisOrchestrator:
             "message": message,
         }
 
+    def _try_handle_mission_power_declare(self, user_input: str) -> dict | None:
+        """Mission power declare B1 (`B1-mission-power-w`): IDLE "cámara
+        <N> W" / "radio <N> W" calls set_mission_component_power directly.
+
+        Deterministic parse only (mission_power_declare_assist) — never
+        LLM, never invents watts from a model name or the Phoenix 2
+        citation's mA note. Returns None when the phrase isn't this
+        grammar at all (no recognized camera/radio subject), so it falls
+        through unchanged.
+        """
+        from jarvis.core.mission_power_declare_assist import parse_mission_power_declare
+
+        result = parse_mission_power_declare(user_input)
+        if result.kind == "NONE":
+            return None
+
+        if result.kind == "INCOMPLETE":
+            noun = "cámara" if result.component_key == "cameras" else "radio"
+            return {
+                "status": "interactive",
+                "action": "component_description_prompt",
+                "message": f'Indica la potencia de {noun} en vatios, por ejemplo: "{noun} 1 W".',
+            }
+
+        project_state = self._safe_active_project()
+        if project_state is None:
+            return None
+        components = getattr(project_state.design_properties, "components", None) or {}
+        component_key = result.component_key
+        if component_key not in components:
+            noun = "cámara" if component_key == "cameras" else "radio"
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": f"'{noun}' aún no declarado — declara primero la {noun}.",
+            }
+
+        from jarvis.core.component_writers import set_mission_component_power
+
+        try:
+            updated_state = set_mission_component_power(project_state, component_key, result.power_w)
+        except ValueError as exc:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": str(exc),
+            }
+        self.workspace_manager.save_state(updated_state)
+
+        noun = "cámara" if component_key == "cameras" else "radio"
+        accessory_w = updated_state.current_parameters.get("mission_accessory_power_w", 0.0)
+        message = (
+            f"Declarado: {noun} {result.power_w:g} W (source=declared). "
+            f"Potencia de misión total: {accessory_w:g} W — entra en la autonomía como "
+            "consumo adicional (no un vuelo validado)."
+        )
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": message,
+        }
+
     def _try_handle_declared_box_envelope(self, user_input: str) -> dict | None:
         """Declared battery envelope + Main Plate L×W B1: IDLE "declara la
         batería/la placa principal L x W [x H] mm" / "quita el sobre de X"
@@ -4097,7 +4205,8 @@ class JarvisOrchestrator:
         updated = session.model_copy(update={
             "motor_suggestions": suggestions, "propeller_suggestions": [], "battery_suggestions": [],
             "frame_suggestions": [], "kit_hardware_suggestions": [], "esc_suggestions": [],
-            "flight_controller_suggestions": [], "sensor_suggestions": [],
+            "flight_controller_suggestions": [], "sensor_suggestions": [], "camera_suggestions": [],
+            "vtx_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         if not suggestions:
@@ -4231,6 +4340,8 @@ class JarvisOrchestrator:
             "esc_suggestions": [],
             "flight_controller_suggestions": [],
             "sensor_suggestions": [],
+            "camera_suggestions": [],
+            "vtx_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -4339,6 +4450,8 @@ class JarvisOrchestrator:
             "esc_suggestions": [],
             "flight_controller_suggestions": [],
             "sensor_suggestions": [],
+            "camera_suggestions": [],
+            "vtx_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -4438,6 +4551,8 @@ class JarvisOrchestrator:
             "esc_suggestions": [],
             "flight_controller_suggestions": [],
             "sensor_suggestions": [],
+            "camera_suggestions": [],
+            "vtx_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -4568,6 +4683,8 @@ class JarvisOrchestrator:
             "esc_suggestions": [],
             "flight_controller_suggestions": [],
             "sensor_suggestions": [],
+            "camera_suggestions": [],
+            "vtx_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -4654,6 +4771,8 @@ class JarvisOrchestrator:
             "kit_hardware_suggestions": [],
             "flight_controller_suggestions": [],
             "sensor_suggestions": [],
+            "camera_suggestions": [],
+            "vtx_suggestions": [],
         })
         self.state_manager.set_runtime_session(updated)
         return {
@@ -4715,6 +4834,205 @@ class JarvisOrchestrator:
             "message": f"{saved_msg} {follow_up}",
         }
 
+    def _offer_component_camera_catalog(
+        self, session: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """First `library/cameras` seed (`B1-library-cameras-seed`): catalog
+        list for the perception singleton wizard (``expected_keys ==
+        ["cameras"]``, first-time acquisition) and IDLE `cambiar cámara`
+        rebind alike — same offer either way. Suggestions come only from
+        ``build_camera_catalog_suggestions`` (``list_cameras()``, no
+        ranking). Clears every peer suggestion list (★4).
+        """
+        from jarvis.core.camera_catalog_assist import (
+            build_camera_catalog_suggestions,
+            format_camera_catalog_suggestions,
+        )
+
+        suggestions = build_camera_catalog_suggestions()
+        updated = session.model_copy(update={
+            "camera_suggestions": suggestions,
+            "motor_suggestions": [],
+            "propeller_suggestions": [],
+            "battery_suggestions": [],
+            "frame_suggestions": [],
+            "kit_hardware_suggestions": [],
+            "esc_suggestions": [],
+            "flight_controller_suggestions": [],
+            "sensor_suggestions": [],
+            "vtx_suggestions": [],
+        })
+        self.state_manager.set_runtime_session(updated)
+        return {
+            "status": "interactive",
+            "action": "component_description_prompt",
+            "message": format_camera_catalog_suggestions(suggestions),
+            "camera_suggestions": suggestions,
+        }
+
+    def _apply_component_camera_catalog_pick(
+        self, suggestion: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """First `library/cameras` seed (`B1-library-cameras-seed` locks
+        #6/#7/#8), extended by `B1-catalog-camera-power-w` lock #7: bind a
+        catalog pick with ``base=`` the live camera spec so ``declared_box_
+        pose`` / ``mounted_on`` survive (ESC-shaped, §0.2 fork), then mirror
+        the bound ``mass_g``/``power_w`` into ``mission_payload_mass_kg``/
+        ``mission_accessory_power_w`` via ``set_mission_component_mass``/
+        ``set_mission_component_power`` — projecting the bare properties
+        alone is not enough (lock #8 / power lock #7).
+        """
+        from jarvis.core.catalog_bind import bind_camera_from_catalog
+        from jarvis.core.component_writers import (
+            set_mission_component_mass,
+            set_mission_component_power,
+        )
+
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": "No hay proyecto activo. Crea uno primero.",
+            }
+        existing = project_state.design_properties.components.get("cameras")
+        spec = bind_camera_from_catalog(suggestion["name"], base=existing)
+        updated_state = set_control_component(project_state, spec)
+        mass_prop = spec.properties.get("mass_g")
+        mass_value = float(mass_prop.value) if mass_prop is not None and mass_prop.value is not None else None
+        updated_state = set_mission_component_mass(updated_state, "cameras", mass_value)
+        power_prop = spec.properties.get("power_w")
+        power_value = float(power_prop.value) if power_prop is not None and power_prop.value is not None else None
+        updated_state = set_mission_component_power(updated_state, "cameras", power_value)
+        self.workspace_manager.save_state(updated_state)
+
+        cleared = self.state_manager.get_runtime_session().model_copy(
+            update={"camera_suggestions": []}
+        )
+        self.state_manager.set_runtime_session(cleared)
+
+        identity_bits = [b for b in (suggestion.get("manufacturer"), suggestion.get("model")) if b]
+        identity = " ".join(identity_bits) if identity_bits else suggestion.get("name", "cameras")
+        saved_msg = f"Cámara elegida: {identity}."
+
+        components = updated_state.design_properties.components
+        still_missing = [
+            k for k in expected_keys
+            if components.get(k) is None or components[k].completeness == "low"
+        ]
+        if not still_missing:
+            self._set_pending_next_block()
+            result: dict[str, Any] = {
+                "status": "ok",
+                "action": "component_description_saved",
+                "message": saved_msg,
+            }
+            return self._append_arch_progress_hint(result)
+
+        follow_up = self._component_prompt_for_first_missing(still_missing)
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": f"{saved_msg} {follow_up}",
+        }
+
+    def _offer_component_vtx_catalog(
+        self, session: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """First `library/vtx` seed (`B1-mission-vtx-identity`): catalog
+        list for the video_link singleton wizard (``expected_keys ==
+        ["vtx"]``, first-time acquisition) and IDLE `cambiar vtx` rebind
+        alike — same offer either way. Suggestions come only from
+        ``build_vtx_catalog_suggestions`` (``list_vtx()``, no ranking).
+        Clears every peer suggestion list (★4).
+        """
+        from jarvis.core.vtx_catalog_assist import (
+            build_vtx_catalog_suggestions,
+            format_vtx_catalog_suggestions,
+        )
+
+        suggestions = build_vtx_catalog_suggestions()
+        updated = session.model_copy(update={
+            "vtx_suggestions": suggestions,
+            "motor_suggestions": [],
+            "propeller_suggestions": [],
+            "battery_suggestions": [],
+            "frame_suggestions": [],
+            "kit_hardware_suggestions": [],
+            "esc_suggestions": [],
+            "flight_controller_suggestions": [],
+            "sensor_suggestions": [],
+            "camera_suggestions": [],
+        })
+        self.state_manager.set_runtime_session(updated)
+        return {
+            "status": "interactive",
+            "action": "component_description_prompt",
+            "message": format_vtx_catalog_suggestions(suggestions),
+            "vtx_suggestions": suggestions,
+        }
+
+    def _apply_component_vtx_catalog_pick(
+        self, suggestion: Any, expected_keys: list[str]
+    ) -> dict[str, Any]:
+        """First `library/vtx` seed (`B1-mission-vtx-identity` locks
+        #9/#10/#11): bind a catalog pick with ``base=`` the live VTX spec
+        so ``declared_box_pose`` / ``mounted_on`` survive (ESC/camera-
+        shaped, §0.2 fork), then mirror the bound ``mass_g`` into
+        ``mission_payload_mass_kg`` via ``set_mission_component_mass`` —
+        projecting ``properties.mass_g`` alone is not enough (lock #11).
+        Never mirrors ``power_w`` — a VTX bind never projects it (lock #12).
+        """
+        from jarvis.core.catalog_bind import bind_vtx_from_catalog
+        from jarvis.core.component_writers import set_mission_component_mass
+
+        try:
+            project_state = self.state_manager.load_active_project(self.workspace_manager)
+        except FileNotFoundError:
+            return {
+                "status": "error",
+                "action": "component_description_prompt",
+                "message": "No hay proyecto activo. Crea uno primero.",
+            }
+        existing = project_state.design_properties.components.get("vtx")
+        spec = bind_vtx_from_catalog(suggestion["name"], base=existing)
+        updated_state = set_control_component(project_state, spec)
+        mass_prop = spec.properties.get("mass_g")
+        mass_value = float(mass_prop.value) if mass_prop is not None and mass_prop.value is not None else None
+        updated_state = set_mission_component_mass(updated_state, "vtx", mass_value)
+        self.workspace_manager.save_state(updated_state)
+
+        cleared = self.state_manager.get_runtime_session().model_copy(
+            update={"vtx_suggestions": []}
+        )
+        self.state_manager.set_runtime_session(cleared)
+
+        identity_bits = [b for b in (suggestion.get("manufacturer"), suggestion.get("model")) if b]
+        identity = " ".join(identity_bits) if identity_bits else suggestion.get("name", "vtx")
+        saved_msg = f"VTX elegido: {identity}."
+
+        components = updated_state.design_properties.components
+        still_missing = [
+            k for k in expected_keys
+            if components.get(k) is None or components[k].completeness == "low"
+        ]
+        if not still_missing:
+            self._set_pending_next_block()
+            result: dict[str, Any] = {
+                "status": "ok",
+                "action": "component_description_saved",
+                "message": saved_msg,
+            }
+            return self._append_arch_progress_hint(result)
+
+        follow_up = self._component_prompt_for_first_missing(still_missing)
+        return {
+            "status": "ok",
+            "action": "component_description_saved",
+            "message": f"{saved_msg} {follow_up}",
+        }
+
     def _control_identity_peer_clear(self) -> dict[str, list]:
         """Clear every numbered suggestion list when offering a control identity pick."""
         return {
@@ -4726,6 +5044,8 @@ class JarvisOrchestrator:
             "esc_suggestions": [],
             "flight_controller_suggestions": [],
             "sensor_suggestions": [],
+            "camera_suggestions": [],
+            "vtx_suggestions": [],
         }
 
     def _offer_flight_controller_identity_catalog(
@@ -5181,6 +5501,51 @@ class JarvisOrchestrator:
                     return self._apply_control_identity_catalog_pick(
                         picked, expected_keys, family="sensors"
                     )
+
+        # First `library/cameras` seed (`B1-library-cameras-seed` lock #10):
+        # head-key singleton gate, same shape as flight_controller/sensors
+        # above — "perception" is already a singleton block (["cameras"]),
+        # so this covers first-time acquisition AND the `cambiar cámara`
+        # reopen (idle rebind sets pending_missing_params=["cameras"]).
+        # ESC-shaped pick: apply calls bind_camera_from_catalog, never the
+        # FC/sensors free-text-only path.
+        if expected_keys and expected_keys[0] == "cameras":
+            from jarvis.core.camera_catalog_assist import (
+                is_help_choose_phrase as _camera_help,
+                match_suggestion_by_input as _camera_match,
+            )
+
+            camera_wants = _wants_catalog_help(gate_components.get("cameras")) or _camera_help(
+                user_input
+            )
+            if camera_wants and _camera_help(user_input):
+                return self._offer_component_camera_catalog(session, expected_keys)
+            if session.camera_suggestions:
+                picked = _camera_match(user_input, session.camera_suggestions)
+                if picked is not None:
+                    return self._apply_component_camera_catalog_pick(picked, expected_keys)
+
+        # First `library/vtx` seed (`B1-mission-vtx-identity` lock #10):
+        # head-key singleton gate, same shape as cameras above —
+        # "video_link" is a singleton block (["vtx"]), so this covers
+        # first-time acquisition AND the `cambiar vtx` reopen. ESC/camera-
+        # shaped pick: apply calls bind_vtx_from_catalog, never a free-
+        # text-only path.
+        if expected_keys and expected_keys[0] == "vtx":
+            from jarvis.core.vtx_catalog_assist import (
+                is_help_choose_phrase as _vtx_help,
+                match_suggestion_by_input as _vtx_match,
+            )
+
+            vtx_wants = _wants_catalog_help(gate_components.get("vtx")) or _vtx_help(
+                user_input
+            )
+            if vtx_wants and _vtx_help(user_input):
+                return self._offer_component_vtx_catalog(session, expected_keys)
+            if session.vtx_suggestions:
+                picked = _vtx_match(user_input, session.vtx_suggestions)
+                if picked is not None:
+                    return self._apply_component_vtx_catalog_pick(picked, expected_keys)
 
         # ── Affirmative: user confirmed — emit context-specific prompt ────────
         if self._is_affirmative(user_input):
@@ -6870,6 +7235,7 @@ class JarvisOrchestrator:
                 "memory": None,
                 "last_mutation": None,
                 "mutation_mode": None,
+                "parsed_constraints": None,
             }
 
         return {
@@ -6882,6 +7248,13 @@ class JarvisOrchestrator:
             "memory": project_state.memory.model_dump(),
             "last_mutation": project_state.latest_results.get("mutation"),
             "mutation_mode": (project_state.latest_results.get("mutation") or {}).get("mode"),
+            # B1-mission-continuity-mount-endurance (lock #7): expose the
+            # ALREADY-COMPUTED `ProjectState.parsed_constraints` (derived by
+            # its own model_validator from `current_parameters["restrictions"]`
+            # via `_parse_constraints`/`_AUTONOMY_CONSTRAINT_RE` in
+            # state_schema.py) — never a second regex. ReasoningLayer reads
+            # `parsed_constraints.get("autonomy_min")` directly.
+            "parsed_constraints": project_state.parsed_constraints,
         }
 
     def _resolve_analyze_type(self, user_input: str) -> str:

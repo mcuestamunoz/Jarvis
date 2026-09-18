@@ -34,6 +34,12 @@ _SUBJECT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("propellers", re.compile(r"\b(?:helices|helice|propellers|propeller)\b")),
     ("flight_controller", re.compile(r"\b(?:fc|flight\s*controller|controladora|pixhawk)\b")),
     ("sensors", re.compile(r"\b(?:gps|sensores|sensor)\b")),
+    # First `library/cameras` seed (`B1-library-cameras-seed` lock #12):
+    # "actualiza la cámara" / "actualiza la camara" must succeed when bound.
+    ("cameras", re.compile(r"\b(?:camaras|camara|cameras|camera)\b")),
+    # First `library/vtx` seed (`B1-mission-vtx-identity` lock #13):
+    # "actualiza el vtx" must succeed when bound.
+    ("vtx", re.compile(r"\bvtx\b")),
 )
 
 

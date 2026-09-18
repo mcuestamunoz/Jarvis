@@ -537,6 +537,195 @@ def bind_sensor_from_catalog(
     )
 
 
+_CAMERA_CATALOG_PROJECTED_KEYS = frozenset({"length_mm", "width_mm", "height_mm", "mass_g", "power_w"})
+
+# Catalog camera power_w B1 (`B1-catalog-camera-power-w` lock #6) — the
+# projected keys that ALSO have a second, independent mission-declare write
+# path with the SAME confidence/source tag ("declared", 0.9) as a catalog
+# projection (mission_mass_declare_assist / mission_power_declare_assist ->
+# set_mission_component_mass / set_mission_component_power). A same-SKU
+# refresh must never clobber a value the user already declared through
+# that second path — unlike L×W×H, which have no competing manual-declare
+# grammar and always re-project catalog truth on refresh.
+_CAMERA_MANUALLY_OVERRIDABLE_KEYS = frozenset({"mass_g", "power_w"})
+
+
+def bind_camera_from_catalog(
+    sku: str,
+    *,
+    library: ComponentLibrary | None = None,
+    base: ComponentSpec | None = None,
+) -> ComponentSpec:
+    """First `library/cameras` seed (`B1-library-cameras-seed`), extended by
+    `B1-catalog-camera-power-w` — project a catalog camera SKU into a
+    ``ComponentSpec`` with ``catalog_ref`` set.
+
+    ESC-shaped (§0.2 fork, locked): pick MUST call this bind, never leave a
+    free-text-only apply with no ``catalog_ref`` (the FC/sensors mistake
+    this Buy exists to not repeat). Projects cited L×W×H (display-only box
+    envelope), ``mass_g``, and — when the row states it — ``power_w``
+    (Engineer-locked P=I×V from the row's own cited mA@V, never parsed from
+    ``source_note`` at load/bind time). Both ``mass_g`` and ``power_w`` feed
+    their respective mission mirrors (``component_writers.set_mission_
+    component_mass``/``set_mission_component_power``) on every successful
+    bind/rebind/refresh; that mirror call is the caller's responsibility
+    (this function only projects the properties), same division of labor
+    ``bind_battery_from_catalog`` already has with the legacy
+    ``battery_mass_kg`` param mirror.
+    """
+    lib = library or default_library
+    spec = lib.get_camera(sku)
+    catalog_ref = CatalogRef(family="cameras", sku=sku)
+    projected: dict[str, PropertyValue] = {}
+    if spec.length_mm is not None:
+        projected["length_mm"] = PropertyValue(
+            value=spec.length_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.width_mm is not None:
+        projected["width_mm"] = PropertyValue(
+            value=spec.width_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.height_mm is not None:
+        projected["height_mm"] = PropertyValue(
+            value=spec.height_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.mass_g is not None:
+        projected["mass_g"] = PropertyValue(
+            value=spec.mass_g, unit="g", confidence=0.9, source="declared"
+        )
+    if spec.power_w is not None:
+        projected["power_w"] = PropertyValue(
+            value=spec.power_w, unit="W", confidence=0.9, source="declared"
+        )
+    if base is not None:
+        # A same-SKU refresh/re-pick must never clobber a manually-declared
+        # mass_g/power_w (see _CAMERA_MANUALLY_OVERRIDABLE_KEYS docstring
+        # above) — catalog values for those two keys only apply on a
+        # genuine first bind or a rebind to a DIFFERENT sku.
+        old_ref = getattr(base, "catalog_ref", None)
+        sku_changed = old_ref is None or old_ref.sku != sku
+        if not sku_changed:
+            base_props = base.properties or {}
+            for key in _CAMERA_MANUALLY_OVERRIDABLE_KEYS:
+                existing = base_props.get(key)
+                if existing is not None and existing.value is not None:
+                    projected.pop(key, None)
+        merged_properties = _merge_base_properties_dropping_stale_catalog_keys(
+            base, sku, projected, _CAMERA_CATALOG_PROJECTED_KEYS
+        )
+        return base.model_copy(update={
+            "name": sku,
+            # aerial.py's own cameras ComponentRule uses component_type=
+            # "perception" (the block name) with suggested_key="cameras" —
+            # matched here so a catalog bind and a free-text declare never
+            # disagree on this component's own type label.
+            "component_type": "perception",
+            "suggested_key": "cameras",
+            "properties": merged_properties,
+            "completeness": "high",
+            "catalog_ref": catalog_ref,
+            "inference_confidence": 0.95,
+            "source": "declared",
+        })
+    return ComponentSpec(
+        name=sku,
+        component_type="perception",
+        suggested_key="cameras",
+        inference_confidence=0.95,
+        completeness="high",
+        source="declared",
+        properties=projected,
+        catalog_ref=catalog_ref,
+    )
+
+
+_VTX_CATALOG_PROJECTED_KEYS = frozenset({"length_mm", "width_mm", "height_mm", "mass_g"})
+
+# First `library/vtx` seed (`B1-mission-vtx-identity` lock #11) — same
+# preserve-manual discipline as cameras' own _CAMERA_MANUALLY_OVERRIDABLE_
+# KEYS, but mass-only: a VTX bind never projects power_w at all (lock #12 —
+# RF milliwatts ≠ electrical DC draw, never converted), so there is no
+# power_w key to ever preserve or clobber here.
+_VTX_MANUALLY_OVERRIDABLE_KEYS = frozenset({"mass_g"})
+
+
+def bind_vtx_from_catalog(
+    sku: str,
+    *,
+    library: ComponentLibrary | None = None,
+    base: ComponentSpec | None = None,
+) -> ComponentSpec:
+    """First `library/vtx` seed (`B1-mission-vtx-identity`) — project a
+    catalog VTX SKU into a ``ComponentSpec`` with ``catalog_ref`` set.
+
+    ESC/camera-shaped (§0.2 fork, locked): pick MUST call this bind, never
+    leave a free-text-only apply with no ``catalog_ref``. Projects cited
+    L×W×H (display-only box envelope) and ``mass_g`` when the row states
+    them. Deliberately never projects ``power_w`` — a VTX's cited spec is
+    RF output in milliwatts (PIT/25/.../800 mW for the Zeus 800), a
+    different physical quantity from the electrical DC draw ``mission_
+    accessory_power_w`` sums; converting one to the other would be
+    inventing a number this Buy explicitly forbids.
+
+    Same-SKU refresh/re-pick never clobbers a manually-declared ``mass_g``
+    (mass-class discipline, mirrors ``bind_camera_from_catalog``) — mirror
+    call (``component_writers.set_mission_component_mass``) is the
+    caller's responsibility, this function only projects the property.
+    """
+    lib = library or default_library
+    spec = lib.get_vtx(sku)
+    catalog_ref = CatalogRef(family="vtx", sku=sku)
+    projected: dict[str, PropertyValue] = {}
+    if spec.length_mm is not None:
+        projected["length_mm"] = PropertyValue(
+            value=spec.length_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.width_mm is not None:
+        projected["width_mm"] = PropertyValue(
+            value=spec.width_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.height_mm is not None:
+        projected["height_mm"] = PropertyValue(
+            value=spec.height_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.mass_g is not None:
+        projected["mass_g"] = PropertyValue(
+            value=spec.mass_g, unit="g", confidence=0.9, source="declared"
+        )
+    if base is not None:
+        old_ref = getattr(base, "catalog_ref", None)
+        sku_changed = old_ref is None or old_ref.sku != sku
+        if not sku_changed:
+            base_props = base.properties or {}
+            for key in _VTX_MANUALLY_OVERRIDABLE_KEYS:
+                existing = base_props.get(key)
+                if existing is not None and existing.value is not None:
+                    projected.pop(key, None)
+        merged_properties = _merge_base_properties_dropping_stale_catalog_keys(
+            base, sku, projected, _VTX_CATALOG_PROJECTED_KEYS
+        )
+        return base.model_copy(update={
+            "name": sku,
+            "component_type": "video_link",
+            "suggested_key": "vtx",
+            "properties": merged_properties,
+            "completeness": "high",
+            "catalog_ref": catalog_ref,
+            "inference_confidence": 0.95,
+            "source": "declared",
+        })
+    return ComponentSpec(
+        name=sku,
+        component_type="video_link",
+        suggested_key="vtx",
+        inference_confidence=0.95,
+        completeness="high",
+        source="declared",
+        properties=projected,
+        catalog_ref=catalog_ref,
+    )
+
+
 _KIT_HARDWARE_CATALOG_PROJECTED_KEYS = frozenset({
     "pin_count", "pitch_mm", "wire_gauge_awg", "color", "pin_config",
 })

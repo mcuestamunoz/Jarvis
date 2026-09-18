@@ -22,15 +22,15 @@ from typing import Literal
 from jarvis.core.motor_catalog_assist import _normalize_help
 
 CatalogRebindKey = Literal[
-    "frame", "motors", "propellers", "battery", "esc", "flight_controller", "sensors",
+    "frame", "motors", "propellers", "battery", "esc", "flight_controller", "sensors", "cameras", "vtx",
 ]
 
 _REBIND_VERB_RE = re.compile(r"\b(?:cambiar|cambia|definir|define|modificar|modifica)\b")
 _HELP_CHOOSE_SOFT_RE = re.compile(r"\bayudame\b.*\b(?:elegir|escoger)\b")
 
 # Priority when multiple nouns appear (pathological): frame > motors >
-# propellers > battery > esc > flight_controller > sensors. Normal user
-# phrases name exactly one family.
+# propellers > battery > esc > flight_controller > sensors > cameras. Normal
+# user phrases name exactly one family.
 _FAMILY_NOUN_PATTERNS: tuple[tuple[CatalogRebindKey, re.Pattern[str]], ...] = (
     ("frame", re.compile(r"\b(?:frame|chasis)\b")),
     ("motors", re.compile(r"\b(?:motores|motor)\b")),
@@ -39,6 +39,17 @@ _FAMILY_NOUN_PATTERNS: tuple[tuple[CatalogRebindKey, re.Pattern[str]], ...] = (
     ("esc", re.compile(r"\besc\b")),
     ("flight_controller", re.compile(r"\b(?:fc|flight\s*controller|controladora|pixhawk)\b")),
     ("sensors", re.compile(r"\b(?:gps|sensores|sensor)\b")),
+    # First `library/cameras` seed (`B1-library-cameras-seed` lock #11):
+    # "cambiar cámara" / "cambiar camara" / "cambiar camera" — same
+    # accent-insensitive vocabulary CAMERA_KEYWORDS/mounted_on_declare_
+    # assist already use for this subject, minus the broader "fpv"/"vision"
+    # aliases (those are identity-declare-only, never a rebind trigger).
+    ("cameras", re.compile(r"\b(?:camaras|camara|cameras|camera)\b")),
+    # First `library/vtx` seed (`B1-mission-vtx-identity` lock #13):
+    # "cambiar vtx" / "cambiar el vtx" — narrow, matching only the locked
+    # examples (never the broader multi-word VTX_KEYWORDS identity set,
+    # same discipline every other family's own rebind noun already uses).
+    ("vtx", re.compile(r"\bvtx\b")),
 )
 
 # Tokens stripped when checking that the phrase is a pure reopen request
@@ -48,7 +59,8 @@ _PURE_PHRASE_STRIP_RE = re.compile(
     r"el|la|los|las|de|del|un|una|al|a|"
     r"frame|chasis|motores|motor|helices|helice|propellers|propeller|"
     r"baterias|bateria|batteries|battery|esc|"
-    r"fc|flight|controller|controladora|pixhawk|gps|sensores|sensor)\b"
+    r"fc|flight|controller|controladora|pixhawk|gps|sensores|sensor|"
+    r"camaras|camara|cameras|camera|vtx)\b"
 )
 
 

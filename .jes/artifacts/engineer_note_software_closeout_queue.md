@@ -16,6 +16,6 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](engineer_note_fase_
 
 | # | ★ | Estado |
 |---|---|---|
-| **H1** | `B1-system-definition-b-routing` | Review PASS · await smoke |
+| **H1** | `B1-system-definition-b-routing` | **CLOSED** |
 | **P1** | `B1-mission-mass-energy` | **CLOSED** |
-| **M2–M7** | mount/endurance · power_w · VTX · P2 · guide · gate→Fase C | COLA |
+| **M2–M7** | mount/endurance · power_w · VTX · P2 · guide · gate→Fase C | COLA (M2 AHORA) |

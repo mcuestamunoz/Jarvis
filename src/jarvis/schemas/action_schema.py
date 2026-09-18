@@ -149,7 +149,7 @@ class CatalogRef(BaseModel):
     # reader of these components).
     family: Literal[
         "motor", "battery", "propeller", "esc", "frame", "kit_hardware",
-        "flight_controller", "sensors",
+        "flight_controller", "sensors", "cameras", "vtx",
     ]
     sku: str
 
@@ -364,6 +364,13 @@ class InteractiveSessionState(BaseModel):
     # tier — not Class A library SKUs; numbered picks map to declare phrases.
     flight_controller_suggestions: list[dict] = Field(default_factory=list)
     sensor_suggestions: list[dict] = Field(default_factory=list)
+    # First `library/cameras` seed (`B1-library-cameras-seed`): same
+    # runtime-only tier as esc_suggestions — ESC-shaped pick (bind_camera_
+    # from_catalog on apply), not the FC/GPS dim-table shape.
+    camera_suggestions: list[dict] = Field(default_factory=list)
+    # First `library/vtx` seed (`B1-mission-vtx-identity`): same tier/shape
+    # as camera_suggestions.
+    vtx_suggestions: list[dict] = Field(default_factory=list)
     pending_param_definitions: list[str] = Field(default_factory=list)
     collected_params: dict[str, float] = Field(default_factory=dict)
     param_definition_reason: str = ""

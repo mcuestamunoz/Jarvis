@@ -6,11 +6,11 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.4.1`**. Suite viva **3068** · UI **105**.  
+> **Base:** tag **`v0.4.1`**. Suite viva **3134** · UI **105**.  
 > **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
-> **PRIORIDAD AHORA:** **`B1-system-definition-b-routing`** review **PASS** · await smoke ([review](../.jes/artifacts/implementation_review_system_definition_b_routing_b1.md)). Luego Fase M cola ([fase → control gate](../.jes/artifacts/engineer_note_fase_m_mission_craft_to_control_gate.md)): **M2** mount+endurance Continuity · **M3** `power_w` · **M4** VTX opt · **M7** close → Fase C control. Suite **3068**. Package **`0.4.1`** (no bump; valorar `0.4.2` en M7). Physical/lab parked. Guide: [`USER_GUIDE_CRAFT_MONTAGE.md`](USER_GUIDE_CRAFT_MONTAGE.md).  
+> **PRIORIDAD AHORA:** **M7** gate (Fase M → Fase C). M4 VTX **ACCEPT CLOSED** — [review](../.jes/artifacts/implementation_review_mission_vtx_identity_b1.md). Suite **3165**. Package **`0.4.1`**.  
 
-> **Parked (not software):** plate-box bag · Path N · HD-* · camera catalog physics · axial prop↔motor geometry.  
+> **Parked (not software):** plate-box bag · Path N · HD-* · more camera SKUs / radio catalog W · axial prop↔motor geometry.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -29,18 +29,21 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
-| **H1** | **`B1-system-definition-b-routing`** | **Review PASS** | B owns turns vs intercept | [review](../.jes/artifacts/implementation_review_system_definition_b_routing_b1.md) · await smoke |
+| **H1** | **`B1-system-definition-b-routing`** | **CLOSED** | B owns turns vs intercept | [review](../.jes/artifacts/implementation_review_system_definition_b_routing_b1.md) · smoke ACCEPT |
 | **P1** | **`B1-mission-mass-energy`** | **CLOSED** | `mass_g` → AUW + ladder mass | [review](../.jes/artifacts/implementation_review_mission_mass_energy_b1.md) · smoke ACCEPT |
-| **M2** | **`B1-mission-continuity-mount-endurance`** | **COLA** | Continuity: mount cámara/radio/FC + autonomía objetivo | Draft IC after H1 CLOSED |
-| **M3** | **`B1-mission-power-w`** | **COLA** | `power_w` misión → energía (sin claim vuelo) | After M2 or ★ parallel |
-| **M4** | VTX identity | **COLA / opt** | Identity vídeo enlace o checklist | Engineer ★ |
-| **M5** | `payload_kg` P2 | **COLA / if needed** | Displace vs P1 warn | Only if P1 hurts |
-| **M6** | Guide polish | **COLA soft** | Stale hélices line; mount one-pager | Anytime |
-| **M7** | Close Fase M → Fase C | **GATE** | Handoff a control de vuelo / enlace | M2 mínimo |
+| **M1.5** | **`B1-library-cameras-seed`** | **CLOSED** | Phoenix 2 + fluid catalog path | [review](../.jes/artifacts/implementation_review_library_cameras_seed_b1.md) · smoke ACCEPT WITH NOTES |
+| **M2** | **`B1-mission-continuity-mount-endurance`** | **CLOSED** | Continuity: mount cámara/radio + autonomía objetivo | [review](../.jes/artifacts/implementation_review_mission_continuity_mount_endurance_b1.md) · smoke ACCEPT WITH NOTES |
+| **M2.1** | **`B1-bom-sku-resolved-cameras`** | **CLOSED** | Display: bound cameras/FC/sensors show `[sku]` | smoke ACCEPT · `[runcam_phoenix_2]` |
+| **M3** | **`B1-mission-power-w`** | **CLOSED** | `power_w` misión → energía (sin claim vuelo) | [review](../.jes/artifacts/implementation_review_mission_power_w_b1.md) · smoke ACCEPT WITH NOTES (1 W invisible at 0.1 min CLI round) |
+| **M3.1** | **`B1-catalog-camera-power-w`** | **CLOSED** | Phoenix cite I×V → JSON `power_w=1.0` + bind/mirror | [review](../.jes/artifacts/implementation_review_catalog_camera_power_w_b1.md) · smoke ACCEPT |
+| **M4** | **`B1-mission-vtx-identity`** | **✅ CLOSED** | Zeus 800 · smoke PASS · mass yes · RF≠DC W | [review ACCEPT CLOSED](../.jes/artifacts/implementation_review_mission_vtx_identity_b1.md) · suite **3165** |
+| **M5** | `payload_kg` P2 | **PARK / if needed** | Displace vs P1 warn | Solo si P1 duele |
+| **M6** | Guide polish | **CLOSED** | USER_GUIDE stale cleanup | Engineer: Claude paralelo 2026-09-18 |
+| **M7** | Close Fase M → Fase C | **PRIORIDAD / GATE** | Handoff control de vuelo · tag `0.4.2` | Mínimo craft DONE — **AHORA** |
 
-### 📋 COLA — Fase C (después de M7 · no AHORA)
+### 📋 COLA — Fase C (después de M7 · diseño software de equipo)
 
-Firmware FC · MAVLink/GCS · bind ELRS · PID/tuning · mission planner · app piloto — **fuera SoT** hasta ★ Fase C. Ver nota fase §Fuera.
+Firmware FC · MAVLink/GCS · bind ELRS · PID/tuning · mission planner · app piloto — **fuera SoT** hasta M7. Distancia: [nota](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 
 ### 📋 COLA — Physical / schema (parked)
 
@@ -48,7 +51,7 @@ Firmware FC · MAVLink/GCS · bind ELRS · PID/tuning · mission planner · app 
 |---|---|---|---|---|
 | — | **`B1-plate-box`** | **Await bag** | L×W medida/citada | Caliper / cite |
 | — | Path N | **B0 HOLD** | Disk origin | No reabrir |
-| — | Cited `library/cameras` | Park | Physics bags | Engineer |
+| — | Cited `library/cameras` physics bags | Park | Extra SKUs / lab dims beyond Phoenix 2 seed | Engineer |
 | — | HD-005 / HD-* | Park | Banco OP exacto | Never AHORA without lab |
 
 ### ✅ Cerrado este arco (craft montage + mission gate 2026-09-13→16) — no reabrir
@@ -2786,8 +2789,8 @@ elif block_type == "composite":
 
 > Solo registro de existencia. No implementar, no diseñar hasta que un caso de uso real lo justifique.
 
-- `perception` → `cameras` — **identity shipped** (`B1-mission-payload-identity`); lidar key / physics / `library/cameras` = deuda
-- `communication` → `radio_module` — **identity shipped**; protocol/mass physics = deuda
+- `perception` → `cameras` — **identity + catalog seed shipped** (`B1-mission-payload-identity` · `B1-library-cameras-seed` Phoenix 2); lidar key / `power_w` physics = deuda (M3+)
+- `communication` → `radio_module` — **identity shipped**; protocol/mass physics / radio catalog = deuda
 - `manipulation` → `arm` — sin ComponentRule
 - `payload` → `payload_bay` — sin ComponentRule
 - `actuation` / `transmission` — parcialmente cubiertos por wizard param-driven terrestre; sin component spec

@@ -42,12 +42,14 @@ from typing import Any
 
 from jarvis.core.catalog_bind import (
     bind_battery_from_catalog,
+    bind_camera_from_catalog,
     bind_esc_from_catalog,
     bind_flight_controller_from_catalog,
     bind_frame_from_catalog,
     bind_motor_from_catalog,
     bind_propeller_from_catalog,
     bind_sensor_from_catalog,
+    bind_vtx_from_catalog,
 )
 from jarvis.domains.aerial import _frame_completeness, _structure_part_completeness, is_frame_plate_key
 from jarvis.knowledge.library import _OP_VOLTAGE_EPSILON_V, default_library, resolve_operating_point
@@ -840,6 +842,13 @@ _REFRESH_BINDERS: dict[str, Any] = {
     # just completing the existing refresh dispatch table).
     "flight_controller": bind_flight_controller_from_catalog,
     "sensors": bind_sensor_from_catalog,
+    # First `library/cameras` seed (`B1-library-cameras-seed` lock #12):
+    # `actualiza la cámara` must succeed when bound — this Buy wires the
+    # dispatch entry in the SAME turn it adds the bind (no deferred half-land).
+    "cameras": bind_camera_from_catalog,
+    # First `library/vtx` seed (`B1-mission-vtx-identity` lock #13):
+    # `actualiza el vtx` must succeed when bound, same discipline.
+    "vtx": bind_vtx_from_catalog,
 }
 
 
@@ -893,7 +902,34 @@ def refresh_component_from_catalog(project_state: Any, component_key: str) -> An
 
     updated_components = {**components, component_key: refreshed}
     updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
-    return project_state.model_copy(update={"design_properties": updated_dp})
+    updated_state = project_state.model_copy(update={"design_properties": updated_dp})
+
+    # First `library/cameras` seed (`B1-library-cameras-seed` lock #8): a
+    # refresh that re-projects a mission-mass key's mass_g must re-mirror
+    # ``mission_payload_mass_kg`` too — the catalog seed is the only place
+    # that number could have changed, and no other write path in this
+    # function touches current_parameters. Widened to `vtx` by
+    # `B1-mission-vtx-identity` lock #11 — mass-only for that key (see
+    # _MISSION_POWER_KEYS below: vtx is never in it, so the power mirror
+    # block never fires for it — a VTX bind never carries power_w at all).
+    if component_key in _MISSION_MASS_KEYS:
+        mass_prop = (refreshed.properties or {}).get("mass_g")
+        mass_value = float(mass_prop.value) if mass_prop is not None and mass_prop.value is not None else None
+        updated_state = set_mission_component_mass(updated_state, component_key, mass_value)
+
+    # Catalog camera power_w (`B1-catalog-camera-power-w` lock #7): same
+    # re-mirror discipline for ``mission_accessory_power_w`` — a refresh
+    # that re-projects (or preserves, per bind_camera_from_catalog's own
+    # manual-override discipline) power_w must keep the mirror in sync.
+    # Deliberately a SEPARATE key set from _MISSION_MASS_KEYS (not shared)
+    # since B1-mission-vtx-identity widened mass to include `vtx` without
+    # widening power — a VTX bind never projects power_w (RF mW ≠ DC W).
+    if component_key in _MISSION_POWER_KEYS:
+        power_prop = (refreshed.properties or {}).get("power_w")
+        power_value = float(power_prop.value) if power_prop is not None and power_prop.value is not None else None
+        updated_state = set_mission_component_power(updated_state, component_key, power_value)
+
+    return updated_state
 
 
 def diff_refreshed_properties(old_spec: Any, new_spec: Any) -> dict[str, tuple[Any, Any]]:
@@ -929,12 +965,20 @@ def set_control_component(project_state: Any, spec: Any) -> Any:
     return project_state.model_copy(update={"design_properties": updated_dp})
 
 
-_MISSION_MASS_KEYS: tuple[str, ...] = ("cameras", "radio_module")
+_MISSION_MASS_KEYS: tuple[str, ...] = ("cameras", "radio_module", "vtx")
+
+# First `library/vtx` seed (`B1-mission-vtx-identity` lock #12): power stays
+# a SEPARATE, narrower key set — `vtx` is intentionally NEVER in it. A VTX's
+# cited spec is RF output in milliwatts, a different physical quantity from
+# the electrical DC draw this mirror sums; there is no honest power_w to
+# ever declare or mirror for `vtx` this Buy.
+_MISSION_POWER_KEYS: tuple[str, ...] = ("cameras", "radio_module")
 
 
 def set_mission_component_mass(project_state: Any, component_key: str, mass_g: float | None) -> Any:
-    """B1-mission-mass-energy — único punto de escritura para ``mass_g`` en
-    los componentes de misión (``cameras``/``radio_module``) y su mirror
+    """B1-mission-mass-energy, widened by B1-mission-vtx-identity — único
+    punto de escritura para ``mass_g`` en los componentes de misión
+    (``cameras``/``radio_module``/``vtx``) y su mirror
     ``current_parameters["mission_payload_mass_kg"]``.
 
     User/datasheet-DECLARED only — never invents mass from a model string
@@ -981,6 +1025,66 @@ def set_mission_component_mass(project_state: Any, component_key: str, mass_g: f
 
     updated_params = dict(project_state.current_parameters or {})
     updated_params["mission_payload_mass_kg"] = round(total_g / 1000.0, 4)
+
+    return project_state.model_copy(update={
+        "design_properties": updated_dp,
+        "current_parameters": updated_params,
+    })
+
+
+def set_mission_component_power(project_state: Any, component_key: str, power_w: float | None) -> Any:
+    """B1-mission-power-w — único punto de escritura para ``power_w`` en
+    los componentes de misión (``cameras``/``radio_module`` — never
+    ``vtx``, see ``_MISSION_POWER_KEYS``) y su mirror
+    ``current_parameters["mission_accessory_power_w"]``.
+
+    Same shape/discipline as ``set_mission_component_mass``: user/datasheet
+    -DECLARED only — never invents watts from a model string or from the
+    Phoenix 2 citation's ``200mA@5V`` note (that stays a citation until the
+    user declares real watts, or a future catalog row carries the field).
+    Requires *component_key* to already exist (fail-closed, ``ValueError``
+    otherwise) — never auto-creates identity. Declaring power alone never
+    bumps ``completeness`` (lock #9) — this writer, like the mass one,
+    only ever touches ``properties``/the mirror.
+
+    ``power_w=None`` clears the field. The mirror is always the SUM of
+    whatever ``power_w`` is currently declared across BOTH mission keys,
+    recomputed from scratch on every write — never an incremental add/
+    subtract that could drift from the canonical per-component values.
+
+    Returns the updated ProjectState (not persisted — caller must save).
+    """
+    if component_key not in _MISSION_POWER_KEYS:
+        raise ValueError(
+            f"'{component_key}' no es una clave de potencia de misión válida "
+            f"(solo {'/'.join(_MISSION_POWER_KEYS)})."
+        )
+    components = project_state.design_properties.components
+    spec = components.get(component_key)
+    if spec is None:
+        raise ValueError(f"'{component_key}' no declarado — declara primero la identidad.")
+
+    props = dict(spec.properties or {})
+    if power_w is None:
+        props.pop("power_w", None)
+    else:
+        props["power_w"] = PropertyValue(value=power_w, unit="W", confidence=0.9, source="declared")
+    updated_spec = spec.model_copy(update={"properties": props})
+
+    updated_components = {**components, component_key: updated_spec}
+    updated_dp = project_state.design_properties.model_copy(update={"components": updated_components})
+
+    total_w = 0.0
+    for key in _MISSION_POWER_KEYS:
+        candidate = updated_components.get(key)
+        if candidate is None:
+            continue
+        prop = (candidate.properties or {}).get("power_w")
+        if prop is not None and prop.value is not None:
+            total_w += float(prop.value)
+
+    updated_params = dict(project_state.current_parameters or {})
+    updated_params["mission_accessory_power_w"] = round(total_w, 4)
 
     return project_state.model_copy(update={
         "design_properties": updated_dp,

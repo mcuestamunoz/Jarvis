@@ -20,7 +20,7 @@ from jarvis.core.project_continuity import build_project_continuity
 from jarvis.core.reasoning_layer import ReasoningLayer, mission_intent_active
 
 
-def _context(objective, components, *, restrictions="no", margin=2.0):
+def _context(objective, components, *, restrictions="no", margin=2.0, parsed_constraints=None):
     return {
         "objective": objective,
         "current_parameters": {"restrictions": restrictions},
@@ -31,6 +31,7 @@ def _context(objective, components, *, restrictions="no", margin=2.0):
         "memory": {},
         "last_mutation": None,
         "mutation_mode": None,
+        "parsed_constraints": parsed_constraints if parsed_constraints is not None else {},
     }
 
 
@@ -123,13 +124,31 @@ def test_t5_both_medium_plus_softens_to_margin_review_5d():
     step BEFORE the soft margin fallback — both identity AND mass must be
     present to reach 'Revisar margen...' now (see
     test_continuity_mission_mass_energy_b1.py for the mass-declare steps
-    themselves)."""
+    themselves). B1-mission-continuity-mount-endurance extended it further
+    with mount + autonomy-target steps; this fixture has no frame/plate
+    component at all so the mount step has nothing to suggest a target for
+    (falls through), and needs parsed_constraints["autonomy_min"] to clear
+    the autonomy-target step. B1-mission-power-w added a power-declare
+    step after that — both components carry power_w here so it clears too.
+    B1-mission-vtx-identity added a VTX-declare step after that — vtx is
+    declared here so it clears too, reaching soft margin."""
     label, action_type = _top_suggestion(_context(
         "dron de vigilancia",
         {
-            "cameras": {"completeness": "medium", "properties": {"model": {"value": "runcam"}, "mass_g": {"value": 28.0}}},
-            "radio_module": {"completeness": "high", "properties": {"model": {"value": "elrs"}, "mass_g": {"value": 3.0}}},
+            "cameras": {
+                "completeness": "medium",
+                "properties": {"model": {"value": "runcam"}, "mass_g": {"value": 28.0}, "power_w": {"value": 1.0}},
+            },
+            "radio_module": {
+                "completeness": "high",
+                "properties": {"model": {"value": "elrs"}, "mass_g": {"value": 3.0}, "power_w": {"value": 0.5}},
+            },
+            "vtx": {
+                "completeness": "high",
+                "properties": {"model": {"value": "hglrc"}, "mass_g": {"value": 4.8}},
+            },
         },
+        parsed_constraints={"autonomy_min": 8.0},
     ))
     assert label == "Revisar margen vs carga de misión"
     assert action_type == "mission_margin_review"
@@ -174,14 +193,32 @@ def test_t7_continuity_vigilancia_shaped_closed_design_never_shows_increase_payl
     'closed design' shape (architecture 4/4, sim PASS, nothing incomplete/
     missing) mirroring the real dron-de-vigilancia-doméstico live project:
     objective names vigilancia, cameras + radio_module both declared at
-    medium+ completeness, high thrust margin."""
+    medium+ completeness, high thrust margin. No frame/plate component is
+    declared so the B1-mission-continuity-mount-endurance mount step has
+    no target to suggest (falls through); parsed_constraints carries
+    autonomy_min so the autonomy-target step also clears; both mission
+    components carry power_w (B1-mission-power-w's own ladder step), and
+    vtx is declared (B1-mission-vtx-identity's own ladder step), so both
+    clear too, reaching soft margin exactly as this test originally
+    intended."""
     context = _context(
         "dron de vigilancia doméstico",
         {
-            "cameras": {"completeness": "medium", "properties": {"model": {"value": "runcam"}, "mass_g": {"value": 28.0}}},
-            "radio_module": {"completeness": "medium", "properties": {"model": {"value": "elrs"}, "mass_g": {"value": 3.0}}},
+            "cameras": {
+                "completeness": "medium",
+                "properties": {"model": {"value": "runcam"}, "mass_g": {"value": 28.0}, "power_w": {"value": 1.0}},
+            },
+            "radio_module": {
+                "completeness": "medium",
+                "properties": {"model": {"value": "elrs"}, "mass_g": {"value": 3.0}, "power_w": {"value": 0.5}},
+            },
+            "vtx": {
+                "completeness": "high",
+                "properties": {"model": {"value": "hglrc"}, "mass_g": {"value": 4.8}},
+            },
         },
         margin=3.6196,
+        parsed_constraints={"autonomy_min": 8.0},
     )
     reasoning = ReasoningLayer().build(context)
     top = reasoning.suggested_actions[0]

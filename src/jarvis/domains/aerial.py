@@ -879,6 +879,79 @@ def _radio_completeness(props: dict) -> tuple[str, list[str]]:
     return "medium", []
 
 
+# ── Mission payload identity: VTX (video link) ────────────────────────────────
+# B1-mission-vtx-identity (2026-09-18): identity-only, mirrors camera/radio
+# above. VTX ≠ radio_module (§0.2 fork, locked): a radio (ELRS/Crossfire) is
+# the CONTROL link; a VTX (Zeus 800) is the VIDEO link — deliberately
+# separate keys/blocks, never folded together. Named (not inline) so
+# catalog_rebind_assist/catalog_refresh_assist can reuse the exact same
+# vocabulary — never a second, possibly-diverging keyword list.
+#
+# Bare "video"/"vídeo" deliberately EXCLUDED from this identity keyword set
+# (unlike the architecture BLOCK_ALIASES entry, a lower-ambiguity context
+# where the user is explicitly naming a block to add) — too generic a word
+# in general free text (e.g. "grabar video") to safely gate a component
+# rule. Any "fpv"-containing phrase ALSO EXCLUDED — ComponentRuleRegistry
+# is first-match-wins by registration order (component_rules.py), and the
+# cameras rule (registered before this one) already carries bare "fpv" as
+# one of its own CAMERA_KEYWORDS; a compound phrase like "fpv vtx" would
+# still resolve to cameras regardless of what VTX-specific words this
+# tuple also lists, so no "fpv"-containing alias here can ever actually be
+# reached — listing one would be a dead, misleading promise, not a real
+# path (caught by test_t9_bare_fpv_still_resolves_camera_not_vtx).
+VTX_KEYWORDS: tuple[str, ...] = (
+    "vtx", "video link", "transmisor de video", "transmisor de vídeo",
+    "enlace de video", "enlace de vídeo",
+)
+
+# Only the cited brand (HGLRC, `B1-mission-vtx-identity` §0.1) — never
+# invented beyond what this Buy's own seed row sources.
+VTX_MODEL_MAP: dict[str, str] = {
+    "hglrc": "hglrc",
+}
+
+
+def extract_vtx_properties(normalized: str) -> dict[str, PropertyValue]:
+    """Extract a VTX's identity (brand/model) from freeform text.
+
+    Identity-only: sets ``model`` when a recognised brand alias is present.
+    Never parses or invents mm/g — and never derives an electrical
+    ``power_w`` from an RF milliwatt figure a user might type (different
+    physics; out of scope this Buy — see catalog_bind.bind_vtx_from_catalog).
+
+    Examples:
+        "vtx HGLRC" → {model: "hglrc", confidence=0.8}
+        "vtx" (bare) → {} (brand not identified)
+    """
+    props: dict[str, PropertyValue] = {}
+    lower = normalized.lower()
+    found_model: str | None = None
+    found_len = 0
+
+    for alias, canonical in VTX_MODEL_MAP.items():
+        if alias in lower and len(alias) > found_len:
+            found_model = canonical
+            found_len = len(alias)
+
+    if found_model:
+        props["model"] = PropertyValue(
+            value=found_model, unit=None, confidence=0.8, source="declared"
+        )
+    return props
+
+
+def _vtx_completeness(props: dict) -> tuple[str, list[str]]:
+    """Evaluate completeness of VTX identity properties.
+
+    Returns:
+        ("medium", []) — brand/model recognised
+        ("low",    [...])— nothing recognised
+    """
+    if "model" not in props:
+        return "low", ["marca/modelo de VTX (ej: HGLRC)"]
+    return "medium", []
+
+
 # ── Extended identity rules: payload bay ─────────────────────────────────────
 # B1-extended-identity-rules (2026-09-17): identity-only, mirrors cameras/
 # radio. No library/payload catalog exists yet (debt). No mass/volume/mm
@@ -1191,6 +1264,15 @@ aerial_registry = ComponentRuleRegistry([
         property_extractor=extract_radio_properties,
         completeness_evaluator=_radio_completeness,
         missing_field_hints=("Indica el protocolo/marca de radio. Ej: 'radio ELRS'",),
+    ),
+    ComponentRule(
+        keywords=VTX_KEYWORDS,
+        component_type="video_link",
+        suggested_key="vtx",
+        inference_confidence=0.7,
+        property_extractor=extract_vtx_properties,
+        completeness_evaluator=_vtx_completeness,
+        missing_field_hints=("Indica la marca/modelo del VTX. Ej: 'vtx HGLRC'",),
     ),
     ComponentRule(
         keywords=_PAYLOAD_BAY_KEYWORDS,

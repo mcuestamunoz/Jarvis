@@ -62,6 +62,7 @@ class SimulateAction:
                 "memory": project_state.memory.model_dump(),
                 "last_mutation": project_state.latest_results.get("mutation"),
                 "mutation_mode": None,
+                "parsed_constraints": project_state.parsed_constraints,
             },
             suggestions=suggestions_payload,
         )

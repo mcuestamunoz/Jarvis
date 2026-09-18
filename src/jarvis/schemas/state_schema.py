@@ -79,6 +79,17 @@ def _parse_constraints(current_parameters: dict, objective: str | None = None) -
     return result
 
 
+def derive_parsed_constraints(current_parameters: dict, objective: str | None = None) -> dict[str, float]:
+    """Public wrapper over ``_parse_constraints`` — the SAME authority
+    ``ProjectState``'s own model validator uses, exposed for callers that
+    need to recompute constraints against a LOCAL, not-yet-persisted
+    ``current_parameters`` dict (e.g. an iterate action's own
+    ``updated_parameters``, whose ``restrictions`` may differ from the
+    ``project_state`` it was built from). B1-mission-continuity-mount-
+    endurance lock #7 — never a second autonomy/weight regex."""
+    return _parse_constraints(current_parameters, objective)
+
+
 def utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 

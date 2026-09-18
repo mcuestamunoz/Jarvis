@@ -35,9 +35,13 @@
 
 Identity rules · Continuity rewrite · free-text custom removal · version bump · UI · workspace mutate.
 
+## Smoke
+
+**ACCEPT** 2026-09-17 — Engineer closed H1 (routing / `añadir bloques`).
+
 ## Next
 
 ```text
-Engineer → smoke IC §3 (throwaway → B → payload; añadir bloques; manipulador/ruedas/gearbox; listo)
-Cursor   → close on ACCEPT
+H1 CLOSED
+Cursor → ★ draft IC M2 (mount + endurance Continuity)
 ```

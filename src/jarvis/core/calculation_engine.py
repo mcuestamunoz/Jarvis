@@ -224,6 +224,13 @@ class CalculationEngine:
         # nonzero (possible double-count) — this engine never resolves that,
         # it only sums declared facts. Zero when no mission mass declared.
         mission_payload_mass_kg = round(float(parameters.get("mission_payload_mass_kg") or 0.0), 4)
+        # B1-mission-power-w: declared mission accessory draw (cameras/
+        # radio_module power_w, user/datasheet-declared) — component_writers.
+        # set_mission_component_power is the sole writer. Additive to the
+        # autonomy denominator in BOTH the hover and non-hover paths below,
+        # never multiplied by motor count (it's one accessory load, not
+        # per-motor). Zero/absent reproduces today's exact pre-Buy autonomy.
+        mission_accessory_power_w = round(float(parameters.get("mission_accessory_power_w") or 0.0), 4)
 
         total_mass = calculate_total_mass(
             payload_kg,
@@ -349,7 +356,8 @@ class CalculationEngine:
         if hover["hover_applicable"]:
             if hover["motor_hover_power_w"] is not None and battery_capacity_wh is not None:
                 hover_energy_result = calculate_autonomy_min(
-                    float(battery_capacity_wh), hover["motor_hover_power_w"] * motors,
+                    float(battery_capacity_wh),
+                    hover["motor_hover_power_w"] * motors + mission_accessory_power_w,
                 )
                 tool_results.append(hover_energy_result)
                 hover_energy_autonomy_min = hover_energy_result.outputs["autonomy_min"]
@@ -366,7 +374,7 @@ class CalculationEngine:
         else:
             effective_power_w = effective_motor_power_w(parameters)
             if battery_capacity_wh is not None and effective_power_w is not None and motors is not None:
-                total_power_w = effective_power_w * motors
+                total_power_w = effective_power_w * motors + mission_accessory_power_w
                 energy_result = calculate_autonomy_min(float(battery_capacity_wh), total_power_w)
                 tool_results.append(energy_result)
                 autonomy_min = energy_result.outputs["autonomy_min"]

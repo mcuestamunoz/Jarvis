@@ -153,7 +153,7 @@ def test_aerial_registry_propeller_wins_over_motor_when_both_absent():
 
 
 def test_aerial_registry_has_four_rules():
-    assert len(aerial_registry) == 13  # propeller, motor, esc, battery, frame, flight_controller, sensors, cameras, radio_module, payload_bay, arm, gearbox, wheels
+    assert len(aerial_registry) == 14  # propeller, motor, esc, battery, frame, flight_controller, sensors, cameras, radio_module, vtx, payload_bay, arm, gearbox, wheels
 
 
 # ── extract_battery_properties ────────────────────────────────────────────

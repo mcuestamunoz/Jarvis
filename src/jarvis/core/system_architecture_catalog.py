@@ -113,6 +113,7 @@ BLOCK_TYPE: dict[str, str] = {
     "communication": "component",
     "payload":       "component",
     "manipulation":  "component",
+    "video_link":    "component",
 }
 
 # Fallback para bloques custom no registrados: tratar como component-driven.
@@ -173,6 +174,12 @@ BLOCK_TO_COMPONENTS: dict[str, list[str]] = {
     "communication": ["radio_module"],
     "payload":       ["payload_bay"],
     "manipulation":  ["arm"],
+    # B1-mission-vtx-identity (2026-09-18): new block, distinct from
+    # "perception"/"communication" — a VTX is the VIDEO link, never folded
+    # into cameras (perception) or radio_module (communication). "perception"
+    # itself stays ["cameras"] only (lock #4) — no forced VTX stub on a
+    # camera-only project.
+    "video_link":    ["vtx"],
 }
 
 # ── vehicle_type → clave canónica del catálogo ────────────────────────────────
@@ -225,6 +232,18 @@ BLOCK_ALIASES: dict[str, str] = {
     "gearbox":              "transmission",
     "caja de cambios":      "transmission",
     "reductor":             "transmission",
+    # B1-mission-vtx-identity (2026-09-18): "vídeo"/"video" bare are
+    # deliberately included HERE only (never in VTX_KEYWORDS, the
+    # component-identity gate) — this is the explicit "add a block" step,
+    # a lower-ambiguity context than general free text.
+    "vtx":                  "video_link",
+    "video":                "video_link",
+    "vídeo":                "video_link",
+    "enlace de video":      "video_link",
+    "enlace de vídeo":      "video_link",
+    "transmisor de video":  "video_link",
+    "transmisor de vídeo":  "video_link",
+    "fpv vtx":              "video_link",
 }
 
 # ── Bloque → reason code de parameter_requirements ───────────────────────────
@@ -270,10 +289,15 @@ COMPONENT_MIRRORED_PARAMS: frozenset[str] = frozenset({
     # El invariante "user input beats component inference" requiere que no esté bloqueado.
     "propeller_diameter_in",    # canónico: components["propellers"].properties["diameter_in"]
     "propeller_pitch_in",       # canónico: components["propellers"].properties["pitch_in"] (U2)
-    "mission_payload_mass_kg",  # derivado: sum(components[cameras|radio_module].properties["mass_g"])/1000 —
+    "mission_payload_mass_kg",  # derivado: sum(components[cameras|radio_module|vtx].properties["mass_g"])/1000 —
                                  # SOLO vía component_writers.set_mission_component_mass
-                                 # (B1-mission-mass-energy). User/datasheet-declared only,
-                                 # never invented from a model string.
+                                 # (B1-mission-mass-energy; vtx added by
+                                 # B1-mission-vtx-identity). User/datasheet-declared
+                                 # only, never invented from a model string.
+    "mission_accessory_power_w", # derivado: sum(components[cameras|radio_module].properties["power_w"]) —
+                                 # SOLO vía component_writers.set_mission_component_power
+                                 # (B1-mission-power-w). User/datasheet-declared only, never
+                                 # invented from a model string or a citation's mA note.
 })
 
 

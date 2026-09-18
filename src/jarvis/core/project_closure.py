@@ -539,6 +539,20 @@ def _bom_sku_resolved(catalog_ref: dict[str, str] | None) -> bool:
         return default_library.has_frame(sku)  # Structure Catalog Foundation IC-2
     if family == "kit_hardware":
         return default_library.has_kit_hardware(sku)  # Kit SKUs D B1
+    # B1-bom-sku-resolved-cameras: same class as the propeller miss (IC 3 / ★6)
+    # — family landed in CatalogRef + library has_* but this switch was never
+    # extended, so bound cameras showed "(SKU sin resolver)" in estado/BOM.
+    if family == "cameras":
+        return default_library.has_camera(sku)
+    if family == "flight_controller":
+        return default_library.has_fc(sku)
+    if family == "sensors":
+        return default_library.has_sensor(sku)
+    # First `library/vtx` seed (`B1-mission-vtx-identity` §0.3): same class
+    # as the cameras fix above — extend this switch the same turn the
+    # family/bind lands, never a deferred half-land.
+    if family == "vtx":
+        return default_library.has_vtx(sku)
     return False  # no v1 resolve path for other families (★2)
 
 

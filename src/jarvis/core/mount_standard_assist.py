@@ -15,9 +15,12 @@ IDLE bridge) is what actually calls the writer.
 Locked in-scope graph (IC §0 lock #2/#4 — never widened without a new ★):
   propellers -> motors
   motors -> frame_arm            (only when frame_arm is itself declared)
-  esc / flight_controller / battery / sensors -> the airframe (a single
-    frame_plate* when exactly one exists, else bare `frame`, else no
-    suggestion at all — 2+ plates is AMBIGUOUS, never guessed)
+  esc / flight_controller / battery / sensors / cameras / radio_module ->
+    the airframe (a single frame_plate* when exactly one exists, else bare
+    `frame`, else no suggestion at all — 2+ plates is AMBIGUOUS, never
+    guessed). `cameras`/`radio_module` added by
+    B1-mission-continuity-mount-endurance (2026-09-17) — that Buy IS the
+    "new ★" this widening required.
 
 Out of scope, forever without a separate ★: frame_arm/kit-hardware as
 mount SUBJECTS, any pose/Δmm, any plate L×W invention.
@@ -63,11 +66,16 @@ class MountSuggestion:
 # the exact wording the Conn B1 smoke already validated as parseable
 # (`engineer_smoke_connect_remaining_mounted_on_b1.md`: "hélices montadas
 # en los motores", "sensor montado en el esc"), never a new alias table.
+# B1-mission-continuity-mount-endurance (2026-09-17, lock #4): widened with
+# `cameras`/`radio_module` — this Buy IS the "new ★" this tuple's own
+# module docstring requires to widen it (see that docstring's own note).
 _STACK_SUBJECTS: tuple[tuple[str, str, str], ...] = (
     ("esc", "esc", "montado"),
     ("flight_controller", "controladora", "montada"),
     ("battery", "batería", "montada"),
     ("sensors", "sensor", "montado"),
+    ("cameras", "cámara", "montada"),
+    ("radio_module", "radio", "montado"),
 )
 
 

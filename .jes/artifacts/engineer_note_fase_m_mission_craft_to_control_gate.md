@@ -2,18 +2,18 @@
 
 **Date:** 2026-09-17  
 **Authority:** Engineer — listar todo hasta cerrar esta fase y pasar a control de vuelo  
-**Live:** `dron-de-vigilancia-doméstico` · ASSEMBLY READY · mission mass CLOSED · routing hotfix await smoke  
-**Package:** `0.4.1` (no bump este ciclo — ver §Version)
+**Live:** `dron-de-vigilancia-doméstico` · mission craft software **CLOSED** (H1 · P1 · M1.5–M3.1) · **M7 GATE AHORA**  
+**Package:** `0.4.1` (valorar **`0.4.2`** al cerrar M7)
 
 ---
 
 ## Fase actual (nombre corto)
 
-**Fase M — Mission craft software (sin calibre / sin banco)**  
-Objetivo: que vigilancia deje de ser un cartel + empuje genérico y tenga masa/Continuity/montaje/endurance **declarables** en Jarvis, sin inventar física ni firmware.
+**Fase M — Mission craft software (sin calibre / sin banco)** — **software path DONE**  
+Objetivo cumplido: vigilancia tiene identidad/masa/montaje/endurance/potencia **declarables** (+ Phoenix catalog mass+W), sin inventar física ni firmware.
 
-**Gate de salida de fase M → Fase C (control de vuelo / enlace):**  
-Cuando la cola §Software-only esté CLOSED o PARKED-with-reason, y lo físico §Physical quede explícitamente fuera. Entonces PRIORIDAD pasa a control (fuera o nuevo arco Jarvis — decidir en ★).
+**Gate de salida de fase M → Fase C (control de vuelo / diseño software de equipo):**  
+**M7** — closeout note + PRIORIDAD flip. M4/M5/M6 = PARK unless Engineer ★. Physical § queda fuera.
 
 ---
 
@@ -21,13 +21,16 @@ Cuando la cola §Software-only esté CLOSED o PARKED-with-reason, y lo físico �
 
 | # | ★ / item | Estado | Qué | Depende de |
 |---|---|---|---|---|
-| **H1** | **`B1-system-definition-b-routing`** | Review PASS · **await smoke** | B owns turns; `añadir bloques` ≠ custom | Engineer smoke §3 |
-| **M2** | **`B1-mission-continuity-mount-endurance`** (draft when ★) | **COLA** | Continuity ladder: mount cámara/radio/FC (`mounted_on`) + declarar autonomía objetivo (≥ N min) — cierra gaps #9c/#9d del mass Buy | H1 CLOSED |
-| **M3** | **`B1-mission-power-w`** (optional follow-on) | **COLA** | Declarar `power_w` misión → presupuesto eléctrico / autonomía (sin claim de vuelo validado) | M2 o paralelo tras H1 |
-| **M4** | **VTX identity** (thin) | **COLA / optional** | Identity-only key vídeo enlace (como cameras) o checklist texto | Engineer ★ si quiere familia nombrada |
-| **M5** | **`payload_kg` P2** (displace) | **COLA / only if smoke hurts** | Si P1 + warn no basta en vigilancia | Engineer ★ after living with P1 |
-| **M6** | Guide / USER_GUIDE polish | **COLA soft** | Hélices→motores stale line (N3 identity review); mount+endurance one-pager | Anytime |
-| **M7** | Phase M closeout note + PRIORIDAD → Fase C | **GATE** | Escribir handoff; no más Buys M salvo residual | M2 mínimo; M3–M5 según ★ |
+| **H1** | **`B1-system-definition-b-routing`** | **CLOSED** | B owns turns; `añadir bloques` ≠ custom | smoke ACCEPT 2026-09-17 |
+| **M1.5** | **`B1-library-cameras-seed`** | **CLOSED** | Phoenix 2 + fluid path (bind/rebind/refresh/mass) | smoke ACCEPT WITH NOTES 2026-09-18 |
+| **M2** | **`B1-mission-continuity-mount-endurance`** | **CLOSED** | Continuity ladder: mount + autonomía objetivo | smoke ACCEPT WITH NOTES 2026-09-18 |
+| **M2.1** | **`B1-bom-sku-resolved-cameras`** | **CLOSED** | Display `[sku]` for cameras/FC/sensors | smoke ACCEPT 2026-09-18 |
+| **M3** | **`B1-mission-power-w`** | **CLOSED** | Declarar `power_w` misión → presupuesto eléctrico / autonomía (sin claim de vuelo validado) | smoke ACCEPT WITH NOTES 2026-09-18 |
+| **M3.1** | **`B1-catalog-camera-power-w`** | **CLOSED** | Phoenix `power_w=1.0` (200mA@5V I×V) → bind + mirror | smoke ACCEPT 2026-09-18 |
+| **M4** | **`B1-mission-vtx-identity`** | **✅ CLOSED** | Zeus 800 + fluid path; smoke PASS | [review ACCEPT CLOSED](implementation_review_mission_vtx_identity_b1.md) |
+| **M5** | **`payload_kg` P2** (displace) | **PARK / if needed** | Si P1 + warn no basta | Solo ★ |
+| **M6** | Guide / USER_GUIDE polish | **CLOSED** | Stale lines cleanup | Engineer: Claude paralelo 2026-09-18 |
+| **M7** | Phase M closeout + PRIORIDAD → Fase C | **PRIORIDAD / GATE** | Handoff; tag `0.4.2` | **AHORA** — mínimo craft DONE |
 
 ### Ya CLOSED esta fase (no reabrir)
 
@@ -70,13 +73,22 @@ No son “siguiente Buy” de craft-mission. Abrir solo tras M7 ★:
 ## Attack order (recomendado)
 
 ```text
-1. Smoke ACCEPT H1 (routing)     ← ahora
-2. ★ IC M2 mount + endurance     ← cierra Continuity mission story
-3. ★ M3 power_w si autonomía sigue inútil sin draw
-4. M4 VTX solo si Engineer nombra familia
-5. M7 close Fase M → handoff Fase C
-   (Physical sigue PARKED en paralelo; no bloquea M7)
+1–3. DONE — cameras seed · mount/endurance · power declare + catalog W
+4. ★ M7 close Fase M → Fase C (diseño software de equipo / control)
+   (M4 VTX / M5 P2 / M6 polish = PARK unless ★)
 ```
+
+### Cuánto falta hasta “diseño software de equipo” (Fase C)
+
+| Capa | Estado |
+|---|---|
+| **Mission craft en Jarvis (Fase M software)** | **DONE** — H1, P1, M1.5–M3.1 CLOSED |
+| **M7 gate** | **1 paso administrativo** — nota de closeout + PRIORIDAD → Fase C + opcional tag `0.4.2` |
+| **M4–M6** | No bloquean el gate (PARK) |
+| **Físico / lab** | PARKED — no es prerrequisito de Fase C |
+| **Fase C propiamente** | Empieza **después** de M7: firmware FC, MAVLink/GCS, bind ELRS, PID, mission planner, app piloto |
+
+**Respuesta corta:** el camino de software de misión en Jarvis está cerrado. Queda **M7** (cierre formal) y luego el arco nuevo de **control / enlace** — eso es el “diseño de software de equipo”, aún no empezado en SoT.
 
 ---
 

@@ -35,7 +35,7 @@ import re
 from dataclasses import dataclass, field
 
 from jarvis.core.motor_catalog_assist import _normalize_help
-from jarvis.domains.aerial import is_frame_plate_key
+from jarvis.domains.aerial import CAMERA_KEYWORDS, RADIO_KEYWORDS, is_frame_plate_key
 
 
 @dataclass(frozen=True)
@@ -58,6 +58,17 @@ _SET_VERB_RE = re.compile(r"\bmonta\s+(?:el|la|los|las)\b")
 _FIJA_RE = re.compile(r"\bfija(?:r)?\b")
 _EN_RE = re.compile(r"\ben\b")
 
+def _keyword_tuple_to_pattern(keywords: tuple[str, ...]) -> re.Pattern[str]:
+    """Build a `\\b(?:...)\\b` alternation from a plain keyword tuple —
+    used to reuse `aerial.py`'s own CAMERA_KEYWORDS/RADIO_KEYWORDS here
+    (B1-mission-continuity-mount-endurance lock #3) instead of a second,
+    possibly-diverging subject-noun list. Accented variants in the shared
+    tuples simply never match against this module's own accent-stripped
+    (`_normalize_help`) input — harmless, the unaccented variant covers
+    the same ground (same precedent as `mission_mass_declare_assist.py`)."""
+    return re.compile(r"\b(?:" + "|".join(re.escape(k) for k in keywords) + r")\b")
+
+
 # ── Subject nouns → canonical component key (fixed priority order) ──────────
 
 _SUBJECT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -67,6 +78,12 @@ _SUBJECT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("battery", re.compile(r"\b(?:baterias|bateria|batteries|battery)\b")),
     ("sensors", re.compile(r"\b(?:sensores|sensor|gps|here3)\b")),
     ("propellers", re.compile(r"\b(?:helices|helice|propellers|propeller)\b")),
+    # B1-mission-continuity-mount-endurance (2026-09-17): mount subjects
+    # widened to include mission payload — `mount_standard_assist`'s own
+    # `_STACK_SUBJECTS` lock ("never widened without a new ★") is what
+    # this Buy IS that ★ for (lock #4).
+    ("cameras", _keyword_tuple_to_pattern(CAMERA_KEYWORDS)),
+    ("radio_module", _keyword_tuple_to_pattern(RADIO_KEYWORDS)),
 )
 
 # ── Target nouns → canonical frame-part key ──────────────────────────────────

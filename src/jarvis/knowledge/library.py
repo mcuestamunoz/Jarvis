@@ -219,6 +219,62 @@ class SensorSpec:
 
 
 @dataclass(frozen=True)
+class CameraSpec:
+    """Catalog entry: a real FPV/mission camera (e.g. RunCam Phoenix 2).
+
+    First `library/cameras/` seed (`B1-library-cameras-seed`) — same box-
+    envelope shape/convention as ``FcSpec``/``SensorSpec`` (identity + cited
+    L×W×H, sourced-only, never invented), plus an optional ``mass_g`` since
+    camera mass IS a real, sourced field for this family (unlike FC/sensors,
+    which carry no cited mass yet) — projected into the mission mass mirror
+    (``component_writers.set_mission_component_mass``) on bind, never a
+    second, independent mass authority.
+    """
+
+    name: str
+    manufacturer: str | None = None
+    model: str | None = None
+    identity_status: str | None = None
+    source_url: str | None = None
+    source_note: str | None = None
+    length_mm: float | None = None
+    width_mm: float | None = None
+    height_mm: float | None = None
+    mass_g: float | None = None
+    # Catalog camera power_w B1 (`B1-catalog-camera-power-w`) — Engineer-
+    # locked P=I×V from the row's own cited mA@V (never parsed from
+    # `source_note` at load time; JSON field only, same discipline as
+    # `mass_g`). Optional/None for any row that doesn't state one.
+    power_w: float | None = None
+
+
+@dataclass(frozen=True)
+class VtxSpec:
+    """Catalog entry: a real FPV video transmitter (e.g. HGLRC Zeus 800).
+
+    First `library/vtx/` seed (`B1-mission-vtx-identity`) — same box-
+    envelope + optional mass shape as ``CameraSpec``. Deliberately NO
+    ``power_w`` field: a VTX's cited spec sheet states RF output in
+    milliwatts (PIT/25/100/.../800 mW), a different physical quantity from
+    the electrical DC draw ``mission_accessory_power_w`` sums — this Buy's
+    own lock forbids projecting one as the other. A future Buy could add a
+    genuine DC-draw field here if a row ever cites mA, but that is not this
+    dataclass's job to anticipate.
+    """
+
+    name: str
+    manufacturer: str | None = None
+    model: str | None = None
+    identity_status: str | None = None
+    source_url: str | None = None
+    source_note: str | None = None
+    length_mm: float | None = None
+    width_mm: float | None = None
+    height_mm: float | None = None
+    mass_g: float | None = None
+
+
+@dataclass(frozen=True)
 class PlateSeed:
     """Structure B Frame Assembly Physical Model B2 — one curated, named
     plate on a frame's seed row. ``label`` is a verbatim-from-source display
@@ -393,6 +449,8 @@ class ComponentLibrary:
         self._kit_hardware: dict[str, KitHardwareSpec] | None = None
         self._fcs: dict[str, FcSpec] | None = None
         self._sensors: dict[str, SensorSpec] | None = None
+        self._cameras: dict[str, CameraSpec] | None = None
+        self._vtx: dict[str, VtxSpec] | None = None
 
     # ── Materials ────────────────────────────────────────────────────────────
 
@@ -964,6 +1022,115 @@ class ComponentLibrary:
         """Return True if *name* is in the sensors library (no exception)."""
         try:
             self.get_sensor(name)
+            return True
+        except KeyError:
+            return False
+
+    # ── Cameras (First `library/cameras` seed, B1-library-cameras-seed) ─────
+
+    @staticmethod
+    def _camera_from_raw(name: str, data: dict) -> CameraSpec:
+        return CameraSpec(
+            name=name,
+            manufacturer=data.get("manufacturer"),
+            model=data.get("model"),
+            identity_status=data.get("identity_status"),
+            source_url=data.get("source_url"),
+            source_note=data.get("source_note"),
+            length_mm=float(data["length_mm"]) if data.get("length_mm") is not None else None,
+            width_mm=float(data["width_mm"]) if data.get("width_mm") is not None else None,
+            height_mm=float(data["height_mm"]) if data.get("height_mm") is not None else None,
+            mass_g=float(data["mass_g"]) if data.get("mass_g") is not None else None,
+            power_w=float(data["power_w"]) if data.get("power_w") is not None else None,
+        )
+
+    def _load_cameras(self) -> dict[str, CameraSpec]:
+        if self._cameras is not None:
+            return self._cameras
+        path = self._root / "cameras" / "_datos.json"
+        if not path.exists():
+            self._cameras = {}
+            return self._cameras
+        raw: dict[str, dict] = json.loads(path.read_text(encoding="utf-8"))
+        self._cameras = {
+            _normalize_name(name): self._camera_from_raw(name, data)
+            for name, data in raw.items()
+        }
+        return self._cameras
+
+    def get_camera(self, name: str) -> CameraSpec:
+        """Return exact camera by name. KeyError if not found."""
+        canonical = _normalize_name(name)
+        cameras = self._load_cameras()
+        if canonical not in cameras:
+            available = ", ".join(sorted(cameras)) or "(vacío)"
+            raise KeyError(
+                f"Cámara '{name}' no está en la biblioteca. Disponibles: {available}"
+            )
+        return cameras[canonical]
+
+    def list_cameras(self) -> list[CameraSpec]:
+        """Return all cameras sorted by name."""
+        return sorted(self._load_cameras().values(), key=lambda c: c.name)
+
+    def has_camera(self, name: str) -> bool:
+        """Return True if *name* is in the camera library (no exception)."""
+        try:
+            self.get_camera(name)
+            return True
+        except KeyError:
+            return False
+
+    # ── VTX (First `library/vtx` seed, B1-mission-vtx-identity) ─────────────
+
+    @staticmethod
+    def _vtx_from_raw(name: str, data: dict) -> VtxSpec:
+        return VtxSpec(
+            name=name,
+            manufacturer=data.get("manufacturer"),
+            model=data.get("model"),
+            identity_status=data.get("identity_status"),
+            source_url=data.get("source_url"),
+            source_note=data.get("source_note"),
+            length_mm=float(data["length_mm"]) if data.get("length_mm") is not None else None,
+            width_mm=float(data["width_mm"]) if data.get("width_mm") is not None else None,
+            height_mm=float(data["height_mm"]) if data.get("height_mm") is not None else None,
+            mass_g=float(data["mass_g"]) if data.get("mass_g") is not None else None,
+        )
+
+    def _load_vtx(self) -> dict[str, VtxSpec]:
+        if self._vtx is not None:
+            return self._vtx
+        path = self._root / "vtx" / "_datos.json"
+        if not path.exists():
+            self._vtx = {}
+            return self._vtx
+        raw: dict[str, dict] = json.loads(path.read_text(encoding="utf-8"))
+        self._vtx = {
+            _normalize_name(name): self._vtx_from_raw(name, data)
+            for name, data in raw.items()
+        }
+        return self._vtx
+
+    def get_vtx(self, name: str) -> VtxSpec:
+        """Return exact VTX by name. KeyError if not found."""
+        canonical = _normalize_name(name)
+        vtx = self._load_vtx()
+        if canonical not in vtx:
+            available = ", ".join(sorted(vtx)) or "(vacío)"
+            raise KeyError(
+                f"VTX '{name}' no está en la biblioteca. Disponibles: {available}"
+            )
+        return vtx[canonical]
+
+    def list_vtx(self) -> list[VtxSpec]:
+        """Return all VTX sorted by name."""
+        return sorted(self._load_vtx().values(), key=lambda v: v.name)
+
+    def has_vtx(self, name: str) -> bool:
+        """Return True if *name* is in the VTX library (no exception)."""
+        try:
+            self.get_vtx(name)
             return True
         except KeyError:
             return False

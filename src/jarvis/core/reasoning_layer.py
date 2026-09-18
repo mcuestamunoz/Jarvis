@@ -536,46 +536,151 @@ class ReasoningLayer:
     def _mission_intent_active_for(self, context: dict[str, Any]) -> bool:
         return mission_intent_active(*self._mission_context_fields(context))
 
-    def _mission_aware_high_margin_suggestion(self, context: dict[str, Any]) -> ReasoningSuggestion | None:
-        """B1-continuity-mission-intent (extended by B1-mission-mass-energy)
-        — when the project's mission intent is active (``mission_intent_
-        active``), a high thrust margin must not lead with "Aumentar carga
-        útil" (IC lock #5): it returns an alternate, mission-aware
-        suggestion instead. Returns ``None`` when mission intent is not
-        active, so the caller falls back to today's byte-identical
-        `increase_payload` suggestion (IC lock #6).
+    def _mission_mount_suggestion(self, components: dict[str, Any]) -> ReasoningSuggestion | None:
+        """B1-mission-continuity-mount-endurance lock #5/#6 — reuses
+        `mount_standard_assist.build_mount_standard_checklist` (the SAME
+        checklist `montajes estándar` shows, never a second mount system)
+        to find whether `cameras`/`radio_module` still need a mount.
+        Camera takes priority over radio (lock #5's "first hole" — also
+        `_STACK_SUBJECTS`'s own declared order). An ambiguous multi-plate
+        project never guesses a target (lock #6) — points at `montajes
+        estándar` instead. Returns ``None`` when neither has an actionable
+        row (already mounted, or no plate/frame exists yet to mount onto
+        at all — nothing honest to suggest, falls through to the next
+        ladder step)."""
+        from jarvis.core.mount_standard_assist import build_mount_standard_checklist
+        from jarvis.schemas.action_schema import ComponentSpec
 
-        Waterfall, first match wins:
+        spec_components = {
+            key: ComponentSpec.model_validate(value) if isinstance(value, dict) else value
+            for key, value in components.items()
+        }
+        checklist = build_mount_standard_checklist(spec_components)
+        mission_rows = [r for r in checklist if r.subject in ("cameras", "radio_module")]
+        if not mission_rows:
+            return None
+
+        row = mission_rows[0]
+        noun = "cámara" if row.subject == "cameras" else "radio"
+        if row.kind == "ambiguous":
+            return ReasoningSuggestion(
+                action="iterate",
+                label="Elige placa para el montaje de misión (montajes estándar)",
+                reason=(
+                    f"Hay varias placas declaradas — Jarvis no adivina cuál para la {noun}; "
+                    "usa 'montajes estándar' para elegir."
+                ),
+                priority=0.8,
+                action_type="declare_mission_mount",
+            )
+        article = "la" if row.subject == "cameras" else "el"
+        return ReasoningSuggestion(
+            action="iterate",
+            label=f"Monta {article} {noun} en la placa/frame",
+            reason=(
+                f"{noun.capitalize()} identificad{'a' if row.subject == 'cameras' else 'o'} sin "
+                f"montaje declarado — escribe \"{row.example_phrase}\"."
+            ),
+            priority=0.8,
+            action_type="declare_mission_mount",
+        )
+
+    def _mission_power_suggestion(self, components: dict[str, Any]) -> ReasoningSuggestion | None:
+        """B1-mission-power-w lock #10 — camera before radio ("prefer one
+        suggestion"), reached only after identity/mass/mount/autonomy-target
+        are already clear (earlier waterfall steps in `_mission_aware_high_
+        margin_suggestion` return first when those are missing). Returns
+        `None` when both mission components already have `power_w`
+        declared, so the ladder falls through to the final margin-review
+        step unchanged."""
+        camera = components.get("cameras") or {}
+        radio = components.get("radio_module") or {}
+        if "power_w" not in (camera.get("properties") or {}):
+            return ReasoningSuggestion(
+                action="iterate",
+                label="Declara potencia de cámara (W)",
+                reason=(
+                    "La cámara ya está identificada pero sin potencia declarada "
+                    "(ej: 'cámara 1 W') — la autonomía real cuenta este consumo "
+                    "adicional."
+                ),
+                priority=0.8,
+                action_type="declare_mission_power",
+            )
+        if "power_w" not in (radio.get("properties") or {}):
+            return ReasoningSuggestion(
+                action="iterate",
+                label="Declara potencia de radio (W)",
+                reason=(
+                    "El radio ya está identificado pero sin potencia declarada "
+                    "(ej: 'radio 1 W') — la autonomía real cuenta este consumo "
+                    "adicional."
+                ),
+                priority=0.8,
+                action_type="declare_mission_power",
+            )
+        return None
+
+    def _mission_vtx_suggestion(self, components: dict[str, Any]) -> ReasoningSuggestion | None:
+        """B1-mission-vtx-identity lock #15 — nudge for a VTX once camera's
+        own identity/mass/mount/power holes are already clear (earlier
+        waterfall steps in `_mission_aware_high_margin_suggestion` return
+        first when those are missing, so reaching this step already implies
+        "mission intent + cameras present"). VTX ≠ radio_module (§0.2 fork)
+        — this never checks/touches `radio_module`, and never steals the
+        camera/radio mount/autonomy/power holes above it. Slot: after camera
+        power, before soft margin (locked default, §0.2 of the IC). Returns
+        `None` once `vtx` is present at non-low completeness, so the ladder
+        falls through to the final margin-review step unchanged."""
+        vtx = components.get("vtx") or {}
+        if (vtx.get("completeness") or "low") != "low":
+            return None
+        return ReasoningSuggestion(
+            action="iterate",
+            label="Declara VTX (enlace de vídeo)",
+            reason=(
+                "La misión tiene cámara pero no VTX declarado — el enlace de "
+                "vídeo es un componente aparte del radio de control (ej: "
+                "'vtx HGLRC', o 'ayúdame a elegir vtx' para el catálogo)."
+            ),
+            priority=0.8,
+            action_type="declare_mission_vtx",
+        )
+
+    def _mission_aware_high_margin_suggestion(self, context: dict[str, Any]) -> ReasoningSuggestion | None:
+        """B1-continuity-mission-intent, extended by B1-mission-mass-energy
+        and B1-mission-continuity-mount-endurance — when the project's
+        mission intent is active (``mission_intent_active``), a high
+        thrust margin must not lead with "Aumentar carga útil": it returns
+        an alternate, mission-aware suggestion instead. Returns ``None``
+        when mission intent is not active, so the caller falls back to
+        today's byte-identical `increase_payload` suggestion.
+
+        Full waterfall, first match wins:
           a. ``cameras`` absent                -> declare it
           b. ``cameras`` completeness low      -> complete its identity
           c. ``radio_module`` absent           -> declare it
           c. ``radio_module`` completeness low -> complete its identity
-          d. ``cameras`` has no ``mass_g``     -> declare its mass (B1-
-             mission-mass-energy lock #9a)
-          e. ``radio_module`` has no ``mass_g``-> declare its mass (#9b)
-          f. else                              -> soften to a mission/
-             margin review line — still never "Aumentar carga útil".
+          d. ``cameras`` has no ``mass_g``     -> declare its mass
+          e. ``radio_module`` has no ``mass_g``-> declare its mass
+          f. ``cameras``/``radio_module`` still needs a mount (via
+             ``_mission_mount_suggestion``, reusing `mount_standard_
+             assist`'s own checklist — never a second mount system;
+             camera before radio; ambiguous multi-plate points at
+             `montajes estándar` instead of guessing)
+          g. no ``autonomy_min`` in ``context["parsed_constraints"]``
+             (the SAME field ``ProjectState``'s own validator computes —
+             never a second autonomy regex) -> declare an autonomy target
+          h. else -> soften to a mission/margin review line — still never
+             "Aumentar carga útil".
 
-        Lock #9c (mount reminder) and #9d (autonomy-target reminder) are
-        DELIBERATELY NOT WIRED — documented gaps, not oversights:
-          - 9c would need `mount_standard_assist`'s own target-resolution
-            logic extended to `cameras`/`radio_module`, but that module's
-            own `_STACK_SUBJECTS` tuple is explicitly locked ("never
-            widened without a new ★") to exactly `esc`/`flight_controller`/
-            `battery`/`sensors`. Widening it here would violate that
-            module's own lock, not this one's "reuse, don't invent a
-            second system" instruction — the honest move is to skip, not
-            to quietly bypass a different feature's explicit gate.
-          - 9d needs a deterministic autonomy-target read, but `context`
-            (this dict) only carries raw `current_parameters["restrictions"]`
-            text, never the derived `parsed_constraints["autonomy_min"]`
-            (computed by `ProjectState`'s own validator, not exposed here).
-            Re-deriving that regex a second time in this module would be
-            exactly the "duplicate keyword list" this IC's own lock #4 (via
-            B1-catalog-hygiene-mission-suggestions precedent) warns against.
-        Per lock #9d's own explicit permission ("else document gap and keep
-        ladder stop at 9c + soft margin"), the ladder here stops at the
-        mass-declare steps (d/e) and falls through to the soft margin (f).
+        Steps f/g were B1-mission-mass-energy's own documented gaps (its
+        report §4) — closed here by B1-mission-continuity-mount-endurance,
+        which is the "new ★" `mount_standard_assist._STACK_SUBJECTS`'s own
+        lock required to widen it, and by plumbing the already-computed
+        `parsed_constraints` into this context (orchestrator.py's
+        `_build_analyze_context` / `simulate.py` / `iterate.py`) instead of
+        duplicating the autonomy regex.
         """
         objective, restrictions, components = self._mission_context_fields(context)
 
@@ -657,6 +762,27 @@ class ReasoningLayer:
                 priority=0.8,
                 action_type="declare_mission_mass",
             )
+        mount_suggestion = self._mission_mount_suggestion(components)
+        if mount_suggestion is not None:
+            return mount_suggestion
+        if "autonomy_min" not in (context.get("parsed_constraints") or {}):
+            return ReasoningSuggestion(
+                action="iterate",
+                label="Declara autonomía objetivo (min)",
+                reason=(
+                    "La misión no tiene una autonomía objetivo declarada — "
+                    "escribe algo como 'restricciones: 8 min' para fijarla "
+                    "antes de aumentar carga útil genérica."
+                ),
+                priority=0.8,
+                action_type="declare_autonomy_target",
+            )
+        power_suggestion = self._mission_power_suggestion(components)
+        if power_suggestion is not None:
+            return power_suggestion
+        vtx_suggestion = self._mission_vtx_suggestion(components)
+        if vtx_suggestion is not None:
+            return vtx_suggestion
         return ReasoningSuggestion(
             action="iterate",
             label="Revisar margen vs carga de misión",

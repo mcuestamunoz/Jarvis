@@ -1,0 +1,13 @@
+{
+  "hglrc_zeus_800": {
+    "manufacturer": "HGLRC",
+    "model": "Zeus 800",
+    "identity_status": "verified",
+    "length_mm": 37.0,
+    "width_mm": 37.0,
+    "height_mm": 5.0,
+    "mass_g": 4.8,
+    "source_url": "https://www.hglrc.com/products/hglrc-zeus-800mw-smart-mounting-20-20-30-30-vtx-for-fpv-racing-drone",
+    "source_note": "Engineer cite 2026-09-18: HGLRC Zeus 800mW Smart Mounting VTX (OEM page). Analog 5.8 GHz. RF power levels PIT/25/100/200/400/800 mW — citation only; NOT projected as electrical power_w (RF output ≠ DC draw; no mA cite this Buy). Input 6–26 V (2–6S). 5V/2A output. Antenna MMCX. Mount 20×20 / 30×30 M3 — pattern cited, not a Board hole claim. Dims 37×37×5 mm → L=W=37 H=5. Weight 4.8 g. Protocol IRC Tramp. Microphone yes. Not a control radio (ELRS)."
+  }
+}
