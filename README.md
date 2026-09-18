@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.4.1**
+**v0.4.2**
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -47,7 +47,18 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
-## What v0.4.1 includes (tag)
+## What v0.4.2 includes (tag)
+
+Mission craft software checkpoint (**Fase M CLOSED** — [M7 closeout](.jes/artifacts/engineer_note_fase_m_closeout_m7.md)):
+
+- Continuity mission intent + wizard vigilancia nudge + SYSTEM_DEFINITION **B** routing
+- Mission `mass_g` → AUW; Continuity ladder mount + autonomía objetivo; `power_w` declare + Phoenix catalog W
+- `library/cameras` Phoenix 2 + `library/vtx` Zeus 800 — fluid catalog help-choose / rebind / mass mirror (RF mW ≠ DC W)
+- BOM `[sku]` display for cameras / FC / sensors; craft-montage user guide sync
+- Live suite **3165** · UI **105**
+- Next: **Fase C** (control / enlace) — await Engineer ★; first product-contract Buy may be **`0.5.0`**
+
+## What v0.4.1 included
 
 - Everything in **v0.4.0** (Continuity spatial assembly), plus Board **Situar**:
   - **C-113** — Scene3D drag → `board_pose_bridge` → same `set_component_declared_box_pose` writer as CLI `declara…`
@@ -57,29 +68,19 @@ Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvi
 - Live suite **2669** · UI **80**
 - Locks unchanged: Prop/Energy = HD-004 wall; System Optimization deferred until pain; screening AABB ≠ fit VERIFIED
 
-## What's landed since (same `0.4.1`, no version bump)
+## What's landed between v0.4.1 and v0.4.2 (now tagged)
 
-The **craft montage** arc (2026-09-13→15) — Jarvis can walk a project from empty to an honestly-montado Board without inventing a millimetre:
+The **craft montage** + **mission craft** arc — empty project → montaje honesto + identidad/masa/montaje/potencia/VTX sin inventar física:
 
-- **Checklist family** (suggest-only, never silent writes): `montajes estándar` · `apilar en placa` (Path F centered stack) · `layout pack` (named curated kit packs) · `parece un dron` (racimo / silueta estimada B\* / silueta B) · `relaciones`/`fit` (per-relation screening/attest checklist)
-- **Estimated-temporary dims**, disclosed and gated out of `cabe`/`declaro verificado`: main plate (`declara frame_plate estimada … mm`) and, for a hybrid ESC with cited L×W but no cited height, `declara el esc estimado … mm`
-- **Arm radial Visor** — `frame_arm` copies place along the origin→motor ray using the arm's own declared length (not a fixed midpoint), with yaw
-- **Disk axial Visor** — a motor/propeller with both a diameter and a cited axial fact (`height_mm`/`hub_thickness_mm`) now renders as a real cylinder, never a flat disk pretending to have no depth
-- **`library/fc/` + `library/sensors/`** — flight-controller and GPS/sensor physical envelopes moved out of a hard-coded dict in `aerial.py` into `ComponentLibrary` (`FcSpec`/`SensorSpec`), matching every other catalog family
-- **SYSTEM_DEFINITION block gate** — custom blocks only accept if every expanded component key has a `ComponentRule`; otherwise refuse honestly (no stuck BOM)
-- **Mission payload identity** — `cameras` + `radio_module` identity rules unlock SYSTEM_DEFINITION **B** for `cámara` / `comunicación` (model → medium; no invented mm/g/W; no catalog physics yet). Still gated: `payload` / `brazo` / wheels / gearbox
-- **Disk-station reach** — `relaciones` screens **motors↔frame_arm** as station reach (arm L vs quad-X radius); `declaro verificado el motor` when reach-ok. Propellers↔motors still n/a disk. AABB `cabe` unchanged (boxes only)
-- **User guide**: [`docs/USER_GUIDE_CRAFT_MONTAGE.md`](docs/USER_GUIDE_CRAFT_MONTAGE.md) — empty project → montaje + arquitectura B + cámara/radio + alcance motor
-- Live suite **2968** · UI **105**
-- Parked on bags/lab (not software queue): plate-box measure · Path N · HD-* · `library/cameras` physics
+- Checklist family, estimated-temporary dims, arm/disk Visor, FC/sensors library envelopes
+- Mission payload identity → cameras/radio → Continuity ladder → catalog seeds
+- See `docs/IMPLEMENTATION_TASKS.md` and [USER_GUIDE_CRAFT_MONTAGE.md](docs/USER_GUIDE_CRAFT_MONTAGE.md)
 
-## Next (software-closable — no caliper / no banco)
+## Next
 
-- Continuity next-step vs mission intent (“vigilancia” vs “Aumentar carga útil”)
-- Wizard vigilancia nudge (after mission identity)
-- `propellers`↔`motors` evidence class (own B0/B1)
-- Hygiene: `bind_esc_from_catalog` stale-key leak · `cambiar`/`actualiza` FC/GPS
-- Optional identity rules: `payload_bay` / `arm` / … (same pattern as cameras)
+**Fase C** — firmware FC · MAVLink/GCS · bind ELRS · PID · mission planner · app piloto — await Engineer ★.
+
+Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs.
 
 See `docs/IMPLEMENTATION_TASKS.md`.
 
@@ -100,7 +101,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
-`v0.4.1` (current tip, untagged patch work) — craft montage + mission-payload + disk-station reach + user guide; suite **2968** · UI **105**.  
+`v0.4.2` / `checkpoint-fase-m-mission-craft` — Fase M CLOSED: mission mass + Continuity ladder + cameras/VTX seeds + B routing; suite **3165** · UI **105**.  
 `v0.4.1` / `checkpoint-board-situar` — Board Situar drag→pose (C-113) + free camera + standoff count gate; suite **2669** · UI **80**.  
 `v0.4.0` / `checkpoint-continuity-spatial-assembly` — Continuity spatial assembly (*situar el mapa*); suite **2652**.  
 `v0.3.8` / `checkpoint-spatial-board-projector` — ship `spatial_board.py` (was gitignored); `/workspace/` ignore.  

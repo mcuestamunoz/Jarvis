@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-18 B1-mission-vtx-identity ACCEPT CLOSED @ suite 3165, package 0.4.1 — M7 gate next (Fase M → Fase C).",
+  "cycle_intent": "2026-09-18 M7 CLOSED — Fase M done @ v0.4.2 / suite 3165. Fase C PRIORIDAD await Engineer ★ (first control/enlace Buy).",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "M7 gate — Fase M closeout",
-  "active_operation": "m7_fase_m_closeout_gate",
+  "current_mode": "Fase C — await Engineer star",
+  "active_operation": "fase_c_await_engineer_star",
   "movement_trigger": {
     "type": "engineer_accept",
-    "note": "2026-09-18 mission_vtx_identity_b1 ACCEPT CLOSED — smoke: ayúdame a elegir vtx → Zeus 800 → pick 1; cambiar vtx OK. Next: M7."
+    "note": "2026-09-18 M7 closeout — Fase M CLOSED; tag v0.4.2; PRIORIDAD = Fase C await ★."
   },
   "relevant_workflow_phases": [
     "Verification"

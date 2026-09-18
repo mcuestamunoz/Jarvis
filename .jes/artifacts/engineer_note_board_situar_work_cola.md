@@ -1,32 +1,26 @@
 # Engineer note — Board Situar / Fase M cola
 
-**Date:** 2026-09-17  
-**Status:** ★ draft **M2** · SoT [fase → control](engineer_note_fase_m_mission_craft_to_control_gate.md)
+**Date:** 2026-09-18  
+**Status:** **Fase M CLOSED** · SoT [M7 closeout](engineer_note_fase_m_closeout_m7.md) · package **`0.4.2`**
 
-## Closed
+## Closed (Fase M)
 
 | # | ★ | Gate |
 |---|---|---|
 | **1–5** | software closeout | **CLOSED** |
 | **P1** | `B1-mission-mass-energy` | **CLOSED** |
-| **H1** | `B1-system-definition-b-routing` (añadir bloques) | **CLOSED** |
+| **H1** | `B1-system-definition-b-routing` | **CLOSED** |
+| **M1.5–M4** | cameras · mount/endurance · power · VTX | **CLOSED** |
+| **M6** | guide polish | **CLOSED** |
+| **M7** | phase closeout + tag `v0.4.2` | **CLOSED** |
 
-## Active / cola
+## Parked
 
 | # | ★ | Estado |
 |---|---|---|
-| **M1.5** | `library/cameras` 1 SKU | **IC READY** — [IC](implementation_contract_library_cameras_seed_b1.md) |
-| **M2** | mount + endurance Continuity | **IC READY** — [IC](implementation_contract_mission_continuity_mount_endurance_b1.md) |
-| **M3** | mission `power_w` | COLA |
-| **M4** | VTX identity | ✅ CLOSED |
 | **M5** | `payload_kg` P2 | only if P1 hurts |
-| **M6** | guide polish | soft |
-| **M7** | close Fase M → Fase C (control) | GATE |
+| Physical | plate-box · Path N · HD-* · camera physics bags | PARK |
 
-## Parked physical
+## Fase C (PRIORIDAD · await ★)
 
-plate-box · Path N · HD-* · camera physics bags
-
-## Fase C (después M7 · no AHORA)
-
-Firmware · MAVLink · bind ELRS · PID · mission planner — fuera SoT hasta ★
+Firmware · MAVLink · bind ELRS · PID · mission planner · app piloto — primer Buy cuando Engineer diga ★.

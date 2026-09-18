@@ -2,8 +2,8 @@
 
 **Date:** 2026-09-17  
 **Authority:** Engineer — listar todo hasta cerrar esta fase y pasar a control de vuelo  
-**Live:** `dron-de-vigilancia-doméstico` · mission craft software **CLOSED** (H1 · P1 · M1.5–M3.1) · **M7 GATE AHORA**  
-**Package:** `0.4.1` (valorar **`0.4.2`** al cerrar M7)
+**Live:** `dron-de-vigilancia-doméstico` · mission craft software **CLOSED** (H1 · P1 · M1.5–M4 · M6 · **M7**)  
+**Package:** **`0.4.2`** — closeout: [engineer_note_fase_m_closeout_m7.md](engineer_note_fase_m_closeout_m7.md)
 
 ---
 
@@ -12,8 +12,8 @@
 **Fase M — Mission craft software (sin calibre / sin banco)** — **software path DONE**  
 Objetivo cumplido: vigilancia tiene identidad/masa/montaje/endurance/potencia **declarables** (+ Phoenix catalog mass+W), sin inventar física ni firmware.
 
-**Gate de salida de fase M → Fase C (control de vuelo / diseño software de equipo):**  
-**M7** — closeout note + PRIORIDAD flip. M4/M5/M6 = PARK unless Engineer ★. Physical § queda fuera.
+**Gate de salida de fase M → Fase C:** **M7 CLOSED** 2026-09-18 (tag `v0.4.2`).  
+Fase C = PRIORIDAD AHORA — await Engineer ★ para primer Buy. M5 / physical § siguen PARK.
 
 ---
 
@@ -30,7 +30,7 @@ Objetivo cumplido: vigilancia tiene identidad/masa/montaje/endurance/potencia **
 | **M4** | **`B1-mission-vtx-identity`** | **✅ CLOSED** | Zeus 800 + fluid path; smoke PASS | [review ACCEPT CLOSED](implementation_review_mission_vtx_identity_b1.md) |
 | **M5** | **`payload_kg` P2** (displace) | **PARK / if needed** | Si P1 + warn no basta | Solo ★ |
 | **M6** | Guide / USER_GUIDE polish | **CLOSED** | Stale lines cleanup | Engineer: Claude paralelo 2026-09-18 |
-| **M7** | Phase M closeout + PRIORIDAD → Fase C | **PRIORIDAD / GATE** | Handoff; tag `0.4.2` | **AHORA** — mínimo craft DONE |
+| **M7** | Phase M closeout + PRIORIDAD → Fase C | **✅ CLOSED** | [closeout](engineer_note_fase_m_closeout_m7.md) · tag `v0.4.2` | Engineer ★ cerramos 2026-09-18 |
 
 ### Ya CLOSED esta fase (no reabrir)
 
@@ -73,22 +73,21 @@ No son “siguiente Buy” de craft-mission. Abrir solo tras M7 ★:
 ## Attack order (recomendado)
 
 ```text
-1–3. DONE — cameras seed · mount/endurance · power declare + catalog W
-4. ★ M7 close Fase M → Fase C (diseño software de equipo / control)
-   (M4 VTX / M5 P2 / M6 polish = PARK unless ★)
+DONE — Fase M (H1 · P1 · M1.5–M4 · M6 · M7)
+AHORA — Fase C await Engineer ★ (primer Buy control/enlace)
+PARK — M5 P2 · physical/lab
 ```
 
 ### Cuánto falta hasta “diseño software de equipo” (Fase C)
 
 | Capa | Estado |
 |---|---|
-| **Mission craft en Jarvis (Fase M software)** | **DONE** — H1, P1, M1.5–M3.1 CLOSED |
-| **M7 gate** | **1 paso administrativo** — nota de closeout + PRIORIDAD → Fase C + opcional tag `0.4.2` |
-| **M4–M6** | No bloquean el gate (PARK) |
+| **Mission craft en Jarvis (Fase M software)** | **DONE** |
+| **M7 gate** | **CLOSED** — tag **`v0.4.2`** |
 | **Físico / lab** | PARKED — no es prerrequisito de Fase C |
-| **Fase C propiamente** | Empieza **después** de M7: firmware FC, MAVLink/GCS, bind ELRS, PID, mission planner, app piloto |
+| **Fase C propiamente** | **PRIORIDAD** — await ★: firmware FC, MAVLink/GCS, bind ELRS, PID, mission planner, app piloto |
 
-**Respuesta corta:** el camino de software de misión en Jarvis está cerrado. Queda **M7** (cierre formal) y luego el arco nuevo de **control / enlace** — eso es el “diseño de software de equipo”, aún no empezado en SoT.
+**Respuesta corta:** Fase M cerrada. Fase C abierta en cola — aún sin primer Buy.
 
 ---
 
@@ -96,8 +95,5 @@ No son “siguiente Buy” de craft-mission. Abrir solo tras M7 ★:
 
 | Opción | Cuándo |
 |---|---|
-| **Quedarse en `0.4.1`** (recomendado **ahora**) | Los ICs de este ciclo bloquearon bump; el trabajo es continuo sobre el mismo checkpoint |
-| **`0.4.2`** | Al cerrar **M7** (Fase M done) — tag + release note “mission mass + Continuity ladder + B routing” |
-| **`0.5.0`** | Solo si Fase C mete contrato de producto nuevo (control / enlace) en Jarvis |
-
-**Decisión este commit:** **no bump**. Valorar `0.4.2` en M7.
+| **`0.4.2`** (hecho) | Al cerrar **M7** — checkpoint Fase M done |
+| **`0.5.0`** | Primer Buy de Fase C con contrato de producto nuevo (control / enlace) en Jarvis |

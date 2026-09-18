@@ -6,11 +6,11 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.4.1`**. Suite viva **3134** · UI **105**.  
+> **Base:** tag **`v0.4.2`**. Suite viva **3165** · UI **105**.  
 > **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
-> **PRIORIDAD AHORA:** **M7** gate (Fase M → Fase C). M4 VTX **ACCEPT CLOSED** — [review](../.jes/artifacts/implementation_review_mission_vtx_identity_b1.md). Suite **3165**. Package **`0.4.1`**.  
+> **PRIORIDAD AHORA:** **Fase C** — diseño software de equipo / control de vuelo. **Await Engineer ★** para el primer Buy. Fase M **CLOSED** — [M7 closeout](../.jes/artifacts/engineer_note_fase_m_closeout_m7.md). Package **`0.4.2`**.  
 
-> **Parked (not software):** plate-box bag · Path N · HD-* · more camera SKUs / radio catalog W · axial prop↔motor geometry.  
+> **Parked (not software):** plate-box bag · Path N · HD-* · more camera SKUs / radio catalog W · axial prop↔motor geometry · M5 `payload_kg` P2.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -39,11 +39,11 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **M4** | **`B1-mission-vtx-identity`** | **✅ CLOSED** | Zeus 800 · smoke PASS · mass yes · RF≠DC W | [review ACCEPT CLOSED](../.jes/artifacts/implementation_review_mission_vtx_identity_b1.md) · suite **3165** |
 | **M5** | `payload_kg` P2 | **PARK / if needed** | Displace vs P1 warn | Solo si P1 duele |
 | **M6** | Guide polish | **CLOSED** | USER_GUIDE stale cleanup | Engineer: Claude paralelo 2026-09-18 |
-| **M7** | Close Fase M → Fase C | **PRIORIDAD / GATE** | Handoff control de vuelo · tag `0.4.2` | Mínimo craft DONE — **AHORA** |
+| **M7** | Close Fase M → Fase C | **✅ CLOSED** | [closeout](../.jes/artifacts/engineer_note_fase_m_closeout_m7.md) · tag **`v0.4.2`** | Engineer ★ cerramos 2026-09-18 |
 
-### 📋 COLA — Fase C (después de M7 · diseño software de equipo)
+### 📋 COLA — Fase C (diseño software de equipo · **AHORA**)
 
-Firmware FC · MAVLink/GCS · bind ELRS · PID/tuning · mission planner · app piloto — **fuera SoT** hasta M7. Distancia: [nota](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
+Firmware FC · MAVLink/GCS · bind ELRS · PID/tuning · mission planner · app piloto — **await Engineer ★** (primer Buy). Closeout: [M7](../.jes/artifacts/engineer_note_fase_m_closeout_m7.md). Distancia: [nota](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 
 ### 📋 COLA — Physical / schema (parked)
 

@@ -1,8 +1,8 @@
 # Engineer note — Remaining distance to team flight-control software (Fase C)
 
 **Date:** 2026-09-18  
-**Authority:** Cursor (docs sync after M3.1 ACCEPT)  
-**SoT phase note:** [engineer_note_fase_m_mission_craft_to_control_gate.md](engineer_note_fase_m_mission_craft_to_control_gate.md)
+**Authority:** Cursor (sync after M7 CLOSE)  
+**SoT:** [engineer_note_fase_m_closeout_m7.md](engineer_note_fase_m_closeout_m7.md) · package **`0.4.2`**
 
 ---
 
@@ -14,16 +14,12 @@
 
 | Tramo | Queda |
 |---|---|
-| **Mission craft en Jarvis (Fase M software)** | **0 Buys obligatorios** — H1 · P1 · M1.5–M3.1 **CLOSED** |
-| **M7 (gate administrativo)** | **1 paso** — nota de closeout + PRIORIDAD → Fase C + opcional tag **`0.4.2`** |
-| **M4 VTX / M5 P2 / M6 polish** | **0** si los dejas en PARK (no bloquean) |
-| **Físico / banco** | No es prerrequisito de Fase C |
-| **Fase C (el “software de equipo”)** | **Empieza después de M7** — firmware FC, MAVLink/GCS, bind ELRS, PID, planner, app piloto |
+| **Mission craft en Jarvis (Fase M)** | **0** — CLOSED (M7) |
+| **M7 gate** | **0** — tag **`v0.4.2`** |
+| **Fase C (el “software de equipo”)** | **Await Engineer ★** — primer Buy aún no abierto |
 
 ```text
-[DONE: craft misión] ──► [M7 closeout] ──► [Fase C: diseño software de equipo]
-                              ▲
-                         AHORA (1 gate)
+[DONE: craft misión] ──► [DONE: M7 / v0.4.2] ──► [Fase C: await ★]
 ```
 
-**En una frase:** el software de misión en Jarvis ya está; falta **cerrar formalmente Fase M (M7)** y entonces abrir el arco nuevo de **control/enlace** — ese sí es diseño de software de equipo, todavía no empezado en SoT.
+**En una frase:** Fase M cerrada; Fase C está en PRIORIDAD pero sin primer Buy — di ★ cuando quieras abrir firmware/GCS/ELRS/PID/planner/app.
