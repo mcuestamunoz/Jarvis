@@ -1,5 +1,5 @@
-"""Fase C · C3+C6+C7+C8+C9 — pytest smoke path only (not Engineer Board
-smoke).
+"""Fase C · C3+C6+C7+C8+C9+C10 — pytest smoke path only (not Engineer
+Board smoke).
 
 Python scaffold / sim only — production flight_control runtime is C++
 (future IC). `run_hal_imu_smoke` loads a vehicle profile, builds a
@@ -15,11 +15,14 @@ live HAL) and a level `AttitudeSetpoint`, and runs them through a
 actuation, there is no motor to command. `run_mixer_smoke` (C9) chains
 the full C3→C9 pipeline and finishes by piping each `BodyRateCommand`
 through a `QuadXMixer` with a hover-range collective — still not
-actuation, there is no ESC to write to. None of these call
-`SafetyGate.evaluate` for an `allow` outcome and none touch any actuator
-— there is none to touch in this package. Reuses the existing
+actuation, there is no ESC to write to. `run_esc_pwm_smoke` (C10) chains
+the full C3→C10 pipeline, encoding each `MotorForceCommand` to PWM µs
+and applying it to a `SimulatedEscSink` (disarmed by default) — still
+not actuation, there is no pin/port/socket anywhere in this package.
+None of these call `SafetyGate.evaluate` for an `allow` outcome and none
+touch any actuator — there is none to touch. Reuses the existing
 `smoke_quad_hal_imu` profile id — no new `VehicleProfile` field, no new
-profile JSON, no schema change for C7, C8, or C9.
+profile JSON, no schema change for C7, C8, C9, or C10.
 """
 
 from __future__ import annotations
@@ -32,6 +35,11 @@ from jarvis.flight_software.flight_control.controller import (
     BodyRateCommand,
     PdAttitudeController,
     level_setpoint,
+)
+from jarvis.flight_software.flight_control.esc import (
+    EscApplyResult,
+    SimulatedEscSink,
+    encode_motor_forces,
 )
 from jarvis.flight_software.flight_control.filter import ImuLowPassFilter
 from jarvis.flight_software.flight_control.mixer import (
@@ -127,4 +135,36 @@ def run_mixer_smoke(
         setpoint = level_setpoint(state.t_s)
         rate_cmd = controller.compute(setpoint, state)
         results.append(mixer.mix(collective, rate_cmd))
+    return results
+
+
+def run_esc_pwm_smoke(
+    profile_id: str = "smoke_quad_hal_imu",
+    samples: int = 1,
+    alpha: float = 0.2,
+    gain: float = 0.02,
+    kp: float = 6.0,
+    kd: float = 0.6,
+    collective: float = hover_collective(),
+    armed: bool = False,
+) -> list[EscApplyResult]:
+    profile = load_profile(profile_id)
+    assert profile.rung == "hal_imu"
+    hal = SimulatedImuHal(seed=0)
+    filt = ImuLowPassFilter(alpha=alpha)
+    estimator = ComplementaryAttitudeEstimator(gain=gain)
+    controller = PdAttitudeController(kp=kp, kd=kd)
+    mixer = QuadXMixer()
+    sink = SimulatedEscSink()
+    if armed:
+        sink.arm()
+    results: list[EscApplyResult] = []
+    for _ in range(max(1, samples)):
+        filtered = filt.filter_sample(hal.read_imu())
+        state = estimator.update(filtered)
+        setpoint = level_setpoint(state.t_s)
+        rate_cmd = controller.compute(setpoint, state)
+        forces = mixer.mix(collective, rate_cmd)
+        pwm_cmd = encode_motor_forces(forces)
+        results.append(sink.apply(pwm_cmd))
     return results

@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-20 C9 ACCEPT @ v0.5.7. C10 ESC/PWM stub IC READY FOR \u2605.",
+  "cycle_intent": "2026-09-20 C10 ACCEPT CLOSED @ v0.5.8. Next Buy: Engineer picks one front.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_star_c10_esc",
-  "active_operation": "b1_fase_c_esc_pwm_stub_rung_ic",
+  "current_mode": "await_engineer_next_front",
+  "active_operation": "b1_fase_c_esc_pwm_stub_rung_closed",
   "movement_trigger": {
-    "type": "engineer_star",
-    "note": "2026-09-20 C9 tagged v0.5.7. C10 IC READY: force\u2192PWM \u00b5s + SimulatedEscSink; no GPIO/DShot."
+    "type": "engineer_priority",
+    "note": "2026-09-20 C10 tagged v0.5.8. Ladder tip still no hardware. Pick one front: rate\u2192torque / Safety-real / C++ / link."
   },
   "relevant_workflow_phases": [
     "Verification"

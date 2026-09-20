@@ -12,6 +12,12 @@ from jarvis.flight_software.flight_control.controller import (
     PdAttitudeController,
     level_setpoint,
 )
+from jarvis.flight_software.flight_control.esc import (
+    EscApplyResult,
+    EscPwmCommand,
+    SimulatedEscSink,
+    encode_motor_forces,
+)
 from jarvis.flight_software.flight_control.filter import ImuLowPassFilter, read_filtered
 from jarvis.flight_software.flight_control.hal import ImuHal
 from jarvis.flight_software.flight_control.mixer import (
@@ -27,13 +33,17 @@ __all__ = [
     "AttitudeState",
     "BodyRateCommand",
     "ComplementaryAttitudeEstimator",
+    "EscApplyResult",
+    "EscPwmCommand",
     "ImuHal",
     "ImuLowPassFilter",
     "ImuSample",
     "MotorForceCommand",
     "PdAttitudeController",
     "QuadXMixer",
+    "SimulatedEscSink",
     "SimulatedImuHal",
+    "encode_motor_forces",
     "hover_collective",
     "level_setpoint",
     "read_attitude",

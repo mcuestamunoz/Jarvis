@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.7** — Fase C through mixer rung (C9)
+**v0.5.8 tagged tip** · Fase C C10 ESC/PWM stub CLOSED
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,21 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.8 includes
+
+Fase C · **C10** (`B1-fase-c-esc-pwm-stub-rung`) — **sixth `flight_control` rung: ESC/PWM command encoding stub, in-memory sink only**:
+
+- **Same Engineer scaffold discipline: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** No C++ tree, no CMake created.
+- `src/jarvis/flight_software/flight_control/esc.py` — `encode_motor_forces(forces, *, min_us=1000, max_us=2000) -> EscPwmCommand`: linear map, `force=0 → min_us`, `force=1 → max_us`; `min_us`/`max_us` must be finite with `min_us < max_us`
+- **Exactly one encoding** — classic PWM-in-µs only; no DShot/Oneshot/Multishot shipped alongside it
+- `SimulatedEscSink` — `armed` starts `False`; `apply(cmd)` always records the command in memory but only reports `applied=True` while armed (`applied=False`, `reason="disarmed"` otherwise) — no `RPi.GPIO`, `pigpio`, `/dev/mem`, serial, or socket I/O anywhere
+- **Not wired to C4**: no auto-routing of `AutonomyVerb.HOLD`
+- `run_esc_pwm_smoke()` — full C3→C10 pipeline smoke path, disarmed by default (reuses the existing `smoke_quad_hal_imu` profile, no schema change)
+- `default_safety_gate()` unchanged — encoding/recording a PWM command is not actuation; autonomy `submit_command` still always rejects
+- Does **not** touch Continuity, orchestrator IDLE, Board, or `library/`
+- **ESC/PWM stub @ 0.5.8 != hardware ESC / != flying.** No pin, port, or socket exists anywhere, and no motor is claimed to spin
+- Tagged **`v0.5.8`** on Engineer ACCEPT (suite **3315**) — [review](.jes/artifacts/implementation_review_fase_c_esc_pwm_stub_rung_b1.md)
 
 ## What v0.5.7 includes
 
@@ -203,7 +218,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.7`** (C9 mixer CLOSED). Next: ★ **C10** ESC/PWM stub IC → implement → review → ACCEPT. One front only — see [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.8`** (C10 ESC/PWM stub CLOSED). Ladder tip: six rungs still never touch hardware — “controlled flight” unclaimed. Next Buy still **one front** (rate→torque honesty · Safety-real · C++ · link — Engineer prioritizes) — see [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
 
@@ -226,6 +241,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.5.8` / `checkpoint-fase-c-esc-pwm` — Fase C C10: force→PWM µs + SimulatedEscSink; suite **3315** · UI **132**.  
 `v0.5.7` / `checkpoint-fase-c-mixer` — Fase C C9: quad-X mixer; suite **3297** · UI **132**.  
 `v0.5.6` / `checkpoint-fase-c-controller` — Fase C C8: PD attitude → body-rate command; suite **3280** · UI **132**.  
 `v0.5.5` / `checkpoint-fase-c-attitude` — Fase C C7: complementary attitude estimation rung; suite **3264** · UI **132**.  

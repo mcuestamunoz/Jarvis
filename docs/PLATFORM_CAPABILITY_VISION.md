@@ -462,6 +462,12 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 
 **Mixer stub ≠ ESC / ≠ flying** — four numbers only; no PWM, DShot, ESC UART, or GPIO exists anywhere, and no claim that any motor spins.
 
+**C10 (ACCEPT CLOSED, tag `v0.5.8`):**  
+**Same Engineer scaffold discipline continues: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."**  
+[`.jes/artifacts/implementation_contract_fase_c_esc_pwm_stub_rung_b1.md`](../.jes/artifacts/implementation_contract_fase_c_esc_pwm_stub_rung_b1.md) — the **sixth** `flight_control` rung: `encode_motor_forces(forces, *, min_us=1000, max_us=2000) -> EscPwmCommand` linearly maps each C9 motor force onto a PWM pulse width in microseconds (`force=0 → min_us`, `force=1 → max_us`; `min_us`/`max_us` must be finite with `min_us < max_us`). **Exactly one encoding** — classic PWM-in-µs; no DShot/Oneshot/Multishot shipped alongside it. `SimulatedEscSink` records the resulting `EscPwmCommand` **in memory only** (`armed` starts `False`; `apply(cmd)` always records the command but only reports `applied=True` while armed — no `RPi.GPIO`/`pigpio`/serial/socket I/O anywhere). Not wired to C4. Package/tag **`0.5.8`**. See [review PASS](../.jes/artifacts/implementation_review_fase_c_esc_pwm_stub_rung_b1.md) · [implementation report](../.jes/artifacts/implementation_report_fase_c_esc_pwm_stub_rung_b1.md).
+
+**ESC/PWM stub ≠ hardware ESC / ≠ flying** — arming is a plain in-memory flag; no pin, port, or socket exists anywhere, and no claim that any motor spins.
+
 ### Historical sketch (still valid as narrative)
 
 First design:
