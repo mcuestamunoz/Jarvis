@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-20 ACCEPT C4+C5 as one block @ v0.5.3. Fase C surface through radio CLOSED.",
+  "cycle_intent": "2026-09-20 C6 ACCEPT CLOSED @ v0.5.4. Next: decide what C7 must demonstrate (one front; likely estimation) via IC before code.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "idle — await Engineer next Buy (C6+)",
+  "current_mode": "idle — decide C7 demonstration before IC",
   "active_operation": "none",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-20 C4+C5 ACCEPT CLOSED @ v0.5.3 (no v0.5.2 tag). Next Buy when Engineer prioritizes."
+    "note": "2026-09-20 C6 tagged v0.5.4. Process lock: one front; no Safety+C+++ELRS simultaneous. See engineer_note_fase_c_process_lock_after_c6_2026_09_20.md."
   },
   "relevant_workflow_phases": [
     "Verification"

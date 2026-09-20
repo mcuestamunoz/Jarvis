@@ -438,6 +438,12 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 
 **Dual-role stub ≠ live ELRS** — no real link is decoded and authority never implies Safety `allow`.
 
+**C6 (ACCEPT CLOSED, tag `v0.5.4`):**  
+**Same Engineer scaffold discipline continues: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."**  
+[`.jes/artifacts/implementation_contract_fase_c_imu_filtering_rung_b1.md`](../.jes/artifacts/implementation_contract_fase_c_imu_filtering_rung_b1.md) — the **second** `flight_control` rung: `ImuLowPassFilter` (deterministic first-order EMA, `alpha` constructor parameter, default `0.2`, rejects `alpha` outside `(0, 1]`) applied per-axis to `accel_mps2`/`gyro_rad_s`. `filter_sample(raw: ImuSample) -> ImuSample` — reuses C3's `ImuSample` verbatim, no parallel type. This is **sensing post-process, not estimation**: no quaternion, no Euler angles, no Madgwick/Mahony/EKF, no attitude output. `read_filtered(hal, filt)` pipes `SimulatedImuHal.read_imu()` through the filter; `vehicle_profiles.run_hal_imu_filter_smoke()` is the pytest-visible smoke path. Package/tag **`0.5.4`**. See [review PASS](../.jes/artifacts/implementation_review_fase_c_imu_filtering_rung_b1.md) · [report](../.jes/artifacts/implementation_report_fase_c_imu_filtering_rung_b1.md). After C6: [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+
+**Filter rung ≠ attitude / ≠ controlled flight** — state estimation remains a separate future IC (decide demonstration before opening Safety-real or C++ fronts).
+
 ### Historical sketch (still valid as narrative)
 
 First design:

@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.3** — Fase C platform surface through radio (C4+C5 one block; no `v0.5.2` tag)
+**v0.5.4** — Fase C through IMU filtering rung (C6)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,20 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.4 includes
+
+Fase C · **C6** (`B1-fase-c-imu-filtering-rung`) — **second `flight_control` rung: IMU filtering, sensing post-process only**:
+
+- **Same Engineer scaffold discipline: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** No C++ tree, no CMake created.
+- `src/jarvis/flight_software/flight_control/filter.py` — `ImuLowPassFilter`: deterministic first-order EMA (`alpha` constructor param, default `0.2`, rejects values outside `(0, 1]`), applied per-axis to `accel_mps2`/`gyro_rad_s`
+- `filter_sample(raw: ImuSample) -> ImuSample` reuses C3's `ImuSample` verbatim — no parallel type. First sample after construction/`reset()` seeds the filter unsmoothed
+- **Sensing post-process, not estimation:** no quaternion, no Euler angles, no Madgwick/Mahony/EKF output — that belongs to a later, separate estimation-class rung
+- `read_filtered(hal, filt)` pipes `SimulatedImuHal.read_imu()` through the filter; `vehicle_profiles.run_hal_imu_filter_smoke()` is the pytest-visible smoke path
+- `default_safety_gate()` unchanged — filtering is not actuation, no `allow` required; autonomy `submit_command` still always rejects
+- Does **not** touch Continuity, orchestrator IDLE, Board, or `library/`
+- **Filter rung @ 0.5.4 != attitude / != controlled flight.** State estimation, attitude/rate/position control, mixer, and ESC remain future ICs
+- Tagged **`v0.5.4`** on Engineer ACCEPT (suite **3249**)
 
 ## What v0.5.3 includes
 
@@ -138,7 +152,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Fase C platform surface through radio CLOSED @ `v0.5.3`** (C4+C5 one block). Next Buy when Engineer prioritizes (further FC rungs / real Safety policy / native stacks). Filtering, state estimation, attitude/rate/position control, mixer, ESC/PWM, MAVLink/GCS, real ELRS decode, PID, mission planner, and app piloto remain later Buys.
+**Tip clean @ `v0.5.4`** (C6 filter CLOSED). Next: decide what **C7 must demonstrate** (likely state estimation) → IC → ★. One front only — see [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md). Not simultaneous: real Safety, C++ FC, ELRS, craft↔FS wiring.
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish.
 
@@ -161,6 +175,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.5.4` / `checkpoint-fase-c-imu-filter` — Fase C C6: IMU EMA/low-pass filter rung; suite **3249** · UI **132**.  
 `v0.5.3` / `checkpoint-fase-c-autonomy-radio` — Fase C C4+C5 one block: autonomy command surface + radio dual-role stub; suite **3236** · UI **132**. (**No `v0.5.2` tag** — see truth-sync note.)  
 `v0.5.1` / `checkpoint-fase-c-first-fc-rung` — Fase C C3: first `flight_control` rung (HAL + simulated IMU), `flight_software/`+`vehicle_profiles/` opened; Python scaffold, production FC runtime is C++ (future IC); suite **3206** · UI **132**.  
 `v0.5.0` / `checkpoint-fase-c-capability-registry` — Fase C open: empty Capability Registry scaffold; suite **3181** · UI **132**.  

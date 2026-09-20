@@ -18,9 +18,12 @@ creates no C++ tree and no CMake anywhere in the repo.
   These are different systems of record and must never be treated as the
   same thing by any reader of this codebase.
 
-`flight_control/` ships exactly **one rung**: HAL + simulated IMU sample
-acquisition. No filtering, no state estimation, no attitude/rate/position
-controller, no mixer, no ESC/PWM. `autonomy/` (C4) ships a typed command
+`flight_control/` ships exactly **two rungs**: HAL + simulated IMU sample
+acquisition (C3), and a deterministic EMA/low-pass `ImuLowPassFilter`
+(C6) that consumes those samples — sensing post-process only, never
+estimation (no quaternion/Euler/Madgwick/Mahony/EKF output). No state
+estimation, no attitude/rate/position controller, no mixer, no ESC/PWM.
+`autonomy/` (C4) ships a typed command
 **surface** — `TAKEOFF`/`HOLD`/`GO_TO`/`FOLLOW`/`RETURN_HOME`/`LAND`/
 `PATROL` as proposable, non-operational commands that must pass through
 `SafetyGate.evaluate(...)` before any hypothetical execution step; with
@@ -35,12 +38,14 @@ This is a sensing + command-surface stub. It does not make any vehicle
 flyable, holdable, or landable, and must never be described as such, and
 this Python code must never be presented as production-ready
 flight_control, MCU drivers, or a real control loop — see
-`.jes/artifacts/implementation_report_fase_c_first_fc_rung_b1.md` and
-`.jes/artifacts/implementation_report_fase_c_autonomy_surface_b1.md`.
+`.jes/artifacts/implementation_report_fase_c_first_fc_rung_b1.md`,
+`.jes/artifacts/implementation_report_fase_c_autonomy_surface_b1.md`, and
+`.jes/artifacts/implementation_report_fase_c_imu_filtering_rung_b1.md`.
 """
 
+from jarvis.flight_software.flight_control.filter import ImuLowPassFilter, read_filtered
 from jarvis.flight_software.flight_control.hal import ImuHal
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
 from jarvis.flight_software.flight_control.types import ImuSample
 
-__all__ = ["ImuHal", "ImuSample", "SimulatedImuHal"]
+__all__ = ["ImuHal", "ImuLowPassFilter", "ImuSample", "SimulatedImuHal", "read_filtered"]

@@ -1,21 +1,26 @@
-"""Fase C · C3 — `vehicle_profiles`: which physical/hardware configuration a
-system needs (see `docs/PLATFORM_CAPABILITY_VISION.md` §4).
+"""Fase C · C3+C6 — `vehicle_profiles`: which physical/hardware
+configuration a system needs (see `docs/PLATFORM_CAPABILITY_VISION.md`
+§4).
 
 Python scaffold / sim only — production flight_control runtime is C++
 (future IC). C3 ships exactly one profile, a pytest smoke fixture
 (`smoke_quad_hal_imu`) declaring it expects the `hal_imu` rung only — not a
 real vehicle, not flight-capable, and not bound to any craft
-workspace/BOM/catalog SKU. See
-`.jes/artifacts/implementation_contract_fase_c_first_fc_rung_b1.md`.
+workspace/BOM/catalog SKU. C6 adds `run_hal_imu_filter_smoke`, the same
+smoke path piped through `ImuLowPassFilter` — still sensing, never
+estimation. See
+`.jes/artifacts/implementation_contract_fase_c_first_fc_rung_b1.md` and
+`.jes/artifacts/implementation_contract_fase_c_imu_filtering_rung_b1.md`.
 """
 
 from jarvis.vehicle_profiles.loader import load_profile, load_smoke_profile
 from jarvis.vehicle_profiles.schemas import VehicleProfile
-from jarvis.vehicle_profiles.smoke import run_hal_imu_smoke
+from jarvis.vehicle_profiles.smoke import run_hal_imu_filter_smoke, run_hal_imu_smoke
 
 __all__ = [
     "VehicleProfile",
     "load_profile",
     "load_smoke_profile",
+    "run_hal_imu_filter_smoke",
     "run_hal_imu_smoke",
 ]
