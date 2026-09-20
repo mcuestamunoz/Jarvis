@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (motor forces ≠ ESC/PWM · one layout · no craft wiring)
 
-**Status:** READY FOR ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.7`** (Engineer 2026-09-20)  
 **Parents:**
 - [C0 Design Contract ★](design_contract_fase_c_skill_capability_architecture.md) — §7 FC progression (`controller → mixer → ESC → …`) · one rung per IC  
 - [C8 ★ ACCEPT](implementation_contract_fase_c_attitude_controller_rung_b1.md) — `BodyRateCommand` / PD controller @ **`v0.5.6`** (assumed landed with this Buy’s ACCEPT tip)  

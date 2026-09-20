@@ -456,6 +456,12 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 
 **Controller stub ≠ flying / ≠ motor commands** — nothing here moves a motor; mixer, ESC, and real hardware remain future fronts, one at a time per the process lock.
 
+**C9 (ACCEPT CLOSED, tag `v0.5.7`):**  
+**Same Engineer scaffold discipline continues: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."**  
+[`.jes/artifacts/implementation_contract_fase_c_mixer_rung_b1.md`](../.jes/artifacts/implementation_contract_fase_c_mixer_rung_b1.md) — the **fifth** `flight_control` rung: `QuadXMixer` — a fixed linear allocation matrix for **one documented quadrotor-X layout** (motors `0..3` = FR/FL/RL/RR, 45° off body axes). `mix(collective, rates: BodyRateCommand) -> MotorForceCommand` clamps `collective` to `[0, 1]` and emits four `[0, 1]`-clamped motor force numbers. **Honesty-critical simplification, documented explicitly:** C8's `BodyRateCommand.omega_body_rad_s` is a body *rate*, not a true body *torque* — this B1 mixer treats it directly as the roll/pitch/yaw mix channels to teach allocation geometry, without claiming rate ≡ torque physically and without inventing a second controller to bridge that gap. `roll_scale`/`pitch_scale`/`yaw_scale` (default `0.05` each) must be finite and `>= 0`. Not wired to C4: no auto-routing of `AutonomyVerb.HOLD`. Package/tag **`0.5.7`**. See [review PASS](../.jes/artifacts/implementation_review_fase_c_mixer_rung_b1.md) · [implementation report](../.jes/artifacts/implementation_report_fase_c_mixer_rung_b1.md).
+
+**Mixer stub ≠ ESC / ≠ flying** — four numbers only; no PWM, DShot, ESC UART, or GPIO exists anywhere, and no claim that any motor spins.
+
 ### Historical sketch (still valid as narrative)
 
 First design:

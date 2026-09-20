@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.6** — Fase C through attitude controller rung (C8)
+**v0.5.7** — Fase C through mixer rung (C9)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,23 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.7 includes
+
+Fase C · **C9** (`B1-fase-c-mixer-rung`) — **fifth `flight_control` rung: motor allocation, four numbers only**:
+
+- **Same Engineer scaffold discipline: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** No C++ tree, no CMake created.
+- `src/jarvis/flight_software/flight_control/mixer.py` — `QuadXMixer`: one documented quadrotor-X layout (motors `0..3` = FR/FL/RL/RR, 45° off body axes) via a fixed linear allocation matrix
+- `mix(collective, rates: BodyRateCommand) -> MotorForceCommand` — `collective` clamped to `[0, 1]`; output is four `[0, 1]`-clamped, dimensionless motor force numbers
+- **Honesty-critical simplification, stated explicitly:** C8's `BodyRateCommand.omega_body_rad_s` is a body *rate*, not a true body *torque* — this B1 mixer treats it directly as roll/pitch/yaw mix channels to teach allocation geometry, without claiming rate ≡ torque physically and without inventing a second controller to bridge that gap
+- `roll_scale`/`pitch_scale`/`yaw_scale` (default `0.05` each) must be finite and `>= 0`; a `0` disables that channel
+- **Exactly one layout** — no `+`/H/Y6/octo mixing matrix shipped alongside it
+- **Not wired to C4**: no auto-routing of `AutonomyVerb.HOLD`
+- `hover_collective()` and `run_mixer_smoke()` — tests/smoke only, no hover-thrust or hardware claim (reuses the existing `smoke_quad_hal_imu` profile, no schema change)
+- `default_safety_gate()` unchanged — mixing is not actuation; autonomy `submit_command` still always rejects
+- Does **not** touch Continuity, orchestrator IDLE, Board, or `library/`
+- **Mixer stub @ 0.5.7 != ESC / != flying.** No PWM, DShot, ESC UART, or GPIO exists anywhere, and no motor is claimed to spin
+- Tagged **`v0.5.7`** on Engineer ACCEPT (suite **3297**)
 
 ## What v0.5.6 includes
 
@@ -186,7 +203,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.6`** (C8 controller CLOSED). Next: ★ **C9** mixer IC → implement → review → ACCEPT. One front only — see [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.7`** (C9 mixer CLOSED). Next: ★ **C10** ESC/PWM stub IC → implement → review → ACCEPT. One front only — see [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
 
@@ -209,6 +226,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.5.7` / `checkpoint-fase-c-mixer` — Fase C C9: quad-X mixer; suite **3297** · UI **132**.  
 `v0.5.6` / `checkpoint-fase-c-controller` — Fase C C8: PD attitude → body-rate command; suite **3280** · UI **132**.  
 `v0.5.5` / `checkpoint-fase-c-attitude` — Fase C C7: complementary attitude estimation rung; suite **3264** · UI **132**.  
 `v0.5.4` / `checkpoint-fase-c-imu-filter` — Fase C C6: IMU EMA/low-pass filter rung; suite **3249** · UI **132**.  
