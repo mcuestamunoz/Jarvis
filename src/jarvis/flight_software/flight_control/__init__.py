@@ -6,18 +6,28 @@ from jarvis.flight_software.flight_control.attitude import (
     ComplementaryAttitudeEstimator,
     read_attitude,
 )
+from jarvis.flight_software.flight_control.controller import (
+    AttitudeSetpoint,
+    BodyRateCommand,
+    PdAttitudeController,
+    level_setpoint,
+)
 from jarvis.flight_software.flight_control.filter import ImuLowPassFilter, read_filtered
 from jarvis.flight_software.flight_control.hal import ImuHal
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
 from jarvis.flight_software.flight_control.types import ImuSample
 
 __all__ = [
+    "AttitudeSetpoint",
     "AttitudeState",
+    "BodyRateCommand",
     "ComplementaryAttitudeEstimator",
     "ImuHal",
     "ImuLowPassFilter",
     "ImuSample",
+    "PdAttitudeController",
     "SimulatedImuHal",
+    "level_setpoint",
     "read_attitude",
     "read_filtered",
 ]

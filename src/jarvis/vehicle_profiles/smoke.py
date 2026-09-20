@@ -1,4 +1,4 @@
-"""Fase C · C3+C6+C7 — pytest smoke path only (not Engineer Board smoke).
+"""Fase C · C3+C6+C7+C8 — pytest smoke path only (not Engineer Board smoke).
 
 Python scaffold / sim only — production flight_control runtime is C++
 (future IC). `run_hal_imu_smoke` loads a vehicle profile, builds a
@@ -7,12 +7,15 @@ Python scaffold / sim only — production flight_control runtime is C++
 `ImuLowPassFilter` — still sensing post-process, not estimation.
 `run_hal_imu_attitude_smoke` (C7) pipes each raw sample through the C6
 filter and then through a `ComplementaryAttitudeEstimator` — state
-estimation, still not control/actuation. None of these call
-`SafetyGate.evaluate` for an `allow` outcome (reading/filtering/
-estimating from a sensor is not actuation) and none touch any actuator
+estimation, still not control/actuation. `run_attitude_controller_smoke`
+(C8) takes ≥1 `AttitudeState` (from a synthetic sequence, not requiring
+live HAL) and a level `AttitudeSetpoint`, and runs them through a
+`PdAttitudeController` to produce `BodyRateCommand`s — still not
+actuation, there is no motor to command. None of these call
+`SafetyGate.evaluate` for an `allow` outcome and none touch any actuator
 — there is none to touch in this package. Reuses the existing
 `smoke_quad_hal_imu` profile id — no new `VehicleProfile` field, no new
-profile JSON, no schema change for C7.
+profile JSON, no schema change for C7 or C8.
 """
 
 from __future__ import annotations
@@ -20,6 +23,11 @@ from __future__ import annotations
 from jarvis.flight_software.flight_control.attitude import (
     AttitudeState,
     ComplementaryAttitudeEstimator,
+)
+from jarvis.flight_software.flight_control.controller import (
+    BodyRateCommand,
+    PdAttitudeController,
+    level_setpoint,
 )
 from jarvis.flight_software.flight_control.filter import ImuLowPassFilter
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
@@ -61,4 +69,27 @@ def run_hal_imu_attitude_smoke(
     for _ in range(max(1, samples)):
         filtered = filt.filter_sample(hal.read_imu())
         results.append(estimator.update(filtered))
+    return results
+
+
+def run_attitude_controller_smoke(
+    profile_id: str = "smoke_quad_hal_imu",
+    samples: int = 1,
+    alpha: float = 0.2,
+    gain: float = 0.02,
+    kp: float = 6.0,
+    kd: float = 0.6,
+) -> list[BodyRateCommand]:
+    profile = load_profile(profile_id)
+    assert profile.rung == "hal_imu"
+    hal = SimulatedImuHal(seed=0)
+    filt = ImuLowPassFilter(alpha=alpha)
+    estimator = ComplementaryAttitudeEstimator(gain=gain)
+    controller = PdAttitudeController(kp=kp, kd=kd)
+    results: list[BodyRateCommand] = []
+    for _ in range(max(1, samples)):
+        filtered = filt.filter_sample(hal.read_imu())
+        state = estimator.update(filtered)
+        setpoint = level_setpoint(state.t_s)
+        results.append(controller.compute(setpoint, state))
     return results

@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.5** — Fase C through attitude estimation rung (C7)
+**v0.5.6** — Fase C through attitude controller rung (C8)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,23 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.6 includes
+
+Fase C · **C8** (`B1-fase-c-attitude-controller-rung`) — **fourth `flight_control` rung: attitude controller, body-rate output only**:
+
+- **Same Engineer scaffold discipline: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** No C++ tree, no CMake created.
+- `src/jarvis/flight_software/flight_control/controller.py` — `PdAttitudeController`: `omega_cmd = kp * e_rot - kd * omega_measured` (`kp` default `6.0`, must be `> 0`; `kd` default `0.6`, must be `>= 0`; both finite)
+- `e_rot` is the body-frame small-angle rotation vector from the C7 `AttitudeState` toward an `AttitudeSetpoint`, extracted from the shortest-path error quaternion; `omega_measured` is `AttitudeState.omega_body_rad_s` (damping term)
+- **Exactly one controller** — no cascaded rate PID, LQR, MPC, or INDI shipped alongside it
+- `compute(setpoint, state) -> BodyRateCommand` — **body-rate number only**: no motor thrust, no mixer matrix, no PWM/ESC, no collective-thrust channel, no position/velocity loop
+- **Not wired to C4**: `AutonomyVerb.HOLD` is never auto-routed into this controller; the module never calls `submit_command`
+- `level_setpoint(t_s)` — identity-quaternion setpoint for tests/smoke only, no hover-thrust claim
+- `run_attitude_controller_smoke()` — pipeline smoke path (reuses the existing `smoke_quad_hal_imu` profile, no schema change)
+- `default_safety_gate()` unchanged — computing a rate command is not actuation; autonomy `submit_command` still always rejects
+- Does **not** touch Continuity, orchestrator IDLE, Board, or `library/`
+- **Controller stub @ 0.5.6 != flying / != motor commands.** Mixer and ESC remain future ICs, each its own front
+- Tagged **`v0.5.6`** on Engineer ACCEPT (suite **3280**)
 
 ## What v0.5.5 includes
 
@@ -169,7 +186,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.5`** (C7 attitude CLOSED). Next: ★ **C8** attitude controller IC → implement → review → ACCEPT. One front only — see [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.6`** (C8 controller CLOSED). Next: ★ **C9** mixer IC → implement → review → ACCEPT. One front only — see [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
 
@@ -192,6 +209,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.5.6` / `checkpoint-fase-c-controller` — Fase C C8: PD attitude → body-rate command; suite **3280** · UI **132**.  
 `v0.5.5` / `checkpoint-fase-c-attitude` — Fase C C7: complementary attitude estimation rung; suite **3264** · UI **132**.  
 `v0.5.4` / `checkpoint-fase-c-imu-filter` — Fase C C6: IMU EMA/low-pass filter rung; suite **3249** · UI **132**.  
 `v0.5.3` / `checkpoint-fase-c-autonomy-radio` — Fase C C4+C5 one block: autonomy command surface + radio dual-role stub; suite **3236** · UI **132**. (**No `v0.5.2` tag** — see truth-sync note.)  

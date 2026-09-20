@@ -450,6 +450,12 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 
 **Attitude stub ≠ flight-verified attitude / ≠ controlled flight** — controller, mixer, and ESC remain future ICs, each its own front.
 
+**C8 (ACCEPT CLOSED, tag `v0.5.6`):**  
+**Same Engineer scaffold discipline continues: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."**  
+[`.jes/artifacts/implementation_contract_fase_c_attitude_controller_rung_b1.md`](../.jes/artifacts/implementation_contract_fase_c_attitude_controller_rung_b1.md) — the **fourth** `flight_control` rung: `PdAttitudeController` — `omega_cmd = kp * e_rot - kd * omega_measured`, where `e_rot` is the body-frame small-angle rotation vector from the C7 estimate toward an `AttitudeSetpoint` (extracted from the shortest-path error quaternion), and `omega_measured` is `AttitudeState.omega_body_rad_s`. `kp` (default `6.0`) must be `> 0`; `kd` (default `0.6`) must be `>= 0`; both finite. Exactly **one** controller — no cascaded rate PID, LQR, MPC, or INDI. `compute(setpoint, state) -> BodyRateCommand` — the output is a **body-rate number only**: no motor thrust, no mixer matrix, no PWM/ESC, no collective-thrust channel, no position/velocity loop. Not wired to C4: `AutonomyVerb.HOLD` is never auto-routed here, and this module never calls `submit_command`. Package/tag **`0.5.6`**. See [review PASS](../.jes/artifacts/implementation_review_fase_c_attitude_controller_rung_b1.md) · [implementation report](../.jes/artifacts/implementation_report_fase_c_attitude_controller_rung_b1.md).
+
+**Controller stub ≠ flying / ≠ motor commands** — nothing here moves a motor; mixer, ESC, and real hardware remain future fronts, one at a time per the process lock.
+
 ### Historical sketch (still valid as narrative)
 
 First design:

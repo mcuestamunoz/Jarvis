@@ -18,15 +18,18 @@ creates no C++ tree and no CMake anywhere in the repo.
   These are different systems of record and must never be treated as the
   same thing by any reader of this codebase.
 
-`flight_control/` ships exactly **three rungs**: HAL + simulated IMU
+`flight_control/` ships exactly **four rungs**: HAL + simulated IMU
 sample acquisition (C3); a deterministic EMA/low-pass `ImuLowPassFilter`
-(C6) that consumes those samples — sensing post-process only; and a
-single minimal `ComplementaryAttitudeEstimator` (C7) that consumes
-filtered samples and emits `AttitudeState` (quaternion + body rate) —
-NOT Mahony/Madgwick/EKF/UKF by name (no bias learning, no gradient
-descent, no covariance), no magnetometer/GPS/baro fusion, and never
-flight-verified. No attitude/rate/position **controller**, no mixer, no
-ESC/PWM anywhere in this package. `autonomy/` (C4) ships a typed command
+(C6) that consumes those samples — sensing post-process only; a single
+minimal `ComplementaryAttitudeEstimator` (C7) that consumes filtered
+samples and emits `AttitudeState` (quaternion + body rate) — NOT
+Mahony/Madgwick/EKF/UKF by name (no bias learning, no gradient descent,
+no covariance), no magnetometer/GPS/baro fusion, and never
+flight-verified; and a single `PdAttitudeController` (C8) that consumes
+an `AttitudeSetpoint` + `AttitudeState` and emits a `BodyRateCommand` —
+a body-rate number only, never a motor command. No mixer, no ESC/PWM,
+no position/velocity control loop anywhere in this package. `autonomy/`
+(C4) ships a typed command
 **surface** — `TAKEOFF`/`HOLD`/`GO_TO`/`FOLLOW`/`RETURN_HOME`/`LAND`/
 `PATROL` as proposable, non-operational commands that must pass through
 `SafetyGate.evaluate(...)` before any hypothetical execution step; with
@@ -44,8 +47,9 @@ flight_control, MCU drivers, or a real control loop — see
 `.jes/artifacts/implementation_report_fase_c_first_fc_rung_b1.md`,
 `.jes/artifacts/implementation_report_fase_c_autonomy_surface_b1.md`,
 `.jes/artifacts/implementation_report_fase_c_imu_filtering_rung_b1.md`,
+`.jes/artifacts/implementation_report_fase_c_attitude_estimation_rung_b1.md`,
 and
-`.jes/artifacts/implementation_report_fase_c_attitude_estimation_rung_b1.md`.
+`.jes/artifacts/implementation_report_fase_c_attitude_controller_rung_b1.md`.
 """
 
 from jarvis.flight_software.flight_control.attitude import (
@@ -53,18 +57,28 @@ from jarvis.flight_software.flight_control.attitude import (
     ComplementaryAttitudeEstimator,
     read_attitude,
 )
+from jarvis.flight_software.flight_control.controller import (
+    AttitudeSetpoint,
+    BodyRateCommand,
+    PdAttitudeController,
+    level_setpoint,
+)
 from jarvis.flight_software.flight_control.filter import ImuLowPassFilter, read_filtered
 from jarvis.flight_software.flight_control.hal import ImuHal
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
 from jarvis.flight_software.flight_control.types import ImuSample
 
 __all__ = [
+    "AttitudeSetpoint",
     "AttitudeState",
+    "BodyRateCommand",
     "ComplementaryAttitudeEstimator",
     "ImuHal",
     "ImuLowPassFilter",
     "ImuSample",
+    "PdAttitudeController",
     "SimulatedImuHal",
+    "level_setpoint",
     "read_attitude",
     "read_filtered",
 ]

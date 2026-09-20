@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (rate cmd ≠ motors · no mixer/ESC · one controller only)
 
-**Status:** READY FOR ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.6`** (Engineer 2026-09-20)  
 **Parents:**
 - [C0 Design Contract ★](design_contract_fase_c_skill_capability_architecture.md) — §7 FC progression (`state estimation → controller → mixer → …`) · one rung per IC  
 - [C7 ★ ACCEPT](implementation_contract_fase_c_attitude_estimation_rung_b1.md) — `AttitudeState` / complementary estimator @ **`v0.5.5`**  

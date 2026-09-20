@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-20 C7 ACCEPT @ v0.5.5. C8 attitude-controller IC READY FOR ★.",
+  "cycle_intent": "2026-09-20 C8 ACCEPT @ v0.5.6. C9 mixer IC READY FOR ★.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_star_c8_controller",
-  "active_operation": "b1_fase_c_attitude_controller_rung_ic",
+  "current_mode": "await_engineer_star_c9_mixer",
+  "active_operation": "b1_fase_c_mixer_rung_ic",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-20 C7 tagged v0.5.5. C8 IC READY: PD attitude → BodyRateCommand; no mixer/ESC."
+    "note": "2026-09-20 C8 tagged v0.5.6. C9 IC READY: quad-X mixer; no ESC/PWM."
   },
   "relevant_workflow_phases": [
     "Verification"
