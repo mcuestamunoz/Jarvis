@@ -6,10 +6,10 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.4.2`**. Suite viva **3166** · UI **105**.  
+> **Base:** tag **`v0.4.3`**. Suite viva **3166** · UI **132**.  
 > **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
-> **PRIORIDAD AHORA:** **Fase C** — diseño software de equipo / control de vuelo. **Await Engineer ★** para el primer Buy.  
-> Fase M **CLOSED** · D1 docs truth-sync **ACCEPT** · U1 Board Taller 3D **ACCEPT CLOSED** (polish deferred). Package **`0.4.2`**.  
+> **PRIORIDAD AHORA:** **Fase C** — diseño software de equipo / control de vuelo. **Await Engineer ★** para el primer Buy → package **`0.5.0`**.  
+> Pre–Fase C **CLOSED** @ **`v0.4.3`** — [note](../.jes/artifacts/engineer_note_v0_4_3_pre_fase_c_close.md) · M7/`0.4.2` · D1 docs · U1 Taller 3D.  
 
 > **Parked (not software):** plate-box bag · Path N · HD-* · more camera SKUs / radio catalog W · axial prop↔motor geometry · M5 `payload_kg` P2 · Board inspector polish.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).

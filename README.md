@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.4.2**
+**v0.4.3**
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -47,7 +47,18 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
-## What v0.4.2 includes (tag)
+## What v0.4.3 includes (tag)
+
+Last pre–Fase C checkpoint ([closeout note](.jes/artifacts/engineer_note_v0_4_3_pre_fase_c_close.md)):
+
+- Everything in **v0.4.2** (Fase M mission craft), plus:
+  - **D1** docs/` truth-sync @ code · obsolete labeled
+  - **U1** Board **Taller 3D** default · Grafo tab · inspector + mount chain to plate · piece chips
+  - IDLE first-acquire catalog scoped to `vtx`/`cameras` (FN-009 / terrestrial wizard preserved)
+- Live suite **3166** · UI **132**
+- Next: **Fase C** @ **`0.5.0`** on first Engineer ★ Buy
+
+## What v0.4.2 included
 
 Mission craft software checkpoint (**Fase M CLOSED** — [M7 closeout](.jes/artifacts/engineer_note_fase_m_closeout_m7.md)):
 
@@ -56,7 +67,6 @@ Mission craft software checkpoint (**Fase M CLOSED** — [M7 closeout](.jes/arti
 - `library/cameras` Phoenix 2 + `library/vtx` Zeus 800 — fluid catalog help-choose / rebind / mass mirror (RF mW ≠ DC W)
 - BOM `[sku]` display for cameras / FC / sensors; craft-montage user guide sync
 - Live suite **3165** · UI **105**
-- Next: **Fase C** (control / enlace) — await Engineer ★; first product-contract Buy may be **`0.5.0`**
 
 ## What v0.4.1 included
 
@@ -78,9 +88,9 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Fase C** — firmware FC · MAVLink/GCS · bind ELRS · PID · mission planner · app piloto — await Engineer ★.
+**Fase C @ `0.5.0`** — firmware FC · MAVLink/GCS · bind ELRS · PID · mission planner · app piloto — await Engineer ★ for the first Buy.
 
-Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs.
+Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish.
 
 See `docs/IMPLEMENTATION_TASKS.md`.
 
@@ -101,6 +111,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.4.3` / `checkpoint-board-taller-3d` — pre–Fase C CLOSED: docs truth-sync + Board Taller 3D; suite **3166** · UI **132**.  
 `v0.4.2` / `checkpoint-fase-m-mission-craft` — Fase M CLOSED: mission mass + Continuity ladder + cameras/VTX seeds + B routing; suite **3165** · UI **105**.  
 `v0.4.1` / `checkpoint-board-situar` — Board Situar drag→pose (C-113) + free camera + standoff count gate; suite **2669** · UI **80**.  
 `v0.4.0` / `checkpoint-continuity-spatial-assembly` — Continuity spatial assembly (*situar el mapa*); suite **2652**.  

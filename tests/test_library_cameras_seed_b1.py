@@ -194,7 +194,7 @@ def test_t8_package_checkpoint_version():
     text = (_REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     match = re.search(r'(?m)^version\s*=\s*"([^"]+)"', text)
     assert match is not None
-    assert match.group(1) == "0.4.2"
+    assert match.group(1) == "0.4.3"
 
 
 # ── E1 ────────────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 # Jarvis System Map — Navigation Guide
 
 **Version:** SYS-MAP-002 (split/navigability delta of SYS-MAP-001, reviewed PASS WITH NOTES)  
-**Date:** 2026-08-10 (subsystem deltas through **2026-09-18** Fase M mission craft ladder — cameras + VTX catalog families, mission mass/mount/autonomy/power ladder — @ **v0.4.2** / suite **3166** — no new C-xxx; C-113 Situar + C-094-class visor. Prior: mission payload identity + user guide **2945** · block-gate **2938** · disk-axial + `library/fc|sensors` **2911** · Continuity assembly **2652**)  
+**Date:** 2026-08-10 (subsystem deltas through **2026-09-20** tip **v0.4.3** / suite **3166** / UI **132** — Board Taller 3D + docs truth-sync; Fase M mission craft @ **v0.4.2** — no new C-xxx; C-113 Situar + C-094-class visor. Prior: mission payload identity + user guide **2945** · block-gate **2938** · disk-axial + `library/fc|sensors` **2911** · Continuity assembly **2652**)  
 **Type:** As-is architecture documentation. Zero product behavior changes.
 
 ## How to navigate

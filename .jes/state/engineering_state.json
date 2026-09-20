@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-20 D1 + U1 ACCEPT CLOSED. PRIORIDAD = Fase C (team flight-control software) — await Engineer ★ for first Buy. Package 0.4.2.",
+  "cycle_intent": "2026-09-20 tagged v0.4.3 (docs sync + Board Taller 3D). PRIORIDAD = Fase C — first Buy opens package 0.5.0.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "Fase C — await Engineer star for first Buy",
-  "active_operation": "fase_c_await_first_buy",
+  "current_mode": "Fase C — await Engineer star · next package 0.5.0",
+  "active_operation": "fase_c_await_first_buy_0_5_0",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-20 Board Taller 3D + docs sync CLOSED. Start Fase C when Engineer names first Buy (firmware/GCS/ELRS/PID/planner/app)."
+    "note": "2026-09-20 v0.4.3 CLOSED pre-Fase C. First team flight-control Buy → bump 0.5.0."
   },
   "relevant_workflow_phases": [
     "Verification"

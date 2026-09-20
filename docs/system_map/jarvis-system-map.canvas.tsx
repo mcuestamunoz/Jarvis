@@ -451,7 +451,7 @@ export default function JarvisSystemMapCanvas() {
 
       <Callout
         tone="info"
-        title="Product queue — Fase C await ★ (v0.4.2 · suite 3166 · UI 105)"
+        title="Product queue — Fase C await ★ → 0.5.0 (v0.4.3 · suite 3166 · UI 132)"
       >
         Fase M mission craft ladder CLOSED (cameras + VTX catalog families,
         mission mass/mount/autonomy/power ladder). User guide:
