@@ -1,12 +1,14 @@
 # Jarvis
 
-**v0.5.1**
+**v0.5.3** — Fase C platform surface through radio (C4+C5 one block; no `v0.5.2` tag)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
 Jarvis is **aerial-first** (drones and related vehicles): you describe goals and components in Spanish; calculation and simulation stay rule-based and auditable. The model may interpret — it does not invent the physics.
 
 Read the one-page contract: [VISION.md](VISION.md).
+
+**Fase C (platform scaffold) in plain language:** what “scaffold” means and what each new package is for — [ARCHITECTURE.md §1a](docs/ARCHITECTURE.md).
 
 ## Quick start
 
@@ -46,6 +48,28 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.3 includes
+
+Fase C · **C4 + C5** as **one ACCEPT block** (Engineer 2026-09-20) — package/tag **`v0.5.3`**. Intermediate tag **`v0.5.2` was never cut** (see [docs truth-sync](.jes/artifacts/engineer_note_docs_truth_sync_fase_c_2026_09_20.md)).
+
+### C4 — autonomy command surface (`B1-fase-c-autonomy-surface`)
+
+- **Same Engineer scaffold discipline: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** No C++ tree, no CMake created.
+- Opens `src/jarvis/flight_software/autonomy/` — `AutonomyVerb` (`TAKEOFF`/`HOLD`/`GO_TO`/`FOLLOW`/`RETURN_HOME`/`LAND`/`PATROL`), `propose_command()`, `submit_command()`
+- Every `submit_command` call goes through `SafetyGate.evaluate(...)` first — with `RejectAllSafetyGate`, `HOLD`/`LAND` always `outcome=reject` / `execution="not_attempted"`
+- Even a test-local fake `allow` gate cannot make `execution` become `"executed"` — resolves to `"not_implemented"`
+- No `flight_software/autonomy/executor.py`; C3 IMU rung unchanged; registry still empty
+- **Command surface != flyable autonomy**
+
+### C5 — radio dual-role stub (`B1-fase-c-radio-dual-role`)
+
+- `src/jarvis/capabilities/radio.py` — `RadioStubFrame` → `SimulatedRadioIngress` → `RadioDualRoleResult` (`Intent` and/or `AuthoritySignal`)
+- `RadioIntentAdapter.parse(...)` still raises `NotImplementedError` (live path refuse)
+- Optional `SafetyRequest.authority_signal_id` — RejectAll unchanged; authority never implies allow
+- **Dual-role stub != live ELRS** — no CRSF/ELRS decode, no serial I/O, no radio→autonomy auto-submit
+- Does **not** touch Continuity, orchestrator IDLE, Board, or `library/`
+- Tagged **`v0.5.3`** on Engineer ACCEPT (suite **3236**)
 
 ## What v0.5.1 includes
 
@@ -114,7 +138,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Fase C · C4** — Autonomy command surface (behind Safety, still `reject`-default) — awaits Engineer ★. `flight_software/` now exists but is a single sensing-only rung (HAL + simulated IMU) — filtering, state estimation, attitude/rate/position control, mixer, ESC/PWM, autonomy verbs, MAVLink/GCS, bind ELRS, PID, mission planner, and app piloto all remain later Fase C Buys.
+**Fase C platform surface through radio CLOSED @ `v0.5.3`** (C4+C5 one block). Next Buy when Engineer prioritizes (further FC rungs / real Safety policy / native stacks). Filtering, state estimation, attitude/rate/position control, mixer, ESC/PWM, MAVLink/GCS, real ELRS decode, PID, mission planner, and app piloto remain later Buys.
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish.
 
@@ -137,6 +161,8 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.5.3` / `checkpoint-fase-c-autonomy-radio` — Fase C C4+C5 one block: autonomy command surface + radio dual-role stub; suite **3236** · UI **132**. (**No `v0.5.2` tag** — see truth-sync note.)  
+`v0.5.1` / `checkpoint-fase-c-first-fc-rung` — Fase C C3: first `flight_control` rung (HAL + simulated IMU), `flight_software/`+`vehicle_profiles/` opened; Python scaffold, production FC runtime is C++ (future IC); suite **3206** · UI **132**.  
 `v0.5.0` / `checkpoint-fase-c-capability-registry` — Fase C open: empty Capability Registry scaffold; suite **3181** · UI **132**.  
 `v0.4.3` / `checkpoint-board-taller-3d` — pre–Fase C CLOSED: docs truth-sync + Board Taller 3D; suite **3166** · UI **132**.  
 `v0.4.2` / `checkpoint-fase-m-mission-craft` — Fase M CLOSED: mission mass + Continuity ladder + cameras/VTX seeds + B routing; suite **3165** · UI **105**.  

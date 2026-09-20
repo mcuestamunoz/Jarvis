@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-20 C3 ACCEPT CLOSED @ v0.5.1. Next: C4 autonomy surface — await Engineer ★ for IC.",
+  "cycle_intent": "2026-09-20 ACCEPT C4+C5 as one block @ v0.5.3. Fase C surface through radio CLOSED.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "C3 ACCEPT CLOSED — C4 next when Engineer stars IC",
-  "active_operation": "await_engineer_star_c4_autonomy_surface",
+  "current_mode": "idle — await Engineer next Buy (C6+)",
+  "active_operation": "none",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-20 C3 ACCEPT CLOSED @ v0.5.1 — HAL+IMU Python scaffold (prod FC = C++ future). Cola → C4 autonomy behind Safety."
+    "note": "2026-09-20 C4+C5 ACCEPT CLOSED @ v0.5.3 (no v0.5.2 tag). Next Buy when Engineer prioritizes."
   },
   "relevant_workflow_phases": [
     "Verification"

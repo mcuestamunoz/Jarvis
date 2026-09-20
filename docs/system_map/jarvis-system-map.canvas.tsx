@@ -22,7 +22,19 @@
  * identity rules unlock perception/comms; payload/manipulation/actuation/transmission still refuse.
  * User guide: docs/USER_GUIDE_CRAFT_MONTAGE.md. Prior same-day: ESC estimated + block gate (2938).
  * No new C-xxx. Craft montage + mission-payload arc CLOSED (2026-09-13→15).
- * PRIORIDAD = idle / Engineer next ★. Holds: plate-box / Path N. Later: disk-station attest / camera catalog.
+ * Updated 2026-09-16→18 — Fase M mission craft ladder CLOSED → v0.4.2 (suite 3165→3166):
+ * library/cameras + library/vtx catalog families, mission mass/mount/autonomy/power ladder.
+ * No new C-xxx. Updated 2026-09-20 — Board Taller 3D + docs/ truth-sync → v0.4.3 (suite
+ * 3166 · UI 132). No new C-xxx (U1 is presentation-only, C-094 class).
+ * Updated 2026-09-20 — Fase C C1-C5 ACCEPT @ v0.5.3 (suite 3236; no v0.5.2 tag):
+ * src/jarvis/capabilities/ (schemas + empty Capability Registry, Intent stubs,
+ * RejectAllSafetyGate, radio dual-role stub), src/jarvis/flight_software/
+ * (flight_control HAL+IMU sim rung, autonomy command surface — Safety always
+ * rejects), src/jarvis/vehicle_profiles/ (smoke profile). All Python scaffold —
+ * no production C++ FC runtime, no craft/orchestrator wiring. ZERO new C-xxx:
+ * structurally isolated packages with no edge into this graph. See
+ * PLATFORM_CAPABILITY_VISION.md §13 and ARCHITECTURE.md §1a–1e.
+ * PRIORIDAD = next Buy when Engineer prioritizes (C6+).
  * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's queue.
  * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
  * Internal G23 anti-LLM gate (confusion phrase → re-ask / project_status) is not a C-xxx edge.
@@ -451,14 +463,18 @@ export default function JarvisSystemMapCanvas() {
 
       <Callout
         tone="info"
-        title="Product queue — Fase C await ★ → 0.5.0 (v0.4.3 · suite 3166 · UI 132)"
+        title="Product queue — Fase C surface CLOSED @ v0.5.3 (suite 3236 · UI 132)"
       >
-        Fase M mission craft ladder CLOSED (cameras + VTX catalog families,
-        mission mass/mount/autonomy/power ladder). User guide:
-        docs/USER_GUIDE_CRAFT_MONTAGE.md. PRIORIDAD AHORA: Fase C
-        (control/enlace software) — await Engineer ★ for the first Buy.
-        Holds: B1-plate-box / Path N. C-081 / C-108 deferred. HD-* never
-        PRIORIDAD without lab.
+        Fase C C0-C5 ACCEPT (C4+C5 one block): empty Capability Registry (C1) ·
+        Intent stubs + RejectAllSafetyGate (C2) · flight_control HAL+IMU sim
+        rung (C3, Python scaffold — production FC runtime is C++, future IC) ·
+        autonomy command surface always rejected by Safety (C4) · radio
+        dual-role stub (C5; RadioIntentAdapter still NotImplemented; no live
+        ELRS). Zero new C-xxx — capabilities/flight_software/vehicle_profiles
+        are structurally isolated. User guide (craft montage, unaffected):
+        docs/USER_GUIDE_CRAFT_MONTAGE.md. PRIORIDAD AHORA: next Buy when
+        Engineer prioritizes (C6+). Holds: B1-plate-box / Path N.
+        HD-* never PRIORIDAD without lab.
       </Callout>
 
       <Grid columns={6} gap={12}>
@@ -550,6 +566,30 @@ export default function JarvisSystemMapCanvas() {
         New video_link block (vtx key) — perception stays cameras-only. No
         new C-xxx. Fase M CLOSED, tag v0.4.2. Suite 3166 · UI 105. PRIORIDAD
         → Fase C (control/enlace software), await Engineer ★.
+      </Callout>
+
+      <Callout tone="success" title="Shipped — Board Taller 3D + docs truth-sync @ v0.4.3 (2026-09-20)">
+        Board default tab → Taller 3D, mount-ancestor-chain inspector,
+        overlap piece-picker, 3D dimming; full docs/ truth-sync to code @
+        v0.4.2. No new C-xxx (U1 is presentation-only, C-094 class). Suite
+        3166 · UI 132. Pre–Fase C closeout — this was the last checkpoint
+        before Fase C opened.
+      </Callout>
+
+      <Callout tone="success" title="Shipped — Fase C C1-C5 scaffold @ v0.5.3 (2026-09-20)">
+        First on-disk Fase C packages, all Python: src/jarvis/capabilities/
+        (typed Skill/Capability/Provider schemas, empty-by-default
+        CapabilityRegistry, Intent ingress — only `terminal` produces a
+        real Intent, voice/radio/api NotImplemented — RejectAllSafetyGate,
+        and radio dual-role SimulatedRadioIngress stub). src/jarvis/
+        flight_software/ (flight_control: HAL + one simulated-IMU rung only;
+        autonomy: typed HOLD/LAND/… that MUST pass Safety.evaluate first —
+        execution is never "executed"). src/jarvis/vehicle_profiles/ (one
+        pytest smoke profile). Every package docstring carries "Python
+        scaffold / sim only — production flight_control runtime is C++
+        (future IC)" — no C++/CMake tree. Zero orchestrator/Board/library/
+        Continuity coupling. No new C-xxx. Tag v0.5.3; no v0.5.2 tag (C4+C5
+        one block). Suite 3236 · UI 132.
       </Callout>
 
       {filter !== "forbidden" ? (

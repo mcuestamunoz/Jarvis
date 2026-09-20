@@ -1,14 +1,19 @@
 """Fase C scaffold — typed Skill/Capability/Provider schemas (C1), an
-empty-by-default Capability Registry (C1), and Intent ingress + Safety
-gate stubs (C2). Descriptive only: no execution path anywhere in this
-package. Scaffold @ 0.5.0 != Flight Software shipped. See
-`.jes/artifacts/implementation_contract_fase_c_capability_registry_scaffold_b1.md`
+empty-by-default Capability Registry (C1), Intent ingress + Safety gate
+stubs (C2), and a simulated radio dual-role ingress (C5). Descriptive
+only: no execution path anywhere in this package. Scaffold @ 0.5.0 !=
+Flight Software shipped. See
+`.jes/artifacts/implementation_contract_fase_c_capability_registry_scaffold_b1.md`,
+`.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md`,
 and
-`.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md`.
+`.jes/artifacts/implementation_contract_fase_c_radio_dual_role_b1.md`.
 
 Note: there is no `AllowAllSafetyGate` anywhere in this package (C2 IC
 §2.2 lock) — the only shipped gate factory, `default_safety_gate()`,
-always returns `RejectAllSafetyGate`.
+always returns `RejectAllSafetyGate`. Radio (C5) never bypasses it: an
+`AuthoritySignal` never implies `SafetyDecision(outcome="allow")`, and
+`RadioIntentAdapter.parse(...)` still always raises `NotImplementedError`
+— `SimulatedRadioIngress` is a separate, explicitly-simulated API.
 """
 
 from jarvis.capabilities.intent import (
@@ -19,6 +24,12 @@ from jarvis.capabilities.intent import (
     Task,
     TerminalIntentAdapter,
     VoiceIntentAdapter,
+)
+from jarvis.capabilities.radio import (
+    RadioDualRoleResult,
+    RadioStubFrame,
+    SimulatedRadioIngress,
+    describe_dual_role,
 )
 from jarvis.capabilities.registry import CapabilityRegistry, CapabilityRegistryError
 from jarvis.capabilities.safety import (
@@ -51,15 +62,19 @@ __all__ = [
     "IntentSource",
     "ProviderKind",
     "ProviderRecord",
+    "RadioDualRoleResult",
     "RadioIntentAdapter",
+    "RadioStubFrame",
     "RejectAllSafetyGate",
     "SafetyDecision",
     "SafetyGate",
     "SafetyRequest",
+    "SimulatedRadioIngress",
     "SkillRecord",
     "Task",
     "TerminalIntentAdapter",
     "VoiceIntentAdapter",
     "default_safety_gate",
+    "describe_dual_role",
     "run_intent_through_safety",
 ]

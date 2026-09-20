@@ -56,6 +56,10 @@ Every subsystem above the dashed line is deterministic — same input, same outp
 
 **Nothing else in the system can reach the LLM.** Acquisition, Engineering, Iteration, Calculation, Simulation, Continuity, and State are all LLM-free by construction (verified per-module in the subsystem maps' "LLM" column).
 
+## Fase C packages (structurally isolated — not part of the chain above)
+
+`src/jarvis/capabilities/`, `src/jarvis/flight_software/`, and `src/jarvis/vehicle_profiles/` (Fase C C1–C5, 2026-09-20) exist on disk but have **zero import edges** into the whole-system picture above — no `core/`, `adapters/`, orchestrator, Board, or `library/` code references them (grep-verified per Buy). They are typed Python scaffold. Every FS module docstring states: **"Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** See `docs/PLATFORM_CAPABILITY_VISION.md` §13, `docs/ARCHITECTURE.md` §1a–1e, and `.jes/artifacts/engineer_note_docs_truth_sync_fase_c_2026_09_20.md`.
+
 ## Dual-dispatch note (documented, not fixed)
 
 There are two independent entrypoints into the same engine, and they are not unified:
@@ -77,7 +81,9 @@ Full detail: `00_entry/ENTRY_MAP.md` and `01_runtime/RUNTIME_MAP.md`; connection
 
 C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the same `HandoffContext` (Hybrid Operation-Scoped lifecycle — see `MISMATCHES.md`). **H1–H4 are all closed — 0 RED edges remain.** C-081 (H5) and C-108 remain 🟡 PARTIAL — **deferred map debt, not today's implementation queue.** Hardware lab is [`docs/HARDWARE_DEBT.md`](../HARDWARE_DEBT.md).
 
-**Product checkpoint `v0.4.3`:** Continuity spatial assembly + Board Situar (**C-113**) + craft montage + **Fase M** (`v0.4.2`) + **Board Taller 3D** (default workshop · Grafo tab · inspector mount chain) + docs truth-sync. Suite **3166** · UI **132**. No new C-xxx. **PRIORIDAD AHORA:** Fase C — first Buy opens **`0.5.0`** ([v0.4.3 closeout](../../.jes/artifacts/engineer_note_v0_4_3_pre_fase_c_close.md)); physical plate-box / Path N / HD-* parked. See `docs/IMPLEMENTATION_TASKS.md`.
+**Craft checkpoint `v0.4.3`:** Continuity spatial assembly + Board Situar (**C-113**) + craft montage + **Fase M** (`v0.4.2`) + **Board Taller 3D** (default workshop · Grafo tab · inspector mount chain) + docs truth-sync. Suite **3166** · UI **132**. No new C-xxx — this remains the craft-side tip; Fase C below does not touch it.
+
+**Fase C tagged tip `v0.5.3`** (2026-09-20): C1–C5 ACCEPT CLOSED (C4+C5 one block; **no `v0.5.2` tag**). Suite **3236** · UI **132**. No new `C-xxx`. **PRIORIDAD:** next Buy when Engineer prioritizes — see `docs/IMPLEMENTATION_TASKS.md` and `.jes/artifacts/engineer_note_docs_truth_sync_fase_c_2026_09_20.md`.
 
 ## Subsystem index
 

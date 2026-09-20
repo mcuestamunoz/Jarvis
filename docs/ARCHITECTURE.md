@@ -129,13 +129,53 @@ Los contratos viven en `schemas/`.
 
 Esto evita lógica difusa y fuerza entradas y salidas explícitas.
 
-### 1b. `capabilities/` — Fase C · C1+C2 scaffold (registry + Intent/Safety stubs, no runtime)
+### 1a. Fase C en lenguaje llano — qué significa “scaffold” / “andamiaje”
+
+Esta sección es la **lectura humana** de §§1b–1d. El detalle normativo de cada Buy sigue abajo; aquí el significado.
+
+**Scaffold (andamiaje) Python** = estructura mínima en el monorepo (carpetas, tipos, APIs, tests) para **organizar** la plataforma de operación **sin** entregar aún el software que hace volar el vehículo.
+
+Analogía: el plano de una casa marca “aquí irá la cocina”; aún no hay fregadero ni electricidad. Jarvis tiene ya los **nombres y las puertas**; no tiene el **flight controller de producción**.
+
+| Idea | En Jarvis hoy |
+|---|---|
+| Plano / etiquetas | Paquetes `capabilities/`, `flight_software/`, `vehicle_profiles/` bajo `src/jarvis/` |
+| Sensor de mentira para probar el plano | `SimulatedImuHal` (números inventados, repetibles) |
+| Portero que no deja pasar a nadie | `RejectAllSafetyGate` — Safety siempre `reject` |
+| Órdenes escritas en un papel, nunca ejecutadas | `propose_command` / `submit_command` → `not_attempted` |
+| FC / firmware real (rápido, cerca del hardware) | **C++ — futuro IC**; no está en estos `.py` |
+
+**Dos dimensiones (no confundir):**
+
+1. **Craft** (`core/`, Continuity, Board, `library/`) — diseñar el vehículo (BOM, montaje, física). SoT de diseño @ tip craft `v0.4.3`.  
+2. **Platform / Fase C** — operar sistemas físicos algún día. Hoy solo andamiaje. **Tip git tagged:** `v0.5.3` (C4+C5 one block). See [docs truth-sync](../.jes/artifacts/engineer_note_docs_truth_sync_fase_c_2026_09_20.md).
+
+**Qué hace cada zona de archivos (mapa mental):**
+
+| Carpeta / archivo | En una frase |
+|---|---|
+| `capabilities/schemas.py` + `registry.py` | Lista tipada de “qué podría hacer la plataforma”; hoy **vacía** a propósito |
+| `capabilities/intent.py` | Papelito “alguien pidió X”; solo terminal rellena uno de verdad |
+| `capabilities/safety.py` | El portero; hoy rechaza todo |
+| `flight_software/flight_control/types.py` | Formato de una lectura IMU (dato, no hardware) |
+| `flight_software/flight_control/hal.py` | Contrato: “un sensor debe poder `read_imu()`” |
+| `flight_software/flight_control/sim_imu_hal.py` | IMU falso para tests |
+| `flight_software/autonomy/types.py` | Catálogo de verbos HOLD/LAND/… |
+| `flight_software/autonomy/surface.py` | Pedir un verbo y pasarlo por el portero (siempre no) |
+| `vehicle_profiles/` | Perfil de humo de tests: “este vehículo espera el peldaño HAL+IMU” |
+| `capabilities/radio.py` (si está en el árbol) | Radio **simulada** dual Intent\|Authority — **no** es ELRS real; pendiente formalizar ACCEPT |
+
+**Frase a memorizar:** *Scaffold Python ≠ el dron ya vuela.* Nadie arma, nadie escribe PWM, nadie decodifica ELRS real en estos paquetes. Cuando deje de ser scaffold, un IC lo dirá explícitamente.
+
+Visión / briefing: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md) · [briefing Fase C](../.jes/artifacts/engineer_briefing_fase_c_global_context.md).
+
+### 1b. `capabilities/` — Fase C · C1+C2+C5 scaffold (registry + Intent/Safety/Radio stubs, no runtime)
 
 `src/jarvis/capabilities/` (`B1-fase-c-capability-registry-scaffold`, package `0.5.0`) define los contratos tipados `CapabilityRecord` / `ProviderRecord` / `SkillRecord` (Pydantic) y un `CapabilityRegistry` con API de solo-consulta (`.capabilities()`, `.providers()`, `.get_capability(id)`, `.providers_offering(id)`, `.load_default()`). **Es un scaffold, no un runtime**: `load_default()` devuelve siempre un registro vacío (0/0/0), el enum `availability` solo admite `stub`/`not_implemented` en C1 (nunca `available`), y no existe ningún método o campo `execute`/`dispatch`/`command_esc` en todo el paquete. No toca Continuity, el orquestador, el Board ni `library/` — el SoT de craft sigue siendo la superficie `v0.4.3`.
 
 **C2** (`B1-fase-c-intent-safety-stub`, package sigue `0.5.0`) añade `intent.py` y `safety.py` al mismo paquete. `intent.py` define `Intent`/`Task` y cuatro adaptadores de canal (`terminal`/`voice`/`radio`/`api`) — **solo `TerminalIntentAdapter.parse(texto)` construye un `Intent` real**; `Voice`/`Radio`/`Api` siempre lanzan `NotImplementedError` con `"not_implemented"` en el mensaje, nunca producen una "intención de vuelo exitosa". `safety.py` define `SafetyGate` (Protocol), `SafetyRequest`/`SafetyDecision`/`AuthoritySignal`, y `default_safety_gate()` — la **única** fábrica de gate en `src/`, que siempre devuelve `RejectAllSafetyGate` (outcome `reject`, reason `"not_implemented"`). **No existe `AllowAllSafetyGate` en `src/`.** `run_intent_through_safety(intent, gate)` es la única función-puente y termina siempre en `gate.evaluate(...)` — no hay ningún paso de "ejecución" después.
 
-**Scaffold @ 0.5.0 ≠ Flight Software entregado**: un runtime vivo de vehículo/dispositivo, decodificación ELRS/CRSF, y cualquier camino Intent→actuador quedan para ICs futuras. Ver [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md) §13, el [C1 report](../.jes/artifacts/implementation_report_fase_c_capability_registry_scaffold_b1.md) y el [C2 report](../.jes/artifacts/implementation_report_fase_c_intent_safety_stub_b1.md).
+**Scaffold @ 0.5.0 ≠ Flight Software entregado**: un runtime vivo de vehículo/dispositivo, decodificación **real** ELRS/CRSF, y cualquier camino Intent→actuador quedan para ICs futuras. El dual-role radio tipado (C5) está en §1e @ `v0.5.3`. Ver [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md) §13, el [C1 report](../.jes/artifacts/implementation_report_fase_c_capability_registry_scaffold_b1.md) y el [C2 report](../.jes/artifacts/implementation_report_fase_c_intent_safety_stub_b1.md).
 
 ### 1c. `flight_software/` + `vehicle_profiles/` — Fase C · C3 (primer peldaño, solo sensado)
 
@@ -145,7 +185,17 @@ Esto evita lógica difusa y fuerza entradas y salidas explícitas.
 
 **Separación de nombres (honestidad crítica):** el `flight_controller` del catálogo craft (`library/flight_controller/`, identidad BOM) y `flight_software.flight_control` (este paquete, la columna de control de la clase de vehículo) son sistemas de verdad distintos y **nunca deben confundirse** — ver el docstring de `flight_software/__init__.py`.
 
-`default_safety_gate()` sigue siendo `RejectAllSafetyGate` sin cambios; sensar/leer el IMU no requiere `allow` (no es actuación). No se tocó `orchestrator.py`, el Board, ni `library/`. **Peldaño stub @ 0.5.1 ≠ vuelo controlado**: estimación/control/mezclador/ESC/autonomía quedan para ICs futuras (C4+), ELRS/CRSF para C5. Ver [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md) §13 y el [implementation report](../.jes/artifacts/implementation_report_fase_c_first_fc_rung_b1.md).
+`default_safety_gate()` sigue siendo `RejectAllSafetyGate` sin cambios; sensar/leer el IMU no requiere `allow` (no es actuación). No se tocó `orchestrator.py`, el Board, ni `library/`. **Peldaño stub @ 0.5.1 ≠ vuelo controlado**: estimación/control/mezclador/ESC quedan para ICs futuras, ELRS/CRSF para C5. Ver [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md) §13 y el [implementation report](../.jes/artifacts/implementation_report_fase_c_first_fc_rung_b1.md).
+
+### 1d. `flight_software/autonomy/` — Fase C · C4 (superficie de comandos, sin autonomía viva)
+
+**Misma disciplina de andamiaje del Engineer: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** `src/jarvis/flight_software/autonomy/` (`B1-fase-c-autonomy-surface`) trae `AutonomyVerb` (`TAKEOFF`/`HOLD`/`GO_TO`/`FOLLOW`/`RETURN_HOME`/`LAND`/`PATROL`), `AutonomyCommand` (dato puro, sin campo de actuador) y `AutonomySubmissionResult`. `propose_command()` es un constructor puro que no llama a Safety; `submit_command(command, gate)` **siempre** llama primero a `SafetyGate.evaluate(...)` — con el único gate embarcado (`RejectAllSafetyGate`), el resultado es siempre `outcome="reject"` / `execution="not_attempted"`, probado end-to-end para `HOLD` y `LAND`. Incluso con un gate-falso local-de-test que devuelva `allow`, `execution` nunca puede ser `"executed"` — resuelve a `"not_implemented"` porque no existe ningún actuador en el paquete. No existe `flight_software/autonomy/executor.py`. No se amplió el peldaño IMU de C3, no cambió `CapabilityRegistry.load_default()` (sigue vacío), y cero imports desde `orchestrator.py`/`adapters/`.
+
+**Superficie de comandos ≠ autonomía volable**: nada aquí sostiene, aterriza, despega, navega, ni actúa. **ACCEPT CLOSED** con C5 en un solo bloque @ tag **`v0.5.3`** (sin tag `v0.5.2`) — [truth-sync](../.jes/artifacts/engineer_note_docs_truth_sync_fase_c_2026_09_20.md). Ver [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md) §13 y el [implementation report](../.jes/artifacts/implementation_report_fase_c_autonomy_surface_b1.md).
+
+### 1e. `capabilities/radio.py` — Fase C · C5 (dual-role stub @ `v0.5.3`)
+
+Modelo tipado `RadioStubFrame` / `SimulatedRadioIngress` / `RadioDualRoleResult` (Intent y/o Authority). `RadioIntentAdapter` sigue en `NotImplemented`. **No** hay decode ELRS/CRSF. Optional `SafetyRequest.authority_signal_id` — RejectAll sin cambios. **ACCEPT CLOSED** @ **`v0.5.3`** (mismo bloque que C4). [review](../.jes/artifacts/implementation_review_fase_c_radio_dual_role_b1.md) · [report](../.jes/artifacts/implementation_report_fase_c_radio_dual_role_b1.md) · IC: [`implementation_contract_fase_c_radio_dual_role_b1.md`](../.jes/artifacts/implementation_contract_fase_c_radio_dual_role_b1.md).
 
 ### 2. Orquestación
 

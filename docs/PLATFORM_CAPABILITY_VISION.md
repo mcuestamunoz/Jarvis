@@ -406,6 +406,9 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 
 ## 13) Next work when that moment arrives
 
+**Lectura humana (qué es “scaffold”, qué hace cada carpeta):**  
+[`docs/ARCHITECTURE.md`](ARCHITECTURE.md) **§1a — Fase C en lenguaje llano**.
+
 **Do not start by coding.**
 
 **Design contract (★★ CLOSED 2026-09-20 with amendment):**  
@@ -421,7 +424,19 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 **Engineer amendment on the C3 IC (does not replace it): "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** Everything landed under `flight_software/` and `vehicle_profiles/` is a Python platform scaffold — typed contracts, `SimulatedImuHal`, a profile smoke helper — not the production flight controller. The real `flight_control` runtime/firmware will be C++, built in later Buys with its own IC (path/build TBD there); this Buy creates no C++ tree and no CMake anywhere in the repo.  
 [`.jes/artifacts/implementation_contract_fase_c_first_fc_rung_b1.md`](../.jes/artifacts/implementation_contract_fase_c_first_fc_rung_b1.md) — first `flight_control` rung: **HAL + simulated IMU sample acquisition only**. Opens `src/jarvis/flight_software/flight_control/` and `src/jarvis/vehicle_profiles/` **on disk for the first time** → package **`0.5.1`**. No filtering, no state estimation, no attitude/rate/position controller, no mixer, no ESC/PWM, no autonomy verbs — none of it exists yet. `SimulatedImuHal` is deterministic and never touches real hardware. Craft catalog `flight_controller` (BOM identity) and `flight_software.flight_control` (this control spine) are explicitly different systems of record — see the module docstrings. See [review](../.jes/artifacts/implementation_review_fase_c_first_fc_rung_b1.md) · [implementation report](../.jes/artifacts/implementation_report_fase_c_first_fc_rung_b1.md).
 
-**First rung stub @ 0.5.1 != controlled flight** — estimation, control, mixer, ESC, autonomy (C4+), and ELRS/CRSF decode (C5) remain future ICs.
+**First rung stub @ 0.5.1 != controlled flight** — estimation, control, mixer, ESC, and real ELRS/CRSF decode remain future ICs (C5 below lands the typed dual-role *model*, still simulated only).
+
+**C4 (ACCEPT CLOSED with C5 @ tag `v0.5.3` — no `v0.5.2` tag):**  
+**Same Engineer scaffold discipline continues: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."**  
+[`.jes/artifacts/implementation_contract_fase_c_autonomy_surface_b1.md`](../.jes/artifacts/implementation_contract_fase_c_autonomy_surface_b1.md) — typed **autonomy command surface**: `AutonomyVerb` (`TAKEOFF`/`HOLD`/`GO_TO`/`FOLLOW`/`RETURN_HOME`/`LAND`/`PATROL`), `propose_command()`, `submit_command()`. Opens `src/jarvis/flight_software/autonomy/`. Every `submit_command` call goes through `SafetyGate.evaluate(...)` first; with `RejectAllSafetyGate`, `HOLD`/`LAND` always `outcome=reject`/`execution="not_attempted"`. See [review PASS](../.jes/artifacts/implementation_review_fase_c_autonomy_surface_b1.md) · [report](../.jes/artifacts/implementation_report_fase_c_autonomy_surface_b1.md). Release: [docs truth-sync](../.jes/artifacts/engineer_note_docs_truth_sync_fase_c_2026_09_20.md).
+
+**Command surface ≠ flyable autonomy** — nothing here holds, lands, takes off, navigates, or actuates.
+
+**C5 (ACCEPT CLOSED @ tag `v0.5.3`, same block as C4):**  
+**Same Engineer scaffold discipline: production radio/ELRS stack is a future IC (may be native/C++) — not this Buy.**  
+[`.jes/artifacts/implementation_contract_fase_c_radio_dual_role_b1.md`](../.jes/artifacts/implementation_contract_fase_c_radio_dual_role_b1.md) — typed **radio dual-role model** in `src/jarvis/capabilities/radio.py`: `RadioStubFrame` → `SimulatedRadioIngress` → `RadioDualRoleResult` (`Intent` and/or `AuthoritySignal`). `RadioIntentAdapter.parse(...)` still raises `NotImplementedError`. Optional `SafetyRequest.authority_signal_id` for traceability — RejectAll unchanged. See [review PASS](../.jes/artifacts/implementation_review_fase_c_radio_dual_role_b1.md) · [report](../.jes/artifacts/implementation_report_fase_c_radio_dual_role_b1.md). Plain language: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md).
+
+**Dual-role stub ≠ live ELRS** — no real link is decoded and authority never implies Safety `allow`.
 
 ### Historical sketch (still valid as narrative)
 

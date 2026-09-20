@@ -66,6 +66,12 @@ class VoiceIntentAdapter:
 
 
 class RadioIntentAdapter:
+    """Live/unclassified radio ingress — stays `NotImplemented` in C5 too
+    (Fase C · C5, `B1-fase-c-radio-dual-role`). For a typed, **simulated**
+    stand-in that models a radio event as Intent and/or Authority, use
+    `jarvis.capabilities.radio.SimulatedRadioIngress` instead — it never
+    makes this adapter "work" for arbitrary payloads."""
+
     @staticmethod
     def parse(raw_payload: object) -> Intent:
         raise NotImplementedError("radio intent ingress is not_implemented in C2")

@@ -6,11 +6,14 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Fase C · C4** — next Buy: autonomy command surface (`HOLD`/`LAND`/…) behind Safety — Cursor redacta IC when Engineer ★.  
-> **C3** **ACCEPT CLOSED** @ tag **`v0.5.1`** — HAL + IMU Python scaffold (≠ production C++ FC) — [review](../.jes/artifacts/implementation_review_fase_c_first_fc_rung_b1.md). **C2** ACCEPT @ **`0.5.0`**. **C1** @ **`v0.5.0`**. **C0** ★ CLOSED. Suite **3206** · UI **132**.  
+> **PRIORIDAD AHORA:** Fase C surface through radio **CLOSED** @ **`v0.5.3`** (C4+C5 one block — no `v0.5.2` tag).  
+> Next Buy when Engineer prioritizes (C6+: further FC rungs / real Safety / native stacks).  
+> **Git tip tagged:** **`v0.5.3`**. Suite **3236** · UI **132**. Craft SoT **`v0.4.3`**.  
+> Process note: [truth-sync](../.jes/artifacts/engineer_note_docs_truth_sync_fase_c_2026_09_20.md).  
 
-> Vision parent: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
-> **Parked:** plate-box · Path N · HD-* · Board polish · ELRS (C5).  
+
+> Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
+> **Parked:** plate-box · Path N · HD-* · Board polish.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -49,8 +52,9 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C1** | **`B1-fase-c-capability-registry-scaffold`** | **✅ ACCEPT CLOSED** | Schemas + empty registry @ **`v0.5.0`** | [review](../.jes/artifacts/implementation_review_fase_c_capability_registry_scaffold_b1.md) · tag **`v0.5.0`** |
 | **C2** | **`B1-fase-c-intent-safety-stub`** | **✅ ACCEPT CLOSED** | Terminal Intent + RejectAll SafetyGate; voice/radio/api NotImplemented | [review](../.jes/artifacts/implementation_review_fase_c_intent_safety_stub_b1.md) · package **`0.5.0`** (no tag) |
 | **C3** | **`B1-fase-c-first-fc-rung`** | **✅ ACCEPT CLOSED** | HAL + IMU Python scaffold · `flight_software/` + `vehicle_profiles` smoke | [review](../.jes/artifacts/implementation_review_fase_c_first_fc_rung_b1.md) · tag **`v0.5.1`** |
-| **C4** | Autonomy command surface | **NEXT** — await Engineer ★ for IC | Behind Safety (RejectAll until own IC) | — |
-| **C5+** | Radio/ELRS · … | After C4 | Per C0 attack order | — |
+| **C4** | **`B1-fase-c-autonomy-surface`** | **✅ ACCEPT CLOSED** (with C5 @ **`v0.5.3`**) | HOLD/LAND/… behind RejectAll | [review](../.jes/artifacts/implementation_review_fase_c_autonomy_surface_b1.md) · tag **`v0.5.3`** (no `v0.5.2`) |
+| **C5** | **`B1-fase-c-radio-dual-role`** | **✅ ACCEPT CLOSED** @ **`v0.5.3`** | Simulated radio Intent\|Authority; no ELRS decode | [review](../.jes/artifacts/implementation_review_fase_c_radio_dual_role_b1.md) · tag **`v0.5.3`** |
+| **C6+** | Further FC rungs · real Safety · native stacks | After C5 | Per Engineer priority | — |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 

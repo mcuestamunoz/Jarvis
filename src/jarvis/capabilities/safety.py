@@ -37,12 +37,19 @@ class AuthoritySignal(BaseModel):
 
 class SafetyRequest(BaseModel):
     """Input to a `SafetyGate`. No actuator command blob — a request
-    references an intent and/or a proposed-action id string only."""
+    references an intent and/or a proposed-action id string only.
+
+    `authority_signal_id` (Fase C · C5) is optional traceability only — an
+    id pointing at an `AuthoritySignal` that motivated this request (e.g.
+    a simulated radio `kill`/`override`). Setting it does **not** change
+    gate behavior: `RejectAllSafetyGate` still always rejects regardless
+    of this field, and no shipped gate lets "authority" imply `allow`."""
 
     model_config = ConfigDict(extra="forbid")
 
     intent_id: str | None = None
     action_id: str | None = None
+    authority_signal_id: str | None = None
 
 
 class SafetyDecision(BaseModel):

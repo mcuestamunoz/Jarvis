@@ -18,18 +18,25 @@ creates no C++ tree and no CMake anywhere in the repo.
   These are different systems of record and must never be treated as the
   same thing by any reader of this codebase.
 
-This package currently ships exactly **one rung**: HAL + simulated IMU
-sample acquisition (`flight_control/`). No filtering, no state estimation,
-no attitude/rate/position controller, no mixer, no ESC/PWM, no autonomy
-verbs (`TAKEOFF`/`HOLD`/`GO_TO`/...). Nothing here is wired to
-`orchestrator.py`, the Board, `library/`, or any `jarvis.capabilities`
-Intent adapter — see
-`.jes/artifacts/implementation_contract_fase_c_first_fc_rung_b1.md` §0/§3.
+`flight_control/` ships exactly **one rung**: HAL + simulated IMU sample
+acquisition. No filtering, no state estimation, no attitude/rate/position
+controller, no mixer, no ESC/PWM. `autonomy/` (C4) ships a typed command
+**surface** — `TAKEOFF`/`HOLD`/`GO_TO`/`FOLLOW`/`RETURN_HOME`/`LAND`/
+`PATROL` as proposable, non-operational commands that must pass through
+`SafetyGate.evaluate(...)` before any hypothetical execution step; with
+the only shipped gate (`RejectAllSafetyGate`), that step is always absent
+— see `jarvis.flight_software.autonomy`'s own docstring. Nothing in this
+package is wired to `orchestrator.py`, the Board, `library/`, or any
+`jarvis.capabilities` Intent adapter — see
+`.jes/artifacts/implementation_contract_fase_c_first_fc_rung_b1.md` §0/§3
+and `.jes/artifacts/implementation_contract_fase_c_autonomy_surface_b1.md`.
 
-This is a sensing-only stub. It does not make any vehicle flyable and must
-never be described as such, and this Python code must never be presented
-as production-ready flight_control, MCU drivers, or a real control loop —
-see `.jes/artifacts/implementation_report_fase_c_first_fc_rung_b1.md`.
+This is a sensing + command-surface stub. It does not make any vehicle
+flyable, holdable, or landable, and must never be described as such, and
+this Python code must never be presented as production-ready
+flight_control, MCU drivers, or a real control loop — see
+`.jes/artifacts/implementation_report_fase_c_first_fc_rung_b1.md` and
+`.jes/artifacts/implementation_report_fase_c_autonomy_surface_b1.md`.
 """
 
 from jarvis.flight_software.flight_control.hal import ImuHal
