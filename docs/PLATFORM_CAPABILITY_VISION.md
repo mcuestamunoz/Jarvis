@@ -411,8 +411,13 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 **Design contract (★★ CLOSED 2026-09-20 with amendment):**  
 [`.jes/artifacts/design_contract_fase_c_skill_capability_architecture.md`](../.jes/artifacts/design_contract_fase_c_skill_capability_architecture.md)  
 
-**First Implementation Contract (C1 — landed, awaiting Engineer ACCEPT):**  
-[`.jes/artifacts/implementation_contract_fase_c_capability_registry_scaffold_b1.md`](../.jes/artifacts/implementation_contract_fase_c_capability_registry_scaffold_b1.md) — schemas + **empty** Capability Registry stub, `src/jarvis/capabilities/` → package **`0.5.0`**. No flight runtime, no execution path. See [implementation report](../.jes/artifacts/implementation_report_fase_c_capability_registry_scaffold_b1.md). **Scaffold @ 0.5.0 != Flight Software shipped** — `flight_software/` and a live vehicle/device runtime remain future ICs (C2+).
+**C1 (ACCEPT CLOSED, tag `v0.5.0`):**  
+[`.jes/artifacts/implementation_contract_fase_c_capability_registry_scaffold_b1.md`](../.jes/artifacts/implementation_contract_fase_c_capability_registry_scaffold_b1.md) — schemas + **empty** Capability Registry stub, `src/jarvis/capabilities/` → package **`0.5.0`**. No flight runtime, no execution path. See [implementation report](../.jes/artifacts/implementation_report_fase_c_capability_registry_scaffold_b1.md).
+
+**C2 (ACCEPT CLOSED, package stays `0.5.0` — no new tag):**  
+[`.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md`](../.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md) — typed Intent ingress + Safety/Authority gate **interface**, added to `src/jarvis/capabilities/` (`intent.py` + `safety.py`). Only `TerminalIntentAdapter` produces a real `Intent`; voice/radio/api always raise `NotImplementedError`. The only shipped gate factory, `default_safety_gate()`, always returns `RejectAllSafetyGate` — no `AllowAllSafetyGate` exists under `src/`. See [review](../.jes/artifacts/implementation_review_fase_c_intent_safety_stub_b1.md) · [report](../.jes/artifacts/implementation_report_fase_c_intent_safety_stub_b1.md).
+
+**Scaffold @ 0.5.0 != Flight Software shipped** — `flight_software/`, ELRS/CRSF decode, a live vehicle/device runtime, and any Intent→actuator path remain future ICs (C3+).
 
 ### Historical sketch (still valid as narrative)
 

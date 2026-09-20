@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (no false “armed” / no actuator path)
 
-**Status:** READY FOR ★  
+**Status:** **ACCEPT CLOSED** (Engineer 2026-09-20) · package stays `0.5.0` (no tag) 
 **Parents:**
 - [C0 Design Contract ★](design_contract_fase_c_skill_capability_architecture.md) — Intent → … → Safety; channels; radio dual-role (architecture)  
 - [C1 ★ ACCEPT](implementation_contract_fase_c_capability_registry_scaffold_b1.md) — empty Capability Registry @ **`0.5.0`**  

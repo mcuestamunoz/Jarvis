@@ -6,11 +6,11 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Fase C · C2** — [IC](../.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md) **READY FOR ★** — Intent ingress + RejectAll SafetyGate stub.  
-> **C1** **ACCEPT CLOSED** @ tag **`v0.5.0`** — [review](../.jes/artifacts/implementation_review_fase_c_capability_registry_scaffold_b1.md). **C0** ★ CLOSED. Suite **3181** · UI **132**.  
+> **PRIORIDAD AHORA:** **Fase C · C3** — next Buy: first `flight_control` rung (HAL/IMU or equivalent) under vehicle_profiles smoke — Cursor redacta IC when Engineer ★.  
+> **C2** **ACCEPT CLOSED** — terminal `Intent` + `RejectAllSafetyGate` @ package **`0.5.0`** (no bump) — [review](../.jes/artifacts/implementation_review_fase_c_intent_safety_stub_b1.md). **C1** ACCEPT @ tag **`v0.5.0`**. **C0** ★ CLOSED. Suite **3192** · UI **132**.  
 
 > Vision parent: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
-> **Parked:** plate-box · Path N · HD-* · Board polish · FC rungs (C3+) · ELRS (C5).  
+> **Parked:** plate-box · Path N · HD-* · Board polish · Autonomy/ELRS (C4/C5).  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -47,8 +47,9 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 |---|---|---|---|---|
 | **C0** | **`DC-fase-c-skill-capability-architecture`** | **★ CLOSED** | Architecture locks + amendment (not authority to implement) | [DC](../.jes/artifacts/design_contract_fase_c_skill_capability_architecture.md) · Engineer ★ 2026-09-20 |
 | **C1** | **`B1-fase-c-capability-registry-scaffold`** | **✅ ACCEPT CLOSED** | Schemas + empty registry @ **`v0.5.0`** | [review](../.jes/artifacts/implementation_review_fase_c_capability_registry_scaffold_b1.md) · tag **`v0.5.0`** |
-| **C2** | **`B1-fase-c-intent-safety-stub`** | **READY FOR ★** | Terminal Intent + RejectAll SafetyGate; voice/radio/api NotImplemented | [IC](../.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md) |
-| **C3+** | FC rungs · Autonomy · ELRS | After C2 | Per C0 attack order | — |
+| **C2** | **`B1-fase-c-intent-safety-stub`** | **✅ ACCEPT CLOSED** | Terminal Intent + RejectAll SafetyGate; voice/radio/api NotImplemented | [review](../.jes/artifacts/implementation_review_fase_c_intent_safety_stub_b1.md) · package **`0.5.0`** (no tag) |
+| **C3** | First FC rung (HAL/IMU…) | **NEXT** — await Engineer ★ for IC | Per C0 attack order | — |
+| **C4+** | Autonomy · ELRS · … | After C3 | Per C0 attack order | — |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 

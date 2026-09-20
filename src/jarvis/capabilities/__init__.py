@@ -1,10 +1,35 @@
-"""Fase C · C1 scaffold — typed Skill/Capability/Provider schemas and an
-empty-by-default Capability Registry. Descriptive only: no execution path.
-Scaffold @ 0.5.0 != Flight Software shipped. See
-`.jes/artifacts/implementation_contract_fase_c_capability_registry_scaffold_b1.md`.
+"""Fase C scaffold — typed Skill/Capability/Provider schemas (C1), an
+empty-by-default Capability Registry (C1), and Intent ingress + Safety
+gate stubs (C2). Descriptive only: no execution path anywhere in this
+package. Scaffold @ 0.5.0 != Flight Software shipped. See
+`.jes/artifacts/implementation_contract_fase_c_capability_registry_scaffold_b1.md`
+and
+`.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md`.
+
+Note: there is no `AllowAllSafetyGate` anywhere in this package (C2 IC
+§2.2 lock) — the only shipped gate factory, `default_safety_gate()`,
+always returns `RejectAllSafetyGate`.
 """
 
+from jarvis.capabilities.intent import (
+    ApiIntentAdapter,
+    Intent,
+    IntentSource,
+    RadioIntentAdapter,
+    Task,
+    TerminalIntentAdapter,
+    VoiceIntentAdapter,
+)
 from jarvis.capabilities.registry import CapabilityRegistry, CapabilityRegistryError
+from jarvis.capabilities.safety import (
+    AuthoritySignal,
+    RejectAllSafetyGate,
+    SafetyDecision,
+    SafetyGate,
+    SafetyRequest,
+    default_safety_gate,
+    run_intent_through_safety,
+)
 from jarvis.capabilities.schemas import (
     CapabilityAvailability,
     CapabilityHealth,
@@ -15,12 +40,26 @@ from jarvis.capabilities.schemas import (
 )
 
 __all__ = [
+    "ApiIntentAdapter",
+    "AuthoritySignal",
     "CapabilityAvailability",
     "CapabilityHealth",
     "CapabilityRecord",
     "CapabilityRegistry",
     "CapabilityRegistryError",
+    "Intent",
+    "IntentSource",
     "ProviderKind",
     "ProviderRecord",
+    "RadioIntentAdapter",
+    "RejectAllSafetyGate",
+    "SafetyDecision",
+    "SafetyGate",
+    "SafetyRequest",
     "SkillRecord",
+    "Task",
+    "TerminalIntentAdapter",
+    "VoiceIntentAdapter",
+    "default_safety_gate",
+    "run_intent_through_safety",
 ]

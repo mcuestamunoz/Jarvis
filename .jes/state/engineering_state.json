@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-20 C1 ACCEPT CLOSED @ v0.5.0. C2 B1-fase-c-intent-safety-stub READY FOR ★.",
+  "cycle_intent": "2026-09-20 C2 ACCEPT CLOSED @ 0.5.0 (no tag). Next: C3 first FC rung — await Engineer ★ for IC.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "C2 IC READY — await Engineer star",
-  "active_operation": "await_engineer_star_c2_intent_safety_stub",
+  "current_mode": "C2 ACCEPT CLOSED — C3 next when Engineer stars IC",
+  "active_operation": "await_engineer_star_c3_first_fc_rung",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-20 C2 READY — terminal Intent + RejectAll SafetyGate; voice/radio/api NotImplemented."
+    "note": "2026-09-20 C2 ACCEPT CLOSED — terminal Intent + RejectAll SafetyGate @ 0.5.0. Cola → C3 first flight_control rung IC."
   },
   "relevant_workflow_phases": [
     "Verification"
