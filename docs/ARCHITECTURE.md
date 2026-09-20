@@ -129,6 +129,10 @@ Los contratos viven en `schemas/`.
 
 Esto evita lógica difusa y fuerza entradas y salidas explícitas.
 
+### 1b. `capabilities/` — Fase C · C1 scaffold (registry-stub only)
+
+`src/jarvis/capabilities/` (`B1-fase-c-capability-registry-scaffold`, package `0.5.0`) define los contratos tipados `CapabilityRecord` / `ProviderRecord` / `SkillRecord` (Pydantic) y un `CapabilityRegistry` con API de solo-consulta (`.capabilities()`, `.providers()`, `.get_capability(id)`, `.providers_offering(id)`, `.load_default()`). **Es un scaffold, no un runtime**: `load_default()` devuelve siempre un registro vacío (0/0/0), el enum `availability` solo admite `stub`/`not_implemented` en C1 (nunca `available`), y no existe ningún método o campo `execute`/`dispatch`/`command_esc` en todo el paquete. No toca Continuity, el orquestador, el Board ni `library/` — el SoT de craft sigue siendo la superficie `v0.4.3`. **Scaffold @ 0.5.0 ≠ Flight Software entregado**: `flight_software/`, un runtime vivo de vehículo/dispositivo, y cualquier camino Intent→actuador quedan para ICs futuras (C2+). Ver [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md) §13 y el [implementation report](../.jes/artifacts/implementation_report_fase_c_capability_registry_scaffold_b1.md).
+
 ### 2. Orquestación
 
 El núcleo está en `core/orchestrator.py`.

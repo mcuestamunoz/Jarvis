@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-20 tagged v0.4.3 (docs sync + Board Taller 3D). PRIORIDAD = Fase C — first Buy opens package 0.5.0.",
+  "cycle_intent": "2026-09-20 C1 ACCEPT CLOSED @ v0.5.0. C2 B1-fase-c-intent-safety-stub READY FOR ★.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "Fase C — await Engineer star · next package 0.5.0",
-  "active_operation": "fase_c_await_first_buy_0_5_0",
+  "current_mode": "C2 IC READY — await Engineer star",
+  "active_operation": "await_engineer_star_c2_intent_safety_stub",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-20 v0.4.3 CLOSED pre-Fase C. First team flight-control Buy → bump 0.5.0."
+    "note": "2026-09-20 C2 READY — terminal Intent + RejectAll SafetyGate; voice/radio/api NotImplemented."
   },
   "relevant_workflow_phases": [
     "Verification"

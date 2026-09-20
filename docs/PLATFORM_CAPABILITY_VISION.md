@@ -408,6 +408,14 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 
 **Do not start by coding.**
 
+**Design contract (★★ CLOSED 2026-09-20 with amendment):**  
+[`.jes/artifacts/design_contract_fase_c_skill_capability_architecture.md`](../.jes/artifacts/design_contract_fase_c_skill_capability_architecture.md)  
+
+**First Implementation Contract (C1 — landed, awaiting Engineer ACCEPT):**  
+[`.jes/artifacts/implementation_contract_fase_c_capability_registry_scaffold_b1.md`](../.jes/artifacts/implementation_contract_fase_c_capability_registry_scaffold_b1.md) — schemas + **empty** Capability Registry stub, `src/jarvis/capabilities/` → package **`0.5.0`**. No flight runtime, no execution path. See [implementation report](../.jes/artifacts/implementation_report_fase_c_capability_registry_scaffold_b1.md). **Scaffold @ 0.5.0 != Flight Software shipped** — `flight_software/` and a live vehicle/device runtime remain future ICs (C2+).
+
+### Historical sketch (still valid as narrative)
+
 First design:
 
 ### `Skill / Capability Architecture Contract`
@@ -446,7 +454,7 @@ Then design a:
 
 so Jarvis can know which capabilities exist, which provider offers them, and whether they are available.
 
-That design belongs in a future JES artifact under `.jes/artifacts/`, derived from this vision — not as an edit that silently turns this file into an IC.
+That design now lives as the JES artifact linked above — do not silently turn **this vision file** into an IC.
 
 ---
 

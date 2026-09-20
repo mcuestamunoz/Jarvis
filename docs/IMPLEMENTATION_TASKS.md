@@ -6,12 +6,11 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.4.3`**. Suite viva **3166** · UI **132**.  
-> **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
-> **PRIORIDAD AHORA:** **Fase C** — diseño software de equipo / control de vuelo. **Await Engineer ★** para el primer Buy → package **`0.5.0`**.  
-> Pre–Fase C **CLOSED** @ **`v0.4.3`** — [note](../.jes/artifacts/engineer_note_v0_4_3_pre_fase_c_close.md) · M7/`0.4.2` · D1 docs · U1 Taller 3D.  
+> **PRIORIDAD AHORA:** **Fase C · C2** — [IC](../.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md) **READY FOR ★** — Intent ingress + RejectAll SafetyGate stub.  
+> **C1** **ACCEPT CLOSED** @ tag **`v0.5.0`** — [review](../.jes/artifacts/implementation_review_fase_c_capability_registry_scaffold_b1.md). **C0** ★ CLOSED. Suite **3181** · UI **132**.  
 
-> **Parked (not software):** plate-box bag · Path N · HD-* · more camera SKUs / radio catalog W · axial prop↔motor geometry · M5 `payload_kg` P2 · Board inspector polish.  
+> Vision parent: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
+> **Parked:** plate-box · Path N · HD-* · Board polish · FC rungs (C3+) · ELRS (C5).  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -44,7 +43,14 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 
 ### 📋 COLA — Fase C (diseño software de equipo · **AHORA**)
 
-Firmware FC · MAVLink/GCS · bind ELRS · PID/tuning · mission planner · app piloto — **await Engineer ★** (primer Buy). Closeout: [M7](../.jes/artifacts/engineer_note_fase_m_closeout_m7.md). Distancia: [nota](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
+| # | ★ | Estado | Qué | Gate |
+|---|---|---|---|---|
+| **C0** | **`DC-fase-c-skill-capability-architecture`** | **★ CLOSED** | Architecture locks + amendment (not authority to implement) | [DC](../.jes/artifacts/design_contract_fase_c_skill_capability_architecture.md) · Engineer ★ 2026-09-20 |
+| **C1** | **`B1-fase-c-capability-registry-scaffold`** | **✅ ACCEPT CLOSED** | Schemas + empty registry @ **`v0.5.0`** | [review](../.jes/artifacts/implementation_review_fase_c_capability_registry_scaffold_b1.md) · tag **`v0.5.0`** |
+| **C2** | **`B1-fase-c-intent-safety-stub`** | **READY FOR ★** | Terminal Intent + RejectAll SafetyGate; voice/radio/api NotImplemented | [IC](../.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md) |
+| **C3+** | FC rungs · Autonomy · ELRS | After C2 | Per C0 attack order | — |
+
+Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 
 ### 📋 COLA — Docs hygiene (opcional · puede ir antes de Fase C product)
 

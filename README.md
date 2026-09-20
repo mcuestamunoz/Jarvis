@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.4.3**
+**v0.5.0**
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -47,6 +47,17 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
+## What v0.5.0 includes
+
+Fase C · **C1** scaffold (`B1-fase-c-capability-registry-scaffold`) — **schemas only, no runtime**:
+
+- `src/jarvis/capabilities/` — typed `CapabilityRecord` / `ProviderRecord` / `SkillRecord` (Pydantic) + a `CapabilityRegistry` with a query-only API (list / get-by-id / "who offers capability X?")
+- `CapabilityRegistry.load_default()` is **always empty** — 0 capabilities, 0 providers, 0 skills. No path in the product marks flight/actuation as `available`; the `availability` enum only offers `stub` / `not_implemented` in C1
+- **No execution path**: no method or field named `execute` / `dispatch` / `command_esc`; nothing here turns a record into a motor/ESC/autonomy command
+- Does **not** touch Continuity, orchestrator IDLE, Board, or `library/` — craft SoT stays the `v0.4.3` surface
+- **Scaffold @ 0.5.0 != Flight Software shipped.** `flight_software/` and a live vehicle/device runtime remain future ICs (C2+)
+- Not yet git-tagged — tag `v0.5.0` lands on Engineer ACCEPT (see `.jes/artifacts/implementation_report_fase_c_capability_registry_scaffold_b1.md`)
+
 ## What v0.4.3 includes (tag)
 
 Last pre–Fase C checkpoint ([closeout note](.jes/artifacts/engineer_note_v0_4_3_pre_fase_c_close.md)):
@@ -88,7 +99,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Fase C @ `0.5.0`** — firmware FC · MAVLink/GCS · bind ELRS · PID · mission planner · app piloto — await Engineer ★ for the first Buy.
+**Fase C · C2** — Intent/Safety stub — awaits Engineer ★. `flight_software/`, MAVLink/GCS, bind ELRS, PID, mission planner, app piloto remain later Fase C Buys (C3+).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish.
 

@@ -1,25 +1,15 @@
 # Engineer note — Remaining distance to team flight-control software (Fase C)
 
-**Date:** 2026-09-18  
-**Authority:** Cursor (sync after M7 CLOSE)  
-**SoT:** [engineer_note_fase_m_closeout_m7.md](engineer_note_fase_m_closeout_m7.md) · package **`0.4.2`**
+**Date:** 2026-09-20  
+**Package / tag:** **`v0.5.0`**
 
----
-
-## Pregunta
-
-¿Cuánto falta para llegar a **diseño de software de equipo** (control de vuelo / enlace)?
-
-## Respuesta
-
-| Tramo | Queda |
+| Tramo | Estado |
 |---|---|
-| **Mission craft en Jarvis (Fase M)** | **0** — CLOSED (M7) |
-| **M7 gate** | **0** — tag **`v0.4.2`** |
-| **Fase C (el “software de equipo”)** | **Await Engineer ★** — primer Buy aún no abierto |
+| C0 Design Contract | **★ CLOSED** |
+| C1 registry scaffold | **ACCEPT CLOSED** · tag **`v0.5.0`** |
+| **C2** Intent + Safety stub | **READY FOR ★** — [IC](implementation_contract_fase_c_intent_safety_stub_b1.md) |
+| C3+ FC / autonomy / ELRS | After C2 |
 
 ```text
-[DONE: craft misión] ──► [DONE: M7 / v0.4.2] ──► [Fase C: await ★]
+[DONE: C0 ★ · C1 @ v0.5.0] ──► [★ C2] ──► [C3…]
 ```
-
-**En una frase:** Fase M cerrada; Fase C está en PRIORIDAD pero sin primer Buy — di ★ cuando quieras abrir firmware/GCS/ELRS/PID/planner/app.
