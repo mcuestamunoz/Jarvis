@@ -444,6 +444,12 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 
 **Filter rung ≠ attitude / ≠ controlled flight** — state estimation remains a separate future IC (decide demonstration before opening Safety-real or C++ fronts).
 
+**C7 (ACCEPT CLOSED, tag `v0.5.5`):**  
+**Same Engineer scaffold discipline continues: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."**  
+[`.jes/artifacts/implementation_contract_fase_c_attitude_estimation_rung_b1.md`](../.jes/artifacts/implementation_contract_fase_c_attitude_estimation_rung_b1.md) — the **third** `flight_control` rung: `ComplementaryAttitudeEstimator` (gyro integration fused with accel-derived tilt via a small-angle proportional correction, `gain` constructor parameter, default `0.02`, rejects `gain` outside `(0, 1]`). Exactly **one** algorithm — explicitly **not** Mahony/Madgwick/EKF/UKF/MEKF by name (no bias/integral state, no gradient descent, no covariance). `update(sample: ImuSample) -> AttitudeState` emits a unit quaternion `(w, x, y, z)` mapping body → **`enu`** world frame plus body angular rate. **Hard cut:** no magnetometer, no GPS/baro, no online gyro-bias learning, no position/velocity. Reuses C6's `ImuLowPassFilter`/`ImuSample` directly. Package/tag **`0.5.5`**. See [review PASS](../.jes/artifacts/implementation_review_fase_c_attitude_estimation_rung_b1.md) · [report](../.jes/artifacts/implementation_report_fase_c_attitude_estimation_rung_b1.md).
+
+**Attitude stub ≠ flight-verified attitude / ≠ controlled flight** — controller, mixer, and ESC remain future ICs, each its own front.
+
 ### Historical sketch (still valid as narrative)
 
 First design:

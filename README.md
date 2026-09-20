@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.4** — Fase C through IMU filtering rung (C6)
+**v0.5.5** — Fase C through attitude estimation rung (C7)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,23 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.5 includes
+
+Fase C · **C7** (`B1-fase-c-attitude-estimation-rung`) — **third `flight_control` rung: attitude estimation, sim-only, one algorithm**:
+
+- **Same Engineer scaffold discipline: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** No C++ tree, no CMake created.
+- `src/jarvis/flight_software/flight_control/attitude.py` — `ComplementaryAttitudeEstimator`: gyro integration fused with accel-derived tilt via a small-angle proportional correction (`gain` constructor param, default `0.02`, rejects values outside `(0, 1]`)
+- **Exactly one algorithm** — explicitly **not** Mahony/Madgwick/EKF/UKF/MEKF by name: no bias/integral state, no gradient descent, no covariance propagation
+- `update(sample: ImuSample) -> AttitudeState` — unit quaternion `(w, x, y, z)` mapping body → **`enu`** world frame (locked), plus body angular rate
+- **Hard cut:** no magnetometer, no GPS/baro, no online gyro-bias learning, no position/velocity — yaw is gyro-integrated only, with no absolute heading reference
+- Reuses C6's `ImuLowPassFilter`/`ImuSample` directly — no parallel filter reimplemented inside the estimator
+- `read_attitude(hal, filt, estimator)` pipes `SimulatedImuHal` → `ImuLowPassFilter` → estimator; `vehicle_profiles.run_hal_imu_attitude_smoke()` is the pytest-visible smoke path (reuses the existing `smoke_quad_hal_imu` profile, no schema change)
+- **Known simulator limitation:** `SimulatedImuHal` isn't attitude-aware — it always emits a fixed-direction gravity vector, so this Buy's tests validate against synthetic in-memory `ImuSample` sequences with known tilts, not solely via the shared sim HAL
+- `default_safety_gate()` unchanged — estimation is not actuation; autonomy `submit_command` still always rejects
+- Does **not** touch Continuity, orchestrator IDLE, Board, or `library/`
+- **Attitude stub @ 0.5.5 != flight-verified attitude / != controlled flight.** Controller, mixer, and ESC remain future ICs, each its own front
+- Tagged **`v0.5.5`** on Engineer ACCEPT (suite **3264**)
 
 ## What v0.5.4 includes
 
@@ -152,9 +169,9 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.4`** (C6 filter CLOSED). Next: decide what **C7 must demonstrate** (likely state estimation) → IC → ★. One front only — see [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md). Not simultaneous: real Safety, C++ FC, ELRS, craft↔FS wiring.
+**Tip clean @ `v0.5.5`** (C7 attitude CLOSED). Next: ★ **C8** attitude controller IC → implement → review → ACCEPT. One front only — see [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
-Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish.
+Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
 
 See `docs/IMPLEMENTATION_TASKS.md`.
 
@@ -175,6 +192,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.5.5` / `checkpoint-fase-c-attitude` — Fase C C7: complementary attitude estimation rung; suite **3264** · UI **132**.  
 `v0.5.4` / `checkpoint-fase-c-imu-filter` — Fase C C6: IMU EMA/low-pass filter rung; suite **3249** · UI **132**.  
 `v0.5.3` / `checkpoint-fase-c-autonomy-radio` — Fase C C4+C5 one block: autonomy command surface + radio dual-role stub; suite **3236** · UI **132**. (**No `v0.5.2` tag** — see truth-sync note.)  
 `v0.5.1` / `checkpoint-fase-c-first-fc-rung` — Fase C C3: first `flight_control` rung (HAL + simulated IMU), `flight_software/`+`vehicle_profiles/` opened; Python scaffold, production FC runtime is C++ (future IC); suite **3206** · UI **132**.  

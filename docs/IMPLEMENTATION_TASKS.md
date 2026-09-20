@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** Decide **qué debe demostrar C7** (likely state estimation) → redactar IC → ★. **Un solo frente.**  
-> Tip tagged **`v0.5.4`** (C6 IMU filter CLOSED). Suite **3249** · UI **132**. Craft SoT **`v0.4.3`**.  
-> Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) · [truth-sync](../.jes/artifacts/engineer_note_docs_truth_sync_fase_c_2026_09_20.md).  
+> **PRIORIDAD AHORA:** ★ **C8** [`B1-fase-c-attitude-controller-rung`](../.jes/artifacts/implementation_contract_fase_c_attitude_controller_rung_b1.md) — READY FOR ★ (PD attitude → body-rate cmd; no mixer/ESC).  
+> Tip tagged **`v0.5.5`** (C7 CLOSED). Suite **3264** · UI **132**. Craft SoT **`v0.4.3`**.  
+> Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
-> **Parked:** plate-box · Path N · HD-* · Board polish · real Safety · native C++ FC · ELRS real · craft↔FS wiring (own ICs; not simultaneous).  
+> **Parked:** plate-box · Path N · HD-* · Board polish · real Safety · native C++ FC · ELRS · craft↔FS wiring.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -53,7 +53,9 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C4** | **`B1-fase-c-autonomy-surface`** | **✅ ACCEPT CLOSED** (with C5 @ **`v0.5.3`**) | HOLD/LAND/… behind RejectAll | [review](../.jes/artifacts/implementation_review_fase_c_autonomy_surface_b1.md) · tag **`v0.5.3`** (no `v0.5.2`) |
 | **C5** | **`B1-fase-c-radio-dual-role`** | **✅ ACCEPT CLOSED** @ **`v0.5.3`** | Simulated radio Intent\|Authority; no ELRS decode | [review](../.jes/artifacts/implementation_review_fase_c_radio_dual_role_b1.md) · tag **`v0.5.3`** |
 | **C6** | **`B1-fase-c-imu-filtering-rung`** | **✅ ACCEPT CLOSED** @ **`v0.5.4`** | IMU EMA/low-pass on C3 samples; no estimation/control/ESC | [review](../.jes/artifacts/implementation_review_fase_c_imu_filtering_rung_b1.md) · tag **`v0.5.4`** |
-| **C7** | *(undecided — IC first)* | **Decide demonstration** | Likely state estimation; **not** Safety+C+++ELRS at once | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
+| **C7** | **`B1-fase-c-attitude-estimation-rung`** | **✅ ACCEPT CLOSED** @ **`v0.5.5`** | Complementary attitude (quat+rates) from filtered IMU; ENU; no mag/GPS/bias | [review](../.jes/artifacts/implementation_review_fase_c_attitude_estimation_rung_b1.md) · tag **`v0.5.5`** |
+| **C8** | **`B1-fase-c-attitude-controller-rung`** | **READY FOR ★** | PD attitude → body-rate command; no mixer/ESC | [IC](../.jes/artifacts/implementation_contract_fase_c_attitude_controller_rung_b1.md) |
+| **C9+** | Mixer · ESC · Safety real · C++ | After C8 | One front at a time | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 

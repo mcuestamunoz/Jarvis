@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-20 C6 ACCEPT CLOSED @ v0.5.4. Next: decide what C7 must demonstrate (one front; likely estimation) via IC before code.",
+  "cycle_intent": "2026-09-20 C7 ACCEPT @ v0.5.5. C8 attitude-controller IC READY FOR ★.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "idle — decide C7 demonstration before IC",
-  "active_operation": "none",
+  "current_mode": "await_engineer_star_c8_controller",
+  "active_operation": "b1_fase_c_attitude_controller_rung_ic",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-20 C6 tagged v0.5.4. Process lock: one front; no Safety+C+++ELRS simultaneous. See engineer_note_fase_c_process_lock_after_c6_2026_09_20.md."
+    "note": "2026-09-20 C7 tagged v0.5.5. C8 IC READY: PD attitude → BodyRateCommand; no mixer/ESC."
   },
   "relevant_workflow_phases": [
     "Verification"
