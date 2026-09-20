@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.0**
+**v0.5.1**
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -47,6 +47,21 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
+## What v0.5.1 includes
+
+Fase C · **C3** (`B1-fase-c-first-fc-rung`) — **first `flight_control` rung, sensing-only**:
+
+- **Engineer amendment (on top of the C3 IC): "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** Everything here is a Python platform scaffold, not the production flight controller; the real `flight_control` runtime/firmware will be C++ in later Buys with its own IC. No C++ tree, no CMake created in this Buy.
+- Opens `src/jarvis/flight_software/flight_control/` and `src/jarvis/vehicle_profiles/` on disk for the first time — **exactly one rung**: HAL + simulated IMU sample acquisition (`ImuHal`, `SimulatedImuHal`, `ImuSample`)
+- No filtering, no state estimation, no attitude/rate/position controller, no mixer, no ESC/PWM, no autonomy verbs — none of it exists in this package yet
+- `SimulatedImuHal` is deterministic (same `seed` → same sample sequence) and never touches real hardware, a bus, or a network socket
+- One pytest smoke `VehicleProfile` (`smoke_quad_hal_imu`) + `run_hal_imu_smoke()` in `vehicle_profiles/` — not bound to any craft workspace/BOM/catalog SKU
+- **Naming split (honesty-critical):** craft catalog `flight_controller` (a BOM part) and `flight_software.flight_control` (this control spine) are different systems of record — never conflated
+- `default_safety_gate()` unchanged — still always `RejectAllSafetyGate`; no `AllowAllSafetyGate` anywhere in `src/`
+- Does **not** touch Continuity, orchestrator IDLE, Board, or `library/`
+- **First rung stub @ 0.5.1 != controlled flight.** Estimation/control/mixer/ESC/autonomy remain future ICs (C4+)
+- Tagged **`v0.5.1`** on Engineer ACCEPT (see `.jes/artifacts/implementation_review_fase_c_first_fc_rung_b1.md`)
+
 ## What v0.5.0 includes
 
 Fase C · **C1** scaffold (`B1-fase-c-capability-registry-scaffold`) — **schemas only, no runtime**:
@@ -55,7 +70,7 @@ Fase C · **C1** scaffold (`B1-fase-c-capability-registry-scaffold`) — **schem
 - `CapabilityRegistry.load_default()` is **always empty** — 0 capabilities, 0 providers, 0 skills. No path in the product marks flight/actuation as `available`; the `availability` enum only offers `stub` / `not_implemented` in C1
 - **No execution path**: no method or field named `execute` / `dispatch` / `command_esc`; nothing here turns a record into a motor/ESC/autonomy command
 - Does **not** touch Continuity, orchestrator IDLE, Board, or `library/` — craft SoT stays the `v0.4.3` surface
-- **Scaffold @ 0.5.0 != Flight Software shipped.** `flight_software/` and a live vehicle/device runtime remain future ICs (C2+)
+- **Scaffold @ 0.5.0 != Flight Software shipped.** At C1, `flight_software/` did not exist yet; C3 @ `v0.5.1` opens the first Python scaffold rung (production FC runtime remains C++ / future IC)
 - Git tag **`v0.5.0`** / `checkpoint-fase-c-capability-registry` (Engineer ACCEPT 2026-09-20)
 
 ## What v0.4.3 includes (tag)
@@ -99,7 +114,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Fase C · C2** — Intent/Safety stub — awaits Engineer ★. `flight_software/`, MAVLink/GCS, bind ELRS, PID, mission planner, app piloto remain later Fase C Buys (C3+).
+**Fase C · C4** — Autonomy command surface (behind Safety, still `reject`-default) — awaits Engineer ★. `flight_software/` now exists but is a single sensing-only rung (HAL + simulated IMU) — filtering, state estimation, attitude/rate/position control, mixer, ESC/PWM, autonomy verbs, MAVLink/GCS, bind ELRS, PID, mission planner, and app piloto all remain later Fase C Buys.
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish.
 

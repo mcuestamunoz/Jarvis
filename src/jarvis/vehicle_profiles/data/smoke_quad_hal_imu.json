@@ -1,0 +1,7 @@
+{
+    "id": "smoke_quad_hal_imu",
+    "display_name": "Smoke quad — HAL + IMU sim only",
+    "vehicle_class": "quadcopter_smoke",
+    "rung": "hal_imu",
+    "notes": "Pytest smoke profile only — not a real vehicle, not flight-capable, not bound to any craft workspace/BOM/catalog SKU. Declares this vehicle expects exactly the hal_imu rung (HAL + simulated IMU sampling) and nothing further."
+}
