@@ -17,7 +17,7 @@
 
 ## Important functions (Level 2)
 
-- `CalculationEngine.build(parameters) -> CalculationBundle` (`calculation_engine.py`) — the single **formula** entry point; everything downstream (Simulation, Continuity's `derive_physical_requirements`) reads its output, never recomputes physics itself. L2 envelope only if the caller already put `battery_endurance_sweep` on the params copy.
+- `CalculationEngine.build(parameters) -> CalculationBundle` (`calculation_engine.py`) — the single **formula** entry point; everything downstream (Simulation, Continuity's `derive_physical_requirements`) reads its output, never recomputes physics itself. L2 envelope only if the caller already put `battery_endurance_sweep` on the params copy. **Fase M (`B1-mission-power-w`, 2026-09-16):** `mission_accessory_power_w` (mirror of declared `cameras`/`radio_module` `power_w`, never `vtx` — see `08_continuity`) is added once, flat, into **both** the hover and non-hover autonomy paths (`hover_power_w * motors + mission_accessory_power_w` / `effective_power_w * motors + mission_accessory_power_w`) — never multiplied by motor count, one shared accessory load. Zero/absent reproduces the exact pre-Fase-M formula (regression-tested).
 - `endurance_sweep_writer.build_with_estimative_sweep(engine, parameters)` — two-pass product wrapper (Option A). Ephemeral; 4S + hover gates; DSE must not import this module.
 - `component_resolver.resolve_propulsion_parameters(components) -> PhysicalOverride` (`:73`) — reconciles declarative component data (from `design_properties.components`) with `current_parameters`, respecting the documented invariant "user input beats component inference" (`system_architecture_catalog.py`).
 - `CalculateAction.run(parameters) -> dict` (`actions/calculate.py`) — load → `build_with_estimative_sweep` → `save_calculation` → `record_action` → `save_state`.
@@ -36,4 +36,4 @@ None — this is one of the fully 🟢 subsystems (FLOW-005).
 
 ## Tests
 
-`tests/test_energy_params.py`, `tests/test_u1_battery_mass.py`, `tests/test_u2_propeller_bridge.py`, `tests/test_phase27b_loaded_endurance.py`, `tests/test_option_a_estimative_visibility.py`, plus calculation assertions embedded across most orchestrator-level tests.
+`tests/test_energy_params.py`, `tests/test_u1_battery_mass.py`, `tests/test_u2_propeller_bridge.py`, `tests/test_phase27b_loaded_endurance.py`, `tests/test_option_a_estimative_visibility.py`, **`tests/test_mission_power_w_b1.py`** (accessory-power additive term, both autonomy paths), plus calculation assertions embedded across most orchestrator-level tests.

@@ -1,3 +1,6 @@
+> **Status:** HISTORICAL fix note (early conversational-layer diagnosis, predates the FN-0xx/G-xx field-note register in `docs/BUGS.md` and the current `system_map/`). Not a current plan.
+> **SoT now:** `docs/IMPLEMENTATION_TASKS.md` § PRIORIDAD ACTUAL.
+
 Ambos análisis apuntan a lo mismo: el núcleo físico está sólido, el cuello de botella es la capa conversacional. Aquí está mi síntesis y el plan de fixes.
 
 ---

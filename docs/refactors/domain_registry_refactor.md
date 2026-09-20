@@ -1,5 +1,8 @@
 ---
 
+> **Status:** HISTORICAL refactor note (17 Apr 2026 diagnosis; `ComponentRuleRegistry`/`domains/aerial.py`+`domains/ground.py` split it describes has since shipped and grown — 14 rules in `aerial_registry` as of `v0.4.2`, including `cameras`/`radio_module`/`vtx`). Not a pending refactor.
+> **SoT now:** `docs/system_map/02_intent/INTENT_MAP.md` / `docs/system_map/03_acquisition/ACQUISITION_MAP.md` for the current module shape.
+
 ## Diagnóstico
 
 **Estado actual (17 abril 2026):**

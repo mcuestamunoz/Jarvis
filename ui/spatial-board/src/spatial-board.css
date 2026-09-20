@@ -537,3 +537,200 @@ html, body, #root {
   color: #e07a7a;
   border-color: #e07a7a;
 }
+
+/* Board 3D-first workshop + mount-chain inspector B1
+   (`B1-board-3d-first-inspector`) — view-mode tabs. Taller 3D is the
+   default (IC lock #2); Grafo stays one click away (lock #3), never
+   removed. */
+.sb-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 16px;
+  background: #1c1c1c;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+
+.sb-tab {
+  background: transparent;
+  color: #9a9a9a;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sb-tab--active {
+  background: #2a2a2a;
+  color: #e8e8e8;
+  border-color: #3a3a3a;
+}
+
+/* Taller tab — Scene3D full-bleed (or near full-bleed) as the primary
+   workspace, with the inspector dock as a right-side sibling column
+   (never a card wall). `.sb-viewport` stays mounted (never unmounted) but
+   `hidden` while this tab is active — see InfiniteCanvas.tsx's own
+   comment on why (ResizeObserver ref stability). */
+.sb-taller {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Overrides `.sb-scene3d`'s fixed stacked-pane height (Grafo tab) with a
+   flexible full-bleed pane that fills `.sb-taller`'s available space. */
+.sb-scene3d--primary {
+  flex: 1;
+  height: auto;
+  border-top: none;
+}
+
+/* Board 3D-first workshop + mount-chain inspector B1 — the inspector
+   dock. Taller tab, Situar OFF only (IC §2.2/§2.6 — Situar ON collapses
+   this to the piece strip instead, no fat column fighting Situar). */
+.sb-inspector {
+  width: 320px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: #161616;
+  border-left: 1px solid #2a2a2a;
+  padding: 14px;
+  font-size: 12px;
+}
+
+.sb-inspector--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #888;
+}
+
+.sb-inspector__hint {
+  margin: 0;
+  color: #888;
+}
+
+.sb-inspector__selected {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.sb-inspector__selected-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sb-inspector__title {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.sb-inspector__kind {
+  font-size: 11px;
+  color: #888;
+}
+
+.sb-inspector__name {
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sb-inspector__name--empty {
+  font-weight: 400;
+  color: #888;
+}
+
+.sb-inspector__fields {
+  margin: 8px 0 0;
+}
+
+.sb-inspector__fields div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 0;
+}
+
+.sb-inspector__fields dt {
+  color: #888;
+}
+
+.sb-inspector__fields dd {
+  margin: 0;
+  text-align: right;
+}
+
+.sb-inspector__toggle {
+  margin-top: 10px;
+  background: #2a2a2a;
+  color: inherit;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sb-inspector__chain-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9a9a9a;
+}
+
+.sb-inspector__chain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sb-inspector__chain-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  background: #1f1f1f;
+  color: inherit;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  padding: 6px 8px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sb-inspector__chain-row:hover {
+  border-color: #5b9dd9;
+}
+
+.sb-inspector__chain-row-title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sb-inspector__chain-row-name {
+  font-size: 11px;
+  color: #888;
+}
+
+/* Board 3D-first workshop + mount-chain inspector B1 — 3D dimming (IC
+   §2.4). A solid NOT on the selected piece's mount-ancestor chain dims;
+   the chain itself (selection + ancestors) stays full opacity. Presentation
+   only — a dimmed solid stays clickable (never `pointer-events: none`),
+   so the user can still select straight through the ghosted stack. */
+.sb-solid--dimmed .sb-solid__face,
+.sb-solid--dimmed .sb-solid__disk-face {
+  opacity: 0.28;
+}

@@ -375,9 +375,20 @@ Puedes combinar varios ejes en una sola frase. Para quitar la pose:
 quita la pose del esc
 ```
 
-### 8.4 Ajuste fino en el Board
+### 8.4 El Board: Taller 3D, inspector y ajuste fino
 
-En el Board (`jarvis board`), activa el botón **"Situar"**. Con Situar activo:
+Al abrir `jarvis board`, el Board arranca en la pestaña **Taller 3D**: el craft en 3D ocupa la pantalla, no una pared de tarjetas. La pestaña **Grafo** (arriba, junto a "Taller 3D") sigue disponible con las tarjetas de siempre — útil para ver todos los campos de golpe o los bordes de montaje entre piezas — pero ya no es lo primero que ves al abrir.
+
+**Seleccionar una pieza:** haz click sobre una pieza en el 3D, o usa la tira de chips (una fila de botones con el id de cada pieza) que aparece siempre en el Taller — útil cuando dos piezas están apiladas y hacer click exacto es difícil.
+
+**Inspector (columna derecha, Situar apagado):** al seleccionar, aparece un panel con:
+
+- **Resumen** de la pieza: nombre, tipo, y unos pocos campos clave (montado en, masa, SKU…). Botón **"Ver todo"** para desplegar la ficha completa, igual de detallada que en Grafo.
+- **Cadena hasta la placa** — la ruta de montaje declarada desde la pieza hasta la placa principal (`frame_plate`), un paso por vez (`esc → frame_plate`, `hélice → motor → brazo`…). Click en cualquier eslabón de la cadena para saltar a esa pieza. Si la pieza no tiene montaje declarado (o el montaje no llega hasta la placa), el panel lo dice honestamente en vez de inventar una ruta — nunca adivina por cercanía en el 3D.
+
+Mientras hay una pieza seleccionada, el resto del craft se atenúa en el 3D (queda semitransparente) y la cadena seleccionada se ve a opacidad normal — así ubicas de un vistazo qué es la pieza y por dónde cuelga del chasis. Quita la selección (Escape, o click en el fondo) para recuperar la vista normal.
+
+**Situar** (mismo botón de siempre) sigue para mover piezas a mano:
 
 - **Click** en una caja → la selecciona.
 - **Arrastra** (la caja o el fondo) → mueve la caja seleccionada en el plano de pantalla actual.
@@ -386,7 +397,7 @@ En el Board (`jarvis board`), activa el botón **"Situar"**. Con Situar activo:
 - **"Recentrar 3D"** → vuelve a centrar la escena.
 - Si la caja no tiene origen de pose todavía, aparece un selector de origen con un botón para fijarlo, en vez de arrancar el arrastre directamente.
 
-Situar escribe con el mismo mecanismo que la frase de §8.3 — es solo una forma alternativa de dar la misma pose.
+Con Situar activo, el inspector se aparta — la tira de chips es la forma de elegir pieza mientras sitúas, para no competir por espacio con el 3D. Situar escribe con el mismo mecanismo que la frase de §8.3 — es solo una forma alternativa de dar la misma pose.
 
 ---
 

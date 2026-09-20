@@ -1,5 +1,8 @@
 # Jarvis — Auditoría de código del núcleo (3 septiembre 2026)
 
+> **Status:** HISTORICAL — point-in-time audit (3 Sep 2026). Findings below reflect the codebase at that date; `src/` has changed substantially since (Fase M mission craft ladder, cameras/vtx catalog families, tag `v0.4.2`). Numbered defects were absorbed into `docs/BUGS.md` (Bug 80+) at the time; do not assume any unresolved item below still applies without re-checking against current code.
+> **SoT now:** `docs/IMPLEMENTATION_TASKS.md` § PRIORIDAD ACTUAL · tag `v0.4.2`.
+
 > **Petición:** directa del usuario ("los archivos core me preocupan, haz un informe muy muy detallado"), fuera del ciclo normal de Investigation Contract / Implementation Contract. No se editó ningún archivo de `src/` durante esta auditoría.
 > **Autoritativo para:** patrones transversales, complejidad/arquitectura, métricas cuantitativas y recomendaciones de refactor. Los defectos puntuales fabricados a partir de esta auditoría están numerados como **Bug 80+** en [`docs/BUGS.md`](BUGS.md) (Fase O) — este documento es la fuente para todo lo que no encaja en el formato de un bug individual.
 > **Cola:** [`docs/IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md) — review de esta auditoría añadida en cola/prioridad.

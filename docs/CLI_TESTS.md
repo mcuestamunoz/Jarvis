@@ -1,5 +1,8 @@
 # Pruebas manuales CLI — Jarvis
 
+> **Status:** HISTORICAL / OBSOLETE as a living checklist (epoch: predates the pytest suite's current scale — 3166 tests as of `v0.4.2`, 2026-09-18). This manual checklist has been superseded as the primary verification method; treat entries below as historical field notes, not a current test plan.
+> **SoT now:** the `tests/` suite (run `pytest`) for behavior verification · [`docs/USER_GUIDE_CRAFT_MONTAGE.md`](USER_GUIDE_CRAFT_MONTAGE.md) for the current manual command reference · `docs/IMPLEMENTATION_TASKS.md` § PRIORIDAD for what's live.
+
 Checklist de validación end-to-end del sistema completo a través de `python -m jarvis.main --chat`.
 
 **Estado:** ✅ Superado · ⚠️ Bug detectado · ❌ Fallo · ⬜ Pendiente

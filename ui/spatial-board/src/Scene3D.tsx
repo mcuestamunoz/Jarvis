@@ -4,6 +4,8 @@ import { isOverlapScreeningCopy } from "./fitAttestationUi";
 import { postDragPose, postFitAttestation } from "./projects";
 import { clusterCenterPx, expandSolidCopies, layoutSolidsFromPose } from "./scene3dLayout";
 import { clampZoom } from "./scene3dScale";
+import { computeAncestorChain, isDimmed } from "./mountAncestorChain";
+import { pieceStripSolids } from "./overlapPicker";
 import { isSolidHitThrough, resolveClusterCenter } from "./situarInteractionState";
 import { formatOriginCandidateLabel, rankBoxOriginCandidates } from "./situarOriginCandidates";
 import { Solid3D } from "./Solid3D";
@@ -21,6 +23,22 @@ type Props = {
   projectId?: string | null;
   /** Called after a successful pose POST so the caller can re-GET nodes (never localStorage). */
   onPoseCommitted?: () => void;
+  /**
+   * Board 3D-first workshop + mount-chain inspector B1 — Situar is now a
+   * CONTROLLED prop (lifted out of this component) so the parent can
+   * decide whether to render the Taller-mode `InspectorDock` alongside
+   * this pane (IC §2.6: Situar ON collapses the dock to chips — the
+   * parent needs to know Situar's state to make that call).
+   */
+  situar: boolean;
+  onSituarChange: (next: boolean) => void;
+  /**
+   * True when this pane is the Taller tab's primary workspace (full-bleed
+   * styling, always-on piece strip, ancestor-chain dimming). False (or
+   * omitted) preserves the exact pre-existing Grafo-tab behavior: fixed
+   * height, no dimming, piece strip only while Situar is ON.
+   */
+  primary?: boolean;
 };
 
 type SolidDragState = {
@@ -72,7 +90,9 @@ type SolidDragState = {
  * already used; on success the caller re-GETs nodes (`onPoseCommitted`),
  * never an optimistic local mutation.
  */
-export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitted }: Props) {
+export function Scene3D({
+  nodes, selectedId, onSelect, projectId, onPoseCommitted, situar, onSituarChange, primary = false,
+}: Props) {
   const solids = nodes.filter(
     (n): n is SpatialNode & { geometry: NonNullable<SpatialNode["geometry"]> } =>
       Boolean(n.geometry),
@@ -80,7 +100,6 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
 
   const [tilt, setTilt] = useState(DEFAULT_TILT);
   const [zoom, setZoom] = useState(1);
-  const [situar, setSituar] = useState(false);
   const [pickerNodeId, setPickerNodeId] = useState<string | null>(null);
   const [pickerOriginKey, setPickerOriginKey] = useState("");
   const [posting, setPosting] = useState(false);
@@ -385,9 +404,21 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
     ? rankBoxOriginCandidates(pickerNodeId, solids)
     : [];
 
+  // Board 3D-first workshop + mount-chain inspector B1 — ancestor chain +
+  // dimming, Taller (primary) pane only (IC §2.4/§2.6). Grafo's own 3D
+  // view keeps its exact pre-existing look (no dimming) even with a
+  // selection active.
+  const nodesById = new Map(nodes.map((n) => [n.id, n]));
+  const chain = primary && selectedId ? computeAncestorChain(selectedId, nodesById) : [];
+  // Overlap/stack picker (IC §2.5) — Trigger B, always available in the
+  // Taller pane regardless of Situar; Situar ON narrows to draggable
+  // singletons only (unchanged from the pre-existing Situar-only strip).
+  const stripSolids = pieceStripSolids(solids, situar);
+  const showStrip = situar || primary;
+
   return (
     <div
-      className={`sb-scene3d${situar ? " sb-scene3d--situar" : ""}`}
+      className={`sb-scene3d${situar ? " sb-scene3d--situar" : ""}${primary ? " sb-scene3d--primary" : ""}`}
       onWheel={onWheel}
       onMouseDown={onBackgroundMouseDown}
     >
@@ -397,14 +428,12 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
           className={`sb-scene3d__situar-toggle${situar ? " sb-scene3d__situar-toggle--on" : ""}`}
           onMouseDown={(event) => event.stopPropagation()}
           onClick={() => {
-            setSituar((s) => {
-              const next = !s;
-              // E3: turning OFF drops the frozen baseline so the NEXT time
-              // Situar turns on captures a fresh one, never a stale value
-              // from a previous session.
-              if (!next) situarFrozenClusterRef.current = null;
-              return next;
-            });
+            const next = !situar;
+            // E3: turning OFF drops the frozen baseline so the NEXT time
+            // Situar turns on captures a fresh one, never a stale value
+            // from a previous session.
+            if (!next) situarFrozenClusterRef.current = null;
+            onSituarChange(next);
             setPickerNodeId(null);
             setPostError(null);
           }}
@@ -453,15 +482,20 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
           Alt+arrastre: órbita · Shift: profundidad (Y)
         </div>
       ) : null}
-      {situar ? (
-        // E1 (Option B) — a compact piece strip inside the 3D pane itself,
-        // so picking a piece never depends on the 2D card row having
-        // enough room to be usable at the same time. Lists only
-        // situar-draggable singletons (same `isDraggableSolid` gate the
-        // drag arm itself uses) — copies/disks are never listed here
-        // since they can never be selected-to-drag either.
+      {showStrip ? (
+        // E1 (Option B), generalized by the overlap/stack picker (IC §2.5,
+        // Trigger B) — a compact piece strip inside the 3D pane itself, so
+        // picking a piece never depends on precise 3D hit-testing (CSS 3D
+        // has no reliable multi-hit ray query) nor on the 2D card row
+        // having enough room to be usable at the same time. While Situar
+        // is ON, lists only situar-draggable singletons (same
+        // `isDraggableSolid` gate the drag arm itself uses) — copies/disks
+        // are never listed there since they can never be selected-to-drag
+        // either. In the Taller pane with Situar OFF, lists every solid
+        // (including station copies) — this is the general-purpose
+        // inspector picker, not a drag-eligibility list.
         <div className="sb-scene3d__piece-strip" onMouseDown={(event) => event.stopPropagation()}>
-          {solids.filter(isDraggableSolid).map((s) => (
+          {stripSolids.map((s) => (
             <button
               key={s.id}
               type="button"
@@ -525,6 +559,7 @@ export function Scene3D({ nodes, selectedId, onSelect, projectId, onPoseCommitte
               yawDeg={origin?.yawDeg}
               draggable={draggable}
               needsOrigin={needsOrigin}
+              dimmed={isDimmed(e.selectId, chain)}
               pointerEventsNone={pointerEventsNone}
               onDragStart={draggable ? handleSolidDragStart : undefined}
             />

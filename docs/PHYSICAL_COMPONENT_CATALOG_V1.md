@@ -332,6 +332,8 @@ Until that IC exists, **no Catalog Foundation coding**.
 
 Historical §0 checkpoint sketch ("Next: Impl A ← READY") reflects the **2026-08-12 design gate**, not current code state.
 
+**Later catalog families (not reflected in the §13 table above, added post-2026-09-07):** `library/fc/` + `library/sensors/` (`B1-library-fc-sensors`, 2026-09-14) · `library/cameras/` (RunCam Phoenix 2, `B1-library-cameras-seed`, 2026-09-16 — full ESC-shaped bind/pick/rebind/refresh + mass mirror, later extended with a catalog `power_w` field via P=I×V arithmetic, `B1-catalog-camera-power-w`) · `library/vtx/` (HGLRC Zeus 800, `B1-mission-vtx-identity`, 2026-09-18 — same shape, mass-only mirror, no `power_w` field: RF milliwatts are never converted to electrical W). All four follow the same `ComponentLibrary`-as-sole-reader / `CatalogRef.family` / omit-key-merge discipline this design document already locks — no new architectural pattern, just new families. See `docs/ARCHITECTURE.md`'s own changelog and `docs/system_map/CONNECTIONS.md` for the full trail.
+
 ---
 
 **End of design.**

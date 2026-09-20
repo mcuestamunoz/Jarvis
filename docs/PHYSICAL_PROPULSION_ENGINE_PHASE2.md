@@ -7,6 +7,7 @@
 **Related:** [`PHYSICAL_COMPONENT_CATALOG_V1.md`](./PHYSICAL_COMPONENT_CATALOG_V1.md), [`ENGINEERING_READINESS_VISION.md`](./ENGINEERING_READINESS_VISION.md)
 
 > **Document role:** Forward-looking vision for Phase 2 physics (operating points, power model, real-world validation). **P2-1 lookup operating point is implemented** — see §12.1. Sections 1–11 and 14–15 remain the design target for work not yet started.
+> **Epoch check (2026-09-18, tag `v0.4.2`):** still accurate — P2-2+ real-world validation remains the **HD-004 wall** (hardware-gated, see [`HARDWARE_DEBT.md`](./HARDWARE_DEBT.md)), unaffected by Fase M's mission craft software (cameras/VTX catalog, mission mass/power ladder), which is orthogonal to propulsion physics.
 
 ---
 

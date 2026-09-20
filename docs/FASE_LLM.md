@@ -1,5 +1,8 @@
 # FASE_LLM — Capa semántica del LLM
 
+> **Status:** HISTORICAL design note (early phase, predates the current `system_map/` authority documentation). Its core principle — LLM interprets language only, never decides engineering state — is still enforced today, structurally, at `ActionPolicy.ALLOWED_ACTIONS` (see [`system_map/AUTHORITY.md`](system_map/AUTHORITY.md)). This file is not the current authority reference and must never be read as inviting a "Conversation Engine" or any new LLM-decision subsystem — that remains forbidden.
+> **SoT now:** [`system_map/AUTHORITY.md`](system_map/AUTHORITY.md) for the live enforcement mechanism.
+
 ## Principio de diseño
 
 El LLM actúa exclusivamente como **intérprete de lenguaje natural**. No calcula. No muta estado. No decide física. No reemplaza validaciones.

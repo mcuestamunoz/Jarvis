@@ -451,12 +451,14 @@ export default function JarvisSystemMapCanvas() {
 
       <Callout
         tone="info"
-        title="Product queue — idle (v0.4.1 · suite 2945 · UI 105)"
+        title="Product queue — Fase C await ★ (v0.4.2 · suite 3166 · UI 105)"
       >
-        Craft montage + mission-payload identity CLOSED. User guide:
-        docs/USER_GUIDE_CRAFT_MONTAGE.md. Perception/comms unlock at identity;
-        payload/brazo still refuse. Holds: B1-plate-box / Path N. C-081 /
-        C-108 deferred. HD-* never PRIORIDAD without lab.
+        Fase M mission craft ladder CLOSED (cameras + VTX catalog families,
+        mission mass/mount/autonomy/power ladder). User guide:
+        docs/USER_GUIDE_CRAFT_MONTAGE.md. PRIORIDAD AHORA: Fase C
+        (control/enlace software) — await Engineer ★ for the first Buy.
+        Holds: B1-plate-box / Path N. C-081 / C-108 deferred. HD-* never
+        PRIORIDAD without lab.
       </Callout>
 
       <Grid columns={6} gap={12}>
@@ -537,6 +539,17 @@ export default function JarvisSystemMapCanvas() {
         (Skystars) · SYSTEM_DEFINITION block-resolvability gate. Open holds:
         plate-box · Path N. Registry unchanged: 63 connected · 1 removed ·
         2 partial. Suite 2945 · UI 105.
+      </Callout>
+
+      <Callout tone="success" title="Shipped — Fase M mission craft ladder @ v0.4.2 (2026-09-16→18)">
+        library/cameras (RunCam Phoenix 2) + library/vtx (HGLRC Zeus 800) as
+        full catalog families (pick → bind → catalog_ref → mass mirror →
+        cambiar/actualiza). Mission Continuity ladder: identity → mass
+        (mission_payload_mass_kg) → mount → autonomy target → power
+        (mission_accessory_power_w, cameras/radio only) → VTX → soft margin.
+        New video_link block (vtx key) — perception stays cameras-only. No
+        new C-xxx. Fase M CLOSED, tag v0.4.2. Suite 3166 · UI 105. PRIORIDAD
+        → Fase C (control/enlace software), await Engineer ★.
       </Callout>
 
       {filter !== "forbidden" ? (

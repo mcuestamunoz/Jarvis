@@ -1,4 +1,7 @@
 
+> **Status:** HISTORICAL refactor note (16 Apr 2026 diagnosis of `iterate_interactive_session.py`'s then-1659 lines). Not a pending refactor.
+> **SoT now:** `docs/system_map/05_iteration/ITERATION_MAP.md` for the current module shape.
+
 ---
 
 ## Diagnóstico

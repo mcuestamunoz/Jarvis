@@ -1,5 +1,9 @@
 # Jarvis — Bug Tracker (fase CLI real)
 
+> **Status:** HISTORICAL — numbered bugs below are a closed-era register (last active entries checkpoint `checkpoint-g9a`, 2026-08-20); not the live execution queue.
+> **SoT now:** [`docs/IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md) § PRIORIDAD ACTUAL · tag `v0.4.2` · [M7 closeout](../.jes/artifacts/engineer_note_fase_m_closeout_m7.md).
+> Do not treat this file as the current bug/execution queue — check `IMPLEMENTATION_TASKS.md` for what's open today.
+
 > **Living CLI findings (G9–G23, post-catalog):** [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md) — authoritative for routing/Continuity UX gaps outside numbered bugs below.  
 > **Auditoría de código del núcleo (3 sep 2026, Fase O):** [`docs/CODE_AUDIT_CORE.md`](CODE_AUDIT_CORE.md) — authoritative for cross-cutting patterns, `orchestrator.py` size/complexity, and refactor recommendations outside Bugs 80–112 below. Todos ⬜ Pendiente — review en cola, ver `IMPLEMENTATION_TASKS.md`.  
 > **Status (2026-08-20):** **G21/G22** — motors catalog bind (component wizard + IDLE) + single strict catalog authority — **review PASS, commit pending**. **G23** — FN-015 acquisition-help feature removed in full (anti-LLM confusion gate kept, minimal) — **implemented, awaiting review**.  

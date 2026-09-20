@@ -170,4 +170,4 @@ def test_p6_library_and_version_untouched():
         assert "prop_adapter_length_mm" not in row, f"{sku} unexpectedly gained prop_adapter_length_mm"
 
     pyproject_text = (repo_root / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.4.1"' in pyproject_text
+    assert 'version = "0.4.2"' in pyproject_text

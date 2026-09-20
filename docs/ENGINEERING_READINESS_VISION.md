@@ -1,8 +1,8 @@
 # Engineering Readiness Vision
 
-**Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure ✅ §11; Structure + spatial board + Geometry ladder ✅ — §8; **Continuity spatial assembly ✅ @ v0.4.0**; **Board Situar ✅ @ v0.4.1**; **Craft montage + mission payload + disk-station reach ✅ (2026-09-13→16)** — see `docs/USER_GUIDE_CRAFT_MONTAGE.md`; **PRIORIDAD = software closeout lean Continuity intent** — physical plate-box / Path N / HD-* parked)  
+**Status:** Active (ERF-1 ✅, ERF-2 ✅, Project Closure ✅ §11; Structure + spatial board + Geometry ladder ✅ — §8; **Continuity spatial assembly ✅ @ v0.4.0**; **Board Situar ✅ @ v0.4.1**; **Craft montage + mission payload + disk-station reach ✅ (2026-09-13→16)**; **Fase M mission craft ladder ✅ @ v0.4.2 (2026-09-16→18)** — cameras + VTX catalog families, mission mass/mount/autonomy/power ladder, see `docs/USER_GUIDE_CRAFT_MONTAGE.md`; **PRIORIDAD = Fase C (control/enlace software), await Engineer ★** — physical plate-box / Path N / HD-* still parked)  
 **Type:** Vision / To-be  
-**Date:** 2026-09-16 (tag **v0.4.1**, untagged patch tip · suite **2968** · UI **105**; Prop/Energy = HD-004 wall; System Optimization **deferred** until pain)
+**Date:** 2026-09-18 (tag **v0.4.2** · suite **3166** · UI **105**; Prop/Energy = HD-004 wall; System Optimization **deferred** until pain)
 
 ---
 
@@ -366,7 +366,7 @@ Allowed later (optional): investigation of *what evidence schema to ingest when 
 - No new source of truth replaces ProjectState.
 - No LLM authority over engineering next-step decisions.
 - No implicit rewrite of existing acquisition/continuity contracts — Continuity remains next-step copy authority; see [`PROJECT_CONTINUITY.md`](./PROJECT_CONTINUITY.md).
-- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — not in §8 phase history above. **As of 2026-09-10** tag **v0.4.1** · suite **2669** · UI **80**; Continuity spatial assembly + Board Situar CLOSED; **PRIORIDAD = Fit VERIFIED** (investigation). Board B1 layout-on-disk is named debt, not PRIORIDAD. System Optimization **deferred** until pain. Prop/Energy experimental = **HD-004 wall**. MEASURE/CAD is not the default.
+- **Execution queue** (what to implement next) lives in [`IMPLEMENTATION_TASKS.md`](./IMPLEMENTATION_TASKS.md) — always read that file for today's live PRIORIDAD value, never this section (the snapshot below is a dated historical example only). **As of 2026-09-18** tag **v0.4.2** · suite **3166** · UI **105**; Fase M mission craft ladder CLOSED; **PRIORIDAD = Fase C (control/enlace software), await Engineer ★**. Board B1 layout-on-disk is named debt, not PRIORIDAD. System Optimization **deferred** until pain. Prop/Energy experimental = **HD-004 wall**. MEASURE/CAD is not the default.
 - **Hardware-gated physics** (T1/T2 lab before any sibling field) lives in [`HARDWARE_DEBT.md`](./HARDWARE_DEBT.md) — **debt register, never 🔴 PRIORIDAD ACTUAL** (Engineer: no lab equipment). Includes HD-004 OP→consumption for autonomy. Not in the software/product queue.
 
 ---

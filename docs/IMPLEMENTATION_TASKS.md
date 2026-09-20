@@ -6,11 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **Base:** tag **`v0.4.2`**. Suite viva **3165** · UI **105**.  
+> **Base:** tag **`v0.4.2`**. Suite viva **3166** · UI **105**.  
 > **NORTH STAR:** craft montage — [lock](../.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md).  
-> **PRIORIDAD AHORA:** **Fase C** — diseño software de equipo / control de vuelo. **Await Engineer ★** para el primer Buy. Fase M **CLOSED** — [M7 closeout](../.jes/artifacts/engineer_note_fase_m_closeout_m7.md). Package **`0.4.2`**.  
+> **PRIORIDAD AHORA:** **Fase C** — diseño software de equipo / control de vuelo. **Await Engineer ★** para el primer Buy.  
+> Fase M **CLOSED** · D1 docs truth-sync **ACCEPT** · U1 Board Taller 3D **ACCEPT CLOSED** (polish deferred). Package **`0.4.2`**.  
 
-> **Parked (not software):** plate-box bag · Path N · HD-* · more camera SKUs / radio catalog W · axial prop↔motor geometry · M5 `payload_kg` P2.  
+> **Parked (not software):** plate-box bag · Path N · HD-* · more camera SKUs / radio catalog W · axial prop↔motor geometry · M5 `payload_kg` P2 · Board inspector polish.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -44,6 +45,18 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 ### 📋 COLA — Fase C (diseño software de equipo · **AHORA**)
 
 Firmware FC · MAVLink/GCS · bind ELRS · PID/tuning · mission planner · app piloto — **await Engineer ★** (primer Buy). Closeout: [M7](../.jes/artifacts/engineer_note_fase_m_closeout_m7.md). Distancia: [nota](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
+
+### 📋 COLA — Docs hygiene (opcional · puede ir antes de Fase C product)
+
+| # | ★ | Estado | Qué | Gate |
+|---|---|---|---|---|
+| **D1** | **`B1-docs-folder-truth-sync`** | **✅ ACCEPT CLOSED** | Docs @ v0.4.2 · obsolete labeled · rebind hotfix vtx/cameras | [review](../.jes/artifacts/implementation_review_docs_folder_truth_sync_b1.md) |
+
+### 📋 COLA — Board UI workshop (cerrada · polish deferred)
+
+| # | ★ | Estado | Qué | Gate |
+|---|---|---|---|---|
+| **U1** | **`B1-board-3d-first-inspector`** | **✅ ACCEPT CLOSED** | Taller 3D · Grafo tab · inspector + ancestros · chips | [review](../.jes/artifacts/implementation_review_board_3d_first_inspector_b1.md) · Engineer smoke 2026-09-20 |
 
 ### 📋 COLA — Physical / schema (parked)
 

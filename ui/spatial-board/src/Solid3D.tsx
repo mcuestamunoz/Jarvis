@@ -28,6 +28,13 @@ type Props = {
    * (FC, plate) captures the ESC forever.
    */
   pointerEventsNone?: boolean;
+  /**
+   * Board 3D-first workshop + mount-chain inspector B1 — true when this
+   * solid is NOT on the selected piece's mount-ancestor chain (IC §2.4).
+   * Presentation-only (CSS opacity); never changes hit-testing/selection
+   * eligibility — a dimmed solid stays clickable.
+   */
+  dimmed?: boolean;
 };
 
 // Disk axial Visor B1 — segment count for the cylinder's lateral surface.
@@ -55,6 +62,7 @@ const _CYLINDER_SIDE_SEGMENTS = 16;
 export function Solid3D({
   id, geometry, selected, onSelect, originX = 0, originY = 0, originZ = 0, yawDeg,
   draggable = false, needsOrigin = false, onDragStart, pointerEventsNone = false,
+  dimmed = false,
 }: Props) {
   const extent = solidExtentPx(geometry);
   // Arm radial Visor B1 — declared +X (length) -> CSS X, declared +Y
@@ -81,7 +89,8 @@ export function Solid3D({
   const modifierClass =
     `${draggable ? " sb-solid--draggable" : ""}` +
     `${needsOrigin ? " sb-solid--needs-origin" : ""}` +
-    `${pointerEventsNone ? " sb-solid--hit-through" : ""}`;
+    `${pointerEventsNone ? " sb-solid--hit-through" : ""}` +
+    `${dimmed ? " sb-solid--dimmed" : ""}`;
 
   if (geometry.shape === "box") {
     const { x: w, y: d, z: h } = extent;

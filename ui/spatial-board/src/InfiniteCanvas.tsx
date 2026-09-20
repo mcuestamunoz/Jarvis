@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { nextSelectedId, reconcileSelection } from "./boardSelection";
+import { resolveInitialViewMode, viewModeStorageKey, type BoardViewMode } from "./boardViewMode";
 import { ZOOM } from "./constants";
+import { InspectorDock } from "./InspectorDock";
 import { Minimap } from "./Minimap";
 import { MountEdges } from "./DeclaredMountEdges";
 import { Scene3D } from "./Scene3D";
@@ -40,9 +42,50 @@ export function InfiniteCanvas() {
   // Board 3D solids B1 — session-only toggle. `null` = no explicit user
   // choice yet -> default to shown iff any live node has `geometry`; once
   // the user toggles, that explicit choice is respected across re-fetches.
+  // Grafo-tab only (IC §2.1/§2.7) — Taller always shows its own Scene3D.
   const [show3DOverride, setShow3DOverride] = useState<boolean | null>(null);
   const hasGeometry = nodes.some((n) => n.geometry);
   const show3D = show3DOverride ?? hasGeometry;
+
+  // Board 3D-first workshop + mount-chain inspector B1 — two tabs, Taller
+  // (3D-first, default) and Grafo (today's card graph). Presentation-only,
+  // persisted per-project in localStorage (never ProjectState) — same tier
+  // as the card-layout overlay `useBoardNodes.ts` already persists there.
+  // Default before a project is known is "taller" (IC lock #2); once
+  // `projectId` resolves, re-derive from that project's own stored value
+  // (mirrors `useBoardNodes`'s own per-project overlay read).
+  const [viewMode, setViewModeState] = useState<BoardViewMode>("taller");
+  useEffect(() => {
+    if (!projectId) return;
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem(viewModeStorageKey(projectId));
+    } catch {
+      stored = null;
+    }
+    setViewModeState(resolveInitialViewMode(stored));
+  }, [projectId]);
+  const setViewMode = useCallback(
+    (next: BoardViewMode) => {
+      setViewModeState(next);
+      try {
+        localStorage.setItem(viewModeStorageKey(projectId), next);
+      } catch {
+        // Presentation-only preference — a storage failure (private mode,
+        // quota) must never block the tab switch itself.
+      }
+    },
+    [projectId],
+  );
+  // Situar B1, lifted out of Scene3D (IC §2.6) — the parent needs to know
+  // whether Situar is ON to decide whether to render the Taller inspector
+  // dock at all. Shared across both tabs (one Scene3D concept, not two
+  // independent toggles) — reset whenever the project changes, same as
+  // selection, so it never leaks a stale mode into a freshly-opened project.
+  const [situar, setSituar] = useState(false);
+  useEffect(() => {
+    setSituar(false);
+  }, [projectId]);
   const panRef = useRef<{
     mouseX: number;
     mouseY: number;
@@ -170,7 +213,7 @@ export function InfiniteCanvas() {
           <button type="button" onClick={reset}>
             100%
           </button>
-          {hasGeometry ? (
+          {viewMode === "grafo" && hasGeometry ? (
             <button type="button" onClick={() => setShow3DOverride(!show3D)}>
               {show3D ? "Ocultar 3D" : "Mostrar 3D"}
             </button>
@@ -182,9 +225,47 @@ export function InfiniteCanvas() {
             : `rueda: zoom · arrastrar fondo: pan · card: mover · esquinas: tamaño · click: seleccionar${show3D ? " · 3D: arrastrar vista" : ""}`}
         </span>
       </header>
+      <div className="sb-tabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={viewMode === "taller"}
+          className={`sb-tab${viewMode === "taller" ? " sb-tab--active" : ""}`}
+          onClick={() => setViewMode("taller")}
+        >
+          Taller 3D
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={viewMode === "grafo"}
+          className={`sb-tab${viewMode === "grafo" ? " sb-tab--active" : ""}`}
+          onClick={() => setViewMode("grafo")}
+        >
+          Grafo
+        </button>
+      </div>
+      {viewMode === "taller" ? (
+        <div className="sb-taller">
+          <Scene3D
+            nodes={nodes}
+            selectedId={selectedId}
+            onSelect={onSelect}
+            projectId={projectId}
+            onPoseCommitted={refetch}
+            situar={situar}
+            onSituarChange={setSituar}
+            primary
+          />
+          {!situar ? (
+            <InspectorDock nodes={nodes} selectedId={selectedId} onSelect={onSelect} />
+          ) : null}
+        </div>
+      ) : null}
       <div
         ref={boardRef}
         className="sb-viewport"
+        hidden={viewMode !== "grafo"}
         onMouseDown={onPanStart}
       >
         {!loading && !nodesError && nodes.length === 0 && projectId ? (
@@ -211,13 +292,15 @@ export function InfiniteCanvas() {
           onNavigate={navigateKeepZoom}
         />
       </div>
-      {show3D ? (
+      {viewMode === "grafo" && show3D ? (
         <Scene3D
           nodes={nodes}
           selectedId={selectedId}
           onSelect={onSelect}
           projectId={projectId}
           onPoseCommitted={refetch}
+          situar={situar}
+          onSituarChange={setSituar}
         />
       ) : null}
     </div>

@@ -970,17 +970,24 @@ class JarvisOrchestrator:
                     # declaration. First-time acquisition when ABSENT used to
                     # fall through to FN-005 motor triage (then Continuity
                     # estado) — smoke 2026-09-18: "ayúdame a elegir vtx" with
-                    # no vtx yet never opened the Zeus list. Named family
-                    # help-choose / cambiar for catalog families MUST open
-                    # that family's offer even on first acquire.
+                    # no vtx yet never opened the Zeus list. Named help-choose
+                    # / cambiar for `vtx`/`cameras` MUST open that family's
+                    # offer even on first acquire — neither has a more
+                    # specific first-acquisition bridge to defer to (unlike
+                    # motors/propellers/battery/esc/flight_controller/sensors,
+                    # each of which already has one: FN-009's thrust-aware
+                    # motor bridge, the terrestrial transmission wizard for a
+                    # ground vehicle's "definir motores", etc. — an earlier,
+                    # over-broad version of this fix included those six too
+                    # and silently stole their turns; scoped back down here,
+                    # regression caught by test_fn009_idle_thrust_help_*/
+                    # test_t8_terrestrial_definir_motores_still_opens_
+                    # transmission_wizard).
                     _open_catalog = (
                         existing is not None and not _is_stub_or_absent(existing)
                     ) or (
                         (existing is None or _is_stub_or_absent(existing))
-                        and _rebind_key in (
-                            "vtx", "cameras", "esc", "frame", "motors",
-                            "propellers", "battery", "flight_controller", "sensors",
-                        )
+                        and _rebind_key in ("vtx", "cameras")
                     )
                     if _open_catalog:
                         updated = current_session.model_copy(update={

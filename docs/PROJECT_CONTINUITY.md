@@ -5,6 +5,8 @@
 
 **Updated:** 2026-08-18 — CLI polish checkpoint `checkpoint-continuity-polish` (`15aa503`). Living CLI findings: [`.jes/artifacts/cli_findings_post_catalog_bind_v1.md`](../.jes/artifacts/cli_findings_post_catalog_bind_v1.md).
 
+**Mission Continuity extensions (Fase M, 2026-09-16→18, tag `v0.4.2`):** the "next useful step" waterfall described below was extended with a mission-payload-specific ladder — when mission intent is active and thrust margin is high, the generic "Aumentar carga útil" suggestion is replaced by, first match wins: camera/radio identity → camera/radio mass (`mission_payload_mass_kg`) → mission mount → autonomy target → camera/radio power (`mission_accessory_power_w`) → VTX identity → soft margin review. Full detail (module names, function names, test files): [`system_map/08_continuity/CONTINUITY_MAP.md`](system_map/08_continuity/CONTINUITY_MAP.md). Not restated here to avoid a second, driftable copy — this file stays the product-contract narrative; the map stays the code-accurate reference.
+
 ## Scope and related documents
 
 This file documents the **Continuity / Project Coherence product contract** and the **FN field-note register** (acquisition fluency, session hygiene, G9-B, etc.). It is **not** the authority for Engineering Readiness rollup or Assembly Ready policy.
