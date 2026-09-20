@@ -56,7 +56,7 @@ Fase C · **C1** scaffold (`B1-fase-c-capability-registry-scaffold`) — **schem
 - **No execution path**: no method or field named `execute` / `dispatch` / `command_esc`; nothing here turns a record into a motor/ESC/autonomy command
 - Does **not** touch Continuity, orchestrator IDLE, Board, or `library/` — craft SoT stays the `v0.4.3` surface
 - **Scaffold @ 0.5.0 != Flight Software shipped.** `flight_software/` and a live vehicle/device runtime remain future ICs (C2+)
-- Not yet git-tagged — tag `v0.5.0` lands on Engineer ACCEPT (see `.jes/artifacts/implementation_report_fase_c_capability_registry_scaffold_b1.md`)
+- Git tag **`v0.5.0`** / `checkpoint-fase-c-capability-registry` (Engineer ACCEPT 2026-09-20)
 
 ## What v0.4.3 includes (tag)
 
@@ -122,6 +122,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.5.0` / `checkpoint-fase-c-capability-registry` — Fase C open: empty Capability Registry scaffold; suite **3181** · UI **132**.  
 `v0.4.3` / `checkpoint-board-taller-3d` — pre–Fase C CLOSED: docs truth-sync + Board Taller 3D; suite **3166** · UI **132**.  
 `v0.4.2` / `checkpoint-fase-m-mission-craft` — Fase M CLOSED: mission mass + Continuity ladder + cameras/VTX seeds + B routing; suite **3165** · UI **105**.  
 `v0.4.1` / `checkpoint-board-situar` — Board Situar drag→pose (C-113) + free camera + standoff count gate; suite **2669** · UI **80**.  
