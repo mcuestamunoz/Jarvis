@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-20 C10 ACCEPT CLOSED @ v0.5.8. Next Buy: Engineer picks one front.",
+  "cycle_intent": "2026-09-21 C11 ACCEPT CLOSED @ v0.5.9. Wooden ladder tip done. Next Buy: Engineer picks one front.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
   "current_mode": "await_engineer_next_front",
-  "active_operation": "b1_fase_c_esc_pwm_stub_rung_closed",
+  "active_operation": "b1_fase_c_controlled_flight_sim_tip_closed",
   "movement_trigger": {
     "type": "engineer_priority",
-    "note": "2026-09-20 C10 tagged v0.5.8. Ladder tip still no hardware. Pick one front: rate\u2192torque / Safety-real / C++ / link."
+    "note": "2026-09-21 C11 tagged v0.5.9. Wooden ladder tip CLOSED. Pick one front: rate\u2192torque / Safety-real / C++ material / link / craft\u2194FS."
   },
   "relevant_workflow_phases": [
     "Verification"

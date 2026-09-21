@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.8 tagged tip** · Fase C C10 ESC/PWM stub CLOSED
+**v0.5.9 tagged tip** · Fase C C11 wooden-ladder sim tip CLOSED
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,20 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.9 includes
+
+Fase C · **C11** (`B1-fase-c-controlled-flight-sim-tip`) — **closes the C0 §7 wooden-ladder tip: toy closed-loop sim, no hardware**:
+
+- **Same Engineer scaffold discipline: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** No C++ tree, no CMake created.
+- `src/jarvis/flight_software/flight_control/plant.py` — `ToyQuadAttitudePlant`: toy, attitude-only, explicitly-not-product-physics dynamics. `step(forces: MotorForceCommand, *, dt_s) -> ImuSample` advances from C9 forces (**not** PWM) and emits an `ImuSample` **consistent with its own true attitude** — the C3→C10 chain now runs as a real closed loop
+- `run_controlled_flight_sim_smoke()`: from a documented 15° initial tilt, true tilt error drops below 2° within 200 steps. `run_open_loop_baseline_smoke()`: the same plant with zero correction stays at a constant 15° — no passive righting, proving the closed loop does real work
+- **Rate ≠ torque remains open**: C9's mixer still treats body rate as its mix channel; this plant does not silently insert a rate→torque controller — it uses its own, separately-documented toy force→angular-acceleration map
+- **Also fixed, disclosed:** a real sign bug in C7's `ComplementaryAttitudeEstimator` (tagged `v0.5.5`, ACCEPT CLOSED) — its accel correction had the cross-product argument order reversed, converging estimates *away* from the true tilt for any non-level input (confirmed even at 0.1°; every pre-existing C7 test only fed already-level accel, so this was never exercised). One-line fix + a new regression test in C7's own test file
+- `default_safety_gate()` unchanged — advancing the plant is not actuation; autonomy `submit_command` still always rejects
+- Does **not** touch Continuity, orchestrator IDLE, Board, or `library/`
+- **Sim closed-loop tip @ 0.5.9 != flying / != hardware-verified flight / != physics-accurate sim.** No motor spins, no real vehicle exists
+- Tagged **`v0.5.9`** on Engineer ACCEPT (suite **3330**) — [review](.jes/artifacts/implementation_review_fase_c_controlled_flight_sim_tip_b1.md)
 
 ## What v0.5.8 includes
 
@@ -218,7 +232,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.8`** (C10 ESC/PWM stub CLOSED). Ladder tip: six rungs still never touch hardware — “controlled flight” unclaimed. Next Buy still **one front** (rate→torque honesty · Safety-real · C++ · link — Engineer prioritizes) — see [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.9`** (C11 wooden-ladder sim tip CLOSED). Remaining fronts still **one at a time**: rate→torque · Safety-real · **C++ material** · link · craft↔FS — Engineer prioritizes. See [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
 
@@ -241,6 +255,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.5.9` / `checkpoint-fase-c-sim-tip` — Fase C C11: toy closed-loop wooden-ladder tip (+ C7 accel sign fix); suite **3330** · UI **132**.  
 `v0.5.8` / `checkpoint-fase-c-esc-pwm` — Fase C C10: force→PWM µs + SimulatedEscSink; suite **3315** · UI **132**.  
 `v0.5.7` / `checkpoint-fase-c-mixer` — Fase C C9: quad-X mixer; suite **3297** · UI **132**.  
 `v0.5.6` / `checkpoint-fase-c-controller` — Fase C C8: PD attitude → body-rate command; suite **3280** · UI **132**.  

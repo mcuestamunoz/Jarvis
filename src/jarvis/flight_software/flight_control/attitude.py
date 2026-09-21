@@ -113,7 +113,10 @@ class ComplementaryAttitudeEstimator:
             q_new = q_pred
         else:
             predicted_down_body = _rotate_vector(_quat_conjugate(q_pred), _WORLD_DOWN_ENU)
-            error = _cross(predicted_down_body, accel_dir)
+            # Cross product is anti-commutative: this argument order (measured,
+            # predicted) is the one that yields a correction pulling predicted_down_body
+            # toward accel_dir; the reversed order silently converges away from it.
+            error = _cross(accel_dir, predicted_down_body)
             correction = (self._gain * error[0], self._gain * error[1], self._gain * error[2])
             q_new = _quat_normalize(_quat_multiply(q_pred, _quat_from_small_angle(correction)))
 

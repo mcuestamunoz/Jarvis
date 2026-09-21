@@ -468,6 +468,14 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 
 **ESC/PWM stub ≠ hardware ESC / ≠ flying** — arming is a plain in-memory flag; no pin, port, or socket exists anywhere, and no claim that any motor spins.
 
+**C11 (ACCEPT CLOSED, tag `v0.5.9`):**  
+**Same Engineer scaffold discipline continues: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."**  
+[`.jes/artifacts/implementation_contract_fase_c_controlled_flight_sim_tip_b1.md`](../.jes/artifacts/implementation_contract_fase_c_controlled_flight_sim_tip_b1.md) — the **C0 §7 wooden-ladder tip**: `ToyQuadAttitudePlant` advances a toy, attitude-only, explicitly-not-product-physics dynamics from **`MotorForceCommand`** (C9 forces, not PWM) and emits the next `ImuSample` **consistent with its own true attitude** — closing C3→C10 into a real closed loop. `run_controlled_flight_sim_smoke()` demonstrates measurable recovery: from a documented 15° initial tilt, the true tilt error drops below 2° within 200 steps; `run_open_loop_baseline_smoke()` shows the same plant with no correction stays at a constant 15° (no passive righting), proving the loop is doing real work. **Rate ≠ torque remains open** — C9's mixer still treats body rate as its mix channel, and this plant does not silently insert a rate→torque controller to hide that; it uses its own separately-documented toy force→angular-acceleration map.
+
+**Also fixed, disclosed (not the primary scope of this Buy, but required for its own pass criterion to be honestly achievable):** a real sign bug in C7's `ComplementaryAttitudeEstimator` (tagged `v0.5.5`, ACCEPT CLOSED) — its accel correction had the cross-product argument order reversed, converging estimates *away* from the true tilt for any non-level input (confirmed even at 0.1°). Every pre-existing C7 test only fed already-level accel, so this was never exercised. One-line fix (swapped argument order) plus a new regression test in C7's own test file. See [implementation report](../.jes/artifacts/implementation_report_fase_c_controlled_flight_sim_tip_b1.md) for the full before/after proof.
+
+**Sim closed-loop tip ≠ flying / ≠ hardware-verified flight / ≠ physics-accurate sim** — this is a toy demonstration that the software ladder closes on itself in simulation; no motor spins, no real vehicle exists.
+
 ### Historical sketch (still valid as narrative)
 
 First design:

@@ -6,9 +6,9 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C10 CLOSED** @ **`v0.5.8`** — force→PWM µs + SimulatedEscSink; no GPIO/DShot. [review](../.jes/artifacts/implementation_review_fase_c_esc_pwm_stub_rung_b1.md).  
-> Tip tagged **`v0.5.8`**. Suite **3315** · UI **132**. Craft SoT **`v0.4.3`**.  
-> Next Buy: Engineer picks **one front** (rate→torque · Safety-real · C++ · link) — [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
+> **PRIORIDAD AHORA:** **C11 CLOSED** @ **`v0.5.9`** — wooden-ladder sim tip (forces→plant→IMU); ≠ flying; rate≠torque still open. Amendment A: C7 accel sign fix disclosed. [review](../.jes/artifacts/implementation_review_fase_c_controlled_flight_sim_tip_b1.md).  
+> Tip tagged **`v0.5.9`**. Suite **3330** · UI **132**. Craft SoT **`v0.4.3`**.  
+> Next Buy: Engineer picks **one front** (rate→torque · Safety-real · **C++ material** · link · craft↔FS) — [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
 > **Parked:** plate-box · Path N · HD-* · Board polish · real Safety · native C++ FC · ELRS · craft↔FS wiring.  
@@ -57,7 +57,8 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C8** | **`B1-fase-c-attitude-controller-rung`** | **✅ ACCEPT CLOSED** @ **`v0.5.6`** | PD attitude → body-rate command; no mixer/ESC | [review](../.jes/artifacts/implementation_review_fase_c_attitude_controller_rung_b1.md) · tag **`v0.5.6`** |
 | **C9** | **`B1-fase-c-mixer-rung`** | **✅ ACCEPT CLOSED** @ **`v0.5.7`** | Quad-X allocation; motor forces only; no ESC/PWM | [review](../.jes/artifacts/implementation_review_fase_c_mixer_rung_b1.md) · tag **`v0.5.7`** |
 | **C10** | **`B1-fase-c-esc-pwm-stub-rung`** | **✅ ACCEPT CLOSED** @ **`v0.5.8`** | Force→PWM µs + SimulatedEscSink; no GPIO/DShot | [review](../.jes/artifacts/implementation_review_fase_c_esc_pwm_stub_rung_b1.md) · tag **`v0.5.8`** |
-| **C11+** | Safety real · C++ · link · rate→torque | After C10 | One front at a time — Engineer prioritizes | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
+| **C11** | **`B1-fase-c-controlled-flight-sim-tip`** | **✅ ACCEPT CLOSED** @ **`v0.5.9`** | Toy closed-loop tip; Amendment A C7 sign fix disclosed | [review](../.jes/artifacts/implementation_review_fase_c_controlled_flight_sim_tip_b1.md) · tag **`v0.5.9`** |
+| **C12+** | rate→torque · Safety-real · C++ · link · craft↔FS | After C11 | One front at a time — Engineer prioritizes | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 

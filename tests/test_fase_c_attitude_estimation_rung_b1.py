@@ -175,7 +175,7 @@ def test_t9_capability_registry_default_still_empty():
 
 def test_t10_pyproject_version_is_0_5_5():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.8"' in text
+    assert 'version = "0.5.9"' in text
 
 
 def test_smoke_attitude_returns_at_least_one_state():
@@ -216,3 +216,38 @@ def test_zero_accel_norm_skips_correction_without_crashing():
     estimator.update(ImuSample(t_s=0.0, accel_mps2=(0.0, 0.0, 0.0), gyro_rad_s=_ZERO_GYRO))
     state = estimator.update(ImuSample(t_s=0.01, accel_mps2=(0.0, 0.0, 0.0), gyro_rad_s=(0.1, 0.0, 0.0)))
     assert isinstance(state, AttitudeState)
+
+
+def test_accel_correction_converges_toward_true_tilt_not_away_from_it():
+    """Regression for a C11-discovered sign bug: with zero gyro and a
+    constant *non-level* accel reading (a fixed true tilt about X), the
+    estimator's own correction must converge the `x` component of
+    `q_body_to_world` toward the SAME sign as the true tilt — not the
+    opposite sign. Every pre-existing C7 test only fed already-level accel
+    (correction trivially zero), so this never got exercised until C11's
+    closed-loop tip tried to use a genuinely tilted reading."""
+    true_tilt_rad = math.radians(5.0)
+    half = true_tilt_rad / 2.0
+    # Accel a stationary IMU would read at this fixed +X tilt (gravity
+    # rotated into body frame by the *inverse* of the tilt — same
+    # convention SimulatedImuHal/ToyQuadAttitudePlant use elsewhere).
+    accel_at_tilt = (
+        0.0,
+        -9.81 * math.sin(true_tilt_rad),
+        -9.81 * math.cos(true_tilt_rad),
+    )
+
+    estimator = ComplementaryAttitudeEstimator(gain=0.1)
+    state = None
+    t = 0.0
+    for _ in range(200):
+        state = estimator.update(ImuSample(t_s=t, accel_mps2=accel_at_tilt, gyro_rad_s=_ZERO_GYRO))
+        t += 0.01
+
+    assert state is not None
+    w, x, y, z = state.q_body_to_world
+    # True tilt has a positive x-component (cos(half), +sin(half), 0, 0);
+    # the estimate must land on the same side, not the antipodal one.
+    assert x > 0.0, f"estimator converged with x={x} — wrong sign, diverged from true tilt"
+    assert abs(y) < 1e-9
+    assert abs(z) < 1e-9

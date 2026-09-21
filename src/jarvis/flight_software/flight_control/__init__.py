@@ -25,6 +25,7 @@ from jarvis.flight_software.flight_control.mixer import (
     QuadXMixer,
     hover_collective,
 )
+from jarvis.flight_software.flight_control.plant import ToyQuadAttitudePlant, tilt_angle_rad
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
 from jarvis.flight_software.flight_control.types import ImuSample
 
@@ -43,9 +44,11 @@ __all__ = [
     "QuadXMixer",
     "SimulatedEscSink",
     "SimulatedImuHal",
+    "ToyQuadAttitudePlant",
     "encode_motor_forces",
     "hover_collective",
     "level_setpoint",
     "read_attitude",
     "read_filtered",
+    "tilt_angle_rad",
 ]

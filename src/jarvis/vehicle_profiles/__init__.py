@@ -1,4 +1,4 @@
-"""Fase C · C3+C6+C7+C8+C9+C10 — `vehicle_profiles`: which physical/
+"""Fase C · C3+C6+C7+C8+C9+C10+C11 — `vehicle_profiles`: which physical/
 hardware configuration a system needs (see
 `docs/PLATFORM_CAPABILITY_VISION.md` §4).
 
@@ -17,25 +17,33 @@ estimation, still not control/actuation. C8 adds
 motor force numbers only, never PWM/DShot/ESC signaling. C10 adds
 `run_esc_pwm_smoke`, encoding each force to PWM µs and applying it to a
 `SimulatedEscSink` (disarmed by default) — in-memory bookkeeping only,
-no pin/port/socket; no new profile field/JSON for any of C6–C10. See
+no pin/port/socket. C11 closes the C0 §7 wooden-ladder tip:
+`run_controlled_flight_sim_smoke` feeds a `ToyQuadAttitudePlant`'s own
+`ImuSample`s through the C6→C10 chain in a loop, and
+`run_open_loop_baseline_smoke` runs the same plant with no correction for
+comparison — both toy, attitude-only, sim-only, never hardware; no new
+profile field/JSON for any of C6–C11. See
 `.jes/artifacts/implementation_contract_fase_c_first_fc_rung_b1.md`,
 `.jes/artifacts/implementation_contract_fase_c_imu_filtering_rung_b1.md`,
 `.jes/artifacts/implementation_contract_fase_c_attitude_estimation_rung_b1.md`,
 `.jes/artifacts/implementation_contract_fase_c_attitude_controller_rung_b1.md`,
 `.jes/artifacts/implementation_contract_fase_c_mixer_rung_b1.md`,
+`.jes/artifacts/implementation_contract_fase_c_esc_pwm_stub_rung_b1.md`,
 and
-`.jes/artifacts/implementation_contract_fase_c_esc_pwm_stub_rung_b1.md`.
+`.jes/artifacts/implementation_contract_fase_c_controlled_flight_sim_tip_b1.md`.
 """
 
 from jarvis.vehicle_profiles.loader import load_profile, load_smoke_profile
 from jarvis.vehicle_profiles.schemas import VehicleProfile
 from jarvis.vehicle_profiles.smoke import (
     run_attitude_controller_smoke,
+    run_controlled_flight_sim_smoke,
     run_esc_pwm_smoke,
     run_hal_imu_attitude_smoke,
     run_hal_imu_filter_smoke,
     run_hal_imu_smoke,
     run_mixer_smoke,
+    run_open_loop_baseline_smoke,
 )
 
 __all__ = [
@@ -43,9 +51,11 @@ __all__ = [
     "load_profile",
     "load_smoke_profile",
     "run_attitude_controller_smoke",
+    "run_controlled_flight_sim_smoke",
     "run_esc_pwm_smoke",
     "run_hal_imu_attitude_smoke",
     "run_hal_imu_filter_smoke",
     "run_hal_imu_smoke",
     "run_mixer_smoke",
+    "run_open_loop_baseline_smoke",
 ]
