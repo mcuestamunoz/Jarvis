@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.16 tagged tip** · next front **C19** CRSF link stub (READY FOR ★)
+**v0.5.17 tagged tip** · C19 CRSF link stub CLOSED — awaiting Engineer pick (C20+)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -49,6 +49,20 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
+## What v0.5.17 includes
+
+Fase C · **C19** (`B1-fase-c-crsf-link-stub`) — **first CRSF byte-fixture link stub (ELRS-shaped, host-only)**:
+
+- New `src/jarvis/capabilities/crsf_stub.py` — a **separate** module from C5's own `radio.py` on purpose (its no-decode-API lock stays byte-unchanged, confirmed via `git diff`).
+- Parses the CRSF envelope (`[device_addr][frame_len][type][payload][crc8]`, CRC8 poly `0xD5` over `type+payload`) from checked-in fixture bytes into `CrsfFrame`, then decodes `0x16` `RC_CHANNELS_PACKED` (16 × 11-bit channels) and `0x14` `LINK_STATISTICS` (RSSI/LQ/SNR fields).
+- Truncated frames and bad-CRC frames both raise a typed `CrsfParseError` — no silent partial success — verified against four checked-in `.bin` fixtures under `tests/fixtures/crsf/`.
+- **Zero I/O anywhere in the module** — no serial/socket/pty/USB/subprocess, confirmed by inspecting real code with comments/docstrings stripped.
+- `RadioIntentAdapter.parse(...)` still raises `NotImplementedError` even when fed real CRSF fixture bytes; `default_safety_gate()` and `ArmedAllowlistSafetyGate` are untouched.
+- Nothing decoded here reaches `SimulatedRadioIngress`, autonomy `submit_command`, or any `SafetyGate`. No CRSF/ELRS token anywhere under `native/`.
+- **Fixture CRSF parse != live ELRS != a pilot link != a CRSF driver product.** This module can decode a byte sequence, nothing more: no receiver is "connected," no air protocol (RF/binding/telemetry) is implemented, no pilot's sticks drive anything.
+- Tag **`v0.5.17`** · suite **3428** — [review](.jes/artifacts/implementation_review_fase_c_crsf_link_stub_b1.md)
+- **Next (one front at a time — Engineer picks):** board flash · craft↔FS · deepen link stub
+
 ## What v0.5.16 includes
 
 Fase C · **C18** (`B1-fase-c-cpp-mcu-freestanding-elf`) — **first freestanding linked MCU `.elf`**:
@@ -63,7 +77,7 @@ Fase C · **C18** (`B1-fase-c-cpp-mcu-freestanding-elf`) — **first freestandin
 - `default_safety_gate()` unchanged; autonomy `submit_command` still always rejects. Does not touch Continuity, orchestrator IDLE, Board, or `library/`.
 - **Freestanding `.elf` != flashed / != boots on hardware / != motors / != GPIO.** A linked, inspectable, host-only ARM executable, nothing more; this image has never run on any board.
 - Tag **`v0.5.16`** · suite **3412** — [review](.jes/artifacts/implementation_review_fase_c_cpp_mcu_freestanding_elf_b1.md)
-- **Next (one front):** C19 CRSF link stub — [IC](.jes/artifacts/implementation_contract_fase_c_crsf_link_stub_b1.md)
+- **Next (one front at a time — Engineer picks after C19 ACCEPT):** board flash · craft↔FS · deepen link stub
 
 ## What v0.5.15 includes
 
@@ -335,7 +349,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.16`** (C18 CLOSED). **C19** CRSF link stub — **READY FOR ★** — [IC](.jes/artifacts/implementation_contract_fase_c_crsf_link_stub_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.17`** (C19 CLOSED). Awaiting Engineer pick for **one** next front (C20+): board flash · craft↔FS · deepen link — [review](.jes/artifacts/implementation_review_fase_c_crsf_link_stub_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen link beyond fixtures.
 

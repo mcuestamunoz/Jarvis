@@ -19,6 +19,16 @@ C17 adds `ArmedAllowlistSafetyGate` — the first real (non-RejectAll)
 Safety policy: opt-in, starts disarmed, allows only `HOLD`/`LAND` once
 explicitly armed, never reads `authority_signal_id`. `default_safety_gate()`
 is unchanged. See `jarvis.capabilities.safety`'s own docstring.
+
+C19 adds `jarvis.capabilities.crsf_stub` — a **separate** module (never
+folded into `radio.py`, preserving its own no-decode-API lock) that
+parses CRSF byte fixtures (the wire framing ExpressLRS commonly carries
+on the UART between RX and FC) into typed data: frame envelope + RC
+channels + link statistics. Fixture CRSF parse != live ELRS != a pilot
+link — no serial/USB/SPI I/O anywhere in that module, and nothing it
+produces reaches `SimulatedRadioIngress`, `RadioIntentAdapter`, autonomy
+`submit_command`, or any `SafetyGate`. See
+`jarvis.capabilities.crsf_stub`'s own docstring.
 """
 
 from jarvis.capabilities.intent import (

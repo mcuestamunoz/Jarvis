@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (fixture decode ≠ live ELRS · no serial · Authority ≠ Safety allow · `RadioIntentAdapter` still refuses)
 
-**Status:** READY FOR ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.17`**  
 **Parents:**
 - [C5 ★ ACCEPT](implementation_contract_fase_c_radio_dual_role_b1.md) — dual-role stub @ **`v0.5.3`**; `RadioStubFrame` / `SimulatedRadioIngress`; **no** CRSF bytes in `radio.py` (T5)  
 - [C18 ★ ACCEPT](implementation_contract_fase_c_cpp_mcu_freestanding_elf_b1.md) — freestanding `.elf` CLOSED @ **`v0.5.16`**; Engineer pick **link ELRS**  

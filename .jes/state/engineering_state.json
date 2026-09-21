@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-21 C18 ACCEPT CLOSED @ v0.5.16. C19 CRSF link stub IC READY FOR ★.",
+  "cycle_intent": "2026-09-21 C19 ACCEPT CLOSED @ v0.5.17. Awaiting Engineer pick for one next front (C20+).",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_star_c19_crsf_link",
-  "active_operation": "b1_fase_c_crsf_link_stub_ic_ready",
+  "current_mode": "await_engineer_pick_c20",
+  "active_operation": "b1_fase_c_crsf_link_stub_accept_closed",
   "movement_trigger": {
-    "type": "engineer_star",
-    "note": "2026-09-21 C18 CLOSED @ v0.5.16. C19 B1-fase-c-crsf-link-stub READY — fixture CRSF parse; not live ELRS / not serial."
+    "type": "engineer_pick",
+    "note": "2026-09-21 C19 CLOSED @ v0.5.17. Next one front: board flash · craft↔FS · deepen link."
   },
   "relevant_workflow_phases": [
     "Verification"
