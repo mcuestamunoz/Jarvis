@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.10 tagged tip** · Fase C C12 rate→torque bridge CLOSED · next: C++ scaffold IC
+**v0.5.11 tagged tip** · Fase C C13 first C++ flight_control scaffold CLOSED
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,20 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.11 includes
+
+Fase C · **C13** (`B1-fase-c-cpp-flight-control-scaffold`) — **the first material C++ scaffold for `flight_control`**:
+
+- New **`native/flight_control/`** tree (outside `src/jarvis/`, locked path) — C++17, **host-only** CMake ≥ 3.16 build. Not MCU firmware, not a board bring-up, no cross-compile requirement in this Buy.
+- Mirrors the Python wooden ladder module-for-module: `filter`/`attitude`/`controller`/`rate_torque`/`mixer`/`plant`, same formulas, same ENU convention, same honesty notes — including the C11 Amendment A accel-correction sign fix from day one.
+- `fc_closed_loop_smoke` executable (also runnable via `ctest`) runs the same closed-loop tip: seeded at 15° tilt, the true tilt error recovers to **0.252°** after 200 steps — matching the Python ladder's own number, though bit-identity was not required by the IC.
+- **No GPIO/pigpio/`/dev/mem`/serial/DShot/socket anywhere in the tree** (grep-verified) — pure host math and stdout. No PX4/ArduPilot vendored.
+- Python `flight_software/` package **untouched except a docstring pointer** — it remains the design guide and the craft platform; this Buy does not delete or replace it.
+- `default_safety_gate()` unchanged; autonomy `submit_command` still always rejects. Does not touch Continuity, orchestrator IDLE, Board, or `library/`.
+- **C++ scaffold != flying / != hardware flight controller / != firmware on any board / != replacing Python craft SoT.** A host desktop build proving the same algorithmic ladder in a second language, nothing more.
+- Tagged **`v0.5.11`** on Engineer ACCEPT (suite **3358**) — [review](.jes/artifacts/implementation_review_fase_c_cpp_flight_control_scaffold_b1.md)
+- **Next (one front at a time):** deepen C++ parity · MCU cross-compile · Safety-real · link · craft↔FS — Engineer prioritizes
 
 ## What v0.5.10 includes
 
@@ -247,7 +261,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.10`** (C12 rate→torque bridge CLOSED). Next: ★ **C13** C++ flight_control scaffold — material change of the wooden ladder. One front only — see [IC](.jes/artifacts/implementation_contract_fase_c_cpp_flight_control_scaffold_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.11`** (C13 C++ flight_control scaffold CLOSED). Remaining fronts still **one at a time**: deepen C++ parity · MCU cross-compile · Safety-real · link · craft↔FS — Engineer prioritizes. See [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
 
@@ -270,6 +284,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.5.11` / `checkpoint-fase-c-cpp-scaffold` — Fase C C13: first C++ flight_control host scaffold; suite **3358** · UI **132**.  
 `v0.5.10` / `checkpoint-fase-c-rate-torque` — Fase C C12: rate→torque honesty bridge; suite **3348** · UI **132**.  
 `v0.5.9` / `checkpoint-fase-c-sim-tip` — Fase C C11: toy closed-loop wooden-ladder tip (+ C7 accel sign fix); suite **3330** · UI **132**.  
 `v0.5.8` / `checkpoint-fase-c-esc-pwm` — Fase C C10: force→PWM µs + SimulatedEscSink; suite **3315** · UI **132**.  

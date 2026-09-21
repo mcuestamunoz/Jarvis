@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-21 C12 ACCEPT CLOSED @ v0.5.10. C13 C++ flight_control scaffold IC READY FOR \u2605.",
+  "cycle_intent": "2026-09-21 C13 ACCEPT CLOSED @ v0.5.11. First C++ flight_control scaffold done. Next Buy: Engineer picks one front.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_star_c13_cpp_scaffold",
-  "active_operation": "b1_fase_c_cpp_flight_control_scaffold_ic",
+  "current_mode": "await_engineer_next_front",
+  "active_operation": "b1_fase_c_cpp_flight_control_scaffold_closed",
   "movement_trigger": {
-    "type": "engineer_star",
-    "note": "2026-09-21 C13 IC READY: native/flight_control + CMake + host closed-loop tip smoke; no GPIO; package 0.5.11 on implement."
+    "type": "engineer_priority",
+    "note": "2026-09-21 C13 tagged v0.5.11. Pick one front: deepen C++ parity / MCU cross-compile / Safety-real / link / craft\u2194FS."
   },
   "relevant_workflow_phases": [
     "Verification"

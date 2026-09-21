@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (C++ tree ≠ firmware on hardware · CMake builds · no GPIO · Python craft SoT unchanged)
 
-**Status:** READY FOR ★  
+**Status:** ★ ACCEPT CLOSED @ tag **`v0.5.11`**  
 **Parents:**
 - [C0 Design Contract ★](design_contract_fase_c_skill_capability_architecture.md) — production FC runtime is C++ (Engineer amendment since C3)  
 - [C12 ★ ACCEPT](implementation_contract_fase_c_rate_torque_bridge_b1.md) — rate→torque honesty CLOSED @ **`v0.5.10`**; wooden Python ladder complete  

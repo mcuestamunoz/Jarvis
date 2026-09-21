@@ -4,9 +4,18 @@
 (future IC).** Engineer amendment on top of the C3 IC: everything under
 this package is a platform scaffold written in Python — typed contracts,
 `SimulatedImuHal`, a profile smoke helper. It is **not** the production
-flight controller. The real flight_control runtime/firmware will be C++,
-built in later Buys with its own IC (path/build TBD there) — this Buy
-creates no C++ tree and no CMake anywhere in the repo.
+flight controller.
+
+**C13 update:** the first **material** C++ scaffold now exists at
+**`native/flight_control/`** (outside this Python package — see that
+tree's own `README.md` and
+`.jes/artifacts/implementation_report_fase_c_cpp_flight_control_scaffold_b1.md`).
+It is a **host-only** CMake build that mirrors this package's algorithmic
+shape and runs the same closed-loop tip criterion; it does not flash, does
+not touch GPIO/PWM/DShot, and does not replace this Python package —
+`flight_software/` here **remains the design/behavioral guide and the
+craft platform**, unchanged by C13 except for this pointer and the
+version pin below.
 
 **Naming split (honesty-critical — do not conflate):**
 - craft catalog `flight_controller` (`library/flight_controller/`, bound via
