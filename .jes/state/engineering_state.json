@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-21 C13 ACCEPT CLOSED @ v0.5.11. First C++ flight_control scaffold done. Next Buy: Engineer picks one front.",
+  "cycle_intent": "2026-09-21 C14 C++ ESC/PWM stub ACCEPT CLOSED @ v0.5.12. Steel-ladder module parity closed. Await Engineer pick for one next front (C15+).",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_next_front",
-  "active_operation": "b1_fase_c_cpp_flight_control_scaffold_closed",
+  "current_mode": "await_engineer_pick_c15_front",
+  "active_operation": null,
   "movement_trigger": {
-    "type": "engineer_priority",
-    "note": "2026-09-21 C13 tagged v0.5.11. Pick one front: deepen C++ parity / MCU cross-compile / Safety-real / link / craft\u2194FS."
+    "type": "engineer_pick",
+    "note": "2026-09-21 C14 CLOSED @ v0.5.12. Next one front: MCU cross-compile · deepen C++ tests · Safety-real · link · craft\u2194FS."
   },
   "relevant_workflow_phases": [
     "Verification"

@@ -29,7 +29,21 @@ cmake --build build/flight_control
 ```
 
 Prints the initial and final true tilt error (degrees) and exits `0` on
-recovery, nonzero on failure. Also runnable via CTest:
+recovery, nonzero on failure.
+
+## Run the ESC/PWM stub smoke (C14)
+
+```bash
+./build/flight_control/fc_esc_pwm_smoke
+```
+
+Prints one `ok`/`FAIL` line per assertion (force→µs endpoints and linear
+midpoint, 4-pulse/`pwm_us` shape, invalid-bounds rejection, disarmed
+record-but-refuse, armed apply) and exits `0` only if every assertion
+held. Steel-ladder parity for the Python C10 stub — no GPIO, no PWM
+hardware write, no claim any motor spins.
+
+Both smoke binaries are also runnable via CTest:
 
 ```bash
 cd build/flight_control && ctest --output-on-failure
@@ -41,14 +55,17 @@ cd build/flight_control && ctest --output-on-failure
 native/flight_control/
   CMakeLists.txt
   include/jarvis/fc/    # public headers — types, filter, attitude,
-                         # controller, rate_torque, mixer, plant,
+                         # controller, rate_torque, mixer, plant, esc,
                          # quat_math (shared helper, see its own header
                          # comment for the documented deviation from
                          # Python's per-module-private-helper style)
   src/                   # implementations
-  smoke/closed_loop_smoke.cpp   # the tip harness (this Buy's own main())
+  smoke/closed_loop_smoke.cpp   # the C13 tip harness
+  smoke/esc_pwm_smoke.cpp       # the C14 ESC/PWM stub harness
 ```
 
-`esc`/PWM encoding is not ported in this Buy (disclosed simplification —
-the tip smoke never needs real PWM I/O; see the C13 IC §1 note "ESC/PWM
-encode may be included or stubbed").
+`esc.hpp`/`esc.cpp` (C14) closes the steel-ladder's own sixth rung —
+force→PWM-µs encoding plus an in-memory `SimulatedEscSink`, mirroring
+Python C10. Kept as a separate smoke target from the closed-loop tip
+(IC C14 §0 "Defaults locked") — the tip still steps on `MotorForceCommand`
+directly and never needs PWM encoding to close the loop.

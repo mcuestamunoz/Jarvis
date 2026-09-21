@@ -6,9 +6,9 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C13 CLOSED** @ **`v0.5.11`** — first C++ `native/flight_control/` host scaffold; tip smoke 15°→0.252°; no GPIO; Python ladder retained. [review](../.jes/artifacts/implementation_review_fase_c_cpp_flight_control_scaffold_b1.md).  
-> Tip tagged **`v0.5.11`**. Suite **3358** · UI **132**. Craft SoT **`v0.4.3`**.  
-> Next Buy: Engineer picks **one front** (deepen C++ parity · MCU cross-compile · Safety-real · link · craft↔FS) — [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
+> **PRIORIDAD AHORA:** **C14 CLOSED** @ **`v0.5.12`** — steel-ladder module parity (C++ ESC/PWM stub). Awaiting Engineer pick for **one** next front (C15+): MCU cross-compile · deepen C++ tests · Safety-real · link · craft↔FS — [review](../.jes/artifacts/implementation_review_fase_c_cpp_esc_pwm_stub_b1.md).  
+> Tip tagged **`v0.5.12`**. Suite **3368** · UI **132**. Craft SoT **`v0.4.3`**.  
+> Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
 > **Parked:** plate-box · Path N · HD-* · Board polish · real Safety · MCU/cross-compile deepen · ELRS · craft↔FS wiring.  
@@ -60,7 +60,8 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C11** | **`B1-fase-c-controlled-flight-sim-tip`** | **✅ ACCEPT CLOSED** @ **`v0.5.9`** | Toy closed-loop tip; Amendment A C7 sign fix disclosed | [review](../.jes/artifacts/implementation_review_fase_c_controlled_flight_sim_tip_b1.md) · tag **`v0.5.9`** |
 | **C12** | **`B1-fase-c-rate-torque-bridge`** | **✅ ACCEPT CLOSED** @ **`v0.5.10`** | Typed feedforward rate→torque-like; mixer migrated | [review](../.jes/artifacts/implementation_review_fase_c_rate_torque_bridge_b1.md) · tag **`v0.5.10`** |
 | **C13** | **`B1-fase-c-cpp-flight-control-scaffold`** | **✅ ACCEPT CLOSED** @ **`v0.5.11`** | `native/flight_control/` host tip smoke; no GPIO; Python retained | [review](../.jes/artifacts/implementation_review_fase_c_cpp_flight_control_scaffold_b1.md) · tag **`v0.5.11`** |
-| **C14+** | deepen C++ · MCU · Safety-real · link · craft↔FS | After C13 | One front at a time — Engineer prioritizes | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
+| **C14** | **`B1-fase-c-cpp-esc-pwm-stub`** | **✅ ACCEPT CLOSED** @ **`v0.5.12`** | C++ force→PWM µs + SimulatedEscSink; steel-ladder parity | [review](../.jes/artifacts/implementation_review_fase_c_cpp_esc_pwm_stub_b1.md) · tag **`v0.5.12`** |
+| **C15+** | MCU · deepen C++ · Safety-real · link · craft↔FS | **Await Engineer pick** | One front at a time | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 

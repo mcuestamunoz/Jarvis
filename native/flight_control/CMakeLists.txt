@@ -22,6 +22,7 @@ add_library(jarvis_fc STATIC
     src/rate_torque.cpp
     src/mixer.cpp
     src/plant.cpp
+    src/esc.cpp
 )
 target_include_directories(jarvis_fc PUBLIC include)
 target_compile_options(jarvis_fc PRIVATE -Wall -Wextra)
@@ -29,5 +30,9 @@ target_compile_options(jarvis_fc PRIVATE -Wall -Wextra)
 add_executable(fc_closed_loop_smoke smoke/closed_loop_smoke.cpp)
 target_link_libraries(fc_closed_loop_smoke PRIVATE jarvis_fc)
 
+add_executable(fc_esc_pwm_smoke smoke/esc_pwm_smoke.cpp)
+target_link_libraries(fc_esc_pwm_smoke PRIVATE jarvis_fc)
+
 enable_testing()
 add_test(NAME fc_closed_loop_smoke COMMAND fc_closed_loop_smoke)
+add_test(NAME fc_esc_pwm_smoke COMMAND fc_esc_pwm_smoke)

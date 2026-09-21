@@ -105,7 +105,7 @@ def test_t8_capability_registry_default_still_empty():
 
 def test_t9_pyproject_version_stays_0_5_0():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.11"' in text
+    assert 'version = "0.5.12"' in text
 
 
 def test_safety_decision_requires_reason_on_reject():

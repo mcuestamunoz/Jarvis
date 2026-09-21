@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.11 tagged tip** · Fase C C13 first C++ flight_control scaffold CLOSED
+**v0.5.12** — C14 C++ ESC/PWM stub CLOSED (steel-ladder module parity)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,20 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.12 includes
+
+Fase C · **C14** (`B1-fase-c-cpp-esc-pwm-stub`) — **steel-ladder parity for the ESC/PWM encoding stub**:
+
+- `native/flight_control/include/jarvis/fc/esc.hpp` + `src/esc.cpp` — ports Python C10's `encode_motor_forces`/`SimulatedEscSink` into the C++ tree: same linear force→PWM-µs map (`force=0 → min_us`, `force=1 → max_us`, default `1000`–`2000`, `min_us < max_us` enforced), same in-memory `SimulatedEscSink` (`armed` starts `false`; `apply(cmd)` always records the command, `applied=true` only while armed, otherwise `applied=false`/`reason="disarmed"`).
+- New, **separate** `fc_esc_pwm_smoke` executable (18 checks, all passing) — kept apart from the C13 tip smoke on purpose, so that one stays focused.
+- `fc_closed_loop_smoke` (C13's own tip) re-verified **byte-identical**: `15° → 0.252°` in 200 steps, unaffected by this Buy.
+- **No GPIO/pigpio/`/dev/mem`/serial/DShot/Oneshot/Multishot/socket anywhere in the new sources** (grep-verified).
+- Python `esc.py` **untouched** — re-verified with the same before/after values.
+- `default_safety_gate()` unchanged; autonomy `submit_command` still always rejects. Does not touch Continuity, orchestrator IDLE, Board, or `library/`.
+- **C++ ESC stub != hardware write / != ESC online / != motors spinning.** Closes the C++ tree's module parity with the Python wooden ladder (filter/attitude/controller/rate_torque/mixer/esc, plus the plant tip).
+- Tag **`v0.5.12`** · suite **3368** — [review](.jes/artifacts/implementation_review_fase_c_cpp_esc_pwm_stub_b1.md)
+- **Next (one front at a time — Engineer picks):** MCU cross-compile · deepen C++ tests · real Safety · real link · craft↔FS
 
 ## What v0.5.11 includes
 
@@ -261,7 +275,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.11`** (C13 C++ flight_control scaffold CLOSED). Remaining fronts still **one at a time**: deepen C++ parity · MCU cross-compile · Safety-real · link · craft↔FS — Engineer prioritizes. See [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.12`** (C14 C++ ESC/PWM stub CLOSED — steel-ladder module parity). Next: Engineer picks **one** front (MCU · deepen C++ · Safety-real · link · craft↔FS) — [review](.jes/artifacts/implementation_review_fase_c_cpp_esc_pwm_stub_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
 
