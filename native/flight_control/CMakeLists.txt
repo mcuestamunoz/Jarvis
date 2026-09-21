@@ -27,6 +27,17 @@ add_library(jarvis_fc STATIC
 target_include_directories(jarvis_fc PUBLIC include)
 target_compile_options(jarvis_fc PRIVATE -Wall -Wextra)
 
+# --- Fase C · C16 — MCU cross-compile gate (`B1-fase-c-cpp-mcu-cross-compile`) ---
+#
+# When configured with -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm-none-eabi.cmake
+# (which sets JARVIS_FC_CROSS_COMPILING TRUE), this build produces ONLY the
+# jarvis_fc static library for the arm-none-eabi target — no Catch2
+# FetchContent (host-oriented, heavy, not needed for a library-only cross
+# build), no smoke executables, no unit-test binary. The host default path
+# (no toolchain file passed) is entirely unaffected and keeps building and
+# registering everything below, unchanged in role from C13-C15.
+if(NOT JARVIS_FC_CROSS_COMPILING)
+
 add_executable(fc_closed_loop_smoke smoke/closed_loop_smoke.cpp)
 target_link_libraries(fc_closed_loop_smoke PRIVATE jarvis_fc)
 
@@ -67,3 +78,5 @@ target_compile_options(fc_unit_tests PRIVATE -Wall -Wextra)
 
 include(Catch)
 catch_discover_tests(fc_unit_tests)
+
+endif()  # NOT JARVIS_FC_CROSS_COMPILING

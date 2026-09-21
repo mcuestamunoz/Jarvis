@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.13** — C15 Catch2 unit tests CLOSED (steel ladder has per-rung exams)
+**v0.5.14** — C16 MCU cross-compile scaffold CLOSED (`libjarvis_fc.a` for arm-none-eabi)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,21 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.14 includes
+
+Fase C · **C16** (`B1-fase-c-cpp-mcu-cross-compile`) — **first MCU cross-compile scaffold, a compile-time proof only**:
+
+- New `native/flight_control/cmake/toolchains/arm-none-eabi.cmake` — `CMAKE_SYSTEM_NAME Generic`, generic **Cortex-M4** (`-mcpu=cortex-m4 -mthumb -mfloat-abi=soft`, not a claim about any specific board's silicon).
+- Separate build (`build/flight_control_mcu`) produces **only** `libjarvis_fc.a` for that triple — gated entirely via CMake (no `#ifdef` in any rung source), so Catch2/the unit-test binary/both smokes never build on the MCU path.
+- **A real cross-build was performed and verified**: `arm-none-eabi-objdump` confirms `file format elf32-littlearm, architecture: armv7e-m` on the produced archive — genuine target code.
+- **A real toolchain-completeness problem was hit and disclosed**: the bare Homebrew `arm-none-eabi-gcc` formula has no bundled `newlib`/`libstdc++` and fails to compile `<optional>`; the working build used the xPack `arm-none-eabi-gcc` v15.2.1-1.1 release instead. The new pytest wrapper handles both outcomes — skips with a specific install hint rather than hard-failing when a compiler is present but incomplete.
+- Host build **re-verified unaffected**: `ctest` still 28/28 green (unit suite + both smokes).
+- **No GPIO/flash/OpenOCD/vendor BSP anywhere** — STM32Cube, CMSIS device packs, ChibiOS, FreeRTOS, PX4, ArduPilot all absent (grep-verified).
+- `default_safety_gate()` unchanged; autonomy `submit_command` still always rejects. Does not touch Continuity, orchestrator IDLE, Board, or `library/`.
+- **MCU cross-compile != flashed / != flying / != firmware runs on a flight controller / != GPIO-verified.** A compile-time proof the steel-ladder sources build freestanding for a Cortex-M4-class target, nothing more; no board has run this code.
+- Tag **`v0.5.14`** · suite **3389** — [review](.jes/artifacts/implementation_review_fase_c_cpp_mcu_cross_compile_b1.md)
+- **Next (one front at a time — Engineer picks):** Safety-real · MCU freestanding `.elf` · link · craft↔FS
 
 ## What v0.5.13 includes
 
@@ -290,7 +305,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.13`** (C15 Catch2 unit tests CLOSED). Next: Engineer picks **one** front (MCU · Safety-real · link · craft↔FS) — [review](.jes/artifacts/implementation_review_fase_c_cpp_unit_tests_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.14`** (C16 MCU cross-compile CLOSED). Next: Engineer picks **one** front (Safety-real · MCU `.elf` · link · craft↔FS) — [review](.jes/artifacts/implementation_review_fase_c_cpp_mcu_cross_compile_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
 

@@ -6,8 +6,8 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C15 CLOSED** @ **`v0.5.13`** — Catch2 unit tests for the C++ tree. Awaiting Engineer pick for **one** next front (C16+): MCU cross-compile · Safety-real · link · craft↔FS — [review](../.jes/artifacts/implementation_review_fase_c_cpp_unit_tests_b1.md).  
-> Tip tagged **`v0.5.13`**. Suite **3380** · UI **132**. Craft SoT **`v0.4.3`**.  
+> **PRIORIDAD AHORA:** **C16 CLOSED** @ **`v0.5.14`** — MCU cross-compile scaffold (`libjarvis_fc.a` for arm-none-eabi). Awaiting Engineer pick for **one** next front (C17+): Safety-real · MCU freestanding `.elf` · link · craft↔FS — [review](../.jes/artifacts/implementation_review_fase_c_cpp_mcu_cross_compile_b1.md).  
+> Tip tagged **`v0.5.14`**. Suite **3389** · UI **132**. Craft SoT **`v0.4.3`**.  
 > Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
@@ -62,7 +62,8 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C13** | **`B1-fase-c-cpp-flight-control-scaffold`** | **✅ ACCEPT CLOSED** @ **`v0.5.11`** | `native/flight_control/` host tip smoke; no GPIO; Python retained | [review](../.jes/artifacts/implementation_review_fase_c_cpp_flight_control_scaffold_b1.md) · tag **`v0.5.11`** |
 | **C14** | **`B1-fase-c-cpp-esc-pwm-stub`** | **✅ ACCEPT CLOSED** @ **`v0.5.12`** | C++ force→PWM µs + SimulatedEscSink; steel-ladder parity | [review](../.jes/artifacts/implementation_review_fase_c_cpp_esc_pwm_stub_b1.md) · tag **`v0.5.12`** |
 | **C15** | **`B1-fase-c-cpp-unit-tests`** | **✅ ACCEPT CLOSED** @ **`v0.5.13`** | Catch2 v3.7.1 + 26 per-rung cases; smokes kept; behavior freeze | [review](../.jes/artifacts/implementation_review_fase_c_cpp_unit_tests_b1.md) · tag **`v0.5.13`** |
-| **C16+** | MCU · Safety-real · link · craft↔FS | **Await Engineer pick** | One front at a time | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
+| **C16** | **`B1-fase-c-cpp-mcu-cross-compile`** | **✅ ACCEPT CLOSED** @ **`v0.5.14`** | arm-none-eabi Cortex-M4; `jarvis_fc.a`; host green; no flash/GPIO/BSP | [review](../.jes/artifacts/implementation_review_fase_c_cpp_mcu_cross_compile_b1.md) · tag **`v0.5.14`** |
+| **C17+** | Safety-real · MCU `.elf` · link · craft↔FS | **Await Engineer pick** | One front at a time | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 

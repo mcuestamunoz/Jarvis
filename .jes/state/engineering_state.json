@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-21 C15 Catch2 unit tests ACCEPT CLOSED @ v0.5.13. Await Engineer pick for one next front (C16+).",
+  "cycle_intent": "2026-09-21 C16 MCU cross-compile ACCEPT CLOSED @ v0.5.14. Await Engineer pick for one next front (C17+).",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_pick_c16_front",
+  "current_mode": "await_engineer_pick_c17_front",
   "active_operation": null,
   "movement_trigger": {
     "type": "engineer_pick",
-    "note": "2026-09-21 C15 CLOSED @ v0.5.13. Next one front: MCU cross-compile \u00b7 Safety-real \u00b7 link \u00b7 craft\u2194FS."
+    "note": "2026-09-21 C16 CLOSED @ v0.5.14. Next one front: Safety-real \u00b7 MCU freestanding .elf \u00b7 link \u00b7 craft\u2194FS."
   },
   "relevant_workflow_phases": [
     "Verification"

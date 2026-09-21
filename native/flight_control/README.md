@@ -69,11 +69,65 @@ change `filter.cpp`…`esc.cpp`/`plant.cpp`/`quat_math.hpp` (confirmed
 verification, not "production-hardened," not a certification of any kind
 — a host desktop unit-test run, nothing more.
 
+## Cross-compile for MCU (C16) — additive, host stays default
+
+**What this is:** an ARM bare-metal (`arm-none-eabi`, generic Cortex-M4,
+`-mcpu=cortex-m4 -mthumb -mfloat-abi=soft`) cross-compile of **only the
+`jarvis_fc` static library** — a compile-time proof that the same
+behavior-frozen steel-ladder sources build freestanding for this
+instruction set. **What this is not:** flashing any board, a linked
+bootable `.elf`, a vendor SDK/BSP (no STM32Cube/CMSIS device pack/
+ChibiOS/FreeRTOS/PX4/ArduPilot), GPIO/PWM/DShot, or a claim that any
+firmware "runs on a flight controller." The host build above remains the
+default path and is unaffected — this is purely additive.
+
+**Install a toolchain first.** A plain `arm-none-eabi-gcc` package is
+sometimes just a bare compiler with **no bundled `newlib`/`libstdc++`** —
+compiling will fail with `fatal error: optional: No such file or
+directory` if so (this was hit and disclosed while building this Buy: the
+Homebrew `arm-none-eabi-gcc` formula alone lacks a C++ standard library).
+Use a **full** toolchain distribution instead, e.g.:
+
+```bash
+brew install --cask gcc-arm-embedded     # macOS — official Arm GNU Toolchain (needs sudo)
+# or download an xPack arm-none-eabi-gcc release for your platform:
+# https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack/releases
+# Debian/Ubuntu:
+apt-get install gcc-arm-none-eabi
+```
+
+**Configure + build:**
+
+```bash
+cmake -S native/flight_control -B build/flight_control_mcu \
+  --toolchain native/flight_control/cmake/toolchains/arm-none-eabi.cmake
+cmake --build build/flight_control_mcu --target jarvis_fc
+```
+
+(Pass the toolchain path either relative to `-S`'s source directory, as
+above, or as an absolute path — a path relative to your current shell
+directory is **not** what CMake resolves it against, and will fail with
+"Could not find toolchain file.")
+
+**Verify the artifact is genuinely ARM:**
+
+```bash
+arm-none-eabi-objdump -a build/flight_control_mcu/libjarvis_fc.a
+# expect: file format elf32-littlearm, architecture: armv7e-m
+```
+
+The MCU configure automatically **gates off** Catch2/the unit-test binary
+and both smoke executables (IC C16 §0 decision 7 — no Catch2 on a
+library-only MCU target); only `jarvis_fc` itself is built. No network is
+needed for the MCU configure/build (unlike the host build's one-time
+Catch2 fetch).
+
 ## Layout
 
 ```text
 native/flight_control/
   CMakeLists.txt
+  cmake/toolchains/arm-none-eabi.cmake   # NEW (C16) — MCU cross-compile toolchain
   include/jarvis/fc/    # public headers — types, filter, attitude,
                          # controller, rate_torque, mixer, plant, esc,
                          # quat_math (shared helper, see its own header
