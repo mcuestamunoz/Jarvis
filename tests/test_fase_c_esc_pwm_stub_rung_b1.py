@@ -157,7 +157,7 @@ def test_t10_capability_registry_default_still_empty():
 
 def test_t11_pyproject_version_is_0_5_8():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.15"' in text
+    assert 'version = "0.5.16"' in text
 
 
 def test_smoke_esc_pwm_returns_at_least_one_result_disarmed_by_default():

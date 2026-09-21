@@ -7,10 +7,15 @@
 # full honesty statement.
 
 cmake_minimum_required(VERSION 3.16)
-project(jarvis_flight_control_native CXX)
+# C18 adds two .c sources (mcu/startup_cortex_m4.c, mcu/syscalls_stub.c)
+# for the freestanding MCU .elf target — C must be enabled alongside CXX
+# for CMake to compile them (host build never touches these files).
+project(jarvis_flight_control_native C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
@@ -80,3 +85,33 @@ include(Catch)
 catch_discover_tests(fc_unit_tests)
 
 endif()  # NOT JARVIS_FC_CROSS_COMPILING
+
+# --- Fase C · C18 — freestanding MCU .elf (`B1-fase-c-cpp-mcu-freestanding-elf`) ---
+#
+# Only built on the cross-compile path (JARVIS_FC_CROSS_COMPILING set by
+# cmake/toolchains/arm-none-eabi.cmake — same toolchain C16 already uses,
+# reused unchanged). Links OUR OWN generic startup + linker script +
+# syscall stubs (mcu/) against jarvis_fc, producing one inspectable ARM
+# ELF. Never flashed, no vendor BSP, no GPIO — see mcu/*.{c,cpp,ld} and
+# the C18 implementation report for the full honesty statement.
+if(JARVIS_FC_CROSS_COMPILING)
+
+add_executable(fc_mcu_stub.elf
+    mcu/startup_cortex_m4.c
+    mcu/syscalls_stub.c
+    mcu/stub_main.cpp
+)
+target_link_libraries(fc_mcu_stub.elf PRIVATE jarvis_fc)
+target_link_options(fc_mcu_stub.elf PRIVATE
+    -T${CMAKE_CURRENT_SOURCE_DIR}/mcu/linker_cortex_m4.ld
+    -nostartfiles
+    -Wl,--gc-sections
+    -Wl,-Map=fc_mcu_stub.map
+)
+target_compile_options(fc_mcu_stub.elf PRIVATE -Wall -Wextra)
+set_target_properties(fc_mcu_stub.elf PROPERTIES
+    SUFFIX ""
+    OUTPUT_NAME "fc_mcu_stub.elf"
+)
+
+endif()  # JARVIS_FC_CROSS_COMPILING

@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-21 C17 Safety-real policy ACCEPT CLOSED @ v0.5.15. Await Engineer pick for one next front (C18+).",
+  "cycle_intent": "2026-09-21 C18 ACCEPT CLOSED @ v0.5.16. C19 CRSF link stub IC READY FOR ★.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_pick_c18_front",
-  "active_operation": null,
+  "current_mode": "await_engineer_star_c19_crsf_link",
+  "active_operation": "b1_fase_c_crsf_link_stub_ic_ready",
   "movement_trigger": {
-    "type": "engineer_pick",
-    "note": "2026-09-21 C17 CLOSED @ v0.5.15. Next one front: MCU freestanding .elf \u00b7 link (ELRS) \u00b7 craft\u2194FS."
+    "type": "engineer_star",
+    "note": "2026-09-21 C18 CLOSED @ v0.5.16. C19 B1-fase-c-crsf-link-stub READY — fixture CRSF parse; not live ELRS / not serial."
   },
   "relevant_workflow_phases": [
     "Verification"

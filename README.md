@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.15** — C17 Safety-real policy CLOSED (`ArmedAllowlistSafetyGate`)
+**v0.5.16 tagged tip** · next front **C19** CRSF link stub (READY FOR ★)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,22 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.16 includes
+
+Fase C · **C18** (`B1-fase-c-cpp-mcu-freestanding-elf`) — **first freestanding linked MCU `.elf`**:
+
+- New `native/flight_control/mcu/` — generic Cortex-M4 linker script (`FLASH` at `0x00000000` / `RAM` at `0x20000000`, the ARM-architected generic Code/SRAM regions, not any vendor's remapped boot address; 256 KiB/64 KiB illustrative sizes, explicitly fictional), a 16-entry ARMv7-M vector table + `Reset_Handler` startup, minimal newlib syscall stubs (no semihosting, no real I/O), and a thin entry point that **links real `jarvis_fc` code**.
+- Reuses C16's own toolchain file **unchanged** — produces `fc_mcu_stub.elf` alongside the existing `libjarvis_fc.a`.
+- **A real link was performed and verified**: `readelf -h` shows `Machine: ARM`, `Type: EXEC`, a real entry point, soft-float ABI; `nm` confirms `jarvis::fc::ImuLowPassFilter::filter_sample` and `encode_motor_forces` are linked in as defined (not merely referenced) symbols.
+- **C++ exceptions kept enabled** (option (a) over disabling them) — the rung sources' `throw std::invalid_argument(...)` calls are untouched; the C++ runtime resolves via the toolchain's own libstdc++/newlib plus this Buy's own syscall stubs.
+- **A real build-system gap was hit and fixed, disclosed**: the `.c` startup/syscall sources were silently never compiled (CXX-only `project()`) until C was added as a project language — the linker's `cannot find entry symbol Reset_Handler` warning is gone after the fix.
+- Host build **re-verified unaffected**: `ctest` still 28/28 green.
+- **No GPIO/flash/OpenOCD/vendor BSP anywhere** (grep-verified).
+- `default_safety_gate()` unchanged; autonomy `submit_command` still always rejects. Does not touch Continuity, orchestrator IDLE, Board, or `library/`.
+- **Freestanding `.elf` != flashed / != boots on hardware / != motors / != GPIO.** A linked, inspectable, host-only ARM executable, nothing more; this image has never run on any board.
+- Tag **`v0.5.16`** · suite **3412** — [review](.jes/artifacts/implementation_review_fase_c_cpp_mcu_freestanding_elf_b1.md)
+- **Next (one front):** C19 CRSF link stub — [IC](.jes/artifacts/implementation_contract_fase_c_crsf_link_stub_b1.md)
 
 ## What v0.5.15 includes
 
@@ -319,9 +335,9 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.15`** (C17 Safety-real policy CLOSED). Next: Engineer picks **one** front (MCU `.elf` · link · craft↔FS) — [review](.jes/artifacts/implementation_review_fase_c_safety_real_policy_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.16`** (C18 CLOSED). **C19** CRSF link stub — **READY FOR ★** — [IC](.jes/artifacts/implementation_contract_fase_c_crsf_link_stub_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
-Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
+Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen link beyond fixtures.
 
 See `docs/IMPLEMENTATION_TASKS.md`.
 

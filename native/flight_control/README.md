@@ -75,11 +75,12 @@ verification, not "production-hardened," not a certification of any kind
 `-mcpu=cortex-m4 -mthumb -mfloat-abi=soft`) cross-compile of **only the
 `jarvis_fc` static library** — a compile-time proof that the same
 behavior-frozen steel-ladder sources build freestanding for this
-instruction set. **What this is not:** flashing any board, a linked
-bootable `.elf`, a vendor SDK/BSP (no STM32Cube/CMSIS device pack/
-ChibiOS/FreeRTOS/PX4/ArduPilot), GPIO/PWM/DShot, or a claim that any
-firmware "runs on a flight controller." The host build above remains the
-default path and is unaffected — this is purely additive.
+instruction set. **What this is not:** flashing any board, a vendor SDK/BSP (no
+STM32Cube/CMSIS device pack/ChibiOS/FreeRTOS/PX4/ArduPilot), GPIO/PWM/
+DShot, or a claim that any firmware "runs on a flight controller." The
+host build above remains the default path and is unaffected — this is
+purely additive. (C18, below, adds a linked freestanding `.elf` on the
+same toolchain — still no flash, no BSP.)
 
 **Install a toolchain first.** A plain `arm-none-eabi-gcc` package is
 sometimes just a bare compiler with **no bundled `newlib`/`libstdc++`** —
@@ -122,12 +123,62 @@ library-only MCU target); only `jarvis_fc` itself is built. No network is
 needed for the MCU configure/build (unlike the host build's one-time
 Catch2 fetch).
 
+## Freestanding MCU `.elf` (C18) — same toolchain, linked this time
+
+**What this is:** a linked, inspectable, freestanding ARM ELF —
+`fc_mcu_stub.elf` — built from OUR OWN generic Cortex-M4 linker script
+(`mcu/linker_cortex_m4.ld`) + minimal startup (`mcu/startup_cortex_m4.c`:
+vector table + `Reset_Handler`) + newlib syscall stubs
+(`mcu/syscalls_stub.c`) + a thin entry point (`mcu/stub_main.cpp`) that
+calls real `jarvis_fc` code (`ImuLowPassFilter::filter_sample`,
+`encode_motor_forces`) once before idling forever. **What this is not:**
+flashed to any board, a claim that this image boots on real hardware, a
+vendor BSP/SDK, or GPIO/UART/any real I/O — `syscalls_stub.c`'s
+`_write`/`_read`/etc. are no-op/error stubs, not semihosting.
+
+**Memory map (fictional, disclosed):** `FLASH` at `0x00000000` / `RAM` at
+`0x20000000` — the ARM-architected *generic* Cortex-M Code/SRAM regions
+(not a vendor's remapped boot address like the `0x08000000` many real
+boards use), 256 KiB / 64 KiB, a round illustrative size not sourced from
+any real part's datasheet.
+
+**C++ runtime choice (IC §0 decision 8, option (a)):** the rung sources'
+existing `throw std::invalid_argument(...)` calls are left exactly as
+they are — this build links normally against the toolchain's own
+libstdc++/newlib and resolves the runtime via `mcu/syscalls_stub.c`'s own
+stubs (`_sbrk`, `_write`, `_exit`, …), not by disabling exceptions or
+touching any rung API.
+
+**Build (reuses the exact same toolchain file as C16):**
+
+```bash
+cmake -S native/flight_control -B build/flight_control_mcu \
+  --toolchain native/flight_control/cmake/toolchains/arm-none-eabi.cmake
+cmake --build build/flight_control_mcu --target fc_mcu_stub.elf
+```
+
+**Inspect it:**
+
+```bash
+arm-none-eabi-readelf -h build/flight_control_mcu/fc_mcu_stub.elf
+# expect: Machine: ARM, Type: EXEC, an Entry point address, soft-float ABI flag
+
+arm-none-eabi-objdump -f build/flight_control_mcu/fc_mcu_stub.elf
+# expect: file format elf32-littlearm
+
+arm-none-eabi-nm build/flight_control_mcu/fc_mcu_stub.elf | grep ImuLowPassFilter
+# expect: real jarvis::fc::ImuLowPassFilter symbols, defined (T), not just referenced
+```
+
+`jarvis_fc` (the `.a`, C16) still builds alongside the `.elf` in the same
+MCU configure — this target is additive, not a replacement.
+
 ## Layout
 
 ```text
 native/flight_control/
   CMakeLists.txt
-  cmake/toolchains/arm-none-eabi.cmake   # NEW (C16) — MCU cross-compile toolchain
+  cmake/toolchains/arm-none-eabi.cmake   # C16 — MCU cross-compile toolchain, reused unchanged by C18
   include/jarvis/fc/    # public headers — types, filter, attitude,
                          # controller, rate_torque, mixer, plant, esc,
                          # quat_math (shared helper, see its own header
@@ -136,13 +187,18 @@ native/flight_control/
   src/                   # implementations
   smoke/closed_loop_smoke.cpp   # the C13 tip harness
   smoke/esc_pwm_smoke.cpp       # the C14 ESC/PWM stub harness
-  tests/                         # NEW (C15) — Catch2 per-rung unit cases
+  tests/                         # C15 — Catch2 per-rung unit cases
     test_filter.cpp
     test_attitude.cpp
     test_controller.cpp
     test_rate_torque.cpp
     test_mixer.cpp
     test_esc.cpp
+  mcu/                            # NEW (C18) — freestanding linked .elf, host-inspectable only
+    linker_cortex_m4.ld
+    startup_cortex_m4.c
+    syscalls_stub.c
+    stub_main.cpp
 ```
 
 `esc.hpp`/`esc.cpp` (C14) closes the steel-ladder's own sixth rung —
