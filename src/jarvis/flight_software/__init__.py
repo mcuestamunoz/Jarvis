@@ -28,10 +28,16 @@ Mahony/Madgwick/EKF/UKF by name (no bias learning, no gradient descent,
 no covariance), no magnetometer/GPS/baro fusion, and never
 flight-verified; a single `PdAttitudeController` (C8) that consumes an
 `AttitudeSetpoint` + `AttitudeState` and emits a `BodyRateCommand` — a
-body-rate number only, never a motor command; a single `QuadXMixer`
-(C9) that consumes a collective thrust + `BodyRateCommand` and emits a
-`MotorForceCommand` — four normalized `[0, 1]` motor force numbers for
-one documented quad-X layout; an ESC/PWM encoding stub (C10) —
+body-rate number only, never a motor command; a single
+`LinearRateTorqueBridge` (C12) that converts a `BodyRateCommand` into a
+`BodyTorqueCommand` via one feedforward map (`tau_i = gain_i * omega_i`,
+never a cascaded rate PID) — a normalized, dimensionless, torque-like
+mix command, never claimed Newton-metres of any real vehicle; a single
+`QuadXMixer` (C9, migrated by C12) that consumes a collective thrust +
+`BodyTorqueCommand` (no longer a bare `BodyRateCommand` — no silent dual
+API) and emits a `MotorForceCommand` — four normalized `[0, 1]` motor
+force numbers for one documented quad-X layout; an ESC/PWM encoding stub
+(C10) —
 `encode_motor_forces` maps those four forces linearly onto PWM pulse
 widths in microseconds (default `1000`–`2000` µs), and `SimulatedEscSink`
 records the resulting `EscPwmCommand` **in memory only**, starting
@@ -66,8 +72,9 @@ flight_control, MCU drivers, or a real control loop — see
 `.jes/artifacts/implementation_report_fase_c_attitude_controller_rung_b1.md`,
 `.jes/artifacts/implementation_report_fase_c_mixer_rung_b1.md`,
 `.jes/artifacts/implementation_report_fase_c_esc_pwm_stub_rung_b1.md`,
+`.jes/artifacts/implementation_report_fase_c_controlled_flight_sim_tip_b1.md`,
 and
-`.jes/artifacts/implementation_report_fase_c_controlled_flight_sim_tip_b1.md`.
+`.jes/artifacts/implementation_report_fase_c_rate_torque_bridge_b1.md`.
 """
 
 from jarvis.flight_software.flight_control.attitude import (
@@ -95,6 +102,10 @@ from jarvis.flight_software.flight_control.mixer import (
     hover_collective,
 )
 from jarvis.flight_software.flight_control.plant import ToyQuadAttitudePlant, tilt_angle_rad
+from jarvis.flight_software.flight_control.rate_torque import (
+    BodyTorqueCommand,
+    LinearRateTorqueBridge,
+)
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
 from jarvis.flight_software.flight_control.types import ImuSample
 
@@ -102,12 +113,14 @@ __all__ = [
     "AttitudeSetpoint",
     "AttitudeState",
     "BodyRateCommand",
+    "BodyTorqueCommand",
     "ComplementaryAttitudeEstimator",
     "EscApplyResult",
     "EscPwmCommand",
     "ImuHal",
     "ImuLowPassFilter",
     "ImuSample",
+    "LinearRateTorqueBridge",
     "MotorForceCommand",
     "PdAttitudeController",
     "QuadXMixer",

@@ -1,14 +1,15 @@
-"""Fase C · C9 — `QuadXMixer`: the fifth `flight_control` rung (motor
-allocation, after C3 sampling, C6 filtering, C7 estimation, and C8
-control).
+"""Fase C · C9 (+ C12 API migration) — `QuadXMixer`: the fifth
+`flight_control` rung (motor allocation, after C3 sampling, C6
+filtering, C7 estimation, and C8 control).
 
 Python scaffold / sim only — production flight_control runtime is C++
 (future IC). Consumes a **collective thrust** number (how hard to push
-"up") and a C8 `BodyRateCommand` (how to roll/pitch/yaw) and emits a
-`MotorForceCommand` — **four normalized force numbers**, nothing else.
-Given "reparte el empuje entre las 4 hélices," this rung answers "estas
-son las cuatro fuerzas de motor que lo harían" — it does not answer
-"así es como enciendo un ESC."
+"up") and a **`BodyTorqueCommand`** (how to roll/pitch/yaw — see the C12
+rate→torque bridge, `rate_torque.py`) and emits a `MotorForceCommand` —
+**four normalized force numbers**, nothing else. Given "reparte el
+empuje entre las 4 hélices," this rung answers "estas son las cuatro
+fuerzas de motor que lo harían" — it does not answer "así es como
+enciendo un ESC."
 
 **Hard cut (C9 IC §0 decision 7) — all of the following are explicitly
 out of scope and absent from this module:**
@@ -38,20 +39,23 @@ X/Y axes:
 - `m2` = Rear-Left (RL)
 - `m3` = Rear-Right (RR)
 
-**Allocation (per §0 decision 6, honesty-critical):** `BodyRateCommand`
-(C8) outputs **body rates**, not true body torques — a production stack
-usually inserts a rate→torque loop (a rate controller/ESC current model)
-between them. This B1 mixer treats `omega_body_rad_s` directly as
-`(roll, pitch, yaw)` **mix channels** (torque-like inputs) purely to
-teach allocation geometry. It does **not** claim rate is physically
-equivalent to torque, and it does **not** invent a second controller to
-bridge that gap — that bridge is a later, separate IC.
+**Allocation — honesty gap CLOSED by C12 (this module's own history):**
+C8's `BodyRateCommand` output is **body rates**, not torques. Until
+`v0.5.9`, this mixer treated `omega_body_rad_s` directly as its mix
+channels — an explicitly-disclosed simplification. As of C12, callers
+**must** convert a `BodyRateCommand` to a `BodyTorqueCommand` via
+`rate_torque.LinearRateTorqueBridge.convert(...)` first; `mix(...)` no
+longer accepts a `BodyRateCommand` at all — there is no silent dual API.
+`BodyTorqueCommand.tau_body` is still a **normalized, dimensionless,
+torque-like** mix command, not claimed Newton-metres of any real
+vehicle — see `rate_torque.py`'s own docstring for the full honesty
+statement.
 
 ```text
-m0 (FR) = collective - roll_scale*roll + pitch_scale*pitch - yaw_scale*yaw
-m1 (FL) = collective + roll_scale*roll + pitch_scale*pitch + yaw_scale*yaw
-m2 (RL) = collective + roll_scale*roll - pitch_scale*pitch - yaw_scale*yaw
-m3 (RR) = collective - roll_scale*roll - pitch_scale*pitch + yaw_scale*yaw
+m0 (FR) = collective - roll_scale*tau_x + pitch_scale*tau_y - yaw_scale*tau_z
+m1 (FL) = collective + roll_scale*tau_x + pitch_scale*tau_y + yaw_scale*tau_z
+m2 (RL) = collective + roll_scale*tau_x - pitch_scale*tau_y - yaw_scale*tau_z
+m3 (RR) = collective - roll_scale*tau_x - pitch_scale*tau_y + yaw_scale*tau_z
 ```
 
 each then clamped to `[0, 1]` (per §0 decision 8 — dimensionless,
@@ -70,7 +74,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from jarvis.flight_software.flight_control.controller import BodyRateCommand
+from jarvis.flight_software.flight_control.rate_torque import BodyTorqueCommand
 
 _DEFAULT_ROLL_SCALE = 0.05
 _DEFAULT_PITCH_SCALE = 0.05
@@ -120,19 +124,19 @@ class QuadXMixer:
         self._pitch_scale = pitch_scale
         self._yaw_scale = yaw_scale
 
-    def mix(self, collective: float, rates: BodyRateCommand) -> MotorForceCommand:
+    def mix(self, collective: float, torques: BodyTorqueCommand) -> MotorForceCommand:
         collective_clamped = _clamp01(collective)
-        roll, pitch, yaw = rates.omega_body_rad_s
+        tau_x, tau_y, tau_z = torques.tau_body
 
         raw = (
-            collective_clamped - self._roll_scale * roll + self._pitch_scale * pitch - self._yaw_scale * yaw,
-            collective_clamped + self._roll_scale * roll + self._pitch_scale * pitch + self._yaw_scale * yaw,
-            collective_clamped + self._roll_scale * roll - self._pitch_scale * pitch - self._yaw_scale * yaw,
-            collective_clamped - self._roll_scale * roll - self._pitch_scale * pitch + self._yaw_scale * yaw,
+            collective_clamped - self._roll_scale * tau_x + self._pitch_scale * tau_y - self._yaw_scale * tau_z,
+            collective_clamped + self._roll_scale * tau_x + self._pitch_scale * tau_y + self._yaw_scale * tau_z,
+            collective_clamped + self._roll_scale * tau_x - self._pitch_scale * tau_y - self._yaw_scale * tau_z,
+            collective_clamped - self._roll_scale * tau_x - self._pitch_scale * tau_y + self._yaw_scale * tau_z,
         )
         forces = tuple(_clamp01(value) for value in raw)
 
-        return MotorForceCommand(t_s=rates.t_s, motor_forces=forces, layout="quad_x")
+        return MotorForceCommand(t_s=torques.t_s, motor_forces=forces, layout="quad_x")
 
 
 def hover_collective(default: float = 0.5) -> float:

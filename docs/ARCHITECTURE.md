@@ -148,7 +148,7 @@ Analogía: el plano de una casa marca “aquí irá la cocina”; aún no hay fr
 **Dos dimensiones (no confundir):**
 
 1. **Craft** (`core/`, Continuity, Board, `library/`) — diseñar el vehículo (BOM, montaje, física). SoT de diseño @ tip craft `v0.4.3`.  
-2. **Platform / Fase C** — operar sistemas físicos algún día. Hoy solo andamiaje. **Tip git tagged:** `v0.5.9` (C11 wooden-ladder sim tip). See [process lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+2. **Platform / Fase C** — operar sistemas físicos algún día. Hoy solo andamiaje. **Tip git tagged:** `v0.5.10` (C12 rate→torque bridge). See [process lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 **Qué hace cada zona de archivos (mapa mental):**
 
@@ -202,6 +202,10 @@ Visión / briefing: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION
 **También corregido, revelado (no el alcance principal de esta Buy, pero necesario para que su propio criterio de aceptación sea honestamente alcanzable):** un bug de signo real en el `ComplementaryAttitudeEstimator` de C7 (etiquetado `v0.5.5`, ACCEPT CLOSED) — el orden de argumentos del producto cruzado en su corrección por acelerómetro estaba invertido, haciendo que la estimación convergiera **alejándose** de la inclinación real para cualquier entrada no nivelada (confirmado incluso a 0.1°). Ningún test previo de C7 alimentó nunca un acelerómetro no nivelado, así que nunca se ejerció este camino. Corrección de una línea (orden de argumentos intercambiado) más un nuevo test de regresión en el propio archivo de tests de C7. Ver [implementation report](../.jes/artifacts/implementation_report_fase_c_controlled_flight_sim_tip_b1.md) para la prueba completa antes/después.
 
 **Tip de lazo cerrado simulado ≠ volar / ≠ vuelo verificado en hardware / ≠ simulación físicamente precisa**: es una demostración juguete de que la escalera de software se cierra sobre sí misma en simulación; ningún motor gira, ningún vehículo real existe.
+
+**C12** (`B1-fase-c-rate-torque-bridge`, **ACCEPT CLOSED** @ tag **`v0.5.10`**) **cierra el hueco rate ≠ torque** que C9/C11 dejaron abierto deliberadamente: `rate_torque.py` trae `LinearRateTorqueBridge.convert(rates: BodyRateCommand) -> BodyTorqueCommand` — **un único mapa feedforward** (`tau_i = gain_i * omega_cmd_i` por eje, ganancia escalar o por eje, cada una finita y `> 0`) — **no** un PID de tasa en cascada (sin término `kp * (omega_cmd - omega_medido)`, sin estado integral/derivativo en ningún sitio). `BodyTorqueCommand.tau_body` es explícitamente **normalizado/adimensional, tipo par**, nunca reclamado como Newton-metros de un vehículo real. `QuadXMixer.mix(collective, torques: BodyTorqueCommand)` está **migrado** — ya no acepta un `BodyRateCommand` sin envolver en absoluto, sin API dual silenciosa (verificado: pasar una tasa directamente lanza `AttributeError`, no una interpretación silenciosa incorrecta). El tip de lazo cerrado de C11 se re-verificó a través del puente y quedó sin cambios (`15° → 0.252°` en 200 pasos, idéntico a antes de la migración) — **no hizo falta reajustar ninguna ganancia**, porque la ganancia por defecto del puente (`1.0`) es un no-op matemático respecto al paso directo anterior del mezclador. Ver [implementation report](../.jes/artifacts/implementation_report_fase_c_rate_torque_bridge_b1.md).
+
+**Puente ≠ producto de lazo de tasa / ≠ N·m físicos / ≠ volar**: ahora existe un paso nombrado y explícito en vez de una suposición implícita rate-como-torque; nada aquí reclama unidades de par reales, un lazo de tasa cerrado en hardware, ni vuelo. **Siguiente frente priorizado: scaffold en C++** — [IC C13](../.jes/artifacts/implementation_contract_fase_c_cpp_flight_control_scaffold_b1.md).
 
 ### 1d. `flight_software/autonomy/` — Fase C · C4 (superficie de comandos, sin autonomía viva)
 

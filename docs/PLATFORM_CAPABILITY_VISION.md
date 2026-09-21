@@ -476,6 +476,12 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 
 **Sim closed-loop tip ≠ flying / ≠ hardware-verified flight / ≠ physics-accurate sim** — this is a toy demonstration that the software ladder closes on itself in simulation; no motor spins, no real vehicle exists.
 
+**C12 (ACCEPT CLOSED, tag `v0.5.10`) — the rate≠torque gap above is now CLOSED:**  
+**Same Engineer scaffold discipline continues: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."**  
+[`.jes/artifacts/implementation_contract_fase_c_rate_torque_bridge_b1.md`](../.jes/artifacts/implementation_contract_fase_c_rate_torque_bridge_b1.md) — a typed honesty bridge: `LinearRateTorqueBridge.convert(rates: BodyRateCommand) -> BodyTorqueCommand`, **one feedforward map only** (`tau_i = gain_i * omega_cmd_i` per axis, scalar or per-axis gains, each finite and `> 0`) — **not** a cascaded rate PID (no `kp * (omega_cmd - omega_measured)` term, no integral/derivative state anywhere). `BodyTorqueCommand.tau_body` is explicitly **normalized/dimensionless torque-like**, never claimed as Newton-metres of any real vehicle. `QuadXMixer.mix(collective, torques: BodyTorqueCommand)` is **migrated** — it no longer accepts a bare `BodyRateCommand` at all, no silent dual API (verified: passing a rate directly raises `AttributeError`, not a quiet misinterpretation). C11's closed-loop tip was re-verified through the bridge and is unchanged (`15° → 0.252°` in 200 steps, identical to before migration) — **no gain retune was needed**, since the bridge's default `gain=1.0` is a mathematical no-op relative to the mixer's pre-migration direct pass-through. Package file **`0.5.10`**. See [implementation report](../.jes/artifacts/implementation_report_fase_c_rate_torque_bridge_b1.md).
+
+**Bridge ≠ rate loop product / ≠ physical N·m / ≠ flying** — a single named feedforward step exists now instead of an implicit rate-as-torque assumption; nothing here claims real torque units, a hardware-closed rate loop, or flight. **Next Engineer-prioritized front: C++ scaffold** — [IC C13](../.jes/artifacts/implementation_contract_fase_c_cpp_flight_control_scaffold_b1.md).
+
 ### Historical sketch (still valid as narrative)
 
 First design:

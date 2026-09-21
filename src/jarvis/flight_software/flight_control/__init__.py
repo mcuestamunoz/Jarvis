@@ -26,6 +26,10 @@ from jarvis.flight_software.flight_control.mixer import (
     hover_collective,
 )
 from jarvis.flight_software.flight_control.plant import ToyQuadAttitudePlant, tilt_angle_rad
+from jarvis.flight_software.flight_control.rate_torque import (
+    BodyTorqueCommand,
+    LinearRateTorqueBridge,
+)
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
 from jarvis.flight_software.flight_control.types import ImuSample
 
@@ -33,12 +37,14 @@ __all__ = [
     "AttitudeSetpoint",
     "AttitudeState",
     "BodyRateCommand",
+    "BodyTorqueCommand",
     "ComplementaryAttitudeEstimator",
     "EscApplyResult",
     "EscPwmCommand",
     "ImuHal",
     "ImuLowPassFilter",
     "ImuSample",
+    "LinearRateTorqueBridge",
     "MotorForceCommand",
     "PdAttitudeController",
     "QuadXMixer",

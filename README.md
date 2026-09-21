@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.9 tagged tip** · Fase C C11 wooden-ladder sim tip CLOSED
+**v0.5.10 tagged tip** · Fase C C12 rate→torque bridge CLOSED · next: C++ scaffold IC
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,21 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.10 includes
+
+Fase C · **C12** (`B1-fase-c-rate-torque-bridge`) — **closes the rate ≠ torque honesty gap C9/C11 left open on purpose**:
+
+- **Same Engineer scaffold discipline: "Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** No C++ tree, no CMake created in this Buy.
+- `src/jarvis/flight_software/flight_control/rate_torque.py` — `LinearRateTorqueBridge.convert(rates: BodyRateCommand) -> BodyTorqueCommand`: **one feedforward map only** (`tau_i = gain_i * omega_cmd_i` per axis, scalar or per-axis gains, each finite and `> 0`) — **not** a cascaded rate PID (no `kp * (omega_cmd - omega_measured)` term, no integral/derivative state)
+- `BodyTorqueCommand.tau_body` is explicitly **normalized/dimensionless, torque-like** — never claimed as Newton-metres of any real vehicle
+- `QuadXMixer.mix(collective, torques: BodyTorqueCommand)` is **migrated**: it no longer accepts a bare `BodyRateCommand` at all — no silent dual API (passing a rate directly raises `AttributeError`, not a quiet misinterpretation)
+- C11's closed-loop tip re-verified through the bridge and **unchanged**: `15° → 0.252°` in 200 steps, identical to before migration — **no gain retune needed**, since the bridge's default `gain=1.0` is a mathematical no-op relative to the mixer's pre-migration direct pass-through
+- `default_safety_gate()` unchanged — the bridge is not actuation; autonomy `submit_command` still always rejects
+- Does **not** touch Continuity, orchestrator IDLE, Board, or `library/`
+- **Bridge != rate loop product / != physical N·m / != flying.** A single named feedforward step exists now instead of an implicit rate-as-torque assumption
+- Tagged **`v0.5.10`** on Engineer ACCEPT (suite **3348**) — [review](.jes/artifacts/implementation_review_fase_c_rate_torque_bridge_b1.md)
+- **Next:** ★ **C13** C++ scaffold IC (material change of the wooden ladder)
 
 ## What v0.5.9 includes
 
@@ -232,7 +247,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.9`** (C11 wooden-ladder sim tip CLOSED). Remaining fronts still **one at a time**: rate→torque · Safety-real · **C++ material** · link · craft↔FS — Engineer prioritizes. See [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.10`** (C12 rate→torque bridge CLOSED). Next: ★ **C13** C++ flight_control scaffold — material change of the wooden ladder. One front only — see [IC](.jes/artifacts/implementation_contract_fase_c_cpp_flight_control_scaffold_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
 
@@ -255,6 +270,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.5.10` / `checkpoint-fase-c-rate-torque` — Fase C C12: rate→torque honesty bridge; suite **3348** · UI **132**.  
 `v0.5.9` / `checkpoint-fase-c-sim-tip` — Fase C C11: toy closed-loop wooden-ladder tip (+ C7 accel sign fix); suite **3330** · UI **132**.  
 `v0.5.8` / `checkpoint-fase-c-esc-pwm` — Fase C C10: force→PWM µs + SimulatedEscSink; suite **3315** · UI **132**.  
 `v0.5.7` / `checkpoint-fase-c-mixer` — Fase C C9: quad-X mixer; suite **3297** · UI **132**.  
