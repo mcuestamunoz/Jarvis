@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.14** — C16 MCU cross-compile scaffold CLOSED (`libjarvis_fc.a` for arm-none-eabi)
+**v0.5.15** — C17 Safety-real policy CLOSED (`ArmedAllowlistSafetyGate`)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,20 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.15 includes
+
+Fase C · **C17** (`B1-fase-c-safety-real-policy`) — **first real (non-RejectAll) Safety policy gate**:
+
+- `src/jarvis/capabilities/safety.py` — `ArmedAllowlistSafetyGate`: **opt-in**, starts **disarmed** (always rejects, reason `"disarmed"`), and once explicitly `arm()`ed allows **only** `HOLD`/`LAND` (parsed from `submit_command`'s own `autonomy:{verb}:{id}` action-id shape); any other verb or a malformed `action_id` is rejected too (`"verb_not_allowed"` / `"unparseable_action_id"` — neither reuses RejectAll's `"not_implemented"`).
+- **`default_safety_gate()` is byte-unchanged** — `git diff` confirms zero lines touched in `RejectAllSafetyGate` or the factory function; the shipped product default remains "reject everything."
+- `evaluate()` never reads `authority_signal_id` at all — Authority (C5) stays trace-only, unable to flip a decision through this or any gate.
+- `submit_command`'s `allow` branch, unreachable in shipped code since C4, already resolved to `execution="not_implemented"` — **zero changes** were needed to `flight_software/autonomy/surface.py`/`types.py`; verified at runtime via `typing.get_args(ExecutionState) == {"not_attempted", "not_implemented"}`.
+- New `smoke_policy_gate_hold_and_land()` helper demonstrates the armed allow path end-to-end (both verbs `allow`, `execution` still `"not_implemented"`).
+- **No `AllowAllSafetyGate` anywhere in `src/`, no `SimulatedEscSink`/GPIO coupling, no craft/CLI wiring.**
+- **Policy allow != flying / != executed autonomy / != hardware Safety / != "safe to fly".** A real, opt-in, narrowly-scoped software gate now exists alongside the unchanged RejectAll default; no gate shipped in `src/` can ever return `execution="executed"`.
+- Tag **`v0.5.15`** · suite **3403** — [review](.jes/artifacts/implementation_review_fase_c_safety_real_policy_b1.md)
+- **Next (one front at a time — Engineer picks):** MCU freestanding `.elf` · link (ELRS) · craft↔FS
 
 ## What v0.5.14 includes
 
@@ -305,7 +319,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.14`** (C16 MCU cross-compile CLOSED). Next: Engineer picks **one** front (Safety-real · MCU `.elf` · link · craft↔FS) — [review](.jes/artifacts/implementation_review_fase_c_cpp_mcu_cross_compile_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.15`** (C17 Safety-real policy CLOSED). Next: Engineer picks **one** front (MCU `.elf` · link · craft↔FS) — [review](.jes/artifacts/implementation_review_fase_c_safety_real_policy_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
 

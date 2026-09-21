@@ -9,11 +9,16 @@ and
 `.jes/artifacts/implementation_contract_fase_c_radio_dual_role_b1.md`.
 
 Note: there is no `AllowAllSafetyGate` anywhere in this package (C2 IC
-§2.2 lock) — the only shipped gate factory, `default_safety_gate()`,
+§2.2 lock) — the only shipped gate **factory**, `default_safety_gate()`,
 always returns `RejectAllSafetyGate`. Radio (C5) never bypasses it: an
 `AuthoritySignal` never implies `SafetyDecision(outcome="allow")`, and
 `RadioIntentAdapter.parse(...)` still always raises `NotImplementedError`
 — `SimulatedRadioIngress` is a separate, explicitly-simulated API.
+
+C17 adds `ArmedAllowlistSafetyGate` — the first real (non-RejectAll)
+Safety policy: opt-in, starts disarmed, allows only `HOLD`/`LAND` once
+explicitly armed, never reads `authority_signal_id`. `default_safety_gate()`
+is unchanged. See `jarvis.capabilities.safety`'s own docstring.
 """
 
 from jarvis.capabilities.intent import (
@@ -33,6 +38,7 @@ from jarvis.capabilities.radio import (
 )
 from jarvis.capabilities.registry import CapabilityRegistry, CapabilityRegistryError
 from jarvis.capabilities.safety import (
+    ArmedAllowlistSafetyGate,
     AuthoritySignal,
     RejectAllSafetyGate,
     SafetyDecision,
@@ -52,6 +58,7 @@ from jarvis.capabilities.schemas import (
 
 __all__ = [
     "ApiIntentAdapter",
+    "ArmedAllowlistSafetyGate",
     "AuthoritySignal",
     "CapabilityAvailability",
     "CapabilityHealth",

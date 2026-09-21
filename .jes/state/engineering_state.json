@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-21 C16 MCU cross-compile ACCEPT CLOSED @ v0.5.14. Await Engineer pick for one next front (C17+).",
+  "cycle_intent": "2026-09-21 C17 Safety-real policy ACCEPT CLOSED @ v0.5.15. Await Engineer pick for one next front (C18+).",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_pick_c17_front",
+  "current_mode": "await_engineer_pick_c18_front",
   "active_operation": null,
   "movement_trigger": {
     "type": "engineer_pick",
-    "note": "2026-09-21 C16 CLOSED @ v0.5.14. Next one front: Safety-real \u00b7 MCU freestanding .elf \u00b7 link \u00b7 craft\u2194FS."
+    "note": "2026-09-21 C17 CLOSED @ v0.5.15. Next one front: MCU freestanding .elf \u00b7 link (ELRS) \u00b7 craft\u2194FS."
   },
   "relevant_workflow_phases": [
     "Verification"

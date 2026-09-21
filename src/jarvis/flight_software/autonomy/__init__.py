@@ -2,9 +2,12 @@
 
 Python scaffold / sim only — production flight_control runtime is C++
 (future IC). Every submission goes through `SafetyGate.evaluate(...)`
-before any hypothetical execution step; with the only shipped gate
-(`RejectAllSafetyGate`), that step is always absent — `execution` is
-never `"executed"` on any path shipped in `src/`. This package proposes
+before any hypothetical execution step; with the default shipped gate
+(`RejectAllSafetyGate`), that step is always absent. As of C17, a caller
+may opt in to `ArmedAllowlistSafetyGate` (`jarvis.capabilities.safety`)
+instead, which can `allow` `HOLD`/`LAND` once explicitly armed — even
+then, `execution` is never `"executed"` on any path shipped in `src/`,
+only ever `"not_attempted"` or `"not_implemented"`. This package proposes
 commands, it does not fly, arm, hold, or land anything.
 
 Vocabulary matches C0 §8's starter set (`TAKEOFF`/`HOLD`/`GO_TO`/`FOLLOW`/
@@ -19,7 +22,10 @@ or `library/`. See
 `.jes/artifacts/implementation_contract_fase_c_autonomy_surface_b1.md`.
 """
 
-from jarvis.flight_software.autonomy.smoke import smoke_hold_and_land
+from jarvis.flight_software.autonomy.smoke import (
+    smoke_hold_and_land,
+    smoke_policy_gate_hold_and_land,
+)
 from jarvis.flight_software.autonomy.surface import propose_command, submit_command
 from jarvis.flight_software.autonomy.types import (
     AutonomyCommand,
@@ -33,5 +39,6 @@ __all__ = [
     "AutonomyVerb",
     "propose_command",
     "smoke_hold_and_land",
+    "smoke_policy_gate_hold_and_land",
     "submit_command",
 ]
