@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.12** — C14 C++ ESC/PWM stub CLOSED (steel-ladder module parity)
+**v0.5.13** — C15 Catch2 unit tests CLOSED (steel ladder has per-rung exams)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,21 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.13 includes
+
+Fase C · **C15** (`B1-fase-c-cpp-unit-tests`) — **a real C++ unit-test framework, deepening host verification**:
+
+- **Catch2 v3, pinned to release tag `v3.7.1`** (commit `fa43b77429ba76c462b1898d6cd2f2d7a9416b14`), fetched via CMake `FetchContent` — network needed once at first configure, none needed after (offline story documented in `native/flight_control/README.md`).
+- New `native/flight_control/tests/` — **26 `TEST_CASE`s / ~494 assertions**, at least one per steel rung: filter, attitude (including a C11 Amendment A regression guard), controller (sign-check on the dominant axis), rate_torque, mixer (documented X-geometry sign check), esc.
+- `ctest` now runs **28 entries** total: the 26 unit cases (individually discovered via `catch_discover_tests`) plus both pre-existing smoke binaries — all green.
+- **Behavior freeze honored exactly**: `git diff --stat` on every pre-existing rung source (`filter.cpp`…`esc.cpp`/`plant.cpp`/all headers) is empty — this Buy added coverage only, no bug exposed, no Engineer-call needed.
+- Both smoke binaries **remain unmodified**; `fc_closed_loop_smoke` re-verified byte-identical: `15° → 0.252°` in 200 steps.
+- **No GPIO/pigpio/`/dev/mem`/serial/DShot/socket anywhere in the new test sources** (grep-verified).
+- `default_safety_gate()` unchanged; autonomy `submit_command` still always rejects. Does not touch Continuity, orchestrator IDLE, Board, or `library/`.
+- **C++ unit tests != flying / != MCU verification / != production-hardened / != algorithm change.** A host desktop `ctest` run with a real framework instead of two hand-rolled smoke mains, nothing more.
+- Tag **`v0.5.13`** · suite **3380** — [review](.jes/artifacts/implementation_review_fase_c_cpp_unit_tests_b1.md)
+- **Next (one front at a time — Engineer picks):** MCU cross-compile · Safety-real · link · craft↔FS
 
 ## What v0.5.12 includes
 
@@ -275,7 +290,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.12`** (C14 C++ ESC/PWM stub CLOSED — steel-ladder module parity). Next: Engineer picks **one** front (MCU · deepen C++ · Safety-real · link · craft↔FS) — [review](.jes/artifacts/implementation_review_fase_c_cpp_esc_pwm_stub_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.13`** (C15 Catch2 unit tests CLOSED). Next: Engineer picks **one** front (MCU · Safety-real · link · craft↔FS) — [review](.jes/artifacts/implementation_review_fase_c_cpp_unit_tests_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · real Safety · C++ FC · ELRS · craft↔FS wiring.
 

@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-21 C14 C++ ESC/PWM stub ACCEPT CLOSED @ v0.5.12. Steel-ladder module parity closed. Await Engineer pick for one next front (C15+).",
+  "cycle_intent": "2026-09-21 C15 Catch2 unit tests ACCEPT CLOSED @ v0.5.13. Await Engineer pick for one next front (C16+).",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_pick_c15_front",
+  "current_mode": "await_engineer_pick_c16_front",
   "active_operation": null,
   "movement_trigger": {
     "type": "engineer_pick",
-    "note": "2026-09-21 C14 CLOSED @ v0.5.12. Next one front: MCU cross-compile · deepen C++ tests · Safety-real · link · craft\u2194FS."
+    "note": "2026-09-21 C15 CLOSED @ v0.5.13. Next one front: MCU cross-compile \u00b7 Safety-real \u00b7 link \u00b7 craft\u2194FS."
   },
   "relevant_workflow_phases": [
     "Verification"

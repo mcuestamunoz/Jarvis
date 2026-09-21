@@ -43,11 +43,31 @@ record-but-refuse, armed apply) and exits `0` only if every assertion
 held. Steel-ladder parity for the Python C10 stub — no GPIO, no PWM
 hardware write, no claim any motor spins.
 
-Both smoke binaries are also runnable via CTest:
+Both smoke binaries are also runnable via CTest.
+
+## Run the unit-test suite (C15)
+
+A real test framework — **Catch2 v3, pinned to release tag `v3.7.1`**
+(commit `fa43b77429ba76c462b1898d6cd2f2d7a9416b14`) — is fetched via CMake
+`FetchContent` the first time you configure this tree. That first
+configure needs network once, to clone the pinned tag; after that, the
+sources live under `build/flight_control/_deps/catch2-src` and every
+later configure/build/`ctest` cycle needs **no network** (the same build
+directory can be reused offline).
 
 ```bash
+./build/flight_control/fc_unit_tests          # run directly, verbose with -s
+# or, together with both smokes, individually discovered:
 cd build/flight_control && ctest --output-on-failure
 ```
+
+`fc_unit_tests` has **≥1 `TEST_CASE` per steel rung** (filter, attitude,
+controller, rate_torque, mixer, esc) — 26 cases / \~494 assertions as of
+C15. This is a **behavior-freeze** Buy: it adds coverage, it does not
+change `filter.cpp`…`esc.cpp`/`plant.cpp`/`quat_math.hpp` (confirmed
+`git diff`-clean on all of them in the C15 report). It is **not** MCU
+verification, not "production-hardened," not a certification of any kind
+— a host desktop unit-test run, nothing more.
 
 ## Layout
 
@@ -62,6 +82,13 @@ native/flight_control/
   src/                   # implementations
   smoke/closed_loop_smoke.cpp   # the C13 tip harness
   smoke/esc_pwm_smoke.cpp       # the C14 ESC/PWM stub harness
+  tests/                         # NEW (C15) — Catch2 per-rung unit cases
+    test_filter.cpp
+    test_attitude.cpp
+    test_controller.cpp
+    test_rate_torque.cpp
+    test_mixer.cpp
+    test_esc.cpp
 ```
 
 `esc.hpp`/`esc.cpp` (C14) closes the steel-ladder's own sixth rung —
