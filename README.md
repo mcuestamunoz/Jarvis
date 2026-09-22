@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.20 tagged tip** · C22 CRSF host serial ingest CLOSED — awaiting Engineer pick (C23+)
+**v0.5.21 tagged tip** · C23 Darwin host baud 420000 CLOSED — C24 control-loop tick READY
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,21 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.21 includes
+
+Fase C · **C23** (`B1-fase-c-crsf-host-baud`) — **Darwin host baud 420000, still not a live link**:
+
+- Extends C22's own `src/jarvis/capabilities/crsf_serial.py` — **no sixth module** — with **opt-in** Darwin host baud configuration: `configure_host_baud(fd, baud=420000)` / `CrsfHostSerialIngress.configure_baud(...)`.
+- On `sys.platform == "darwin"`, applies raw 8N1 termios (disabling canonical mode and the CR/NL translations that would corrupt binary CRSF) then issues the real `IOSSIOSPEED` ioctl — the request number **derived** from the `_IOW('T', 2, speed_t)` macro, not copied from `pyserial` or any library; independently verified to equal `0x80085402`.
+- On any other platform it **fails closed** with a typed `CrsfHostSerialError` — no Linux `TCSETS2`/`BOTHER`, no Windows serial stack.
+- `attach_fd`/`attach_path` still **never** auto-configure baud — C22's own "open = give me bytes" contract is unchanged, re-verified by re-running C22's own test suite unmodified.
+- **Every PASS requires no hardware**: the Darwin success path is proven entirely via a mocked `fcntl.ioctl`; the one **unmocked** ioctl call runs against a real POSIX `pty` and is **asserted to fail** (a pty is not a UART) — that failure is the honest, expected outcome, not something skipped around.
+- A successful ioctl is a host OS configuration fact, never proof a receiver exists. **No `pyserial` dependency was added.**
+- `radio.py`/`crsf_stub.py`/`crsf_dual_role.py`/`crsf_stream.py`/`intent.py`/`safety.py` all byte-unchanged. `default_safety_gate()` unchanged.
+- **Host baud 420000 != live ELRS != RX connected != UART driver != Safety allow.** Darwin can be asked to clock an attached FD at an ELRS-typical rate, proven without hardware via ioctl mock, nothing more.
+- Package file / tag **`v0.5.21`** · suite **3504** — [review](.jes/artifacts/implementation_review_fase_c_crsf_host_baud_b1.md)
+- **Next (one front at a time):** C24 named control `step()` — [IC](.jes/artifacts/implementation_contract_fase_c_control_loop_tick_b1.md)
 
 ## What v0.5.20 includes
 
@@ -392,9 +407,9 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.20`** (C22 CLOSED). Awaiting Engineer pick for **one** next front (C23+): deepen policy · board flash · craft↔FS · baud 420000 — [review](.jes/artifacts/implementation_review_fase_c_crsf_host_serial_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip tagged `v0.5.21`** (C23 CLOSED). **C24 READY** — named FC `step()` ([IC](.jes/artifacts/implementation_contract_fase_c_control_loop_tick_b1.md)). Parked after C24: C25 RC→setpoint · C26 Esc HAL · C27 CRSF failsafe · C28 MCU UART stub · C29 silicon map — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
-Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · baud 420000.
+Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 
 See `docs/IMPLEMENTATION_TASKS.md`.
 
@@ -415,6 +430,8 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 
 ## Tags
 
+`v0.5.21` / `checkpoint-fase-c-crsf-host-baud` — Fase C C23: Darwin IOSSIOSPEED 420000 + raw 8N1 on C22 FD; suite **3504** · UI **132**.  
+`v0.5.20` / `checkpoint-fase-c-crsf-host-serial` — Fase C C22: CRSF host serial ingest (pty); suite **3485** · UI **132**.  
 `v0.5.11` / `checkpoint-fase-c-cpp-scaffold` — Fase C C13: first C++ flight_control host scaffold; suite **3358** · UI **132**.  
 `v0.5.10` / `checkpoint-fase-c-rate-torque` — Fase C C12: rate→torque honesty bridge; suite **3348** · UI **132**.  
 `v0.5.9` / `checkpoint-fase-c-sim-tip` — Fase C C11: toy closed-loop wooden-ladder tip (+ C7 accel sign fix); suite **3330** · UI **132**.  

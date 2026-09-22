@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C22 CLOSED** @ **`v0.5.20`** — CRSF host serial ingest (`crsf_serial.py`). Awaiting Engineer pick for **one** next front (C23+): deepen policy · board flash · craft↔FS · baud 420000 — [review](../.jes/artifacts/implementation_review_fase_c_crsf_host_serial_b1.md).  
-> Tip tagged **`v0.5.20`**. Suite **3485** · UI **132**. Craft SoT **`v0.4.3`**.  
+> **PRIORIDAD AHORA:** **C24 READY** — `B1-fase-c-control-loop-tick` — named FC `step()` (IMU+setpoint+collective → motor forces; plant outside) ([IC](../.jes/artifacts/implementation_contract_fase_c_control_loop_tick_b1.md)). Awaiting Engineer ★. **C23 CLOSED** @ **`v0.5.21`**.  
+> Tip tagged **`v0.5.21`**. Suite **3504** · UI **132**. Craft SoT **`v0.4.3`**.  
 > Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
-> **Parked:** plate-box · Path N · HD-* · Board polish · board flash · craft↔FS · deepen policy beyond one aux · baud 420000.  
+> **Parked:** plate-box · Path N · HD-* · Board polish · board flash · craft↔FS · deepen policy beyond one aux · Linux baud · C25–C29 (after C24).  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -69,7 +69,14 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C20** | **`B1-fase-c-crsf-dual-role-bridge`** | **✅ ACCEPT CLOSED** @ **`v0.5.18`** | CRSF decode → Authority (aux→kill) in `crsf_dual_role.py`; Authority ≠ Safety allow | [review](../.jes/artifacts/implementation_review_fase_c_crsf_dual_role_bridge_b1.md) · tag **`v0.5.18`** |
 | **C21** | **`B1-fase-c-crsf-byte-stream`** | **✅ ACCEPT CLOSED** @ **`v0.5.19`** | UART-shaped bytes → CRSF frames (`crsf_stream.py`); C19 parse reused; optional C20 bridge; ≠ serial ≠ live ELRS | [review](../.jes/artifacts/implementation_review_fase_c_crsf_byte_stream_b1.md) · tag **`v0.5.19`** |
 | **C22** | **`B1-fase-c-crsf-host-serial`** | **✅ ACCEPT CLOSED** @ **`v0.5.20`** | Host FD/path → C21 assembler (`crsf_serial.py`); pty tests, no physical RX; no pyserial; baud 420000 deferred; ≠ live ELRS | [review](../.jes/artifacts/implementation_review_fase_c_crsf_host_serial_b1.md) · tag **`v0.5.20`** |
-| **C23+** | deepen policy · craft↔FS · board flash · baud 420000 | **Await Engineer pick** | One front at a time | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
+| **C23** | **`B1-fase-c-crsf-host-baud`** | **✅ ACCEPT CLOSED** @ **`v0.5.21`** | Darwin `IOSSIOSPEED` 420000 + raw 8N1 opt-in on C22 FD; ioctl-mock; pty fail-closed; ≠ live ELRS | [review](../.jes/artifacts/implementation_review_fase_c_crsf_host_baud_b1.md) · tag **`v0.5.21`** |
+| **C24** | **`B1-fase-c-control-loop-tick`** | **READY — await ★** | Named `step()`: IMU+setpoint+collective → forces (Python + C++); plant/RC/pin outside | [IC](../.jes/artifacts/implementation_contract_fase_c_control_loop_tick_b1.md) |
+| **C25** | RC → attitude/collective setpoint | **Parked until C24 ACCEPT** | Sticks → args of `step`; still no execute | Board-prep queue |
+| **C26** | EscOutput HAL | **Parked** | Same contract: Simulated sink vs future pin; mixer must not know DShot | Board-prep queue |
+| **C27** | CRSF stream-timeout failsafe | **Parked** | Stale sticks must not keep mixing | Board-prep queue |
+| **C28** | MCU UART HAL stub | **Parked** | Chip USART bytes; not Darwin `IOSSIOSPEED` | Board-prep queue |
+| **C29** | Silicon + cited FLASH map | **Parked (B0)** | Datasheet map — **not** flash, not C18 `0x00000000` | Board-prep queue |
+| **C30+** | deepen policy · craft↔FS · board flash · Linux baud | **Parked** | One front at a time | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 

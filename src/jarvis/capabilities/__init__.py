@@ -60,13 +60,26 @@ open host FD (tests: a POSIX `pty`) or an opt-in device path via
 `CrsfHostSerialIngress`, and feeds them to C21's own
 `CrsfByteStreamAssembler` unchanged. `poll(...)` does exactly one non-
 blocking read then feed — no background thread, no "connected" flag, no
-`/dev/cu.*` auto-scan, no baud/termios configuration (420000, the rate a
-real ELRS link runs at, is explicitly deferred to a later IC), no
-`pyserial` dependency. An optional `poll_and_ingest(...)` helper reuses
-C20's `ingest_rc_channels(...)` unchanged for any completed `0x16`
-frames. Host serial ingest != live ELRS != "RX connected" != Safety
-allow — every PASS in this repo uses a `pty` loopback, never a physical
-receiver. See `jarvis.capabilities.crsf_serial`'s own docstring.
+`/dev/cu.*` auto-scan, no `pyserial` dependency. An optional
+`poll_and_ingest(...)` helper reuses C20's `ingest_rc_channels(...)`
+unchanged for any completed `0x16` frames. Host serial ingest != live
+ELRS != "RX connected" != Safety allow — every PASS in this repo uses a
+`pty` loopback, never a physical receiver.
+
+C23 extends `crsf_serial.py` (no sixth module) with **opt-in** Darwin
+host baud configuration — `configure_host_baud(fd, baud=420000)` /
+`CrsfHostSerialIngress.configure_baud(...)`. `420000` is the ELRS-typical
+CRSF UART rate; baud is **no longer deferred**, but it is still never
+automatic — `attach_fd`/`attach_path` never call it on their own. On
+Darwin it applies raw 8N1 termios then issues the real `IOSSIOSPEED`
+ioctl (request number derived from the `_IOW('T', 2, speed_t)` macro,
+never hardcoded/copied); on any other `sys.platform` it fails closed with
+a typed `CrsfHostSerialError`. Issuing the ioctl successfully is a host
+OS configuration fact, never proof a receiver exists — every PASS in
+this repo's own tests proves the Darwin path via a mocked `fcntl.ioctl`,
+and the one unmocked case (a `pty`, which is not a UART) is asserted to
+fail closed, not skipped for lack of hardware. See
+`jarvis.capabilities.crsf_serial`'s own docstring.
 """
 
 from jarvis.capabilities.intent import (
