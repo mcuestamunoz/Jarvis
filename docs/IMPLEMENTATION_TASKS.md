@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C24 READY** — `B1-fase-c-control-loop-tick` — named FC `step()` (IMU+setpoint+collective → motor forces; plant outside) ([IC](../.jes/artifacts/implementation_contract_fase_c_control_loop_tick_b1.md)). Awaiting Engineer ★. **C23 CLOSED** @ **`v0.5.21`**.  
-> Tip tagged **`v0.5.21`**. Suite **3504** · UI **132**. Craft SoT **`v0.4.3`**.  
+> **PRIORIDAD AHORA:** **C25 READY** — `B1-fase-c-rc-setpoint` — CRSF AETR → `AttitudeSetpoint` + collective for C24 `step`; yaw unused; not flying; not Safety execute ([IC](../.jes/artifacts/implementation_contract_fase_c_rc_setpoint_b1.md)). **C24 CLOSED** @ **`v0.5.22`**.  
+> Tip tagged **`v0.5.22`**. Suite **3520** · UI **132**. Craft SoT **`v0.4.3`**.  
 > Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
-> **Parked:** plate-box · Path N · HD-* · Board polish · board flash · craft↔FS · deepen policy beyond one aux · Linux baud · C25–C29 (after C24).  
+> **Parked:** plate-box · Path N · HD-* · Board polish · board flash · craft↔FS · deepen policy beyond one aux · Linux baud · C26–C29 (after C25 ACCEPT).  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -70,8 +70,8 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C21** | **`B1-fase-c-crsf-byte-stream`** | **✅ ACCEPT CLOSED** @ **`v0.5.19`** | UART-shaped bytes → CRSF frames (`crsf_stream.py`); C19 parse reused; optional C20 bridge; ≠ serial ≠ live ELRS | [review](../.jes/artifacts/implementation_review_fase_c_crsf_byte_stream_b1.md) · tag **`v0.5.19`** |
 | **C22** | **`B1-fase-c-crsf-host-serial`** | **✅ ACCEPT CLOSED** @ **`v0.5.20`** | Host FD/path → C21 assembler (`crsf_serial.py`); pty tests, no physical RX; no pyserial; baud 420000 deferred; ≠ live ELRS | [review](../.jes/artifacts/implementation_review_fase_c_crsf_host_serial_b1.md) · tag **`v0.5.20`** |
 | **C23** | **`B1-fase-c-crsf-host-baud`** | **✅ ACCEPT CLOSED** @ **`v0.5.21`** | Darwin `IOSSIOSPEED` 420000 + raw 8N1 opt-in on C22 FD; ioctl-mock; pty fail-closed; ≠ live ELRS | [review](../.jes/artifacts/implementation_review_fase_c_crsf_host_baud_b1.md) · tag **`v0.5.21`** |
-| **C24** | **`B1-fase-c-control-loop-tick`** | **READY — await ★** | Named `step()`: IMU+setpoint+collective → forces (Python + C++); plant/RC/pin outside | [IC](../.jes/artifacts/implementation_contract_fase_c_control_loop_tick_b1.md) |
-| **C25** | RC → attitude/collective setpoint | **Parked until C24 ACCEPT** | Sticks → args of `step`; still no execute | Board-prep queue |
+| **C24** | **`B1-fase-c-control-loop-tick`** | **✅ ACCEPT CLOSED** @ **`v0.5.22`** | Named `step()`: IMU+setpoint+collective → forces (Python + C++); smokes call it; plant/RC/pin outside | [review](../.jes/artifacts/implementation_review_fase_c_control_loop_tick_b1.md) · tag **`v0.5.22`** |
+| **C25** | **`B1-fase-c-rc-setpoint`** | **READY — awaiting Engineer ★** | CRSF AETR → attitude/collective for C24 `step`; yaw unused; still no execute | [IC](../.jes/artifacts/implementation_contract_fase_c_rc_setpoint_b1.md) |
 | **C26** | EscOutput HAL | **Parked** | Same contract: Simulated sink vs future pin; mixer must not know DShot | Board-prep queue |
 | **C27** | CRSF stream-timeout failsafe | **Parked** | Stale sticks must not keep mixing | Board-prep queue |
 | **C28** | MCU UART HAL stub | **Parked** | Chip USART bytes; not Darwin `IOSSIOSPEED` | Board-prep queue |

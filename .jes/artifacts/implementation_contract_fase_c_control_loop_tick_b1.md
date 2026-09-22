@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (`step()` ≠ flying · plant stays outside the tick · no GPIO/DShot · no RC→setpoint · C11 recovery still holds · C++ twin is the board-shaped name, not a flash)
 
-**Status:** READY — awaiting Engineer ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.22`**  
 **Parents:**
 - [C11 ★ ACCEPT](implementation_contract_fase_c_controlled_flight_sim_tip_b1.md) — toy closed-loop smoke @ **`v0.5.9`** (loop **inlined** in `run_controlled_flight_sim_smoke`)  
 - [C12 ★ ACCEPT](implementation_contract_fase_c_rate_torque_bridge_b1.md) — `LinearRateTorqueBridge` @ **`v0.5.10`**  

@@ -1,13 +1,16 @@
 // Fase C · C13 — `fc_closed_loop_smoke`: the C++ scaffold's own tip smoke.
+// Refactored for C24 to call `ControlLoop::step` (the named tick) instead
+// of inlining the chain.
 //
 // Host-only executable. Wires the same vertical slice as the Python C11
 // closed-loop tip (`run_controlled_flight_sim_smoke`, in
 // `vehicle_profiles/smoke.py`): filter -> estimate -> PD -> rate-torque
 // bridge -> mixer -> toy plant -> next IMU, looped. Pure host math and
 // stdout — no GPIO, no PWM, no serial, no socket, no claim that any real
-// vehicle flies. Exits 0 when the plant's own true tilt error has
-// strictly decreased and recovered below the documented threshold; exits
-// 1 otherwise.
+// vehicle flies. `ControlLoop::step` itself never calls the plant; this
+// smoke's own `for` loop still owns that call, unchanged from before C24.
+// Exits 0 when the plant's own true tilt error has strictly decreased and
+// recovered below the documented threshold; exits 1 otherwise.
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -15,6 +18,7 @@
 #include "jarvis/fc/attitude.hpp"
 #include "jarvis/fc/controller.hpp"
 #include "jarvis/fc/filter.hpp"
+#include "jarvis/fc/loop.hpp"
 #include "jarvis/fc/mixer.hpp"
 #include "jarvis/fc/plant.hpp"
 #include "jarvis/fc/rate_torque.hpp"
@@ -61,6 +65,7 @@ int main() {
     PdAttitudeController controller(kKp, kKd);
     LinearRateTorqueBridge bridge;  // default gain=1.0, same no-op as Python
     QuadXMixer mixer;
+    ControlLoop loop(filt, estimator, controller, bridge, mixer);
 
     double initial_tilt_deg = tilt_angle_rad(plant.true_attitude().q_body_to_world) * 180.0 / M_PI;
     std::printf("fc_closed_loop_smoke: host scaffold, C++ tip smoke (not hardware, not flight)\n");
@@ -69,13 +74,9 @@ int main() {
     ImuSample sample = plant.sense();
     double final_tilt_deg = initial_tilt_deg;
     for (int i = 0; i < kSteps; ++i) {
-        ImuSample filtered = filt.filter_sample(sample);
-        AttitudeState state = estimator.update(filtered);
-        AttitudeSetpoint setpoint = level_setpoint(state.t_s);
-        BodyRateCommand rate_cmd = controller.compute(setpoint, state);
-        BodyTorqueCommand torque_cmd = bridge.convert(rate_cmd);
-        MotorForceCommand forces = mixer.mix(kCollective, torque_cmd);
-        sample = plant.step(forces, kDtS);
+        AttitudeSetpoint setpoint = level_setpoint(sample.t_s);
+        ControlTickResult tick = loop.step(sample, setpoint, kCollective);
+        sample = plant.step(tick.forces, kDtS);
         final_tilt_deg = tilt_angle_rad(plant.true_attitude().q_body_to_world) * 180.0 / M_PI;
     }
 

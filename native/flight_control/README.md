@@ -181,11 +181,12 @@ native/flight_control/
   cmake/toolchains/arm-none-eabi.cmake   # C16 — MCU cross-compile toolchain, reused unchanged by C18
   include/jarvis/fc/    # public headers — types, filter, attitude,
                          # controller, rate_torque, mixer, plant, esc,
+                         # loop (C24 — named tick, see below),
                          # quat_math (shared helper, see its own header
                          # comment for the documented deviation from
                          # Python's per-module-private-helper style)
   src/                   # implementations
-  smoke/closed_loop_smoke.cpp   # the C13 tip harness
+  smoke/closed_loop_smoke.cpp   # the C13 tip harness — now calls ControlLoop::step (C24)
   smoke/esc_pwm_smoke.cpp       # the C14 ESC/PWM stub harness
   tests/                         # C15 — Catch2 per-rung unit cases
     test_filter.cpp
@@ -194,6 +195,7 @@ native/flight_control/
     test_rate_torque.cpp
     test_mixer.cpp
     test_esc.cpp
+    test_loop.cpp                # C24 — ControlLoop::step cases
   mcu/                            # NEW (C18) — freestanding linked .elf, host-inspectable only
     linker_cortex_m4.ld
     startup_cortex_m4.c
@@ -206,3 +208,14 @@ force→PWM-µs encoding plus an in-memory `SimulatedEscSink`, mirroring
 Python C10. Kept as a separate smoke target from the closed-loop tip
 (IC C14 §0 "Defaults locked") — the tip still steps on `MotorForceCommand`
 directly and never needs PWM encoding to close the loop.
+
+`loop.hpp`/`loop.cpp` (C24, ★ ACCEPT CLOSED @ tag `v0.5.22`) names the
+one-cycle control tick this tree already ran inlined:
+`jarvis::fc::ControlLoop::step(sample, setpoint, collective) ->
+ControlTickResult` — `filter_sample -> estimator.update ->
+controller.compute -> bridge.convert -> mixer.mix`, same order, same
+existing rung classes, no new math. `step` never calls the plant, reads a
+real HAL, or writes a pin — `fc_closed_loop_smoke` still owns the
+`plant.step(...)` call in its own loop, unchanged in role. `mcu/stub_main.cpp`
+still has no `ControlLoop`/`step(` — this stays a host-callable tick, not
+an MCU ISR.

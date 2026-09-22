@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.21 tagged tip** · C23 Darwin host baud 420000 CLOSED — C24 control-loop tick READY
+**v0.5.22 tagged tip** · C24 named control-loop `step()` CLOSED · **C25 READY** — RC → attitude/collective setpoint
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -49,6 +49,20 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
+## What v0.5.22 includes
+
+Fase C · **C24** (`B1-fase-c-control-loop-tick`) — **the control loop got a name, still not flying**:
+
+- New `src/jarvis/flight_software/flight_control/loop.py`: `FlightControlLoop.step(sample, setpoint, collective) -> ControlTickResult` — extracts the body C11/C13 already ran **inlined** into one named tick: `filter_sample -> estimator.update -> controller.compute -> bridge.convert -> mixer.mix`, exactly the existing order, calling each existing rung's own unmodified method. No new math.
+- C++ twin: `native/flight_control/include/jarvis/fc/loop.hpp` + `src/loop.cpp`, added to `jarvis_fc`, same order, same existing classes.
+- `step` **does not** call the plant, read a real HAL, or write a pin — the caller still supplies `ImuSample` and consumes `MotorForceCommand`/`EscPwmCommand` itself. `dt` is **not** an argument (no 1 kHz ISR claim); `AttitudeSetpoint`/`collective` are plain arguments (no RC decoding — mapping sticks to them is C25).
+- `run_controlled_flight_sim_smoke` (Python, C11) and `fc_closed_loop_smoke` (C++, C13) are refactored to **call** `step` instead of inlining the chain — verified bit-identical to the pre-refactor behavior: `15° → 0.252°` in 200 steps, no gain retuned.
+- `mcu/stub_main.cpp` still has no `ControlLoop`/`step(` control cycle — no `Reset_Handler` spin.
+- `radio.py`/`crsf_*.py`/`intent.py`/`safety.py`/`autonomy/` all byte-unchanged. `default_safety_gate()` unchanged.
+- **Named control tick != flying != MCU ISR != motors != RC sticks.** One named cycle, IMU+setpoint+collective in, four motor forces out, reusing C6-C12/C13 unchanged; plant, ESC pin, and RC mapping remain later cola.
+- Package / tag **`v0.5.22`** · suite **3520** · host `ctest` **31/31** — [review](.jes/artifacts/implementation_review_fase_c_control_loop_tick_b1.md)
+- **Next (one front at a time):** C25 RC → attitude/collective setpoint — [IC](.jes/artifacts/implementation_contract_fase_c_rc_setpoint_b1.md)
+
 ## What v0.5.21 includes
 
 Fase C · **C23** (`B1-fase-c-crsf-host-baud`) — **Darwin host baud 420000, still not a live link**:
@@ -62,7 +76,7 @@ Fase C · **C23** (`B1-fase-c-crsf-host-baud`) — **Darwin host baud 420000, st
 - `radio.py`/`crsf_stub.py`/`crsf_dual_role.py`/`crsf_stream.py`/`intent.py`/`safety.py` all byte-unchanged. `default_safety_gate()` unchanged.
 - **Host baud 420000 != live ELRS != RX connected != UART driver != Safety allow.** Darwin can be asked to clock an attached FD at an ELRS-typical rate, proven without hardware via ioctl mock, nothing more.
 - Package file / tag **`v0.5.21`** · suite **3504** — [review](.jes/artifacts/implementation_review_fase_c_crsf_host_baud_b1.md)
-- **Next (one front at a time):** C24 named control `step()` — [IC](.jes/artifacts/implementation_contract_fase_c_control_loop_tick_b1.md)
+- **Next (one front at a time):** C25 RC → setpoint — [IC](.jes/artifacts/implementation_contract_fase_c_rc_setpoint_b1.md)
 
 ## What v0.5.20 includes
 
@@ -407,7 +421,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.21`** (C23 CLOSED). **C24 READY** — named FC `step()` ([IC](.jes/artifacts/implementation_contract_fase_c_control_loop_tick_b1.md)). Parked after C24: C25 RC→setpoint · C26 Esc HAL · C27 CRSF failsafe · C28 MCU UART stub · C29 silicon map — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip tagged `v0.5.22`** (C24 CLOSED). **C25 READY** — RC → attitude/collective setpoint ([IC](.jes/artifacts/implementation_contract_fase_c_rc_setpoint_b1.md)). Parked after C25: C26 Esc HAL · C27 CRSF failsafe · C28 MCU UART stub · C29 silicon map — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

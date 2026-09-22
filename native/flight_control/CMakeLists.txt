@@ -28,6 +28,7 @@ add_library(jarvis_fc STATIC
     src/mixer.cpp
     src/plant.cpp
     src/esc.cpp
+    src/loop.cpp
 )
 target_include_directories(jarvis_fc PUBLIC include)
 target_compile_options(jarvis_fc PRIVATE -Wall -Wextra)
@@ -77,6 +78,7 @@ add_executable(fc_unit_tests
     tests/test_rate_torque.cpp
     tests/test_mixer.cpp
     tests/test_esc.cpp
+    tests/test_loop.cpp
 )
 target_link_libraries(fc_unit_tests PRIVATE jarvis_fc Catch2::Catch2WithMain)
 target_compile_options(fc_unit_tests PRIVATE -Wall -Wextra)

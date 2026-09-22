@@ -21,11 +21,13 @@ chains the full C3→C10 pipeline (through the same C12 bridge), encoding
 each `MotorForceCommand` to PWM µs and applying it to a
 `SimulatedEscSink` (disarmed by default) — still not actuation, there is
 no pin/port/socket anywhere in this package. `run_controlled_flight_sim_smoke`
-(C11, updated for C12) closes the C0 §7 wooden-ladder tip: a
-`ToyQuadAttitudePlant` seeded at a documented tilt feeds `ImuSample`s
-through the same C6→C10 chain (through the bridge), whose
-`MotorForceCommand` output is fed back into the plant — still not
-actuation, the plant is a toy attitude-only sim, never hardware.
+(C11, updated for C12; refactored for C24) closes the C0 §7 wooden-ladder
+tip: a `ToyQuadAttitudePlant` seeded at a documented tilt feeds
+`ImuSample`s through a `FlightControlLoop.step` call (C24's own named
+tick — filter→estimate→PD→bridge→mix, unchanged order/math, now called
+by name instead of inlined), whose `MotorForceCommand` output is fed back
+into the plant — still not actuation, the plant is a toy attitude-only
+sim, never hardware, and `step` itself never calls the plant.
 `run_open_loop_baseline_smoke` runs the same plant with a constant,
 uncorrected mix (zero commanded body torque, via the bridge on a
 zero-rate command) for comparison — with zero initial rate and zero
@@ -56,6 +58,7 @@ from jarvis.flight_software.flight_control.esc import (
     encode_motor_forces,
 )
 from jarvis.flight_software.flight_control.filter import ImuLowPassFilter
+from jarvis.flight_software.flight_control.loop import FlightControlLoop
 from jarvis.flight_software.flight_control.mixer import (
     MotorForceCommand,
     QuadXMixer,
@@ -207,10 +210,12 @@ def run_controlled_flight_sim_smoke(
     torque_gain: float = 40.0,
     angular_damping: float = 0.5,
 ) -> list[float]:
-    """Closes the C0 §7 wooden-ladder tip: filter -> estimate -> PD ->
-    mixer -> plant -> next IMU, in a loop. Returns the **true** tilt-error
-    series (radians, plant's own true attitude vs level — never the
-    estimator's belief), one entry per step plus the initial value."""
+    """Closes the C0 §7 wooden-ladder tip: `FlightControlLoop.step`
+    (C24's named tick: filter -> estimate -> PD -> bridge -> mix) then
+    `plant.step`, in a loop — the tick itself never calls the plant.
+    Returns the **true** tilt-error series (radians, plant's own true
+    attitude vs level — never the estimator's belief), one entry per step
+    plus the initial value."""
     plant = ToyQuadAttitudePlant(torque_gain=torque_gain, angular_damping=angular_damping)
     plant.reset(initial_q=_tilted_initial_quat(initial_tilt_rad))
 
@@ -219,17 +224,16 @@ def run_controlled_flight_sim_smoke(
     controller = PdAttitudeController(kp=kp, kd=kd)
     bridge = LinearRateTorqueBridge()
     mixer = QuadXMixer()
+    loop = FlightControlLoop(
+        filt=filt, estimator=estimator, controller=controller, bridge=bridge, mixer=mixer
+    )
 
     tilt_errors_rad = [tilt_angle_rad(plant.true_attitude.q_body_to_world)]
     sample = plant.sense()
     for _ in range(max(1, steps)):
-        filtered = filt.filter_sample(sample)
-        state = estimator.update(filtered)
-        setpoint = level_setpoint(state.t_s)
-        rate_cmd = controller.compute(setpoint, state)
-        torque_cmd = bridge.convert(rate_cmd)
-        forces = mixer.mix(collective, torque_cmd)
-        sample = plant.step(forces, dt_s=dt_s)
+        setpoint = level_setpoint(sample.t_s)
+        tick = loop.step(sample, setpoint, collective)
+        sample = plant.step(tick.forces, dt_s=dt_s)
         tilt_errors_rad.append(tilt_angle_rad(plant.true_attitude.q_body_to_world))
     return tilt_errors_rad
 

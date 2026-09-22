@@ -20,6 +20,7 @@ from jarvis.flight_software.flight_control.esc import (
 )
 from jarvis.flight_software.flight_control.filter import ImuLowPassFilter, read_filtered
 from jarvis.flight_software.flight_control.hal import ImuHal
+from jarvis.flight_software.flight_control.loop import ControlTickResult, FlightControlLoop
 from jarvis.flight_software.flight_control.mixer import (
     MotorForceCommand,
     QuadXMixer,
@@ -39,8 +40,10 @@ __all__ = [
     "BodyRateCommand",
     "BodyTorqueCommand",
     "ComplementaryAttitudeEstimator",
+    "ControlTickResult",
     "EscApplyResult",
     "EscPwmCommand",
+    "FlightControlLoop",
     "ImuHal",
     "ImuLowPassFilter",
     "ImuSample",

@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-22 C23 ACCEPT CLOSED @ v0.5.21. C24 IC READY (B1-fase-c-control-loop-tick). Awaiting Engineer \u2605.",
+  "cycle_intent": "2026-09-22 C24 ACCEPT CLOSED @ v0.5.22. C25 IC READY (B1-fase-c-rc-setpoint). Awaiting Engineer \u2605.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_star_c24",
-  "active_operation": "b1_fase_c_control_loop_tick_ic_ready",
+  "current_mode": "await_engineer_star_c25",
+  "active_operation": "b1_fase_c_rc_setpoint_ic_ready",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-22 C24 READY \u2014 named FC step(). Parked C25\u2013C29: RC setpoint \u00b7 Esc HAL \u00b7 CRSF failsafe \u00b7 MCU UART stub \u00b7 silicon map."
+    "note": "2026-09-22 C25 READY \u2014 RC\u2192setpoint. Parked C26\u2013C29: Esc HAL \u00b7 CRSF failsafe \u00b7 MCU UART stub \u00b7 silicon map."
   },
   "relevant_workflow_phases": [
     "Verification"
