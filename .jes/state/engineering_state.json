@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-22 C20 ACCEPT CLOSED @ v0.5.18. Awaiting Engineer pick for one next front (C21+).",
+  "cycle_intent": "2026-09-22 C21 ACCEPT CLOSED @ v0.5.19. Awaiting Engineer pick for one next front (C22+).",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_pick_c21",
-  "active_operation": "b1_fase_c_crsf_dual_role_bridge_accept_closed",
+  "current_mode": "await_engineer_pick_c22",
+  "active_operation": "b1_fase_c_crsf_byte_stream_accept_closed",
   "movement_trigger": {
     "type": "engineer_pick",
-    "note": "2026-09-22 C20 CLOSED @ v0.5.18. Next one front: UART stream · deepen policy · board flash · craft↔FS."
+    "note": "2026-09-22 C21 CLOSED @ v0.5.19. Next one front: host serial ingest \u00b7 deepen policy \u00b7 board flash \u00b7 craft\u2194FS."
   },
   "relevant_workflow_phases": [
     "Verification"

@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.18 tagged tip** · C20 CRSF→dual-role bridge CLOSED — awaiting Engineer pick (C21+)
+**v0.5.19 tagged tip** · C21 CRSF byte-stream assembler CLOSED — awaiting Engineer pick (C22+)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,20 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.19 includes
+
+Fase C · **C21** (`B1-fase-c-crsf-byte-stream`) — **CRSF byte-stream assembler, still not a UART**:
+
+- New `src/jarvis/capabilities/crsf_stream.py` — a **fourth separate** module (never folded into `radio.py`; `git diff` confirms `radio.py`/`crsf_stub.py`/`crsf_dual_role.py`/`intent.py`/`safety.py` all byte-unchanged).
+- `CrsfByteStreamAssembler.feed(data: bytes) -> list[CrsfFrame]` reassembles frames from bytes delivered in **arbitrary chunks** (the shape a UART delivers data in) by slicing exact `frame_len + 2` candidate windows and handing them, unmodified, to C19's own `parse_crsf_frame` — no second CRC8/envelope implementation (verified: no `0xD5` anywhere in the module).
+- **Incomplete** candidates wait in a bounded leftover buffer (default cap `256` bytes); **invalid complete** windows (bad CRC, or a declared `frame_len` outside the plausible `[2, 64]` range) are never raised to the caller — the assembler drops exactly one byte and resyncs, looping until it finds a valid frame or exhausts the buffer.
+- Optional `ingest_stream_bytes(...)` helper reuses C20's `ingest_rc_channels(...)` **unchanged** for any completed `0x16` frames — C20's policy (one aux channel, one threshold, `AuthorityKind="kill"` only) is neither deepened nor reconfigured here.
+- **Zero I/O anywhere in the module** — no serial/socket/pty/USB/`open()`, no class named like `Serial`/`UartPort`.
+- `RadioIntentAdapter.parse(...)` still raises `NotImplementedError`, even fed real assembled frames. `default_safety_gate()` unchanged.
+- **Byte-stream assembler != UART open != live ELRS != a pilot link != Safety allow.** A pure in-memory buffer proving bytes delivered in chunks reassemble into the same frames C19 already parses from a complete buffer, nothing more.
+- Tag **`v0.5.19`** · suite **3465** — [review](.jes/artifacts/implementation_review_fase_c_crsf_byte_stream_b1.md)
+- **Next (one front at a time — Engineer picks):** host serial ingest · deepen policy · board flash · craft↔FS
 
 ## What v0.5.18 includes
 
@@ -363,9 +377,9 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.18`** (C20 CLOSED). Awaiting Engineer pick for **one** next front (C21+): UART stream · deepen policy · board flash · craft↔FS — [review](.jes/artifacts/implementation_review_fase_c_crsf_dual_role_bridge_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) · [handoff brief](.jes/artifacts/handoff_brief_post_c20_2026_09_22.md).
+**Tip clean @ `v0.5.19`** (C21 CLOSED). Awaiting Engineer pick for **one** next front (C22+): host serial ingest · deepen policy · board flash · craft↔FS — [review](.jes/artifacts/implementation_review_fase_c_crsf_byte_stream_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
-Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · UART stream · deepen policy beyond one aux.
+Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · host serial ingest.
 
 See `docs/IMPLEMENTATION_TASKS.md`.
 

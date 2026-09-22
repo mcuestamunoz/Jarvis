@@ -213,4 +213,4 @@ def test_no_route_from_crsf_to_autonomy_submit_command():
 
 def test_t10_pyproject_version_is_0_5_17():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.18"' in text
+    assert 'version = "0.5.19"' in text

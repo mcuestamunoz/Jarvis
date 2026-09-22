@@ -40,6 +40,19 @@ to Safety — every shipped gate ignores/never reads
 `authority_signal_id`, `default_safety_gate()` is unchanged, and this
 module never calls `submit_command` or any `SafetyGate.evaluate`. See
 `jarvis.capabilities.crsf_dual_role`'s own docstring.
+
+C21 adds `jarvis.capabilities.crsf_stream` — a fourth **separate**
+module (also never folded into `radio.py`) that reassembles C19's typed
+`CrsfFrame`s from bytes delivered in **arbitrary chunks** (the shape a
+UART delivers data in) via `CrsfByteStreamAssembler`. It calls C19's own
+`parse_crsf_frame` on exact candidate slices rather than reimplementing
+CRC/envelope logic, waits on incomplete candidates, and silently
+drops-and-resyncs one byte at a time on invalid complete windows —
+`CrsfParseError` never reaches a caller of `feed(...)`. This is a byte
+buffer, not a UART driver: no `serial`/`socket`/`pty`/USB/`open()`
+anywhere in it. An optional `ingest_stream_bytes(...)` helper reuses
+C20's `ingest_rc_channels(...)` unchanged for any completed `0x16`
+frames. See `jarvis.capabilities.crsf_stream`'s own docstring.
 """
 
 from jarvis.capabilities.intent import (
