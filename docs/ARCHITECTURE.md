@@ -148,7 +148,7 @@ Analogía: el plano de una casa marca “aquí irá la cocina”; aún no hay fr
 **Dos dimensiones (no confundir):**
 
 1. **Craft** (`core/`, Continuity, Board, `library/`) — diseñar el vehículo (BOM, montaje, física). SoT de diseño @ tip craft `v0.4.3`.  
-2. **Platform / Fase C** — operar sistemas físicos algún día. Hoy solo andamiaje. **Tip git tagged:** `v0.5.17` (C19 CRSF byte-fixture link stub CLOSED). **Next:** Engineer pick (C20+) — board flash · craft↔FS · deepen link. See [process lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+2. **Platform / Fase C** — operar sistemas físicos algún día. Hoy solo andamiaje. **Tip git tagged:** `v0.5.18` (C20 CRSF→dual-role bridge CLOSED). **Next:** Engineer pick (C21+) — UART stream · deepen policy · board flash · craft↔FS. See [process lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 **Qué hace cada zona de archivos (mapa mental):**
 
@@ -233,7 +233,11 @@ Visión / briefing: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION
 
 **C19** (`B1-fase-c-crsf-link-stub`, package/tag **`v0.5.17`**, **★ ACCEPT CLOSED**) — ver §1f arriba para el detalle completo. Resumen: `crsf_stub.py` nuevo, separado de `radio.py`; parsea envelope CRSF + CRC8 + RC_CHANNELS_PACKED + LINK_STATISTICS desde fixtures; cero I/O; `RadioIntentAdapter`/Safety/craft/`native/` todos sin cambios. Ver [implementation report](../.jes/artifacts/implementation_report_fase_c_crsf_link_stub_b1.md).
 
-**CRSF de fixture ≠ ELRS en vivo ≠ link de piloto ≠ producto driver CRSF**: parsear bytes, nada más. **Siguiente frente (uno a la vez — Engineer elige):** board flash · craft↔FS · deepen link stub — ver el [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**CRSF de fixture ≠ ELRS en vivo ≠ link de piloto ≠ producto driver CRSF**: parsear bytes, nada más.
+
+**C20** (`B1-fase-c-crsf-dual-role-bridge`, package/tag **`v0.5.18`**, **★ ACCEPT CLOSED**) — ver §1g arriba para el detalle completo. Resumen: `crsf_dual_role.py` nuevo, tercer módulo separado de `radio.py`; puentea RC channels decodificados hacia `RadioStubFrame`/Authority bajo política canal-aux→`kill`; Authority sigue sin poder abrir Safety (probado explícitamente); `radio.py`/`intent.py`/`safety.py` todos sin cambios. Ver [implementation report](../.jes/artifacts/implementation_report_fase_c_crsf_dual_role_bridge_b1.md).
+
+**Puente CRSF ≠ ELRS en vivo ≠ link de piloto ≠ Safety allow**: un mapa determinista y documentado de bytes ya decodificados a un frame dual-role tipado, nada más. **Siguiente frente priorizado (uno a la vez):** un ensamblador de stream UART (Buy separada), profundizar esta política, bring-up/flasheo real de placa, o el cableado craft↔FS — ver el [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 ### 1d. `flight_software/autonomy/` — Fase C · C4 (superficie de comandos, sin autonomía viva)
 
@@ -248,6 +252,10 @@ Modelo tipado `RadioStubFrame` / `SimulatedRadioIngress` / `RadioDualRoleResult`
 ### 1f. `capabilities/crsf_stub.py` — Fase C · C19 (CRSF byte-fixture parse, package/tag **`v0.5.17`**, **★ ACCEPT CLOSED**)
 
 Módulo **separado** de `radio.py` a propósito (el lock T5 de C5 — sin `decode_crsf`/`decode_elrs`/`open_serial` público en `radio.py` — queda intacto byte a byte, confirmado por `git diff`). Parsea el envelope CRSF (`[device_addr][frame_len][type][payload][crc8]`, CRC8 poly `0xD5` sobre `type+payload`) desde bytes de fixture ya incluidos en el repo, y decodifica dos tipos de frame: `0x16` `RC_CHANNELS_PACKED` (16 canales × 11 bits) y `0x14` `LINK_STATISTICS` (RSSI/LQ/SNR). Frames truncados o con CRC malo lanzan `CrsfParseError` tipado — sin éxito parcial silencioso. **Cero I/O en el módulo**: sin serial/socket/pty/USB/subprocess. `RadioIntentAdapter.parse(...)` sigue lanzando `NotImplementedError` incluso alimentado con bytes CRSF reales; `default_safety_gate()`/`ArmedAllowlistSafetyGate` sin cambios; nada decodificado aquí llega a `SimulatedRadioIngress`, `submit_command`, ni a ningún `SafetyGate`. **CRSF de fixture ≠ ELRS en vivo ≠ link de piloto**: este módulo sabe decodificar bytes, nada más — sin receptor "conectado", sin protocolo de aire, sin sticks de piloto moviendo nada. Ver [implementation report](../.jes/artifacts/implementation_report_fase_c_crsf_link_stub_b1.md).
+
+### 1g. `capabilities/crsf_dual_role.py` — Fase C · C20 (CRSF decode → dual-role bridge, package/tag **`v0.5.18`**, **★ ACCEPT CLOSED**)
+
+Tercer módulo **separado** de `radio.py` (también nunca plegado en él — `git diff` confirma `radio.py`/`intent.py`/`safety.py` intactos byte a byte). Puentea `CrsfRcChannels` (ya decodido por C19) hacia `RadioStubFrame`/`RadioDualRoleResult` de C5 bajo una política determinista y documentada: `CrsfDualRolePolicy` (un canal aux + umbral, defaults ilustrativos canal `4`/`1500`, no sacados de ningún hardware real) — igual o por encima del umbral emite **solo** `AuthorityKind="kill"` (Authority-only, nunca Intent); por debajo, devuelve `None`. El enriquecimiento opcional con `link_stats` mete LQ/RSSI/SNR en `RadioStubFrame.notes` sin afectar nunca si Authority dispara. **Authority de este puente sigue siendo solo trazabilidad frente a Safety** — probado explícitamente: meter el propio `AuthoritySignal.id` del puente en `SafetyRequest.authority_signal_id` sigue dando `reject` tanto en `RejectAllSafetyGate` como en un `ArmedAllowlistSafetyGate` armado; `default_safety_gate()` sin cambios. `RadioIntentAdapter.parse(...)` sigue lanzando `NotImplementedError` incluso alimentado con un frame real producido por el puente. El puente nunca llama a `submit_command` ni importa la superficie de autonomía. Ver [implementation report](../.jes/artifacts/implementation_report_fase_c_crsf_dual_role_bridge_b1.md).
 
 ### 2. Orquestación
 

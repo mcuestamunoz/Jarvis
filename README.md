@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.17 tagged tip** · C19 CRSF link stub CLOSED — awaiting Engineer pick (C20+)
+**v0.5.18 tagged tip** · C20 CRSF→dual-role bridge CLOSED — awaiting Engineer pick (C21+)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -49,6 +49,20 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
+## What v0.5.18 includes
+
+Fase C · **C20** (`B1-fase-c-crsf-dual-role-bridge`) — **CRSF decode → dual-role bridge, still not a link**:
+
+- New `src/jarvis/capabilities/crsf_dual_role.py` — a **third separate** module (never folded into `radio.py`; `git diff` confirms `radio.py`/`intent.py`/`safety.py` all byte-unchanged).
+- Bridges C19's decoded `CrsfRcChannels` into C5's typed `RadioStubFrame`/`RadioDualRoleResult` under one documented, deterministic policy: `CrsfDualRolePolicy` (one aux channel index + threshold, illustrative defaults channel `4`/`1500`, not sourced from any real hardware) — at/above threshold emits `AuthorityKind="kill"` **only** (Authority-only, never Intent); below threshold, returns `None`.
+- Optional `link_stats` enrichment folds LQ/RSSI/SNR into `RadioStubFrame.notes` without ever changing whether Authority fires. `ingest_rc_channels(...)` optionally routes a produced frame through `SimulatedRadioIngress.ingest(...)`.
+- **Authority from this bridge stays trace-only relative to Safety** — explicitly tested: wiring the bridge's own `AuthoritySignal.id` into a `SafetyRequest.authority_signal_id` still yields `reject` on both `RejectAllSafetyGate` and an armed `ArmedAllowlistSafetyGate`; `default_safety_gate()` is unchanged.
+- `RadioIntentAdapter.parse(...)` still raises `NotImplementedError`, even fed a real bridge-produced frame. The bridge never calls `submit_command` or imports the autonomy surface.
+- **No I/O anywhere in the module** — no serial/socket/pty/USB/subprocess.
+- **Bridge != live ELRS != a pilot link != Safety allow.** A deterministic, documented map from already-decoded bytes to a typed dual-role frame, nothing more.
+- Tag **`v0.5.18`** · suite **3444** — [review](.jes/artifacts/implementation_review_fase_c_crsf_dual_role_bridge_b1.md)
+- **Next (one front at a time — Engineer picks):** UART stream · deepen policy · board flash · craft↔FS
+
 ## What v0.5.17 includes
 
 Fase C · **C19** (`B1-fase-c-crsf-link-stub`) — **first CRSF byte-fixture link stub (ELRS-shaped, host-only)**:
@@ -61,7 +75,7 @@ Fase C · **C19** (`B1-fase-c-crsf-link-stub`) — **first CRSF byte-fixture lin
 - Nothing decoded here reaches `SimulatedRadioIngress`, autonomy `submit_command`, or any `SafetyGate`. No CRSF/ELRS token anywhere under `native/`.
 - **Fixture CRSF parse != live ELRS != a pilot link != a CRSF driver product.** This module can decode a byte sequence, nothing more: no receiver is "connected," no air protocol (RF/binding/telemetry) is implemented, no pilot's sticks drive anything.
 - Tag **`v0.5.17`** · suite **3428** — [review](.jes/artifacts/implementation_review_fase_c_crsf_link_stub_b1.md)
-- **Next (one front at a time — Engineer picks):** board flash · craft↔FS · deepen link stub
+- **Next (one front at a time — Engineer picks after C20 ACCEPT):** UART stream · deepen policy · board flash · craft↔FS
 
 ## What v0.5.16 includes
 
@@ -349,9 +363,9 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.17`** (C19 CLOSED). Awaiting Engineer pick for **one** next front (C20+): board flash · craft↔FS · deepen link — [review](.jes/artifacts/implementation_review_fase_c_crsf_link_stub_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.18`** (C20 CLOSED). Awaiting Engineer pick for **one** next front (C21+): UART stream · deepen policy · board flash · craft↔FS — [review](.jes/artifacts/implementation_review_fase_c_crsf_dual_role_bridge_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) · [handoff brief](.jes/artifacts/handoff_brief_post_c20_2026_09_22.md).
 
-Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen link beyond fixtures.
+Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · UART stream · deepen policy beyond one aux.
 
 See `docs/IMPLEMENTATION_TASKS.md`.
 

@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C19 CLOSED** @ **`v0.5.17`** — CRSF byte-fixture link stub (`crsf_stub.py`). Awaiting Engineer pick for **one** next front (C20+): board flash · craft↔FS · deepen link — [review](../.jes/artifacts/implementation_review_fase_c_crsf_link_stub_b1.md).  
-> Tip tagged **`v0.5.17`**. Suite **3428** · UI **132**. Craft SoT **`v0.4.3`**.  
+> **PRIORIDAD AHORA:** **C20 CLOSED** @ **`v0.5.18`** — CRSF→dual-role bridge (`crsf_dual_role.py`). Awaiting Engineer pick for **one** next front (C21+): UART stream · deepen policy · board flash · craft↔FS — [review](../.jes/artifacts/implementation_review_fase_c_crsf_dual_role_bridge_b1.md).  
+> Tip tagged **`v0.5.18`**. Suite **3444** · UI **132**. Craft SoT **`v0.4.3`**.  
 > Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
-> **Parked:** plate-box · Path N · HD-* · Board polish · board flash · craft↔FS · deepen link beyond fixtures.  
+> **Parked:** plate-box · Path N · HD-* · Board polish · board flash · craft↔FS · UART stream · deepen policy beyond one aux.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -66,7 +66,8 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C17** | **`B1-fase-c-safety-real-policy`** | **✅ ACCEPT CLOSED** @ **`v0.5.15`** | ArmedAllowlist (HOLD/LAND when armed); RejectAll default; allow ≠ execute | [review](../.jes/artifacts/implementation_review_fase_c_safety_real_policy_b1.md) · tag **`v0.5.15`** |
 | **C18** | **`B1-fase-c-cpp-mcu-freestanding-elf`** | **✅ ACCEPT CLOSED** @ **`v0.5.16`** | `fc_mcu_stub.elf` linking `jarvis_fc`; host green; no flash/BSP | [review](../.jes/artifacts/implementation_review_fase_c_cpp_mcu_freestanding_elf_b1.md) · tag **`v0.5.16`** |
 | **C19** | **`B1-fase-c-crsf-link-stub`** | **✅ ACCEPT CLOSED** @ **`v0.5.17`** | CRSF fixture parse (RC + link stats) in `crsf_stub.py`; ≠ live ELRS; no serial | [review](../.jes/artifacts/implementation_review_fase_c_crsf_link_stub_b1.md) · tag **`v0.5.17`** |
-| **C20+** | deepen link · craft↔FS · board flash | **Await Engineer pick** | One front at a time | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
+| **C20** | **`B1-fase-c-crsf-dual-role-bridge`** | **✅ ACCEPT CLOSED** @ **`v0.5.18`** | CRSF decode → Authority (aux→kill) in `crsf_dual_role.py`; Authority ≠ Safety allow | [review](../.jes/artifacts/implementation_review_fase_c_crsf_dual_role_bridge_b1.md) · tag **`v0.5.18`** |
+| **C21+** | UART stream · deepen policy · craft↔FS · board flash | **Await Engineer pick** | One front at a time | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 

@@ -29,6 +29,17 @@ link — no serial/USB/SPI I/O anywhere in that module, and nothing it
 produces reaches `SimulatedRadioIngress`, `RadioIntentAdapter`, autonomy
 `submit_command`, or any `SafetyGate`. See
 `jarvis.capabilities.crsf_stub`'s own docstring.
+
+C20 adds `jarvis.capabilities.crsf_dual_role` — a third **separate**
+module (also never folded into `radio.py`) that bridges C19's decoded
+`CrsfRcChannels` into C5's typed `RadioStubFrame`/`RadioDualRoleResult`
+under one documented, deterministic policy (`CrsfDualRolePolicy`:
+one aux channel + threshold -> `AuthorityKind="kill"`, Authority-only,
+never Intent). Authority produced this way is still trace-only relative
+to Safety — every shipped gate ignores/never reads
+`authority_signal_id`, `default_safety_gate()` is unchanged, and this
+module never calls `submit_command` or any `SafetyGate.evaluate`. See
+`jarvis.capabilities.crsf_dual_role`'s own docstring.
 """
 
 from jarvis.capabilities.intent import (
