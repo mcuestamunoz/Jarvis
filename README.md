@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.22 tagged tip** · C24 named control-loop `step()` CLOSED · **C25 READY** — RC → attitude/collective setpoint
+**v0.5.23 tagged tip** · C25 RC → setpoint CLOSED · **C26 READY** — EscOutput HAL
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -49,6 +49,20 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
+## What v0.5.23 includes
+
+Fase C · **C25** (`B1-fase-c-rc-setpoint`) — **RC channels got a language toward the tick, still not flying**:
+
+- New `src/jarvis/flight_software/flight_control/rc_setpoint.py`: `map_rc_to_loop_inputs(channels, *, t_s) -> RcLoopInputs` — an illustrative AETR map (not a real TX model): roll/pitch/throttle = channel indices `0`/`1`/`2`; the yaw channel is **unused this Buy** (no magnetometer anywhere in this tree, so no absolute heading a yaw stick could honestly command).
+- `CRSF_CH_MIN`/`CRSF_CH_MID`/`CRSF_CH_MAX` = `172`/`992`/`1811` (the same illustrative 11-bit convention already used around C20's policy). Throttle maps linearly onto `collective ∈ [0, 1]`, clipped — mid-stick gives `≈0.5003`, not exactly `0.5` (documented, not rounded away).
+- Roll/pitch deflection is measured from `992`, scaled to reach exactly `π/6` (30°) at either endpoint, clipped beyond it, composed into `q_body_to_world_desired` via the standard body 3-2-1 Euler-to-quaternion formula with yaw fixed at `0`.
+- C++ twin: `native/flight_control/include/jarvis/fc/rc_setpoint.hpp` + `src/rc_setpoint.cpp`, added to `jarvis_fc`, same thresholds/formula, `std::vector<int>` in place of any CRSF-shaped type — the C21-C23 lock of **zero CRSF/ELRS mentions anywhere under `native/`** stays intact (even in comments).
+- Optional `step_with_rc(loop, sample, channels)` maps then calls C24's own `FlightControlLoop.step` unchanged — `loop.py`/`loop.hpp`/`loop.cpp` all byte-unchanged; never calls a plant, `SimulatedEscSink`, or `SafetyGate.evaluate`.
+- C20's `CrsfDualRolePolicy` (aux → Authority `kill`) untouched and not imported here. `radio.py` still has no stick API. `default_safety_gate()` unchanged.
+- **RC->setpoint != flying != sticks drive motors != Safety allow != yaw lock.** A deterministic, documented map from already-decoded channel units to the two arguments `step` already accepted — no pilot flies anything, no motor spins, no heading-hold exists.
+- Package / tag **`v0.5.23`** · suite **3538** · host `ctest` **36/36** — [review](.jes/artifacts/implementation_review_fase_c_rc_setpoint_b1.md)
+- **Next (one front at a time):** C26 EscOutput HAL — [IC](.jes/artifacts/implementation_contract_fase_c_esc_output_hal_b1.md)
+
 ## What v0.5.22 includes
 
 Fase C · **C24** (`B1-fase-c-control-loop-tick`) — **the control loop got a name, still not flying**:
@@ -61,7 +75,7 @@ Fase C · **C24** (`B1-fase-c-control-loop-tick`) — **the control loop got a n
 - `radio.py`/`crsf_*.py`/`intent.py`/`safety.py`/`autonomy/` all byte-unchanged. `default_safety_gate()` unchanged.
 - **Named control tick != flying != MCU ISR != motors != RC sticks.** One named cycle, IMU+setpoint+collective in, four motor forces out, reusing C6-C12/C13 unchanged; plant, ESC pin, and RC mapping remain later cola.
 - Package / tag **`v0.5.22`** · suite **3520** · host `ctest` **31/31** — [review](.jes/artifacts/implementation_review_fase_c_control_loop_tick_b1.md)
-- **Next (one front at a time):** C25 RC → attitude/collective setpoint — [IC](.jes/artifacts/implementation_contract_fase_c_rc_setpoint_b1.md)
+- **Next (one front at a time):** C26 EscOutput HAL — [IC](.jes/artifacts/implementation_contract_fase_c_esc_output_hal_b1.md)
 
 ## What v0.5.21 includes
 
@@ -76,7 +90,7 @@ Fase C · **C23** (`B1-fase-c-crsf-host-baud`) — **Darwin host baud 420000, st
 - `radio.py`/`crsf_stub.py`/`crsf_dual_role.py`/`crsf_stream.py`/`intent.py`/`safety.py` all byte-unchanged. `default_safety_gate()` unchanged.
 - **Host baud 420000 != live ELRS != RX connected != UART driver != Safety allow.** Darwin can be asked to clock an attached FD at an ELRS-typical rate, proven without hardware via ioctl mock, nothing more.
 - Package file / tag **`v0.5.21`** · suite **3504** — [review](.jes/artifacts/implementation_review_fase_c_crsf_host_baud_b1.md)
-- **Next (one front at a time):** C25 RC → setpoint — [IC](.jes/artifacts/implementation_contract_fase_c_rc_setpoint_b1.md)
+- **Next (one front at a time):** C26 EscOutput HAL — [IC](.jes/artifacts/implementation_contract_fase_c_esc_output_hal_b1.md)
 
 ## What v0.5.20 includes
 
@@ -421,7 +435,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.22`** (C24 CLOSED). **C25 READY** — RC → attitude/collective setpoint ([IC](.jes/artifacts/implementation_contract_fase_c_rc_setpoint_b1.md)). Parked after C25: C26 Esc HAL · C27 CRSF failsafe · C28 MCU UART stub · C29 silicon map — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip tagged `v0.5.23`** (C25 CLOSED). **C26 READY** — EscOutput HAL ([IC](.jes/artifacts/implementation_contract_fase_c_esc_output_hal_b1.md)). Parked after C26: C27 CRSF failsafe · C28 MCU UART stub · C29 silicon map — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

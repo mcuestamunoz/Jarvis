@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (sticks → `step` args ≠ flying · ≠ Safety execute · C20 kill policy unchanged · C24 tick unchanged math · no failsafe timeout)
 
-**Status:** READY — awaiting Engineer ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.23`**  
 **Parents:**
 - [C24 ★ ACCEPT](implementation_contract_fase_c_control_loop_tick_b1.md) — `FlightControlLoop.step` @ **`v0.5.22`**  
 - [C20 ★ ACCEPT](implementation_contract_fase_c_crsf_dual_role_bridge_b1.md) — aux → Authority `kill` only @ **`v0.5.18`**  

@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C25 READY** — `B1-fase-c-rc-setpoint` — CRSF AETR → `AttitudeSetpoint` + collective for C24 `step`; yaw unused; not flying; not Safety execute ([IC](../.jes/artifacts/implementation_contract_fase_c_rc_setpoint_b1.md)). **C24 CLOSED** @ **`v0.5.22`**.  
-> Tip tagged **`v0.5.22`**. Suite **3520** · UI **132**. Craft SoT **`v0.4.3`**.  
+> **PRIORIDAD AHORA:** **C26 READY** — `B1-fase-c-esc-output-hal` — named `EscOutput` port; `SimulatedEscSink` implements it; mixer force-only; no pin, no DShot, `step` still does not `apply` ([IC](../.jes/artifacts/implementation_contract_fase_c_esc_output_hal_b1.md)). **C25 CLOSED** @ **`v0.5.23`**.  
+> Tip tagged **`v0.5.23`**. Suite **3538** · UI **132**. Craft SoT **`v0.4.3`**.  
 > Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
-> **Parked:** plate-box · Path N · HD-* · Board polish · board flash · craft↔FS · deepen policy beyond one aux · Linux baud · C26–C29 (after C25 ACCEPT).  
+> **Parked:** plate-box · Path N · HD-* · Board polish · board flash · craft↔FS · deepen policy beyond one aux · Linux baud · C27–C29 (after C26 ACCEPT).  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -71,8 +71,8 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C22** | **`B1-fase-c-crsf-host-serial`** | **✅ ACCEPT CLOSED** @ **`v0.5.20`** | Host FD/path → C21 assembler (`crsf_serial.py`); pty tests, no physical RX; no pyserial; baud 420000 deferred; ≠ live ELRS | [review](../.jes/artifacts/implementation_review_fase_c_crsf_host_serial_b1.md) · tag **`v0.5.20`** |
 | **C23** | **`B1-fase-c-crsf-host-baud`** | **✅ ACCEPT CLOSED** @ **`v0.5.21`** | Darwin `IOSSIOSPEED` 420000 + raw 8N1 opt-in on C22 FD; ioctl-mock; pty fail-closed; ≠ live ELRS | [review](../.jes/artifacts/implementation_review_fase_c_crsf_host_baud_b1.md) · tag **`v0.5.21`** |
 | **C24** | **`B1-fase-c-control-loop-tick`** | **✅ ACCEPT CLOSED** @ **`v0.5.22`** | Named `step()`: IMU+setpoint+collective → forces (Python + C++); smokes call it; plant/RC/pin outside | [review](../.jes/artifacts/implementation_review_fase_c_control_loop_tick_b1.md) · tag **`v0.5.22`** |
-| **C25** | **`B1-fase-c-rc-setpoint`** | **READY — awaiting Engineer ★** | CRSF AETR → attitude/collective for C24 `step`; yaw unused; still no execute | [IC](../.jes/artifacts/implementation_contract_fase_c_rc_setpoint_b1.md) |
-| **C26** | EscOutput HAL | **Parked** | Same contract: Simulated sink vs future pin; mixer must not know DShot | Board-prep queue |
+| **C25** | **`B1-fase-c-rc-setpoint`** | **✅ ACCEPT CLOSED** @ **`v0.5.23`** | AETR channel units → attitude/collective for C24 `step` (Python + C++); yaw unused; still no execute | [review](../.jes/artifacts/implementation_review_fase_c_rc_setpoint_b1.md) · tag **`v0.5.23`** |
+| **C26** | **`B1-fase-c-esc-output-hal`** | **READY — awaiting Engineer ★** | Named `EscOutput` port; Simulated sink vs future pin; mixer force-only; no DShot this Buy | [IC](../.jes/artifacts/implementation_contract_fase_c_esc_output_hal_b1.md) |
 | **C27** | CRSF stream-timeout failsafe | **Parked** | Stale sticks must not keep mixing | Board-prep queue |
 | **C28** | MCU UART HAL stub | **Parked** | Chip USART bytes; not Darwin `IOSSIOSPEED` | Board-prep queue |
 | **C29** | Silicon + cited FLASH map | **Parked (B0)** | Datasheet map — **not** flash, not C18 `0x00000000` | Board-prep queue |

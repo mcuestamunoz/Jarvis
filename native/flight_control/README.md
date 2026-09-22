@@ -182,6 +182,8 @@ native/flight_control/
   include/jarvis/fc/    # public headers — types, filter, attitude,
                          # controller, rate_torque, mixer, plant, esc,
                          # loop (C24 — named tick, see below),
+                         # rc_setpoint (C25 — RC units -> tick args,
+                         # see below),
                          # quat_math (shared helper, see its own header
                          # comment for the documented deviation from
                          # Python's per-module-private-helper style)
@@ -196,6 +198,7 @@ native/flight_control/
     test_mixer.cpp
     test_esc.cpp
     test_loop.cpp                # C24 — ControlLoop::step cases
+    test_rc_setpoint.cpp         # C25 — map_rc_to_loop_inputs cases
   mcu/                            # NEW (C18) — freestanding linked .elf, host-inspectable only
     linker_cortex_m4.ld
     startup_cortex_m4.c
@@ -219,3 +222,15 @@ real HAL, or writes a pin — `fc_closed_loop_smoke` still owns the
 `plant.step(...)` call in its own loop, unchanged in role. `mcu/stub_main.cpp`
 still has no `ControlLoop`/`step(` — this stays a host-callable tick, not
 an MCU ISR.
+
+`rc_setpoint.hpp`/`rc_setpoint.cpp` (C25, ★ ACCEPT CLOSED @ tag `v0.5.23`) converts already-decoded RC channel units into the two arguments
+`ControlLoop::step` already accepts: `map_rc_to_loop_inputs(channels,
+t_s) -> RcLoopInputs`. `channels` is a plain `std::vector<int>` — this
+tree carries no decoded-channels type of its own, and the constants
+(`kRcChMin`/`kRcChMid`/`kRcChMax` = `172`/`992`/`1811`) are named
+without any radio-protocol prefix on purpose: the C21-C23 lock of
+**zero radio-link-protocol mentions anywhere under `native/`**, even in
+comments, stays intact for this Buy too. Only roll/pitch/throttle
+(indices 0/1/2) are read; a yaw channel may be present but is never used
+(no magnetometer in this tree). `loop.hpp`/`loop.cpp` are untouched by
+this file.
