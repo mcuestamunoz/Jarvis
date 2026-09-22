@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.19 tagged tip** · C21 CRSF byte-stream assembler CLOSED — awaiting Engineer pick (C22+)
+**v0.5.20 tagged tip** · C22 CRSF host serial ingest CLOSED — awaiting Engineer pick (C23+)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,21 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.20 includes
+
+Fase C · **C22** (`B1-fase-c-crsf-host-serial`) — **CRSF host serial ingest, still not a live link**:
+
+- New `src/jarvis/capabilities/crsf_serial.py` — a **fifth separate** module (never folded into `radio.py`; `git diff` confirms `radio.py`/`crsf_stub.py`/`crsf_dual_role.py`/`crsf_stream.py`/`intent.py`/`safety.py` all byte-unchanged).
+- `CrsfHostSerialIngress` pulls bytes from an already-open host FD (`attach_fd`, caller-owned, never closed by this module) or an opt-in device path (`attach_path`, ingress-owned, closed on `.close()`); `poll(...)` performs exactly **one** non-blocking read then feeds C21's own `CrsfByteStreamAssembler`, unchanged — no background thread, no "connected" flag, no `/dev/cu.*` auto-scan.
+- **Every PASS in this Buy's own test suite uses a POSIX `pty` as its loopback — no physical receiver or USB serial adapter is required**, verified by running the full suite with nothing plugged in.
+- **No `pyserial` dependency was added**, and **420000 baud (the rate a real ELRS link runs at) is not configured anywhere** — opening a path here means "give me bytes from this node," not "I configured an ELRS receiver"; custom-baud configuration is explicitly deferred to a later, platform-specific IC.
+- A real pty gotcha was found and disclosed while testing: POSIX ptys default to canonical (line-buffered) mode, which silently held binary CRSF bytes back from a reader until a newline appeared — fixed entirely in the test harness (`tty.setraw(...)`), not in the shipped module, which has no terminal-mode logic at all.
+- Optional `poll_and_ingest(...)` helper reuses C20's `ingest_rc_channels(...)` unchanged for any completed `0x16` frames.
+- `RadioIntentAdapter.parse(...)` still raises `NotImplementedError`. `default_safety_gate()` unchanged.
+- **Host serial ingest != live ELRS != "RX connected" != UART driver != Safety allow.** A pull-based FD/path reader proving bytes can be pulled from a host source and reassembled by C21's own assembler, verified entirely via `pty` loopback, nothing more.
+- Tag **`v0.5.20`** · suite **3485** — [review](.jes/artifacts/implementation_review_fase_c_crsf_host_serial_b1.md)
+- **Next (one front at a time — Engineer picks):** deepen policy · board flash · craft↔FS · baud 420000
 
 ## What v0.5.19 includes
 
@@ -377,9 +392,9 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip clean @ `v0.5.19`** (C21 CLOSED). Awaiting Engineer pick for **one** next front (C22+): host serial ingest · deepen policy · board flash · craft↔FS — [review](.jes/artifacts/implementation_review_fase_c_crsf_byte_stream_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip clean @ `v0.5.20`** (C22 CLOSED). Awaiting Engineer pick for **one** next front (C23+): deepen policy · board flash · craft↔FS · baud 420000 — [review](.jes/artifacts/implementation_review_fase_c_crsf_host_serial_b1.md) · [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
-Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · host serial ingest.
+Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · baud 420000.
 
 See `docs/IMPLEMENTATION_TASKS.md`.
 

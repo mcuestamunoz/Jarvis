@@ -53,6 +53,20 @@ buffer, not a UART driver: no `serial`/`socket`/`pty`/USB/`open()`
 anywhere in it. An optional `ingest_stream_bytes(...)` helper reuses
 C20's `ingest_rc_channels(...)` unchanged for any completed `0x16`
 frames. See `jarvis.capabilities.crsf_stream`'s own docstring.
+
+C22 adds `jarvis.capabilities.crsf_serial` — a fifth **separate** module
+(also never folded into `radio.py`) that pulls bytes from an already-
+open host FD (tests: a POSIX `pty`) or an opt-in device path via
+`CrsfHostSerialIngress`, and feeds them to C21's own
+`CrsfByteStreamAssembler` unchanged. `poll(...)` does exactly one non-
+blocking read then feed — no background thread, no "connected" flag, no
+`/dev/cu.*` auto-scan, no baud/termios configuration (420000, the rate a
+real ELRS link runs at, is explicitly deferred to a later IC), no
+`pyserial` dependency. An optional `poll_and_ingest(...)` helper reuses
+C20's `ingest_rc_channels(...)` unchanged for any completed `0x16`
+frames. Host serial ingest != live ELRS != "RX connected" != Safety
+allow — every PASS in this repo uses a `pty` loopback, never a physical
+receiver. See `jarvis.capabilities.crsf_serial`'s own docstring.
 """
 
 from jarvis.capabilities.intent import (
