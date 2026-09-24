@@ -100,13 +100,17 @@ endif()  # NOT JARVIS_FC_CROSS_COMPILING
 # cmake/toolchains/arm-none-eabi.cmake — same toolchain C16 already uses,
 # reused unchanged). Links OUR OWN generic startup + linker script +
 # syscall stubs (mcu/) against jarvis_fc, producing one inspectable ARM
-# ELF. Never flashed, no vendor BSP, no GPIO — see mcu/*.{c,cpp,ld} and
-# the C18 implementation report for the full honesty statement.
+# ELF. No vendor BSP, no CMSIS — see mcu/*.{c,cpp,ld} and the C18/C30
+# implementation reports for the full honesty statement. As of C30
+# (`B1-fase-c-mcu-flash-observable`) this image CAN be flashed via USB
+# DFU (see native/flight_control/README.md) and its idle loop toggles a
+# cited status LED (mcu/hello_led.c) instead of spinning empty.
 if(JARVIS_FC_CROSS_COMPILING)
 
 add_executable(fc_mcu_stub.elf
     mcu/startup_cortex_m4.c
     mcu/syscalls_stub.c
+    mcu/hello_led.c
     mcu/stub_main.cpp
 )
 target_link_libraries(fc_mcu_stub.elf PRIVATE jarvis_fc)
@@ -121,5 +125,35 @@ set_target_properties(fc_mcu_stub.elf PROPERTIES
     SUFFIX ""
     OUTPUT_NAME "fc_mcu_stub.elf"
 )
+
+# --- Fase C · C30 (`B1-fase-c-mcu-flash-observable`) — close C29 N1 ---
+#
+# `-T<script>` is a linker FLAG, not a CMake source/dependency — CMake
+# does not know to relink fc_mcu_stub.elf when linker_cortex_m4.ld
+# itself changes unless told explicitly. This is that explicit dep: a
+# stale rebuild after editing the .ld now correctly relinks (verified in
+# this Buy's own report/tests by touching the .ld and rebuilding without
+# deleting the prior .elf first).
+set_property(TARGET fc_mcu_stub.elf APPEND PROPERTY
+    LINK_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/mcu/linker_cortex_m4.ld
+)
+
+# POST_BUILD .bin for USB DFU (dfu-util expects a flat binary image, not
+# an ELF). Load address stays 0x08000000 (C29's own cited FLASH origin —
+# unchanged by this Buy). Optional: skipped with a status message (not a
+# configure error) if arm-none-eabi-objcopy is not on PATH, since objcopy
+# absence should not block a jarvis_fc-only or host build.
+find_program(ARM_NONE_EABI_OBJCOPY arm-none-eabi-objcopy)
+if(ARM_NONE_EABI_OBJCOPY)
+    add_custom_command(TARGET fc_mcu_stub.elf POST_BUILD
+        COMMAND ${ARM_NONE_EABI_OBJCOPY} -O binary
+                $<TARGET_FILE:fc_mcu_stub.elf>
+                ${CMAKE_CURRENT_BINARY_DIR}/fc_mcu_stub.bin
+        COMMENT "C30: objcopy fc_mcu_stub.elf -> fc_mcu_stub.bin (DFU image, load addr 0x08000000)"
+        VERBATIM
+    )
+else()
+    message(STATUS "arm-none-eabi-objcopy not found — fc_mcu_stub.bin (DFU image) will not be produced")
+endif()
 
 endif()  # JARVIS_FC_CROSS_COMPILING

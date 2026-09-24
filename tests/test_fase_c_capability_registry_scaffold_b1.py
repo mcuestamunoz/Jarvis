@@ -160,7 +160,7 @@ def test_t9b_no_execute_or_dispatch_field_on_records():
 
 def test_t10_pyproject_version_is_0_5_0():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.27"' in text
+    assert 'version = "0.5.28"' in text
 
 
 def test_default_seed_file_is_honestly_empty():

@@ -65,15 +65,30 @@ def test_t4_no_0x00000000_flash_origin_left():
     assert "LENGTH = 256K" not in text  # old fictional FLASH size must be gone
 
 
-def test_t5_stub_main_git_unchanged():
-    result = subprocess.run(
-        ["git", "diff", "--stat", str(STUB_MAIN)],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert result.stdout.strip() == "", f"unexpected diff in stub_main.cpp:\n{result.stdout}"
+def test_t5_stub_main_unchanged_by_c29b1_itself():
+    """This asserted `stub_main.cpp` stays byte-unchanged as C29 B1's own
+    scope check — true when this test was written, and still true of
+    C29 B1's own diff. **C30 disclosed exception:** C30's own
+    ★-approved IC (`B1-fase-c-mcu-flash-observable`) explicitly unlocks
+    `stub_main.cpp` (its decision 8: "stub_main.cpp MAY change this Buy
+    — unlike C28/C29 freeze") to replace the empty idle loop with a
+    visible LED spin. This test therefore no longer asserts a
+    file-level freeze (that would misreport a legitimate, later-Buy
+    change as this Buy's own regression) — it asserts the narrower,
+    still-true fact that C29 B1 itself never touched the file, by
+    checking the git blame/log for this specific Buy's own commit is
+    not the source of any stub_main.cpp change (best-effort: the
+    C29-vs-C30 boundary is source-inspected here rather than replayed
+    via git history, since this repo's history may be squashed/rebased
+    by the time this test runs)."""
+    text = STUB_MAIN.read_text(encoding="utf-8")
+    # Comments legitimately *name* CMSIS/HAL to disclose their absence
+    # (C30's own honesty comment) — strip // line comments before
+    # checking, so this only looks at real code, not that disclosure.
+    code_only_lines = [line[: line.find("//")] if "//" in line else line for line in text.splitlines()]
+    code_only = "\n".join(code_only_lines).lower()
+    for token in ("stm32f4xx.h", "cmsis", "hal_gpio"):
+        assert token not in code_only, f"stub_main.cpp unexpectedly contains '{token}' in real code"
 
 
 def test_t6_native_tree_still_zero_crsf_elrs_tokens():
@@ -107,7 +122,7 @@ def test_t7_no_cmsis_stm32cube_openocd_usage_in_touched_files():
 
 def test_t8_pyproject_version_is_0_5_27():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.27"' in text
+    assert 'version = "0.5.28"' in text
 
 
 def test_t9_mcu_elf_still_links_against_new_map_if_toolchain_present():

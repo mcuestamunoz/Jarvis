@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.27 tagged tip** · C29 B1 cited FLASH map CLOSED · awaiting Engineer pick (flash · GPIO/DShot · craft↔FS)
+**v0.5.28 tagged tip** · C30 DFU-able PC13 image CLOSED (LED **not observed** on desk) · **C31 READY** (DShot encode, not pin)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,19 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.28 includes
+
+Fase C · **C30** (`B1-fase-c-mcu-flash-observable`) — **a DFU-able LED image exists; it has not been seen on the desk**:
+
+- Closes the two residuals C29 B1 left uncorrected in code: **(a)** `stub_main`'s idle loop was an empty `while (true)` — a successful `Reset_Handler` looked identical to a dead board; **(b)** CMake had no dependency on `linker_cortex_m4.ld`, so editing it never triggered a relink (C29's own test workaround deleted the `.elf` first — not a real fix).
+- **(a)** New `native/flight_control/mcu/hello_led.h`/`hello_led.c`: bare `volatile` MMIO (no CMSIS, no HAL) toggling **PC13**, cited from Betaflight's own unified target for this FC (`HGLR-HGLRCF405V2.config`, `resource LED 1 C13`) — deliberately not PA8 (that target's own `resource MOTOR 6 A08`) and not PB1 (`LED_STRIP`). Register addresses cited from **RM0090**, transcribed by hand. The busy-wait between toggles is explicitly uncalibrated — a visible flicker at reset-default HSI 16 MHz, never a claimed millisecond period.
+- **(b)** `set_property(TARGET fc_mcu_stub.elf APPEND PROPERTY LINK_DEPENDS .../linker_cortex_m4.ld)` in `CMakeLists.txt` — verified by touching the `.ld` and rebuilding **without** deleting the prior `.elf`: the `.elf`'s mtime advances, confirming a genuine relink.
+- A `POST_BUILD` step produces `fc_mcu_stub.bin` (load address `0x08000000`, unchanged from C29) for **USB DFU** — documented in `native/flight_control/README.md` alongside the restore procedure (reflash target **HGLRCF405V2** from Betaflight Configurator) and the props-off/battery-off warning.
+- `uart.hpp`/`crsf_serial.py` stay byte-identical; `startup_cortex_m4.c`/`syscalls_stub.c`/C16's own toolchain flags too. No NVIC/EXTI/IRQ/DMA, no motor-pin write anywhere.
+- **Flashed LED blink != flying != DShot != USART live != Betaflight HGLRCF405V2.** An image the Engineer can DFU onto the desk F405 whose idle loop toggles the cited status LED now exists; CMake will relink if the linker script changes.
+- Package / tag **`v0.5.28`** · suite **3619** · host `ctest` **51/51** — [review](.jes/artifacts/implementation_review_fase_c_mcu_flash_observable_b1.md). Report §11: **not flashed on desk**.
+- **Next:** C31 [`B1-fase-c-dshot-encode-stub`](.jes/artifacts/implementation_contract_fase_c_dshot_encode_stub_b1.md) READY (DShot frame in RAM, not pin). C30 DFU smoke parked until bench.
 
 ## What v0.5.27 includes
 
@@ -492,9 +505,9 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.27`** (C29 B1 CLOSED). Board-prep software C24–C29 landed. **Awaiting Engineer pick:** board flash · GPIO/DShot wire · craft↔FS — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip tagged `v0.5.28`** (C30 CLOSED — software; LED not observed). **C31 READY** — [`B1-fase-c-dshot-encode-stub`](.jes/artifacts/implementation_contract_fase_c_dshot_encode_stub_b1.md) awaiting Engineer ★. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
-Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
+Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 
 See `docs/IMPLEMENTATION_TASKS.md`.
 
