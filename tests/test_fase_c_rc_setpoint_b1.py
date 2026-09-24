@@ -185,7 +185,7 @@ def test_t8_loop_module_math_untouched_by_this_buy():
 
 def test_t10_pyproject_version_is_0_5_23():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.29"' in text
+    assert 'version = "0.5.30"' in text
 
 
 def test_t11_full_suite_process_gate_placeholder():

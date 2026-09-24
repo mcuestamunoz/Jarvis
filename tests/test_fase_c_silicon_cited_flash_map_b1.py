@@ -122,7 +122,7 @@ def test_t7_no_cmsis_stm32cube_openocd_usage_in_touched_files():
 
 def test_t8_pyproject_version_is_0_5_27():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.29"' in text
+    assert 'version = "0.5.30"' in text
 
 
 def test_t9_mcu_elf_still_links_against_new_map_if_toolchain_present():

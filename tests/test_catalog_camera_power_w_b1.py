@@ -249,7 +249,7 @@ def test_t8_package_checkpoint_version():
     text = (_REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     match = re.search(r'(?m)^version\s*=\s*"([^"]+)"', text)
     assert match is not None
-    assert match.group(1) == "0.5.29"
+    assert match.group(1) == "0.5.30"
 
 
 # ── Extra: catalog list surfaces the cited watts ───────────────────────────

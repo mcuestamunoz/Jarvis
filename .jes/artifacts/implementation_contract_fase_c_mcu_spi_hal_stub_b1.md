@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (byte port ≠ chip SPI ≠ gyro)
 
-**Status:** READY — awaiting Engineer ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.30`**  
 **Parents:**
 - [C31 ★ ACCEPT](implementation_contract_fase_c_dshot_encode_stub_b1.md) — DShot frame in RAM @ **`v0.5.29`**  
 - [C28 ★ ACCEPT](implementation_contract_fase_c_mcu_uart_hal_stub_b1.md) — `UartBytePort` + `LoopbackUart` @ **`v0.5.26`**  

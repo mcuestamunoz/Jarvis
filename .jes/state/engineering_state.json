@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-24 C31 ACCEPT CLOSED @ v0.5.29 (DShot frame in RAM, not pin). C32 B1-fase-c-mcu-spi-hal-stub READY awaiting Engineer \u2605.",
+  "cycle_intent": "2026-09-24 C32 ACCEPT CLOSED @ v0.5.30 (SpiBytePort + LoopbackSpi, not gyro). C33 B1-fase-c-spi-scripted-slave READY awaiting Engineer \u2605.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
   "current_mode": "await_engineer_star",
-  "active_operation": "fase_c_c32_spi_hal_stub_ic_ready",
+  "active_operation": "fase_c_c33_spi_scripted_slave_ic_ready",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-24 C31 CLOSED @ v0.5.29. C32 SPI HAL stub IC READY. Desk DFU parked until bench."
+    "note": "2026-09-24 C32 CLOSED @ v0.5.30. C33 ScriptedSpi IC READY. Desk DFU parked until bench."
   },
   "relevant_workflow_phases": [
     "Verification"

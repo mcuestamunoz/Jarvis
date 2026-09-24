@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.29 tagged tip** · C31 DShot frame in RAM CLOSED (not pin) · **C32 READY** (SPI loopback, not gyro)
+**v0.5.30 tagged tip** · C32 SPI byte port loopback CLOSED (not gyro) · next: C33 ScriptedSpi READY (canned RX, still not the ICM42688P)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -49,6 +49,19 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
+## What v0.5.30 includes
+
+Fase C · **C32** (`B1-fase-c-mcu-spi-hal-stub`) — **the SPI port got a name, still not the gyro**:
+
+- New `native/flight_control/include/jarvis/fc/spi.hpp`/`src/spi.cpp`: `SpiBytePort` — an abstract base with a virtual destructor exposing `transfer(tx, rx, n) -> size_t` (copies up to `n` bytes from TX into RX, in order, never blocks) — and `LoopbackSpi`, the **only** implementation: RX = TX, default capacity `256`.
+- A transfer past capacity **returns a short count** rather than growing unbounded — same overflow policy `LoopbackUart` (C28) already uses. Unlike `LoopbackUart`'s own persistent FIFO, `LoopbackSpi` carries **no state between calls** — a real SPI transfer is a single synchronous exchange, not a stream.
+- **Zero SPI registers, zero CMSIS, zero chip-select/NSS GPIO, zero IRQ/DMA** anywhere in either file.
+- The desk FC's own gyro (when later wired) is an **ICM42688P** on SPI — cited only as desk identity in a comment, never in real code: no `WHO_AM_I` read, no register map, no sample.
+- `dshot.hpp`/`dshot.cpp`/`dshot.py` (C31), `hello_led.h`/`hello_led.c`/`stub_main.cpp` (C30), and `uart.hpp`/`uart.cpp` (C28) all stay byte-identical — idle is still only PC13, no SPI poll in `main`. `SimulatedImuHal` (C3) untouched.
+- **MCU SPI stub != chip SPI != gyro live != flying.** A named SPI byte port exists; an in-memory loopback implements it.
+- Package **`0.5.30`** · tagged **`v0.5.30`** · suite **3649** · host `ctest` **60/60** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_mcu_spi_hal_stub_b1.md)
+- **Next:** C33 [`B1-fase-c-spi-scripted-slave`](.jes/artifacts/implementation_contract_fase_c_spi_scripted_slave_b1.md) READY (canned RX on `SpiBytePort`; not gyro). DShot wire / C30 DFU parked until bench.
+
 ## What v0.5.29 includes
 
 Fase C · **C31** (`B1-fase-c-dshot-encode-stub`) — **the DShot 16-bit frame, in RAM, still not a pin**:
@@ -61,7 +74,7 @@ Fase C · **C31** (`B1-fase-c-dshot-encode-stub`) — **the DShot 16-bit frame, 
 - DShot150/300/600 appear only as cited protocol names in comments, never as a claimed timer period or GPIO toggle rate.
 - **DShot encode != pin != motors != flying.** A 16-bit DShot packet computed in software exists. Nothing here makes an ESC see a waveform.
 - Package / tag **`v0.5.29`** · suite **3635** · host `ctest` **55/55** — [review](.jes/artifacts/implementation_review_fase_c_dshot_encode_stub_b1.md)
-- **Next:** C32 [`B1-fase-c-mcu-spi-hal-stub`](.jes/artifacts/implementation_contract_fase_c_mcu_spi_hal_stub_b1.md) READY (SPI byte port in RAM, not gyro). DShot wire / C30 DFU parked until bench.
+- **Next:** C32 CLOSED @ **`v0.5.30`**. C33 [`B1-fase-c-spi-scripted-slave`](.jes/artifacts/implementation_contract_fase_c_spi_scripted_slave_b1.md) READY.
 
 ## What v0.5.28 includes
 
@@ -519,7 +532,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.29`** (C31 CLOSED — DShot frame in RAM, not pin). **C32 READY** — [`B1-fase-c-mcu-spi-hal-stub`](.jes/artifacts/implementation_contract_fase_c_mcu_spi_hal_stub_b1.md) awaiting Engineer ★. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.30`** (C32 CLOSED — SPI byte port loopback, not gyro). **C33 READY** — [`B1-fase-c-spi-scripted-slave`](.jes/artifacts/implementation_contract_fase_c_spi_scripted_slave_b1.md) awaiting Engineer ★. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 
