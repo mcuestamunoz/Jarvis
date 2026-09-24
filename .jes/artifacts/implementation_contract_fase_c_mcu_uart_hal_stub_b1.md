@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (byte port ≠ chip USART · ≠ Darwin `IOSSIOSPEED` · ≠ live ELRS · native tree still zero CRSF/ELRS · `stub_main` still no UART ISR · C22/C23 host serial untouched)
 
-**Status:** READY — awaiting Engineer ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.26`**  
 **Parents:**
 - [C27 ★ ACCEPT](implementation_contract_fase_c_crsf_stream_timeout_failsafe_b1.md) — RC hold-timeout @ **`v0.5.25`**  
 - [C23 ★ ACCEPT](implementation_contract_fase_c_crsf_host_baud_b1.md) — Darwin host baud 420000 @ **`v0.5.21`** (host Mac **only** — not this Buy)  

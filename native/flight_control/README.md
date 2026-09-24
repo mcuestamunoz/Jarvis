@@ -186,6 +186,8 @@ native/flight_control/
                          # see below),
                          # rc_hold (C27 — age-only stale/failsafe
                          # watch, protocol-agnostic, see below),
+                         # uart (C28 — UartBytePort + LoopbackUart,
+                         # see below),
                          # quat_math (shared helper, see its own header
                          # comment for the documented deviation from
                          # Python's per-module-private-helper style)
@@ -202,6 +204,7 @@ native/flight_control/
     test_loop.cpp                # C24 — ControlLoop::step cases
     test_rc_setpoint.cpp         # C25 — map_rc_to_loop_inputs cases
     test_rc_hold.cpp             # C27 — RcHoldWatch cases
+    test_uart.cpp                # C28 — LoopbackUart cases
   mcu/                            # NEW (C18) — freestanding linked .elf, host-inspectable only
     linker_cortex_m4.ld
     startup_cortex_m4.c
@@ -259,3 +262,16 @@ than the last noted time throws `std::invalid_argument`.
 and never calls `ControlLoop::step`, `EscOutput`, or any Safety gate.
 This file names **no radio-link protocol anywhere, even in comments** —
 the same lock `rc_setpoint.hpp` already held for this tree.
+
+`uart.hpp`/`uart.cpp` (C28, ★ ACCEPT CLOSED @ tag `v0.5.26`) names the
+**MCU-side UART byte port**: `UartBytePort` (abstract, virtual
+destructor, `read(dst, n)`/`write(src, n)`) and `LoopbackUart`, the
+**only** implementation — an in-memory FIFO (default capacity `256`). A
+write past remaining capacity returns a short count (refuses the extra
+bytes) instead of growing unbounded. **No USART registers, no CMSIS, no
+`IOSSIOSPEED`/`termios`, no IRQ/DMA** anywhere in either file.
+`mcu/stub_main.cpp` still never references `UartBytePort`/`LoopbackUart`
+— no UART poll loop, `Reset_Handler` stays idle. This file, like
+`rc_hold.hpp`, names **no radio-link protocol anywhere, even in
+comments** — the Python host-serial module (C22/C23) is untouched by
+this C++-only Buy.
