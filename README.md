@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.28 tagged tip** · C30 DFU-able PC13 image CLOSED (LED **not observed** on desk) · **C31 READY** (DShot encode, not pin)
+**v0.5.29 tagged tip** · C31 DShot frame in RAM CLOSED (not pin) · **C32 READY** (SPI loopback, not gyro)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,20 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.29 includes
+
+Fase C · **C31** (`B1-fase-c-dshot-encode-stub`) — **the DShot 16-bit frame, in RAM, still not a pin**:
+
+- New `src/jarvis/flight_software/flight_control/dshot.py` + `native/flight_control/include/jarvis/fc/dshot.hpp`/`src/dshot.cpp`: `encode_dshot_frame(throttle, telemetry=False) -> uint16` — `value = (throttle << 1) | telemetry`, `checksum = (value ^ (value>>4) ^ (value>>8)) & 0xF`, `frame = (value << 4) | checksum`, `throttle` a required `[0, 2047]` integer (out of range raises a typed error).
+- **Vectors verified in both languages**: `throttle=0 -> 0x0000`, `throttle=48 -> 0x0606`, `throttle=2047 -> 0xFFEE`.
+- **Special range documented, not implemented**: DShot's own protocol reserves `0..47` as commands (beep, 3D, etc.) — this module encodes the 11-bit field as given, no command table.
+- Optional `encode_motor_forces_dshot(forces) -> 4x uint16` linearly maps force `[0,1]` onto throttle **`48..2047`** (never `0..2047`) — a **parallel** path; `encode_motor_forces` (PWM-µs, C10/C14) and `EscOutput`/`SimulatedEscSink` (C26) both stay byte-unchanged.
+- `mcu/hello_led.h`/`hello_led.c`/`stub_main.cpp` (C30) stay byte-identical — idle is still PC13, not DShot.
+- DShot150/300/600 appear only as cited protocol names in comments, never as a claimed timer period or GPIO toggle rate.
+- **DShot encode != pin != motors != flying.** A 16-bit DShot packet computed in software exists. Nothing here makes an ESC see a waveform.
+- Package / tag **`v0.5.29`** · suite **3635** · host `ctest` **55/55** — [review](.jes/artifacts/implementation_review_fase_c_dshot_encode_stub_b1.md)
+- **Next:** C32 [`B1-fase-c-mcu-spi-hal-stub`](.jes/artifacts/implementation_contract_fase_c_mcu_spi_hal_stub_b1.md) READY (SPI byte port in RAM, not gyro). DShot wire / C30 DFU parked until bench.
 
 ## What v0.5.28 includes
 
@@ -505,7 +519,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.28`** (C30 CLOSED — software; LED not observed). **C31 READY** — [`B1-fase-c-dshot-encode-stub`](.jes/artifacts/implementation_contract_fase_c_dshot_encode_stub_b1.md) awaiting Engineer ★. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.29`** (C31 CLOSED — DShot frame in RAM, not pin). **C32 READY** — [`B1-fase-c-mcu-spi-hal-stub`](.jes/artifacts/implementation_contract_fase_c_mcu_spi_hal_stub_b1.md) awaiting Engineer ★. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

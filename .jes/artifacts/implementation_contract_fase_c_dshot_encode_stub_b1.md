@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (frame in RAM ≠ pin ≠ motors ≠ C30 DFU)
 
-**Status:** READY — awaiting Engineer ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.29`**  
 **Parents:**
 - [C30 ★ ACCEPT](implementation_contract_fase_c_mcu_flash_observable_b1.md) — DFU-able LED image @ **`v0.5.28`**; **not flashed on desk**  
 - [C26 ★ ACCEPT](implementation_contract_fase_c_esc_output_hal_b1.md) — `EscOutput` + `SimulatedEscSink` still PWM-µs @ **`v0.5.24`**  

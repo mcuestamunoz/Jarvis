@@ -98,6 +98,17 @@ def test_t2_t3_smoke_binary_builds_and_recovers_if_toolchain_available():
 
 
 def test_t4_no_gpio_or_hardware_io_symbols_in_native_tree():
+    """"dshot" was a blanket-forbidden token at C13's own landing, when
+    no DShot-shaped code existed anywhere in this tree. **C31 disclosed
+    exception:** `B1-fase-c-dshot-encode-stub` (★ Engineer-approved)
+    explicitly adds `dshot.hpp`/`dshot.cpp`/`tests/test_dshot.cpp` — a
+    pure in-RAM 16-bit frame *encoder*, still no GPIO/TIM/DMA/bit-bang
+    anywhere (that remains this test's own, unweakened check on every
+    file, dshot files included). So "dshot" is excluded from the
+    forbidden-token scan **only** for those three C31-authorized files;
+    every other native/flight_control file — including any future one —
+    still may not mention it, which is exactly the guard that would
+    catch DShot logic leaking into, say, mixer.cpp or hello_led.c."""
     forbidden_substrings = (
         "gpio",
         "pigpio",
@@ -107,6 +118,11 @@ def test_t4_no_gpio_or_hardware_io_symbols_in_native_tree():
         "socket(",
         "dshot",
     )
+    dshot_authorized_files = {
+        NATIVE_FC_DIR / "include" / "jarvis" / "fc" / "dshot.hpp",
+        NATIVE_FC_DIR / "src" / "dshot.cpp",
+        NATIVE_FC_DIR / "tests" / "test_dshot.cpp",
+    }
     source_files = list(NATIVE_FC_DIR.rglob("*.cpp")) + list(NATIVE_FC_DIR.rglob("*.hpp"))
     assert source_files, "expected native/flight_control source files to exist"
     for path in source_files:
@@ -120,7 +136,10 @@ def test_t4_no_gpio_or_hardware_io_symbols_in_native_tree():
             comment_at = line.find("//")
             code_only_lines.append(line if comment_at == -1 else line[:comment_at])
         code_text = "\n".join(code_only_lines)
-        for token in forbidden_substrings:
+        tokens = forbidden_substrings
+        if path in dshot_authorized_files:
+            tokens = tuple(t for t in forbidden_substrings if t != "dshot")
+        for token in tokens:
             assert token not in code_text, f"{path} contains forbidden-shaped code token '{token}'"
 
 
@@ -187,4 +206,4 @@ def test_no_native_flight_control_wiring_into_craft_or_orchestrator():
 
 def test_t11_pyproject_version_is_0_5_11():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.28"' in text
+    assert 'version = "0.5.29"' in text
