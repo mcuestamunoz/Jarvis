@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C29 B1 READY** — `B1-fase-c-silicon-cited-flash-map` — STM32F405 on the desk HGLRC F405 FC; linker cites RM0090 Table 3; not flashed, not Betaflight ([IC](../.jes/artifacts/implementation_contract_fase_c_silicon_cited_flash_map_b1.md)). **C29 B0 CLOSED** (investigation). **C28 CLOSED** @ **`v0.5.26`**.  
-> Tip tagged **`v0.5.26`**. Suite **3584** · UI **132**. Craft SoT **`v0.4.3`**.  
+> **PRIORIDAD AHORA:** **C29 B1 CLOSED** @ **`v0.5.27`** — cited FLASH map for desk STM32F405 (RM0090 Table 3); still not flashed, not Betaflight. Board-prep software bases C24–C29 landed. **Awaiting Engineer pick** among parked: board flash · GPIO/DShot wire · craft↔FS.  
+> Tip tagged **`v0.5.27`**. Suite **3598** · UI **132**. Craft SoT **`v0.4.3`**.  
 > Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
-> **Parked:** plate-box · Path N · HD-* · Board polish · board flash · craft↔FS · deepen policy beyond one aux · Linux baud.  
+> **Parked:** plate-box · Path N · HD-* · Board polish · board flash · craft↔FS · GPIO/DShot wire · deepen policy beyond one aux · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -76,7 +76,7 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C27** | **`B1-fase-c-crsf-stream-timeout-failsafe`** | **✅ ACCEPT CLOSED** @ **`v0.5.25`** | 0.5 s without noted RC → stale (Python + protocol-agnostic C++); recommended level + collective 0; still no execute | [review](../.jes/artifacts/implementation_review_fase_c_crsf_stream_timeout_failsafe_b1.md) · tag **`v0.5.25`** |
 | **C28** | **`B1-fase-c-mcu-uart-hal-stub`** | **✅ ACCEPT CLOSED** @ **`v0.5.26`** | MCU-shaped UART byte port + in-memory loopback (C++); not chip USART, not Darwin `IOSSIOSPEED` | [review](../.jes/artifacts/implementation_review_fase_c_mcu_uart_hal_stub_b1.md) · tag **`v0.5.26`** |
 | **C29 B0** | **`B0-fase-c-silicon-cited-flash-map`** | **✅ ACCEPT CLOSED** (investigation · no tag) | Park-until-named was correct; desk STM32F405 named after the report | [review](../.jes/artifacts/investigation_review_fase_c_silicon_cited_flash_map_b0.md) |
-| **C29 B1** | **`B1-fase-c-silicon-cited-flash-map`** | **READY — awaiting Engineer ★** | Cite STM32F405 FLASH/RAM in the linker (RM0090 Table 3); **not** flash, not Betaflight | [IC](../.jes/artifacts/implementation_contract_fase_c_silicon_cited_flash_map_b1.md) |
+| **C29 B1** | **`B1-fase-c-silicon-cited-flash-map`** | **✅ ACCEPT CLOSED** @ **`v0.5.27`** | Cite STM32F405 FLASH/RAM in the linker (RM0090 Table 3); **not** flash, not Betaflight | [review](../.jes/artifacts/implementation_review_fase_c_silicon_cited_flash_map_b1.md) · tag **`v0.5.27`** |
 | **C30+** | deepen policy · craft↔FS · board flash · Linux baud | **Parked** | One front at a time | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).

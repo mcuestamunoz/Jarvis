@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.26 tagged tip** · C29 B0 investigation CLOSED · **C29 B1 READY** — cited FLASH map (STM32F405, not flashed)
+**v0.5.27 tagged tip** · C29 B1 cited FLASH map CLOSED · awaiting Engineer pick (flash · GPIO/DShot · craft↔FS)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,20 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.27 includes
+
+Fase C · **C29 B1** (`B1-fase-c-silicon-cited-flash-map`) — **the linker now cites the desk MCU's own datasheet, still not flashed**:
+
+- C29 B0 (investigation) recommended parking until the Engineer named an MCU — on 2026-09-24 they did: desk stack **HGLRC F460 6S V1**, FC SKU **HGLRC F405 8S V1**, MCU line **STM32F405** (printed in that FC's own manual). This B1 replaces C18's disclosed fiction with that citation.
+- `native/flight_control/mcu/linker_cortex_m4.ld` now uses `FLASH` `1024K` at `0x08000000` / `RAM` `128K` at `0x20000000` (SRAM1+SRAM2 contiguous) — taken from **ST RM0090 Table 3** (STM32F405xx/07xx, "Memory map"), not from the HGLRC manual itself (which names the MCU line but prints no ORIGIN/LENGTH numbers).
+- CCM RAM (`0x10000000`, 64 KiB per RM0090) is deliberately **excluded** from the `MEMORY` block — folding it into a flat RAM region would be its own undisclosed simplification.
+- The linker's own honesty comment cites both the desk identity (HGLRC) and the map source (RM0090), plus the disclosed residual: the HGLRC manual doesn't print the STM32F405's exact order-code suffix, but RM0090 Table 3's figures apply to the whole xx/07xx line regardless.
+- `mcu/stub_main.cpp` was relinked and verified (`readelf -l`: `VirtAddr 0x08000000`, entry point `0x8000045`) but stays **byte-unchanged** — no new peripheral was touched. `cmake/toolchains/arm-none-eabi.cmake` (C16's own CPU flags) also stays byte-unchanged.
+- No CMSIS, no STM32Cube, no OpenOCD/J-Link anywhere in the touched files.
+- **Cited FLASH map != flashed != boots on FC != Betaflight HGLRCF405V2.** The linker now uses ST's own published addresses for this MCU, but that remains a compile/link-time fact on the Mac, never a claim about the HGLRC stack itself.
+- Package / tag **`v0.5.27`** · suite **3598** · host `ctest` **51/51** — [review](.jes/artifacts/implementation_review_fase_c_silicon_cited_flash_map_b1.md)
+- **Next:** Engineer pick among parked axes — board flash · GPIO/DShot wire · craft↔FS
 
 ## What v0.5.26 includes
 
@@ -478,7 +492,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.26`** (C28 CLOSED). **C29 B0 CLOSED** (investigation). **C29 B1 READY** — cited FLASH map for desk STM32F405 ([IC](.jes/artifacts/implementation_contract_fase_c_silicon_cited_flash_map_b1.md)). Parked: board flash · craft↔FS — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip tagged `v0.5.27`** (C29 B1 CLOSED). Board-prep software C24–C29 landed. **Awaiting Engineer pick:** board flash · GPIO/DShot wire · craft↔FS — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

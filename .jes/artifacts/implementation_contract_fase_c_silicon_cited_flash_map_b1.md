@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (cited map ≠ flashed · ≠ Betaflight on the desk · ≠ GPIO · HGLRC manual ≠ ST memory map · `stub_main` still idle)
 
-**Status:** READY — awaiting Engineer ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.27`**  
 **Parents:**
 - Engineer 2026-09-24: desk hardware **HGLRC F460 6S V1 Stack** (manual PDF) — FC **HGLRC F405 8S V1**, MCU printed **STM32F405**; ESC **HGLRC 60A 6S V1 8 BL-S**  
 - [C29 B0 ★ ACCEPT](investigation_contract_fase_c_silicon_cited_flash_map_b0.md) — park-until-named; un-park: desk MCU named  

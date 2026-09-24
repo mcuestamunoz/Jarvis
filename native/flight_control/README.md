@@ -136,11 +136,24 @@ flashed to any board, a claim that this image boots on real hardware, a
 vendor BSP/SDK, or GPIO/UART/any real I/O — `syscalls_stub.c`'s
 `_write`/`_read`/etc. are no-op/error stubs, not semihosting.
 
-**Memory map (fictional, disclosed):** `FLASH` at `0x00000000` / `RAM` at
-`0x20000000` — the ARM-architected *generic* Cortex-M Code/SRAM regions
-(not a vendor's remapped boot address like the `0x08000000` many real
-boards use), 256 KiB / 64 KiB, a round illustrative size not sourced from
-any real part's datasheet.
+**Memory map (cited, C29, ★ ACCEPT CLOSED @ tag `v0.5.27`):** `FLASH`
+1024K at `0x08000000` / `RAM` 128K at `0x20000000` (SRAM1+SRAM2
+contiguous) — cited from **ST RM0090 Table 3** (STM32F405xx/07xx,
+"Memory map") because the desk hardware's own FC manual (HGLRC F460 6S
+V1 stack, FC SKU HGLRC F405 8S V1) names its MCU line as STM32F405.
+CCM RAM (`0x10000000`, 64 KiB per RM0090) is deliberately **not**
+included in this `MEMORY` block — folding it into a flat RAM region
+would be its own undisclosed simplification. **Cited != flashed != boots
+on this stack != Betaflight HGLRCF405V2** — this remains a compile/link-
+time fact about which numbers the linker script uses, not a claim about
+the HGLRC stack itself; no OpenOCD/J-Link path exists anywhere in this
+repo, and no vendor SDK/BSP (STM32Cube, CMSIS device pack) was pulled in
+to derive these numbers — see `mcu/linker_cortex_m4.ld`'s own header
+comment for the full citation and disclosed residual (order-code suffix
+unknown; re-cite if a teardown ever shows a different ST part). Before
+C29, this map was the ARM-architected *generic* Cortex-M Code/SRAM
+regions (`0x00000000` / `0x20000000`, 256 KiB / 64 KiB) — an explicitly
+fictional, round illustrative size not sourced from any real part.
 
 **C++ runtime choice (IC §0 decision 8, option (a)):** the rung sources'
 existing `throw std::invalid_argument(...)` calls are left exactly as
