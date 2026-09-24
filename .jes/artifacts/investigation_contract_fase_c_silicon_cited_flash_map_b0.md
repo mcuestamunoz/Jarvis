@@ -6,7 +6,7 @@
 **Investigator:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this contract · Engineer pick (named part vs park)
 
-**Status:** READY — awaiting Engineer ★  
+**Status:** ★ ACCEPT CLOSED (investigation) — park was correct on the report’s evidence; Engineer later named desk STM32F405. Next: [B1 IC](implementation_contract_fase_c_silicon_cited_flash_map_b1.md). Tip remains **`v0.5.26`**.  
 **Parents:**
 - [C28 ★ ACCEPT](implementation_contract_fase_c_mcu_uart_hal_stub_b1.md) — `UartBytePort` @ **`v0.5.26`**  
 - [C18 ★ ACCEPT](implementation_contract_fase_c_cpp_mcu_freestanding_elf_b1.md) — `fc_mcu_stub.elf` + **fictional** FLASH/RAM @ **`v0.5.16`**  

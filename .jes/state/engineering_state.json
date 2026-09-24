@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-24 C28 ACCEPT CLOSED @ v0.5.26. C29 B0 READY (B0-fase-c-silicon-cited-flash-map). Awaiting Engineer \u2605.",
+  "cycle_intent": "2026-09-24 C29 B0 investigation ACCEPT CLOSED. C29 B1 IC READY (B1-fase-c-silicon-cited-flash-map). Awaiting Engineer \u2605.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_star_c29",
-  "active_operation": "b0_fase_c_silicon_cited_flash_map_ic_ready",
+  "current_mode": "await_engineer_star_c29_b1",
+  "active_operation": "b1_fase_c_silicon_cited_flash_map_ic_ready",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-24 C29 READY \u2014 silicon + cited FLASH map (B0 investigation). No silent part pick. No flash."
+    "note": "2026-09-24 C29 B1 READY \u2014 cite STM32F405 FLASH/RAM (RM0090 Table 3). Not flash. Not Betaflight."
   },
   "relevant_workflow_phases": [
     "Verification"

@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.26 tagged tip** · C28 MCU UART HAL stub CLOSED · **C29 READY** — silicon + cited FLASH map (B0)
+**v0.5.26 tagged tip** · C29 B0 investigation CLOSED · **C29 B1 READY** — cited FLASH map (STM32F405, not flashed)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -61,7 +61,7 @@ Fase C · **C28** (`B1-fase-c-mcu-uart-hal-stub`) — **the MCU side got a UART-
 - The C21-C27 lock of **zero CRSF/ELRS mentions anywhere under `native/`**, even in comments, holds — re-verified tree-wide (proactive grep on the new header; this Buy ID contains no protocol tokens, so no rewrite was required).
 - **MCU UART stub != chip USART != Darwin baud != live ELRS.** A named byte port exists; an in-memory loopback implements it. Nothing here is a USART talking to a receiver, the Mac's own `IOSSIOSPEED` moved onto the chip, or ExpressLRS running on the MCU.
 - Package / tag **`v0.5.26`** · suite **3584** · host `ctest` **51/51** — [review](.jes/artifacts/implementation_review_fase_c_mcu_uart_hal_stub_b1.md)
-- **Next (one front at a time):** C29 silicon + cited FLASH map — B0 investigation ([contract](.jes/artifacts/investigation_contract_fase_c_silicon_cited_flash_map_b0.md))
+- **Next (one front at a time):** C29 B1 silicon + cited FLASH map — [IC](.jes/artifacts/implementation_contract_fase_c_silicon_cited_flash_map_b1.md)
 
 ## What v0.5.25 includes
 
@@ -478,7 +478,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.26`** (C28 CLOSED). **C29 READY** — silicon + cited FLASH map, B0 investigation ([contract](.jes/artifacts/investigation_contract_fase_c_silicon_cited_flash_map_b0.md)). Parked: board flash · craft↔FS — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip tagged `v0.5.26`** (C28 CLOSED). **C29 B0 CLOSED** (investigation). **C29 B1 READY** — cited FLASH map for desk STM32F405 ([IC](.jes/artifacts/implementation_contract_fase_c_silicon_cited_flash_map_b1.md)). Parked: board flash · craft↔FS — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 
