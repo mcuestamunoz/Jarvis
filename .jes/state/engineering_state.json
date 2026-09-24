@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-24 C26 ACCEPT CLOSED @ v0.5.24. C27 IC READY (B1-fase-c-crsf-stream-timeout-failsafe). Awaiting Engineer \u2605.",
+  "cycle_intent": "2026-09-24 C27 ACCEPT CLOSED @ v0.5.25. C28 IC READY (B1-fase-c-mcu-uart-hal-stub). Awaiting Engineer \u2605.",
   "scope": "geometry_3d_mapping_path",
   "execution_status": "idle",
-  "current_mode": "await_engineer_star_c27",
-  "active_operation": "b1_fase_c_crsf_stream_timeout_failsafe_ic_ready",
+  "current_mode": "await_engineer_star_c28",
+  "active_operation": "b1_fase_c_mcu_uart_hal_stub_ic_ready",
   "movement_trigger": {
     "type": "engineer_star",
-    "note": "2026-09-24 C27 READY \u2014 CRSF stream-timeout failsafe. Parked C28\u2013C29: MCU UART stub \u00b7 silicon map."
+    "note": "2026-09-24 C28 READY \u2014 MCU UART HAL stub. Parked C29: silicon map."
   },
   "relevant_workflow_phases": [
     "Verification"

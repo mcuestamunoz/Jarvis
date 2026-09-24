@@ -222,4 +222,4 @@ def test_capability_registry_default_still_empty():
 
 def test_t8_pyproject_version_is_0_5_13():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.24"' in text
+    assert 'version = "0.5.25"' in text

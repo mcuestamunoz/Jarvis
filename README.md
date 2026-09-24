@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.24 tagged tip** · C26 EscOutput HAL CLOSED · **C27 READY** — CRSF stream-timeout failsafe
+**v0.5.25 tagged tip** · C27 stream-timeout failsafe CLOSED · **C28 READY** — MCU UART HAL stub
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -48,6 +48,21 @@ python -m jarvis.adapters.mcp.server
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+
+## What v0.5.25 includes
+
+Fase C · **C27** (`B1-fase-c-crsf-stream-timeout-failsafe`) — **stale sticks stop being treated as live, still not a motor cut**:
+
+- New `src/jarvis/capabilities/crsf_failsafe.py` — a sixth **separate** module (never folded into `radio.py`; `git diff` confirms `radio.py`/`crsf_stub.py`/`crsf_dual_role.py`/`crsf_stream.py`/`crsf_serial.py`/`intent.py`/`safety.py` all byte-unchanged).
+- `CrsfRcHoldWatch` is an **age watch, not a parser**: `note_rc(now_s)` records the last time a valid `0x16` frame arrived; `evaluate(now_s)`/`is_stale(now_s)` compare that against `timeout_s` (default `0.5` s, illustrative, not sourced from any real ExpressLRS product spec) — `age_s <= timeout_s` is fresh, `age_s > timeout_s` is stale, never-noted is stale with `reason="never"`.
+- Every method takes `now_s` as a caller-supplied argument — this module never calls `time.time()` as its own source of truth. A `now_s` earlier than the last noted time raises a typed `ValueError`.
+- `failsafe_loop_inputs(t_s)` returns C8's own `level_setpoint(t_s)` plus `collective=0.0` — C25's own `RcLoopInputs` reused unchanged — and never calls `FlightControlLoop.step`, `EscOutput.apply_forces`, or any `SafetyGate.evaluate`.
+- The optional `feed_and_note_rc(...)` helper calls C21's own `assembler.feed(data)` unchanged, notes only on a completed `0x16` frame, and never calls `ingest_stream_bytes` — C21's own default helper stays untouched.
+- C++ twin: `native/flight_control/include/jarvis/fc/rc_hold.hpp` + `src/rc_hold.cpp`, added to `jarvis_fc`, **deliberately protocol-agnostic** — no radio-link protocol name anywhere in that tree, even in comments (same C21-C26 lock, re-verified tree-wide).
+- C20's `CrsfDualRolePolicy` and C25's `map_rc_to_loop_inputs` are untouched and not imported here.
+- **Timeout failsafe != motors cut != live ELRS != Safety allow.** An age watch exists; after `0.5` s without a noted RC sample, sticks are no longer treated as live; the recommended inputs are level attitude plus zero collective.
+- Package / tag **`v0.5.25`** · suite **3572** · host `ctest` **45/45** — [review](.jes/artifacts/implementation_review_fase_c_crsf_stream_timeout_failsafe_b1.md)
+- **Next (one front at a time):** C28 MCU UART HAL stub — [IC](.jes/artifacts/implementation_contract_fase_c_mcu_uart_hal_stub_b1.md)
 
 ## What v0.5.24 includes
 
@@ -449,7 +464,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.24`** (C26 CLOSED). **C27 READY** — CRSF stream-timeout failsafe ([IC](.jes/artifacts/implementation_contract_fase_c_crsf_stream_timeout_failsafe_b1.md)). Parked after C27: C28 MCU UART stub · C29 silicon map — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip tagged `v0.5.25`** (C27 CLOSED). **C28 READY** — MCU UART HAL stub ([IC](.jes/artifacts/implementation_contract_fase_c_mcu_uart_hal_stub_b1.md)). Parked after C28: C29 silicon map — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

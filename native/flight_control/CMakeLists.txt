@@ -30,6 +30,7 @@ add_library(jarvis_fc STATIC
     src/esc.cpp
     src/loop.cpp
     src/rc_setpoint.cpp
+    src/rc_hold.cpp
 )
 target_include_directories(jarvis_fc PUBLIC include)
 target_compile_options(jarvis_fc PRIVATE -Wall -Wextra)
@@ -81,6 +82,7 @@ add_executable(fc_unit_tests
     tests/test_esc.cpp
     tests/test_loop.cpp
     tests/test_rc_setpoint.cpp
+    tests/test_rc_hold.cpp
 )
 target_link_libraries(fc_unit_tests PRIVATE jarvis_fc Catch2::Catch2WithMain)
 target_compile_options(fc_unit_tests PRIVATE -Wall -Wextra)

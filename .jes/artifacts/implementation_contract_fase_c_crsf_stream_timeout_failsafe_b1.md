@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (stale sticks ≠ last-good forever · failsafe decision ≠ GPIO cut · ≠ Safety execute · C21 assembler math frozen · C20 kill unchanged · native tree still zero CRSF/ELRS)
 
-**Status:** READY — awaiting Engineer ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.25`**  
 **Parents:**
 - [C26 ★ ACCEPT](implementation_contract_fase_c_esc_output_hal_b1.md) — `EscOutput` @ **`v0.5.24`**  
 - [C25 ★ ACCEPT](implementation_contract_fase_c_rc_setpoint_b1.md) — RC → setpoint @ **`v0.5.23`**  

@@ -184,6 +184,8 @@ native/flight_control/
                          # loop (C24 — named tick, see below),
                          # rc_setpoint (C25 — RC units -> tick args,
                          # see below),
+                         # rc_hold (C27 — age-only stale/failsafe
+                         # watch, protocol-agnostic, see below),
                          # quat_math (shared helper, see its own header
                          # comment for the documented deviation from
                          # Python's per-module-private-helper style)
@@ -199,6 +201,7 @@ native/flight_control/
     test_esc.cpp
     test_loop.cpp                # C24 — ControlLoop::step cases
     test_rc_setpoint.cpp         # C25 — map_rc_to_loop_inputs cases
+    test_rc_hold.cpp             # C27 — RcHoldWatch cases
   mcu/                            # NEW (C18) — freestanding linked .elf, host-inspectable only
     linker_cortex_m4.ld
     startup_cortex_m4.c
@@ -243,3 +246,16 @@ comments, stays intact for this Buy too. Only roll/pitch/throttle
 (indices 0/1/2) are read; a yaw channel may be present but is never used
 (no magnetometer in this tree). `loop.hpp`/`loop.cpp` are untouched by
 this file.
+
+`rc_hold.hpp`/`rc_hold.cpp` (C27, ★ ACCEPT CLOSED @ tag `v0.5.25`) is
+an **age-only stale/failsafe watch** — `RcHoldWatch::note_rc(now_s)`
+records that a valid RC-channels sample was available; `evaluate(now_s)`
+compares that against `timeout_s` (default `kRcHoldTimeoutS = 0.5`) and
+returns `stale`/`reason`/`age_s`. Every method takes `now_s` as an
+argument — no wall-clock call anywhere in this file. `now_s` earlier
+than the last noted time throws `std::invalid_argument`.
+`failsafe_loop_inputs(t_s)` returns `level_setpoint(t_s)` plus
+`collective = 0.0` (an `RcLoopInputs`, C25's own type, reused unchanged)
+and never calls `ControlLoop::step`, `EscOutput`, or any Safety gate.
+This file names **no radio-link protocol anywhere, even in comments** —
+the same lock `rc_setpoint.hpp` already held for this tree.
