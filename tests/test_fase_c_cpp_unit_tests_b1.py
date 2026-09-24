@@ -152,21 +152,45 @@ def test_t5_no_gpio_or_hardware_io_symbols_in_new_unit_tests():
 def test_t6_rung_sources_are_git_unchanged_by_this_buy():
     """IC §0 decision 6 — behavior freeze. This Buy's own diff must not
     touch the existing rung sources unless an Engineer-approved bugfix is
-    disclosed (none was needed here)."""
-    rung_files = [
+    disclosed (none was needed here).
+
+    **C26 disclosed exception:** `esc.cpp` is intentionally extended by
+    `B1-fase-c-esc-output-hal` (★ Engineer-approved) — it adds
+    `SimulatedEscSink::apply_forces` (a thin `encode_motor_forces` +
+    `apply` wrapper implementing the new `EscOutput` port). The
+    pre-existing `apply(...)`/`encode_motor_forces(...)` bodies are not
+    touched — verified below via a line-level diff check (no `-` lines,
+    i.e. purely additive), not just excluded from the freeze list."""
+    frozen_files = [
         NATIVE_FC_DIR / "src" / name
-        for name in ("filter.cpp", "attitude.cpp", "controller.cpp", "rate_torque.cpp", "mixer.cpp", "esc.cpp", "plant.cpp")
+        for name in ("filter.cpp", "attitude.cpp", "controller.cpp", "rate_torque.cpp", "mixer.cpp", "plant.cpp")
     ]
-    for path in rung_files:
+    for path in frozen_files:
         assert path.is_file(), path
     result = subprocess.run(
-        ["git", "diff", "--stat", *[str(p) for p in rung_files]],
+        ["git", "diff", "--stat", *[str(p) for p in frozen_files]],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
         check=False,
     )
     assert result.stdout.strip() == "", f"unexpected diff in rung sources:\n{result.stdout}"
+
+    esc_cpp = NATIVE_FC_DIR / "src" / "esc.cpp"
+    assert esc_cpp.is_file()
+    esc_diff = subprocess.run(
+        ["git", "diff", "--", str(esc_cpp)],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    removed_lines = [
+        line
+        for line in esc_diff.stdout.splitlines()
+        if line.startswith("-") and not line.startswith("---")
+    ]
+    assert removed_lines == [], f"esc.cpp diff removes/changes existing lines, not purely additive:\n{removed_lines}"
 
 
 def test_no_native_unit_test_wiring_into_craft_or_orchestrator():
@@ -198,4 +222,4 @@ def test_capability_registry_default_still_empty():
 
 def test_t8_pyproject_version_is_0_5_13():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.23"' in text
+    assert 'version = "0.5.24"' in text

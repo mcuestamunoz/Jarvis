@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.23 tagged tip** · C25 RC → setpoint CLOSED · **C26 READY** — EscOutput HAL
+**v0.5.24 tagged tip** · C26 EscOutput HAL CLOSED · **C27 READY** — CRSF stream-timeout failsafe
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -49,6 +49,20 @@ python -m jarvis.adapters.mcp.server
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
 Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
 
+## What v0.5.24 includes
+
+Fase C · **C26** (`B1-fase-c-esc-output-hal`) — **the ESC output got a named port, still not a pin**:
+
+- `esc.py`/`esc.hpp` (C10/C14's own module) gain `EscOutput` — Python `abc.ABC`, C++ abstract base with a virtual destructor — exposing `apply_forces(forces: MotorForceCommand) -> EscApplyResult` plus `arm()`/`disarm()`/`armed` (identical semantics to C10).
+- `SimulatedEscSink` **is-a** `EscOutput` in both languages. Its C10 `apply(EscPwmCommand)` path and arming behavior stay byte-identical — `apply_forces` is a thin wrapper: `encode_motor_forces(forces)` then `apply(cmd)`.
+- The `esc.cpp` diff is **purely additive** — verified line-by-line: zero lines removed/changed, four lines added. `esc.py`/`esc.hpp`/`esc.cpp` are the **only** rung files touched this Buy; `filter`/`attitude`/`controller`/`rate_torque`/`mixer`/`plant` all stay `git diff --stat` empty.
+- The mixer still speaks **forces only** — `mixer.py`/`mixer.hpp` gain no PWM/DShot/pin knowledge, grep-verified in real code.
+- `step` still never calls `apply`/`apply_forces`/`SimulatedEscSink` — `loop.py`/`loop.hpp`/`loop.cpp` stay byte-unchanged, re-verified explicitly.
+- **Only one implementation ships**: `SimulatedEscSink`. No GPIO sink, no unimplemented pin class, no DShot this Buy.
+- **EscOutput HAL != pin != motors != DShot.** A named port exists; the simulated sink implements it; the mixer still does not know the wire protocol.
+- Package / tag **`v0.5.24`** · suite **3553** · host `ctest` **39/39** — [review](.jes/artifacts/implementation_review_fase_c_esc_output_hal_b1.md)
+- **Next (one front at a time):** C27 CRSF stream-timeout failsafe — [IC](.jes/artifacts/implementation_contract_fase_c_crsf_stream_timeout_failsafe_b1.md)
+
 ## What v0.5.23 includes
 
 Fase C · **C25** (`B1-fase-c-rc-setpoint`) — **RC channels got a language toward the tick, still not flying**:
@@ -61,7 +75,7 @@ Fase C · **C25** (`B1-fase-c-rc-setpoint`) — **RC channels got a language tow
 - C20's `CrsfDualRolePolicy` (aux → Authority `kill`) untouched and not imported here. `radio.py` still has no stick API. `default_safety_gate()` unchanged.
 - **RC->setpoint != flying != sticks drive motors != Safety allow != yaw lock.** A deterministic, documented map from already-decoded channel units to the two arguments `step` already accepted — no pilot flies anything, no motor spins, no heading-hold exists.
 - Package / tag **`v0.5.23`** · suite **3538** · host `ctest` **36/36** — [review](.jes/artifacts/implementation_review_fase_c_rc_setpoint_b1.md)
-- **Next (one front at a time):** C26 EscOutput HAL — [IC](.jes/artifacts/implementation_contract_fase_c_esc_output_hal_b1.md)
+- **Next (one front at a time):** C27 CRSF stream-timeout failsafe — [IC](.jes/artifacts/implementation_contract_fase_c_crsf_stream_timeout_failsafe_b1.md)
 
 ## What v0.5.22 includes
 
@@ -75,7 +89,7 @@ Fase C · **C24** (`B1-fase-c-control-loop-tick`) — **the control loop got a n
 - `radio.py`/`crsf_*.py`/`intent.py`/`safety.py`/`autonomy/` all byte-unchanged. `default_safety_gate()` unchanged.
 - **Named control tick != flying != MCU ISR != motors != RC sticks.** One named cycle, IMU+setpoint+collective in, four motor forces out, reusing C6-C12/C13 unchanged; plant, ESC pin, and RC mapping remain later cola.
 - Package / tag **`v0.5.22`** · suite **3520** · host `ctest` **31/31** — [review](.jes/artifacts/implementation_review_fase_c_control_loop_tick_b1.md)
-- **Next (one front at a time):** C26 EscOutput HAL — [IC](.jes/artifacts/implementation_contract_fase_c_esc_output_hal_b1.md)
+- **Next (one front at a time):** C27 CRSF stream-timeout failsafe — [IC](.jes/artifacts/implementation_contract_fase_c_crsf_stream_timeout_failsafe_b1.md)
 
 ## What v0.5.21 includes
 
@@ -90,7 +104,7 @@ Fase C · **C23** (`B1-fase-c-crsf-host-baud`) — **Darwin host baud 420000, st
 - `radio.py`/`crsf_stub.py`/`crsf_dual_role.py`/`crsf_stream.py`/`intent.py`/`safety.py` all byte-unchanged. `default_safety_gate()` unchanged.
 - **Host baud 420000 != live ELRS != RX connected != UART driver != Safety allow.** Darwin can be asked to clock an attached FD at an ELRS-typical rate, proven without hardware via ioctl mock, nothing more.
 - Package file / tag **`v0.5.21`** · suite **3504** — [review](.jes/artifacts/implementation_review_fase_c_crsf_host_baud_b1.md)
-- **Next (one front at a time):** C26 EscOutput HAL — [IC](.jes/artifacts/implementation_contract_fase_c_esc_output_hal_b1.md)
+- **Next (one front at a time):** C27 CRSF stream-timeout failsafe — [IC](.jes/artifacts/implementation_contract_fase_c_crsf_stream_timeout_failsafe_b1.md)
 
 ## What v0.5.20 includes
 
@@ -435,7 +449,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.23`** (C25 CLOSED). **C26 READY** — EscOutput HAL ([IC](.jes/artifacts/implementation_contract_fase_c_esc_output_hal_b1.md)). Parked after C26: C27 CRSF failsafe · C28 MCU UART stub · C29 silicon map — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Tip tagged `v0.5.24`** (C26 CLOSED). **C27 READY** — CRSF stream-timeout failsafe ([IC](.jes/artifacts/implementation_contract_fase_c_crsf_stream_timeout_failsafe_b1.md)). Parked after C27: C28 MCU UART stub · C29 silicon map — [process lock](.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 Parked (bags/lab): plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · board flash · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

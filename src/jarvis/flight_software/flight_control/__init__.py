@@ -14,6 +14,7 @@ from jarvis.flight_software.flight_control.controller import (
 )
 from jarvis.flight_software.flight_control.esc import (
     EscApplyResult,
+    EscOutput,
     EscPwmCommand,
     SimulatedEscSink,
     encode_motor_forces,
@@ -42,6 +43,7 @@ __all__ = [
     "ComplementaryAttitudeEstimator",
     "ControlTickResult",
     "EscApplyResult",
+    "EscOutput",
     "EscPwmCommand",
     "FlightControlLoop",
     "ImuHal",

@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (named output port ≠ pin · mixer still force-only · no DShot packets · C24 `step` still does not `apply` · Simulated sink remains the only implementation)
 
-**Status:** READY — awaiting Engineer ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.24`**  
 **Parents:**
 - [C25 ★ ACCEPT](implementation_contract_fase_c_rc_setpoint_b1.md) — RC → setpoint @ **`v0.5.23`**  
 - [C10 ★ ACCEPT](implementation_contract_fase_c_esc_pwm_stub_rung_b1.md) — `encode_motor_forces` + `SimulatedEscSink` @ **`v0.5.8`**  

@@ -212,6 +212,15 @@ Python C10. Kept as a separate smoke target from the closed-loop tip
 (IC C14 §0 "Defaults locked") — the tip still steps on `MotorForceCommand`
 directly and never needs PWM encoding to close the loop.
 
+`esc.hpp`/`esc.cpp` extended again for C26 (★ ACCEPT CLOSED @ tag `v0.5.24`): `EscOutput` is a new abstract base (virtual destructor,
+`apply_forces`/`arm`/`disarm`/`armed` as pure virtuals) naming the port
+C10/C14 already implemented as a concrete sink. `SimulatedEscSink`
+public-inherits it; `apply_forces` is a thin `encode_motor_forces` +
+`apply` wrapper — the diff in `esc.cpp` is purely additive (four lines
+added, zero removed/changed). `mixer.hpp`/`mixer.cpp` and every other
+rung file are untouched. `loop.hpp`/`loop.cpp` still never call
+`apply`/`apply_forces` — `EscOutput HAL != pin != motors != DShot`.
+
 `loop.hpp`/`loop.cpp` (C24, ★ ACCEPT CLOSED @ tag `v0.5.22`) names the
 one-cycle control tick this tree already ran inlined:
 `jarvis::fc::ControlLoop::step(sample, setpoint, collective) ->

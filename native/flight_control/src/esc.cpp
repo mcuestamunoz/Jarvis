@@ -35,4 +35,8 @@ EscApplyResult SimulatedEscSink::apply(const EscPwmCommand& cmd) {
     return EscApplyResult{true, std::nullopt, cmd.pulse_us};
 }
 
+EscApplyResult SimulatedEscSink::apply_forces(const MotorForceCommand& forces) {
+    return apply(encode_motor_forces(forces));
+}
+
 }  // namespace jarvis::fc

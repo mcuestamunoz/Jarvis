@@ -35,10 +35,38 @@ to write to.
 No `write_gpio`/`open_serial`/`send_dshot`/`pigpio_*`/`export_pwm`
 anywhere in this module — this is command encoding and in-memory
 bookkeeping only, never actuation.
+
+**Fase C · C26 — `EscOutput`: naming the port (`B1-fase-c-esc-output-hal`).**
+The mixer speaks **forces** only — it has never known PWM, DShot, or any
+wire protocol, and still does not (C26 IC §0 decision 4). Whoever "emits"
+toward an ESC speaks a named **port**: `EscOutput.apply_forces(forces) ->
+EscApplyResult`. Today the only device plugged into that port is
+`SimulatedEscSink` (in-memory only, exactly as C10/C14 shipped it); a
+future pin driver would implement the same port and encode **inside its
+own** `apply_forces`, never inside the mixer. `apply_forces` on
+`SimulatedEscSink` is a thin wrapper — `encode_motor_forces(forces)` then
+`self.apply(cmd)` — so the C10 `apply(EscPwmCommand)` path, its arming
+semantics, and every existing C10/C14 test stay byte-for-byte unchanged.
+
+**`EscOutput` is `abc.ABC`, not `typing.Protocol` (disclosed per IC §1):**
+`SimulatedEscSink` is a plain class already, not a Pydantic model, so an
+ABC does not fight anything here — no deviation was needed.
+
+**Only one implementation ships this Buy (C26 IC §0 decision 7):**
+`SimulatedEscSink`. No GPIO sink, no dummy pin class, no
+`NotImplementedError`-only stub offered as product surface — a second
+`EscOutput` implementation is a later, separate Buy if ever prioritized.
+
+**`EscOutput HAL != pin != motors != DShot`.** **Exists:** a named port;
+the simulated sink implements it; the mixer still does not know the wire
+protocol. **Impossible:** a motor on a wire; a DShot stream; `step`
+actuating anything — C24's `FlightControlLoop.step` still never calls
+`apply`/`apply_forces` (unchanged, verified in this Buy's own tests).
 """
 
 from __future__ import annotations
 
+import abc
 import math
 from typing import Literal
 
@@ -93,10 +121,43 @@ def encode_motor_forces(
     return EscPwmCommand(t_s=forces.t_s, pulse_us=pulses)
 
 
-class SimulatedEscSink:
+class EscOutput(abc.ABC):
+    """The named ESC output port (C26). Same contract for today's
+    in-memory `SimulatedEscSink` and any future pin driver — the mixer
+    never sees this type, it only ever produces `MotorForceCommand`.
+    `apply_forces` is where encoding into a wire-shaped command belongs;
+    a future implementation encodes DShot/Oneshot/whatever **inside its
+    own** `apply_forces`, never in `mixer.py`."""
+
+    @abc.abstractmethod
+    def apply_forces(self, forces: MotorForceCommand) -> EscApplyResult:
+        """Encode `forces` however this port's device expects, then
+        apply it. Must never claim a physical write happened — there is
+        no actuator behind any implementation that ships in this repo."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def arm(self) -> None:
+        """Flips an in-memory flag only — never claims physical power."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def disarm(self) -> None:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def armed(self) -> bool:
+        raise NotImplementedError
+
+
+class SimulatedEscSink(EscOutput):
     """In-memory only — never opens a pin, a port, or a socket. `armed`
     defaults to `False`; `apply(cmd)` always records `cmd` as the last
-    command but only marks `applied=True` while armed."""
+    command but only marks `applied=True` while armed. `apply_forces`
+    (C26) is a thin wrapper: `encode_motor_forces(forces)` then
+    `self.apply(cmd)` — the C10 `apply(EscPwmCommand)` path and its
+    arming semantics are unchanged."""
 
     def __init__(self) -> None:
         self._armed = False
@@ -118,6 +179,10 @@ class SimulatedEscSink:
         if not self._armed:
             return EscApplyResult(applied=False, reason="disarmed", pulse_us=cmd.pulse_us)
         return EscApplyResult(applied=True, reason=None, pulse_us=cmd.pulse_us)
+
+    def apply_forces(self, forces: MotorForceCommand) -> EscApplyResult:
+        cmd = encode_motor_forces(forces)
+        return self.apply(cmd)
 
     def last_command(self) -> EscPwmCommand | None:
         return self._last_command

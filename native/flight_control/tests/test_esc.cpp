@@ -71,3 +71,39 @@ TEST_CASE("SimulatedEscSink: armed apply() reports applied=true with no reason",
     EscApplyResult after = sink.apply(cmd);
     REQUIRE_FALSE(after.applied);
 }
+
+// Fase C · C26 — EscOutput port cases.
+
+TEST_CASE("SimulatedEscSink is convertible to EscOutput*", "[esc][c26]") {
+    SimulatedEscSink sink;
+    EscOutput* port = &sink;
+    REQUIRE(port != nullptr);
+    REQUIRE_FALSE(port->armed());
+}
+
+TEST_CASE("EscOutput::apply_forces disarmed: records, applied=false, reason=disarmed", "[esc][c26]") {
+    SimulatedEscSink sink;
+    EscOutput& port = sink;
+    MotorForceCommand forces = forces_of(0.0, 0.5, 1.0, 0.25);
+
+    EscApplyResult result = port.apply_forces(forces);
+
+    REQUIRE_FALSE(result.applied);
+    REQUIRE(result.reason.has_value());
+    REQUIRE(*result.reason == "disarmed");
+    REQUIRE(sink.last_command().has_value());
+}
+
+TEST_CASE("EscOutput::apply_forces armed: applied=true, pulses match encode_motor_forces", "[esc][c26]") {
+    SimulatedEscSink sink;
+    sink.arm();
+    EscOutput& port = sink;
+    MotorForceCommand forces = forces_of(0.0, 0.5, 1.0, 0.25);
+    EscPwmCommand expected = encode_motor_forces(forces);
+
+    EscApplyResult result = port.apply_forces(forces);
+
+    REQUIRE(result.applied);
+    REQUIRE(result.pulse_us.has_value());
+    REQUIRE(*result.pulse_us == expected.pulse_us);
+}
