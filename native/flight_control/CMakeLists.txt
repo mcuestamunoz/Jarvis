@@ -34,6 +34,7 @@ add_library(jarvis_fc STATIC
     src/uart.cpp
     src/dshot.cpp
     src/spi.cpp
+    src/spi_probe.cpp
 )
 target_include_directories(jarvis_fc PUBLIC include)
 target_compile_options(jarvis_fc PRIVATE -Wall -Wextra)
@@ -89,6 +90,7 @@ add_executable(fc_unit_tests
     tests/test_uart.cpp
     tests/test_dshot.cpp
     tests/test_spi.cpp
+    tests/test_spi_probe.cpp
 )
 target_link_libraries(fc_unit_tests PRIVATE jarvis_fc Catch2::Catch2WithMain)
 target_compile_options(fc_unit_tests PRIVATE -Wall -Wextra)

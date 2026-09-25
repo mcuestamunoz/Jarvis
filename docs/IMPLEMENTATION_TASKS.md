@@ -6,9 +6,9 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C34 IC READY** — [`B1-fase-c-spi-scripted-gyro-probe`](../.jes/artifacts/implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md) awaiting Engineer ★. `probe_rx` client of `SpiBytePort`; not gyro live, not WHO_AM_I. C33 **CLOSED** @ **`v0.5.31`**. [`review`](../.jes/artifacts/implementation_review_fase_c_spi_scripted_slave_b1.md) · situation: [`after C33`](../.jes/artifacts/engineer_note_fase_c_situation_after_c33_2026_09_25.md).  
-> Tip tagged **`v0.5.31`**. Suite **3667** · `ctest` **66/66**.  
-> **Cola (no-pin, after C34):** denser `step` · Taller CSS cuboid · standoff points.  
+> **PRIORIDAD AHORA:** **C35 IC READY** — [`B1-fase-c-step-failsafe-hold-ticks`](../.jes/artifacts/implementation_contract_fase_c_step_failsafe_hold_ticks_b1.md) awaiting Engineer ★. Tests only: 1000 canned-IMU `step()` + stale RC into the same tick; not flying, not 6-DoF. C34 **CLOSED** @ **`v0.5.32`**. [`review`](../.jes/artifacts/implementation_review_fase_c_spi_scripted_gyro_probe_b1.md).  
+> Tip tagged **`v0.5.32`**. Suite **3679** · `ctest` **72/72**.  
+> **Cola (no-pin, after C35):** Taller CSS cuboid · standoff points.  
 > **Parked (silicon):** C30 desk DFU · GPIO/DShot *wire* · gyro on SPI1 · craft↔FS.  
 > Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
@@ -83,8 +83,8 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C31** | **`B1-fase-c-dshot-encode-stub`** | **✅ ACCEPT CLOSED** @ **`v0.5.29`** | 16-bit DShot frame in RAM (Python + C++); PWM `EscOutput` unchanged; not GPIO | [review](../.jes/artifacts/implementation_review_fase_c_dshot_encode_stub_b1.md) · tag **`v0.5.29`** |
 | **C32** | **`B1-fase-c-mcu-spi-hal-stub`** | **✅ ACCEPT CLOSED** @ **`v0.5.30`** | `SpiBytePort` + in-memory `LoopbackSpi`; not chip SPI, not ICM42688P | [review](../.jes/artifacts/implementation_review_fase_c_mcu_spi_hal_stub_b1.md) · tag **`v0.5.30`** |
 | **C33** | **`B1-fase-c-spi-scripted-slave`** | **✅ ACCEPT CLOSED** @ **`v0.5.31`** | Second `SpiBytePort`: canned RX, not echo; still not the gyro | [review](../.jes/artifacts/implementation_review_fase_c_spi_scripted_slave_b1.md) · tag **`v0.5.31`** |
-| **C34** | **`B1-fase-c-spi-scripted-gyro-probe`** | **IC READY** (awaiting Engineer ★) | `probe_rx` client of `SpiBytePort`; canned `0x47` is a test fixture, not WHO_AM_I | [IC](../.jes/artifacts/implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md) |
-| **C35** | denser host `step` tests | **COLA** | More ticks / failsafe / hold; no 6-DoF plant | after C34 |
+| **C34** | **`B1-fase-c-spi-scripted-gyro-probe`** | **✅ ACCEPT CLOSED** @ **`v0.5.32`** | `probe_rx` client of `SpiBytePort`; canned fixture byte is test-only, not WHO_AM_I | [review](../.jes/artifacts/implementation_review_fase_c_spi_scripted_gyro_probe_b1.md) · tag **`v0.5.32`** |
+| **C35** | **`B1-fase-c-step-failsafe-hold-ticks`** | **IC READY** (awaiting Engineer ★) | Tests only: 1000 canned-IMU `step` + stale RC → same tick; no 6-DoF | [IC](../.jes/artifacts/implementation_contract_fase_c_step_failsafe_hold_ticks_b1.md) |
 | **C36+** | GPIO/DShot wire · on-chip USART · gyro **driver** · deepen policy · craft↔FS · C30 desk DFU · Linux baud | **Parked** | One front at a time · [bench note](../.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md) | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).

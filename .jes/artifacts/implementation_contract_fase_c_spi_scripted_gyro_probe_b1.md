@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (probe ≠ gyro live ≠ chip SPI ≠ WHO_AM_I)
 
-**Status:** **READY** — awaiting Engineer ★ (parent: C33 ★ ACCEPT CLOSED @ **`v0.5.31`**)  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.32`**  
 **Parents:**
 - [C33](implementation_contract_fase_c_spi_scripted_slave_b1.md) — `ScriptedSpi` (canned RX) · PASS WITH NOTES · tag **`v0.5.31`** on ACCEPT  
 - [C32 ★ ACCEPT](implementation_contract_fase_c_mcu_spi_hal_stub_b1.md) — `SpiBytePort` + `LoopbackSpi` @ **`v0.5.30`**  

@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-25 C33 ACCEPT CLOSED @ v0.5.31. C34 IC READY: B1-fase-c-spi-scripted-gyro-probe (port client, not gyro). Cola after C34: denser step, Taller CSS cuboid, standoff points.",
-  "scope": "C33 tagged. Next: Engineer star C34. Out: gyro driver, DShot wire, C30 DFU.",
+  "cycle_intent": "2026-09-25 C34 ACCEPT CLOSED @ v0.5.32. C35 IC READY: B1-fase-c-step-failsafe-hold-ticks (tests only). Cola: Taller CSS, standoff points.",
+  "scope": "C34 tagged. Next: Engineer star C35. Out: 6-DoF, gyro driver, DShot wire, C30 DFU.",
   "execution_status": "idle",
   "current_mode": "await_engineer_star",
-  "active_operation": "c34_ic_ready",
+  "active_operation": "c35_ic_ready",
   "movement_trigger": {
     "type": "evidence",
-    "note": "C33 ACCEPT CLOSED @ v0.5.31. C34 IC ready for star. Four no-pin fronts queued."
+    "note": "C34 ACCEPT CLOSED @ v0.5.32. C35 IC ready for star."
   },
   "relevant_workflow_phases": [
     "Verification"

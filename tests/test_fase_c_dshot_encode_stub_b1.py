@@ -139,7 +139,7 @@ def test_t7_no_gpio_tim_bsrr_pigpio_in_new_dshot_files():
 
 def test_t9_pyproject_version_is_0_5_29():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.31"' in text
+    assert 'version = "0.5.32"' in text
 
 
 def test_t10_full_suite_process_gate_placeholder():

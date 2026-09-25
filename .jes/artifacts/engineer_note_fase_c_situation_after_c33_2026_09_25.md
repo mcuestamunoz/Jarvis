@@ -2,6 +2,7 @@
 
 **Audience:** Engineer  
 **C33:** [review PASS WITH NOTES](implementation_review_fase_c_spi_scripted_slave_b1.md) — ★ ACCEPT CLOSED @ **`v0.5.31`**  
+**C34:** [review PASS WITH NOTES](implementation_review_fase_c_spi_scripted_gyro_probe_b1.md) — ★ ACCEPT CLOSED @ **`v0.5.32`**  
 **Desk:** two plates in hand; **no battery, no motors**. F460 stack is on the table with Betaflight. Not a reason to flash Jarvis.
 
 Honesty line for this whole phase:
@@ -14,9 +15,9 @@ scripted SPI ≠ gyro live ≠ chip SPI ≠ DShot pin ≠ motors ≠ flying
 
 ## 1. Where the software tip is
 
-Package **`0.5.31`**. Git tag **`v0.5.31`**.
+Package **`0.5.32`**. Git tag **`v0.5.32`**.
 
-C0–C33 are ACCEPT CLOSED.
+C0–C34 are ACCEPT CLOSED.
 
 On the Mac, the control ladder exists end-to-end **in RAM / host tests**:
 
@@ -28,7 +29,7 @@ On the Mac, the control ladder exists end-to-end **in RAM / host tests**:
 | ESC path | `EscOutput` + simulated sink; PWM µs; **DShot 16-bit in RAM** | not a pin, not a spinning motor |
 | Radio | CRSF fixture → bytes → host FD/baud 420000; aux→kill Authority | not live ELRS on UART2 |
 | UART HAL | `UartBytePort` + loopback | not chip USART |
-| SPI HAL | `SpiBytePort` + `LoopbackSpi` (echo) + **`ScriptedSpi` (canned RX)** | not SPI1, not gyro |
+| SPI HAL | `SpiBytePort` + `LoopbackSpi` + `ScriptedSpi` + **`probe_rx` client** | not SPI1, not gyro |
 | MCU image | `fc_mcu_stub.elf` / `.bin` + cited FLASH map + PC13 LED **in the binary** | **not flashed**; Betaflight stays |
 
 `craft ↔ flight_software` is still **zero**. Registry skills list is still empty.
@@ -51,8 +52,8 @@ Optional, one front at a time, **no solder**:
 
 | # | Optional | Demonstrates | Still impossible |
 |---|---|---|---|
-| **1 → C34** | [`probe_rx`](implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md) (IC READY) | “a device answered 0x47” via a **port client** | gyro live / SPI1 / WHO_AM_I |
-| **2 → C35** | Denser host `step` tests (COLA) | more ticks / failsafe / hold | 6-DoF flight |
+| **1 → C34** | [`probe_rx`](implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md) | **CLOSED** @ `v0.5.32` | gyro live / SPI1 / WHO_AM_I |
+| **2 → C35** | [`step` denser tests](implementation_contract_fase_c_step_failsafe_hold_ticks_b1.md) (IC READY) | 1000 canned ticks + failsafe→`step` | 6-DoF flight |
 | **3** | Taller CSS cuboid faces (COLA) | six faces meet on a thin plate | CAD / fit |
 | **4** | Standoff perimeter points (COLA) | eight cylinders, points to correct | hole-pattern fact |
 
@@ -99,7 +100,7 @@ That track does not close or block Fase C.
 
 ## 6. Recommended sequence
 
-1. **C33 ACCEPT** + tag **`v0.5.31`** — done. No-pin HAL *port* rung closed.  
-2. ★ **C34** [`B1-fase-c-spi-scripted-gyro-probe`](implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md) — port **client**; not the gyro.  
-3. Then cola, one front: **C35** denser `step` · Taller CSS cuboid · standoff points.  
-4. Stop Fase C **silicon** until battery + motors + bench exist.
+1. **C33 ACCEPT** @ **`v0.5.31`** — done.  
+2. **C34 ACCEPT** @ **`v0.5.32`** — done. Port **client** closed.  
+3. ★ **C35** [`B1-fase-c-step-failsafe-hold-ticks`](implementation_contract_fase_c_step_failsafe_hold_ticks_b1.md) — tests only.  
+4. Then cola: Taller CSS cuboid · standoff points. Stop Fase C **silicon** until battery + motors + bench exist.

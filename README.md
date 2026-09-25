@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.31 tagged tip** · C33 `ScriptedSpi` CLOSED (canned RX, not TX echo — still not the ICM42688P) · C32 SPI byte port loopback CLOSED (not gyro)
+**v0.5.32 tagged tip** · C34 `probe_rx` CLOSED (port client, not gyro live, not WHO_AM_I) · C33 `ScriptedSpi` CLOSED (canned RX, not TX echo)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -73,7 +73,20 @@ Fase C · **C33** (`B1-fase-c-spi-scripted-slave`) — **a second `SpiBytePort`:
 - `stub_main.cpp`, `hello_led.h`/`hello_led.c` (C30), `dshot.hpp`/`dshot.cpp`/`dshot.py` (C31), and `uart.hpp`/`uart.cpp` (C28) all stay byte-identical — no SPI poll in `main`.
 - **Scripted SPI != gyro live != chip SPI != flying.** A canned-RX test double exists. Nothing here reads a real device.
 - Package **`0.5.31`** · tagged **`v0.5.31`** · suite **3667** · host `ctest` **66/66** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_spi_scripted_slave_b1.md)
-- **Next:** C34 [`B1-fase-c-spi-scripted-gyro-probe`](.jes/artifacts/implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md) READY — `probe_rx` client of `SpiBytePort`; not gyro live, not WHO_AM_I. DShot wire / C30 DFU parked until bench.
+- **Next:** C34 CLOSED @ **`v0.5.32`**.
+
+## What v0.5.32 includes
+
+Fase C · **C34** (`B1-fase-c-spi-scripted-gyro-probe`) — **a client of `SpiBytePort`, not a gyro driver**:
+
+- New `native/flight_control/include/jarvis/fc/spi_probe.hpp`/`src/spi_probe.cpp`: `probe_rx(SpiBytePort& port, uint8_t* rx, size_t n) -> size_t` — sends `n` dummy **zero** TX bytes (never a register address) and returns whatever `port.transfer(...)` moves into `rx`. `n == 0` returns `0`. `spi.hpp`/`spi.cpp` (C32/C33) get **zero edits** — the port stays the port, `spi_probe.*` is the first caller.
+- On `ScriptedSpi` (C33) loaded with a placeholder fixture byte, `probe_rx` returns that byte — proving the RX path end-to-end. On `LoopbackSpi` (C32), `probe_rx` returns all-zeros (the dummy TX echoed back) — proving the client is port-shaped, not tied to one implementation.
+- Same overflow policy as the port itself: a script shorter than `n` **returns a short count**, untouched tail of `rx` left exactly as passed in.
+- **Zero SPI registers, zero CMSIS, zero chip-select/NSS GPIO, zero IRQ/DMA, zero CRSF/ELRS tokens** anywhere in `native/`. `WHO_AM_I`/`ICM42688P`/register address `0x75` do not appear anywhere in `spi_probe.*`, not even in a comment — the fixture byte itself lives in tests only, never in library code.
+- `stub_main.cpp`, `hello_led.h`/`hello_led.c` (C30), `dshot.hpp`/`dshot.cpp`/`dshot.py` (C31), `uart.hpp`/`uart.cpp` (C28), and `loop.hpp`/`loop.cpp`/`loop.py` (C3/C4) all stay byte-identical — no probe poll in `main`, no IMU-into-`step` wiring.
+- **Scripted gyro probe != gyro live != chip SPI != WHO_AM_I != flying.** A byte-probe client exists. Nothing here reads a real device or claims an identity register.
+- Package **`0.5.32`** · tagged **`v0.5.32`** · suite **3679** · host `ctest` **72/72** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_spi_scripted_gyro_probe_b1.md)
+- **Next:** C35 [`B1-fase-c-step-failsafe-hold-ticks`](.jes/artifacts/implementation_contract_fase_c_step_failsafe_hold_ticks_b1.md) READY — tests only (1000 canned-IMU `step` + stale RC into the same tick). DShot wire / C30 DFU parked until bench.
 
 ## What v0.5.29 includes
 
@@ -545,7 +558,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.31`** (C33 CLOSED — `ScriptedSpi` canned RX, not gyro). Next: C34 [`B1-fase-c-spi-scripted-gyro-probe`](.jes/artifacts/implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md). Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.32`** (C34 CLOSED — `probe_rx` port client, not gyro). Next: C35 [`B1-fase-c-step-failsafe-hold-ticks`](.jes/artifacts/implementation_contract_fase_c_step_failsafe_hold_ticks_b1.md). Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 
