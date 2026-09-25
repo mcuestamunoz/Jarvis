@@ -6,9 +6,9 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C35 CLOSED** @ **`v0.5.33`**. Cola (no-pin, pick one): Taller CSS cuboid faces · standoff perimeter points. Silicon parked until bench. [`review`](../.jes/artifacts/implementation_review_fase_c_step_failsafe_hold_ticks_b1.md).  
+> **PRIORIDAD AHORA:** **Taller CSS IC READY** — [`B1-geometry-taller-css-cuboid-faces`](../.jes/artifacts/implementation_contract_geometry_taller_css_cuboid_faces_b1.md) awaiting Engineer ★. Six faces meet on a thin plate; visor bug, not extra parts, not CAD. C35 **CLOSED** @ **`v0.5.33`**.  
 > Tip tagged **`v0.5.33`**. Suite **3691** · `ctest` **76/76**.  
-> **Cola (no-pin):** Taller CSS cuboid · standoff points.  
+> **Cola (after this):** standoff perimeter points.  
 > **Parked (silicon):** C30 desk DFU · GPIO/DShot *wire* · gyro on SPI1 · craft↔FS.  
 > Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
@@ -105,6 +105,8 @@ Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
+| — | **`B1-geometry-taller-css-cuboid-faces`** | **IC READY** (awaiting Engineer ★) — four-front **#3** | Six faces meet on a thin plate; visor bug, not extra parts | [IC](../.jes/artifacts/implementation_contract_geometry_taller_css_cuboid_faces_b1.md) |
+| — | **`B1-standoff-cylinder-layout`** | **COLA** (no ACCEPT) — four-front **#4** | 8 cilindros landed; **puntos de perímetro a corregir** | [IC](../.jes/artifacts/implementation_contract_geometry_standoff_cylinder_layout_b1.md) |
 | — | **`B1-plate-box`** | **Await bag** | L×W medida/citada | Caliper / cite |
 | — | Path N | **B0 HOLD** | Disk origin | No reabrir |
 | — | Cited `library/cameras` physics bags | Park | Extra SKUs / lab dims beyond Phoenix 2 seed | Engineer |

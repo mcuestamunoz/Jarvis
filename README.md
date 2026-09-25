@@ -86,7 +86,7 @@ Fase C · **C34** (`B1-fase-c-spi-scripted-gyro-probe`) — **a client of `SpiBy
 - `stub_main.cpp`, `hello_led.h`/`hello_led.c` (C30), `dshot.hpp`/`dshot.cpp`/`dshot.py` (C31), `uart.hpp`/`uart.cpp` (C28), and `loop.hpp`/`loop.cpp`/`loop.py` (C3/C4) all stay byte-identical — no probe poll in `main`, no IMU-into-`step` wiring.
 - **Scripted gyro probe != gyro live != chip SPI != WHO_AM_I != flying.** A byte-probe client exists. Nothing here reads a real device or claims an identity register.
 - Package **`0.5.32`** · tagged **`v0.5.32`** · suite **3679** · host `ctest` **72/72** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_spi_scripted_gyro_probe_b1.md)
-- **Next:** C35 CLOSED @ **`v0.5.33`**. Cola (no-pin, pick one): Taller CSS cuboid · standoff points. DShot wire / C30 DFU parked until bench.
+- **Next:** Taller CSS [`B1-geometry-taller-css-cuboid-faces`](.jes/artifacts/implementation_contract_geometry_taller_css_cuboid_faces_b1.md) READY — six faces on a thin plate (visor, not CAD). Cola: standoff points. DShot wire / C30 DFU parked until bench.
 
 ## What v0.5.33 includes
 
@@ -99,7 +99,7 @@ Fase C · **C35** (`B1-fase-c-step-failsafe-hold-ticks`) — **tests only: many 
 - `probe_rx` (C34) is **not** used as an IMU source anywhere in these tests — the canned IMU sample is a plain struct literal, same as every prior Buy on this axis.
 - **Many ticks != flying != 6-DoF. Failsafe -> step != motors cut != HOLD executed.** A thousand ticks of `step()` on canned IMU, and a stale-RC path into the same `step()`, both exist. Nothing here is a flying plant, a motor cut, or an executed autonomy command.
 - Package **`0.5.33`** · tagged **`v0.5.33`** · suite **3691** · host `ctest` **76/76** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_step_failsafe_hold_ticks_b1.md)
-- **Next:** cola (no-pin, pick one): Taller CSS cuboid · standoff points. DShot wire / C30 DFU parked until bench.
+- **Next:** Taller CSS cuboid-faces IC READY. Cola: standoff points. DShot wire / C30 DFU parked until bench.
 
 ## What v0.5.29 includes
 
@@ -571,7 +571,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.33`** (C35 CLOSED — denser `step` tests, not flying). Cola (no-pin, pick one): Taller CSS cuboid · standoff points. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.33`** (C35 CLOSED — denser `step` tests, not flying). Next: Taller CSS [`B1-geometry-taller-css-cuboid-faces`](.jes/artifacts/implementation_contract_geometry_taller_css_cuboid_faces_b1.md) READY. Cola: standoff points. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

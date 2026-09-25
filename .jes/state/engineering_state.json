@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-25 C35 ACCEPT CLOSED @ v0.5.33. Cola: Taller CSS cuboid, standoff points. Silicon parked.",
-  "scope": "C35 tagged. Next: Engineer pick cola 3 or 4. Out: 6-DoF, gyro driver, DShot wire, C30 DFU.",
+  "cycle_intent": "2026-09-25 C35 ACCEPT CLOSED @ v0.5.33. Taller CSS cuboid-faces IC READY (B1-geometry-taller-css-cuboid-faces). Cola: standoff points. Silicon parked.",
+  "scope": "C35 tagged. Next: Engineer star Taller CSS IC. Out: standoff points, F460, CAD, silicon.",
   "execution_status": "idle",
-  "current_mode": "await_engineer_pick",
-  "active_operation": "c35_closed",
+  "current_mode": "await_engineer_star",
+  "active_operation": "taller_css_cuboid_ic_ready",
   "movement_trigger": {
     "type": "evidence",
-    "note": "C35 ACCEPT CLOSED @ v0.5.33. Pick next no-pin front: Taller CSS or standoff points."
+    "note": "C35 CLOSED @ v0.5.33. Taller CSS cuboid-faces IC ready for star."
   },
   "relevant_workflow_phases": [
     "Verification"

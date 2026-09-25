@@ -148,7 +148,7 @@ Analogía: el plano de una casa marca “aquí irá la cocina”; aún no hay fr
 **Dos dimensiones (no confundir):**
 
 1. **Craft** (`core/`, Continuity, Board, `library/`) — diseñar el vehículo (BOM, montaje, física). SoT de diseño @ tip craft `v0.4.3`.  
-2. **Platform / Fase C** — operar sistemas físicos algún día. Hoy solo andamiaje. **Tip git tagged:** `v0.5.33` (C35 denser `step` tests CLOSED; not flying). C34 `probe_rx` CLOSED (not gyro). Cola: Taller CSS cuboid · standoff points. See [process lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) · [bench note](../.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+2. **Platform / Fase C** — operar sistemas físicos algún día. Hoy solo andamiaje. **Tip git tagged:** `v0.5.33` (C35 denser `step` tests CLOSED; not flying). C34 `probe_rx` CLOSED (not gyro). **Next visor:** Taller CSS cuboid faces IC READY. See [process lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) · [bench note](../.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 **Qué hace cada zona de archivos (mapa mental):**
 
@@ -295,7 +295,7 @@ Visión / briefing: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION
 
 **C35** (`B1-fase-c-step-failsafe-hold-ticks`, package/tag **`v0.5.33`**, **★ ACCEPT CLOSED**) es un Buy de **solo tests**: encadena lo que C24/C27 ya *permiten* pero no *encadenaban*. **Cero código de producción tocado** — `loop.py`/`loop.hpp`/`loop.cpp`, `rc_hold.hpp`/`rc_hold.cpp`, `crsf_failsafe.py` y `spi_probe.hpp`/`spi_probe.cpp` (C34) quedan **byte-idénticos**. Tests (Python + 4 casos Catch2 en `test_loop.cpp`): **1000** ticks de `step()` con un `ImuSample` de lata en nivel (`accel ≈ (0,0,-9.81)`, giro cero) y sin plant — cada tick, las cuatro fuerzas de motor son finitas y están en `[0, 1]`. Un watch **stale** (nunca notado, o pasado el timeout de 0.5 s) alimenta `failsafe_loop_inputs(t)` hacia ese mismo `step()` — el `collective` que entra es **0**. "Hold" significa seguir pasando `level_setpoint`, no que `AutonomyVerb.HOLD` llegue a ejecutarse. `probe_rx` (C34) **no** se usa como IMU. Ver [implementation review](../.jes/artifacts/implementation_review_fase_c_step_failsafe_hold_ticks_b1.md).
 
-**Muchos ticks ≠ volar ≠ 6-DoF. Failsafe → step ≠ motores cortados ≠ HOLD ejecutado**: existen tests que llaman `step()` mil veces y que meten las entradas de failsafe en ese mismo `step()`. Nada aquí es una planta que vuela, un corte de motor, o un comando de autonomía ejecutado. **Siguiente:** cola (sin pin, uno): Taller CSS cuboide · puntos standoff. Parked hasta banco: DShot *wire* · USART on-chip · C30 desk DFU — ver el [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
+**Muchos ticks ≠ volar ≠ 6-DoF. Failsafe → step ≠ motores cortados ≠ HOLD ejecutado**: existen tests que llaman `step()` mil veces y que meten las entradas de failsafe en ese mismo `step()`. Nada aquí es una planta que vuela, un corte de motor, o un comando de autonomía ejecutado. **Siguiente visor:** Taller CSS cuboide [`B1-geometry-taller-css-cuboid-faces`](../.jes/artifacts/implementation_contract_geometry_taller_css_cuboid_faces_b1.md). Cola: puntos standoff. Parked hasta banco: DShot *wire* · USART on-chip · C30 desk DFU — ver el [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).
 
 ### 1d. `flight_software/autonomy/` — Fase C · C4 (superficie de comandos, sin autonomía viva)
 
