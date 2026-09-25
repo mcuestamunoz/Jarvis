@@ -220,7 +220,7 @@ def test_t9_registry_empty_and_no_craft_or_core_imports_of_loop():
 
 def test_t10_pyproject_version_is_0_5_22():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.30"' in text
+    assert 'version = "0.5.31"' in text
 
 
 def test_t11_full_suite_process_gate_placeholder():

@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.30 tagged tip** · C32 SPI byte port loopback CLOSED (not gyro) · next: C33 ScriptedSpi READY (canned RX, still not the ICM42688P)
+**v0.5.31 tagged tip** · C33 `ScriptedSpi` CLOSED (canned RX, not TX echo — still not the ICM42688P) · C32 SPI byte port loopback CLOSED (not gyro)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -60,7 +60,20 @@ Fase C · **C32** (`B1-fase-c-mcu-spi-hal-stub`) — **the SPI port got a name, 
 - `dshot.hpp`/`dshot.cpp`/`dshot.py` (C31), `hello_led.h`/`hello_led.c`/`stub_main.cpp` (C30), and `uart.hpp`/`uart.cpp` (C28) all stay byte-identical — idle is still only PC13, no SPI poll in `main`. `SimulatedImuHal` (C3) untouched.
 - **MCU SPI stub != chip SPI != gyro live != flying.** A named SPI byte port exists; an in-memory loopback implements it.
 - Package **`0.5.30`** · tagged **`v0.5.30`** · suite **3649** · host `ctest` **60/60** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_mcu_spi_hal_stub_b1.md)
-- **Next:** C33 [`B1-fase-c-spi-scripted-slave`](.jes/artifacts/implementation_contract_fase_c_spi_scripted_slave_b1.md) READY (canned RX on `SpiBytePort`; not gyro). DShot wire / C30 DFU parked until bench.
+- **Next:** C33 CLOSED @ **`v0.5.31`**.
+
+## What v0.5.31 includes
+
+Fase C · **C33** (`B1-fase-c-spi-scripted-slave`) — **a second `SpiBytePort`: canned RX, not TX echo, still not the gyro**:
+
+- Extends the existing `native/flight_control/include/jarvis/fc/spi.hpp`/`src/spi.cpp` (no new file) with `ScriptedSpi`, a second `SpiBytePort` implementation — `LoopbackSpi` (C32) stays byte-behavior-unchanged.
+- `ScriptedSpi(canned_rx)` fills `rx[0..accepted)` from a pre-loaded byte script, **never** from `tx` — this is how a test pretends "a device answered" without any real chip. `set_next_rx(...)` reprograms the script for subsequent transfers; each `transfer(...)` call fills RX from the start of the currently-loaded script (a fixed canned response, not a consuming stream across calls).
+- Same overflow policy as `LoopbackSpi`/`LoopbackUart`: a script shorter than the requested `n` **returns a short count**, and the untouched tail of `rx` is left exactly as the caller passed it in.
+- **Zero SPI registers, zero CMSIS, zero chip-select/NSS GPIO, zero IRQ/DMA**, zero CRSF/ELRS tokens anywhere in `native/`. `WHO_AM_I`/`ICM42688P` appear only in comments (e.g. "a future gyro test could load `0x47` here"), never in real code.
+- `stub_main.cpp`, `hello_led.h`/`hello_led.c` (C30), `dshot.hpp`/`dshot.cpp`/`dshot.py` (C31), and `uart.hpp`/`uart.cpp` (C28) all stay byte-identical — no SPI poll in `main`.
+- **Scripted SPI != gyro live != chip SPI != flying.** A canned-RX test double exists. Nothing here reads a real device.
+- Package **`0.5.31`** · tagged **`v0.5.31`** · suite **3667** · host `ctest` **66/66** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_spi_scripted_slave_b1.md)
+- **Next:** C34 [`B1-fase-c-spi-scripted-gyro-probe`](.jes/artifacts/implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md) READY — `probe_rx` client of `SpiBytePort`; not gyro live, not WHO_AM_I. DShot wire / C30 DFU parked until bench.
 
 ## What v0.5.29 includes
 
@@ -532,7 +545,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.30`** (C32 CLOSED — SPI byte port loopback, not gyro). **C33 READY** — [`B1-fase-c-spi-scripted-slave`](.jes/artifacts/implementation_contract_fase_c_spi_scripted_slave_b1.md) awaiting Engineer ★. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.31`** (C33 CLOSED — `ScriptedSpi` canned RX, not gyro). Next: C34 [`B1-fase-c-spi-scripted-gyro-probe`](.jes/artifacts/implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md). Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

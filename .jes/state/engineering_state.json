@@ -1,16 +1,21 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-24 C32 ACCEPT CLOSED @ v0.5.30 (SpiBytePort + LoopbackSpi, not gyro). C33 B1-fase-c-spi-scripted-slave READY awaiting Engineer \u2605.",
-  "scope": "geometry_3d_mapping_path",
+  "cycle_intent": "2026-09-25 C33 ACCEPT CLOSED @ v0.5.31. C34 IC READY: B1-fase-c-spi-scripted-gyro-probe (port client, not gyro). Cola after C34: denser step, Taller CSS cuboid, standoff points.",
+  "scope": "C33 tagged. Next: Engineer star C34. Out: gyro driver, DShot wire, C30 DFU.",
   "execution_status": "idle",
   "current_mode": "await_engineer_star",
-  "active_operation": "fase_c_c33_spi_scripted_slave_ic_ready",
+  "active_operation": "c34_ic_ready",
   "movement_trigger": {
-    "type": "engineer_star",
-    "note": "2026-09-24 C32 CLOSED @ v0.5.30. C33 ScriptedSpi IC READY. Desk DFU parked until bench."
+    "type": "evidence",
+    "note": "C33 ACCEPT CLOSED @ v0.5.31. C34 IC ready for star. Four no-pin fronts queued."
   },
   "relevant_workflow_phases": [
     "Verification"
+  ],
+  "open_questions": [
+    "Bottom plate LxW still unmeasured.",
+    "Arm flare: option A bounding box seeded; option B two-boxes not started.",
+    "Live smoke: rebind MY5 and confirm grafo children."
   ],
   "engineer_ratification": {
     "phase25_hover_energy": "CHECKPOINTED @ v0.3.5",

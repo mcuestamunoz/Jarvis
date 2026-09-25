@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (canned RX ≠ gyro ≠ chip SPI)
 
-**Status:** READY — awaiting Engineer ★  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.31`**  
 **Parents:**
 - [C32 ★ ACCEPT](implementation_contract_fase_c_mcu_spi_hal_stub_b1.md) — `SpiBytePort` + `LoopbackSpi` @ **`v0.5.30`**  
 - [bench before silicon](engineer_note_fase_c_bench_before_silicon_2026_09_24.md)  
