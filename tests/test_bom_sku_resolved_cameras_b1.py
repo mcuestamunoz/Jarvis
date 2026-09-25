@@ -105,4 +105,4 @@ def test_t5_package_checkpoint():
     from pathlib import Path
 
     text = Path("pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.32"' in text
+    assert 'version = "0.5.33"' in text

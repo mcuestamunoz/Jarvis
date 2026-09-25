@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-25 C34 ACCEPT CLOSED @ v0.5.32. C35 IC READY: B1-fase-c-step-failsafe-hold-ticks (tests only). Cola: Taller CSS, standoff points.",
-  "scope": "C34 tagged. Next: Engineer star C35. Out: 6-DoF, gyro driver, DShot wire, C30 DFU.",
+  "cycle_intent": "2026-09-25 C35 ACCEPT CLOSED @ v0.5.33. Cola: Taller CSS cuboid, standoff points. Silicon parked.",
+  "scope": "C35 tagged. Next: Engineer pick cola 3 or 4. Out: 6-DoF, gyro driver, DShot wire, C30 DFU.",
   "execution_status": "idle",
-  "current_mode": "await_engineer_star",
-  "active_operation": "c35_ic_ready",
+  "current_mode": "await_engineer_pick",
+  "active_operation": "c35_closed",
   "movement_trigger": {
     "type": "evidence",
-    "note": "C34 ACCEPT CLOSED @ v0.5.32. C35 IC ready for star."
+    "note": "C35 ACCEPT CLOSED @ v0.5.33. Pick next no-pin front: Taller CSS or standoff points."
   },
   "relevant_workflow_phases": [
     "Verification"

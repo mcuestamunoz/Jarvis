@@ -6,9 +6,9 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C35 IC READY** — [`B1-fase-c-step-failsafe-hold-ticks`](../.jes/artifacts/implementation_contract_fase_c_step_failsafe_hold_ticks_b1.md) awaiting Engineer ★. Tests only: 1000 canned-IMU `step()` + stale RC into the same tick; not flying, not 6-DoF. C34 **CLOSED** @ **`v0.5.32`**. [`review`](../.jes/artifacts/implementation_review_fase_c_spi_scripted_gyro_probe_b1.md).  
-> Tip tagged **`v0.5.32`**. Suite **3679** · `ctest` **72/72**.  
-> **Cola (no-pin, after C35):** Taller CSS cuboid · standoff points.  
+> **PRIORIDAD AHORA:** **C35 CLOSED** @ **`v0.5.33`**. Cola (no-pin, pick one): Taller CSS cuboid faces · standoff perimeter points. Silicon parked until bench. [`review`](../.jes/artifacts/implementation_review_fase_c_step_failsafe_hold_ticks_b1.md).  
+> Tip tagged **`v0.5.33`**. Suite **3691** · `ctest` **76/76**.  
+> **Cola (no-pin):** Taller CSS cuboid · standoff points.  
 > **Parked (silicon):** C30 desk DFU · GPIO/DShot *wire* · gyro on SPI1 · craft↔FS.  
 > Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
@@ -84,7 +84,7 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C32** | **`B1-fase-c-mcu-spi-hal-stub`** | **✅ ACCEPT CLOSED** @ **`v0.5.30`** | `SpiBytePort` + in-memory `LoopbackSpi`; not chip SPI, not ICM42688P | [review](../.jes/artifacts/implementation_review_fase_c_mcu_spi_hal_stub_b1.md) · tag **`v0.5.30`** |
 | **C33** | **`B1-fase-c-spi-scripted-slave`** | **✅ ACCEPT CLOSED** @ **`v0.5.31`** | Second `SpiBytePort`: canned RX, not echo; still not the gyro | [review](../.jes/artifacts/implementation_review_fase_c_spi_scripted_slave_b1.md) · tag **`v0.5.31`** |
 | **C34** | **`B1-fase-c-spi-scripted-gyro-probe`** | **✅ ACCEPT CLOSED** @ **`v0.5.32`** | `probe_rx` client of `SpiBytePort`; canned fixture byte is test-only, not WHO_AM_I | [review](../.jes/artifacts/implementation_review_fase_c_spi_scripted_gyro_probe_b1.md) · tag **`v0.5.32`** |
-| **C35** | **`B1-fase-c-step-failsafe-hold-ticks`** | **IC READY** (awaiting Engineer ★) | Tests only: 1000 canned-IMU `step` + stale RC → same tick; no 6-DoF | [IC](../.jes/artifacts/implementation_contract_fase_c_step_failsafe_hold_ticks_b1.md) |
+| **C35** | **`B1-fase-c-step-failsafe-hold-ticks`** | **✅ ACCEPT CLOSED** @ **`v0.5.33`** | Tests only: 1000 canned-IMU `step` + stale RC → same tick; no 6-DoF | [review](../.jes/artifacts/implementation_review_fase_c_step_failsafe_hold_ticks_b1.md) · tag **`v0.5.33`** |
 | **C36+** | GPIO/DShot wire · on-chip USART · gyro **driver** · deepen policy · craft↔FS · C30 desk DFU · Linux baud | **Parked** | One front at a time · [bench note](../.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md) | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).

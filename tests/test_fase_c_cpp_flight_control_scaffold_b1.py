@@ -206,4 +206,4 @@ def test_no_native_flight_control_wiring_into_craft_or_orchestrator():
 
 def test_t11_pyproject_version_is_0_5_11():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.32"' in text
+    assert 'version = "0.5.33"' in text

@@ -96,7 +96,7 @@ def test_scripted_spi_declared_alongside_loopback_spi_not_a_new_file():
 
 def test_t8_pyproject_version_is_0_5_31():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.32"' in text
+    assert 'version = "0.5.33"' in text
 
 
 def test_t9_full_suite_process_gate_placeholder():

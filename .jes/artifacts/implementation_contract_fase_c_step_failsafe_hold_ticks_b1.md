@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check (many ticks ≠ flying ≠ 6-DoF · failsafe→`step` ≠ motors cut)
 
-**Status:** **READY** — awaiting Engineer ★ (parent: C34 ★ ACCEPT CLOSED @ **`v0.5.32`**)  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.33`**  
 **Parents:**
 - [C34](implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md) — `probe_rx` @ **`v0.5.32`**  
 - [C24 ★ ACCEPT](implementation_contract_fase_c_control_loop_tick_b1.md) — named `step()` @ **`v0.5.22`**  
@@ -38,7 +38,7 @@
 | 7 | Hold | Keep passing **`level_setpoint`** for those N ticks. **Forbidden:** `submit_command(HOLD)` becoming `executed`; this is not C4/C17 execute |
 | 8 | IMU | `ImuSample` is still a **struct the caller fills**. Do **not** decode SPI / `probe_rx` into accel/gyro this Buy |
 | 9 | Native lock | Zero new `crsf`/`elrs` under `native/` (C++ uses `RcHoldWatch` / `failsafe_loop_inputs` already there) |
-| 10 | Version | **`0.5.32` → `0.5.33`**. Do **not** implement until C34 is ACCEPT-tagged `v0.5.32` |
+| 10 | Version | **`0.5.32` → `0.5.33`**. C34 is tagged `v0.5.32` — implement now |
 | 11 | Forbidden | “we fly” · “6-DoF” · “failsafe cut motors” · “HOLD executed” · gyro live |
 
 **Product sentence:**
@@ -128,23 +128,21 @@ PRIORIDAD · PLATFORM §13 · ARCHITECTURE · README “What v0.5.33 includes”
 ## 8. Handoff
 
 ```text
-Engineer → ACCEPT C34 + tag v0.5.32  (if not already)
-Engineer → ★ this IC (C35)
-Claude   → tests + report + 0.5.33
-Cursor   → independent review
-Engineer → ACCEPT + tag v0.5.33
+Engineer → ACCEPT C34 + tag v0.5.32  (done)
+Engineer → ★ this IC (C35)           (done)
+Claude   → tests + report + 0.5.33   (done)
+Cursor   → independent review        (done — PASS WITH NOTES)
+Engineer → ACCEPT + tag v0.5.33      (done)
 Cola     → 3 Taller CSS · 4 standoff points
 ```
-
-**STOP** if C34 is not yet tagged: do not bump to `0.5.33` on top of an untagged `0.5.32`.
 
 ---
 
 ## 9. PRIORIDAD blurb (paste on ★)
 
 ```text
-Fase C: C34 CLOSED @ v0.5.32. C35 B1-fase-c-step-failsafe-hold-ticks READY —
-tests only: 1000 canned-IMU steps + stale RC into the same step(); not flying.
+Fase C: C35 CLOSED @ v0.5.33. Cola: Taller CSS cuboid · standoff points.
+Silicon parked until bench.
 ```
 
 ---

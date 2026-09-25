@@ -12,6 +12,8 @@
 #include "jarvis/fc/controller.hpp"
 #include "jarvis/fc/loop.hpp"
 #include "jarvis/fc/plant.hpp"
+#include "jarvis/fc/rc_hold.hpp"
+#include "jarvis/fc/rc_setpoint.hpp"
 #include "jarvis/fc/types.hpp"
 
 using namespace jarvis::fc;
@@ -93,4 +95,102 @@ TEST_CASE("ControlLoop::step: matches the inlined C13 smoke chain bit-for-bit", 
     double tick_final_deg = tilt_angle_rad(plant_tick.true_attitude().q_body_to_world) * 180.0 / M_PI;
 
     REQUIRE_THAT(tick_final_deg, WithinAbs(inline_final_deg, 1e-9));
+}
+
+// Fase C · C35 (`B1-fase-c-step-failsafe-hold-ticks`) — denser tests only.
+// `loop.hpp`/`loop.cpp`/`rc_hold.hpp`/`rc_hold.cpp` are byte-unchanged by
+// this Buy; these cases chain the EXISTING `step()` and `RcHoldWatch`/
+// `failsafe_loop_inputs` more times and in a new combination, nothing
+// more. No plant on this path, no Safety, no `probe_rx`, no DShot/GPIO.
+//
+// Many ticks != flying != 6-DoF. Failsafe -> step != motors cut.
+
+TEST_CASE("ControlLoop::step: 1000 ticks with canned level IMU, no plant, stay finite in [0,1]", "[loop][c35]") {
+    ControlLoop loop;
+    constexpr int kTicks = 1000;
+    constexpr double kDtS = 0.01;
+    constexpr double kCollective = 0.5;
+
+    for (int i = 0; i < kTicks; ++i) {
+        double t = static_cast<double>(i) * kDtS;
+        ImuSample sample{t, Vec3{0.0, 0.0, -9.81}, Vec3{0.0, 0.0, 0.0}};
+        AttitudeSetpoint setpoint = level_setpoint(t);
+
+        ControlTickResult tick = loop.step(sample, setpoint, kCollective);
+
+        REQUIRE(tick.forces.motor_forces.size() == 4);
+        for (double force : tick.forces.motor_forces) {
+            REQUIRE(std::isfinite(force));
+            REQUIRE(force >= 0.0);
+            REQUIRE(force <= 1.0);
+        }
+    }
+}
+
+TEST_CASE("ControlLoop::step: a never-noted RcHoldWatch is stale; failsafe_loop_inputs feeds step with collective 0", "[loop][c35]") {
+    RcHoldWatch watch;
+    double t = 3.0;
+
+    REQUIRE(watch.is_stale(t));
+    RcHoldDecision decision = watch.evaluate(t);
+    REQUIRE(decision.stale);
+    REQUIRE(decision.reason == "never");
+
+    RcLoopInputs inputs = failsafe_loop_inputs(t);
+    REQUIRE(inputs.collective == 0.0);
+
+    ControlLoop loop;
+    ImuSample sample{t, Vec3{0.0, 0.0, -9.81}, Vec3{0.0, 0.0, 0.0}};
+    ControlTickResult tick = loop.step(sample, inputs.setpoint, inputs.collective);
+
+    for (double force : tick.forces.motor_forces) {
+        REQUIRE(std::isfinite(force));
+        REQUIRE(force >= 0.0);
+        REQUIRE(force <= 1.0);
+    }
+}
+
+TEST_CASE("ControlLoop::step: a watch stale past timeout also feeds step via failsafe_loop_inputs", "[loop][c35]") {
+    RcHoldWatch watch;
+    watch.note_rc(0.0);
+    double t = kRcHoldTimeoutS + 1.0;  // well past the 0.5s timeout
+
+    RcHoldDecision decision = watch.evaluate(t);
+    REQUIRE(decision.stale);
+    REQUIRE(decision.reason == "timeout");
+
+    RcLoopInputs inputs = failsafe_loop_inputs(t);
+    REQUIRE(inputs.collective == 0.0);
+
+    ControlLoop loop;
+    ImuSample sample{t, Vec3{0.0, 0.0, -9.81}, Vec3{0.0, 0.0, 0.0}};
+    ControlTickResult tick = loop.step(sample, inputs.setpoint, inputs.collective);
+
+    for (double force : tick.forces.motor_forces) {
+        REQUIRE(std::isfinite(force));
+        REQUIRE(force >= 0.0);
+        REQUIRE(force <= 1.0);
+    }
+}
+
+TEST_CASE("ControlLoop::step: 1000 ticks keep using level_setpoint throughout (hold-as-input, not an actuator)", "[loop][c35]") {
+    ControlLoop loop;
+    constexpr int kTicks = 1000;
+    constexpr double kDtS = 0.01;
+    constexpr double kCollective = 0.5;
+
+    for (int i = 0; i < kTicks; ++i) {
+        double t = static_cast<double>(i) * kDtS;
+        AttitudeSetpoint setpoint = level_setpoint(t);
+        // level_setpoint is always the identity quaternion — this loop
+        // never substitutes any other setpoint source across the run.
+        REQUIRE(setpoint.q_body_to_world_desired.w == 1.0);
+        REQUIRE(setpoint.q_body_to_world_desired.x == 0.0);
+        REQUIRE(setpoint.q_body_to_world_desired.y == 0.0);
+        REQUIRE(setpoint.q_body_to_world_desired.z == 0.0);
+
+        ImuSample sample{t, Vec3{0.0, 0.0, -9.81}, Vec3{0.0, 0.0, 0.0}};
+        ControlTickResult tick = loop.step(sample, setpoint, kCollective);
+        REQUIRE(tick.forces.motor_forces.size() == 4);
+    }
 }
