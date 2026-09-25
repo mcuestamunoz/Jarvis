@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer smoke on Taller (thin cylinder / prop hub)
 
-**Status:** **READY** — awaiting Engineer ★ (parent: Taller CSS cuboid ★ ACCEPT CLOSED @ **`v0.5.34`**)  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.35`** (Engineer Taller smoke 2026-09-25 — Situar ON; motors as one body on prop disks; N1 closed)  
 **Parents:**
 - [Taller CSS cuboid faces](implementation_contract_geometry_taller_css_cuboid_faces_b1.md) — six box faces meet on a thin plate @ **`v0.5.34`**  
 - [Board CSS 3D solids](implementation_contract_geometry_board_css3d_solids_b1.md) + [Disk axial visor](implementation_contract_geometry_disk_axial_visor_b1.md) — cylinder already ships 2 caps + 16 slats; cap pivot was never locked  
@@ -138,7 +138,7 @@ Engineer → ACCEPT Taller cuboid + tag v0.5.34  (done)
 Engineer → ★ this IC
 Claude   → helper + Solid3D cylinder branch + vitest + 0.5.35
 Cursor   → independent review
-Engineer → Taller smoke (thin hub / motors) + ACCEPT + tag v0.5.35
+Engineer → Taller smoke (thin hub / motors) + ACCEPT + tag visor v0.5.35  (done 2026-09-25)
 Cola     → D2 docs (retargeted 0.5.36) · then standoff points
 ```
 

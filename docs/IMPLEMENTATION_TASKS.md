@@ -6,9 +6,9 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Taller CSS cylinder faces IC READY** — [`B1-geometry-taller-css-cylinder-faces`](../.jes/artifacts/implementation_contract_geometry_taller_css_cylinder_faces_b1.md) awaiting Engineer ★. Caps + 16 slats meet on Ø×H; visor bug, not extra parts, not CAD. Cuboid **CLOSED** @ **`v0.5.34`**. C35 **CLOSED** @ **`v0.5.33`**.  
-> Tip tagged **`v0.5.34`**. Suite **3691** · `ctest` **76/76**. UI vitest **136**.  
-> **Cola (after this):** D2 docs · standoff perimeter points.  
+> **PRIORIDAD AHORA:** **D2 docs IC READY** — [`B1-docs-truth-sync-after-c35`](../.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) awaiting Engineer ★. Maps/Connections/native README/USER_GUIDE match tagged tip; no new C-xxx. Cylinder **CLOSED** @ **`v0.5.35`**. Cuboid **CLOSED** @ **`v0.5.34`**. C35 **CLOSED** @ **`v0.5.33`**.  
+> Tip tagged **`v0.5.35`**. Suite **3691** · `ctest` **76/76**. UI vitest **142**.  
+> **Cola (after this):** standoff perimeter points.  
 > **Parked (silicon):** C30 desk DFU · GPIO/DShot *wire* · gyro on SPI1 · craft↔FS.  
 > Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
 
@@ -94,7 +94,7 @@ Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
 | **D1** | **`B1-docs-folder-truth-sync`** | **✅ ACCEPT CLOSED** | Docs @ v0.4.2 · obsolete labeled · rebind hotfix vtx/cameras | [review](../.jes/artifacts/implementation_review_docs_folder_truth_sync_b1.md) |
-| **D2** | **`B1-docs-truth-sync-after-c35`** | **IC READY** (after cylinder ★ ACCEPT @ `v0.5.35`) | Maps/Connections/native README/USER_GUIDE → live tagged tip; no new C-xxx; package **`0.5.36`** | [IC](../.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) |
+| **D2** | **`B1-docs-truth-sync-after-c35`** | **IC READY** (awaiting Engineer ★; parent cylinder tagged `v0.5.35`) | Maps/Connections/native README/USER_GUIDE → live tagged tip; no new C-xxx; package **`0.5.36`** | [IC](../.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) |
 
 ### 📋 COLA — Board UI workshop (cerrada · polish deferred)
 
@@ -107,7 +107,7 @@ Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
 | — | **`B1-geometry-taller-css-cuboid-faces`** | **✅ ACCEPT CLOSED** @ **`v0.5.34`** — four-front **#3** | Six faces meet on a thin plate; visor, not extra parts | [review](../.jes/artifacts/implementation_review_geometry_taller_css_cuboid_faces_b1.md) · tag **`v0.5.34`** |
-| — | **`B1-geometry-taller-css-cylinder-faces`** | **IC READY** (awaiting Engineer ★) | Caps + 16 slats meet on Ø×H; visor bug, not extra parts | [IC](../.jes/artifacts/implementation_contract_geometry_taller_css_cylinder_faces_b1.md) |
+| — | **`B1-geometry-taller-css-cylinder-faces`** | **✅ ACCEPT CLOSED** @ **`v0.5.35`** | Caps + 16 slats meet on Ø×H; visor, not extra parts | [review](../.jes/artifacts/implementation_review_geometry_taller_css_cylinder_faces_b1.md) · tag **`v0.5.35`** |
 | — | **`B1-standoff-cylinder-layout`** | **COLA** (no ACCEPT) — four-front **#4** | 8 cilindros landed; **puntos de perímetro a corregir** | [IC](../.jes/artifacts/implementation_contract_geometry_standoff_cylinder_layout_b1.md) |
 | — | **`B1-plate-box`** | **Await bag** | L×W medida/citada | Caliper / cite |
 | — | Path N | **B0 HOLD** | Disk origin | No reabrir |

@@ -112,7 +112,7 @@ def test_t9_unit_test_binary_includes_uart_cases_if_built():
 
 def test_t10_pyproject_version_is_0_5_26():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.34"' in text
+    assert 'version = "0.5.35"' in text
 
 
 def test_t11_full_suite_process_gate_placeholder():

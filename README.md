@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.34 tagged tip** (Taller CSS cuboid faces CLOSED — six faces meet on a thin plate, still not CAD) · C35 denser `step()` tests CLOSED (1000 ticks + stale-RC failsafe, still not flying) · Next: cylinder visor IC READY
+**v0.5.35 tagged tip** (Taller CSS cylinder faces CLOSED — caps + 16 slats meet on Ø×H, still not CAD) · Cuboid CLOSED @ `v0.5.34` · C35 denser `step()` tests CLOSED (still not flying) · Next: D2 docs IC READY
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -99,7 +99,7 @@ Fase C · **C35** (`B1-fase-c-step-failsafe-hold-ticks`) — **tests only: many 
 - `probe_rx` (C34) is **not** used as an IMU source anywhere in these tests — the canned IMU sample is a plain struct literal, same as every prior Buy on this axis.
 - **Many ticks != flying != 6-DoF. Failsafe -> step != motors cut != HOLD executed.** A thousand ticks of `step()` on canned IMU, and a stale-RC path into the same `step()`, both exist. Nothing here is a flying plant, a motor cut, or an executed autonomy command.
 - Package **`0.5.33`** · tagged **`v0.5.33`** · suite **3691** · host `ctest` **76/76** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_step_failsafe_hold_ticks_b1.md)
-- **Next:** Taller CSS cuboid faces ★ ACCEPT CLOSED @ **`v0.5.34`**. Cylinder visor IC READY. Cola: D2 docs · standoff points. DShot wire / C30 DFU parked until bench.
+- **Next:** Taller CSS cylinder faces ★ ACCEPT CLOSED @ **`v0.5.35`**. D2 docs IC READY. Cola: standoff points. DShot wire / C30 DFU parked until bench.
 
 ## What v0.5.34 includes
 
@@ -112,7 +112,20 @@ Geometry / visor · **`B1-geometry-taller-css-cuboid-faces`** — **six box face
 - Cylinder/disk branches in `Solid3D.tsx`, the projector, the `geometry` DTO, and `spatial_board.py` all stay **byte-unchanged** — `git diff --stat` empty.
 - **Visor cuboid != CAD != fit != extra parts != a 2D card's own origin.** Six CSS faces that meet on a thin declared box exist. Nothing here is a machined plate, a fit verdict, or a seventh part.
 - Package **`0.5.34`** · tagged **`v0.5.34`** · UI vitest **136/136** · `tsc --noEmit` clean · Python suite **3691** (unchanged — no new Python tests) — ★ ACCEPT CLOSED (Engineer Taller smoke 2026-09-25) — [review](.jes/artifacts/implementation_review_geometry_taller_css_cuboid_faces_b1.md)
-- **Next:** Taller CSS cylinder faces [`B1-geometry-taller-css-cylinder-faces`](.jes/artifacts/implementation_contract_geometry_taller_css_cylinder_faces_b1.md) READY — caps + 16 slats on Ø×H (visor, not CAD). Cola: D2 docs · standoff points.
+- **Next:** Taller CSS cylinder faces ★ ACCEPT CLOSED @ **`v0.5.35`**. D2 docs [`B1-docs-truth-sync-after-c35`](.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) READY. Cola: standoff points.
+
+## What v0.5.35 includes
+
+Geometry / visor · **`B1-geometry-taller-css-cylinder-faces`** — **caps + 16 slats stop exploding on a short/tall cylinder, still not CAD**:
+
+- **UI/CSS visor fix, not a Fase C flight-software Buy** — same fix, same class of bug, as the cuboid Buy that shipped @ `v0.5.34`. New pure helper `ui/spatial-board/src/cylinderFaces.ts` — `cylinderSolidLayout(diameterPx, heightPx)` — returns `{caps, slats}`: 2 caps and 16 side slats, each `{width, height, left, top, transform}`; `Solid3D.tsx`'s `cylinder` branch now maps them onto the `.sb-solid__disk-face`/`.sb-solid__face` nodes instead of hardcoding the transforms inline.
+- Root cause: each `D x D` cap sat at the CSS default `left: 0; top: 0` on a `D x H` wrapper — correct only when `H == D`. With `transform-origin: 50% 50%` (never overridden), a short prop hub (`H << D`) or a tall standoff-shaped post (`H >> D`) rotates each cap about the wrong point and it swings off axis. The 16 side slats already re-centered horizontally before this Buy — that part was already correct and is reused unchanged, just relocated into the new helper.
+- Fix: center each cap first (`left: 0`, `top: (H-D)/2` — negative when `H < D`), **then** rotate, **then** `translateZ(H/2)` — never `translateY` again after centering. Still exactly **2** caps and **16** slats (N frozen) — no 17th face, no invented diameter or height.
+- Verified against a short-hub fixture (Ø130.72 x 6.8mm -> px `65.36x3.4`, cap `top=-30.98`, `translateZ(1.7px)`) and a tall-post fixture (Ø6 x 30mm -> px `3x15`, cap `top=6`, `translateZ(7.5px)`) — both directions of the bug, not just the thin-plate case. No cap or slat transform string contains `translateX`/`translateY`.
+- `cuboidFaces.ts` (the box helper), the disk branch, `SCENE3D.pxPerMm`, the projector, the `geometry` DTO, and `spatial_board.py` all stay **byte-unchanged** — `git diff --stat` empty on every one of them.
+- **Visor cylinder != CAD != fit != extra parts != round metal != a standoff hole pattern.** 2 CSS caps + 16 CSS slats that meet on a declared Ø x H exist. Nothing here is a turned standoff, a prop hub from the mill, or a fit verdict.
+- Package **`0.5.35`** · tagged **`v0.5.35`** · UI vitest **142/142** · `tsc --noEmit` clean · Python suite **3691** (unchanged — no new Python tests) — ★ ACCEPT CLOSED (Engineer Taller smoke 2026-09-25) — [review](.jes/artifacts/implementation_review_geometry_taller_css_cylinder_faces_b1.md)
+- **Next:** D2 docs [`B1-docs-truth-sync-after-c35`](.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) READY. Cola: standoff points.
 
 ## What v0.5.29 includes
 
@@ -584,7 +597,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.34`** (Taller CSS cuboid faces CLOSED — six faces on a thin plate, not CAD). C35 CLOSED (`v0.5.33` — denser `step` tests, not flying). Next: cylinder visor IC READY — [`B1-geometry-taller-css-cylinder-faces`](.jes/artifacts/implementation_contract_geometry_taller_css_cylinder_faces_b1.md). Cola: D2 docs · standoff points. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.35`** (Taller CSS cylinder faces CLOSED — caps + 16 slats on Ø×H, not CAD). Cuboid CLOSED (`v0.5.34`). C35 CLOSED (`v0.5.33` — denser `step` tests, not flying). Next: D2 docs IC READY — [`B1-docs-truth-sync-after-c35`](.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md). Cola: standoff points. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 
