@@ -1,3 +1,4 @@
+import { cuboidFaceLayout } from "./cuboidFaces";
 import { solidExtentPx } from "./scene3dScale";
 import type { SpatialGeometry } from "./types";
 
@@ -94,6 +95,7 @@ export function Solid3D({
 
   if (geometry.shape === "box") {
     const { x: w, y: d, z: h } = extent;
+    const faces = cuboidFaceLayout(w, d, h);
     return (
       <div
         className={`sb-solid sb-solid--box${selected ? " sb-solid--selected" : ""}${modifierClass}`}
@@ -106,12 +108,13 @@ export function Solid3D({
         }}
       >
         <div className="sb-solid__cuboid" style={{ width: w, height: h }}>
-          <div className="sb-solid__face sb-solid__face--front" style={{ width: w, height: h, transform: `translateZ(${d / 2}px)` }} />
-          <div className="sb-solid__face sb-solid__face--back" style={{ width: w, height: h, transform: `translateZ(${-d / 2}px) rotateY(180deg)` }} />
-          <div className="sb-solid__face sb-solid__face--left" style={{ width: d, height: h, transform: `translateX(${-w / 2}px) rotateY(-90deg)` }} />
-          <div className="sb-solid__face sb-solid__face--right" style={{ width: d, height: h, transform: `translateX(${w / 2}px) rotateY(90deg)` }} />
-          <div className="sb-solid__face sb-solid__face--top" style={{ width: w, height: d, transform: `translateY(${-h / 2}px) rotateX(90deg)` }} />
-          <div className="sb-solid__face sb-solid__face--bottom" style={{ width: w, height: d, transform: `translateY(${h / 2}px) rotateX(-90deg)` }} />
+          {faces.map((face) => (
+            <div
+              key={face.name}
+              className={`sb-solid__face sb-solid__face--${face.name}`}
+              style={{ width: face.width, height: face.height, left: face.left, top: face.top, transform: face.transform }}
+            />
+          ))}
         </div>
       </div>
     );

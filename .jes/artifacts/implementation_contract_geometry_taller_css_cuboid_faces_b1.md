@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer smoke on Taller (thin plate)
 
-**Status:** **READY** — awaiting Engineer ★ (parent: C35 ★ ACCEPT CLOSED @ **`v0.5.33`**)  
+**Status:** ★ ACCEPT CLOSED @ **`v0.5.34`** (Engineer Taller smoke 2026-09-25 — Situar ON, edge-on; thin plates as one prism; N1 closed)  
 **Parents:**
 - [C35](implementation_contract_fase_c_step_failsafe_hold_ticks_b1.md) — denser `step` tests @ **`v0.5.33`**  
 - [situation after C33](engineer_note_fase_c_situation_after_c33_2026_09_25.md) §3 — front **3** of the four no-pin attacks  
@@ -135,8 +135,8 @@ Engineer → ACCEPT C35 + tag v0.5.33  (done)
 Engineer → ★ this IC
 Claude   → helper + Solid3D box branch + vitest + 0.5.34
 Cursor   → independent review
-Engineer → Taller smoke (thin plate) + ACCEPT + tag v0.5.34
-Cola     → 4 standoff points
+Engineer → Taller smoke (thin plate) + ACCEPT + tag v0.5.34  (done 2026-09-25)
+Cola     → cylinder visor IC (caps/slats) · then D2 docs · then standoff points
 ```
 
 **STOP** if C35 is not tagged `v0.5.33`.

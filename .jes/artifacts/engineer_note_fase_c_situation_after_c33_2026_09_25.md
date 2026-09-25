@@ -54,7 +54,8 @@ Optional, one front at a time, **no solder**:
 |---|---|---|---|
 | **1 → C34** | [`probe_rx`](implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md) | **CLOSED** @ `v0.5.32` | gyro live / SPI1 / WHO_AM_I |
 | **2 → C35** | [`step` denser tests](implementation_contract_fase_c_step_failsafe_hold_ticks_b1.md) | **CLOSED** @ `v0.5.33` | 6-DoF flight |
-| **3 → Taller CSS** | [`cuboid faces`](implementation_contract_geometry_taller_css_cuboid_faces_b1.md) (IC READY) | six faces meet on a thin plate | CAD / fit |
+| **3 → Taller CSS cuboid** | [`cuboid faces`](implementation_contract_geometry_taller_css_cuboid_faces_b1.md) | **CLOSED** @ `v0.5.34` | CAD / fit |
+| **3b → Taller CSS cylinder** | [`cylinder faces`](implementation_contract_geometry_taller_css_cylinder_faces_b1.md) (IC READY) | caps + 16 slats meet on Ø×H | CAD / round metal |
 | **4** | Standoff perimeter points (COLA) | eight cylinders, points to correct | hole-pattern fact |
 
 ### 3.1 Do 1 and 2 lay a base for the real board?
@@ -89,7 +90,8 @@ Missing on the desk for that campaign: **LiPo 6S**, **4 motors**, charger, smoke
 
 Plates in hand **are** useful here, without motors:
 
-- Taller CSS cuboid: six faces explode on thin plates (visor bug, not extra parts)
+- Taller CSS cuboid: **CLOSED** @ `v0.5.34` — six faces meet on a thin plate (visor, not extra parts)
+- Taller CSS cylinder: IC READY — same explode on short Ø×H caps
 - Standoff 8-cylinder layout: **COLA**, perimeter points to correct, no ACCEPT
 - Bottom plate L×W still unknown
 - ESC/FC 23 mm visor tope ≠ 18 mm sandwich caliper
@@ -103,5 +105,6 @@ That track does not close or block Fase C.
 1. **C33 ACCEPT** @ **`v0.5.31`** — done.  
 2. **C34 ACCEPT** @ **`v0.5.32`** — done. Port **client** closed.  
 3. **C35 ACCEPT** @ **`v0.5.33`** — done. Tick + failsafe chained in tests.  
-4. ★ **Taller CSS** [`B1-geometry-taller-css-cuboid-faces`](implementation_contract_geometry_taller_css_cuboid_faces_b1.md) — visor only.  
-5. Then cola: standoff points. Stop Fase C **silicon** until battery + motors + bench exist.
+4. **Taller CSS cuboid ACCEPT** @ **`v0.5.34`** — done. Thin plates as one prism.  
+5. ★ **Taller CSS cylinder** [`B1-geometry-taller-css-cylinder-faces`](implementation_contract_geometry_taller_css_cylinder_faces_b1.md) — visor only.  
+6. Then cola: D2 docs · standoff points. Stop Fase C **silicon** until battery + motors + bench exist.

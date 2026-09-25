@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-25 C35 ACCEPT CLOSED @ v0.5.33. Taller CSS cuboid-faces IC READY (B1-geometry-taller-css-cuboid-faces). Cola: standoff points. Silicon parked.",
-  "scope": "C35 tagged. Next: Engineer star Taller CSS IC. Out: standoff points, F460, CAD, silicon.",
+  "cycle_intent": "2026-09-25 Taller CSS cuboid ACCEPT CLOSED @ v0.5.34. Cylinder visor IC READY (B1-geometry-taller-css-cylinder-faces). Cola: D2 docs then standoff points. Silicon parked.",
+  "scope": "Taller cuboid tagged. Next: Engineer star cylinder CSS IC. Out: standoff points, F460, CAD, silicon, D2 until cylinder tag.",
   "execution_status": "idle",
   "current_mode": "await_engineer_star",
-  "active_operation": "taller_css_cuboid_ic_ready",
+  "active_operation": "taller_css_cylinder_ic_ready",
   "movement_trigger": {
     "type": "evidence",
-    "note": "C35 CLOSED @ v0.5.33. Taller CSS cuboid-faces IC ready for star."
+    "note": "Taller cuboid CLOSED @ v0.5.34. Cylinder CSS faces IC ready for star."
   },
   "relevant_workflow_phases": [
     "Verification"
