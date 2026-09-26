@@ -48,13 +48,35 @@ TEST_CASE("map_rc_to_loop_inputs: roll max reaches +30 degrees, clips beyond ran
     REQUIRE_THAT(beyond_max.setpoint.q_body_to_world_desired.x, WithinAbs(at_max.setpoint.q_body_to_world_desired.x, 1e-12));
 }
 
-TEST_CASE("map_rc_to_loop_inputs: yaw channel changes do not change setpoint/collective", "[rc_setpoint]") {
-    RcLoopInputs low_yaw = map_rc_to_loop_inputs(channels_of(kRcChMid, kRcChMid, kRcChMid, kRcChMin), 0.0);
-    RcLoopInputs high_yaw = map_rc_to_loop_inputs(channels_of(kRcChMid, kRcChMid, kRcChMid, kRcChMax), 0.0);
+TEST_CASE("map_rc_to_loop_inputs: C37 disclosed exception — yaw channel now sets setpoint yaw", "[rc_setpoint][c37]") {
+    // This case used to lock C25's own "yaw channel unused" decision,
+    // checking only .w/.x (both coincidentally 0 at yaw min/max with
+    // roll=pitch=mid, so that check never actually caught the real
+    // change, which shows up in .z). C37 (`B1-fase-c-mag-yaw-rung`, ★
+    // Engineer-authorized) unlocks yaw now that attitude.hpp has an
+    // absolute heading reference (mag) — retargeted to lock the new,
+    // intentional behavior instead, same disclosed-exception pattern as
+    // the Python twin's own test_fase_c_rc_setpoint_b1.py::test_t4.
+    RcLoopInputs mid_yaw = map_rc_to_loop_inputs(channels_of(kRcChMid, kRcChMid, kRcChMid, kRcChMid), 0.0);
+    double mid_yaw_deg = 2.0 * std::atan2(mid_yaw.setpoint.q_body_to_world_desired.z,
+                                           mid_yaw.setpoint.q_body_to_world_desired.w) *
+                          180.0 / M_PI;
+    REQUIRE_THAT(mid_yaw_deg, WithinAbs(0.0, 1e-6));
 
+    RcLoopInputs low_yaw = map_rc_to_loop_inputs(channels_of(kRcChMid, kRcChMid, kRcChMid, kRcChMin), 0.0);
+    double low_yaw_deg = 2.0 * std::atan2(low_yaw.setpoint.q_body_to_world_desired.z,
+                                           low_yaw.setpoint.q_body_to_world_desired.w) *
+                          180.0 / M_PI;
+    REQUIRE_THAT(low_yaw_deg, WithinAbs(-180.0, 1e-6));
+
+    RcLoopInputs high_yaw = map_rc_to_loop_inputs(channels_of(kRcChMid, kRcChMid, kRcChMid, kRcChMax), 0.0);
+    double high_yaw_deg = 2.0 * std::atan2(high_yaw.setpoint.q_body_to_world_desired.z,
+                                            high_yaw.setpoint.q_body_to_world_desired.w) *
+                           180.0 / M_PI;
+    REQUIRE_THAT(high_yaw_deg, WithinAbs(180.0, 1e-6));
+
+    // Collective is unaffected by yaw at any deflection.
     REQUIRE_THAT(low_yaw.collective, WithinAbs(high_yaw.collective, 1e-12));
-    REQUIRE_THAT(low_yaw.setpoint.q_body_to_world_desired.w, WithinAbs(high_yaw.setpoint.q_body_to_world_desired.w, 1e-12));
-    REQUIRE_THAT(low_yaw.setpoint.q_body_to_world_desired.x, WithinAbs(high_yaw.setpoint.q_body_to_world_desired.x, 1e-12));
 }
 
 TEST_CASE("map_rc_to_loop_inputs: rejects too-short channel lists", "[rc_setpoint]") {

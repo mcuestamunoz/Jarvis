@@ -162,7 +162,7 @@ def test_t9_capability_registry_default_still_empty():
 
 def test_t10_pyproject_version_is_0_5_9():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.37"' in text
+    assert 'version = "0.5.38"' in text
 
 
 def test_plant_step_consumes_motor_force_command_not_pwm():

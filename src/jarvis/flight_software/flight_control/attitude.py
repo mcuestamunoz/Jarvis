@@ -11,14 +11,16 @@ EKF/UKF/MEKF (no covariance propagation, no Kalman gain). Exactly one
 algorithm ships in this Buy; a second estimator "to compare" is
 forbidden (C7 IC §0 decision 4).
 
-**Hard cut (C7 IC §0 decision 5) — all of the following are explicitly
-out of scope and absent from this module:**
-- no magnetometer fusion (yaw is therefore only ever gyro-integrated —
-  there is no absolute heading reference; this estimator does not claim
-  one)
-- no GPS/baro fusion
-- no online gyro-bias estimation/learning
-- no world-frame velocity or position output
+**Hard cut (C7 IC §0 decision 5) — all of the following were explicitly
+out of scope and absent from this module as shipped in C7:**
+- no magnetometer fusion (yaw was therefore only ever gyro-integrated —
+  there was no absolute heading reference; this estimator did not claim
+  one). **Superseded by C37, disclosed below** — this is now an
+  *optional* correction, off by default (`mag=None`), never silently
+  substituted for the gyro-only path C7 shipped.
+- no GPS/baro fusion — **still true**, untouched by C37
+- no online gyro-bias estimation/learning — **still true**, untouched by C37
+- no world-frame velocity or position output — **still true**, untouched by C37
 
 **Frame convention (C7 IC §0 decision 6, locked):** the IMU sample is in
 the vehicle **body frame**. `AttitudeState.q_body_to_world` is a unit
@@ -35,9 +37,42 @@ directly against synthetic in-memory `ImuSample` sequences with known
 tilts in this Buy's tests, not solely via the shared sim HAL (which will
 always look "level" by construction — see the C7 implementation report).
 
-No actuator field, no `write_motor`/`mix`/`set_pwm`, no
-`estimate_position`/`update_gps`/`update_mag`, anywhere in this module —
-this is sensing/state output only, never actuation.
+No actuator field, no `write_motor`/`mix`/`set_pwm`, anywhere in this
+module — this is sensing/state output only, never actuation.
+
+**Fase C · C37 (`B1-fase-c-mag-yaw-rung`) — optional mag yaw correction
+added below.** The C7 hard cut above ("no magnetometer fusion") is
+**superseded, disclosed**: `update(sample, mag=None)` now accepts an
+**optional** `MagSample` (see `mag.py`). When `mag is None` — the
+default, and the only path C7's own tests ever exercised — behavior is
+**byte-for-byte identical** to before this Buy (verified by re-running
+every pre-existing C7 test unchanged). This stays **one** complementary-
+style estimator, not a second AHRS "to compare" (still not Mahony,
+Madgwick, or an EKF/UKF by name) — the mag path is one more small-angle
+proportional correction, same shape as the existing accel-tilt
+correction, just about a different axis.
+
+**Mag yaw correction (documented, locked):** when `mag` is provided, the
+tilt-corrected estimate `q_new` (from the accel branch above, computed
+first and unchanged) rotates the measured body-frame mag vector into
+world frame, projects it onto the horizontal plane (drops the world `Z`/
+Up component — only the horizontal component carries a heading
+reference), and compares that against `_WORLD_MAG_NORTH_ENU` — this
+module's own documented world-north reference, `(0.0, 1.0, 0.0)` (East
+`0`, North `1.0`, Up `0.0`), matching `sim_mag_hal.py`'s own default
+`WORLD_MAG_FIELD_ENU` by convention (independently defined here, not
+imported — same pattern this codebase already uses for the shared
+gravity constant across `plant.py`/`attitude.py`/`sim_imu_hal.py`, never
+via cross-module import). The correction is a **world-frame** rotation
+(unlike the accel correction, which is body-frame) — it is therefore
+composed on the **left** of `q_new` (`q_corrected = R * q_new`), not the
+right — see the inline derivation comment in `update()` for why. Still
+**no GPS/baro fusion, no online gyro-bias estimation, no world-frame
+velocity/position output** — those hard cuts remain exactly as they
+were.
+
+Sim mag != live mag chip != ICM SPI mag. Nothing in this module reads a
+real sensor, and nothing here claims heading-hold on real hardware.
 """
 
 from __future__ import annotations
@@ -49,13 +84,20 @@ from pydantic import BaseModel, ConfigDict
 
 from jarvis.flight_software.flight_control.filter import ImuLowPassFilter
 from jarvis.flight_software.flight_control.hal import ImuHal
+from jarvis.flight_software.flight_control.mag import MagSample
 from jarvis.flight_software.flight_control.types import ImuSample, Vec3
 
 Quat = tuple[float, float, float, float]
 
 _DEFAULT_GAIN = 0.02
+_DEFAULT_MAG_GAIN = 0.02
 _IDENTITY_QUAT: Quat = (1.0, 0.0, 0.0, 0.0)
 _WORLD_DOWN_ENU: Vec3 = (0.0, 0.0, -1.0)
+# C37 — this estimator's own documented world-north reference, already
+# horizontal (Up=0) by convention; matches sim_mag_hal.py's own default
+# WORLD_MAG_FIELD_ENU (independently defined, not imported — see the
+# module docstring above for why).
+_WORLD_MAG_NORTH_ENU: Vec3 = (0.0, 1.0, 0.0)
 
 
 class AttitudeState(BaseModel):
@@ -74,10 +116,18 @@ class ComplementaryAttitudeEstimator:
     accept a raw one for unit tests, but the shipped smoke path always
     pipes through `ImuLowPassFilter` first."""
 
-    def __init__(self, gain: float = _DEFAULT_GAIN, initial_q: Quat = _IDENTITY_QUAT) -> None:
+    def __init__(
+        self,
+        gain: float = _DEFAULT_GAIN,
+        initial_q: Quat = _IDENTITY_QUAT,
+        mag_gain: float = _DEFAULT_MAG_GAIN,
+    ) -> None:
         if not (0.0 < gain <= 1.0):
             raise ValueError("gain must be in (0, 1]")
+        if not (0.0 < mag_gain <= 1.0):
+            raise ValueError("mag_gain must be in (0, 1]")
         self._gain = gain
+        self._mag_gain = mag_gain
         self._initial_q = _quat_normalize(initial_q)
         self._q: Quat | None = None
         self._last_t_s: float | None = None
@@ -88,7 +138,7 @@ class ComplementaryAttitudeEstimator:
         self._q = None
         self._last_t_s = None
 
-    def update(self, sample: ImuSample) -> AttitudeState:
+    def update(self, sample: ImuSample, mag: MagSample | None = None) -> AttitudeState:
         omega = sample.gyro_rad_s
 
         if self._q is None:
@@ -119,6 +169,35 @@ class ComplementaryAttitudeEstimator:
             error = _cross(accel_dir, predicted_down_body)
             correction = (self._gain * error[0], self._gain * error[1], self._gain * error[2])
             q_new = _quat_normalize(_quat_multiply(q_pred, _quat_from_small_angle(correction)))
+
+        if mag is not None:
+            # C37 — optional yaw correction. Rotate the measured body mag
+            # vector into world frame using the tilt-corrected estimate
+            # (q_new above, roll/pitch already trusted), then keep only
+            # the horizontal component — only that carries a heading
+            # reference; the vertical component is discarded, never
+            # coupled back into roll/pitch.
+            world_mag = _rotate_vector(q_new, mag.mag_body_uT)
+            measured_horizontal = _vec_normalize((world_mag[0], world_mag[1], 0.0))
+            if measured_horizontal is not None:
+                # Cross product is anti-commutative: this order (measured,
+                # reference) yields a correction that rotates the measured
+                # horizontal heading toward _WORLD_MAG_NORTH_ENU — mirrors
+                # the accel branch's own (measured, predicted) convention
+                # above. Both operands are horizontal (Up=0), so the
+                # result is purely a Z-axis (yaw) rotation by construction
+                # — no manual projection needed.
+                yaw_error = _cross(measured_horizontal, _WORLD_MAG_NORTH_ENU)
+                yaw_correction = (
+                    self._mag_gain * yaw_error[0],
+                    self._mag_gain * yaw_error[1],
+                    self._mag_gain * yaw_error[2],
+                )
+                # World-frame correction: composed on the LEFT of q_new
+                # (q represents body->world; rotating world-frame vectors
+                # by R means q_corrected = R * q, not q * R — the reverse
+                # of the accel branch's own body-frame correction above).
+                q_new = _quat_normalize(_quat_multiply(_quat_from_small_angle(yaw_correction), q_new))
 
         self._q = q_new
         return AttitudeState(t_s=sample.t_s, q_body_to_world=q_new, omega_body_rad_s=omega, frame="enu")

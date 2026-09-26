@@ -6,10 +6,8 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **C37 IC** — after C36 ★ ACCEPT CLOSED @ **`v0.5.37`**. Mag-yaw sim rung. See C37 IC when ★ AUTHORIZED.  
-> **Just closed:** C36 `ToyQuad6DofPlant` @ **`v0.5.37`** — [review](../.jes/artifacts/implementation_review_fase_c_sim_6dof_plant_b1.md). ≠ flying.  
-> **Cola:** C38 alt → C39 pos → C40 executor → C41 Safety sim → C42 ICM client → C43 craft↔FS. Assistant PARKED. Silicon parked.  
-> SoT: [`engineer_note_software_month_until_bench_2026_09_26.md`](../.jes/artifacts/engineer_note_software_month_until_bench_2026_09_26.md).  
+> **PRIORIDAD AHORA:** **★ C38 AUTHORIZED** — [`B1-fase-c-altitude-loop`](../.jes/artifacts/implementation_contract_fase_c_altitude_loop_b1.md) — Claude implements sim baro + z→collective; package **`0.5.39`**. ≠ live baro ≠ flying.  
+> **Just closed:** C37 @ **`v0.5.38`** · C36 @ **`v0.5.37`**. **Cola after C38 ACCEPT:** C39 pos → … → C43. Assistant PARKED. Silicon parked.  
 > SoT: [`engineer_note_software_month_until_bench_2026_09_26.md`](../.jes/artifacts/engineer_note_software_month_until_bench_2026_09_26.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
@@ -86,8 +84,8 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C34** | **`B1-fase-c-spi-scripted-gyro-probe`** | **✅ ACCEPT CLOSED** @ **`v0.5.32`** | `probe_rx` client of `SpiBytePort`; canned fixture byte is test-only, not WHO_AM_I | [review](../.jes/artifacts/implementation_review_fase_c_spi_scripted_gyro_probe_b1.md) · tag **`v0.5.32`** |
 | **C35** | **`B1-fase-c-step-failsafe-hold-ticks`** | **✅ ACCEPT CLOSED** @ **`v0.5.33`** | Tests only: 1000 canned-IMU `step` + stale RC → same tick; no 6-DoF | [review](../.jes/artifacts/implementation_review_fase_c_step_failsafe_hold_ticks_b1.md) · tag **`v0.5.33`** |
 | **C36** | **`B1-fase-c-sim-6dof-plant`** | **✅ ACCEPT CLOSED** @ **`v0.5.37`** | Toy 6-DoF: forces → pose+attitude; IMU C11-shaped; plant outside `step` | [review](../.jes/artifacts/implementation_review_fase_c_sim_6dof_plant_b1.md) · tag **`v0.5.37`** |
-| **C37** | `B1-fase-c-mag-yaw-rung` | **COLA** | Simulated mag + yaw with a reference; extends C7 | ≠ live mag |
-| **C38** | `B1-fase-c-altitude-loop` | **COLA** | Simulated baro/ToF + z loop → collective | ≠ live baro, ≠ HOLD in air |
+| **C37** | **`B1-fase-c-mag-yaw-rung`** | **✅ ACCEPT CLOSED** @ **`v0.5.38`** | Sim mag + yaw reference in C7; unlock RC yaw stick | [review](../.jes/artifacts/implementation_review_fase_c_mag_yaw_rung_b1.md) · tag **`v0.5.38`** |
+| **C38** | **`B1-fase-c-altitude-loop`** | **★ AUTHORIZED** (Claude implement) | Sim baro + z loop → collective; plant outside `step` | [IC](../.jes/artifacts/implementation_contract_fase_c_altitude_loop_b1.md) · ≠ live baro |
 | **C39** | `B1-fase-c-position-loop` | **COLA** | Simulated GPS/flow + xy loop → tilt; GO_TO a point in ENU | ≠ live GPS, ≠ house map |
 | **C40** | `B1-fase-c-autonomy-executor` | **COLA** | HOLD/LAND/GO_TO feed setpoints into `step()` in the sim | ≠ execute on copper |
 | **C41** | `B1-fase-c-safety-sim-policy` | **COLA** | Allowlist matches what C40 can actually command in sim | allow ≠ execute |

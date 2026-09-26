@@ -167,10 +167,23 @@ def test_t6_rung_sources_are_git_unchanged_by_this_buy():
     `ToyQuad6DofPlant` (a second, separate toy plant with translation).
     `ToyQuadAttitudePlant`'s own pre-existing body is not touched —
     verified below via the same purely-additive line-level diff check
-    already established for `esc.cpp`."""
+    already established for `esc.cpp`.
+
+    **C37 disclosed exception:** `attitude.cpp` is intentionally extended
+    by `B1-fase-c-mag-yaw-rung` (★ Engineer-authorized), per that IC's
+    own explicit instruction to extend `ComplementaryAttitudeEstimator`
+    with `update(sample, mag=None)`. Unlike `esc.cpp`/`plant.cpp`, this
+    cannot be purely additive — adding an optional trailing parameter to
+    an existing constructor/method requires editing those two signature
+    lines in place, not just appending. Verified below: the diff removes
+    **exactly** those two signature lines (constructor declaration +
+    initializer list, and `update`'s own declaration) and nothing else —
+    every existing method BODY line is untouched; the pre-existing
+    Python/C++ regression suites (all passing unchanged) are the
+    behavioral proof that `update(sample)` without `mag` is unaffected."""
     frozen_files = [
         NATIVE_FC_DIR / "src" / name
-        for name in ("filter.cpp", "attitude.cpp", "controller.cpp", "rate_torque.cpp", "mixer.cpp")
+        for name in ("filter.cpp", "controller.cpp", "rate_torque.cpp", "mixer.cpp")
     ]
     for path in frozen_files:
         assert path.is_file(), path
@@ -215,6 +228,30 @@ def test_t6_rung_sources_are_git_unchanged_by_this_buy():
     ]
     assert plant_removed_lines == [], f"plant.cpp diff removes/changes existing lines, not purely additive:\n{plant_removed_lines}"
 
+    attitude_cpp = NATIVE_FC_DIR / "src" / "attitude.cpp"
+    assert attitude_cpp.is_file()
+    attitude_diff = subprocess.run(
+        ["git", "diff", "--", str(attitude_cpp)],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    attitude_removed_lines = [
+        line[1:]
+        for line in attitude_diff.stdout.splitlines()
+        if line.startswith("-") and not line.startswith("---")
+    ]
+    expected_removed_lines = {
+        "ComplementaryAttitudeEstimator::ComplementaryAttitudeEstimator(double gain, Quat initial_q)",
+        "    : gain_(gain), initial_q_(quat::normalize(initial_q)) {",
+        "AttitudeState ComplementaryAttitudeEstimator::update(const ImuSample& sample) {",
+    }
+    assert set(attitude_removed_lines) == expected_removed_lines, (
+        "attitude.cpp diff removes lines beyond the two disclosed C37 "
+        f"signature edits:\n{attitude_removed_lines}"
+    )
+
 
 def test_no_native_unit_test_wiring_into_craft_or_orchestrator():
     core_dir = REPO_ROOT / "src" / "jarvis" / "core"
@@ -245,4 +282,4 @@ def test_capability_registry_default_still_empty():
 
 def test_t8_pyproject_version_is_0_5_13():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.37"' in text
+    assert 'version = "0.5.38"' in text

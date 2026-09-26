@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.37 tagged tip** · C36 `ToyQuad6DofPlant` ★ ACCEPT CLOSED — forces move a toy body through ENU space, still not flying · C11 attitude plant untouched · plant outside `step` — [review](.jes/artifacts/implementation_review_fase_c_sim_6dof_plant_b1.md) · Cola: C37 mag-yaw (sim)
+**v0.5.38 tagged tip** · C37 mag-yaw ★ ACCEPT CLOSED — sim mag + yaw fuse + RC yaw unlock · ≠ live mag ≠ flying · C36 `ToyQuad6DofPlant` @ `v0.5.37` · Cola: C38 altitude loop
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -152,7 +152,18 @@ Fase C · **C36** (`B1-fase-c-sim-6dof-plant`) — **a toy body that can move th
 - `ImuSample` stays C11-shaped (gravity in body + gyro — no specific force). Pose on `true_position_m` / `true_velocity_mps` only. Plant stays **outside** `loop.step`.
 - **6-DoF toy ≠ flying ≠ product aero ≠ MY5 truth.**
 - Package **`0.5.37`** · tagged **`v0.5.37`** · suite **3696** · host `ctest` **82/82** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_sim_6dof_plant_b1.md)
-- **Next:** C37 mag-yaw (sim). Assistant PARKED. Silicon parked.
+- **Next:** C37 ★ ACCEPT CLOSED @ **`v0.5.38`**.
+
+## What v0.5.38 includes
+
+Fase C · **C37** (`B1-fase-c-mag-yaw-rung`) — **yaw stops being only gyro drift**:
+
+- `MagSample` + `SimulatedMagHal` (Py+C++) — caller-supplied true q; toy horizontal world field; HAL never owns a plant.
+- `ComplementaryAttitudeEstimator.update(sample, mag=None)` — mag optional; `mag=None` ≡ C7; yaw-only world-frame correction when present.
+- `RC_CH_YAW` unlocked (`RC_MAX_YAW_RAD=π`); roll/pitch/throttle unchanged. Mag fusion **outside** `loop.step`.
+- **Sim mag ≠ live mag ≠ flying.**
+- Package **`0.5.38`** · tagged **`v0.5.38`** · suite **3706** · host `ctest` **88/88** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_mag_yaw_rung_b1.md)
+- **Next:** C38 altitude loop (sim). Assistant PARKED. Silicon parked.
 
 ## What v0.5.29 includes
 
@@ -624,7 +635,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.37`** — C36 `ToyQuad6DofPlant` ★ ACCEPT CLOSED (pose+attitude toy; still not flying). Cuboid/cylinder Taller CLOSED (`v0.5.34`/`v0.5.35`). C35 CLOSED (`v0.5.33`). D2 docs still LANDED @ package `0.5.36` (awaiting Engineer spot-check + ACCEPT — not blocking C37). **Cola:** C37 mag-yaw (sim). Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.38`** — C37 mag-yaw ★ ACCEPT CLOSED (sim mag + RC yaw unlock; ≠ live mag ≠ flying). C36 @ `v0.5.37`. **Cola:** C38 altitude loop (sim). Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

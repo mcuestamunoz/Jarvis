@@ -352,9 +352,10 @@ tree carries no decoded-channels type of its own, and the constants
 (`kRcChMin`/`kRcChMid`/`kRcChMax` = `172`/`992`/`1811`) are named
 without any radio-protocol prefix on purpose: the C21-C23 lock of
 **zero radio-link-protocol mentions anywhere under `native/`**, even in
-comments, stays intact for this Buy too. Only roll/pitch/throttle
-(indices 0/1/2) are read; a yaw channel may be present but is never used
-(no magnetometer in this tree). `loop.hpp`/`loop.cpp` are untouched by
+comments, stays intact for this Buy too. Roll/pitch/throttle (indices
+0/1/2) are read; the yaw channel (index 3) was originally present but
+unused — **unlocked as of C37** (see below) now that `attitude.hpp` has
+an absolute heading reference. `loop.hpp`/`loop.cpp` are untouched by
 this file.
 
 `rc_hold.hpp`/`rc_hold.cpp` (C27, ★ ACCEPT CLOSED @ tag `v0.5.25`) is
@@ -471,3 +472,28 @@ specific-force/linear-acceleration term folded in. `ControlLoop::step`
 still never calls any plant. `fc_closed_loop_smoke` and every existing
 `ToyQuadAttitudePlant` test still pass unchanged. **6-DoF toy plant !=
 flying != product aero != altitude hold != specific-force IMU.**
+
+`mag.hpp`/`mag.cpp` (C37, package/tag **`v0.5.38`**, ★ ACCEPT CLOSED) add `MagSample` + `SimulatedMagHal`
+— a deterministic, caller-attitude-driven simulated magnetometer.
+`read_mag(true_q_body_to_world, t_s)` rotates a fixed toy world field
+(`kWorldMagFieldEnu = (0, 1, 0)` — East 0, North 1.0, Up 0, deliberately
+horizontal-only) into body frame using the caller-supplied **true**
+attitude — this HAL never owns or secretly consults a plant.
+`attitude.hpp`/`attitude.cpp` are **extended, not rewritten**:
+`ComplementaryAttitudeEstimator::update(sample, mag = std::nullopt)`
+takes an optional `MagSample`; when absent, behavior is byte-for-byte
+identical to before this Buy (verified: two signature lines legitimately
+changed to add the trailing optional parameters, everything else purely
+additive — see `test_fase_c_cpp_unit_tests_b1.py`'s own C37 disclosed
+exception). When present, a world-frame yaw-only correction (horizontal
+mag heading vs `kWorldMagNorthEnu`, composed on the left of the
+tilt-corrected estimate) pulls estimated yaw toward true north —
+verified to converge from a 30-degree offset to under 5 degrees in 30
+updates. `rc_setpoint.hpp`/`rc_setpoint.cpp` unlock `kRcChYaw` (index 3,
+previously present-but-unused): deflection scales to `kRcMaxYawRad`
+(pi, 180 degrees, a documented full-range convention distinct from
+roll/pitch's own 30-degree tilt limit) and composes into the setpoint
+quaternion's own yaw term — verified to reduce to the exact pre-C37
+roll/pitch-only formula when yaw is `0`. **Sim mag != live mag chip !=
+ICM SPI mag. Yaw reference in RAM != compass flight. RC yaw unlock !=
+motors != flying.**

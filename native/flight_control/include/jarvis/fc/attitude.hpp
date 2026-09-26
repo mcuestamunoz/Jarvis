@@ -9,13 +9,21 @@
 // scaffold never reintroduces the bug that shipped and was later fixed in
 // the Python ladder.
 //
-// No magnetometer/GPS/baro fusion, no gyro-bias learning, no
-// world-frame velocity/position output — matching the Python C7 hard cut.
+// No GPS/baro fusion, no gyro-bias learning, no world-frame velocity/
+// position output — matching the Python C7 hard cut, untouched by C37.
 // `frame` is always `"enu"`; gravity is `(0, 0, -g)` in that frame.
+//
+// Fase C · C37 (`B1-fase-c-mag-yaw-rung`) supersedes the original "no
+// magnetometer fusion" cut, disclosed: `update(sample, mag)` now takes
+// an optional `MagSample` (`std::nullopt` default). When absent,
+// behavior is byte-for-byte identical to before this Buy — see the
+// Python twin's own module docstring (`attitude.py`) for the full
+// derivation of the mag yaw correction math this file mirrors exactly.
 #pragma once
 
 #include <optional>
 
+#include "jarvis/fc/mag.hpp"
 #include "jarvis/fc/types.hpp"
 
 namespace jarvis::fc {
@@ -27,17 +35,20 @@ struct AttitudeState {
 };
 
 // Gyro integration fused with accel-derived tilt via a small-angle
-// proportional correction. `gain` must be in `(0, 1]`.
+// proportional correction, plus (C37) an optional mag-derived yaw
+// correction. `gain`/`mag_gain` must each be in `(0, 1]`.
 class ComplementaryAttitudeEstimator {
 public:
     explicit ComplementaryAttitudeEstimator(double gain = 0.02,
-                                             Quat initial_q = Quat{1.0, 0.0, 0.0, 0.0});
+                                             Quat initial_q = Quat{1.0, 0.0, 0.0, 0.0},
+                                             double mag_gain = 0.02);
 
     void reset();
-    AttitudeState update(const ImuSample& sample);
+    AttitudeState update(const ImuSample& sample, std::optional<MagSample> mag = std::nullopt);
 
 private:
     double gain_;
+    double mag_gain_;
     Quat initial_q_;
     std::optional<Quat> q_;
     std::optional<double> last_t_s_;

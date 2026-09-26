@@ -21,13 +21,26 @@ heading-hold yaw. Nothing in this module is any of those.
 
 **Channel map (C25 IC §0 decision 5, illustrative — not a real TX
 model):** `RC_CH_ROLL`/`RC_CH_PITCH`/`RC_CH_THROTTLE` = channel indices
-`0`/`1`/`2`. The yaw channel (conventionally index `3` in AETR) is
-**unused this Buy** — C7's estimator has no magnetometer, so there is no
-absolute heading reference a yaw stick could honestly command; wiring a
-yaw stick to anything here would silently imply a heading-hold capability
-that does not exist. `CRSF_CH_MIN`/`CRSF_CH_MID`/`CRSF_CH_MAX` =
-`172`/`992`/`1811`, the same illustrative CRSF 11-bit endpoint convention
-already used around C20's `CrsfDualRolePolicy`.
+`0`/`1`/`2`. `CRSF_CH_MIN`/`CRSF_CH_MID`/`CRSF_CH_MAX` = `172`/`992`/
+`1811`, the same illustrative CRSF 11-bit endpoint convention already
+used around C20's `CrsfDualRolePolicy`.
+
+**Yaw channel unlocked (Fase C · C37, `B1-fase-c-mag-yaw-rung`) —
+`RC_CH_YAW` = index `3`:** C25 originally left this channel unused,
+since C7's estimator had no magnetometer and no absolute heading
+reference a yaw stick could honestly command. C37 adds that reference
+(`attitude.py`'s own optional mag yaw correction) — the yaw stick is
+therefore unlocked into the setpoint's own yaw. Deflection is measured
+from `CRSF_CH_MID`, same shape as roll/pitch, but scaled to
+`RC_MAX_YAW_RAD` (`pi`, i.e. **180 degrees**) rather than roll/pitch's
+own `RC_MAX_TILT_RAD` (30 degrees) — a full-range heading command is the
+documented, more sensible convention for yaw than reusing a tilt limit
+(picked and disclosed here, not left implicit). Increasing channel value
+maps to positive yaw rotation about world/body `Z` (ENU right-hand
+convention) — the same "increasing channel -> positive rotation" sign
+rule roll/pitch already use, just about the vertical axis instead of a
+horizontal one. Roll/pitch/throttle maps are **byte-unchanged** by this
+Buy — same formulas, same constants, same fixtures.
 
 **Throttle -> collective (locked, decision 6):** linear map
 `[CRSF_CH_MIN, CRSF_CH_MAX] -> [0, 1]`, clipped. Mid-stick (`992`) maps to
@@ -44,11 +57,13 @@ values beyond either endpoint clip at that same 30 degrees, they do not
 extrapolate past it. Increasing channel value maps to positive rotation
 about the corresponding body axis (roll -> body X, pitch -> body Y) —
 an arbitrary but documented sign convention, not sourced from any real
-transmitter. The resulting Euler roll/pitch pair (yaw fixed at `0`) is
-converted to `q_body_to_world_desired` via the standard body 3-2-1
-(yaw-pitch-roll) Euler-to-quaternion composition with yaw fixed at
-identity — **yaw of that quaternion is always `0`**, matching C8's own
-`AttitudeSetpoint`/`"enu"` frame convention unchanged.
+transmitter. The resulting Euler roll/pitch/yaw triple (yaw from
+`RC_CH_YAW`, `0` if that channel is at mid-stick) is converted to
+`q_body_to_world_desired` via the standard body 3-2-1 (yaw-pitch-roll)
+Euler-to-quaternion composition — **verified to reduce to the exact
+pre-C37 roll/pitch-only formula when yaw is `0`** (same test fixtures,
+byte-identical output), matching C8's own `AttitudeSetpoint`/`"enu"`
+frame convention unchanged.
 
 **No clock invented (decision 8):** `map_rc_to_loop_inputs` takes `t_s`
 as a required keyword argument — the caller's own sample time, never a
@@ -88,12 +103,17 @@ from jarvis.flight_software.flight_control.types import ImuSample
 RC_CH_ROLL: Final[int] = 0
 RC_CH_PITCH: Final[int] = 1
 RC_CH_THROTTLE: Final[int] = 2
+RC_CH_YAW: Final[int] = 3
 
 CRSF_CH_MIN: Final[int] = 172
 CRSF_CH_MID: Final[int] = 992
 CRSF_CH_MAX: Final[int] = 1811
 
 RC_MAX_TILT_RAD: Final[float] = math.pi / 6.0
+# C37 — full-range heading command, not the tilt limit (see the module
+# docstring's own "Yaw channel unlocked" section for why this is a
+# separate, documented constant rather than reusing RC_MAX_TILT_RAD).
+RC_MAX_YAW_RAD: Final[float] = math.pi
 
 _MIN_CHANNELS: Final[int] = 4
 
@@ -124,16 +144,16 @@ def map_rc_to_loop_inputs(channels: RcChannelsInput, *, t_s: float) -> RcLoopInp
     """Converts already-decoded RC channel units into `RcLoopInputs`. Does
     not parse CRSF frames, does not read a clock, does not call `step`.
     `channels` may be a `CrsfRcChannels` (C19) or any sequence of `>= 4`
-    ints (AETR-shaped); only indices `RC_CH_ROLL`/`RC_CH_PITCH`/
-    `RC_CH_THROTTLE` are read — the yaw channel is present-but-unused,
-    matching AETR's own 4-channel shape."""
+    ints (AETR-shaped); indices `RC_CH_ROLL`/`RC_CH_PITCH`/
+    `RC_CH_THROTTLE`/`RC_CH_YAW` are all read as of C37."""
     values = _extract_channel_values(channels)
 
     roll_rad = _stick_deflection_rad(values[RC_CH_ROLL])
     pitch_rad = _stick_deflection_rad(values[RC_CH_PITCH])
+    yaw_rad = _stick_deflection_rad(values[RC_CH_YAW], RC_MAX_YAW_RAD)
     collective = _throttle_to_collective(values[RC_CH_THROTTLE])
 
-    quat = _roll_pitch_to_quat(roll_rad, pitch_rad)
+    quat = _roll_pitch_yaw_to_quat(roll_rad, pitch_rad, yaw_rad)
     setpoint = AttitudeSetpoint(t_s=t_s, q_body_to_world_desired=quat)
     return RcLoopInputs(setpoint=setpoint, collective=collective)
 
@@ -156,14 +176,14 @@ def _extract_channel_values(channels: RcChannelsInput) -> Sequence[int]:
         raise ValueError(
             f"channels must have at least {_MIN_CHANNELS} entries (AETR-shaped), got {len(values)}"
         )
-    for idx in (RC_CH_ROLL, RC_CH_PITCH, RC_CH_THROTTLE):
+    for idx in (RC_CH_ROLL, RC_CH_PITCH, RC_CH_THROTTLE, RC_CH_YAW):
         value = values[idx]
         if isinstance(value, bool) or not isinstance(value, int):
             raise ValueError(f"channels[{idx}] must be int, got {value!r}")
     return values
 
 
-def _stick_deflection_rad(channel_value: int) -> float:
+def _stick_deflection_rad(channel_value: int, max_rad: float = RC_MAX_TILT_RAD) -> float:
     if channel_value >= CRSF_CH_MID:
         span = CRSF_CH_MAX - CRSF_CH_MID
         frac = (channel_value - CRSF_CH_MID) / span
@@ -171,7 +191,7 @@ def _stick_deflection_rad(channel_value: int) -> float:
         span = CRSF_CH_MID - CRSF_CH_MIN
         frac = (channel_value - CRSF_CH_MID) / span
     frac_clipped = max(-1.0, min(1.0, frac))
-    return frac_clipped * RC_MAX_TILT_RAD
+    return frac_clipped * max_rad
 
 
 def _throttle_to_collective(channel_value: int) -> float:
@@ -180,11 +200,21 @@ def _throttle_to_collective(channel_value: int) -> float:
     return max(0.0, min(1.0, frac))
 
 
-def _roll_pitch_to_quat(roll_rad: float, pitch_rad: float) -> Quat:
-    """Body 3-2-1 (yaw-pitch-roll) Euler-to-quaternion composition with
-    yaw fixed at `0` — yaw stick is out of scope this Buy (no mag)."""
+def _roll_pitch_yaw_to_quat(roll_rad: float, pitch_rad: float, yaw_rad: float) -> Quat:
+    """Body 3-2-1 (yaw-pitch-roll) Euler-to-quaternion composition:
+    `q = q_yaw (x) q_pitch (x) q_roll`. C37 adds the `yaw_rad` term —
+    verified to reduce to the exact pre-C37 formula (`(cp*cr, cp*sr,
+    sp*cr, -sp*sr)`) when `yaw_rad == 0.0`, since `cos(0)=1`/`sin(0)=0`
+    zero out every `sy`-weighted term below."""
     half_roll = roll_rad / 2.0
     half_pitch = pitch_rad / 2.0
+    half_yaw = yaw_rad / 2.0
     cr, sr = math.cos(half_roll), math.sin(half_roll)
     cp, sp = math.cos(half_pitch), math.sin(half_pitch)
-    return (cp * cr, cp * sr, sp * cr, -sp * sr)
+    cy, sy = math.cos(half_yaw), math.sin(half_yaw)
+    return (
+        cy * cp * cr + sy * sp * sr,
+        cy * cp * sr - sy * sp * cr,
+        cy * sp * cr + sy * cp * sr,
+        sy * cp * cr - cy * sp * sr,
+    )

@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-26 C36 ACCEPT CLOSED @ v0.5.37. Next: C37 mag-yaw IC. Assistant PARKED. Silicon parked.",
-  "scope": "C36 tagged. Draft/authorize C37. Out: Assistant, silicon.",
-  "execution_status": "idle",
-  "current_mode": "await_next_ic",
-  "active_operation": "c36_accept_closed",
+  "cycle_intent": "2026-09-26 C37 ACCEPT CLOSED @ v0.5.38. C38 ★ AUTHORIZED — Claude implements altitude loop. Assistant PARKED. Silicon parked.",
+  "scope": "Claude: C38 IC. Cursor: review after landing. Out: xy position, executor, Assistant, silicon.",
+  "execution_status": "in_progress",
+  "current_mode": "await_implementer",
+  "active_operation": "c38_altitude_loop_starred",
   "movement_trigger": {
     "type": "star",
-    "note": "Engineer ACCEPT C36. Tag v0.5.37. Next C37."
+    "note": "Engineer ACCEPT C37 + ★ C38 AUTHORIZED. Claude implements altitude now."
   },
   "relevant_workflow_phases": [
     "Verification"

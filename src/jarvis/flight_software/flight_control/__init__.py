@@ -22,6 +22,7 @@ from jarvis.flight_software.flight_control.esc import (
 from jarvis.flight_software.flight_control.filter import ImuLowPassFilter, read_filtered
 from jarvis.flight_software.flight_control.hal import ImuHal
 from jarvis.flight_software.flight_control.loop import ControlTickResult, FlightControlLoop
+from jarvis.flight_software.flight_control.mag import MagSample
 from jarvis.flight_software.flight_control.mixer import (
     MotorForceCommand,
     QuadXMixer,
@@ -37,6 +38,7 @@ from jarvis.flight_software.flight_control.rate_torque import (
     LinearRateTorqueBridge,
 )
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
+from jarvis.flight_software.flight_control.sim_mag_hal import SimulatedMagHal
 from jarvis.flight_software.flight_control.types import ImuSample
 
 __all__ = [
@@ -54,11 +56,13 @@ __all__ = [
     "ImuLowPassFilter",
     "ImuSample",
     "LinearRateTorqueBridge",
+    "MagSample",
     "MotorForceCommand",
     "PdAttitudeController",
     "QuadXMixer",
     "SimulatedEscSink",
     "SimulatedImuHal",
+    "SimulatedMagHal",
     "ToyQuad6DofPlant",
     "ToyQuadAttitudePlant",
     "encode_motor_forces",

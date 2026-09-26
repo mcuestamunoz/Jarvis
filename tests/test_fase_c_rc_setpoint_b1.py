@@ -81,6 +81,11 @@ def _pitch_deg(setpoint):
     return math.degrees(2.0 * math.asin(max(-1.0, min(1.0, y))))
 
 
+def _yaw_deg(setpoint):
+    w, x, y, z = setpoint.q_body_to_world_desired
+    return math.degrees(2.0 * math.atan2(z, w))
+
+
 def test_t1_all_mid_gives_near_zero_roll_pitch_and_finite_collective():
     result = map_rc_to_loop_inputs(_channels(), t_s=0.0)
     assert isinstance(result, RcLoopInputs)
@@ -120,11 +125,35 @@ def test_t3_throttle_extremes_map_to_collective_0_and_1():
     assert mid.collective != pytest.approx(0.5, abs=1e-6)  # documented: not exactly 0.5
 
 
-def test_t4_yaw_channel_does_not_change_setpoint_or_collective():
+def test_t4_yaw_channel_now_sets_setpoint_yaw_c37_disclosed_exception():
+    """**C37 disclosed exception** (`B1-fase-c-mag-yaw-rung`, ★ Engineer-
+    authorized): this test used to lock C25's own "yaw channel unused"
+    decision (no absolute heading reference existed yet). C37 adds that
+    reference (a simulated magnetometer + optional yaw correction in
+    `attitude.py`) and unlocks the yaw stick into the setpoint's own yaw
+    — this test is retargeted to lock the new, intentional behavior
+    instead of the superseded one, matching the same disclosed-exception
+    pattern already used for `esc.cpp` (C26) and `plant.cpp` (C36)."""
+    mid_yaw = map_rc_to_loop_inputs(_channels(yaw=CRSF_CH_MID), t_s=0.0)
+    assert _yaw_deg(mid_yaw.setpoint) == pytest.approx(0.0, abs=1e-6)
+
+    max_yaw = map_rc_to_loop_inputs(_channels(yaw=CRSF_CH_MAX), t_s=0.0)
+    assert _yaw_deg(max_yaw.setpoint) == pytest.approx(180.0, abs=1e-6)
+
+    min_yaw = map_rc_to_loop_inputs(_channels(yaw=CRSF_CH_MIN), t_s=0.0)
+    assert _yaw_deg(min_yaw.setpoint) == pytest.approx(-180.0, abs=1e-6)
+
+    # Collective is unaffected by yaw at any deflection.
     low_yaw = map_rc_to_loop_inputs(_channels(yaw=CRSF_CH_MIN), t_s=0.0)
     high_yaw = map_rc_to_loop_inputs(_channels(yaw=CRSF_CH_MAX), t_s=0.0)
-    assert low_yaw.setpoint.q_body_to_world_desired == high_yaw.setpoint.q_body_to_world_desired
     assert low_yaw.collective == high_yaw.collective
+
+    # Roll/pitch/throttle fixtures (T1-T3) all run at the default
+    # yaw=mid=0 and already prove yaw=0 reproduces the exact pre-C37
+    # output byte-for-byte — that is this Buy's own "unchanged" lock.
+    # (`_roll_deg`/`_pitch_deg` extract angle assuming the OTHER axis is
+    # zero, so they are not meaningful on a combined roll+yaw rotation —
+    # not exercised here for that reason.)
 
 
 def test_t5_step_with_rc_produces_four_finite_forces_no_plant_no_gpio():
@@ -185,7 +214,7 @@ def test_t8_loop_module_math_untouched_by_this_buy():
 
 def test_t10_pyproject_version_is_0_5_23():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.37"' in text
+    assert 'version = "0.5.38"' in text
 
 
 def test_t11_full_suite_process_gate_placeholder():
