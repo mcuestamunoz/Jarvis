@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — ★ AUTHORIZED: **implement now**  
 **Reviewer:** Cursor against this IC · Engineer spot-check (sim baro ≠ live baro · z-loop ≠ flying ≠ HOLD in air · plant outside `step`)
 
-**Status:** ★ **AUTHORIZED** (Engineer 2026-09-26 — IC passed to Claude = execute directly)  
+**Status:** ★ **ACCEPT CLOSED** @ tag **`v0.5.39`** (Engineer 2026-09-26) · Cursor review PASS WITH NOTES  
 **Parents:**
 - [C37 ★ ACCEPT](implementation_contract_fase_c_mag_yaw_rung_b1.md) — sim mag + RC yaw @ **`v0.5.38`**  
 - [C36 ★ ACCEPT](implementation_contract_fase_c_sim_6dof_plant_b1.md) — `ToyQuad6DofPlant` pose ENU @ **`v0.5.37`**  

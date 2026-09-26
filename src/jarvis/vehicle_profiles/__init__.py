@@ -36,6 +36,7 @@ and
 from jarvis.vehicle_profiles.loader import load_profile, load_smoke_profile
 from jarvis.vehicle_profiles.schemas import VehicleProfile
 from jarvis.vehicle_profiles.smoke import (
+    run_altitude_loop_smoke,
     run_attitude_controller_smoke,
     run_controlled_flight_sim_smoke,
     run_esc_pwm_smoke,
@@ -51,6 +52,7 @@ __all__ = [
     "VehicleProfile",
     "load_profile",
     "load_smoke_profile",
+    "run_altitude_loop_smoke",
     "run_attitude_controller_smoke",
     "run_controlled_flight_sim_smoke",
     "run_esc_pwm_smoke",

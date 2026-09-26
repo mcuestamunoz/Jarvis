@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.38 tagged tip** · C37 mag-yaw ★ ACCEPT CLOSED — sim mag + yaw fuse + RC yaw unlock · ≠ live mag ≠ flying · C36 `ToyQuad6DofPlant` @ `v0.5.37` · Cola: C38 altitude loop
+**v0.5.39 tagged tip** · C38 altitude loop ★ ACCEPT CLOSED — sim altitude + z→collective drives the 6-DoF plant toward a documented height · C37 mag-yaw ★ ACCEPT CLOSED — still not live baro, still not flying
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -163,7 +163,19 @@ Fase C · **C37** (`B1-fase-c-mag-yaw-rung`) — **yaw stops being only gyro dri
 - `RC_CH_YAW` unlocked (`RC_MAX_YAW_RAD=π`); roll/pitch/throttle unchanged. Mag fusion **outside** `loop.step`.
 - **Sim mag ≠ live mag ≠ flying.**
 - Package **`0.5.38`** · tagged **`v0.5.38`** · suite **3706** · host `ctest` **88/88** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_mag_yaw_rung_b1.md)
-- **Next:** C38 altitude loop (sim). Assistant PARKED. Silicon parked.
+- **Next:** C38 ★ ACCEPT CLOSED @ **`v0.5.39`**. Cola: C39 position loop (sim). Assistant PARKED. Silicon parked.
+
+## What v0.5.39 includes (★ ACCEPT CLOSED)
+
+Fase C · **C38** (`B1-fase-c-altitude-loop`) — **collective stops being only the RC stick or a fixed constant**:
+
+- New `AltitudeSample` + `SimulatedAltitudeHal` (Python `sim_altitude_hal.py` + C++ `sim_altitude_hal.hpp`/`.cpp`) — a direct altitude port, not a fake ISA pressure/meteorology model: `read_altitude(true_z_m, t_s)` returns the caller-supplied true height directly. This HAL never owns or secretly consults a plant.
+- New `AltitudeController` (Python `altitude_controller.py` + C++ `altitude_controller.hpp`/`.cpp`) — one law only, run **outside** `FlightControlLoop.step`: `collective = clip(hover_bias + kp*(z_des_m - altitude_m) - kd*vz_mps, 0, 1)`. `hover_bias` defaults to the toy hover point that actually balances `ToyQuad6DofPlant`'s own default gravity/thrust constants (`mass_kg*g/(4*thrust_gain)` ≈ `0.1226`) — **not** the IC's suggested `hover_collective()` (`0.5`), which was verified empirically to badly mismatch this plant's own physics and never settle near the setpoint. `vz_mps` is caller-supplied (the smoke passes `ToyQuad6DofPlant.true_velocity_mps[2]` directly), not internally integrated.
+- Deliberately named `sim_altitude_hal.py`/`altitude_controller.py`, not `altitude.py` — this codebase already ships `attitude.py` (the C7 estimator); "altitude"/"attitude" differ by one letter, avoided the same way in file names, class names (no `AltitudeSetpoint` next to the existing `AttitudeSetpoint` — a plain `z_des_m` float is used instead), and the C++ headers.
+- New smoke `run_altitude_loop_smoke` chains `alt.compute(...)` → `loop.step(...)` → `plant.step(...)` exactly as this Buy's own IC requires — starting at `z=0` with `z_des_m=2.0`, verified converging monotonically (no overshoot) to within `0.07m` of the setpoint over 500 steps (5 seconds sim time).
+- **Sim altitude != live baro/ToF chip. z→collective in RAM != altitude hold in air.** A simulated height measurement drives thrust so the toy plant moves in `z`. Nothing here reads a real sensor or claims any real vehicle holds altitude.
+- Package **`0.5.39`** · tagged **`v0.5.39`** · suite **3714** · host `ctest` **93/93** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_altitude_loop_b1.md)
+- **Next:** C39 position loop (sim). Assistant PARKED. Silicon parked.
 
 ## What v0.5.29 includes
 
@@ -635,7 +647,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.38`** — C37 mag-yaw ★ ACCEPT CLOSED (sim mag + RC yaw unlock; ≠ live mag ≠ flying). C36 @ `v0.5.37`. **Cola:** C38 altitude loop (sim). Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.39`** — C38 altitude ★ ACCEPT CLOSED (sim alt + z→collective; ≠ live baro ≠ flying). C37 @ `v0.5.38`. C36 @ `v0.5.37`. Cola: C39 position loop. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

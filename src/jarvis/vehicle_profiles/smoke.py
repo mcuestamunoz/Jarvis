@@ -64,11 +64,13 @@ from jarvis.flight_software.flight_control.mixer import (
     QuadXMixer,
     hover_collective,
 )
+from jarvis.flight_software.flight_control.altitude_controller import AltitudeController
 from jarvis.flight_software.flight_control.plant import (
     ToyQuad6DofPlant,
     ToyQuadAttitudePlant,
     tilt_angle_rad,
 )
+from jarvis.flight_software.flight_control.sim_altitude_hal import SimulatedAltitudeHal
 from jarvis.flight_software.flight_control.rate_torque import LinearRateTorqueBridge
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
 from jarvis.flight_software.flight_control.types import ImuSample
@@ -284,6 +286,49 @@ def run_sim_6dof_smoke(
         sample = plant.step(tick.forces, dt_s=dt_s)
         positions.append(plant.true_position_m)
     return positions
+
+
+def run_altitude_loop_smoke(
+    steps: int = 500,
+    dt_s: float = 0.01,
+    z_des_m: float = 2.0,
+    mass_kg: float = 1.0,
+    thrust_gain: float = 20.0,
+    torque_gain: float = 40.0,
+    angular_damping: float = 0.5,
+    kp: float = 0.2,
+    kd: float = 0.3,
+    hover_bias: float = 9.81 / (4.0 * 20.0),
+) -> list[float]:
+    """C38 (`B1-fase-c-altitude-loop`) — a thin smoke chaining
+    `AltitudeController.compute` -> `FlightControlLoop.step` (C24's own
+    named tick, still never calling any plant) -> `ToyQuad6DofPlant.step`,
+    starting at `z=0` with a documented `z_des_m`, showing the resulting
+    true altitude climbs and `|z - z_des_m|` shrinks over `steps`. The
+    attitude setpoint passed to `step` stays `level_setpoint` throughout
+    — this Buy does not touch RC/mag, only the `collective` argument.
+    Returns the true-altitude series, one entry per step plus the
+    initial value. `hover_bias` defaults to the toy hover point matching
+    this smoke's own `mass_kg`/`thrust_gain` (see `altitude_controller.py`'s
+    own disclosed-deviation note for why, not `hover_collective()`)."""
+    plant = ToyQuad6DofPlant(
+        mass_kg=mass_kg, thrust_gain=thrust_gain, torque_gain=torque_gain, angular_damping=angular_damping
+    )
+    loop = FlightControlLoop()
+    hal = SimulatedAltitudeHal()
+    alt_controller = AltitudeController(kp=kp, kd=kd, hover_bias=hover_bias)
+
+    altitudes = [plant.true_position_m[2]]
+    sample = plant.sense()
+    for _ in range(max(1, steps)):
+        altitude = hal.read_altitude(plant.true_position_m[2], sample.t_s)
+        vz_mps = plant.true_velocity_mps[2]
+        collective = alt_controller.compute(z_des_m, altitude, vz_mps)
+        setpoint = level_setpoint(sample.t_s)
+        tick = loop.step(sample, setpoint, collective)
+        sample = plant.step(tick.forces, dt_s=dt_s)
+        altitudes.append(plant.true_position_m[2])
+    return altitudes
 
 
 def run_open_loop_baseline_smoke(

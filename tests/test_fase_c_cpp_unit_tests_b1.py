@@ -228,29 +228,26 @@ def test_t6_rung_sources_are_git_unchanged_by_this_buy():
     ]
     assert plant_removed_lines == [], f"plant.cpp diff removes/changes existing lines, not purely additive:\n{plant_removed_lines}"
 
+    # attitude.cpp's own C37 disclosed exception is verified against
+    # current source content, not `git diff` — C37 has since been
+    # ACCEPTed and tagged (`v0.5.38`), so a diff-based check (as used
+    # for esc.cpp/plant.cpp above, where the invariant is simply "no
+    # diff" and stays true forever) would no longer see the historical
+    # edit at all once committed. Content checks below hold regardless
+    # of commit status.
     attitude_cpp = NATIVE_FC_DIR / "src" / "attitude.cpp"
     assert attitude_cpp.is_file()
-    attitude_diff = subprocess.run(
-        ["git", "diff", "--", str(attitude_cpp)],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
+    attitude_cpp_text = attitude_cpp.read_text(encoding="utf-8")
+    assert "mag_gain" in attitude_cpp_text, "attitude.cpp missing the disclosed C37 mag_gain parameter"
+    assert "std::optional<MagSample> mag" in attitude_cpp_text, (
+        "attitude.cpp missing the disclosed C37 optional MagSample parameter on update()"
     )
-    attitude_removed_lines = [
-        line[1:]
-        for line in attitude_diff.stdout.splitlines()
-        if line.startswith("-") and not line.startswith("---")
-    ]
-    expected_removed_lines = {
-        "ComplementaryAttitudeEstimator::ComplementaryAttitudeEstimator(double gain, Quat initial_q)",
-        "    : gain_(gain), initial_q_(quat::normalize(initial_q)) {",
-        "AttitudeState ComplementaryAttitudeEstimator::update(const ImuSample& sample) {",
-    }
-    assert set(attitude_removed_lines) == expected_removed_lines, (
-        "attitude.cpp diff removes lines beyond the two disclosed C37 "
-        f"signature edits:\n{attitude_removed_lines}"
-    )
+    # The pre-C37 signatures must no longer exist verbatim — proving the
+    # constructor/update() were edited in place (the two disclosed
+    # signature lines), not duplicated as a parallel overload alongside
+    # an untouched original.
+    assert "ComplementaryAttitudeEstimator::ComplementaryAttitudeEstimator(double gain, Quat initial_q)" not in attitude_cpp_text
+    assert "AttitudeState ComplementaryAttitudeEstimator::update(const ImuSample& sample) {" not in attitude_cpp_text
 
 
 def test_no_native_unit_test_wiring_into_craft_or_orchestrator():
@@ -282,4 +279,4 @@ def test_capability_registry_default_still_empty():
 
 def test_t8_pyproject_version_is_0_5_13():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.38"' in text
+    assert 'version = "0.5.39"' in text

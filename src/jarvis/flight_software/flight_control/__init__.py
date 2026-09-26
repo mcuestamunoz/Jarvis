@@ -1,6 +1,7 @@
 """Python scaffold / sim only — production flight_control runtime is C++
 (future IC). See `jarvis.flight_software`'s package docstring."""
 
+from jarvis.flight_software.flight_control.altitude_controller import AltitudeController
 from jarvis.flight_software.flight_control.attitude import (
     AttitudeState,
     ComplementaryAttitudeEstimator,
@@ -37,11 +38,14 @@ from jarvis.flight_software.flight_control.rate_torque import (
     BodyTorqueCommand,
     LinearRateTorqueBridge,
 )
+from jarvis.flight_software.flight_control.sim_altitude_hal import AltitudeSample, SimulatedAltitudeHal
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
 from jarvis.flight_software.flight_control.sim_mag_hal import SimulatedMagHal
 from jarvis.flight_software.flight_control.types import ImuSample
 
 __all__ = [
+    "AltitudeController",
+    "AltitudeSample",
     "AttitudeSetpoint",
     "AttitudeState",
     "BodyRateCommand",
@@ -60,6 +64,7 @@ __all__ = [
     "MotorForceCommand",
     "PdAttitudeController",
     "QuadXMixer",
+    "SimulatedAltitudeHal",
     "SimulatedEscSink",
     "SimulatedImuHal",
     "SimulatedMagHal",

@@ -497,3 +497,25 @@ quaternion's own yaw term — verified to reduce to the exact pre-C37
 roll/pitch-only formula when yaw is `0`. **Sim mag != live mag chip !=
 ICM SPI mag. Yaw reference in RAM != compass flight. RC yaw unlock !=
 motors != flying.**
+
+`sim_altitude_hal.hpp`/`.cpp` and `altitude_controller.hpp`/`.cpp` (C38,
+package `0.5.39`, ★ ACCEPT CLOSED @ `v0.5.39`) add a simulated height sensor and a z -> collective controller
+so `ToyQuad6DofPlant` can climb toward, or hold near, a documented
+height. `SimulatedAltitudeHal::read_altitude(true_z_m, t_s)` is a
+**direct altitude port** — it returns the caller-supplied true height
+directly, no ISA pressure/meteorology model, and never owns or secretly
+consults a plant. `AltitudeController::compute(z_des_m, altitude,
+vz_mps)` implements one law: `collective = clip(hover_bias +
+kp*(z_des_m - altitude_m) - kd*vz_mps, 0, 1)`, run **outside**
+`ControlLoop::step`. `hover_bias` defaults to `9.81 / (4.0 * 20.0)` —
+the toy hover point that actually balances `ToyQuad6DofPlant`'s own
+default `mass_kg`/`thrust_gain`, chosen after `hover_collective()`
+(`0.5`, the IC's own suggested default) was verified empirically to
+badly mismatch this plant's physics (never settles near the setpoint).
+Deliberately named `sim_altitude_hal.*`/`altitude_controller.*`, not
+`altitude.*` — this tree already ships `attitude.hpp`/`attitude.cpp`
+(C7); "altitude"/"attitude" differ by one letter. `loop.hpp`/`loop.cpp`,
+`plant.hpp`/`plant.cpp` dynamics, `attitude.hpp`/`attitude.cpp`, and
+`rc_setpoint.hpp`/`rc_setpoint.cpp` all stay byte-unchanged by this Buy.
+**Sim altitude != live baro/ToF chip. z -> collective in RAM != altitude
+hold in air.**
