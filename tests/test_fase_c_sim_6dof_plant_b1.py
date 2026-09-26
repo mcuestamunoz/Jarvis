@@ -196,7 +196,7 @@ def test_t11_no_craft_continuity_library_board_edits_and_safety_default_reject_a
 
 def test_t12_pyproject_version_is_0_5_37():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.39"' in text
+    assert 'version = "0.5.40"' in text
 
 
 def test_t12_full_suite_process_gate_placeholder():

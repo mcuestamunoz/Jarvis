@@ -519,3 +519,31 @@ Deliberately named `sim_altitude_hal.*`/`altitude_controller.*`, not
 `rc_setpoint.hpp`/`rc_setpoint.cpp` all stay byte-unchanged by this Buy.
 **Sim altitude != live baro/ToF chip. z -> collective in RAM != altitude
 hold in air.**
+
+`sim_position_hal.hpp`/`.cpp` and `position_controller.hpp`/`.cpp` (C39,
+package `0.5.40`, ★ ACCEPT CLOSED @ `v0.5.40`) add a simulated horizontal position sensor and an
+xy -> tilt controller so `ToyQuad6DofPlant` can chase a documented ENU
+point. `SimulatedPositionHal::read_position(true_x_m, true_y_m, t_s)` is
+a **direct ENU port** — it returns the caller-supplied true horizontal
+position (East/North) directly, no NMEA/WGS84/optical-flow stack, and
+never owns or secretly consults a plant; optional `z_m` is allowed but
+unused by the controller. `PositionController::compute(setpoint,
+position, vx_mps, vy_mps, t_s)` implements one law: `pitch_rad =
+clip(kp*(x_des-x) - kd*vx, -max_tilt_rad, max_tilt_rad)`, `roll_rad =
+clip(-(kp*(y_des-y) - kd*vy), -max_tilt_rad, max_tilt_rad)`, composed
+into an `AttitudeSetpoint` quaternion with yaw held at `0`, run
+**outside** `ControlLoop::step`. `max_tilt_rad` defaults to
+`kRcMaxTiltRad` (pi/6, 30 degrees, `rc_setpoint.hpp`, C25). Signs
+derived and proven: a positive pitch rotates body +Z thrust onto
+positive world X (East) — no sign flip on the pitch term; a positive
+roll rotates body +Z thrust onto negative world Y (South) — hence the
+sign flip on the roll term; both directions and the `max_tilt_rad` clip
+are asserted directly in `tests/test_position_loop.cpp`. Keeps its own
+private `roll_pitch_yaw_to_quat` helper in an anonymous namespace
+(same convention as `rc_setpoint.cpp`), not added to the shared
+`quat_math.hpp`. `loop.hpp`/`loop.cpp`, `plant.hpp`/`plant.cpp`
+dynamics, `attitude.hpp`/`attitude.cpp`, `rc_setpoint.hpp`/
+`rc_setpoint.cpp`, and `altitude_controller.hpp`/`.cpp`/
+`sim_altitude_hal.hpp`/`.cpp` all stay byte-unchanged by this Buy.
+**Sim position != live GPS/flow chip. xy -> tilt in RAM != position hold
+in air != GO_TO executed. An ENU point in RAM != a house map.**

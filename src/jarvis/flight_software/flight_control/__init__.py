@@ -34,6 +34,10 @@ from jarvis.flight_software.flight_control.plant import (
     ToyQuadAttitudePlant,
     tilt_angle_rad,
 )
+from jarvis.flight_software.flight_control.position_controller import (
+    PositionController,
+    PositionSetpoint,
+)
 from jarvis.flight_software.flight_control.rate_torque import (
     BodyTorqueCommand,
     LinearRateTorqueBridge,
@@ -41,6 +45,7 @@ from jarvis.flight_software.flight_control.rate_torque import (
 from jarvis.flight_software.flight_control.sim_altitude_hal import AltitudeSample, SimulatedAltitudeHal
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
 from jarvis.flight_software.flight_control.sim_mag_hal import SimulatedMagHal
+from jarvis.flight_software.flight_control.sim_position_hal import PositionSample, SimulatedPositionHal
 from jarvis.flight_software.flight_control.types import ImuSample
 
 __all__ = [
@@ -63,11 +68,15 @@ __all__ = [
     "MagSample",
     "MotorForceCommand",
     "PdAttitudeController",
+    "PositionController",
+    "PositionSample",
+    "PositionSetpoint",
     "QuadXMixer",
     "SimulatedAltitudeHal",
     "SimulatedEscSink",
     "SimulatedImuHal",
     "SimulatedMagHal",
+    "SimulatedPositionHal",
     "ToyQuad6DofPlant",
     "ToyQuadAttitudePlant",
     "encode_motor_forces",

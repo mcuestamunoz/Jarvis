@@ -170,7 +170,7 @@ def test_t7_native_tree_zero_crsf_elrs_tokens():
 
 def test_t8_pyproject_version_is_0_5_33():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.39"' in text
+    assert 'version = "0.5.40"' in text
 
 
 def test_t9_full_suite_process_gate_placeholder():

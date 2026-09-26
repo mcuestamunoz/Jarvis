@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.39 tagged tip** · C38 altitude loop ★ ACCEPT CLOSED — sim altitude + z→collective drives the 6-DoF plant toward a documented height · C37 mag-yaw ★ ACCEPT CLOSED — still not live baro, still not flying
+**v0.5.40 tagged tip** · C39 position loop ★ ACCEPT CLOSED — sim position + xy→tilt · C38 altitude ★ ACCEPT CLOSED — still not live GPS, still not flying
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -175,7 +175,20 @@ Fase C · **C38** (`B1-fase-c-altitude-loop`) — **collective stops being only 
 - New smoke `run_altitude_loop_smoke` chains `alt.compute(...)` → `loop.step(...)` → `plant.step(...)` exactly as this Buy's own IC requires — starting at `z=0` with `z_des_m=2.0`, verified converging monotonically (no overshoot) to within `0.07m` of the setpoint over 500 steps (5 seconds sim time).
 - **Sim altitude != live baro/ToF chip. z→collective in RAM != altitude hold in air.** A simulated height measurement drives thrust so the toy plant moves in `z`. Nothing here reads a real sensor or claims any real vehicle holds altitude.
 - Package **`0.5.39`** · tagged **`v0.5.39`** · suite **3714** · host `ctest` **93/93** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_altitude_loop_b1.md)
-- **Next:** C39 position loop (sim). Assistant PARKED. Silicon parked.
+- **Next:** C39 ★ ACCEPT CLOSED @ **`v0.5.40`**. Cola: C40 autonomy executor (sim). Assistant PARKED. Silicon parked.
+
+## What v0.5.40 includes (★ ACCEPT CLOSED)
+
+Fase C · **C39** (`B1-fase-c-position-loop`) — **horizontal motion stops being only open-loop tilt or luck**:
+
+- New `PositionSample` + `SimulatedPositionHal` (Python `sim_position_hal.py` + C++ `sim_position_hal.hpp`/`.cpp`) — a direct ENU port, not a NMEA/WGS84/optical-flow stack: `read_position(true_x_m, true_y_m, t_s)` returns the caller-supplied true horizontal position (East/North) directly. Optional `z_m` allowed, unused by the controller. This HAL never owns or secretly consults a plant.
+- New `PositionSetpoint(x_m, y_m)` + `PositionController` (Python `position_controller.py` + C++ `position_controller.hpp`/`.cpp`) — one law only, run **outside** `FlightControlLoop.step`: `pitch_rad = clip(kp*(x_des-x) - kd*vx, -max_tilt_rad, max_tilt_rad)`, `roll_rad = clip(-(kp*(y_des-y) - kd*vy), -max_tilt_rad, max_tilt_rad)`, composed into an `AttitudeSetpoint` quaternion with yaw held at `0`. `max_tilt_rad` defaults to `RC_MAX_TILT_RAD` (pi/6, 30 degrees, C25).
+- Signs derived and proven: a positive pitch rotates body +Z thrust onto positive world X (East) — no sign flip on the pitch term; a positive roll rotates body +Z thrust onto negative world Y (South) — hence the sign flip on the roll term. Verified with a direct closed-loop test: East-only setpoint moves `true_position_m[0]` up, North-only setpoint moves `true_position_m[1]` up, with no cross-axis coupling.
+- No naming-collision concern this Buy (unlike C38's `altitude`/`attitude`) — `PositionSetpoint`/`PositionController`/`PositionSample`/`SimulatedPositionHal` are used directly, typed, per the IC's own preference.
+- New smoke `run_position_loop_smoke` chains `pos.compute(...)` → `alt.compute(...)` (C38's own `AltitudeController`, unchanged) → `loop.step(...)` → `plant.step(...)` — starting at `(0,0,0)` with `x_des_m=5.0, y_des_m=0.0, z_des_m=2.0`, verified horizontal distance shrinking from `5.0m` to under `0.25m` over 1000 steps (10 seconds sim time).
+- **Sim position != live GPS/flow chip. xy→tilt in RAM != position hold in air != GO_TO executed. An ENU point in RAM != a house map.** Nothing here reads a real sensor or claims any real vehicle holds position, and this Buy does not implement the `AutonomyVerb.GO_TO` executor (that stays C40, a separate, future Buy) — `propose_command(GO_TO)` still hits `RejectAllSafetyGate`.
+- Package **`0.5.40`** · tagged **`v0.5.40`** · suite **3723** · host `ctest` **101/101** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_position_loop_b1.md)
+- **Next:** C40 autonomy executor (sim setpoints). Assistant PARKED. Silicon parked.
 
 ## What v0.5.29 includes
 
@@ -647,7 +660,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.39`** — C38 altitude ★ ACCEPT CLOSED (sim alt + z→collective; ≠ live baro ≠ flying). C37 @ `v0.5.38`. C36 @ `v0.5.37`. Cola: C39 position loop. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.40`** — C39 position ★ ACCEPT CLOSED (sim position + xy→tilt; ≠ live GPS ≠ flying). C38 @ `v0.5.39`. C37 @ `v0.5.38`. C36 @ `v0.5.37`. Cola: C40 autonomy executor. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

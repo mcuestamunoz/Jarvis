@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-26 C38 ACCEPT CLOSED @ v0.5.39. Next: C39 position loop IC when Engineer asks. Assistant PARKED. Silicon parked.",
-  "scope": "C38 closed. Out: xy until C39 IC, executor, Assistant, silicon.",
-  "execution_status": "idle",
-  "current_mode": "await_next_ic",
-  "active_operation": "c38_altitude_loop_closed",
+  "cycle_intent": "2026-09-26 C39 ACCEPT CLOSED @ v0.5.40. C40 ★ AUTHORIZED — Claude implements autonomy executor. Assistant PARKED. Silicon parked.",
+  "scope": "Claude: C40 IC. Cursor: review after landing. Out: Safety allowlist (C41), Assistant, silicon.",
+  "execution_status": "in_progress",
+  "current_mode": "await_implementer",
+  "active_operation": "c40_autonomy_executor_starred",
   "movement_trigger": {
-    "type": "accept",
-    "note": "Engineer ACCEPT C38 + tag v0.5.39. Cola C39."
+    "type": "star",
+    "note": "Engineer ACCEPT C39 + ★ C40 AUTHORIZED. Claude implements verb→setpoints now."
   },
   "relevant_workflow_phases": [
     "Verification"

@@ -45,6 +45,7 @@ from jarvis.vehicle_profiles.smoke import (
     run_hal_imu_smoke,
     run_mixer_smoke,
     run_open_loop_baseline_smoke,
+    run_position_loop_smoke,
     run_sim_6dof_smoke,
 )
 
@@ -61,5 +62,6 @@ __all__ = [
     "run_hal_imu_smoke",
     "run_mixer_smoke",
     "run_open_loop_baseline_smoke",
+    "run_position_loop_smoke",
     "run_sim_6dof_smoke",
 ]

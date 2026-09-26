@@ -57,6 +57,18 @@ Tras D2 ★ ACCEPT. Un IC por fila. **Esto es el foco hasta C43.**
 
 ---
 
+## Residuals (no cola · Engineer 2026-09-26)
+
+Tras C39 ★ ACCEPT @ `v0.5.40`, review N1–N4 **no** abren Buy ni deuda del mes:
+
+| Origen | Clasificación | Acción |
+|---|---|---|
+| C39 N1 (`nan` setpoint) | Higiene opcional | No cola. Arreglo oportunista si se toca `PositionController` |
+| C39 N2 (z droop bajo tilt) | Acople físico de juguete | **No deuda.** C40+ no prometen z clavada durante GO_TO/tilt |
+| C39 N3/N4 | Cosmético | Ignorar |
+
+---
+
 ## Hoy
 
-D2 spot-check → ★ ACCEPT → tag `v0.5.36`. Luego IC **C36** planta sim. Nada de Assistant hasta terminar C36–C43.
+Tip tagged **`v0.5.40`** (C39 CLOSED). Siguiente: IC **C40** autonomy executor. Assistant PARKED hasta C43.
