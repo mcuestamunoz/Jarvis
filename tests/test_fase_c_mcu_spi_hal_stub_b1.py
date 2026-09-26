@@ -95,7 +95,7 @@ def test_desk_gyro_identity_may_appear_only_as_comment_citation():
 
 def test_t9_pyproject_version_is_0_5_30():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.35"' in text
+    assert 'version = "0.5.37"' in text
 
 
 def test_t10_full_suite_process_gate_placeholder():

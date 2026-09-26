@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.35 tagged tip** (Taller CSS cylinder faces CLOSED — caps + 16 slats meet on Ø×H, still not CAD) · Cuboid CLOSED @ `v0.5.34` · C35 denser `step()` tests CLOSED (still not flying) · Next: D2 docs IC READY
+**v0.5.37 tagged tip** · C36 `ToyQuad6DofPlant` ★ ACCEPT CLOSED — forces move a toy body through ENU space, still not flying · C11 attitude plant untouched · plant outside `step` — [review](.jes/artifacts/implementation_review_fase_c_sim_6dof_plant_b1.md) · Cola: C37 mag-yaw (sim)
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -99,7 +99,7 @@ Fase C · **C35** (`B1-fase-c-step-failsafe-hold-ticks`) — **tests only: many 
 - `probe_rx` (C34) is **not** used as an IMU source anywhere in these tests — the canned IMU sample is a plain struct literal, same as every prior Buy on this axis.
 - **Many ticks != flying != 6-DoF. Failsafe -> step != motors cut != HOLD executed.** A thousand ticks of `step()` on canned IMU, and a stale-RC path into the same `step()`, both exist. Nothing here is a flying plant, a motor cut, or an executed autonomy command.
 - Package **`0.5.33`** · tagged **`v0.5.33`** · suite **3691** · host `ctest` **76/76** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_step_failsafe_hold_ticks_b1.md)
-- **Next:** Taller CSS cylinder faces ★ ACCEPT CLOSED @ **`v0.5.35`**. D2 docs IC READY. Cola: standoff points. DShot wire / C30 DFU parked until bench.
+- **Next:** Taller CSS cylinder faces ★ ACCEPT CLOSED @ **`v0.5.35`**. D2 docs LANDED @ package `0.5.36` (awaiting Cursor review + Engineer ★ ACCEPT, no tag yet). Cola: standoff points. DShot wire / C30 DFU parked until bench.
 
 ## What v0.5.34 includes
 
@@ -125,7 +125,34 @@ Geometry / visor · **`B1-geometry-taller-css-cylinder-faces`** — **caps + 16 
 - `cuboidFaces.ts` (the box helper), the disk branch, `SCENE3D.pxPerMm`, the projector, the `geometry` DTO, and `spatial_board.py` all stay **byte-unchanged** — `git diff --stat` empty on every one of them.
 - **Visor cylinder != CAD != fit != extra parts != round metal != a standoff hole pattern.** 2 CSS caps + 16 CSS slats that meet on a declared Ø x H exist. Nothing here is a turned standoff, a prop hub from the mill, or a fit verdict.
 - Package **`0.5.35`** · tagged **`v0.5.35`** · UI vitest **142/142** · `tsc --noEmit` clean · Python suite **3691** (unchanged — no new Python tests) — ★ ACCEPT CLOSED (Engineer Taller smoke 2026-09-25) — [review](.jes/artifacts/implementation_review_geometry_taller_css_cylinder_faces_b1.md)
-- **Next:** D2 docs [`B1-docs-truth-sync-after-c35`](.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) READY. Cola: standoff points.
+- **Next:** D2 docs LANDED @ package **`0.5.36`** (awaiting Cursor review + Engineer ★ ACCEPT, no `v0.5.36` tag yet) — [`B1-docs-truth-sync-after-c35`](.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) · [report](.jes/artifacts/implementation_report_docs_truth_sync_after_c35_b1.md). Cola: standoff points.
+
+## What v0.5.36 includes (landed, awaiting Cursor review + Engineer ★ ACCEPT — no `v0.5.36` tag yet)
+
+Docs · **`B1-docs-truth-sync-after-c35`** — **maps and READMEs now name the same tip as `ARCHITECTURE.md`**:
+
+- **Docs-only Buy** — no `src/`, `ui/`, or `library/` product edits. A Phase 0 inventory (`.jes/artifacts/inventory_docs_truth_sync_after_c35_b0.md`, one row per in-scope file) was written and gated before any Phase 1 edit, per the IC's own STOP-before-bulk-edits rule.
+- `docs/system_map/README.md` and `JARVIS_SYSTEM_MAP.md`'s own "Fase C" section stopped naming tip `v0.5.3`/suite `3236` (a snapshot from C1-C5, 2026-09-20) as current — both now name tip `v0.5.35`, live suite/UI/ctest counts, and point at `ARCHITECTURE.md` §1c / `PLATFORM_CAPABILITY_VISION.md` §13.
+- `CONNECTIONS.md` gets **one new changelog paragraph** (C6-C35 + Taller CSS, no new C-xxx) after its existing C1-C5 entry — the canonical registry table itself is untouched, still ending at C-113.
+- The interactive canvas (`jarvis-system-map.canvas.tsx`) and `DIAGRAMS.md` both stopped implying "no C++/CMake tree" or "C++ (future IC)" as a *current* fact — a C++ host+MCU-cross-compile tree has existed under `native/flight_control/` since C13. No fake SPI/`step` graph nodes were added — this is prose-only.
+- `native/flight_control/README.md`'s own layout list now names `dshot.hpp`, `spi.hpp`, `spi_probe.hpp`, and their test files (previously stopped at C28's `uart.hpp`); C30's two "not yet tagged" mentions are corrected to "★ ACCEPT CLOSED @ tag `v0.5.28`" (the tag exists — `git tag -l v0.5.28`); new honesty paragraphs for C31-C35 were added matching this README's own established per-Buy style.
+- `docs/USER_GUIDE_CRAFT_MONTAGE.md` §8.4 gets one short Spanish paragraph: a declared box is one six-face prism, a declared cylinder is one body (2 caps + 16 slats), a thin plate or short hub is still one solid — not extra parts, not CAD, not a fit verdict. No MY5 mm, no standoff ×8 anywhere in it.
+- `docs/system_map/00_entry/ENTRY_MAP.md`'s visor projector row gets one clause naming Taller CSS cuboid + cylinder @ `v0.5.35`, still C-094/C-113 class, no new C-xxx.
+- **Left untouched, verified clean:** `VISION.md`, `docs/PROJECT_CONTINUITY.md`, `docs/ENGINEERING_READINESS_VISION.md`, `docs/BUGS.md`/`FASE_LLM.md`/`CODE_AUDIT_CORE.md` (already carry `HISTORICAL` banners), `docs/IMPLEMENTATION_TASKS.md`'s closed archive sections, `ARCHITECTURE.md` §1c's own historical C3 quote, and 22 other `docs/*.md` files with zero stale Fase C references (grep-verified, listed in the inventory).
+- **Docs tip != flying != gyro live != DShot pin != new C-xxx != standoff ×8 shipped.** Maps and READMEs that name the same tagged tip as `ARCHITECTURE.md` exist. Nothing here is a new craft connection, firmware on the desk, or the MY5/standoff catalog claimed as shipped.
+- Package **`0.5.36`** · Python suite **3691** (unchanged) · UI vitest **142/142** · host `ctest` **76/76** — landed, awaiting Cursor review + Engineer ★ ACCEPT, **no `v0.5.36` tag yet** — [report](.jes/artifacts/implementation_report_docs_truth_sync_after_c35_b1.md)
+- **Next:** awaiting Engineer ★ ACCEPT on this docs Buy. Cola: standoff points.
+
+## What v0.5.37 includes
+
+Fase C · **C36** (`B1-fase-c-sim-6dof-plant`) — **a toy body that can move through space, not just tilt**:
+
+- New `ToyQuad6DofPlant` (Python `plant.py` + C++ `plant.hpp`/`plant.cpp`) beside unchanged `ToyQuadAttitudePlant` (C11) — purely additive; C11 tilt-recovery smoke still green.
+- Translation: `thrust_body = (0,0,thrust_gain*sum(forces))` · `a_world = R(q)·(thrust/mass)+g` · semi-implicit Euler · ENU `g=(0,0,-9.81)`.
+- `ImuSample` stays C11-shaped (gravity in body + gyro — no specific force). Pose on `true_position_m` / `true_velocity_mps` only. Plant stays **outside** `loop.step`.
+- **6-DoF toy ≠ flying ≠ product aero ≠ MY5 truth.**
+- Package **`0.5.37`** · tagged **`v0.5.37`** · suite **3696** · host `ctest` **82/82** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_sim_6dof_plant_b1.md)
+- **Next:** C37 mag-yaw (sim). Assistant PARKED. Silicon parked.
 
 ## What v0.5.29 includes
 
@@ -597,7 +624,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.35`** (Taller CSS cylinder faces CLOSED — caps + 16 slats on Ø×H, not CAD). Cuboid CLOSED (`v0.5.34`). C35 CLOSED (`v0.5.33` — denser `step` tests, not flying). Next: D2 docs IC READY — [`B1-docs-truth-sync-after-c35`](.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md). Cola: standoff points. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.37`** — C36 `ToyQuad6DofPlant` ★ ACCEPT CLOSED (pose+attitude toy; still not flying). Cuboid/cylinder Taller CLOSED (`v0.5.34`/`v0.5.35`). C35 CLOSED (`v0.5.33`). D2 docs still LANDED @ package `0.5.36` (awaiting Engineer spot-check + ACCEPT — not blocking C37). **Cola:** C37 mag-yaw (sim). Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

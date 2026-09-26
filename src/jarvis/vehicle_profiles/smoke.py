@@ -64,7 +64,11 @@ from jarvis.flight_software.flight_control.mixer import (
     QuadXMixer,
     hover_collective,
 )
-from jarvis.flight_software.flight_control.plant import ToyQuadAttitudePlant, tilt_angle_rad
+from jarvis.flight_software.flight_control.plant import (
+    ToyQuad6DofPlant,
+    ToyQuadAttitudePlant,
+    tilt_angle_rad,
+)
 from jarvis.flight_software.flight_control.rate_torque import LinearRateTorqueBridge
 from jarvis.flight_software.flight_control.sim_imu_hal import SimulatedImuHal
 from jarvis.flight_software.flight_control.types import ImuSample
@@ -236,6 +240,50 @@ def run_controlled_flight_sim_smoke(
         sample = plant.step(tick.forces, dt_s=dt_s)
         tilt_errors_rad.append(tilt_angle_rad(plant.true_attitude.q_body_to_world))
     return tilt_errors_rad
+
+
+def run_sim_6dof_smoke(
+    steps: int = 50,
+    dt_s: float = 0.01,
+    initial_tilt_rad: float = math.radians(5.0),
+    collective: float = hover_collective(),
+    mass_kg: float = 1.0,
+    thrust_gain: float = 20.0,
+    torque_gain: float = 40.0,
+    angular_damping: float = 0.5,
+) -> list[tuple[float, float, float]]:
+    """C36 (`B1-fase-c-sim-6dof-plant`) — a thin smoke chaining
+    `FlightControlLoop.step` (C24's own named tick, still never calling
+    any plant) with `ToyQuad6DofPlant.step`, seeded at a small documented
+    tilt (default 5 degrees about the pitch axis) plus a hover-range
+    collective, showing the resulting ENU pose actually moves — both
+    climbing (net thrust vs gravity) and drifting horizontally (the
+    tilt). Returns the true-position series, one entry per step plus the
+    initial value. Not a controller and not proof any loop drives this
+    plant anywhere in particular — `level_setpoint` still targets level,
+    the plant simply has somewhere to go now."""
+    plant = ToyQuad6DofPlant(
+        mass_kg=mass_kg, thrust_gain=thrust_gain, torque_gain=torque_gain, angular_damping=angular_damping
+    )
+    plant.reset(initial_q=_tilted_initial_quat(initial_tilt_rad))
+
+    filt = ImuLowPassFilter()
+    estimator = ComplementaryAttitudeEstimator()
+    controller = PdAttitudeController()
+    bridge = LinearRateTorqueBridge()
+    mixer = QuadXMixer()
+    loop = FlightControlLoop(
+        filt=filt, estimator=estimator, controller=controller, bridge=bridge, mixer=mixer
+    )
+
+    positions = [plant.true_position_m]
+    sample = plant.sense()
+    for _ in range(max(1, steps)):
+        setpoint = level_setpoint(sample.t_s)
+        tick = loop.step(sample, setpoint, collective)
+        sample = plant.step(tick.forces, dt_s=dt_s)
+        positions.append(plant.true_position_m)
+    return positions
 
 
 def run_open_loop_baseline_smoke(

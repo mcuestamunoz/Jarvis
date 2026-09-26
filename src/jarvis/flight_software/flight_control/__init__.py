@@ -27,7 +27,11 @@ from jarvis.flight_software.flight_control.mixer import (
     QuadXMixer,
     hover_collective,
 )
-from jarvis.flight_software.flight_control.plant import ToyQuadAttitudePlant, tilt_angle_rad
+from jarvis.flight_software.flight_control.plant import (
+    ToyQuad6DofPlant,
+    ToyQuadAttitudePlant,
+    tilt_angle_rad,
+)
 from jarvis.flight_software.flight_control.rate_torque import (
     BodyTorqueCommand,
     LinearRateTorqueBridge,
@@ -55,6 +59,7 @@ __all__ = [
     "QuadXMixer",
     "SimulatedEscSink",
     "SimulatedImuHal",
+    "ToyQuad6DofPlant",
     "ToyQuadAttitudePlant",
     "encode_motor_forces",
     "hover_collective",

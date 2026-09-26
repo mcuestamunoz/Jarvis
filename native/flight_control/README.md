@@ -136,8 +136,8 @@ a vendor BSP/SDK, or GPIO/UART/any real I/O beyond the single cited
 status-LED pin C30 adds below — `syscalls_stub.c`'s `_write`/`_read`/
 etc. are no-op/error stubs, not semihosting.
 
-**C30 update (`B1-fase-c-mcu-flash-observable`, package `0.5.28`, not yet
-tagged):** as of C18 through C29, this image was never flashed and its
+**C30 update (`B1-fase-c-mcu-flash-observable`, ★ ACCEPT CLOSED @ tag
+`v0.5.28`):** as of C18 through C29, this image was never flashed and its
 idle loop was an empty `while (true)`. **Both of those changed this
 Buy** — see "Flash it: USB DFU (C30)" below for the procedure, and
 "`hello_led.c`: the first visible signal (C30)" under Layout for the
@@ -283,6 +283,12 @@ native/flight_control/
                          # watch, protocol-agnostic, see below),
                          # uart (C28 — UartBytePort + LoopbackUart,
                          # see below),
+                         # dshot (C31 — encode_dshot_frame, RAM only,
+                         # see below),
+                         # spi (C32/C33 — SpiBytePort + LoopbackSpi +
+                         # ScriptedSpi, see below),
+                         # spi_probe (C34 — probe_rx, a port client,
+                         # see below),
                          # quat_math (shared helper, see its own header
                          # comment for the documented deviation from
                          # Python's per-module-private-helper style)
@@ -296,10 +302,14 @@ native/flight_control/
     test_rate_torque.cpp
     test_mixer.cpp
     test_esc.cpp
-    test_loop.cpp                # C24 — ControlLoop::step cases
+    test_loop.cpp                # C24 — ControlLoop::step cases; C35 adds
+                                  # 1000-tick + stale-RC-failsafe density
     test_rc_setpoint.cpp         # C25 — map_rc_to_loop_inputs cases
     test_rc_hold.cpp             # C27 — RcHoldWatch cases
     test_uart.cpp                # C28 — LoopbackUart cases
+    test_dshot.cpp                # C31 — encode_dshot_frame cases
+    test_spi.cpp                  # C32/C33 — LoopbackSpi + ScriptedSpi cases
+    test_spi_probe.cpp            # C34 — probe_rx cases
   mcu/                            # C18 — freestanding linked .elf, DFU-able since C30
     linker_cortex_m4.ld
     startup_cortex_m4.c
@@ -375,7 +385,7 @@ this C++-only Buy.
 
 ### `hello_led.c`: the first visible signal (C30)
 
-`mcu/hello_led.h`/`hello_led.c` (C30, package `0.5.28`, not yet tagged)
+`mcu/hello_led.h`/`hello_led.c` (C30, ★ ACCEPT CLOSED @ tag `v0.5.28`)
 is the first bare-metal MMIO on this tree — two functions,
 `hello_led_init()` and `hello_led_spin()` (noreturn), that toggle **PC13**
 via `volatile` register stores. No CMSIS device header, no ST HAL — the
@@ -399,3 +409,65 @@ the script and rebuilding without deleting the prior `.elf` first) and a
 `POST_BUILD` step produces `fc_mcu_stub.bin` via `arm-none-eabi-objcopy`
 for USB DFU (see "Flash it: USB DFU (C30)" above). **Flashed LED blink
 != flying != DShot != USART live != Betaflight HGLRCF405V2.**
+
+`dshot.hpp`/`dshot.cpp` (C31, ★ ACCEPT CLOSED @ tag `v0.5.29`) is the C++
+twin of the Python `flight_software/flight_control/dshot.py`:
+`encode_dshot_frame(throttle, telemetry=false) -> uint16_t` — the same
+16-bit DShot frame math (`value = (throttle << 1) | telemetry`, checksum,
+`frame = (value << 4) | checksum`), verified bit-identical to the Python
+side on the same vectors (`throttle=0 -> 0x0000`, `throttle=48 ->
+0x0606`, `throttle=2047 -> 0xFFEE`). `mcu/hello_led.h`/`hello_led.c`/
+`stub_main.cpp` (C30) stay byte-identical — idle is still only PC13, no
+DShot pin. **DShot encode != pin != motors != flying** — a 16-bit packet
+computed in software exists, nothing here makes an ESC see a waveform.
+
+`spi.hpp`/`spi.cpp` (C32/C33, ★ ACCEPT CLOSED @ tags `v0.5.30`/`v0.5.31`)
+name the MCU-side SPI byte port, same pattern C28 used for UART:
+`SpiBytePort` (abstract, virtual destructor, `transfer(tx, rx, n) ->
+size_t`) with two implementations — `LoopbackSpi` (C32, RX = TX echo,
+default capacity 256) and `ScriptedSpi` (C33, RX filled from a
+pre-loaded byte script instead of TX — how a test can pretend "a device
+answered" without any real chip; `set_next_rx(...)` reprograms the
+script). **Zero SPI registers, zero CMSIS, zero chip-select/NSS GPIO,
+zero IRQ/DMA** anywhere in either file. `WHO_AM_I`/`ICM42688P` (the
+desk's own future gyro) are named only in comments, never in real code.
+**MCU SPI stub != chip SPI != gyro live != flying.**
+
+`spi_probe.hpp`/`spi_probe.cpp` (C34, ★ ACCEPT CLOSED @ tag `v0.5.32`)
+add the first **client** of `SpiBytePort`: `probe_rx(SpiBytePort& port,
+uint8_t* rx, size_t n) -> size_t` sends `n` dummy all-zero TX bytes
+(never a register address) and returns whatever `port.transfer(...)`
+moves into `rx`. On `ScriptedSpi` it returns the canned bytes; on
+`LoopbackSpi` it returns zeros (the echoed dummy TX) — proving the
+client is port-shaped, not tied to one implementation. `spi.hpp`/
+`spi.cpp` themselves get **zero edits**. `WHO_AM_I`/`ICM42688P`/register
+address `0x75` do not appear anywhere in `spi_probe.*`, not even in a
+comment. **Scripted gyro probe != gyro live != chip SPI != WHO_AM_I.**
+
+`test_loop.cpp` (C35, ★ ACCEPT CLOSED @ tag `v0.5.33`) is **tests only**
+— `loop.hpp`/`loop.cpp`/`rc_hold.hpp`/`rc_hold.cpp` all stay
+byte-unchanged. Four new `TEST_CASE`s chain the existing
+`ControlLoop::step` and `RcHoldWatch`/`failsafe_loop_inputs` more times
+and in a new combination: **1000** ticks on a canned level IMU sample
+with no plant (four motor forces stay finite and in `[0, 1]` every
+tick), and a stale watch (never noted, or past the 0.5s timeout) feeding
+`failsafe_loop_inputs(t)` into that same `step()` with `collective = 0`.
+**Many ticks != flying != 6-DoF. Failsafe -> step != motors cut != HOLD
+executed.**
+
+`plant.hpp`/`plant.cpp` (C36, package/tag **`v0.5.37`**, ★ ACCEPT CLOSED) add a **second** plant,
+`ToyQuad6DofPlant`, alongside the unchanged `ToyQuadAttitudePlant`
+(C11/C13) — this tree is **not** attitude-only anymore, but the original
+plant's own body is byte-for-byte untouched (verified purely-additive
+diff, same discipline the C26 `esc.cpp` extension already established).
+`ToyQuad6DofPlant` reuses the identical motor-force torque-proxy
+formulas for attitude, and adds one toy translation law: `thrust_body =
+(0, 0, thrust_gain * sum(motor_forces))` in body `+Z`, `a_world = R(q) *
+(thrust_body / mass_kg) + g_world` (`g_world = (0, 0, -9.81)`,
+semi-implicit Euler), so the mixer's forces can move a body through ENU
+space, not just tilt it in place. `ImuSample` stays exactly as
+C11-shaped as before — gravity rotated into body frame plus gyro, no
+specific-force/linear-acceleration term folded in. `ControlLoop::step`
+still never calls any plant. `fc_closed_loop_smoke` and every existing
+`ToyQuadAttitudePlant` test still pass unchanged. **6-DoF toy plant !=
+flying != product aero != altitude hold != specific-force IMU.**

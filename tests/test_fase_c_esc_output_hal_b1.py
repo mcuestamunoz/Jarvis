@@ -144,7 +144,7 @@ def test_t8_no_gpio_pigpio_dev_mem_in_esc_module_real_code():
 
 def test_t10_pyproject_version_is_0_5_24():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.35"' in text
+    assert 'version = "0.5.37"' in text
 
 
 def test_t11_full_suite_process_gate_placeholder():

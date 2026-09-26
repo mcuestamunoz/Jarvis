@@ -173,7 +173,7 @@ def test_t10_capability_registry_default_still_empty():
 
 def test_t11_pyproject_version_is_0_5_10():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.35"' in text
+    assert 'version = "0.5.37"' in text
 
 
 def test_body_torque_command_rejects_non_finite():

@@ -160,10 +160,17 @@ def test_t6_rung_sources_are_git_unchanged_by_this_buy():
     `apply` wrapper implementing the new `EscOutput` port). The
     pre-existing `apply(...)`/`encode_motor_forces(...)` bodies are not
     touched — verified below via a line-level diff check (no `-` lines,
-    i.e. purely additive), not just excluded from the freeze list."""
+    i.e. purely additive), not just excluded from the freeze list.
+
+    **C36 disclosed exception:** `plant.cpp` is intentionally extended by
+    `B1-fase-c-sim-6dof-plant` (★ Engineer-authorized) — it adds
+    `ToyQuad6DofPlant` (a second, separate toy plant with translation).
+    `ToyQuadAttitudePlant`'s own pre-existing body is not touched —
+    verified below via the same purely-additive line-level diff check
+    already established for `esc.cpp`."""
     frozen_files = [
         NATIVE_FC_DIR / "src" / name
-        for name in ("filter.cpp", "attitude.cpp", "controller.cpp", "rate_torque.cpp", "mixer.cpp", "plant.cpp")
+        for name in ("filter.cpp", "attitude.cpp", "controller.cpp", "rate_torque.cpp", "mixer.cpp")
     ]
     for path in frozen_files:
         assert path.is_file(), path
@@ -191,6 +198,22 @@ def test_t6_rung_sources_are_git_unchanged_by_this_buy():
         if line.startswith("-") and not line.startswith("---")
     ]
     assert removed_lines == [], f"esc.cpp diff removes/changes existing lines, not purely additive:\n{removed_lines}"
+
+    plant_cpp = NATIVE_FC_DIR / "src" / "plant.cpp"
+    assert plant_cpp.is_file()
+    plant_diff = subprocess.run(
+        ["git", "diff", "--", str(plant_cpp)],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    plant_removed_lines = [
+        line
+        for line in plant_diff.stdout.splitlines()
+        if line.startswith("-") and not line.startswith("---")
+    ]
+    assert plant_removed_lines == [], f"plant.cpp diff removes/changes existing lines, not purely additive:\n{plant_removed_lines}"
 
 
 def test_no_native_unit_test_wiring_into_craft_or_orchestrator():
@@ -222,4 +245,4 @@ def test_capability_registry_default_still_empty():
 
 def test_t8_pyproject_version_is_0_5_13():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.35"' in text
+    assert 'version = "0.5.37"' in text

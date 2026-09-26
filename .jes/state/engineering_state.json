@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-25 Taller CSS cylinder ACCEPT CLOSED @ v0.5.35. D2 docs IC READY (B1-docs-truth-sync-after-c35). Cola: standoff points. Silicon parked.",
-  "scope": "Cylinder tagged. Next: Engineer star D2 docs IC. Out: standoff points, F460, CAD, silicon.",
+  "cycle_intent": "2026-09-26 C36 ACCEPT CLOSED @ v0.5.37. Next: C37 mag-yaw IC. Assistant PARKED. Silicon parked.",
+  "scope": "C36 tagged. Draft/authorize C37. Out: Assistant, silicon.",
   "execution_status": "idle",
-  "current_mode": "await_engineer_star",
-  "active_operation": "docs_truth_sync_ic_ready",
+  "current_mode": "await_next_ic",
+  "active_operation": "c36_accept_closed",
   "movement_trigger": {
-    "type": "evidence",
-    "note": "Cylinder CLOSED @ v0.5.35. D2 docs IC ready for star."
+    "type": "star",
+    "note": "Engineer ACCEPT C36. Tag v0.5.37. Next C37."
   },
   "relevant_workflow_phases": [
     "Verification"

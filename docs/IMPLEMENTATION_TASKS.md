@@ -6,14 +6,14 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **D2 docs IC READY** — [`B1-docs-truth-sync-after-c35`](../.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) awaiting Engineer ★. Maps/Connections/native README/USER_GUIDE match tagged tip; no new C-xxx. Cylinder **CLOSED** @ **`v0.5.35`**. Cuboid **CLOSED** @ **`v0.5.34`**. C35 **CLOSED** @ **`v0.5.33`**.  
-> Tip tagged **`v0.5.35`**. Suite **3691** · `ctest` **76/76**. UI vitest **142**.  
-> **Cola (after this):** standoff perimeter points.  
-> **Parked (silicon):** C30 desk DFU · GPIO/DShot *wire* · gyro on SPI1 · craft↔FS.  
-> Process: [lock after C6](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md).  
+> **PRIORIDAD AHORA:** **C37 IC** — after C36 ★ ACCEPT CLOSED @ **`v0.5.37`**. Mag-yaw sim rung. See C37 IC when ★ AUTHORIZED.  
+> **Just closed:** C36 `ToyQuad6DofPlant` @ **`v0.5.37`** — [review](../.jes/artifacts/implementation_review_fase_c_sim_6dof_plant_b1.md). ≠ flying.  
+> **Cola:** C38 alt → C39 pos → C40 executor → C41 Safety sim → C42 ICM client → C43 craft↔FS. Assistant PARKED. Silicon parked.  
+> SoT: [`engineer_note_software_month_until_bench_2026_09_26.md`](../.jes/artifacts/engineer_note_software_month_until_bench_2026_09_26.md).  
+> SoT: [`engineer_note_software_month_until_bench_2026_09_26.md`](../.jes/artifacts/engineer_note_software_month_until_bench_2026_09_26.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
-> **Parked:** C30 desk DFU · GPIO/DShot *wire* · gyro driver · Path N · HD-* · Board polish · craft↔FS · deepen policy beyond one aux · Linux baud.  
+> **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud. `craft↔FS` waits for **C43**. Gyro *driver* in this month = **C42** datasheet client on `ScriptedSpi`, not the chip.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -85,7 +85,16 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C33** | **`B1-fase-c-spi-scripted-slave`** | **✅ ACCEPT CLOSED** @ **`v0.5.31`** | Second `SpiBytePort`: canned RX, not echo; still not the gyro | [review](../.jes/artifacts/implementation_review_fase_c_spi_scripted_slave_b1.md) · tag **`v0.5.31`** |
 | **C34** | **`B1-fase-c-spi-scripted-gyro-probe`** | **✅ ACCEPT CLOSED** @ **`v0.5.32`** | `probe_rx` client of `SpiBytePort`; canned fixture byte is test-only, not WHO_AM_I | [review](../.jes/artifacts/implementation_review_fase_c_spi_scripted_gyro_probe_b1.md) · tag **`v0.5.32`** |
 | **C35** | **`B1-fase-c-step-failsafe-hold-ticks`** | **✅ ACCEPT CLOSED** @ **`v0.5.33`** | Tests only: 1000 canned-IMU `step` + stale RC → same tick; no 6-DoF | [review](../.jes/artifacts/implementation_review_fase_c_step_failsafe_hold_ticks_b1.md) · tag **`v0.5.33`** |
-| **C36+** | GPIO/DShot wire · on-chip USART · gyro **driver** · deepen policy · craft↔FS · C30 desk DFU · Linux baud | **Parked** | One front at a time · [bench note](../.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md) | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
+| **C36** | **`B1-fase-c-sim-6dof-plant`** | **✅ ACCEPT CLOSED** @ **`v0.5.37`** | Toy 6-DoF: forces → pose+attitude; IMU C11-shaped; plant outside `step` | [review](../.jes/artifacts/implementation_review_fase_c_sim_6dof_plant_b1.md) · tag **`v0.5.37`** |
+| **C37** | `B1-fase-c-mag-yaw-rung` | **COLA** | Simulated mag + yaw with a reference; extends C7 | ≠ live mag |
+| **C38** | `B1-fase-c-altitude-loop` | **COLA** | Simulated baro/ToF + z loop → collective | ≠ live baro, ≠ HOLD in air |
+| **C39** | `B1-fase-c-position-loop` | **COLA** | Simulated GPS/flow + xy loop → tilt; GO_TO a point in ENU | ≠ live GPS, ≠ house map |
+| **C40** | `B1-fase-c-autonomy-executor` | **COLA** | HOLD/LAND/GO_TO feed setpoints into `step()` in the sim | ≠ execute on copper |
+| **C41** | `B1-fase-c-safety-sim-policy` | **COLA** | Allowlist matches what C40 can actually command in sim | allow ≠ execute |
+| **C42** | `B1-fase-c-icm-register-client` | **COLA** | ICM42688P datasheet client on `ScriptedSpi` (`WHO_AM_I` cited) | ≠ chip SPI1, ≠ gyro live |
+| **C43** | `B1-fase-c-craft-fs-bind` | **COLA last** | This-quad profile reads craft identity; Continuity still does not drive firmware | isolation holds until this IC |
+| **Silicon** | GPIO/DShot wire · on-chip USART · gyro SPI1 **live** · C30 desk DFU · Linux baud | **Parked** | Needs bench · [bench note](../.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md) | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
+| **ASSIST-0** | **`DC-assistant-placement`** | **PARKED** (después de C43; no ★ ahora) | Borrador de sitio en el repo — **no compite** con flight control | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 
@@ -94,7 +103,7 @@ Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
 | **D1** | **`B1-docs-folder-truth-sync`** | **✅ ACCEPT CLOSED** | Docs @ v0.4.2 · obsolete labeled · rebind hotfix vtx/cameras | [review](../.jes/artifacts/implementation_review_docs_folder_truth_sync_b1.md) |
-| **D2** | **`B1-docs-truth-sync-after-c35`** | **IC READY** (awaiting Engineer ★; parent cylinder tagged `v0.5.35`) | Maps/Connections/native README/USER_GUIDE → live tagged tip; no new C-xxx; package **`0.5.36`** | [IC](../.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) |
+| **D2** | **`B1-docs-truth-sync-after-c35`** | **LANDED** (review PASS WITH NOTES; awaiting Engineer spot-check + ★ ACCEPT, no tag yet) | Maps/Connections/native README/USER_GUIDE → live tagged tip; no new C-xxx; package **`0.5.36`** | [review](../.jes/artifacts/implementation_review_docs_truth_sync_after_c35_b1.md) |
 
 ### 📋 COLA — Board UI workshop (cerrada · polish deferred)
 
@@ -108,7 +117,8 @@ Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).
 |---|---|---|---|---|
 | — | **`B1-geometry-taller-css-cuboid-faces`** | **✅ ACCEPT CLOSED** @ **`v0.5.34`** — four-front **#3** | Six faces meet on a thin plate; visor, not extra parts | [review](../.jes/artifacts/implementation_review_geometry_taller_css_cuboid_faces_b1.md) · tag **`v0.5.34`** |
 | — | **`B1-geometry-taller-css-cylinder-faces`** | **✅ ACCEPT CLOSED** @ **`v0.5.35`** | Caps + 16 slats meet on Ø×H; visor, not extra parts | [review](../.jes/artifacts/implementation_review_geometry_taller_css_cylinder_faces_b1.md) · tag **`v0.5.35`** |
-| — | **`B1-standoff-cylinder-layout`** | **COLA** (no ACCEPT) — four-front **#4** | 8 cilindros landed; **puntos de perímetro a corregir** | [IC](../.jes/artifacts/implementation_contract_geometry_standoff_cylinder_layout_b1.md) |
+| — | **`B1-docs-truth-sync-after-c35`** | **LANDED** (review PASS WITH NOTES; awaiting Engineer spot-check + ★ ACCEPT, no tag yet) | Docs-only: maps/Connections/native README/USER_GUIDE match `v0.5.35`; no new C-xxx | [IC](../.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) · [inventory](../.jes/artifacts/inventory_docs_truth_sync_after_c35_b0.md) · [report](../.jes/artifacts/implementation_report_docs_truth_sync_after_c35_b1.md) · [review](../.jes/artifacts/implementation_review_docs_truth_sync_after_c35_b1.md) |
+| — | **`B1-standoff-cylinder-layout`** | **COLA visor-break** (no ACCEPT; does **not** block the software month) | 8 cilindros landed; **puntos de perímetro a corregir** | [IC](../.jes/artifacts/implementation_contract_geometry_standoff_cylinder_layout_b1.md) |
 | — | **`B1-plate-box`** | **Await bag** | L×W medida/citada | Caliper / cite |
 | — | Path N | **B0 HOLD** | Disk origin | No reabrir |
 | — | Cited `library/cameras` physics bags | Park | Extra SKUs / lab dims beyond Phoenix 2 seed | Engineer |
