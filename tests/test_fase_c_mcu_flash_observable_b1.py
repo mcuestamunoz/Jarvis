@@ -240,7 +240,7 @@ def test_t13_module_import_does_not_require_a_plugged_dfu_device():
 
 def test_t14_pyproject_version_is_0_5_28():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.41"' in text
+    assert 'version = "0.5.42"' in text
 
 
 def test_t15_full_suite_process_gate_placeholder():

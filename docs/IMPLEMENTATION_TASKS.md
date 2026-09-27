@@ -6,8 +6,8 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **★ C41 AUTHORIZED** — [`B1-fase-c-safety-sim-policy`](../.jes/artifacts/implementation_contract_fase_c_safety_sim_policy_b1.md) — Claude implements allowlist HOLD/LAND/GO_TO; package **`0.5.42`**. allow ≠ execute. RejectAll stays default.  
-> **Just closed:** C40 @ **`v0.5.41`** · C39 @ **`v0.5.40`** · C38 @ **`v0.5.39`**. **Cola after C41 ACCEPT:** C42 ICM → C43. Assistant PARKED. Silicon parked.  
+> **PRIORIDAD AHORA:** **★ C42 AUTHORIZED** — [`B1-fase-c-icm-register-client`](../.jes/artifacts/implementation_contract_fase_c_icm_register_client_b1.md) — Claude implements WHO_AM_I on ScriptedSpi; package **`0.5.43`**. ≠ chip SPI1 ≠ gyro live.  
+> **Just closed:** C41 @ **`v0.5.42`** · C40 @ **`v0.5.41`** · C39 @ **`v0.5.40`**. **Cola after C42 ACCEPT:** C43 craft↔FS. Assistant PARKED. Silicon parked.  
 > SoT: [`engineer_note_software_month_until_bench_2026_09_26.md`](../.jes/artifacts/engineer_note_software_month_until_bench_2026_09_26.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
@@ -88,8 +88,8 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C38** | **`B1-fase-c-altitude-loop`** | **✅ ACCEPT CLOSED** @ **`v0.5.39`** | Sim alt + z→collective; plant outside `step` | [review](../.jes/artifacts/implementation_review_fase_c_altitude_loop_b1.md) · tag **`v0.5.39`** |
 | **C39** | **`B1-fase-c-position-loop`** | **✅ ACCEPT CLOSED** @ **`v0.5.40`** | Sim position + xy→tilt; plant outside `step` | [review](../.jes/artifacts/implementation_review_fase_c_position_loop_b1.md) · tag **`v0.5.40`** |
 | **C40** | **`B1-fase-c-autonomy-executor`** | **✅ ACCEPT CLOSED** @ **`v0.5.41`** | HOLD/LAND/GO_TO → sim setpoints into `step` | [review](../.jes/artifacts/implementation_review_fase_c_autonomy_executor_b1.md) · tag **`v0.5.41`** |
-| **C41** | **`B1-fase-c-safety-sim-policy`** | **★ AUTHORIZED** (Claude implement) | Allowlist HOLD/LAND/GO_TO; RejectAll default | [IC](../.jes/artifacts/implementation_contract_fase_c_safety_sim_policy_b1.md) · allow ≠ execute |
-| **C42** | `B1-fase-c-icm-register-client` | **COLA** | ICM42688P datasheet client on `ScriptedSpi` (`WHO_AM_I` cited) | ≠ chip SPI1, ≠ gyro live |
+| **C41** | **`B1-fase-c-safety-sim-policy`** | **✅ ACCEPT CLOSED** @ **`v0.5.42`** | Allowlist HOLD/LAND/GO_TO; RejectAll default | [review](../.jes/artifacts/implementation_review_fase_c_safety_sim_policy_b1.md) · tag **`v0.5.42`** |
+| **C42** | **`B1-fase-c-icm-register-client`** | **★ AUTHORIZED** (Claude implement) | ICM42688P WHO_AM_I on `ScriptedSpi` | [IC](../.jes/artifacts/implementation_contract_fase_c_icm_register_client_b1.md) · ≠ chip SPI1 |
 | **C43** | `B1-fase-c-craft-fs-bind` | **COLA last** | This-quad profile reads craft identity; Continuity still does not drive firmware | isolation holds until this IC |
 | **Silicon** | GPIO/DShot wire · on-chip USART · gyro SPI1 **live** · C30 desk DFU · Linux baud | **Parked** | Needs bench · [bench note](../.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md) | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
 | **ASSIST-0** | **`DC-assistant-placement`** | **PARKED** (después de C43; no ★ ahora) | Borrador de sitio en el repo — **no compite** con flight control | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) |

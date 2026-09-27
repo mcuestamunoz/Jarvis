@@ -71,4 +71,4 @@ Tras C39/C40 ★ ACCEPT, review notes **no** abren Buy ni deuda del mes (taxonom
 
 ## Hoy
 
-Tip tagged **`v0.5.41`** (C40 CLOSED). Siguiente: IC **C41** safety-sim allowlist. Assistant PARKED hasta C43.
+Tip tagged **`v0.5.42`** (C41 CLOSED). Siguiente: IC **C42** ICM register client. Assistant PARKED hasta C43.

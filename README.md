@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.41 tagged tip** · C40 autonomy executor ★ ACCEPT CLOSED — HOLD/LAND/GO_TO drive sim setpoints · still not execute on copper, still not flying
+**v0.5.42 tagged tip** · C41 safety-sim ★ ACCEPT CLOSED — armed allow-list HOLD/LAND/GO_TO · allow ≠ execute · RejectAll stays default
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -201,7 +201,20 @@ Fase C · **C40** (`B1-fase-c-autonomy-executor`) — **autonomy verbs stop bein
 - Verified: `GO_TO` shrinks horizontal distance to `(3.0, 0.0)` from `3.0m` to under `0.1m` over 1500 steps (with `z_m=2.0` also converging); `HOLD` (after that convergence) keeps a 500-tick window within `0.5m` on every axis; `LAND` (from a converged `z≈2.0`) brings z under `0.5m` over 1000 steps.
 - **verb -> setpoints in RAM != execute on copper. Sim HOLD/LAND/GO_TO != flying != Safety allow.** `propose_command`/`submit_command` through the default `RejectAllSafetyGate` still returns `reject`/`not_attempted` for all three verbs — this Buy does not touch Safety (that's C41).
 - Package **`0.5.41`** · tagged **`v0.5.41`** · suite **3732** · host `ctest` **105/105** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_autonomy_executor_b1.md)
-- **Next:** C41 safety-sim policy (allowlist HOLD/LAND/GO_TO). Assistant PARKED. Silicon parked.
+- **Next:** C41 ★ ACCEPT CLOSED @ **`v0.5.42`**. Cola: C42 ICM client. Assistant PARKED. Silicon parked.
+
+## What v0.5.42 includes (★ ACCEPT CLOSED)
+
+Fase C · **C41** (`B1-fase-c-safety-sim-policy`) — **Safety can say yes to the same three verbs the sim executor understands**:
+
+- `ArmedAllowlistSafetyGate` (C17) widened, not replaced: its allow-list grows from `{HOLD, LAND}` to `{HOLD, LAND, GO_TO}` — one gate class, still opt-in, still starting disarmed, still parsing `autonomy:{verb}:{id}`. No second, competing `SimAutonomyAllowlistSafetyGate` was added — the IC's own "prefer one clear gate story" default.
+- `default_safety_gate()` is unchanged — still always `RejectAllSafetyGate`. No `AllowAllSafetyGate` exists anywhere under `src/`.
+- **Allow still never means execute:** `submit_command`'s `allow` branch stays `execution="not_implemented"` for all three verbs — this gate is never called from `SimAutonomyExecutor.tick` (C40), and that executor is never called from `submit_command` or from `safety.py`. The two APIs stay entirely separate call paths.
+- `AuthoritySignal` still never flips `allow` — re-verified for `GO_TO` specifically.
+- C17's own pre-existing tests were disclosed-retargeted (not weakened): `GO_TO` moved from the "rejected" list to the "allowed" list in `tests/test_fase_c_safety_real_policy_b1.py`, since the allow-list itself changed by design.
+- **allow != execute != flying. sim allowlist != copper arm != motors. GO_TO allow != GO_TO in air != `SimAutonomyExecutor.tick`.**
+- Package **`0.5.42`** · tagged **`v0.5.42`** · suite **3741** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_safety_sim_policy_b1.md)
+- **Next:** C42 ICM register client (`ScriptedSpi`). Assistant PARKED. Silicon parked.
 
 ## What v0.5.29 includes
 
@@ -673,7 +686,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.41`** — C40 autonomy executor ★ ACCEPT CLOSED (HOLD/LAND/GO_TO → sim setpoints; ≠ execute on copper). C39 @ `v0.5.40`. C38 @ `v0.5.39`. Cola: C41 safety-sim policy. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.42`** — C41 safety-sim ★ ACCEPT CLOSED (allowlist HOLD/LAND/GO_TO; allow ≠ execute). C40 @ `v0.5.41`. Cola: C42 ICM register client. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

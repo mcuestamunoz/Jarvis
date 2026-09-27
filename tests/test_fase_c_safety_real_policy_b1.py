@@ -54,18 +54,25 @@ def test_t2_disarmed_rejects_with_non_not_implemented_reason():
 
 
 def test_t3_armed_hold_and_land_allow():
+    """`GO_TO` retargeted here (C41, `B1-fase-c-safety-sim-policy`) — the
+    allow-list was deliberately widened to `{HOLD, LAND, GO_TO}` to match
+    what `SimAutonomyExecutor` (C40) can drive in sim; this Buy's own
+    IC §0 decision 4 requires updating C17's own tests when extending its
+    gate rather than adding a second, competing gate class."""
     gate = ArmedAllowlistSafetyGate()
     gate.arm()
-    for verb in ("HOLD", "LAND"):
+    for verb in ("HOLD", "LAND", "GO_TO"):
         decision = gate.evaluate(SafetyRequest(action_id=f"autonomy:{verb}:x"))
         assert decision.outcome == "allow"
         assert decision.gate_id == "armed_allowlist"
 
 
 def test_t4_armed_non_allowlisted_verb_rejects():
+    """`GO_TO` removed from this rejected-verbs list as of C41 — see
+    `test_t3_armed_hold_and_land_allow`'s own note above."""
     gate = ArmedAllowlistSafetyGate()
     gate.arm()
-    for verb in ("TAKEOFF", "GO_TO", "FOLLOW", "RETURN_HOME", "PATROL"):
+    for verb in ("TAKEOFF", "FOLLOW", "RETURN_HOME", "PATROL"):
         decision = gate.evaluate(SafetyRequest(action_id=f"autonomy:{verb}:x"))
         assert decision.outcome == "reject"
         assert decision.reason == "verb_not_allowed"
@@ -219,4 +226,4 @@ def test_gate_not_coupled_to_esc_sink_or_gpio():
 
 def test_t9_pyproject_version_is_0_5_15():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.41"' in text
+    assert 'version = "0.5.42"' in text

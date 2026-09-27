@@ -1,6 +1,8 @@
 """Fase C · C2 — Safety/Authority gate stub (`B1-fase-c-intent-safety-stub`),
 extended in C17 (`B1-fase-c-safety-real-policy`) with the first real
-(non-RejectAll) Safety policy.
+(non-RejectAll) Safety policy, and again in C41
+(`B1-fase-c-safety-sim-policy`) to widen that policy's own allow-list to
+match what `SimAutonomyExecutor` (C40) can drive in sim.
 
 `default_safety_gate()` is the ONLY shipped gate **factory** and it still
 always returns `RejectAllSafetyGate` — nothing in `src/` can accidentally
@@ -17,18 +19,33 @@ starts **disarmed** and, while disarmed, always rejects (reason
 `"disarmed"`, never the historical `"not_implemented"` RejectAll uses —
 IC §0 decision 8 locks these reason strings apart so callers can tell a
 policy rejection from RejectAll's blanket one). Once explicitly `arm()`ed,
-it `allow`s only the two verbs on its locked allow-list — `HOLD` and
-`LAND` — parsed from the `autonomy:{verb}:{id}` shape `submit_command`
-already builds; any other verb, or a request whose `action_id` does not
-match that shape, is rejected too (reason `"verb_not_allowed"` /
-`"unparseable_action_id"`). It never reads `authority_signal_id` at
-all — Authority is trace-only (C5) and cannot imply `allow` through this
-gate or any other shipped one. **Allow still never means execute**:
-`submit_command`'s `allow` branch (see `flight_software.autonomy.surface`)
-resolves to `execution="not_implemented"`, exactly as it already did for
-C4's unreachable-in-shipped-code `allow` branch — this Buy does not add
-an executor, does not touch `SimulatedEscSink`/GPIO/PWM, and
+it `allow`s only the verbs on its allow-list — originally `HOLD` and
+`LAND` only, **widened in C41 to also include `GO_TO`** (IC §0 decision
+4: "aligned to what C40 can command in sim") — parsed from the
+`autonomy:{verb}:{id}` shape `submit_command` already builds; any other
+verb, or a request whose `action_id` does not match that shape, is
+rejected too (reason `"verb_not_allowed"` / `"unparseable_action_id"`).
+It never reads `authority_signal_id` at all — Authority is trace-only
+(C5) and cannot imply `allow` through this gate or any other shipped
+one. **Allow still never means execute**: `submit_command`'s `allow`
+branch (see `flight_software.autonomy.surface`) resolves to
+`execution="not_implemented"`, exactly as it already did for C4's
+unreachable-in-shipped-code `allow` branch — this gate is never called
+from `SimAutonomyExecutor.tick`, and `SimAutonomyExecutor` is never
+called from `submit_command` or from this module; the two stay entirely
+separate call paths, same as C40 left them. This Buy does not add an
+executor, does not touch `SimulatedEscSink`/GPIO/PWM, and
 `default_safety_gate()` is unchanged.
+
+**One gate story, not two (C41 IC §0 decision 8):** the C40 verb-alignment
+this Buy adds lives on `ArmedAllowlistSafetyGate` itself — extending its
+existing allow-list — rather than as a second, parallel
+`SimAutonomyAllowlistSafetyGate` class. C17's own gate already existed
+specifically as "an opt-in armed allow-list for autonomy verbs"; adding a
+second gate class with an overlapping `HOLD`/`LAND` allow-list would be
+two competing answers to "which gate do I use for an autonomy verb,"
+not one. `gate_id` stays `"armed_allowlist"` — callers checking that
+string are unaffected by this widening.
 """
 
 from __future__ import annotations
@@ -107,23 +124,29 @@ class RejectAllSafetyGate:
 
 class ArmedAllowlistSafetyGate:
     """C17 — first real Safety policy: an opt-in armed allow-list.
+    Widened in C41 (`B1-fase-c-safety-sim-policy`) to also allow `GO_TO`,
+    matching the three verbs `SimAutonomyExecutor` (C40) can drive in sim.
 
     Starts **disarmed**. While disarmed, `evaluate(...)` always rejects
-    with reason `"disarmed"`. Once `arm()`ed, it allows only `HOLD` and
-    `LAND` (this Buy's locked minimum allow-list — not configurable here;
-    extending it is a future Buy's decision, not this one's) parsed from
-    `request.action_id`'s `autonomy:{verb}:{id}` shape; any other verb, or
-    an `action_id` that does not match that shape, is rejected with reason
-    `"verb_not_allowed"` / `"unparseable_action_id"` respectively.
-    `request.authority_signal_id` is never read by this gate — Authority
-    stays trace-only and cannot flip a decision here.
+    with reason `"disarmed"`. Once `arm()`ed, it allows `HOLD`, `LAND`,
+    and (as of C41) `GO_TO` — parsed from `request.action_id`'s
+    `autonomy:{verb}:{id}` shape; any other verb (`TAKEOFF`/`FOLLOW`/
+    `RETURN_HOME`/`PATROL`), or an `action_id` that does not match that
+    shape, is rejected with reason `"verb_not_allowed"` /
+    `"unparseable_action_id"` respectively. `request.authority_signal_id`
+    is never read by this gate — Authority stays trace-only and cannot
+    flip a decision here.
 
     This is a Safety **policy** latch, unrelated to and never coupled
     with `SimulatedEscSink.arm()` (C10) or any hardware arm state — the
-    two `arm()`s are separate, independent software switches."""
+    two `arm()`s are separate, independent software switches. It is also
+    never coupled to `SimAutonomyExecutor.tick` (C40) — `allow` here
+    never calls, constructs, or references that executor; a caller
+    wanting both an `allow` decision and an executed sim tick calls the
+    two APIs itself, separately."""
 
     gate_id = "armed_allowlist"
-    _ALLOWED_VERBS: frozenset[str] = frozenset({"HOLD", "LAND"})
+    _ALLOWED_VERBS: frozenset[str] = frozenset({"HOLD", "LAND", "GO_TO"})
 
     def __init__(self) -> None:
         self._armed = False

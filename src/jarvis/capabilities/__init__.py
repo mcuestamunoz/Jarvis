@@ -17,8 +17,12 @@ always returns `RejectAllSafetyGate`. Radio (C5) never bypasses it: an
 
 C17 adds `ArmedAllowlistSafetyGate` — the first real (non-RejectAll)
 Safety policy: opt-in, starts disarmed, allows only `HOLD`/`LAND` once
-explicitly armed, never reads `authority_signal_id`. `default_safety_gate()`
-is unchanged. See `jarvis.capabilities.safety`'s own docstring.
+explicitly armed, never reads `authority_signal_id`. C41
+(`B1-fase-c-safety-sim-policy`) widens that same gate's allow-list to
+also include `GO_TO`, matching what `SimAutonomyExecutor` (C40) can
+drive in sim — still one gate class, still opt-in, still never calling
+that executor or being called from it. `default_safety_gate()` is
+unchanged. See `jarvis.capabilities.safety`'s own docstring.
 
 C19 adds `jarvis.capabilities.crsf_stub` — a **separate** module (never
 folded into `radio.py`, preserving its own no-decode-API lock) that

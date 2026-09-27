@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — ★ AUTHORIZED: **implement now**  
 **Reviewer:** Cursor against this IC · Engineer spot-check (allow ≠ execute · allowlist = C40 verbs · RejectAll stays default · no copper)
 
-**Status:** ★ **AUTHORIZED** (Engineer 2026-09-27 — IC passed to Claude = execute directly)  
+**Status:** ★ **ACCEPT CLOSED** @ tag **`v0.5.42`** (Engineer 2026-09-27) · Cursor review PASS WITH NOTES (N1 TASKS clobber restored by Cursor)  
 **Parents:**
 - [C40 ★ ACCEPT](implementation_contract_fase_c_autonomy_executor_b1.md) — `SimAutonomyExecutor` HOLD/LAND/GO_TO @ **`v0.5.41`**  
 - [C17 ★ ACCEPT](implementation_contract_fase_c_safety_real_policy_b1.md) — `ArmedAllowlistSafetyGate` HOLD/LAND only @ **`v0.5.15`**  

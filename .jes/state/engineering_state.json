@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-27 C40 ACCEPT CLOSED @ v0.5.41. C41 ★ AUTHORIZED — Claude implements safety-sim allowlist. Assistant PARKED. Silicon parked.",
-  "scope": "Claude: C41 IC. Cursor: review after landing. Out: ICM (C42), Assistant, silicon, executed.",
+  "cycle_intent": "2026-09-27 C41 \u2605 ACCEPT CLOSED @ v0.5.42. C42 \u2605 AUTHORIZED \u2014 Claude implements ICM WHO_AM_I on ScriptedSpi. Assistant PARKED. Silicon parked.",
+  "scope": "Claude: C42 IC. Cursor: review after landing. Out: chip SPI1, gyro live, craft\u2194FS (C43), Assistant, silicon.",
   "execution_status": "in_progress",
   "current_mode": "await_implementer",
-  "active_operation": "c41_safety_sim_policy_starred",
+  "active_operation": "c42_icm_register_client_starred",
   "movement_trigger": {
     "type": "star",
-    "note": "Engineer ACCEPT C40 + ★ C41 AUTHORIZED. Claude implements allowlist now."
+    "note": "Engineer ACCEPT C41 + \u2605 C42 AUTHORIZED. Claude implements WHO_AM_I datasheet client now."
   },
   "relevant_workflow_phases": [
     "Verification"
