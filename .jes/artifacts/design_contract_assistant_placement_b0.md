@@ -6,7 +6,7 @@
 **Implementer:** none — **no `src/` / no new packages** until a later Implementation Contract is ★  
 **Reviewer:** Engineer ★ (ratify / amend)
 
-**Status:** **PARKED** — Engineer 2026-09-26: **primero acabar software de control de vuelo (C36–C43)**. Este DC no se ★ ni se discute como AHORA hasta entonces.  
+**Status:** **DISCUSS** — Engineer 2026-09-27: software-month C36–C43 ★ CLOSED @ **`v0.5.44`**. Este DC puede discutirse; **no** ★ implement / no `src/` hasta un IC de Assistant aparte.  
 **Type:** Design / Architecture Lock — **where Assistant will live**, not voice, not house map, not lavadora.  
 **Not** an Implementation Contract. **Not** a version bump. **Not** permission to create `intelligence/` or `world/` on disk.
 

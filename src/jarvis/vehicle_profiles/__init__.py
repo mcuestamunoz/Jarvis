@@ -31,9 +31,21 @@ profile field/JSON for any of C6–C11. See
 `.jes/artifacts/implementation_contract_fase_c_esc_pwm_stub_rung_b1.md`,
 and
 `.jes/artifacts/implementation_contract_fase_c_controlled_flight_sim_tip_b1.md`.
+
+C43 (`B1-fase-c-craft-fs-bind`) adds a one-way, READ-ONLY bind from a
+`VehicleProfile` to craft identity: `bind_profile_to_craft_identity`
+(`bind.py`) looks up a catalog SKU via `ComponentLibrary`
+(`jarvis.knowledge.library`) and returns a `BoundVehicleProfile` —
+identity fields only (sku/manufacturer/model/size_class_inch), never
+geometry/mass, never a write to `library/` or any workspace. Direction
+is locked: `vehicle_profiles` may read craft identity; craft packages
+(`core`/`adapters`/Continuity/CLI/Board) still never import
+`jarvis.flight_software`/`jarvis.vehicle_profiles`. See
+`.jes/artifacts/implementation_contract_fase_c_craft_fs_bind_b1.md`.
 """
 
-from jarvis.vehicle_profiles.loader import load_profile, load_smoke_profile
+from jarvis.vehicle_profiles.bind import BoundVehicleProfile, bind_profile_to_craft_identity
+from jarvis.vehicle_profiles.loader import load_profile, load_smoke_profile, load_this_quad_profile
 from jarvis.vehicle_profiles.schemas import VehicleProfile
 from jarvis.vehicle_profiles.smoke import (
     run_altitude_loop_smoke,
@@ -50,9 +62,12 @@ from jarvis.vehicle_profiles.smoke import (
 )
 
 __all__ = [
+    "BoundVehicleProfile",
     "VehicleProfile",
+    "bind_profile_to_craft_identity",
     "load_profile",
     "load_smoke_profile",
+    "load_this_quad_profile",
     "run_altitude_loop_smoke",
     "run_attitude_controller_smoke",
     "run_controlled_flight_sim_smoke",

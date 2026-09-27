@@ -127,7 +127,7 @@ def test_cmake_wires_icm42688p_into_jarvis_fc_and_unit_tests():
 
 def test_t7_pyproject_version_is_0_5_43():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.43"' in text
+    assert 'version = "0.5.44"' in text
 
 
 def test_t7_full_suite_process_gate_placeholder():

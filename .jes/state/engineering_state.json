@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-27 C42 \u2605 ACCEPT CLOSED @ v0.5.43. C43 \u2605 AUTHORIZED \u2014 Claude implements craft\u2194FS bind (profile reads craft identity). Assistant PARKED until C43 CLOSED. Silicon parked.",
-  "scope": "Claude: C43 IC. Cursor: review after landing. Out: Continuity drives firmware, Assistant implement, SPI1 live, gyro live.",
-  "execution_status": "in_progress",
-  "current_mode": "await_implementer",
-  "active_operation": "c43_craft_fs_bind_starred",
+  "cycle_intent": "2026-09-27 C43 \u2605 ACCEPT CLOSED @ v0.5.44. Software-month C36\u2013C43 CLOSED. Next: discuss Assistant placement DC (no implement until \u2605). Silicon parked.",
+  "scope": "No AHORA implement Buy. Out: Assistant code, SPI1 live, DShot wire, C30 desk DFU.",
+  "execution_status": "idle",
+  "current_mode": "await_engineer",
+  "active_operation": "software_month_closed_assistant_discuss",
   "movement_trigger": {
-    "type": "star",
-    "note": "Engineer ACCEPT C42 + \u2605 C43 AUTHORIZED. Claude implements this-quad profile reading craft identity now."
+    "type": "accept",
+    "note": "Engineer ACCEPT C43. Arc closed. Assistant DC discuss only."
   },
   "relevant_workflow_phases": [
     "Verification"

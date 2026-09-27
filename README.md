@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.43 tagged tip** · C42 ICM register client ★ ACCEPT CLOSED — datasheet-cited WHO_AM_I on `ScriptedSpi` · ≠ chip SPI1 ≠ gyro live
+**v0.5.44 tagged tip** · C43 craft↔FS ★ ACCEPT CLOSED — this-quad profile reads craft identity · Continuity ≠ firmware · software-month C36–C43 CLOSED
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -228,7 +228,20 @@ Fase C · **C42** (`B1-fase-c-icm-register-client`) — **the placeholder probe 
 - This is a **C++-native Buy**, same axis as C32-C34 — no Python `SpiBytePort`/client exists or was added; `tests/test_fase_c_icm_register_client_b1.py`'s own checks are structural (freeze-diffs, forbidden-token greps, CMake wiring), matching C34's own established pattern.
 - **ICM register client on ScriptedSpi != chip SPI1. WHO_AM_I in RAM != gyro live != samples in step. Datasheet cite != lab measurement on copper.**
 - Package **`0.5.43`** · tagged **`v0.5.43`** · suite **3750** · host `ctest` **111/111** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_icm_register_client_b1.md)
-- **Next:** C43 craft↔FS bind. Assistant PARKED until C43 CLOSED. Silicon parked.
+- **Next:** C43 ★ ACCEPT CLOSED @ **`v0.5.44`**. Software-month CLOSED. Assistant DC discuss.
+
+## What v0.5.44 includes (★ ACCEPT CLOSED)
+
+Fase C · **C43** (`B1-fase-c-craft-fs-bind`) — **the software-month tip can finally name which craft it's about**:
+
+- New `bind_profile_to_craft_identity(profile, craft_sku, library=None) -> BoundVehicleProfile` (`src/jarvis/vehicle_profiles/bind.py`) — a **one-way, read-only** bind: `vehicle_profiles` reads craft identity via `ComponentLibrary` (`jarvis.knowledge.library`, the existing sole reader of `library/` JSON); craft packages (`core`/`adapters`/Continuity/CLI/Board) still never import `jarvis.flight_software`/`jarvis.vehicle_profiles` — a directed seam, not a two-way bridge.
+- `BoundVehicleProfile` is a small wrapper type (`profile` + `craft_sku`/`craft_manufacturer`/`craft_model`/`craft_size_class_inch`), not an extension of `VehicleProfile` itself — the C3 schema (`extra="forbid"`, pinned by 40+ Buys' own fixtures) stays completely untouched; `load_smoke_profile()`/`smoke_quad_hal_imu` are unaffected.
+- New fixture `this_quad.json` (same C3-shaped declaration fields as `smoke_quad_hal_imu.json` — id/display_name/vehicle_class/rung/notes, no geometry/mass of its own) binds, via the new helper, to the desk's own `hglrc_my5_5in` catalog frame (`library/frames/_datos.json`) — verified mirroring that row's `manufacturer="HGLRC"`/`model="MY5"`/`size_class_inch=5.0` verbatim.
+- An unknown SKU raises `KeyError` — the same error `ComponentLibrary.get_frame` already raises, not a second, competing "not found" type — never a silent empty bind.
+- Read-only, verified: the bind never writes `library/frames/_datos.json` (mtime/content unchanged across a bind call) or any craft workspace file.
+- **Profile reads craft != Continuity drives firmware. Craft identity in RAM != flash != arm != flying. Directed seam != craft imports flight_software.** No Continuity turn was added that flashes, arms, or submits into `flight_software`; `submit_command`/`propose_command` are never imported by `bind.py`.
+- Package **`0.5.44`** · tagged **`v0.5.44`** · suite **3759** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_craft_fs_bind_b1.md)
+- **Next:** after ★ ACCEPT, this closes the software-month arc — Assistant design-contract discussion may begin (still needs its own ★ to implement). Silicon parked.
 
 ## What v0.5.29 includes
 
@@ -700,7 +713,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.43`** — C42 ICM ★ ACCEPT CLOSED (WHO_AM_I on ScriptedSpi; ≠ chip SPI1 ≠ gyro live). C41 @ `v0.5.42`. Cola: C43 craft↔FS bind. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.44`** — C43 craft↔FS ★ ACCEPT CLOSED (profile reads craft identity; Continuity ≠ firmware). Software-month C36–C43 CLOSED. C42 @ `v0.5.43`. Assistant DC = discuss only. Silicon parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

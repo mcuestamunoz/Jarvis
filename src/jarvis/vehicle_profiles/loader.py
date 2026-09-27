@@ -21,3 +21,11 @@ def load_profile(profile_id: str) -> VehicleProfile:
 
 def load_smoke_profile() -> VehicleProfile:
     return load_profile("smoke_quad_hal_imu")
+
+
+def load_this_quad_profile() -> VehicleProfile:
+    """Fase C · C43 — loads the checked-in `this_quad` fixture (a plain,
+    unbound `VehicleProfile`, same C3 shape as `smoke_quad_hal_imu`).
+    Binding it to craft identity is a separate, explicit step — see
+    `jarvis.vehicle_profiles.bind.bind_profile_to_craft_identity`."""
+    return load_profile("this_quad")

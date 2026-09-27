@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **★ C43 AUTHORIZED** — [`B1-fase-c-craft-fs-bind`](../.jes/artifacts/implementation_contract_fase_c_craft_fs_bind_b1.md) — Claude implements this-quad profile reading craft identity; package **`0.5.44`**. Continuity still does not drive firmware.  
-> **Just closed:** C42 @ **`v0.5.43`** · C41 @ **`v0.5.42`** · C40 @ **`v0.5.41`**. **Cola after C43 ACCEPT:** Assistant DC unparked (discuss). Silicon parked.  
+> **PRIORIDAD AHORA:** **Software-month C36–C43 ★ CLOSED** @ tip **`v0.5.44`**. Next discuss: [`DC-assistant-placement`](../.jes/artifacts/design_contract_assistant_placement_b0.md) — **no implement** until Engineer ★ on an Assistant IC.  
+> **Just closed:** C43 @ **`v0.5.44`** · C42 @ **`v0.5.43`** · C41 @ **`v0.5.42`**. Silicon parked until bench. Standoff = visor-break (not blocking).  
 > SoT: [`engineer_note_software_month_until_bench_2026_09_26.md`](../.jes/artifacts/engineer_note_software_month_until_bench_2026_09_26.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
-> **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud. Gyro *driver* = C42 datasheet client on `ScriptedSpi`, not the chip. Assistant PARKED until **C43 CLOSED**.  
+> **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud. Gyro *driver* = C42 datasheet client on `ScriptedSpi`, not the chip. Assistant = discuss DC only until ★.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
@@ -90,9 +90,9 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C40** | **`B1-fase-c-autonomy-executor`** | **✅ ACCEPT CLOSED** @ **`v0.5.41`** | HOLD/LAND/GO_TO → sim setpoints into `step` | [review](../.jes/artifacts/implementation_review_fase_c_autonomy_executor_b1.md) · tag **`v0.5.41`** |
 | **C41** | **`B1-fase-c-safety-sim-policy`** | **✅ ACCEPT CLOSED** @ **`v0.5.42`** | Allowlist HOLD/LAND/GO_TO; RejectAll default | [review](../.jes/artifacts/implementation_review_fase_c_safety_sim_policy_b1.md) · tag **`v0.5.42`** |
 | **C42** | **`B1-fase-c-icm-register-client`** | **✅ ACCEPT CLOSED** @ **`v0.5.43`** | ICM42688P WHO_AM_I on `ScriptedSpi` | [review](../.jes/artifacts/implementation_review_fase_c_icm_register_client_b1.md) · tag **`v0.5.43`** |
-| **C43** | **`B1-fase-c-craft-fs-bind`** | **★ AUTHORIZED** (Claude implement) | This-quad profile reads craft identity | [IC](../.jes/artifacts/implementation_contract_fase_c_craft_fs_bind_b1.md) · Continuity ≠ firmware |
+| **C43** | **`B1-fase-c-craft-fs-bind`** | **✅ ACCEPT CLOSED** @ **`v0.5.44`** | This-quad profile reads craft identity | [review](../.jes/artifacts/implementation_review_fase_c_craft_fs_bind_b1.md) · tag **`v0.5.44`** |
 | **Silicon** | GPIO/DShot wire · on-chip USART · gyro SPI1 **live** · C30 desk DFU · Linux baud | **Parked** | Needs bench · [bench note](../.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md) | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
-| **ASSIST-0** | **`DC-assistant-placement`** | **PARKED** (después de C43; no ★ ahora) | Borrador de sitio en el repo — **no compite** con flight control | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
+| **ASSIST-0** | **`DC-assistant-placement`** | **DISCUSS** (C43 CLOSED; no ★ implement yet) | Borrador de sitio en el repo — **no código** hasta IC ★ | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 

@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — ★ AUTHORIZED: **implement now**  
 **Reviewer:** Cursor against this IC · Engineer spot-check (profile reads craft identity ≠ Continuity drives firmware ≠ craft imports FS)
 
-**Status:** ★ **AUTHORIZED** (Engineer 2026-09-27 — IC passed to Claude = execute directly)  
+**Status:** ★ **ACCEPT CLOSED** @ tag **`v0.5.44`** (Engineer 2026-09-27) · Cursor review PASS  
 **Parents:**
 - [C42 ★ ACCEPT](implementation_contract_fase_c_icm_register_client_b1.md) — ICM WHO_AM_I on ScriptedSpi @ **`v0.5.43`**  
 - [C3 ★ ACCEPT](implementation_contract_fase_c_first_fc_rung_b1.md) — `vehicle_profiles` smoke JSON, no craft bind @ **`v0.5.1`**  
@@ -132,5 +132,5 @@ Package 0.5.44. Continuity ≠ firmware. Assistant PARKED until ACCEPT.
 ## 7. Engineer ★ checklist
 
 - [x] ★ this IC (authorize Claude) — 2026-09-27 (IC passed to Claude = execute)  
-- [ ] After landing: Cursor review · then ACCEPT + tag `v0.5.44`  
-- [ ] After C43 CLOSED: Assistant DC may be discussed (still needs its own ★ to implement)  
+- [x] After landing: Cursor review · then ACCEPT + tag `v0.5.44` — 2026-09-27  
+- [x] After C43 CLOSED: Assistant DC may be discussed (still needs its own ★ to implement)  

@@ -1,0 +1,7 @@
+{
+    "id": "this_quad",
+    "display_name": "This-quad — sim only, bound to craft identity (HGLRC MY5)",
+    "vehicle_class": "quadcopter_freestyle",
+    "rung": "hal_imu",
+    "notes": "Fase C C43 fixture — same declarative shape as smoke_quad_hal_imu.json (C3); not flight-capable, not Continuity-driven. Bound (read-only) to the desk's own hglrc_my5_5in catalog frame via bind_profile_to_craft_identity(...), which mirrors that frame row's identity fields verbatim — this JSON itself carries no geometry/mass, only the C3-shaped declaration fields."
+}

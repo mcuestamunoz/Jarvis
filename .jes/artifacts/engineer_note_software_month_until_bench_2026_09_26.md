@@ -3,7 +3,7 @@
 **Author:** Cursor (captura de evaluación del Engineer)  
 **Orden del Engineer (reafirmado 2026-09-26):** **primero acabar el software de control de vuelo.** Assistant / voz / casa / placement DC = **después**, parked. Silicon parked ([bench note](engineer_note_fase_c_bench_before_silicon_2026_09_24.md)).
 
-**Tip tagged:** **`v0.5.35`**. D2 docs LANDED @ package `0.5.36` (review PASS WITH NOTES; awaiting Engineer spot-check + ★ ACCEPT). Esta nota **no** es un IC y **no** autoriza código.
+**Tip tagged:** **`v0.5.44`** (software-month C36–C43 ★ CLOSED). Esta nota **no** es un IC y **no** autoriza código.
 
 ---
 
@@ -71,4 +71,4 @@ Tras C39/C40 ★ ACCEPT, review notes **no** abren Buy ni deuda del mes (taxonom
 
 ## Hoy
 
-Tip tagged **`v0.5.43`** (C42 CLOSED). Siguiente: IC **C43** craft↔FS bind. Assistant PARKED hasta C43 CLOSED.
+Tip tagged **`v0.5.44`** (C43 CLOSED). **Software-month C36–C43 CLOSED.** Siguiente: discutir Assistant DC (sin implementar hasta ★). Silicon parked.
