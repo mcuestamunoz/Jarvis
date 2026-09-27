@@ -491,9 +491,11 @@ def _solid_copies(
         # so they can never drift apart; the returned count is the actual
         # number of offsets emitted (never a separately-parsed number that
         # could disagree) — a missing/unaccepted declared `count` (only
-        # {4,6,8} accepted — B7), a missing/non-box standoff or Main Plate,
-        # or a standoff footprint larger than the plate in either axis, all
-        # omit both — never a silent default.
+        # {4,6,8} accepted — B7), a missing standoff box/cylinder or Main
+        # Plate box, or a standoff footprint larger than the plate in
+        # either axis, all omit both — never a silent default. Cylinder
+        # posts use Ø as both inset axes (Standoff cylinder visor layout
+        # B1); a disk (Ø, no axial H) still omits.
         offsets = _frame_standoff_layout_offsets_mm(spec, components)
         if offsets is None:
             return None
@@ -626,6 +628,34 @@ def _standoff_perimeter_midpoints_mm(
     return None
 
 
+def _standoff_layout_footprint(
+    geometry: dict[str, float | str] | None,
+) -> dict[str, float | str] | None:
+    """Standoff cylinder visor layout B1 — the L×W dict `_main_plate_
+    corner_points` / `_standoff_perimeter_midpoints_mm` already read.
+
+    Box: pass through unchanged (B7 byte-identical). Cylinder: Ø as both
+    axes, layout-math only — never written onto the spec. Disk / missing /
+    non-positive Ø → None (omit copies)."""
+    if geometry is None:
+        return None
+    shape = geometry.get("shape")
+    if shape == "box":
+        return geometry
+    if shape != "cylinder":
+        return None
+    raw = geometry.get("diameter_mm")
+    if raw is None:
+        return None
+    try:
+        diameter_mm = float(raw)
+    except (TypeError, ValueError):
+        return None
+    if not (diameter_mm > 0):
+        return None
+    return {"length_mm": diameter_mm, "width_mm": diameter_mm}
+
+
 def _frame_standoff_layout_offsets_mm(
     standoff_spec: ComponentSpec, components: dict[str, ComponentSpec]
 ) -> list[dict[str, float]] | None:
@@ -645,10 +675,13 @@ def _frame_standoff_layout_offsets_mm(
     `current_parameters` — this is a Main-Plate-footprint fact tied to the
     standoff's own declared property, not a propulsion one.
 
-    Also requires the standoff's OWN geometry to be a box
+    Also requires the standoff's OWN geometry to be a **box or cylinder**
     (`_geometry_from_spec`) AND the literal `frame_plate` key (Main Plate
     — never an ordinal sibling like `frame_plate_2`) to exist with a box
-    geometry — unchanged from B3/B4-min.
+    geometry. Box path is byte-identical to B3/B4-min/B7. Cylinder path
+    (Standoff cylinder visor layout B1) uses Ø as both footprint axes
+    for the same `hx`/`hy` inset; the glyph stays a cylinder — L×W are
+    never written onto the spec. A disk (Ø, no axial H) omits.
 
     N=4 returns exactly `_main_plate_corner_points`'s own 4 points,
     byte-identical to every prior Buy. N=6/8 append
@@ -659,8 +692,8 @@ def _frame_standoff_layout_offsets_mm(
     count = _parse_solid_copies_count(count_prop.value if count_prop is not None else None)
     if count not in _STANDOFF_LAYOUT_COUNTS:
         return None
-    standoff_geometry = _geometry_from_spec(standoff_spec)
-    if standoff_geometry is None or standoff_geometry.get("shape") != "box":
+    standoff_footprint = _standoff_layout_footprint(_geometry_from_spec(standoff_spec))
+    if standoff_footprint is None:
         return None
     plate_spec = components.get("frame_plate")
     if plate_spec is None:
@@ -668,12 +701,12 @@ def _frame_standoff_layout_offsets_mm(
     plate_geometry = _geometry_from_spec(plate_spec)
     if plate_geometry is None or plate_geometry.get("shape") != "box":
         return None
-    corners = _main_plate_corner_points(plate_geometry, standoff_geometry)
+    corners = _main_plate_corner_points(plate_geometry, standoff_footprint)
     if corners is None:
         return None
     if count == _STANDOFF_CORNER_COUNT:
         return corners
-    midpoints = _standoff_perimeter_midpoints_mm(plate_geometry, standoff_geometry, count)
+    midpoints = _standoff_perimeter_midpoints_mm(plate_geometry, standoff_footprint, count)
     if midpoints is None:
         return None
     return corners + midpoints
