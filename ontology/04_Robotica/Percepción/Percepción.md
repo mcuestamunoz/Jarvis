@@ -1,0 +1,2 @@
+- [[Procesamiento de sensores]]
+- [[Visión por computación]]

@@ -1,0 +1,3 @@
+- [[Imagen digital]]
+- [[Detección de objetos]]
+- [[Seguimiento de objetos]]

@@ -1,0 +1,3 @@
+- [[Composición de funciones]]
+- [[Función inversa]]
+- [[Transformación de funciones]]

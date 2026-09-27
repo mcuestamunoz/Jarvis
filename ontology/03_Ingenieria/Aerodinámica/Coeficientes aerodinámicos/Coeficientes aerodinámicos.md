@@ -1,0 +1,3 @@
+- [[Coeficiente de sustentación]]
+- [[Coeficiente de arrastre]]
+- [[Relación sustentación-arrastre]]

@@ -1,0 +1,222 @@
+{
+  "main": {
+    "id": "760d8c7661d54872",
+    "type": "split",
+    "children": [
+      {
+        "id": "2c93c74fc8df94ef",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d66bc8aeb61cbc42",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Vista gráfica"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1dfeabc5812ee449",
+    "type": "split",
+    "children": [
+      {
+        "id": "ef08ff6b5d79643c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "92c6bbc073334949",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": true
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorador de archivos"
+            }
+          },
+          {
+            "id": "dda1f12c864ebb96",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Buscar"
+            }
+          },
+          {
+            "id": "433950d6e9e5edb6",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Marcadores"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 391.5
+  },
+  "right": {
+    "id": "fd5e5293f1fd465e",
+    "type": "split",
+    "children": [
+      {
+        "id": "1bcaa1028bafdfd1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "88248616a2554a23",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "00_Mapa/Roadmap.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Enlaces entrantes de Roadmap"
+            }
+          },
+          {
+            "id": "14e04d6af18067d8",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "00_Mapa/Roadmap.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Enlaces salientes de Roadmap"
+            }
+          },
+          {
+            "id": "ba91c28880fef811",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Etiquetas"
+            }
+          },
+          {
+            "id": "4eb1328e4ca2a69c",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Todas las propiedades"
+            }
+          },
+          {
+            "id": "f5d4bcc612581451",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "00_Mapa/Roadmap.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Esquema de Roadmap"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Abrir selector rápido": false,
+      "graph:Abrir vista gráfica": false,
+      "canvas:Crear nuevo lienzo": false,
+      "daily-notes:Abrir la nota de hoy": false,
+      "templates:Insertar plantilla": false,
+      "command-palette:Abrir paleta de comandos": false,
+      "bases:Crear nueva base": false
+    }
+  },
+  "active": "d66bc8aeb61cbc42",
+  "lastOpenFiles": [
+    "Sin título.canvas",
+    "2026-09-27.md",
+    "Sin título.base",
+    "refined/run_20260404_110946/ecuación_de_bernoulli.md",
+    "refined/run_20260404_110946/ecuación_cuadrática.fallback.md",
+    "refined/run_20260404_110946/ecuación.fallback.md",
+    "refined/run_20260404_110946/dominio_y_rango.fallback.md",
+    "refined/run_20260404_110946/dinámica.fallback.md",
+    "refined/run_20260404_110946/determinante.fallback.md",
+    "refined/run_20260404_110946/derivada.md",
+    "refined/run_20260404_110946/densidad.md",
+    "refined/run_20260404_110946/círculo_unitario.md",
+    "refined/run_20260404_110946/corriente_eléctrica.md",
+    "refined/run_20260404_110946/control_proporcional.md",
+    "refined/run_20260404_110946/control_pid.md",
+    "refined/run_20260404_110946/control_de_movimiento.md",
+    "refined/run_20260404_110946/continuidad.md",
+    "refined/run_20260404_110946/composición_de_funciones.md",
+    "refined/run_20260404_110946/componentes_electrónicos.md",
+    "refined/run_20260404_110946/circuito_eléctrico.md",
+    "refined/run_20260404_110946/cinemática.md",
+    "refined/run_20260404_110946/carga_eléctrica.md",
+    "refined/run_20260404_110946/campo_magnético.md",
+    "output/aceleración.md",
+    "refined/run_20260404_110946/aceleración.md",
+    "refined/run_20260404_110946",
+    "refined/run_20260404_110605",
+    "refined/run_20260404_110202",
+    "output/ley_de_ohm.md",
+    "refined/run_20260404_105435",
+    "prompt_generador.txt",
+    "refined/run_20260404_104731",
+    "refined/run_20260404_104042",
+    "refined/run_20260404_101840",
+    "refined/run_20260404_101339",
+    "output/planificación_de_trayectoria.md",
+    "Pasted image 20260316103832.png"
+  ]
+}

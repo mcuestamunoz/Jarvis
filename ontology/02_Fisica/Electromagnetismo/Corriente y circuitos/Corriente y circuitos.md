@@ -1,0 +1,5 @@
+- [[Corriente eléctrica]]
+- [[Voltaje]]
+- [[Resistencia eléctrica]]
+- [[Ley de Ohm]]
+- [[Potencia eléctrica]]

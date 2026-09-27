@@ -1,0 +1,3 @@
+- [[Sistema lineal]]
+- [[Método de Gauss]]
+- [[Método de Gauss-Jordan]]

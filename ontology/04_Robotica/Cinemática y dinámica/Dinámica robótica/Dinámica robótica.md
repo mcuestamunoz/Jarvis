@@ -1,0 +1,4 @@
+- [[Dinámica del robot]]
+- [[Fuerzas]]
+- [[Torque dinámica robótica]]
+- [[Ecuaciones de movimiento]]

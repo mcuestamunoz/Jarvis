@@ -1,0 +1,4 @@
+- [[Campo magnético]]
+- [[Fuerza magnética]]
+- [[Inducción electromagnética]]
+- [[Ley de Faraday]]

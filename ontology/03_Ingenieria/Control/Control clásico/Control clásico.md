@@ -1,0 +1,4 @@
+- [[Control proporcional]]
+- [[Control integral]]
+- [[Control derivativo]]
+- [[Control PID]]

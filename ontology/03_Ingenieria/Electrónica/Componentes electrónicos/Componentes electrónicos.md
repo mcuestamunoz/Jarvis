@@ -1,0 +1,5 @@
+- [[Resistencia]]
+- [[Capacitor]]
+- [[Inductor]]
+- [[Diodo]]
+- [[Transistor]]

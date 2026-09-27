@@ -1,0 +1,5 @@
+- [[Sensor de distancia]]
+- [[LIDAR]]
+- [[Ultrasonido]]
+- [[Cámara]]
+- [[Sensor infrarrojo]]

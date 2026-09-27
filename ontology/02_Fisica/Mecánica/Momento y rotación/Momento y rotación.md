@@ -1,0 +1,5 @@
+- [[Momento lineal]]
+- [[Conservación del momento]]
+- [[Torque]]
+- [[Momento de inercia]]
+- [[Movimiento rotacional]]

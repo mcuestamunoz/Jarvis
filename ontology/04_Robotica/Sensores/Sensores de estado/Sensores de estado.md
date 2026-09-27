@@ -1,0 +1,6 @@
+- [[Sensor]]
+- [[Medición]]
+- [[Resolución]]
+- [[Precisión]]
+- [[Ruido]]
+- [[Calibración]]

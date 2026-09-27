@@ -1,0 +1,3 @@
+- [[Identidad trigonométrica]]
+- [[Identidad pitagórica]]
+- [[Identidades de suma y diferencia]]

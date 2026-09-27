@@ -1,0 +1,3 @@
+- [[Ley de senos]]
+- [[Ley de cosenos]]
+- [[Resolución de triángulos]]

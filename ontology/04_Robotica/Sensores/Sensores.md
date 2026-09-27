@@ -1,0 +1,3 @@
+- [[Sensores de estado]]
+- [[Sensores de movimiento]]
+- [[Sensores de entorno]]

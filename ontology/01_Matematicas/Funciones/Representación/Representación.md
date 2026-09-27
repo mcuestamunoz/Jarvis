@@ -1,0 +1,3 @@
+- [[Gráfica de función]]
+- [[Tabla de valores]]
+- [[Representación cartesiana]]

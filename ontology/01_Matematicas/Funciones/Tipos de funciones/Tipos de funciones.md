@@ -1,0 +1,5 @@
+- [[Función lineal]]
+- [[Función cuadrática]]
+- [[Función polinómica]]
+- [[Función exponencial]]
+- [[Función logarítmica]]

@@ -1,0 +1,3 @@
+- [[Máximos y mínimos]]
+- [[Optimización]]
+- [[Aproximación lineal]]

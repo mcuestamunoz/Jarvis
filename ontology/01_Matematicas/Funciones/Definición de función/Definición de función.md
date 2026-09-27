@@ -1,0 +1,5 @@
+- [[Función]]
+- [[Variable independiente]]
+- [[Variable dependiente]]
+- [[Dominio]]
+- [[Rango]]

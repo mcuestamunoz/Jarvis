@@ -1,0 +1,4 @@
+- [[Engranaje]]
+- [[Reducción]]
+- [[Par motor]]
+- [[Velocidad de rotación]]

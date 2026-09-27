@@ -1,0 +1,4 @@
+- [[Carga]]
+- [[Carga axial]]
+- [[Carga de flexión]]
+- [[Carga de torsión]]

@@ -1,0 +1,5 @@
+- [[Cinemática directa]]
+- [[Cinemática inversa]]
+- [[Grados de libertad]]
+- [[Posición cinemática robótica]]
+- [[Orientación]]

@@ -1,0 +1,4 @@
+- [[Primera ley de la termodinámica]]
+- [[Segunda ley de la termodinámica]]
+- [[Entropía]]
+- [[Sistema termodinámico]]

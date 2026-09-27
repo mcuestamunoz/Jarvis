@@ -1,0 +1,4 @@
+- [[Definición de función]]
+- [[Representación]]
+- [[Operaciones con funciones]]
+- [[Tipos de funciones]]

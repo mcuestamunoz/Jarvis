@@ -1,0 +1,2 @@
+- [[Cinemática robótica]]
+- [[Dinámica robótica]]

@@ -1,0 +1,4 @@
+- [[Ecuación diferencial]]
+- [[EDO de primer orden concepto]]
+- [[Solución general]]
+- [[Condición inicial]]

@@ -1,0 +1,122 @@
+[
+{"concepto": "Número natural", "area": "Matemáticas", "subarea": "Álgebra"},
+{"concepto": "Número entero", "area": "Matemáticas", "subarea": "Álgebra"},
+{"concepto": "Número racional", "area": "Matemáticas", "subarea": "Álgebra"},
+{"concepto": "Número real", "area": "Matemáticas", "subarea": "Álgebra"},
+
+{"concepto": "Expresión algebraica", "area": "Matemáticas", "subarea": "Álgebra"},
+{"concepto": "Operaciones algebraicas", "area": "Matemáticas", "subarea": "Álgebra"},
+{"concepto": "Factorización", "area": "Matemáticas", "subarea": "Álgebra"},
+{"concepto": "Monomio", "area": "Matemáticas", "subarea": "Álgebra"},
+{"concepto": "Polinomio", "area": "Matemáticas", "subarea": "Álgebra"},
+{"concepto": "Grado de un polinomio", "area": "Matemáticas", "subarea": "Álgebra"},
+
+{"concepto": "Ecuación", "area": "Matemáticas", "subarea": "Álgebra"},
+{"concepto": "Ecuación lineal", "area": "Matemáticas", "subarea": "Álgebra"},
+{"concepto": "Ecuación cuadrática", "area": "Matemáticas", "subarea": "Álgebra"},
+
+{"concepto": "Sistema de ecuaciones", "area": "Matemáticas", "subarea": "Álgebra"},
+{"concepto": "Sistema de ecuaciones lineales", "area": "Matemáticas", "subarea": "Álgebra"},
+
+{"concepto": "Función", "area": "Matemáticas", "subarea": "Funciones"},
+{"concepto": "Dominio y rango", "area": "Matemáticas", "subarea": "Funciones"},
+{"concepto": "Representación de funciones", "area": "Matemáticas", "subarea": "Funciones"},
+{"concepto": "Operaciones con funciones", "area": "Matemáticas", "subarea": "Funciones"},
+{"concepto": "Función inversa", "area": "Matemáticas", "subarea": "Funciones"},
+{"concepto": "Transformaciones de funciones", "area": "Matemáticas", "subarea": "Funciones"},
+{"concepto": "Función lineal", "area": "Matemáticas", "subarea": "Funciones"},
+{"concepto": "Función cuadrática", "area": "Matemáticas", "subarea": "Funciones"},
+{"concepto": "Función exponencial", "area": "Matemáticas", "subarea": "Funciones"},
+{"concepto": "Función logarítmica", "area": "Matemáticas", "subarea": "Funciones"},
+{"concepto": "Composición de funciones", "area": "Matemáticas", "subarea": "Funciones"},
+
+{"concepto": "Ángulo", "area": "Matemáticas", "subarea": "Trigonometría"},
+{"concepto": "Seno, coseno y tangente", "area": "Matemáticas", "subarea": "Trigonometría"},
+{"concepto": "Círculo unitario", "area": "Matemáticas", "subarea": "Trigonometría"},
+{"concepto": "Identidades trigonométricas", "area": "Matemáticas", "subarea": "Trigonometría"},
+{"concepto": "Ley de senos y cosenos", "area": "Matemáticas", "subarea": "Trigonometría"},
+
+{"concepto": "Vector", "area": "Matemáticas", "subarea": "Álgebra lineal"},
+{"concepto": "Operaciones con vectores", "area": "Matemáticas", "subarea": "Álgebra lineal"},
+{"concepto": "Producto escalar", "area": "Matemáticas", "subarea": "Álgebra lineal"},
+{"concepto": "Producto vectorial", "area": "Matemáticas", "subarea": "Álgebra lineal"},
+{"concepto": "Espacio vectorial", "area": "Matemáticas", "subarea": "Álgebra lineal"},
+
+{"concepto": "Matriz", "area": "Matemáticas", "subarea": "Álgebra lineal"},
+{"concepto": "Determinante", "area": "Matemáticas", "subarea": "Álgebra lineal"},
+{"concepto": "Matriz inversa", "area": "Matemáticas", "subarea": "Álgebra lineal"},
+{"concepto": "Multiplicación de matrices", "area": "Matemáticas", "subarea": "Álgebra lineal"},
+
+{"concepto": "Sistema lineal", "area": "Matemáticas", "subarea": "Álgebra lineal"},
+{"concepto": "Método de Gauss", "area": "Matemáticas", "subarea": "Álgebra lineal"},
+
+{"concepto": "Límite", "area": "Matemáticas", "subarea": "Cálculo"},
+{"concepto": "Continuidad", "area": "Matemáticas", "subarea": "Cálculo"},
+{"concepto": "Derivada", "area": "Matemáticas", "subarea": "Cálculo"},
+{"concepto": "Reglas de derivación", "area": "Matemáticas", "subarea": "Cálculo"},
+{"concepto": "Regla de la cadena", "area": "Matemáticas", "subarea": "Cálculo"},
+{"concepto": "Máximos y mínimos", "area": "Matemáticas", "subarea": "Cálculo"},
+
+{"concepto": "Integral", "area": "Matemáticas", "subarea": "Cálculo"},
+{"concepto": "Integral definida", "area": "Matemáticas", "subarea": "Cálculo"},
+{"concepto": "Técnicas de integración", "area": "Matemáticas", "subarea": "Cálculo"},
+{"concepto": "Área bajo la curva", "area": "Matemáticas", "subarea": "Cálculo"},
+
+{"concepto": "EDO de primer orden", "area": "Matemáticas", "subarea": "Ecuaciones diferenciales"},
+{"concepto": "EDO de segundo orden", "area": "Matemáticas", "subarea": "Ecuaciones diferenciales"},
+{"concepto": "Sistema dinámico", "area": "Matemáticas", "subarea": "Ecuaciones diferenciales"},
+
+{"concepto": "Movimiento rectilíneo", "area": "Física", "subarea": "Mecánica"},
+{"concepto": "Velocidad", "area": "Física", "subarea": "Mecánica"},
+{"concepto": "Aceleración", "area": "Física", "subarea": "Mecánica"},
+{"concepto": "Leyes de Newton", "area": "Física", "subarea": "Mecánica"},
+{"concepto": "Trabajo y energía", "area": "Física", "subarea": "Mecánica"},
+{"concepto": "Momento angular", "area": "Física", "subarea": "Mecánica"},
+
+{"concepto": "Densidad", "area": "Física", "subarea": "Fluidos"},
+{"concepto": "Presión", "area": "Física", "subarea": "Fluidos"},
+{"concepto": "Principio de Pascal", "area": "Física", "subarea": "Fluidos"},
+{"concepto": "Ecuación de Bernoulli", "area": "Física", "subarea": "Fluidos"},
+
+{"concepto": "Carga eléctrica", "area": "Física", "subarea": "Electromagnetismo"},
+{"concepto": "Corriente eléctrica", "area": "Física", "subarea": "Electromagnetismo"},
+{"concepto": "Ley de Ohm", "area": "Física", "subarea": "Electromagnetismo"},
+{"concepto": "Circuito eléctrico", "area": "Física", "subarea": "Electromagnetismo"},
+{"concepto": "Campo magnético", "area": "Física", "subarea": "Electromagnetismo"},
+
+{"concepto": "Temperatura", "area": "Física", "subarea": "Termodinámica"},
+{"concepto": "Primera ley de la termodinámica", "area": "Física", "subarea": "Termodinámica"},
+
+{"concepto": "Sistema dinámico", "area": "Ingeniería", "subarea": "Sistemas"},
+{"concepto": "Modelado de sistemas", "area": "Ingeniería", "subarea": "Sistemas"},
+{"concepto": "Representación de sistemas", "area": "Ingeniería", "subarea": "Sistemas"},
+
+{"concepto": "Resistencia de materiales", "area": "Ingeniería", "subarea": "Mecánica estructural"},
+{"concepto": "Esfuerzo y deformación", "area": "Ingeniería", "subarea": "Mecánica estructural"},
+
+{"concepto": "Fuerza aerodinámica", "area": "Ingeniería", "subarea": "Aerodinámica"},
+{"concepto": "Sustentación", "area": "Ingeniería", "subarea": "Aerodinámica"},
+
+{"concepto": "Componentes electrónicos", "area": "Ingeniería", "subarea": "Electrónica"},
+{"concepto": "Resistencia eléctrica", "area": "Ingeniería", "subarea": "Electrónica"},
+{"concepto": "Circuito eléctrico", "area": "Ingeniería", "subarea": "Electrónica"},
+
+{"concepto": "Control proporcional", "area": "Ingeniería", "subarea": "Control"},
+{"concepto": "Control PID", "area": "Ingeniería", "subarea": "Control"},
+
+{"concepto": "Sensor", "area": "Robótica", "subarea": "Sensores"},
+{"concepto": "IMU", "area": "Robótica", "subarea": "Sensores"},
+
+{"concepto": "Motor eléctrico", "area": "Robótica", "subarea": "Actuadores"},
+{"concepto": "Transmisión mecánica", "area": "Robótica", "subarea": "Actuadores"},
+
+{"concepto": "Cinemática", "area": "Robótica", "subarea": "Movimiento"},
+{"concepto": "Dinámica", "area": "Robótica", "subarea": "Movimiento"},
+
+{"concepto": "Control de movimiento", "area": "Robótica", "subarea": "Control"},
+
+{"concepto": "Visión por computador", "area": "Robótica", "subarea": "Percepción"},
+
+{"concepto": "Localización", "area": "Robótica", "subarea": "Navegación"},
+{"concepto": "Planificación de trayectoria", "area": "Robótica", "subarea": "Navegación"}
+]

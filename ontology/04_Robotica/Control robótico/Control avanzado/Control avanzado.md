@@ -1,0 +1,3 @@
+- [[Control adaptativo]]
+- [[Control robusto]]
+- [[Control óptimo]]
