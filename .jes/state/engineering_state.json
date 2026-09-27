@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "2026-09-26 C39 ACCEPT CLOSED @ v0.5.40. C40 ★ AUTHORIZED — Claude implements autonomy executor. Assistant PARKED. Silicon parked.",
-  "scope": "Claude: C40 IC. Cursor: review after landing. Out: Safety allowlist (C41), Assistant, silicon.",
+  "cycle_intent": "2026-09-27 C40 ACCEPT CLOSED @ v0.5.41. C41 ★ AUTHORIZED — Claude implements safety-sim allowlist. Assistant PARKED. Silicon parked.",
+  "scope": "Claude: C41 IC. Cursor: review after landing. Out: ICM (C42), Assistant, silicon, executed.",
   "execution_status": "in_progress",
   "current_mode": "await_implementer",
-  "active_operation": "c40_autonomy_executor_starred",
+  "active_operation": "c41_safety_sim_policy_starred",
   "movement_trigger": {
     "type": "star",
-    "note": "Engineer ACCEPT C39 + ★ C40 AUTHORIZED. Claude implements verb→setpoints now."
+    "note": "Engineer ACCEPT C40 + ★ C41 AUTHORIZED. Claude implements allowlist now."
   },
   "relevant_workflow_phases": [
     "Verification"

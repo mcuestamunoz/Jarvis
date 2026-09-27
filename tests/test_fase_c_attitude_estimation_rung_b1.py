@@ -175,7 +175,7 @@ def test_t9_capability_registry_default_still_empty():
 
 def test_t10_pyproject_version_is_0_5_5():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.40"' in text
+    assert 'version = "0.5.41"' in text
 
 
 def test_smoke_attitude_returns_at_least_one_state():

@@ -112,7 +112,7 @@ def test_cmake_wires_spi_probe_into_jarvis_fc_and_unit_tests():
 
 def test_t10_pyproject_version_is_0_5_32():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.40"' in text
+    assert 'version = "0.5.41"' in text
 
 
 def test_t11_full_suite_process_gate_placeholder():

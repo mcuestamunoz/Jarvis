@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — ★ AUTHORIZED: **implement now**  
 **Reviewer:** Cursor against this IC · Engineer spot-check (verb→setpoints in sim ≠ execute on copper · Safety RejectAll intact · plant outside `step`)
 
-**Status:** ★ **AUTHORIZED** (Engineer 2026-09-26 — IC passed to Claude = execute directly)  
+**Status:** ★ **ACCEPT CLOSED** @ tag **`v0.5.41`** (Engineer 2026-09-27) · Cursor review PASS WITH NOTES  
 **Parents:**
 - [C39 ★ ACCEPT](implementation_contract_fase_c_position_loop_b1.md) — sim position + xy→tilt @ **`v0.5.40`**  
 - [C38 ★ ACCEPT](implementation_contract_fase_c_altitude_loop_b1.md) — sim altitude + z→collective @ **`v0.5.39`**  

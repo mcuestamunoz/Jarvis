@@ -22,6 +22,11 @@ or `library/`. See
 `.jes/artifacts/implementation_contract_fase_c_autonomy_surface_b1.md`.
 """
 
+from jarvis.flight_software.autonomy.sim_executor import (
+    SimAutonomyExecutor,
+    SimAutonomyParams,
+    SimAutonomyTickResult,
+)
 from jarvis.flight_software.autonomy.smoke import (
     smoke_hold_and_land,
     smoke_policy_gate_hold_and_land,
@@ -37,6 +42,9 @@ __all__ = [
     "AutonomyCommand",
     "AutonomySubmissionResult",
     "AutonomyVerb",
+    "SimAutonomyExecutor",
+    "SimAutonomyParams",
+    "SimAutonomyTickResult",
     "propose_command",
     "smoke_hold_and_land",
     "smoke_policy_gate_hold_and_land",

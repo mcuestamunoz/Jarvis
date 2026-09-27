@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.40 tagged tip** · C39 position loop ★ ACCEPT CLOSED — sim position + xy→tilt · C38 altitude ★ ACCEPT CLOSED — still not live GPS, still not flying
+**v0.5.41 tagged tip** · C40 autonomy executor ★ ACCEPT CLOSED — HOLD/LAND/GO_TO drive sim setpoints · still not execute on copper, still not flying
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -188,7 +188,20 @@ Fase C · **C39** (`B1-fase-c-position-loop`) — **horizontal motion stops bein
 - New smoke `run_position_loop_smoke` chains `pos.compute(...)` → `alt.compute(...)` (C38's own `AltitudeController`, unchanged) → `loop.step(...)` → `plant.step(...)` — starting at `(0,0,0)` with `x_des_m=5.0, y_des_m=0.0, z_des_m=2.0`, verified horizontal distance shrinking from `5.0m` to under `0.25m` over 1000 steps (10 seconds sim time).
 - **Sim position != live GPS/flow chip. xy→tilt in RAM != position hold in air != GO_TO executed. An ENU point in RAM != a house map.** Nothing here reads a real sensor or claims any real vehicle holds position, and this Buy does not implement the `AutonomyVerb.GO_TO` executor (that stays C40, a separate, future Buy) — `propose_command(GO_TO)` still hits `RejectAllSafetyGate`.
 - Package **`0.5.40`** · tagged **`v0.5.40`** · suite **3723** · host `ctest` **101/101** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_position_loop_b1.md)
-- **Next:** C40 autonomy executor (sim setpoints). Assistant PARKED. Silicon parked.
+- **Next:** C40 ★ ACCEPT CLOSED @ **`v0.5.41`**. Cola: C41 safety-sim policy. Assistant PARKED. Silicon parked.
+
+## What v0.5.41 includes (★ ACCEPT CLOSED)
+
+Fase C · **C40** (`B1-fase-c-autonomy-executor`) — **autonomy verbs stop being only labels that RejectAll**:
+
+- New `SimAutonomyExecutor` (Python `flight_software/autonomy/sim_executor.py` + C++ `sim_autonomy_executor.hpp`/`.cpp`) — a **separate, sim-only** driver, not a change to the C4 command surface: `propose_command`/`submit_command`/`AutonomySubmissionResult` are completely untouched, and `execution` is never set to `"executed"` anywhere in this module.
+- Reuses, never reimplements: every `tick(verb, params, dt_s)` call chains `PositionController.compute` (C39) → `AltitudeController.compute` (C38) → `FlightControlLoop.step` (C24) → `plant.step` (C36) — the same four-call chain `run_position_loop_smoke` already used, now a stateful per-verb driver.
+- **HOLD** freezes a `PositionSetpoint` at the current (or caller-supplied) xy + z the first tick it's ticked, then holds that frozen point every subsequent tick. **GO_TO** requires finite `x_m`/`y_m`; `z_m` optional, defaulting to the altitude frozen at the first GO_TO tick (not a new invented cruise-altitude constant). **LAND** freezes xy the same way HOLD does and ratchets `z_des_m` downward by a documented `land_rate_mps` (default `0.5 m/s`) toward a documented floor `z_land_m` (default `0.0`) — not a claim of touchdown gear. Any other verb raises.
+- Respects C39 N2 (z may droop under tilt): tests do not require altitude glued to setpoint during an aggressive `GO_TO` chase; `HOLD` asserts both xy and z stay within a documented bound only **after** settling; `LAND` asserts z strictly decreases toward the floor.
+- Verified: `GO_TO` shrinks horizontal distance to `(3.0, 0.0)` from `3.0m` to under `0.1m` over 1500 steps (with `z_m=2.0` also converging); `HOLD` (after that convergence) keeps a 500-tick window within `0.5m` on every axis; `LAND` (from a converged `z≈2.0`) brings z under `0.5m` over 1000 steps.
+- **verb -> setpoints in RAM != execute on copper. Sim HOLD/LAND/GO_TO != flying != Safety allow.** `propose_command`/`submit_command` through the default `RejectAllSafetyGate` still returns `reject`/`not_attempted` for all three verbs — this Buy does not touch Safety (that's C41).
+- Package **`0.5.41`** · tagged **`v0.5.41`** · suite **3732** · host `ctest` **105/105** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_autonomy_executor_b1.md)
+- **Next:** C41 safety-sim policy (allowlist HOLD/LAND/GO_TO). Assistant PARKED. Silicon parked.
 
 ## What v0.5.29 includes
 
@@ -660,7 +673,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.40`** — C39 position ★ ACCEPT CLOSED (sim position + xy→tilt; ≠ live GPS ≠ flying). C38 @ `v0.5.39`. C37 @ `v0.5.38`. C36 @ `v0.5.37`. Cola: C40 autonomy executor. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.41`** — C40 autonomy executor ★ ACCEPT CLOSED (HOLD/LAND/GO_TO → sim setpoints; ≠ execute on copper). C39 @ `v0.5.40`. C38 @ `v0.5.39`. Cola: C41 safety-sim policy. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

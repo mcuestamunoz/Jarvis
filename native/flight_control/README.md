@@ -547,3 +547,27 @@ dynamics, `attitude.hpp`/`attitude.cpp`, `rc_setpoint.hpp`/
 `sim_altitude_hal.hpp`/`.cpp` all stay byte-unchanged by this Buy.
 **Sim position != live GPS/flow chip. xy -> tilt in RAM != position hold
 in air != GO_TO executed. An ENU point in RAM != a house map.**
+
+`sim_autonomy_executor.hpp`/`.cpp` (C40, package `0.5.41`, ★ ACCEPT CLOSED @ `v0.5.41`) add
+`SimAutonomyExecutor` — a **separate, sim-only** driver mapping a small
+LOCAL `SimAutonomyVerb` enum (`kHold`/`kGoTo`/`kLand` only — not a C++
+twin of the Python `AutonomyVerb`, which this tree has never ported)
+into the existing C38/C39 setpoint chain. This tree has no C++ port of
+the C4 command surface (`propose_command`/`submit_command`/
+`AutonomySubmissionResult` stay Python-only orchestration types), and
+this header does not add one. Every `tick(verb, params, dt_s)` call
+reuses, unmodified, `PositionController::compute` (C39) and
+`AltitudeController::compute` (C38), then `ControlLoop::step` (C24),
+then `plant.step` (C36). `kHold` freezes a `PositionSetpoint` at the
+current (or caller-supplied) xy + z the first tick it's ticked, then
+holds that frozen point. `kGoTo` requires `x_m`/`y_m` (throws
+`std::invalid_argument` otherwise); `z_m` optional, defaulting to the
+altitude frozen at the first `kGoTo` tick. `kLand` freezes xy the same
+way `kHold` does and ratchets `z_des_m` downward by `land_rate_mps`
+(default `0.5 m/s`, constructor argument) toward `z_land_m` (default
+`0.0`). Holds a REFERENCE to a caller-owned `ToyQuad6DofPlant` — never
+constructs or owns a plant itself. `loop.hpp`/`loop.cpp`,
+`plant.hpp`/`plant.cpp` dynamics, `controller.hpp`/`controller.cpp`,
+`position_controller.hpp`/`.cpp`, and `altitude_controller.hpp`/`.cpp`
+all stay byte-unchanged by this Buy. **Verb -> setpoints in RAM != execute
+on copper. Sim HOLD/LAND/GO_TO != flying != Safety allow.**
