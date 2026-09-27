@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer spot-check of system_map tip + native README + USER_GUIDE §8.4
 
-**Status:** **READY** — awaiting Engineer ★ (parent cylinder CSS ★ ACCEPT CLOSED @ **`v0.5.35`**; cuboid @ **`v0.5.34`**)  
+**Status:** LANDED — Cursor review **PASS WITH NOTES**; awaiting Engineer spot-check + ★ ACCEPT (parents: cylinder ★ ACCEPT CLOSED @ **`v0.5.35`**; cuboid @ **`v0.5.34`**)  
 **Parents:**
 - [Taller CSS cuboid faces](implementation_contract_geometry_taller_css_cuboid_faces_b1.md) — six faces meet on a thin plate · tag **`v0.5.34`**  
 - [Taller CSS cylinder faces](implementation_contract_geometry_taller_css_cylinder_faces_b1.md) — caps + 16 slats on Ø×H · tag **`v0.5.35`** on ACCEPT (this docs Buy waits)  

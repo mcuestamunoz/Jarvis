@@ -58,7 +58,7 @@ Every subsystem above the dashed line is deterministic — same input, same outp
 
 ## Fase C packages (structurally isolated — not part of the chain above)
 
-`src/jarvis/capabilities/`, `src/jarvis/flight_software/`, and `src/jarvis/vehicle_profiles/` (Fase C C1–C5, 2026-09-20) exist on disk but have **zero import edges** into the whole-system picture above — no `core/`, `adapters/`, orchestrator, Board, or `library/` code references them (grep-verified per Buy). They are typed Python scaffold. Every FS module docstring states: **"Python scaffold / sim only — production flight_control runtime is C++ (future IC)."** See `docs/PLATFORM_CAPABILITY_VISION.md` §13, `docs/ARCHITECTURE.md` §1a–1e, and `.jes/artifacts/engineer_note_docs_truth_sync_fase_c_2026_09_20.md`.
+`src/jarvis/capabilities/`, `src/jarvis/flight_software/`, and `src/jarvis/vehicle_profiles/` (Fase C, C1 onward) exist on disk but have **zero import edges** into the whole-system picture above — no `core/`, `adapters/`, orchestrator, Board, or `library/` code references them (grep-verified per Buy). They are typed Python scaffold. As of C13, a **second, parallel tree** exists too: `native/flight_control/` is a host-buildable, MCU-cross-compilable C++17 port of the same control ladder (CMake + Catch2), equally isolated — no craft/orchestrator/Board/`library/` code references it either. Each FS module docstring's own historical claim ("production flight_control runtime is C++ (future IC)") describes the *pre-C13* state and is a dated lock on those Python files themselves, not a current architectural fact — the C++ tree it once called "future" now exists, host-built and ARM-cross-compiled, and remains just as isolated as the Python scaffold it sits beside. See `docs/PLATFORM_CAPABILITY_VISION.md` §13, `docs/ARCHITECTURE.md` §1a–1c (Fase C Buy-by-Buy detail), and `native/flight_control/README.md`.
 
 ## Dual-dispatch note (documented, not fixed)
 
@@ -83,7 +83,7 @@ C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the sa
 
 **Craft checkpoint `v0.4.3`:** Continuity spatial assembly + Board Situar (**C-113**) + craft montage + **Fase M** (`v0.4.2`) + **Board Taller 3D** (default workshop · Grafo tab · inspector mount chain) + docs truth-sync. Suite **3166** · UI **132**. No new C-xxx — this remains the craft-side tip; Fase C below does not touch it.
 
-**Fase C tagged tip `v0.5.3`** (2026-09-20): C1–C5 ACCEPT CLOSED (C4+C5 one block; **no `v0.5.2` tag**). Suite **3236** · UI **132**. No new `C-xxx`. **PRIORIDAD:** next Buy when Engineer prioritizes — see `docs/IMPLEMENTATION_TASKS.md` and `.jes/artifacts/engineer_note_docs_truth_sync_fase_c_2026_09_20.md`.
+**Fase C tagged tip `v0.5.35`** (2026-09-25): C1–C35 ACCEPT CLOSED, plus Taller CSS visor faces (cuboid + cylinder, `ui/spatial-board/`) ACCEPT CLOSED. Suite **3691** · UI vitest **142** · host `ctest` **76/76**. No new `C-xxx` — the C++ tree under `native/flight_control/`, the Python `capabilities`/`flight_software`/`vehicle_profiles` packages, and the Taller CSS visor faces are all structurally isolated (zero import into this graph, grep-verified per Buy). **PRIORIDAD:** cola standoff points — see `docs/IMPLEMENTATION_TASKS.md` and `docs/ARCHITECTURE.md` §1c.
 
 ## Subsystem index
 

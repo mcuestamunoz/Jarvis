@@ -1,7 +1,7 @@
 # Jarvis System Map — Navigation Guide
 
 **Version:** SYS-MAP-002 (split/navigability delta of SYS-MAP-001, reviewed PASS WITH NOTES)  
-**Date:** 2026-08-10 (subsystem deltas through **2026-09-20** craft tip **v0.4.3** / Fase C **tagged tip `v0.5.3`** / suite **3236** / UI **132** — C4+C5 ACCEPT as one block, no `v0.5.2` tag; see `.jes/artifacts/engineer_note_docs_truth_sync_fase_c_2026_09_20.md`. Board Taller 3D + docs truth-sync craft; Fase C packages Python scaffold, structurally isolated, no new C-xxx — see `JARVIS_SYSTEM_MAP.md`. Fase M @ **v0.4.2**.)
+**Date:** 2026-08-10 (subsystem deltas through **2026-09-25** craft tip **v0.4.3** / Fase C **tagged tip `v0.5.35`** / suite **3691** / UI vitest **142** / host `ctest` **76/76** — C6–C35 (control loop, RC/failsafe, ESC HAL, DShot encode, SPI port + scripted slave + `probe_rx` client, denser `step` density tests) plus Taller CSS visor faces (cuboid + cylinder) ACCEPT CLOSED; see `docs/ARCHITECTURE.md` §1c and `docs/PLATFORM_CAPABILITY_VISION.md` §13. Board Taller 3D + docs truth-sync craft; Fase C packages Python scaffold **plus** a host+MCU-cross-compiled C++ tree under `native/flight_control/` (since C13), both structurally isolated, no new C-xxx — see `JARVIS_SYSTEM_MAP.md`. Fase M @ **v0.4.2**.)
 **Type:** As-is architecture documentation. Zero product behavior changes.
 
 ## How to navigate

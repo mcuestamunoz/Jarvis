@@ -35,6 +35,11 @@
  * structurally isolated packages with no edge into this graph. See
  * PLATFORM_CAPABILITY_VISION.md §13 and ARCHITECTURE.md §1a–1e.
  * PRIORIDAD = next Buy when Engineer prioritizes (C6+).
+ * Updated 2026-09-25 — Fase C C6-C35 + Taller CSS visor faces (cuboid +
+ * cylinder) all ACCEPT CLOSED -> v0.5.35 (suite 3691 · UI vitest 142 ·
+ * host ctest 76/76). native/flight_control/ (C++ host+MCU-cross-compile
+ * tree) now exists too, since C13 — equally isolated. No new C-xxx.
+ * PRIORIDAD -> cola standoff points.
  * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's queue.
  * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
  * Internal G23 anti-LLM gate (confusion phrase → re-ask / project_status) is not a C-xxx edge.
@@ -463,18 +468,24 @@ export default function JarvisSystemMapCanvas() {
 
       <Callout
         tone="info"
-        title="Product queue — Fase C surface CLOSED @ v0.5.3 (suite 3236 · UI 132)"
+        title="Product queue — Fase C surface CLOSED @ v0.5.35 (suite 3691 · UI vitest 142 · ctest 76/76)"
       >
-        Fase C C0-C5 ACCEPT (C4+C5 one block): empty Capability Registry (C1) ·
-        Intent stubs + RejectAllSafetyGate (C2) · flight_control HAL+IMU sim
-        rung (C3, Python scaffold — production FC runtime is C++, future IC) ·
+        Fase C C0-C35 ACCEPT: empty Capability Registry (C1) · Intent stubs +
+        RejectAllSafetyGate (C2) · flight_control HAL+IMU sim rung (C3) ·
         autonomy command surface always rejected by Safety (C4) · radio
-        dual-role stub (C5; RadioIntentAdapter still NotImplemented; no live
-        ELRS). Zero new C-xxx — capabilities/flight_software/vehicle_profiles
-        are structurally isolated. User guide (craft montage, unaffected):
-        docs/USER_GUIDE_CRAFT_MONTAGE.md. PRIORIDAD AHORA: next Buy when
-        Engineer prioritizes (C6+). Holds: B1-plate-box / Path N.
-        HD-* never PRIORIDAD without lab.
+        dual-role stub (C5) · control-loop ladder + named tick + host C++
+        port (C6-C24) · RC setpoint + stale/failsafe watch (C25-C27) · UART
+        byte port (C28) · cited FLASH map + DFU-flashable LED image (C29-C30,
+        desk hardware, unflashed by default) · DShot 16-bit encode, RAM only
+        (C31) · SPI byte port + scripted slave (C32-C33) · probe_rx, a port
+        client not a gyro driver (C34) · denser step-tick density tests
+        (C35) — plus Taller CSS visor faces (cuboid + cylinder, a rendering
+        fix, not a new solid type). Zero new C-xxx — capabilities/
+        flight_software/vehicle_profiles/native (C++) are all structurally
+        isolated. User guide (craft montage, unaffected):
+        docs/USER_GUIDE_CRAFT_MONTAGE.md. PRIORIDAD AHORA: cola standoff
+        points. HD-* never PRIORIDAD without lab. None of this flies, reads
+        a real gyro, or opens a chip SPI/DShot pin.
       </Callout>
 
       <Grid columns={6} gap={12}>
@@ -587,9 +598,34 @@ export default function JarvisSystemMapCanvas() {
         execution is never "executed"). src/jarvis/vehicle_profiles/ (one
         pytest smoke profile). Every package docstring carries "Python
         scaffold / sim only — production flight_control runtime is C++
-        (future IC)" — no C++/CMake tree. Zero orchestrator/Board/library/
-        Continuity coupling. No new C-xxx. Tag v0.5.3; no v0.5.2 tag (C4+C5
-        one block). Suite 3236 · UI 132.
+        (future IC)" — accurate as of this date (no C++/CMake tree existed
+        yet). Zero orchestrator/Board/library/Continuity coupling. No new
+        C-xxx. Tag v0.5.3; no v0.5.2 tag (C4+C5 one block). Suite 3236 · UI
+        132. (The C++ tree that docstring calls "future" arrived in C13 —
+        see the v0.5.35 update below; it is equally isolated.)
+      </Callout>
+
+      <Callout tone="success" title="Shipped — Fase C C6-C35 + Taller CSS visor faces @ v0.5.35 (2026-09-20→25)">
+        Control-loop ladder + named tick, ported to host-buildable,
+        MCU-cross-compilable C++17 under native/flight_control/ (C13-C24,
+        CMake + Catch2). RC setpoint mapping + an age-only stale/failsafe
+        watch, protocol-agnostic (C25-C27). UART byte port (C28). Cited
+        STM32F405 FLASH/RAM map + a DFU-flashable status-LED image — desk
+        hardware, unflashed by default, still not Betaflight (C29-C30).
+        DShot 16-bit frame encode, RAM only, no pin (C31). SPI byte port
+        SpiBytePort/LoopbackSpi, plus a canned-RX ScriptedSpi test double
+        (C32-C33). probe_rx — a client that asks the port for bytes, not a
+        gyro/WHO_AM_I driver (C34). 1000-tick + stale-RC-failsafe density
+        tests chaining C24/C27 unchanged (C35). Separately, Taller CSS visor
+        faces: cuboidFaceLayout/cylinderSolidLayout center each face/cap
+        before rotate+translateZ so a thin plate or a short/tall cylinder
+        renders as one solid instead of exploding — ui/spatial-board only,
+        a rendering fix, not a new solid type or extra parts. Zero new
+        C-xxx across all of it — every package stays structurally isolated
+        (zero import from core/adapters/orchestrator/Board/library/,
+        grep-verified per Buy). None of this flies, reads a real gyro, or
+        opens a chip SPI/DShot pin. Suite 3691 · UI vitest 142 · host ctest
+        76/76.
       </Callout>
 
       {filter !== "forbidden" ? (

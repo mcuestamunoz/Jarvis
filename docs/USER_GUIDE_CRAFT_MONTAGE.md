@@ -399,6 +399,8 @@ Mientras hay una pieza seleccionada, el resto del craft se atenúa en el 3D (que
 
 Con Situar activo, el inspector se aparta — la tira de chips es la forma de elegir pieza mientras sitúas, para no competir por espacio con el 3D. Situar escribe con el mismo mecanismo que la frase de §8.3 — es solo una forma alternativa de dar la misma pose.
 
+**Una placa fina o un buje corto siguen siendo una sola pieza, no varias.** Una caja declarada (`box`) se dibuja como un prisma de seis caras que se tocan en los cantos — aunque la placa sea de 2 mm, sigue siendo un solo sólido, no seis tarjetas sueltas. Un cilindro declarado (`cylinder`) se dibuja como dos tapas + dieciséis listones que forman un solo cuerpo — aunque el buje sea corto (una hélice) o el poste sea alto (un standoff), sigue siendo un único sólido. Esto es **pintura del visor**, no una verificación de fabricación: no es CAD, no es un veredicto de "cabe" (§10.1 sigue siendo el único screening geométrico), y no añade piezas nuevas al montaje.
+
 ---
 
 ## 9. Motores/hélices en el visor
