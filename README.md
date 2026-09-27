@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.42 tagged tip** · C41 safety-sim ★ ACCEPT CLOSED — armed allow-list HOLD/LAND/GO_TO · allow ≠ execute · RejectAll stays default
+**v0.5.43 tagged tip** · C42 ICM register client ★ ACCEPT CLOSED — datasheet-cited WHO_AM_I on `ScriptedSpi` · ≠ chip SPI1 ≠ gyro live
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -214,7 +214,21 @@ Fase C · **C41** (`B1-fase-c-safety-sim-policy`) — **Safety can say yes to th
 - C17's own pre-existing tests were disclosed-retargeted (not weakened): `GO_TO` moved from the "rejected" list to the "allowed" list in `tests/test_fase_c_safety_real_policy_b1.py`, since the allow-list itself changed by design.
 - **allow != execute != flying. sim allowlist != copper arm != motors. GO_TO allow != GO_TO in air != `SimAutonomyExecutor.tick`.**
 - Package **`0.5.42`** · tagged **`v0.5.42`** · suite **3741** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_safety_sim_policy_b1.md)
-- **Next:** C42 ICM register client (`ScriptedSpi`). Assistant PARKED. Silicon parked.
+- **Next:** C42 ★ ACCEPT CLOSED @ **`v0.5.43`**. Cola: C43 craft↔FS bind. Assistant PARKED until C43 CLOSED. Silicon parked.
+
+## What v0.5.43 includes (★ ACCEPT CLOSED)
+
+Fase C · **C42** (`B1-fase-c-icm-register-client`) — **the placeholder probe becomes a named device transaction**:
+
+- New `read_who_am_i(SpiBytePort&) -> WhoAmIResult` (C++ only, `native/flight_control/include/jarvis/fc/icm42688p.hpp` + `.cpp`) — a second, named client of `SpiBytePort` sitting beside `probe_rx` (C34, kept, unmodified).
+- **Datasheet citation:** TDK InvenSense ICM-42688-P (DS-000347) — `WHO_AM_I` register at address `0x75`, expected value `0x47`. Verified via web search cross-referenced against the open-source PX4-Autopilot driver's own register header, since every direct datasheet PDF fetch attempted this session returned HTTP 403 — that corroboration path is disclosed in the header comment rather than a fabricated page/table citation.
+- Transaction: the standard InvenSense-family 2-byte full-duplex read — `TX[0] = 0x75 | 0x80`, `TX[1]` = dummy, `RX[1]` = value — sent through `SpiBytePort::transfer`, no bypass (verified with a recording test double, not just a real-port smoke).
+- `WhoAmIResult{value, matches_expected, bytes_transferred}` — a short transfer (exhausted `ScriptedSpi` fixture) is always a documented mismatch, never a silent success; `LoopbackSpi` (which only ever echoes TX) is verified to never falsely claim a match.
+- No second register was added — a disclosed scope choice (one well-corroborated register beats a second, weakly-sourced one), not a silent omission.
+- This is a **C++-native Buy**, same axis as C32-C34 — no Python `SpiBytePort`/client exists or was added; `tests/test_fase_c_icm_register_client_b1.py`'s own checks are structural (freeze-diffs, forbidden-token greps, CMake wiring), matching C34's own established pattern.
+- **ICM register client on ScriptedSpi != chip SPI1. WHO_AM_I in RAM != gyro live != samples in step. Datasheet cite != lab measurement on copper.**
+- Package **`0.5.43`** · tagged **`v0.5.43`** · suite **3750** · host `ctest` **111/111** — ★ ACCEPT CLOSED — [review](.jes/artifacts/implementation_review_fase_c_icm_register_client_b1.md)
+- **Next:** C43 craft↔FS bind. Assistant PARKED until C43 CLOSED. Silicon parked.
 
 ## What v0.5.29 includes
 
@@ -686,7 +700,7 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.42`** — C41 safety-sim ★ ACCEPT CLOSED (allowlist HOLD/LAND/GO_TO; allow ≠ execute). C40 @ `v0.5.41`. Cola: C42 ICM register client. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.5.43`** — C42 ICM ★ ACCEPT CLOSED (WHO_AM_I on ScriptedSpi; ≠ chip SPI1 ≠ gyro live). C41 @ `v0.5.42`. Cola: C43 craft↔FS bind. Desk DFU parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
 
 Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
 

@@ -303,7 +303,7 @@ def test_t13_no_device_glob_or_scan_in_module_real_code():
 
 def test_t14_pyproject_version_is_0_5_20():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.42"' in text
+    assert 'version = "0.5.43"' in text
 
 
 def test_t17_no_crsf_or_elrs_under_native_no_bare_uart_substring_check():

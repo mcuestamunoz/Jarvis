@@ -35,6 +35,7 @@ add_library(jarvis_fc STATIC
     src/dshot.cpp
     src/spi.cpp
     src/spi_probe.cpp
+    src/icm42688p.cpp
     src/mag.cpp
     src/sim_altitude_hal.cpp
     src/altitude_controller.cpp
@@ -97,6 +98,7 @@ add_executable(fc_unit_tests
     tests/test_dshot.cpp
     tests/test_spi.cpp
     tests/test_spi_probe.cpp
+    tests/test_icm42688p.cpp
     tests/test_plant.cpp
     tests/test_mag.cpp
     tests/test_altitude_loop.cpp

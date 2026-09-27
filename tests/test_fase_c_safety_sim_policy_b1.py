@@ -152,7 +152,7 @@ def test_t7_no_craft_continuity_library_board_edits_and_c40_modules_untouched():
 
 def test_t8_pyproject_version_is_0_5_42():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.42"' in text
+    assert 'version = "0.5.43"' in text
 
 
 def test_t8_full_suite_process_gate_placeholder():

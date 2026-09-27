@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — ★ AUTHORIZED: **implement now**  
 **Reviewer:** Cursor against this IC · Engineer spot-check (datasheet client ≠ chip SPI1 ≠ gyro live ≠ IMU into `step`)
 
-**Status:** ★ **AUTHORIZED** (Engineer 2026-09-27 — IC passed to Claude = execute directly)  
+**Status:** ★ **ACCEPT CLOSED** @ tag **`v0.5.43`** (Engineer 2026-09-27) · Cursor review PASS WITH NOTES (N1 citation = PX4+search, not PDF page)  
 **Parents:**
 - [C41 ★ ACCEPT](implementation_contract_fase_c_safety_sim_policy_b1.md) — Safety allow-list HOLD/LAND/GO_TO @ **`v0.5.42`**  
 - [C34 ★ ACCEPT](implementation_contract_fase_c_spi_scripted_gyro_probe_b1.md) — `probe_rx` client of `SpiBytePort`; fixture `0x47` was **placeholder**, not WHO_AM_I claim @ **`v0.5.32`**  
@@ -138,5 +138,5 @@ Cola after ACCEPT: C43 craft↔FS. Assistant PARKED. Silicon parked.
 ## 7. Engineer ★ checklist
 
 - [x] ★ this IC (authorize Claude) — 2026-09-27 (IC passed to Claude = execute)  
-- [ ] After landing: Cursor review · then ACCEPT + tag `v0.5.43`  
-- [ ] Next = **C43**, not Assistant  
+- [x] After landing: Cursor review · then ACCEPT + tag `v0.5.43` — 2026-09-27  
+- [x] Next = **C43**, not Assistant — C43 IC AUTHORIZED  

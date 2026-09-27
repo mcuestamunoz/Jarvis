@@ -219,7 +219,7 @@ def test_t13_default_safety_gate_still_reject_all():
 
 def test_t14_pyproject_version_is_0_5_19():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.42"' in text
+    assert 'version = "0.5.43"' in text
 
 
 def test_t17_assembler_calls_c19_parse_crsf_frame_not_a_second_crc_impl():

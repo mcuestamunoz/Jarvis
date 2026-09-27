@@ -71,4 +71,4 @@ Tras C39/C40 ★ ACCEPT, review notes **no** abren Buy ni deuda del mes (taxonom
 
 ## Hoy
 
-Tip tagged **`v0.5.42`** (C41 CLOSED). Siguiente: IC **C42** ICM register client. Assistant PARKED hasta C43.
+Tip tagged **`v0.5.43`** (C42 CLOSED). Siguiente: IC **C43** craft↔FS bind. Assistant PARKED hasta C43 CLOSED.

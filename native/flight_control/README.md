@@ -289,6 +289,8 @@ native/flight_control/
                          # ScriptedSpi, see below),
                          # spi_probe (C34 — probe_rx, a port client,
                          # see below),
+                         # icm42688p (C42 — read_who_am_i, a cited
+                         # register client, see below),
                          # quat_math (shared helper, see its own header
                          # comment for the documented deviation from
                          # Python's per-module-private-helper style)
@@ -310,6 +312,7 @@ native/flight_control/
     test_dshot.cpp                # C31 — encode_dshot_frame cases
     test_spi.cpp                  # C32/C33 — LoopbackSpi + ScriptedSpi cases
     test_spi_probe.cpp            # C34 — probe_rx cases
+    test_icm42688p.cpp             # C42 — read_who_am_i cases
   mcu/                            # C18 — freestanding linked .elf, DFU-able since C30
     linker_cortex_m4.ld
     startup_cortex_m4.c
@@ -444,6 +447,29 @@ client is port-shaped, not tied to one implementation. `spi.hpp`/
 `spi.cpp` themselves get **zero edits**. `WHO_AM_I`/`ICM42688P`/register
 address `0x75` do not appear anywhere in `spi_probe.*`, not even in a
 comment. **Scripted gyro probe != gyro live != chip SPI != WHO_AM_I.**
+
+`icm42688p.hpp`/`icm42688p.cpp` (C42, `B1-fase-c-icm-register-client`,
+package `0.5.43`, LANDED — awaiting Cursor review + Engineer ★ ACCEPT,
+no `v0.5.43` tag yet) add a **second, named** client of `SpiBytePort`
+beside `probe_rx` (kept, unmodified): `read_who_am_i(SpiBytePort& port)
+-> WhoAmIResult`. **Datasheet citation:** TDK InvenSense ICM-42688-P
+Datasheet (DS-000347) — `WHO_AM_I` register at address `0x75`, expected
+value `0x47` — verified this session via web search cross-referenced
+against the open-source PX4-Autopilot driver's own register header
+(`InvenSense_ICM42688P_registers.hpp`), since every direct PDF fetch
+attempted this session returned HTTP 403; that corroboration path is
+disclosed in `icm42688p.hpp`'s own header comment rather than claiming
+a page/table number this session never actually read. Transaction shape:
+the standard InvenSense-family 2-byte full-duplex exchange — `TX[0] =
+0x75 | 0x80` (read bit set), `TX[1]` = dummy; `RX[1]` holds the value —
+sent through `SpiBytePort::transfer`, no bypass. `WhoAmIResult` reports
+`value`/`matches_expected`/`bytes_transferred`; a short transfer (an
+exhausted `ScriptedSpi` fixture) is always a documented mismatch, never
+a silent success. No second register was added — disclosed as a
+deliberate scope choice, not an omission (see the header's own comment
+and the implementation report). `spi.hpp`/`spi.cpp`/`spi_probe.hpp`/
+`spi_probe.cpp` get **zero edits**. **ICM register client on ScriptedSpi
+!= chip SPI1. WHO_AM_I in RAM != gyro live != samples in step.**
 
 `test_loop.cpp` (C35, ★ ACCEPT CLOSED @ tag `v0.5.33`) is **tests only**
 — `loop.hpp`/`loop.cpp`/`rc_hold.hpp`/`rc_hold.cpp` all stay

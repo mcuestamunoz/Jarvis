@@ -226,4 +226,4 @@ def test_gate_not_coupled_to_esc_sink_or_gpio():
 
 def test_t9_pyproject_version_is_0_5_15():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.42"' in text
+    assert 'version = "0.5.43"' in text
