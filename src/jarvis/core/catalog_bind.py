@@ -807,6 +807,7 @@ def bind_kit_hardware_from_catalog(
 _FRAME_CATALOG_PROJECTED_KEYS = frozenset({
     "mass_kg", "size_class_inch", "material", "wheelbase_mm", "configuration",
     "body_length_mm", "body_width_mm", "max_stack_height_mm",
+    "fc_esc_stack_length_mm", "fc_esc_stack_width_mm", "fc_esc_stack_height_mm",
 })
 
 
@@ -878,6 +879,18 @@ def bind_frame_from_catalog(
         projected["max_stack_height_mm"] = PropertyValue(
             value=spec.max_stack_height_mm, unit="mm", confidence=0.9, source="declared"
         )
+    if spec.fc_esc_stack_length_mm is not None:
+        projected["fc_esc_stack_length_mm"] = PropertyValue(
+            value=spec.fc_esc_stack_length_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.fc_esc_stack_width_mm is not None:
+        projected["fc_esc_stack_width_mm"] = PropertyValue(
+            value=spec.fc_esc_stack_width_mm, unit="mm", confidence=0.9, source="declared"
+        )
+    if spec.fc_esc_stack_height_mm is not None:
+        projected["fc_esc_stack_height_mm"] = PropertyValue(
+            value=spec.fc_esc_stack_height_mm, unit="mm", confidence=0.9, source="declared"
+        )
     if base is not None:
         merged_properties = _merge_base_properties_dropping_stale_catalog_keys(
             base, sku, projected, _FRAME_CATALOG_PROJECTED_KEYS
@@ -943,10 +956,14 @@ def frame_part_specs_from_catalog(sku: str, *, library: ComponentLibrary | None 
         thickness_mm: float | None = None,
         label: str | None = None,
         height_mm: float | str | None = None,
+        length_mm: float | None = None,
+        width_mm: float | None = None,
+        diameter_mm: float | None = None,
     ) -> None:
         if (
             count is None and material is None and thickness_mm is None
             and label is None and height_mm is None
+            and length_mm is None and width_mm is None and diameter_mm is None
         ):
             return
         props: dict[str, PropertyValue] = {}
@@ -961,10 +978,22 @@ def frame_part_specs_from_catalog(sku: str, *, library: ComponentLibrary | None 
         if label is not None:
             props["label"] = PropertyValue(value=label, unit=None, confidence=0.9, source="declared")
         if height_mm is not None:
-            # Geometry-for-all B1 — standoff height only (never a diameter,
-            # never merged with thickness_mm). A str value here is a
-            # multi-height page quote joined "30 / 22" — never dropped.
+            # Geometry-for-all B1 — standoff height, or plate/arm box height
+            # copied from thickness when a caliper L×W exists. A str value
+            # here is a multi-height page quote joined "30 / 22".
             props["height_mm"] = PropertyValue(value=height_mm, unit="mm", confidence=0.9, source="declared")
+        if length_mm is not None:
+            props["length_mm"] = PropertyValue(
+                value=length_mm, unit="mm", confidence=0.9, source="declared"
+            )
+        if width_mm is not None:
+            props["width_mm"] = PropertyValue(
+                value=width_mm, unit="mm", confidence=0.9, source="declared"
+            )
+        if diameter_mm is not None:
+            props["diameter_mm"] = PropertyValue(
+                value=diameter_mm, unit="mm", confidence=0.9, source="declared"
+            )
         # N6 (locked, not "fixed" incidentally): every catalog-projected part
         # is hardcoded "high" here, independent of _structure_part_completeness
         # (which only free-text/upsert_frame_part ever call). Known
@@ -982,7 +1011,18 @@ def frame_part_specs_from_catalog(sku: str, *, library: ComponentLibrary | None 
 
     # thickness_mm (Structure B additive enrichment B2) projects onto
     # frame_arm only — cage/standoff never carry it in this slice.
-    _part(FRAME_ARM_KEY, "arm", spec.arm_count, spec.arm_material, spec.arm_thickness_mm)
+    _part(
+        FRAME_ARM_KEY, "arm", spec.arm_count, spec.arm_material, spec.arm_thickness_mm,
+        length_mm=spec.arm_length_mm,
+        width_mm=spec.arm_width_mm,
+        height_mm=(
+            spec.arm_thickness_mm
+            if spec.arm_length_mm is not None
+            and spec.arm_width_mm is not None
+            and spec.arm_thickness_mm is not None
+            else None
+        ),
+    )
 
     # Frame Assembly Physical Model B2 (N2 precedence): when curated
     # `plates` is set (non-empty), it is the ONLY plate source — the legacy
@@ -997,6 +1037,13 @@ def frame_part_specs_from_catalog(sku: str, *, library: ComponentLibrary | None 
                 f"max {FRAME_PLATE_MAX_SIBLINGS} ordinal siblings."
             )
         for index, plate in enumerate(spec.plates):
+            plate_box_h = (
+                plate.thickness_mm
+                if plate.length_mm is not None
+                and plate.width_mm is not None
+                and plate.thickness_mm is not None
+                else None
+            )
             _part(
                 frame_plate_key(index),
                 "plate",
@@ -1004,6 +1051,9 @@ def frame_part_specs_from_catalog(sku: str, *, library: ComponentLibrary | None 
                 plate.material,
                 plate.thickness_mm,
                 plate.label,
+                height_mm=plate_box_h,
+                length_mm=plate.length_mm,
+                width_mm=plate.width_mm,
             )
     else:
         _part(FRAME_PLATE_KEY, "plate", spec.plate_count, spec.plate_material)
@@ -1023,9 +1073,15 @@ def frame_part_specs_from_catalog(sku: str, *, library: ComponentLibrary | None 
             standoff_height = " / ".join(
                 str(int(h)) if float(h).is_integer() else str(h) for h in heights
             )
+    standoff_diameter: float | None = None
+    if spec.standoffs:
+        diameters = [s.diameter_mm for s in spec.standoffs if s.diameter_mm is not None]
+        if len(diameters) == 1:
+            standoff_diameter = diameters[0]
     _part(
         FRAME_STANDOFF_KEY, "standoff", spec.standoff_count, spec.standoff_material,
         height_mm=standoff_height,
+        diameter_mm=standoff_diameter,
     )
     return parts
 

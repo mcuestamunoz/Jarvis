@@ -164,6 +164,10 @@ def test_p5_no_length_width_invented_on_rooster_arm_thickness_seed():
     repo_root = Path(__file__).resolve().parents[1]
     frames_data = json.loads((repo_root / "library" / "frames" / "_datos.json").read_text(encoding="utf-8"))
     for sku, row in frames_data.items():
+        if sku == "hglrc_my5_5in":
+            assert row["arm_length_mm"] == 125
+            assert row["arm_width_mm"] == 20
+            continue
         assert "arm_length_mm" not in row, f"{sku} unexpectedly gained arm_length_mm"
         assert "arm_width_mm" not in row, f"{sku} unexpectedly gained arm_width_mm"
         if "arm_thickness_mm" in row:

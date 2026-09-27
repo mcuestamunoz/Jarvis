@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** (Cursor does not implement) — **only after** Engineer ★ **and** §0.1 bag filled (or Path D fixture lock)  
 **Reviewer:** Cursor against this IC · Engineer smoke
 
-**Status:** B0 HOLD historically · **REOPENED awaiting bag** (Engineer dual-track 2026-09-15) — fill §0.1 + ★ path C/D/E before Claude implements. Parallel: [disk-station B0](investigation_contract_disk_station_fit_attest_b0.md). See [dual-track note](engineer_note_dual_track_plate_box_disk_station.md).  
+**Status:** Path E catalog seed **landed** for MY5 (Engineer caliper 2026-09-24). `frame_plate` (Top) is 161×42×2 — assembly-root box on rebind. Middle 170×45×3 on `frame_plate_2`. Smoke: rebind MY5 on a live project and confirm grafo children.  
 **Parents:**
 - [investigation_contract_board_drone_default_layout_b0.md](investigation_contract_board_drone_default_layout_b0.md) · [report](investigation_report_board_drone_default_layout_b0.md) · [review PASS](investigation_review_board_drone_default_layout_b0.md) — lean: plate-box **after** mount-assist  
 - Mount standard assist B1 — [review PASS](implementation_review_mount_standard_assist_b1.md) · smoke may still be pending  
@@ -51,21 +51,23 @@ Jarvis ya sabe poner esa placa en el origen del ensamblaje. No inventa
 ### 0.1 Citation / caliper bag — **Engineer fills before implement**
 
 ```text
-### frame_plate (Main) L×W — EMPTY until cited / measured
-authority: caliper Option B | OEM drawing | Engineer fixture (disclose)
-source_url_or_method:
-part: Main / Bottom / Top / Aluminum — which Continuity key? → frame_plate
+### frame_plate (Top / assembly root) — filled 2026-09-24
+authority: caliper Option B
+source_url_or_method: Engineer caliper on physical HGLRC MY5
+part: Top plate → frame_plate
 measured_mm:
-  length_mm: ?
-  width_mm: ?
-  height_mm: ?   # or “use thickness_mm already on spec”
-identity_status: measured | verified | fixture_disclosed
-re-fetch_or_measure_date:
-projects_to_apply: autonomía-de-5min | autonomía-15min | both | none (tests only)
-path_star: C | D | E
+  length_mm: 161
+  width_mm: 42
+  height_mm: 2   # thickness already cited
+identity_status: measured
+re-fetch_or_measure_date: 2026-09-24
+projects_to_apply: rebind live MY5 (no silent workspace write)
+path_star: E
 ```
 
-Paste one filled bag under ★. Empty bag after search/measure attempt → **B0 hold**, no code invent.
+Same bag, sibling parts (not this IC's original lock #4, seeded together): Middle `frame_plate_2` 170×45×3; arm 125×20×5; standoffs 8×30×Ø6. Bottom L×W still empty.
+
+Filled bag: [engineer_bag_my5_caliper_2026_09_24.md](engineer_bag_my5_caliper_2026_09_24.md).
 
 **Rejected without override:**
 

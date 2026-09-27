@@ -284,11 +284,18 @@ class PlateSeed:
     equivalent to another's). All fields optional/additive; a curated entry
     with none set would be pointless but is not itself forbidden here — the
     seed data (§3.2 of the IC) always sets at least ``thickness_mm``.
+
+    ``length_mm`` / ``width_mm`` are optional caliper-or-cited plate
+    footprints — never copied from root ``body_length_mm`` /
+    ``body_width_mm`` (those stay the outer envelope). Absent → thickness
+    / label only, same as before this field existed.
     """
 
     label: str | None = None
     thickness_mm: float | None = None
     material: str | None = None
+    length_mm: float | None = None
+    width_mm: float | None = None
 
 
 @dataclass(frozen=True)
@@ -297,12 +304,16 @@ class StandoffSeed:
     frame's seed row. ``height_mm`` is required per entry (a heightless
     entry would be pointless) — ``count`` is optional and only set when the
     cited page states a piece count for that height group (e.g. iFlight's
-    "25mm (4 pieces), 32mm (4 pieces)"). Never invented, never a diameter —
-    no source states a standoff diameter for any current seed row, so no
-    disk glyph is derivable from this data."""
+    "25mm (4 pieces), 32mm (4 pieces)").
+
+    ``diameter_mm`` is optional outer diameter from caliper or a page that
+    actually states OD. Never inferred from an ``M3×6×H`` thread callout
+    (GEP-Racer lock: that 6 is not Ø). Absent → height/count only.
+    """
 
     height_mm: float
     count: int | None = None
+    diameter_mm: float | None = None
 
 
 @dataclass(frozen=True)
@@ -337,6 +348,11 @@ class FrameSpec:
     arm_count: int | None = None
     arm_material: str | None = None
     arm_thickness_mm: float | None = None
+    # MY5 caliper bag 2026-09-24 — optional one-arm box (L×W); thickness
+    # stays arm_thickness_mm. Absent on every SKU that has no cited/measured
+    # arm footprint (do not invent from wheelbase).
+    arm_length_mm: float | None = None
+    arm_width_mm: float | None = None
     plate_count: int | None = None
     plate_material: str | None = None
     cage_material: str | None = None
@@ -346,16 +362,17 @@ class FrameSpec:
     # Legacy scalar fallback: kept when this is None/empty (N2). Canonical
     # over the scalar plate_count/plate_material once non-empty.
     plates: list[PlateSeed] | None = None
-    # Geometry-for-all B1 — curated, sourced standoff heights (never a
-    # diameter — see StandoffSeed). Additive/optional; coexists with the
-    # legacy standoff_count/standoff_material scalars above (those stay
-    # material/count-only, this carries height only — never merged).
+    # Geometry-for-all B1 — curated, sourced standoff heights (optional
+    # outer diameter only when caliper/page states OD — see StandoffSeed).
+    # Additive/optional; coexists with the legacy standoff_count /
+    # standoff_material scalars above.
     standoffs: list[StandoffSeed] | None = None
-    # Geometry-for-all B1 — declared frame BODY footprint (the central
-    # plate-stack area a manufacturer page states as "Body dimensions",
-    # distinct from wheelbase_mm which is motor-to-motor). Root-level only;
-    # never a full box glyph input alone (no accompanying height sourced
-    # for any current row) — representar text only.
+    # Geometry-for-all B1 — assembled-craft XY envelope (manufacturer
+    # "Dimensions" / "Body dimensions"). Distinct from wheelbase_mm
+    # (motor-to-motor) and from any plate L×W. Root-level only; never a
+    # box glyph input (keys are body_*, not length_mm/width_mm). Engineer
+    # 2026-09-24: keep these as the **general** size the mounted parts
+    # together should match — not a plate, not "nothing".
     body_length_mm: float | None = None
     body_width_mm: float | None = None
     # Rooster Included plates B2 — a cited overall Z-axis fact (a
@@ -365,6 +382,14 @@ class FrameSpec:
     # those are different physical facts (component overall height, body
     # footprint, standoff post height respectively).
     max_stack_height_mm: float | None = None
+    # MY5 caliper 2026-09-24 — FC+ESC **conjunto** (one sandwich), not
+    # each board. Never copied onto flight_controller/esc (that would
+    # double-count). Never aliased to max_stack_height_mm (frame clearance
+    # vs measured electronics). Keys are fc_esc_stack_*, not length_mm —
+    # no glyph from these alone.
+    fc_esc_stack_length_mm: float | None = None
+    fc_esc_stack_width_mm: float | None = None
+    fc_esc_stack_height_mm: float | None = None
 
 
 @dataclass(frozen=True)
@@ -1171,6 +1196,12 @@ class ComponentLibrary:
             arm_thickness_mm=(
                 float(data["arm_thickness_mm"]) if data.get("arm_thickness_mm") is not None else None
             ),
+            arm_length_mm=(
+                float(data["arm_length_mm"]) if data.get("arm_length_mm") is not None else None
+            ),
+            arm_width_mm=(
+                float(data["arm_width_mm"]) if data.get("arm_width_mm") is not None else None
+            ),
             plate_count=(int(data["plate_count"]) if data.get("plate_count") is not None else None),
             plate_material=data.get("plate_material"),
             cage_material=data.get("cage_material"),
@@ -1189,6 +1220,18 @@ class ComponentLibrary:
             max_stack_height_mm=(
                 float(data["max_stack_height_mm"])
                 if data.get("max_stack_height_mm") is not None else None
+            ),
+            fc_esc_stack_length_mm=(
+                float(data["fc_esc_stack_length_mm"])
+                if data.get("fc_esc_stack_length_mm") is not None else None
+            ),
+            fc_esc_stack_width_mm=(
+                float(data["fc_esc_stack_width_mm"])
+                if data.get("fc_esc_stack_width_mm") is not None else None
+            ),
+            fc_esc_stack_height_mm=(
+                float(data["fc_esc_stack_height_mm"])
+                if data.get("fc_esc_stack_height_mm") is not None else None
             ),
         )
 
@@ -1217,6 +1260,12 @@ class ComponentLibrary:
                     float(entry["thickness_mm"]) if entry.get("thickness_mm") is not None else None
                 ),
                 material=entry.get("material"),
+                length_mm=(
+                    float(entry["length_mm"]) if entry.get("length_mm") is not None else None
+                ),
+                width_mm=(
+                    float(entry["width_mm"]) if entry.get("width_mm") is not None else None
+                ),
             )
             for entry in raw
         ]
@@ -1235,6 +1284,10 @@ class ComponentLibrary:
             StandoffSeed(
                 height_mm=float(entry["height_mm"]),
                 count=(int(entry["count"]) if entry.get("count") is not None else None),
+                diameter_mm=(
+                    float(entry["diameter_mm"])
+                    if entry.get("diameter_mm") is not None else None
+                ),
             )
             for entry in raw
         ]

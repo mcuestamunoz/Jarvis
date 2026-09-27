@@ -88,14 +88,14 @@ def test_t3_rooster_unchanged():
 def test_t4_no_lxw_inside_catalog_plates_bag():
     spec = default_library.get_frame(_NEW_SKU)
     for plate in spec.plates:
-        assert not hasattr(plate, "length_mm")
-        assert not hasattr(plate, "width_mm")
+        assert plate.length_mm is None
+        assert plate.width_mm is None
 
 
 def test_t5_standoff_never_carries_diameter_or_section():
     spec = default_library.get_frame(_NEW_SKU)
     for standoff in spec.standoffs:
-        assert not hasattr(standoff, "diameter_mm")
+        assert standoff.diameter_mm is None
         assert not hasattr(standoff, "width_mm")
         assert not hasattr(standoff, "length_mm")
     parts = frame_part_specs_from_catalog(_NEW_SKU)

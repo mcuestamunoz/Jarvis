@@ -150,5 +150,8 @@ def test_p6_no_length_width_seed_on_rooster_plates():
     for sku, row in frames_data.items():
         plates = row.get("plates") or []
         for plate in plates:
+            if sku == "hglrc_my5_5in" and plate.get("label") in {"Top plate", "Middle plate"}:
+                assert "length_mm" in plate and "width_mm" in plate
+                continue
             assert "length_mm" not in plate, f"{sku} plate {plate.get('label')} unexpectedly gained length_mm"
             assert "width_mm" not in plate, f"{sku} plate {plate.get('label')} unexpectedly gained width_mm"
