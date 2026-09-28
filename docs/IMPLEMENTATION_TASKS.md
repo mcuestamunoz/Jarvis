@@ -6,7 +6,8 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Epoch `0.6` ontology** — spine **lote-4 DRAFT** (actuadores/OP/C-rate/corriente). Lotes 1–3 audits CLOSED. Tip **`v0.5.44`**.  
+> **PRIORIDAD AHORA:** **Epoch `0.6` ontology** — spine **lote-5 DRAFT** (Magnetismo / Navegación / thrust-stand shape). Lotes 1–4 audits ★ ACCEPT CLOSED. Tip **`v0.5.44`**.  
+> **Alt:** ONT-docs crosswalks (FS/HD/geometry) if Engineer prefers docs before lote-5.  
 > **Background:** Assistant DC = DISCUSS. Silicon parked. Standoff = visor-break.  
 > SoT: [B0 review](../.jes/artifacts/investigation_review_ontology_vault_value_for_jarvis_b0.md) · [`engineer_note_software_month_until_bench_2026_09_26.md`](../.jes/artifacts/engineer_note_software_month_until_bench_2026_09_26.md).  
 
@@ -108,7 +109,9 @@ SoT: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) · [B0 review](.
 | **ONT-2b** | **`B0-ontology-spine-lote2-citation-review`** | **✅ ACCEPT CLOSED** | 3 notes stay solid; R1–R3 applied · no tag (investigation) | [review](../.jes/artifacts/investigation_review_ontology_spine_lote2_citation_review_b0.md) |
 | **ONT-3** | **spine lote-3** | **LOTE-3 SOLID** (3 notes) | IMU · Giroscopio · Acelerómetro `solid` | Obsidian |
 | **ONT-3b** | **`B0-ontology-spine-lote3-citation-review`** | **✅ ACCEPT CLOSED** | 3 notes stay solid; R1–R3 applied · no tag (investigation) | [review](../.jes/artifacts/investigation_review_ontology_spine_lote3_citation_review_b0.md) |
-| **ONT-4** | **spine lote-4** | **DRAFT** (Cursor) | Actuadores · Motores · Motor DC · Corriente · OP vs intrínseco · C-rate — await GPT cite | Obsidian |
+| **ONT-4** | **spine lote-4** | **LOTE-4 SOLID** (6 notes) | Actuadores · Motores · Motor DC · Corriente · C-rate · OP vs intrínseco `solid` | Obsidian |
+| **ONT-4b** | **`B0-ontology-spine-lote4-citation-review`** | **✅ ACCEPT CLOSED** | 6 notes stay solid; R1–R5 applied · no tag (investigation) | [review](../.jes/artifacts/investigation_review_ontology_spine_lote4_citation_review_b0.md) |
+| **ONT-5** | **spine lote-5** | **NEXT** (draft) | Magnetismo (yaw) · Navegación (C39) · thrust-stand measurement shape | vision §8.1 #12 |
 | **ONT-docs** | Docs crosswalks (FS / HD / geometry) | After or with R1 | Teach tables only; no `src/` | vision §5 D/G/C |
 | **ONT-branch** | (a) Assistant→R2 · (b) R3/R4 | After R1 | Engineer picks | vision §7 |
 

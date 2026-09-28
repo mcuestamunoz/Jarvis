@@ -269,11 +269,11 @@ La **back-EMF** explica por qué la relación entre tensión, corriente y veloci
 
 ---
 ## [REFERENCIAS] Motor DC
-- Texas Instruments — *BLDC Motor Fundamentals*:
+- Microchip Technology Inc. — Padmaraja Yedamale, *AN885 — Brushless DC (BLDC) Motor Fundamentals* (2003; PDF hosted on TI e2e forum thread, not TI-authored):
   https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/38/5086.00885a.pdf
-- Texas Instruments — *Commutation / Electromagnetic Torque Ripple in BLDC Motors*:
+- Texas Instruments — *Acoustic Noise in Home Appliances Due to Torque Ripple in Motor Drives – Part 1* (SSZTBM0; subsection: Commutation/Electromagnetic Torque Ripple in BLDC Motors):
   https://www.ti.com/document-viewer/lit/html/SSZTBM0
-- Texas Instruments — *Understanding BLDC Motor Control*:
+- Texas Instruments — *Protect Your BLDC Motor Drive with Cycle-by-cycle Current Limit Control – Part 1* (SSZTBP2):
   https://www.ti.com/document-viewer/lit/html/SSZTBP2
 - Texas Instruments — *High-Speed Sensorless-FOC Reference Design for Drone ESCs*:
   https://www.ti.com/lit/ug/tiducf1/tiducf1.pdf
@@ -289,6 +289,6 @@ La **back-EMF** explica por qué la relación entre tensión, corriente y veloci
 ---
 ## [ESTADO] Motor DC
 - comprensión: revisada
-- revisión: Engineer + contraste externo (GPT cite) · Cursor land `solid`
+- revisión: Engineer + contraste externo (GPT cite) · Cursor land `solid` · cite-audit R3–R5 (Cursor)
 - jarvis_lote: spine-lote-4
 - estado: solid

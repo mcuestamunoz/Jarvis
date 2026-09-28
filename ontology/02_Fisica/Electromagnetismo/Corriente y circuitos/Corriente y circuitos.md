@@ -7,7 +7,7 @@ nivel: base
 estado: solid
 jarvis_relevance: [craft, catalog, fs, assistant]
 never_invents: [mass_g, power_w, thrust_gf, autonomy_min]
-formula_citation: cited — OpenStax Physics Ch.19 (I, Ohm, P=VI); OpenStax College Physics §§20.2–20.4; University Physics Vol.2 §9.4
+formula_citation: cited — OpenStax Physics Ch.19 (I, Ohm, P=VI); OpenStax College Physics §§20.2–20.4; University Physics Vol.2 §9.3
 tags: [spine, lote-4]
 ---
 
@@ -433,7 +433,7 @@ Las relaciones fundamentales anteriores están respaldadas por OpenStax, que ade
 ---
 ## [REFERENCIAS] Corriente y circuitos
 - OpenStax — *Physics*, Chapter 19: Electric Current, Resistance, and Ohm's Law:
-  https://openstax.org/books/physics/pages/19-introduction-to-electric-current-resistance-and-ohms-law
+  https://openstax.org/books/physics/pages/19-introduction
 - OpenStax — *Physics*, §19.1 Ohm's Law (corriente como tasa de flujo de carga; $V=IR$; aplicabilidad):
   https://openstax.org/books/physics/pages/19-1-ohms-law
 - OpenStax — *Physics*, §19.4 Electric Power ($P=VI$; $P=I^2R$; $P=V^2/R$ para resistencias):
@@ -442,12 +442,12 @@ Las relaciones fundamentales anteriores están respaldadas por OpenStax, que ade
   https://openstax.org/books/college-physics/pages/20-4-electric-power-and-energy
 - OpenStax — *College Physics*, §20.2 Ohm's Law: Resistance and Simple Circuits (relación empírica; no todos los materiales son óhmicos):
   https://openstax.org/books/college-physics/pages/20-2-ohms-law-resistance-and-simple-circuits
-- OpenStax — *University Physics Volume 2*, §9.4 (comportamiento óhmico / no óhmico; contexto de circuitos):
-  https://openstax.org/books/university-physics-volume-2/pages/9-4-resistivity-and-resistance
+- OpenStax — *University Physics Volume 2*, §9.3 Resistivity and Resistance (comportamiento óhmico / no óhmico; contexto de circuitos):
+  https://openstax.org/books/university-physics-volume-2/pages/9-3-resistivity-and-resistance
 
 ---
 ## [ESTADO] Corriente y circuitos
 - comprensión: revisada
-- revisión: Engineer + contraste externo (GPT cite) · Cursor land `solid`
+- revisión: Engineer + contraste externo (GPT cite) · Cursor land `solid` · cite-audit R1/R2 (Cursor)
 - jarvis_lote: spine-lote-4
 - estado: solid
