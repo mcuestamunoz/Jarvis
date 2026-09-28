@@ -26,7 +26,7 @@
 3. CLI: `jarvis explain --list` · `jarvis explain --rung <KEY>` (see §3)  
 4. Tests (see §4)  
 5. `.jes/artifacts/implementation_report_explain_maps_expand_b1.md`  
-6. Docs pointers: PRIORIDAD A5 · ARCHITECTURE/PLATFORM one-liners · intelligence README · optional header note in `ONTOLOGY_CROSSWALKS.md`  
+6. **Living docs sync (required — Engineer 2026-09-28):** see §8 — not pointer-only  
 7. `pyproject.toml` → **`0.6.4`**; tag **`v0.6.4`** only after Engineer ★ ACCEPT
 
 ---
@@ -45,6 +45,7 @@
 | 8 | No RAG / LLM / Continuity | Same locks as A3 |
 | 9 | Namespace honesty | README must state: these maps bridge **product keys → ontology ids**; they are **not** `core/` parameter ids |
 | 10 | Version | Bump **`0.6.4`**; tag on ACCEPT |
+| 11 | Docs | Full living-doc sync per **§8** (user guide, ARCHITECTURE, CONNECTIONS C-114, ENTRY_MAP, system-map canvas) — required in this Buy |
 
 **Product sentence:**
 
@@ -149,7 +150,8 @@ Keep A2/A3 IC tests green.
 - [ ] `--list` and `--rung` work  
 - [ ] A3 query path unchanged  
 - [ ] Tests T1–T6 green  
-- [ ] Report + docs + `pyproject` `0.6.4`  
+- [ ] **§8 living docs sync complete** (user guide + ARCHITECTURE + CONNECTIONS + ENTRY_MAP + canvas + crosswalks)  
+- [ ] Report + `pyproject` `0.6.4`  
 - [ ] Tag only after Engineer ACCEPT  
 
 ---
@@ -159,7 +161,8 @@ Keep A2/A3 IC tests green.
 - Do not implement A4 voice/world.  
 - Do not add RAG/embeddings.  
 - Do not wire Continuity auto-cite (future R3).  
-- Do not claim ACCEPT.
+- Do not claim ACCEPT.  
+- Do not leave USER_GUIDE / system_map / CONNECTIONS stale relative to this Buy.
 
 ---
 
@@ -173,9 +176,39 @@ IC: .jes/artifacts/implementation_contract_explain_maps_expand_b1.md
 Expand EXPLAIN_ALIASES (spine short keys, solid-only).
 Add explain_maps.py: FS_EXPLAIN_MAP + HD_EXPLAIN_MAP (seed C3/C7/C10/C39/C42 + HD-001/HD-005).
 CLI: jarvis explain --list and --rung KEY (query path unchanged).
+
+REQUIRED docs sync (IC §8) — update all of:
+  docs/USER_GUIDE_EXPLAIN.md (new) + pointer from USER_GUIDE_CRAFT_MONTAGE cheatsheet
+  docs/ARCHITECTURE.md · PLATFORM · IMPLEMENTATION_TASKS · intelligence README
+  docs/ONTOLOGY_CROSSWALKS.md header (runtime maps)
+  docs/system_map/CONNECTIONS.md — new C-114 (CLI explain → intelligence)
+  docs/system_map/00_entry/ENTRY_MAP.md
+  docs/system_map/jarvis-system-map.canvas.tsx (+ DIAGRAMS/JARVIS_SYSTEM_MAP if needed)
 No RAG, no Continuity, no voice. Tests T1–T6.
 Bump pyproject to 0.6.4 (tag after Engineer ACCEPT).
 Write implementation_report_explain_maps_expand_b1.md
 
 Parent tip v0.6.3. No ACCEPT claim.
 ```
+
+---
+
+## 8. Living docs sync (normative — full update, not one-liners only)
+
+Engineer requires the documentation surface to stay true with the Assistant path (A1–A5). In **this Buy**, update:
+
+| Doc | Required change |
+|---|---|
+| **`docs/USER_GUIDE_EXPLAIN.md`** | **New** short user guide: how to run `jarvis explain`, aliases examples, `--list`, `--rung`, honesty (`never_invents`), tip `@ v0.6.4`. Real commands only |
+| **`docs/USER_GUIDE_CRAFT_MONTAGE.md`** | Cheatsheet / “see also”: pointer to `USER_GUIDE_EXPLAIN.md` (do not mix ontology explain into craft montage flows) |
+| **`docs/ARCHITECTURE.md`** | Knowledge / `intelligence/` row + narrative: maps + CLI flags live @ `0.6.4` |
+| **`docs/PLATFORM_CAPABILITY_VISION.md`** | Placement line current |
+| **`docs/IMPLEMENTATION_TASKS.md`** | A5 state when reporting |
+| **`src/jarvis/intelligence/README.md`** | Aliases + maps + CLI flags; namespace honesty (≠ core ids) |
+| **`docs/ONTOLOGY_CROSSWALKS.md`** | Header: runtime maps exist under `intelligence/explain_maps.py` (still not Continuity SoT); docs table remains teach SoT for full ladder |
+| **`docs/system_map/CONNECTIONS.md`** | Add **`C-114`**: user/`jarvis explain` → `intelligence.explain` → `ontology_retrieve` (read-only). Status 🟢. Explicit **non-edges**: explain ↛ Continuity `handle` / `submit_command` / `step()` / catalog write |
+| **`docs/system_map/00_entry/ENTRY_MAP.md`** | Document `explain` subcommand beside `board` (does not enter orchestrator chat loop) |
+| **`docs/system_map/jarvis-system-map.canvas.tsx`** | Add a small Assistant/explain node or edge consistent with C-114 (same grain as prior canvas updates) |
+| **`docs/system_map/DIAGRAMS.md`** and/or **`docs/system_map/JARVIS_SYSTEM_MAP.md`** | One-line / small diagram sync if canvas IDs are mirrored there — keep registry consistent |
+
+Report must list every doc path touched. Prefer honest thin updates over epic rewrites.
