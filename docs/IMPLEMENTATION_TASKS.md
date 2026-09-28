@@ -6,24 +6,23 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Assistant A0–A6 CLOSED** @ tip **`v0.6.5`** (explain + maps + Continuity Conceptos). A4 voz/world **Parked**. R4 LLM cite **later**. Siguiente: smoke live `estado` Conceptos · o otra cola (silicon/craft).  
-> **Background:** Silicon parked. Standoff = visor-break. Continuity stays in `core/`. RAG/LLM = intérprete semántico only (later).  
-> SoT: [A6 review ★](../.jes/artifacts/implementation_review_continuity_explain_cite_r3_b1.md) · [USER_GUIDE_EXPLAIN](USER_GUIDE_EXPLAIN.md) · [DC ★](../.jes/artifacts/design_contract_assistant_placement_b0.md).  
+> **PRIORIDAD AHORA:** **Assistant A7** — ★ AUTHORIZED IC [`B1-chat-explain-intercept`](../.jes/artifacts/implementation_contract_chat_explain_intercept_b1.md) (Claude). Field note: `jarvis explain` typed **inside** `--chat` hit LLM → Mac collapse. Fix: global-command intercept before LLM. Tip parent **`v0.6.5`** · target **`0.6.6`**.  
+> **Background:** Silicon parked. Standoff = visor-break. Continuity stays in `core/`.  
+> SoT: [A7 IC](../.jes/artifacts/implementation_contract_chat_explain_intercept_b1.md) · [A6 ★](../.jes/artifacts/implementation_review_continuity_explain_cite_r3_b1.md) · [USER_GUIDE_EXPLAIN](USER_GUIDE_EXPLAIN.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.5`** · A0–A6 CLOSED)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.5`** · next **`0.6.6`**)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
-| **A0** | **`DC-assistant-placement`** | **✅ ★ ACCEPT CLOSED** | Placement | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
-| **A1**–**A5** | scaffold→maps | **✅ ★ CLOSED** @ **`v0.6.1`–`v0.6.4`** | explain CLI + maps | reviews A1–A5 |
+| **A0**–**A6** | placement→R3 | **✅ ★ CLOSED** @ **`v0.6.1`–`v0.6.5`** | explain + maps + Continuity Conceptos | reviews |
 | **A4** | Voz / world | **Parked** | Horizon | DC §4 |
-| **A6** | **`B1-continuity-explain-cite-r3`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.5`** | Continuity Conceptos (R3) | [review](../.jes/artifacts/implementation_review_continuity_explain_cite_r3_b1.md) · [guide](USER_GUIDE_EXPLAIN.md) §7 |
+| **A7** | **`B1-chat-explain-intercept`** | **★ AUTHORIZED** (Claude) · target **`0.6.6`** | `--chat`: `explain …` / `jarvis explain …` before LLM | [IC](../.jes/artifacts/implementation_contract_chat_explain_intercept_b1.md) |
 | **R4** | LLM cite | **Later** | Intérprete semántico only | vision §7 (b) |
 
 **Demo de valor (A3):** pregunta conceptual → explicación desde nota solid → sin inventar SKU watts/thrust.
