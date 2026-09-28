@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.5.44 tagged tip** · C43 craft↔FS ★ ACCEPT CLOSED — this-quad profile reads craft identity · Continuity ≠ firmware · software-month C36–C43 CLOSED
+**v0.6.0 tagged tip** · ontology explain branch CLOSED (spine 1–5 + ONT-docs) · Assistant next **`0.6.1+`** · bloque 0.5 historical @ `v0.5.44`
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 
@@ -713,9 +713,11 @@ The **craft montage** + **mission craft** arc — empty project → montaje hone
 
 ## Next
 
-**Tip tagged `v0.5.44`** — C43 craft↔FS ★ ACCEPT CLOSED (profile reads craft identity; Continuity ≠ firmware). Software-month C36–C43 CLOSED. C42 @ `v0.5.43`. Assistant DC = discuss only. Silicon parked until bench — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+**Tip tagged `v0.6.0`** — ontology explain CLOSED (spine solid+audited, [`ONTOLOGY_CROSSWALKS.md`](docs/ONTOLOGY_CROSSWALKS.md)). See [close note](.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md).
 
-Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · craft↔FS wiring · deepen policy beyond one aux · Linux baud.
+**PRIORIDAD:** Assistant **`0.6.1+`** — ★ [`DC-assistant-placement`](.jes/artifacts/design_contract_assistant_placement_b0.md) → `intelligence/` scaffold → R2 retrieve → terminal canal. Silicon parked — [bench note](.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md).
+
+Parked (bags/lab): C30 DFU smoke · plate-box · Path N · HD-* · more camera/radio SKUs · Board inspector polish · GPIO/DShot wire · Linux baud.
 
 See `docs/IMPLEMENTATION_TASKS.md`.
 
