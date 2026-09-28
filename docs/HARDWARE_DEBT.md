@@ -90,6 +90,7 @@ No añadir filas genéricas de “LiPo típico” o “η típica de ESC”.
 | **Desbloquea** | Solo tras datos + investigation delta + ★ + IC: modelo de consumo por régimen / integración de energía. **Nunca** relabelar la autonomía actual como “validada en vuelo” sin eso. |
 | **Spec** | Lock: [`.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md`](../.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md) |
 | **Boundary** | Misma disciplina que `PHASE26`/`PHASE27` — **sin** campaña de “Prop/Energy Evidence implementation” mientras no haya banco. |
+| **Ontology (explain)** | Qué habría que medir (forma), no la curva: [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md) §2 · [[Forma de medición en banco de empuje]] · [[Punto de operación vs capacidad intrínseca]] |
 
 ---
 
@@ -109,6 +110,7 @@ No añadir filas genéricas de “LiPo típico” o “η típica de ESC”.
 | **Desbloquea** | Level 2/3 craft OP en catálogo o declare assist; mejores sim/DSE para el stack de compra. |
 | **Spec** | [IC #4d reopen](../.jes/artifacts/implementation_contract_geometry_sourced_motor_xing_e_pro_b1.md) · historical T3 report/review retained |
 | **Boundary** | Misma disciplina HD-* — no “siguiente” automático de producto |
+| **Ontology (explain)** | Forma de evidencia T2 / OP vs intrínseco — teach only, no números: [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md) §2 · notes [[Forma de medición en banco de empuje]] · [[Punto de operación vs capacidad intrínseca]] |
 
 ---
 

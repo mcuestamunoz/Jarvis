@@ -12,6 +12,8 @@ touches GPIO/PWM/DShot/serial/sockets, PX4/ArduPilot, or a claim that any
 real vehicle flies. See `.jes/artifacts/implementation_report_fase_c_cpp_flight_control_scaffold_b1.md`
 for the full honesty statement.
 
+**Ontology explain map (docs only):** [`docs/ONTOLOGY_CROSSWALKS.md`](../../docs/ONTOLOGY_CROSSWALKS.md) §1 — C6–C43 ↔ concept notes. This tree does **not** read `ontology/`.
+
 ## Build (host, desktop)
 
 Requires CMake ≥ 3.16 and a C++17 compiler (tested with Apple Clang 21 /

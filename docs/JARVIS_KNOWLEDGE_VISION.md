@@ -182,7 +182,7 @@ Product code waits on named ICs (R2/R3/R4).
 |---|---|
 | This vision + vault placement | Pointer in `ARCHITECTURE.md` header + short as-is note (ontology exists; no runtime read) |
 | R1 Plantilla fields land | Mention under knowledge pointer; still no runtime |
-| Docs crosswalk FS↔ontology | Optional line in native README / ARCHITECTURE FS section |
+| Docs crosswalk FS↔ontology | [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md) · pointer in ARCHITECTURE knowledge § + native README |
 | R2/R3/R4 ★ ACCEPT | Move **implemented** seams into `ARCHITECTURE.md` + `system_map` (not before) |
 
 ---

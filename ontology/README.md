@@ -4,6 +4,8 @@
 
 **Vision / epoch:** [`docs/JARVIS_KNOWLEDGE_VISION.md`](../docs/JARVIS_KNOWLEDGE_VISION.md) — opens with **`0.6.0`**; bloque `0.5` closed @ `v0.5.44`. Spine enrichment protocol lives there (§8).
 
+**Docs crosswalks (teach only, no runtime):** [`docs/ONTOLOGY_CROSSWALKS.md`](../docs/ONTOLOGY_CROSSWALKS.md) — FS ladder · HD · geometry.
+
 **What this is not:**
 - Not the craft catalog (`library/` + `src/jarvis/knowledge/` / `ComponentLibrary`)
 - Not Continuity project state

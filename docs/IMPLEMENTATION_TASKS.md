@@ -6,7 +6,7 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Epoch `0.6` ontology** — spine **lotes 1–5 ★ ACCEPT CLOSED**. Next: **ONT-docs** crosswalks (FS/HD/geometry) and/or first **`v0.6.0`** tag (Engineer pick). Tip still **`v0.5.44`**.  
+> **PRIORIDAD AHORA:** **Epoch `0.6` ontology** — spine lotes 1–5 ★ CLOSED · **ONT-docs LANDED** ([`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md)). Next pick: **`v0.6.0` tag** · or ONT-branch (Assistant/R3/R4). Tip still **`v0.5.44`**.  
 > **Background:** Assistant DC = DISCUSS. Silicon parked. Standoff = visor-break.  
 > SoT: [B0 review](../.jes/artifacts/investigation_review_ontology_vault_value_for_jarvis_b0.md) · [`engineer_note_software_month_until_bench_2026_09_26.md`](../.jes/artifacts/engineer_note_software_month_until_bench_2026_09_26.md).  
 
@@ -112,8 +112,8 @@ SoT: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) · [B0 review](.
 | **ONT-4b** | **`B0-ontology-spine-lote4-citation-review`** | **✅ ACCEPT CLOSED** | 6 notes stay solid; R1–R5 applied · no tag (investigation) | [review](../.jes/artifacts/investigation_review_ontology_spine_lote4_citation_review_b0.md) |
 | **ONT-5** | **spine lote-5** | **LOTE-5 SOLID** (3 notes) | Magnetismo · Navegación y planificación · Forma medición banco empuje `solid` | Obsidian |
 | **ONT-5b** | **`B0-ontology-spine-lote5-citation-review`** | **✅ ACCEPT CLOSED** | 3 notes stay solid; R1–R2 applied · no tag (investigation) | [review](../.jes/artifacts/investigation_review_ontology_spine_lote5_citation_review_b0.md) |
-| **ONT-docs** | Docs crosswalks (FS / HD / geometry) | **NEXT** (pick) | Teach tables only; no `src/` | vision §5 D/G/C |
-| **ONT-tag** | First **`v0.6.0`** tag | Engineer ★ | Tip still `v0.5.44` until tag | vision §7 |
+| **ONT-docs** | Docs crosswalks (FS / HD / geometry) | **✅ LANDED** | [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md) · pointers ARCHITECTURE / HD / native README | vision §5 D/G/C |
+| **ONT-tag** | First **`v0.6.0`** tag | **NEXT** (Engineer ★) | Tip still `v0.5.44` until tag | vision §7 |
 | **ONT-branch** | (a) Assistant→R2 · (b) R3/R4 | After R1 | Engineer picks | vision §7 |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
