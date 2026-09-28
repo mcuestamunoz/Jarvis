@@ -1,7 +1,7 @@
 # Ontology crosswalks — FS · HD · Geometry
 
 **Status:** Docs teach only (ONT-docs) · landed 2026-09-28 · ontology branch **CLOSED @ `v0.6.0`**  
-**Epoch:** explain SoT ready for Assistant **`0.6.1+`** (R2) · runtime read-only retrieve now exists under `src/jarvis/intelligence/ontology_retrieve.py` (`B1-ontology-retrieve-r2`, package `0.6.2`) — exact `id`/`nombre` lookup only, still not Continuity SoT  
+**Epoch:** explain SoT ready for Assistant **`0.6.1+`** (R2) · runtime read-only retrieve now exists under `src/jarvis/intelligence/ontology_retrieve.py` (`B1-ontology-retrieve-r2`, package `0.6.2`) — exact `id`/`nombre` lookup only, still not Continuity SoT · `src/jarvis/intelligence/explain_maps.py` (`B1-explain-maps-expand`, package `0.6.4`) code-ifies the C3/C7/C10/C39/C42 and HD-001/HD-005 rows of §1/§2 below as static `FS_EXPLAIN_MAP`/`HD_EXPLAIN_MAP` dicts for `jarvis explain --rung` — a finite subset mirroring this doc, not a replacement for it  
 **Vision:** [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §5 B/C/D/G · §6 seams  
 **Vault:** [`ontology/`](../ontology/README.md) · spine lotes 1–5 solid + cite-audited  
 **Close:** [`engineer_note_v0_6_0_ontology_epoch_close.md`](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md)

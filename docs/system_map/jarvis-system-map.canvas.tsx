@@ -5,8 +5,12 @@
  * To open live in Cursor beside chat, copy/sync to the project canvases folder:
  *   ~/.cursor/projects/<workspace>/canvases/jarvis-system-map.canvas.tsx
  *
- * Counts: 66 unique C-xxx in ID space (CONNECTIONS.md canonical registry):
- *   63 connected · 1 removed (C-032 G23) · 2 partial (C-081, C-108) · 12 forbidden.
+ * Counts: 67 unique C-xxx in ID space (CONNECTIONS.md canonical registry):
+ *   65 connected · 1 removed (C-032 G23) · 2 partial (C-081, C-108) · 12 forbidden.
+ * (Connected count mirrors CONNECTIONS.md's own top-line tally, which is the
+ * canonical edge truth for this file; this comment had drifted one behind
+ * before C-114, since C-113 itself was never added to the CONNECTIONS[] data
+ * below — pre-existing gap, not reconciled further here, out of this Buy's scope.)
  * Updated 2026-08-10 FN-024 · 2026-08-12 FN-025/026 · 2026-08-18 ERF-1 · 2026-08-19 ERF-2.
  * Updated 2026-08-20 G21/G22 (C-030 catalog bind UX) · G23 (C-032 REMOVED — FN-015 deleted).
  * Updated 2026-09-04→05 — v0.3.6 / claim hygiene / Structure plate multiplicity (2294).
@@ -43,6 +47,11 @@
  * Hardware lab remainder is docs/HARDWARE_DEBT.md — not a map edge and not today's queue.
  * C-032 stays in the registry table as REMOVED; it is omitted from the DAG graph.
  * Internal G23 anti-LLM gate (confusion phrase → re-ask / project_status) is not a C-xxx edge.
+ * Updated 2026-09-28 — Assistant `jarvis explain` canal, A1-A5 (package 0.6.1->0.6.4):
+ * new sibling CLI entry point, C-114 (cli -> intelligence, read-only ontology cite).
+ * src/jarvis/intelligence/ stays structurally isolated from this whole graph: zero
+ * import into jarvis.core (Continuity/orchestrator), jarvis.flight_software, or
+ * jarvis.vehicle_profiles (AST-verified per Buy). User guide: docs/USER_GUIDE_EXPLAIN.md.
  */
 import {
   Button,
@@ -87,6 +96,7 @@ const CONNECTIONS: Conn[] = [
   { id: "C-001", from: "user", to: "cli", fromLabel: "User", toLabel: "CLI adapter", status: "connected", band: "00 Entry" },
   { id: "C-002", from: "cli", to: "orch", fromLabel: "CLI/MCP", toLabel: "handle_user_text", status: "connected", band: "00 Entry" },
   { id: "C-003", from: "cli", to: "orch_handle", fromLabel: "CLI/MCP structured", toLabel: "orchestrator.handle", status: "connected", band: "00 Entry" },
+  { id: "C-114", from: "cli", to: "intelligence", fromLabel: "CLI explain subcommand", toLabel: "intelligence/ontology_retrieve (read-only)", status: "connected", band: "00 Entry" },
 
   { id: "C-010", from: "orch", to: "g_cmds", fromLabel: "Runtime", toLabel: "Global commands", status: "connected", band: "01 Runtime" },
   { id: "C-011", from: "orch", to: "struct_c", fromLabel: "Runtime", toLabel: "FN-004 structural-confirm", status: "connected", band: "01 Runtime" },
@@ -184,6 +194,7 @@ const NODE_LABELS: Record<string, string> = {
   mode: "Mode dispatch",
   params_in: "Param ingest",
   act_router: "ActionRouter",
+  intelligence: "intelligence/",
   intent: "IntentResolver",
   h_status: "project_status",
   h_analyze: "analyze",
@@ -626,6 +637,21 @@ export default function JarvisSystemMapCanvas() {
         grep-verified per Buy). None of this flies, reads a real gyro, or
         opens a chip SPI/DShot pin. Suite 3691 · UI vitest 142 · host ctest
         76/76.
+      </Callout>
+
+      <Callout tone="success" title="Shipped — Assistant jarvis explain canal, A1-A5 @ package 0.6.4 (2026-09-28)">
+        New C-114 (cli → intelligence, read-only ontology cite). Four Buys:
+        scaffold src/jarvis/intelligence/ (A1, v0.6.1), read-only retrieve
+        retrieve_by_id/retrieve_by_nombre over ontology/ solid notes (A2,
+        v0.6.2), the jarvis explain &lt;query&gt; CLI canal printing
+        DEFINICION/INTUICION/path/never_invents (A3, v0.6.3), and an alias
+        table (29 keys) plus static FS_EXPLAIN_MAP/HD_EXPLAIN_MAP product-key
+        maps with --list/--rung (A5, package 0.6.4 — awaiting Engineer ★
+        ACCEPT). No LLM, no embeddings/RAG, no import of jarvis.core
+        (Continuity/orchestrator), jarvis.flight_software, or
+        jarvis.vehicle_profiles anywhere in jarvis.intelligence — AST-verified
+        per Buy. Never writes ontology/ or library/. User guide:
+        docs/USER_GUIDE_EXPLAIN.md.
       </Callout>
 
       {filter !== "forbidden" ? (

@@ -2,16 +2,17 @@
 
 **Purpose.** The CLI/MCP surface, the spatial board visor launcher, and the seam where two independent dispatch mechanisms meet the same orchestrator. The visor does **not** call `handle` / `handle_user_text`.
 
-**Inbound:** C-001 (user → CLI). **Outbound:** C-002 (→ `handle_user_text`), C-003 (→ `handle`).
+**Inbound:** C-001 (user → CLI). **Outbound:** C-002 (→ `handle_user_text`), C-003 (→ `handle`), C-114 (`explain` subcommand → `jarvis.intelligence` — a *sibling* CLI entry point that does **not** route through `handle_user_text`/`handle`).
 
 ## Key modules
 
 | Path | Role |
 |---|---|
-| `adapters/cli/main.py` | Terminal loop; renders results (`render_response`, `render_startup_context`) |
+| `adapters/cli/main.py` | Terminal loop; renders results (`render_response`, `render_startup_context`); also hosts the `explain` subparser dispatch (below) |
 | `adapters/mcp/server.py` | MCP tool server exposing Jarvis actions |
 | `adapters/mcp/session_manager.py` | MCP-side session bookkeeping |
 | `adapters/cli/board.py` (`jarvis board`) + `workspace/spatial_board.py` | Spatial board launcher + read-only projector (`ProjectState` → cards/`slot`; `geometry`, `declaredBoxPose`, `solidCopies`/`solidCopyOffsetsMm` — quad-X radial L-aware arms + Main Plate corner stations). Mutation = CLI/writers/Continuity — not the visor. Card layout overlay = browser `localStorage` (not pose). **Continuity spatial assembly @ v0.4.0** + craft-montage / mission-payload / user-guide @ v0.4.1 + Fase M mission craft ladder (cameras + VTX catalog families) @ v0.4.2 (suite **3166**) — feature locks under `.jes/artifacts/engineer_lock_*`. Scene3D situar mutation = **C-113** only. Taller CSS visor faces (cuboid + cylinder) @ `v0.5.35` — a rendering fix (each face/cap now centers before rotate+`translateZ`) so a thin plate/short cylinder draws as one solid instead of exploding; still **C-094**/**C-113** class (presentation-only, no new writer, no new C-xxx). |
+| `adapters/cli/main.py` (`explain` subparser) + `intelligence/{explain,explain_aliases,explain_maps,ontology_retrieve}.py` | `jarvis explain <query \| --list \| --rung KEY>` — a second, independent CLI subcommand launcher, same grain as `board`: parses argv, then calls straight into `jarvis.intelligence` (read-only ontology cite lookup), never through `orchestrator.handle`/`handle_user_text`. Assistant A1–A5 (`v0.6.1`→package `0.6.4`). **C-114** only; no writer, no Continuity call. See `docs/USER_GUIDE_EXPLAIN.md`. |
 
 ## Important functions
 
@@ -46,8 +47,10 @@ _handle_user_text_inner                    interactive-session short-circuit
 ## Local state touched
 
 CLI/MCP: none directly — those adapters forward to the orchestrator.  
-`jarvis board`: launches Vite; visor layout overlay lives in browser `localStorage` (not `ProjectState`). Projector is read-only.
+`jarvis board`: launches Vite; visor layout overlay lives in browser `localStorage` (not `ProjectState`). Projector is read-only.  
+`jarvis explain`: none — reads `ontology/*.md` via `Path.read_text` only (no write API anywhere in `jarvis.intelligence`); touches no `ProjectState`, no `library/`, no browser storage.
 
 ## Tests
 
-`tests/test_main_cli.py` (CLI rendering), `tests/test_cli_board.py` (launcher), `tests/test_spatial_board_projector.py` (cards + B3 slots). MCP-specific tests under the same `tests/` tree if present (not enumerated here — see `find tests -iname "*mcp*"`).
+`tests/test_main_cli.py` (CLI rendering), `tests/test_cli_board.py` (launcher), `tests/test_spatial_board_projector.py` (cards + B3 slots). MCP-specific tests under the same `tests/` tree if present (not enumerated here — see `find tests -iname "*mcp*"`).  
+`explain`: `tests/test_intelligence_scaffold_b1.py`, `tests/test_ontology_retrieve_r2_b1.py`, `tests/test_assistant_terminal_canal_b1.py`, `tests/test_explain_maps_expand_b1.py`.

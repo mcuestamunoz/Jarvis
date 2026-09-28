@@ -567,6 +567,8 @@ vtx HGLRC                               # texto libre: sin caja/masa
 vtx 4.8 g                               # sin declaración de potencia (RF mW ≠ W)
 ```
 
+**¿Por qué funciona esto?** Para conceptos (C-rate, IMU, magnetómetro, bancos de empuje…), `jarvis explain <id/alias>` es un comando de terminal **separado** de este chat — lee el vault conceptual `ontology/`, no tu proyecto. Ver [`docs/USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md).
+
 ---
 
 ## 13. Límites conocidos

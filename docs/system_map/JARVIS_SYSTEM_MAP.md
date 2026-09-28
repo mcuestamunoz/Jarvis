@@ -85,6 +85,8 @@ C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the sa
 
 **Fase C tagged tip `v0.5.35`** (2026-09-25): C1–C35 ACCEPT CLOSED, plus Taller CSS visor faces (cuboid + cylinder, `ui/spatial-board/`) ACCEPT CLOSED. Suite **3691** · UI vitest **142** · host `ctest` **76/76**. No new `C-xxx` — the C++ tree under `native/flight_control/`, the Python `capabilities`/`flight_software`/`vehicle_profiles` packages, and the Taller CSS visor faces are all structurally isolated (zero import into this graph, grep-verified per Buy). **PRIORIDAD:** cola standoff points — see `docs/IMPLEMENTATION_TASKS.md` and `docs/ARCHITECTURE.md` §1c.
 
+**Assistant `jarvis explain` canal, A1–A5 (2026-09-28, package `0.6.1`→`0.6.4`):** new sibling CLI entry point — **C-114** — `jarvis explain <query | --list | --rung KEY>` → `jarvis.intelligence.{explain,explain_maps,ontology_retrieve}` → read-only `ontology/` vault cite. Same isolation discipline as Fase C above: zero import from `jarvis.intelligence.*` into `jarvis.core` (Continuity/orchestrator), `jarvis.flight_software`, or `jarvis.vehicle_profiles` (AST-verified per Buy). One new `C-xxx`. User guide: `docs/USER_GUIDE_EXPLAIN.md`. Details: `CONNECTIONS.md` C-114 · `00_entry/ENTRY_MAP.md`.
+
 ## Subsystem index
 
 | Folder | One-line role | Inbound (from) | Outbound (to) |
@@ -103,7 +105,7 @@ C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the sa
 
 ## Registries
 
-- [`CONNECTIONS.md`](CONNECTIONS.md) — every edge, `C-001`…`C-113` (66 unique, ID space sparse), with evidence
+- [`CONNECTIONS.md`](CONNECTIONS.md) — every edge, `C-001`…`C-114` (67 unique, ID space sparse), with evidence
 - [`AUTHORITY.md`](AUTHORITY.md) — decision → authority → forbidden, verified against code
 - [`FLOWS.md`](FLOWS.md) — `FLOW-001`…`FLOW-007`, user-visible journeys tied to connection IDs
 - [`MISMATCHES.md`](MISMATCHES.md) — doc↔code discrepancies, sticky-state lesson, design-only appendix (handoff-context lifecycle, H5)

@@ -1,20 +1,51 @@
-# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve + terminal canal)
+# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve + terminal canal + explain maps)
 
-**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) (★ ACCEPT CLOSED @ `v0.6.2`) · [`B1-assistant-terminal-canal`](../../../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md)
-**Package:** `0.6.3` (tag `v0.6.3` on Engineer ACCEPT)
+**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) (★ ACCEPT CLOSED @ `v0.6.2`) · [`B1-assistant-terminal-canal`](../../../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) (★ ACCEPT CLOSED @ `v0.6.3`) · [`B1-explain-maps-expand`](../../../.jes/artifacts/implementation_contract_explain_maps_expand_b1.md)
+**Package:** `0.6.4` (tag `v0.6.4` on Engineer ACCEPT)
 **Parent:** [`DC-assistant-placement`](../../../.jes/artifacts/design_contract_assistant_placement_b0.md) — ★ ACCEPT CLOSED
+
+## Explain maps (A5): `--list` / `--rung KEY`
+
+`jarvis.intelligence.explain_maps` adds two **static** dicts (not a
+registry read from `flight_software` or anywhere else):
+`FS_EXPLAIN_MAP` (keys `C3`/`C7`/`C10`/`C39`/`C42`) and
+`HD_EXPLAIN_MAP` (keys `HD-001`/`HD-005`), each mapping a product key to
+a list of ontology ids, mirroring `docs/ONTOLOGY_CROSSWALKS.md` §1/§2
+verbatim for the seeded keys. `ids_for_rung(key)` does a case-normalized
+lookup across both (`C7`/`c7`, `HD-001`/`hd-001` all resolve the same)
+and returns `None` on a miss.
+
+`jarvis explain --list` prints every solid vault id
+(`ontology_retrieve.list_solid_ids`) plus every known alias → id line —
+read-only vault scan, no ranking. `jarvis explain --rung KEY` prints the
+mapped ids (+ `nombre` when retrievable) — deliberately **not** the full
+`[DEFINICION]`/`[INTUICION]` bodies, to stay scannable; use the
+positional query path for those. `--list`/`--rung`/the positional query
+are mutually exclusive (argparse group) and the positional query's own
+resolve order is unchanged from A3.
+
+**Namespace honesty:** `FS_EXPLAIN_MAP`/`HD_EXPLAIN_MAP` keys are
+product-doc shorthand for bridging to ontology ids — never `jarvis.core`
+parameter ids, and never read from `flight_software` dynamically.
+
+`explain_aliases.EXPLAIN_ALIASES` was expanded from the original 4 A3
+seeds to 29 entries — one short alias for every remaining solid spine
+id (`imu`, `gyro`/`giroscopio`, `accel`/`acelerometro`, `motor-dc`,
+`motores`, `actuadores`, `dinamica`/`dynamics`, `vectores`/`vectors`,
+`magnetismo`/`mag`, `corriente`, `banco`/`thrust stand`, `control
+clasico`/`pid`, `control robotico`, `navegacion`/`nav`, `momento`,
+`sensores movimiento`), every target independently verified `estado:
+solid` against the real vault before being seeded.
 
 ## Terminal canal (A3): `jarvis explain <query>`
 
 `jarvis.intelligence.explain` wires a real CLI command (`jarvis explain
 <query>` / `python -m jarvis.main explain <query>`) over A2 retrieve.
 **Command-first, not chat**: resolves `query` as (1) frontmatter `id`,
-(2) else exact `nombre`, (3) else a finite alias table
-(`explain_aliases.EXPLAIN_ALIASES` — currently `c-rate`/`crate` →
-`c-rate-de-bateria`, `op`/`operating point` →
-`punto-de-operacion-vs-capacidad-intrinseca`, both verified `solid`
-before seeding), else an honest miss (`No solid ontology note for: …`,
-exit code 1 — never a fabricated note). On a hit, prints `nombre`, `id`,
+(2) else exact `nombre`, (3) else the finite alias table
+(`explain_aliases.EXPLAIN_ALIASES`, now 29 entries — see "Explain maps"
+above), else an honest miss (`No solid ontology note for: …`, exit code
+1 — never a fabricated note). On a hit, prints `nombre`, `id`,
 repo-relative `path`, `[DEFINICION]`, `[INTUICION]`, an optional
 `formula_citation` line, and — when `never_invents` is non-empty — an
 explicit honesty line naming those craft quantities as catalog/Continuity's
@@ -48,6 +79,9 @@ best-guess cite.
   anywhere in this module.
 - Does **not** reuse or extend the empty `jarvis.knowledge.retriever`
   module — that surface stays untouched.
+- `list_solid_ids()` (added for `--list`) is the same read-only scan
+  pattern as `retrieve_by_id`/`retrieve_by_nombre` — no write, no new
+  vault-access surface.
 
 ## What this package is
 
@@ -85,9 +119,9 @@ physical systems — will live, **separate from**:
 
 Ontology explain epoch **CLOSED @ `v0.6.0`**
 ([close note](../../../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md)).
-Scaffold landed **`v0.6.1`**, retrieve landed **`v0.6.2`** (both ★
-ACCEPT CLOSED). This canal Buy opens the next package/tag, `0.6.3` /
-`v0.6.3`, on Engineer ACCEPT.
+Scaffold landed **`v0.6.1`**, retrieve landed **`v0.6.2`**, terminal
+canal landed **`v0.6.3`** (all ★ ACCEPT CLOSED). This expand Buy opens
+the next package/tag, `0.6.4` / `v0.6.4`, on Engineer ACCEPT.
 
 ## Tests
 
@@ -112,3 +146,14 @@ ACCEPT CLOSED). This canal Buy opens the next package/tag, `0.6.3` /
   `submit_command`/construct `JarvisOrchestrator`, and neither module
   imports any LLM client — plus an actual `python -m jarvis.main
   explain …` subprocess smoke for both the hit and miss paths.
+- `tests/test_explain_maps_expand_b1.py` (T1–T6): `imu`/`gyro` aliases
+  resolve to solid cites, `ids_for_rung("C7")` contains `imu` and
+  `giroscopio` (case-normalized), `ids_for_rung("HD-001")` contains
+  `c-rate-de-bateria`, an unknown rung/HD key is an honest miss,
+  `--list` output mentions `c-rate-de-bateria` and a known alias line
+  and matches the real solid-id scan exactly, `explain_maps.py`/
+  `explain_aliases.py` have no Continuity/LLM imports and no write API,
+  every id referenced by the new maps/aliases is cross-checked against
+  the real solid-id scan, the A3 query path is unchanged, and a
+  subprocess smoke covers `--list`, `--rung C7`, and the
+  `--list`+query mutual-exclusion error.

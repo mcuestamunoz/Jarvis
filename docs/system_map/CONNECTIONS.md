@@ -8,8 +8,8 @@ Every directed edge in Jarvis that carries control, data, and/or state, as a fir
 CONNECTIONS.md
 │
 ├── Canonical registry  ← THIS SECTION ONLY defines the connection count
-│   └── 66 unique C-xxx  (ID space sparse through C-113)
-│         64 🟢 connected · 1 ⛔ removed (C-032) · 2 🟡 partial
+│   └── 67 unique C-xxx  (ID space sparse through C-114)
+│         65 🟢 connected · 1 ⛔ removed (C-032) · 2 🟡 partial
 │
 ├── Derived / detail views  ← may repeat C-xxx for readability
 │   └── "Detail — NN …" sections below; NOT additional connections
@@ -47,6 +47,8 @@ CONNECTIONS.md
 
 **Fase C C6–C35 + Taller CSS visor faces (2026-09-20→25, tip `v0.5.35`):** **No new C-xxx.** C6–C12 (Python control ladder rungs), C13–C24 (host C++ port + named control tick under `native/flight_control/`), C25–C27 (RC setpoint + stale/failsafe watch), C28 (UART byte port), C29–C30 (cited FLASH map + DFU-flashable LED image — desk hardware, unflashed by default), C31 (DShot 16-bit encode, RAM only), C32–C33 (SPI byte port `SpiBytePort`/`LoopbackSpi`/`ScriptedSpi`), C34 (`probe_rx`, a port **client**, not a gyro driver), C35 (1000-tick + stale-RC-failsafe density tests, `step`/`loop.*` unchanged), and Taller CSS visor faces (`cuboidFaceLayout`/`cylinderSolidLayout`, `ui/spatial-board/src/Solid3D.tsx`'s box/cylinder branches — a rendering fix, not a new solid type) all remain **structurally isolated**: zero import edge from `core/`/`adapters/`/orchestrator/Board/`library/` into any of `native/flight_control/`, `src/jarvis/capabilities/`, `src/jarvis/flight_software/`, `src/jarvis/vehicle_profiles/`, or the two new `ui/spatial-board/src/*Faces.ts` helpers (grep-verified per Buy, re-confirmed here). Canonical registry **unchanged** — still C-001…C-113. Suite **3691** · UI vitest **142** · host `ctest` **76/76**. None of this flies, reads a real gyro, or opens a chip SPI/DShot pin. Details: `docs/ARCHITECTURE.md` §1c · `docs/PLATFORM_CAPABILITY_VISION.md` §13 · `native/flight_control/README.md`.
 
+**Assistant `jarvis explain` canal — `intelligence/` read-only ontology bridge (2026-09-28, package `0.6.1`→`0.6.4`):** One new connection added — **C-114** (`jarvis explain` CLI subcommand → `jarvis.intelligence.explain`/`explain_maps` → `jarvis.intelligence.ontology_retrieve` → `ontology/` vault frontmatter + `[DEFINICION]`/`[INTUICION]`, read-only). Four Buys: scaffold (`B1-intelligence-scaffold` @ `v0.6.1`), retrieve (`B1-ontology-retrieve-r2` @ `v0.6.2`), terminal canal (`B1-assistant-terminal-canal` @ `v0.6.3`), explain maps (`B1-explain-maps-expand`, package `0.6.4`, pending Engineer ★ ACCEPT — see below). `src/jarvis/intelligence/` remains **structurally isolated** from Continuity, same discipline as the Fase C packages above: zero import edge from `jarvis.intelligence.*` into `jarvis.core` (Continuity/orchestrator), `jarvis.flight_software`, or `jarvis.vehicle_profiles` (AST-verified per Buy, re-confirmed here); `explain`/`explain_maps` never call `submit_command`, never construct `JarvisOrchestrator`, never reach `CalculationEngine.build`/`state_manager`/`WorkspaceManager`, and never read or write `library/` catalog JSON. Registry count moved **65 → 66**. Reports: `.jes/artifacts/implementation_report_intelligence_scaffold_b1.md` · `.jes/artifacts/implementation_report_ontology_retrieve_r2_b1.md` · `.jes/artifacts/implementation_report_assistant_terminal_canal_b1.md` · `.jes/artifacts/implementation_report_explain_maps_expand_b1.md`. User guide: `docs/USER_GUIDE_EXPLAIN.md`.
+
 **Craft montage honesty layer (2026-09-13, still `v0.4.1` — no new C-xxx):** Suggest-only IDLE assists over existing Continuity writers / screening — estimated-temporary plate · Path F craft montage stack · cited layout pack · mount-standard assist · silhouette Product B\* checklist (`parece un dron` = declared checklist, never visual recognition) · arm radial L-aware Visor layout · **fit-relations checklist** (`fit_relations_assist.py` — IDLE `relaciones`/`fit`; 6 locked relations; estimated plate blocks attest; disk motors/props = n/a). Reuses plate pick / `screen_posed_envelope` / mount checklist. Not ASSEMBLY READY. Suite **2873** · UI **103**. Locks: `.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md` · `.jes/artifacts/engineer_lock_silhouette_checklist_semantics.md`. Queue: `docs/IMPLEMENTATION_TASKS.md` (await next ★; holds plate-box / Path N).
 
 **Disk-axial Visor + library FC/sensors P0 (2026-09-14, still `v0.4.1` — no new C-xxx):** `_geometry_from_spec` emits `cylinder` when Ø + cited axial (`height_mm` or `hub_thickness_mm`) both exist; diameter-only stays flat disk; screening/attest unchanged. **P0:** FC/GPS physical envelopes relocated to `library/fc/_datos.json` + `library/sensors/_datos.json` via `ComponentLibrary` (`FcSpec`/`SensorSpec`); `aerial.py` keeps alias maps only — supersedes #4b “no library/fc|sensors” ban. Additive binds exist; IDLE rebind trigger not invented this cycle. Suite **2911** · UI **105**. Queue: `docs/IMPLEMENTATION_TASKS.md` (library smoke · holds plate-box / Path N).
@@ -71,7 +73,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 
 ## Canonical registry
 
-**65 unique edges.** Append new IDs here first; then add a Detail section. Derived tables elsewhere in this file must not be treated as new edges.
+**66 unique edges.** Append new IDs here first; then add a Detail section. Derived tables elsewhere in this file must not be treated as new edges.
 
 | ID | From | To | Status |
 |---|---|---|---|
@@ -141,6 +143,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-111 | `electrical_compatibility` checks | `engineering_readiness` gap generation (4 electrical gap types) | 🟢 (ERF-2) |
 | C-112 | `orchestrator._handle_component_description` | ESC out-of-scope explicit save (`OUT_OF_SCOPE_EXPLICIT_SAVE_KEYS`) | 🟢 (ERF-2, FN-ESC) |
 | C-113 | Board `Scene3D` situar drag (`POST /api/projects/:id/pose`) | `board_pose_bridge.apply_drag_pose` → `set_component_declared_box_pose` → `WorkspaceManager.save_state` | 🟢 (Board drag → Continuity pose B1) |
+| C-114 | `jarvis explain` CLI subcommand | `jarvis.intelligence.explain`/`explain_maps` → `jarvis.intelligence.ontology_retrieve` → `ontology/` vault (read-only) | 🟢 (Assistant A1–A5, `v0.6.1`→package `0.6.4`) |
 
 ## Forbidden transitions (not registry edges)
 
@@ -207,6 +210,21 @@ Sections below expand evidence for canonical IDs. Summary tables that re-list ID
 | LLM | NO |
 | Status | 🟢 CONNECTED |
 | Evidence | `core/orchestrator.py:199` |
+
+### C-114 — `jarvis explain` CLI → `intelligence.ontology_retrieve` (read-only ontology cite)
+| Field | Value |
+|---|---|
+| Kind | CONTROL, DATA |
+| Mechanism | `explain` argparse subcommand (positional `query` / `--list` / `--rung KEY`, mutually exclusive) → `jarvis.intelligence.explain.resolve_explain_query`/`run_explain_list_cli`/`run_explain_rung_cli` → `jarvis.intelligence.ontology_retrieve.retrieve_by_id`/`retrieve_by_nombre`/`list_solid_ids` → `ontology/*.md` frontmatter + `[DEFINICION]`/`[INTUICION]` sections |
+| Symbols | `adapters/cli/main.py` (`explain` subparser + dispatch), `jarvis.intelligence.explain`, `jarvis.intelligence.explain_aliases.EXPLAIN_ALIASES`, `jarvis.intelligence.explain_maps.{FS_EXPLAIN_MAP,HD_EXPLAIN_MAP,ids_for_rung}`, `jarvis.intelligence.ontology_retrieve` |
+| Payload | query string / rung key → `OntologyCite` (`id`, `nombre`, `path`, `estado`, `never_invents`, `formula_citation`, `definicion`, `intuicion`) or an honest miss (`None` / exit 1) |
+| Authority | `jarvis.intelligence.*` — a separate package, never `orchestrator`/Continuity |
+| Mutation | NO (read-only `Path.read_text`; no write API anywhere in `jarvis.intelligence`) |
+| LLM | NO |
+| Status | 🟢 CONNECTED |
+| Evidence | `src/jarvis/adapters/cli/main.py`, `src/jarvis/intelligence/{explain,explain_aliases,explain_maps,ontology_retrieve}.py`, `tests/test_intelligence_scaffold_b1.py`, `tests/test_ontology_retrieve_r2_b1.py`, `tests/test_assistant_terminal_canal_b1.py`, `tests/test_explain_maps_expand_b1.py` |
+
+**Non-edges (verified, not violated — same discipline as the Fase C isolation note above):** `jarvis.intelligence.*` never imports `jarvis.core` (Continuity/orchestrator) and never calls `submit_command` or constructs `JarvisOrchestrator` — this canal never reaches `CalculationEngine.build`, `step()`/the Fase C control loop, or any Continuity write; never imports `jarvis.flight_software` or `jarvis.vehicle_profiles`; never reads or writes `library/` catalog JSON. AST-enforced per Buy (see the evidence tests above: T3/T5 scaffold, T5/T7 retrieve, T5/T6 canal, T6 maps-expand).
 
 ---
 

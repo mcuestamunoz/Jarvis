@@ -1,18 +1,27 @@
 """`jarvis explain <query>` — first human-facing Assistant surface.
 
-`B1-assistant-terminal-canal`. A deterministic, command-first canal over
-A2 retrieve (`ontology_retrieve.retrieve_by_id`/`retrieve_by_nombre`):
-resolve a query to one `solid` note, then print its
+`B1-assistant-terminal-canal`, extended by `B1-explain-maps-expand` with
+`--list` (solid ids + known aliases) and `--rung KEY` (FS rung / HD key
+-> mapped ontology ids, via the static `explain_maps` tables). A
+deterministic, command-first canal over A2 retrieve
+(`ontology_retrieve.retrieve_by_id`/`retrieve_by_nombre`/
+`list_solid_ids`): resolve a query to one `solid` note, then print its
 `[DEFINICION]`/`[INTUICION]`/path/`never_invents` cite. Not chat, not
 RAG, not an LLM call, not a Continuity/orchestrator command — this
 module never imports `jarvis.core` or any LLM client, and never
 constructs `JarvisOrchestrator`.
 
-Resolve order (IC §0 row 4, deterministic, no fallthrough re-ordering):
+Resolve order for the positional query path (IC §0 row 4, unchanged by
+the expand Buy, deterministic, no fallthrough re-ordering):
   1. query as frontmatter `id` (exact)
   2. else exact `nombre` (casefold)
   3. else the finite `EXPLAIN_ALIASES` table (exact casefold key)
   4. else a miss — `None` / non-zero exit, never a fabricated cite
+
+`--rung KEY` is a *separate* lookup (static `explain_maps.ids_for_rung`,
+not the query resolve order above) and deliberately does not dump full
+`[DEFINICION]` bodies by default — it prints the mapped ids (+ `nombre`
+when retrievable), keeping the output scannable rather than noisy.
 """
 
 from __future__ import annotations
@@ -21,8 +30,10 @@ import sys
 from pathlib import Path
 
 from jarvis.intelligence.explain_aliases import EXPLAIN_ALIASES
+from jarvis.intelligence.explain_maps import ids_for_rung
 from jarvis.intelligence.ontology_retrieve import (
     OntologyCite,
+    list_solid_ids,
     retrieve_by_id,
     retrieve_by_nombre,
 )
@@ -92,4 +103,37 @@ def run_explain_cli(query: str, *, ontology_root: Path | None = None) -> int:
         )
         return 1
     print(format_explain_cite(cite))
+    return 0
+
+
+def run_explain_list_cli(*, ontology_root: Path | None = None) -> int:
+    """Print every solid note id, then every known alias -> id line.
+    Read-only vault scan (`list_solid_ids`); always exits 0."""
+    ids = list_solid_ids(ontology_root=ontology_root)
+    print("Solid ontology ids:")
+    for note_id in ids:
+        print(f"  {note_id}")
+    print()
+    print("Known aliases:")
+    for alias, target_id in sorted(EXPLAIN_ALIASES.items()):
+        print(f"  {alias} -> {target_id}")
+    return 0
+
+
+def run_explain_rung_cli(key: str, *, ontology_root: Path | None = None) -> int:
+    """Print the FS rung / HD key and its mapped ontology ids (+ nombre
+    when retrievable). Does not print DEFINICION/INTUICION bodies — use
+    the positional query path for that. Exit 0 on a known key, 1 on an
+    unknown one (never a fabricated mapping)."""
+    ids = ids_for_rung(key)
+    if ids is None:
+        print(f"Unknown rung/HD key: {key}", file=sys.stderr)
+        return 1
+    print(f"{key.strip().upper()} ->")
+    for note_id in ids:
+        cite = retrieve_by_id(note_id, ontology_root=ontology_root)
+        if cite is not None:
+            print(f"  {note_id}  ({cite.nombre})")
+        else:
+            print(f"  {note_id}  (not found / not solid)")
     return 0

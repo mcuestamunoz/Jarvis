@@ -142,3 +142,16 @@ def retrieve_by_nombre(
         ):
             return _build_cite(fields, text, path)
     return None
+
+
+def list_solid_ids(*, ontology_root: Path | None = None) -> list[str]:
+    """Return every `solid` note's frontmatter `id`, sorted. A read-only
+    vault scan (`B1-explain-maps-expand`, for `jarvis explain --list`) —
+    no write, no embeddings, no ranking, just the same `_iter_notes`
+    walk the lookups above already use."""
+    root = ontology_root or DEFAULT_ONTOLOGY_ROOT
+    return sorted(
+        fields["id"]
+        for _, _, fields in _iter_notes(root)
+        if fields.get("estado") == "solid" and fields.get("id")
+    )

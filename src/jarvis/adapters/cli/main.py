@@ -950,8 +950,24 @@ def main() -> None:
     explain_parser = subparsers.add_parser(
         "explain", help="Explain a solid ontology note (id, nombre, or alias)"
     )
-    explain_parser.add_argument(
-        "query", help="Note id, exact nombre, or a known alias (e.g. 'c-rate')"
+    explain_group = explain_parser.add_mutually_exclusive_group()
+    explain_group.add_argument(
+        "query",
+        nargs="?",
+        default=None,
+        help="Note id, exact nombre, or a known alias (e.g. 'c-rate')",
+    )
+    explain_group.add_argument(
+        "--list",
+        action="store_true",
+        dest="explain_list",
+        help="List solid ontology ids and known aliases",
+    )
+    explain_group.add_argument(
+        "--rung",
+        metavar="KEY",
+        dest="explain_rung",
+        help="Print ontology ids mapped to an FS rung (e.g. C7) or HD key (e.g. HD-001)",
     )
     args = parser.parse_args()
 
@@ -961,8 +977,18 @@ def main() -> None:
         raise SystemExit(launch_board())
 
     if args.command == "explain":
-        from jarvis.intelligence.explain import run_explain_cli
+        from jarvis.intelligence.explain import (
+            run_explain_cli,
+            run_explain_list_cli,
+            run_explain_rung_cli,
+        )
 
+        if args.explain_list:
+            raise SystemExit(run_explain_list_cli())
+        if args.explain_rung:
+            raise SystemExit(run_explain_rung_cli(args.explain_rung))
+        if not args.query:
+            explain_parser.error("one of query, --list, or --rung is required")
         raise SystemExit(run_explain_cli(args.query))
 
     if args.chat:
