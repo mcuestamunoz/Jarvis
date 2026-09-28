@@ -19,6 +19,31 @@ retrieve surface.
 See `src/jarvis/intelligence/README.md` for the full honesty locks and
 `.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md`
 for the authorizing Buy.
+
+`B1-ontology-retrieve-r2` (package `0.6.2`) adds read-only retrieve:
+`retrieve_by_id`/`retrieve_by_nombre` in `jarvis.intelligence.ontology_retrieve`
+look up one `solid` note by frontmatter `id` (or exact `nombre`) and
+return a small `OntologyCite` — identity/path/state metadata,
+`never_invents`, and the extracted `[DEFINICION]`/`[INTUICION]`
+sections. Exact lookup only: no fuzzy match, no embeddings, no LLM
+ranking, no number synthesis. Still no CLI/Board/Continuity canal
+(that is **A3**), still no LLM call, still no write path anywhere in
+this package. See `ontology_retrieve`'s own module docstring.
 """
 
 SCAFFOLD_STATUS = "stub"
+RETRIEVE_STATUS = "r2"
+
+from jarvis.intelligence.ontology_retrieve import (  # noqa: E402
+    OntologyCite,
+    retrieve_by_id,
+    retrieve_by_nombre,
+)
+
+__all__ = [
+    "SCAFFOLD_STATUS",
+    "RETRIEVE_STATUS",
+    "OntologyCite",
+    "retrieve_by_id",
+    "retrieve_by_nombre",
+]

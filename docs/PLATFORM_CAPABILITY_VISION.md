@@ -404,7 +404,7 @@ A system may combine different versions.
 
 Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resources across systems.
 
-**Placement (2026-09-28):** Ontology **CLOSED @ `v0.6.0`**. [`DC-assistant-placement`](../.jes/artifacts/design_contract_assistant_placement_b0.md) **★ ACCEPT CLOSED**. `src/jarvis/intelligence/` scaffold **★ ACCEPT CLOSED @ `v0.6.1`**. **PRIORIDAD:** A2 R2 retrieve IC ★ AUTHORIZED → **`0.6.2`**.
+**Placement (2026-09-28):** Ontology **CLOSED @ `v0.6.0`**. DC placement ★. Scaffold ★ @ `v0.6.1`. Retrieve R2 **★ ACCEPT CLOSED @ `v0.6.2`**. **PRIORIDAD:** A3 `jarvis explain` IC ★ AUTHORIZED → **`0.6.3`**.
 
 ---
 

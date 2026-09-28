@@ -6,7 +6,7 @@
 **Implementer:** none for this DC — disk scaffold is **A1 IC** (`B1-intelligence-scaffold`)  
 **Reviewer:** Engineer ★ (ratify / amend)
 
-**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-28) — placement lock ratified. A1 scaffold **★ ACCEPT CLOSED @ `v0.6.1`**. Next: IC [`implementation_contract_ontology_retrieve_r2_b1.md`](implementation_contract_ontology_retrieve_r2_b1.md) ★ AUTHORIZED → package/tag **`0.6.2`**. Canal A3 still blocked on A2.  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-28) — placement lock ratified. A1 ★ @ `v0.6.1`. A2 retrieve **★ ACCEPT CLOSED @ `v0.6.2`**. Next: IC [`implementation_contract_assistant_terminal_canal_b1.md`](implementation_contract_assistant_terminal_canal_b1.md) ★ AUTHORIZED → **`0.6.3`**.  
 **Type:** Design / Architecture Lock — **where Assistant will live**, not voice, not house map, not lavadora.  
 **Not** an Implementation Contract. **Not** a version bump. **Not** permission to create `intelligence/` or `world/` on disk.
 
