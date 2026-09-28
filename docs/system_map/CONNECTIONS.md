@@ -8,8 +8,8 @@ Every directed edge in Jarvis that carries control, data, and/or state, as a fir
 CONNECTIONS.md
 │
 ├── Canonical registry  ← THIS SECTION ONLY defines the connection count
-│   └── 67 unique C-xxx  (ID space sparse through C-114)
-│         65 🟢 connected · 1 ⛔ removed (C-032) · 2 🟡 partial
+│   └── 68 unique C-xxx  (ID space sparse through C-115)
+│         66 🟢 connected · 1 ⛔ removed (C-032) · 2 🟡 partial
 │
 ├── Derived / detail views  ← may repeat C-xxx for readability
 │   └── "Detail — NN …" sections below; NOT additional connections
@@ -47,7 +47,9 @@ CONNECTIONS.md
 
 **Fase C C6–C35 + Taller CSS visor faces (2026-09-20→25, tip `v0.5.35`):** **No new C-xxx.** C6–C12 (Python control ladder rungs), C13–C24 (host C++ port + named control tick under `native/flight_control/`), C25–C27 (RC setpoint + stale/failsafe watch), C28 (UART byte port), C29–C30 (cited FLASH map + DFU-flashable LED image — desk hardware, unflashed by default), C31 (DShot 16-bit encode, RAM only), C32–C33 (SPI byte port `SpiBytePort`/`LoopbackSpi`/`ScriptedSpi`), C34 (`probe_rx`, a port **client**, not a gyro driver), C35 (1000-tick + stale-RC-failsafe density tests, `step`/`loop.*` unchanged), and Taller CSS visor faces (`cuboidFaceLayout`/`cylinderSolidLayout`, `ui/spatial-board/src/Solid3D.tsx`'s box/cylinder branches — a rendering fix, not a new solid type) all remain **structurally isolated**: zero import edge from `core/`/`adapters/`/orchestrator/Board/`library/` into any of `native/flight_control/`, `src/jarvis/capabilities/`, `src/jarvis/flight_software/`, `src/jarvis/vehicle_profiles/`, or the two new `ui/spatial-board/src/*Faces.ts` helpers (grep-verified per Buy, re-confirmed here). Canonical registry **unchanged** — still C-001…C-113. Suite **3691** · UI vitest **142** · host `ctest` **76/76**. None of this flies, reads a real gyro, or opens a chip SPI/DShot pin. Details: `docs/ARCHITECTURE.md` §1c · `docs/PLATFORM_CAPABILITY_VISION.md` §13 · `native/flight_control/README.md`.
 
-**Assistant `jarvis explain` canal — `intelligence/` read-only ontology bridge (2026-09-28, package `0.6.1`→`0.6.4`):** One new connection added — **C-114** (`jarvis explain` CLI subcommand → `jarvis.intelligence.explain`/`explain_maps` → `jarvis.intelligence.ontology_retrieve` → `ontology/` vault frontmatter + `[DEFINICION]`/`[INTUICION]`, read-only). Four Buys: scaffold (`B1-intelligence-scaffold` @ `v0.6.1`), retrieve (`B1-ontology-retrieve-r2` @ `v0.6.2`), terminal canal (`B1-assistant-terminal-canal` @ `v0.6.3`), explain maps (`B1-explain-maps-expand`, package `0.6.4`, pending Engineer ★ ACCEPT — see below). `src/jarvis/intelligence/` remains **structurally isolated** from Continuity, same discipline as the Fase C packages above: zero import edge from `jarvis.intelligence.*` into `jarvis.core` (Continuity/orchestrator), `jarvis.flight_software`, or `jarvis.vehicle_profiles` (AST-verified per Buy, re-confirmed here); `explain`/`explain_maps` never call `submit_command`, never construct `JarvisOrchestrator`, never reach `CalculationEngine.build`/`state_manager`/`WorkspaceManager`, and never read or write `library/` catalog JSON. Registry count moved **65 → 66**. Reports: `.jes/artifacts/implementation_report_intelligence_scaffold_b1.md` · `.jes/artifacts/implementation_report_ontology_retrieve_r2_b1.md` · `.jes/artifacts/implementation_report_assistant_terminal_canal_b1.md` · `.jes/artifacts/implementation_report_explain_maps_expand_b1.md`. User guide: `docs/USER_GUIDE_EXPLAIN.md`.
+**Assistant `jarvis explain` canal — `intelligence/` read-only ontology bridge (2026-09-28, package `0.6.1`→`0.6.4`):** One new connection added — **C-114** (`jarvis explain` CLI subcommand → `jarvis.intelligence.explain`/`explain_maps` → `jarvis.intelligence.ontology_retrieve` → `ontology/` vault frontmatter + `[DEFINICION]`/`[INTUICION]`, read-only). Five Buys, all **★ ACCEPT CLOSED**: placement DC, scaffold (`B1-intelligence-scaffold` @ `v0.6.1`), retrieve (`B1-ontology-retrieve-r2` @ `v0.6.2`), terminal canal (`B1-assistant-terminal-canal` @ `v0.6.3`), explain maps (`B1-explain-maps-expand` @ `v0.6.4`). `src/jarvis/intelligence/` remains **structurally isolated** from Continuity, same discipline as the Fase C packages above: zero import edge from `jarvis.intelligence.*` into `jarvis.core` (Continuity/orchestrator), `jarvis.flight_software`, or `jarvis.vehicle_profiles` (AST-verified per Buy, re-confirmed here); `explain`/`explain_maps` never call `submit_command`, never construct `JarvisOrchestrator`, never reach `CalculationEngine.build`/`state_manager`/`WorkspaceManager`, and never read or write `library/` catalog JSON. Registry count moved **65 → 66**. Reports: `.jes/artifacts/implementation_report_intelligence_scaffold_b1.md` · `.jes/artifacts/implementation_report_ontology_retrieve_r2_b1.md` · `.jes/artifacts/implementation_report_assistant_terminal_canal_b1.md` · `.jes/artifacts/implementation_report_explain_maps_expand_b1.md`. User guide: `docs/USER_GUIDE_EXPLAIN.md`.
+
+**Continuity explain cite R3 — Continuity ↔ `jarvis explain` bridge (2026-09-28, package `0.6.5`, awaiting Engineer ★ ACCEPT):** One new connection added — **C-115** (`build_project_continuity`'s finite `explain_topics` tags → CLI → `jarvis.intelligence.continuity_cite.cites_for_topics` → `ontology_retrieve`, read-only). `B1-continuity-explain-cite-r3` — Continuity's own ranking (`situation`/`next_useful_step`/`next_useful_why`) is **byte-for-byte unchanged**: two existing fixtures' pre-Buy output strings were captured as golden values and re-asserted against the post-Buy code. `project_continuity.py` still never imports `jarvis.intelligence` and never reads `ontology/` — it only emits topic tags, computed strictly after next_step/why are final, so they can never feed back into ranking (AST + ordering both verified). CLI never dumps note bodies into `estado` — only `id` + a `jarvis explain <id>` pointer. Registry count moved **66 → 67**. Report: `.jes/artifacts/implementation_report_continuity_explain_cite_r3_b1.md`. User guide: `docs/USER_GUIDE_EXPLAIN.md` §7.
 
 **Craft montage honesty layer (2026-09-13, still `v0.4.1` — no new C-xxx):** Suggest-only IDLE assists over existing Continuity writers / screening — estimated-temporary plate · Path F craft montage stack · cited layout pack · mount-standard assist · silhouette Product B\* checklist (`parece un dron` = declared checklist, never visual recognition) · arm radial L-aware Visor layout · **fit-relations checklist** (`fit_relations_assist.py` — IDLE `relaciones`/`fit`; 6 locked relations; estimated plate blocks attest; disk motors/props = n/a). Reuses plate pick / `screen_posed_envelope` / mount checklist. Not ASSEMBLY READY. Suite **2873** · UI **103**. Locks: `.jes/artifacts/engineer_lock_craft_montage_honest_reproducible.md` · `.jes/artifacts/engineer_lock_silhouette_checklist_semantics.md`. Queue: `docs/IMPLEMENTATION_TASKS.md` (await next ★; holds plate-box / Path N).
 
@@ -73,7 +75,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 
 ## Canonical registry
 
-**66 unique edges.** Append new IDs here first; then add a Detail section. Derived tables elsewhere in this file must not be treated as new edges.
+**67 unique edges.** Append new IDs here first; then add a Detail section. Derived tables elsewhere in this file must not be treated as new edges.
 
 | ID | From | To | Status |
 |---|---|---|---|
@@ -144,6 +146,7 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-112 | `orchestrator._handle_component_description` | ESC out-of-scope explicit save (`OUT_OF_SCOPE_EXPLICIT_SAVE_KEYS`) | 🟢 (ERF-2, FN-ESC) |
 | C-113 | Board `Scene3D` situar drag (`POST /api/projects/:id/pose`) | `board_pose_bridge.apply_drag_pose` → `set_component_declared_box_pose` → `WorkspaceManager.save_state` | 🟢 (Board drag → Continuity pose B1) |
 | C-114 | `jarvis explain` CLI subcommand | `jarvis.intelligence.explain`/`explain_maps` → `jarvis.intelligence.ontology_retrieve` → `ontology/` vault (read-only) | 🟢 (Assistant A1–A5, `v0.6.1`→package `0.6.4`) |
+| C-115 | `project_continuity.build_project_continuity` (`explain_topics` tags) | CLI (`render_startup_context`/coherence footer) → `jarvis.intelligence.continuity_cite.cites_for_topics` → `ontology_retrieve` (read-only) | 🟢 (Assistant A6/R3, package `0.6.5`) |
 
 ## Forbidden transitions (not registry edges)
 
@@ -873,6 +876,21 @@ User-facing `calcular` may two-pass via `build_with_estimative_sweep` (4S labele
 |---|---|---|---|---|
 | C-084 | ProjectState | `PhaseLayer.infer` | 🟢 | `core/phase_layer.py:28` |
 | C-085 | Context (incl. phase, signals) | `ReasoningLayer.build` → insights/suggested_actions | 🟢 | `core/reasoning_layer.py:28` |
+
+### C-115 — Continuity `explain_topics` → CLI → `intelligence.continuity_cite` (read-only, additive)
+| Field | Value |
+|---|---|
+| Kind | DATA |
+| Mechanism | `build_project_continuity` computes a finite `explain_topics: list[str]` via its own pure `_explain_topics_for_continuity(...)` helper, called **after** `next_useful_step`/`next_useful_why` are finalized (last statement before the return dict) — from signals it already had (`motor_catalog_gap`, catalog-underspec, `energy_model_note`, `autonomy_target_min`, watts-recovery-active), never a new `project_state` read. The CLI (`render_startup_context`'s Continuity block, and `render_response`'s coherence footer) then calls `jarvis.intelligence.continuity_cite.cites_for_topics(topics)` → A2 `retrieve_by_id` per mapped id, and `format_continuity_cite_lines` to print an optional "Conceptos" block |
+| Symbols | `core/project_continuity.py` (`_explain_topics_for_continuity`, `build_project_continuity`), `adapters/cli/main.py` (`_render_concept_lines`), `jarvis.intelligence.continuity_cite` (`CONTINUITY_TOPIC_MAP`, `cites_for_topics`, `format_continuity_cite_lines`) |
+| Payload | `explain_topics: list[str]` (finite seed: `c_rate`, `operating_point`, `motor`, `current`, `thrust_stand` — `current` seeded in the map but not yet tagged by any Continuity signal) → zero or more `OntologyCite`s → `"  - <id>  →  jarvis explain <id>"` lines |
+| Authority | Continuity owns the tags (topic vocabulary only); `jarvis.intelligence` owns resolving a tag to a cite. Neither owns the other's decision |
+| Mutation | NO (topics are additive-only; resolving them is a read-only vault lookup, same as C-114) |
+| LLM | NO |
+| Status | 🟢 CONNECTED (Assistant A6/R3, package `0.6.5`, awaiting Engineer ★ ACCEPT) |
+| Evidence | `src/jarvis/core/project_continuity.py`, `src/jarvis/intelligence/continuity_cite.py`, `src/jarvis/adapters/cli/main.py`, `tests/test_continuity_explain_cite_r3_b1.py`, `tests/test_project_continuity.py` (unchanged, re-run as regression proof) |
+
+**Non-edges (verified, not violated):** `project_continuity.py` never imports `jarvis.intelligence` and never reads `ontology/` (AST-enforced, T3) — it only ever emits the finite topic-tag list, and that computation happens strictly after `next_useful_step`/`next_useful_why`/`situation` are already decided, so topics can never feed back into Continuity's own ranking (regression-tested against two existing fixtures' exact pre-Buy `next_useful_step`/`next_useful_why` strings, T2). `continuity_cite.py` never imports `jarvis.core` and never calls `submit_command` (AST-enforced, T4). The CLI never dumps `[DEFINICION]`/`[INTUICION]` into `estado` — only `id` + a `jarvis explain <id>` pointer (full text stays behind the explicit C-114 canal).
 
 ---
 

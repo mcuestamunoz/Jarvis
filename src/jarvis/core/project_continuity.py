@@ -222,6 +222,58 @@ def _frame_class_gap_live(readiness: Any | None) -> bool:
     return any(g.gap_type in _FRAME_CLASS_GAP_TYPES for g in (readiness.gaps or []))
 
 
+_EXPLAIN_TOPIC_MOTOR = "motor"
+_EXPLAIN_TOPIC_C_RATE = "c_rate"
+_EXPLAIN_TOPIC_OPERATING_POINT = "operating_point"
+_EXPLAIN_TOPIC_THRUST_STAND = "thrust_stand"
+# "current" (corriente-y-circuitos) is seeded in the intelligence-side
+# CONTINUITY_TOPIC_MAP but not yet tagged here: unlike the other three
+# rows, IC §2's seed table gates it on "Electrical / current-related gap
+# copy if already distinguished" — no existing Continuity signal in this
+# module distinguishes a current-specific gap from the general catalog/
+# energy gaps today, so tagging it would be a guess, not a real signal.
+# A later Buy can add it once such a signal exists.
+
+
+def _explain_topics_for_continuity(
+    *,
+    motor_catalog_gap: str | None,
+    underspec_live: bool,
+    energy_model_note: str | None,
+    autonomy_target_min: float | None,
+    watts_recovery_active: bool,
+) -> list[str]:
+    """R3 (`B1-continuity-explain-cite-r3`) — additive, read-nothing-new
+    topic tags for the optional `jarvis explain` cite garnish.
+
+    Pure: every input here is a value `build_project_continuity` already
+    computed for situation/evidence/next_step; this derives no new fact
+    from `project_state`. Called **after** next_step/next_why are
+    finalized (see the single call site at the end of
+    `build_project_continuity`) so it can never feed back into ranking —
+    moving this call, or basing it on anything computed inside the
+    ranking `if/elif` chain, would violate that IC lock (§0 row 2/§2).
+    No `ontology/` read and no `jarvis.intelligence` import anywhere in
+    this module — resolving these tags into cites is the CLI layer's
+    job, via `jarvis.intelligence.continuity_cite.cites_for_topics`.
+    """
+    topics: list[str] = []
+
+    if motor_catalog_gap is not None or underspec_live:
+        topics.append(_EXPLAIN_TOPIC_MOTOR)
+
+    if autonomy_target_min is not None or energy_model_note:
+        topics.append(_EXPLAIN_TOPIC_C_RATE)
+        topics.append(_EXPLAIN_TOPIC_OPERATING_POINT)
+
+    if watts_recovery_active:
+        if _EXPLAIN_TOPIC_OPERATING_POINT not in topics:
+            topics.append(_EXPLAIN_TOPIC_OPERATING_POINT)
+        topics.append(_EXPLAIN_TOPIC_THRUST_STAND)
+
+    return topics
+
+
 def build_project_continuity(
     *,
     project_state: Any,
@@ -590,9 +642,21 @@ def build_project_continuity(
         next_step = proactive_question or "Continúa definiendo el sistema o lanza calculate/simulate."
         next_why = "Aún no hay un cierre físico claro."
 
+    # R3: additive-only, computed after next_step/next_why are final —
+    # never read here to change situation/evidence/ranking above. Pure
+    # over already-computed local values; no new project_state read.
+    explain_topics = _explain_topics_for_continuity(
+        motor_catalog_gap=motor_catalog_gap,
+        underspec_live=_underspec_live,
+        energy_model_note=energy_model_note,
+        autonomy_target_min=req.get("autonomy_target_min"),
+        watts_recovery_active=_watts_recovery_next_step(project_state) is not None,
+    )
+
     return {
         "situation": situation,
         "evidence": evidence,
         "next_useful_step": next_step,
         "next_useful_why": next_why,
+        "explain_topics": explain_topics,
     }

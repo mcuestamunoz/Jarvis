@@ -5,8 +5,8 @@
  * To open live in Cursor beside chat, copy/sync to the project canvases folder:
  *   ~/.cursor/projects/<workspace>/canvases/jarvis-system-map.canvas.tsx
  *
- * Counts: 67 unique C-xxx in ID space (CONNECTIONS.md canonical registry):
- *   65 connected · 1 removed (C-032 G23) · 2 partial (C-081, C-108) · 12 forbidden.
+ * Counts: 68 unique C-xxx in ID space (CONNECTIONS.md canonical registry):
+ *   66 connected · 1 removed (C-032 G23) · 2 partial (C-081, C-108) · 12 forbidden.
  * (Connected count mirrors CONNECTIONS.md's own top-line tally, which is the
  * canonical edge truth for this file; this comment had drifted one behind
  * before C-114, since C-113 itself was never added to the CONNECTIONS[] data
@@ -52,6 +52,13 @@
  * src/jarvis/intelligence/ stays structurally isolated from this whole graph: zero
  * import into jarvis.core (Continuity/orchestrator), jarvis.flight_software, or
  * jarvis.vehicle_profiles (AST-verified per Buy). User guide: docs/USER_GUIDE_EXPLAIN.md.
+ * Updated 2026-09-28 — Continuity explain cite R3, A6 (package 0.6.5, awaiting
+ * Engineer ACCEPT): C-115 (continuity -> intelligence, explain_topics tags ->
+ * continuity_cite.cites_for_topics, read-only). build_project_continuity computes
+ * the finite explain_topics list strictly AFTER next_useful_step/next_useful_why
+ * are final (never feeds back into ranking — two existing fixtures' exact pre-Buy
+ * output strings re-asserted as a golden regression). project_continuity.py still
+ * never imports jarvis.intelligence and never reads ontology/.
  */
 import {
   Button,
@@ -155,6 +162,7 @@ const CONNECTIONS: Conn[] = [
   { id: "C-109", from: "orch", to: "readiness", fromLabel: "build_startup_context", toLabel: "readiness field in context dict", status: "connected", band: "08 Continuity" },
   { id: "C-110", from: "cli", to: "read_ui", fromLabel: "render_startup_context", toLabel: "ENGINEERING READINESS block", status: "connected", band: "08 Continuity" },
   { id: "C-111", from: "elec_compat", to: "readiness", fromLabel: "electrical_compatibility checks", toLabel: "readiness gap generation (ERF-2)", status: "connected", band: "08 Continuity" },
+  { id: "C-115", from: "continuity", to: "intelligence", fromLabel: "explain_topics tags", toLabel: "continuity_cite.cites_for_topics (read-only)", status: "connected", band: "08 Continuity" },
   { id: "C-112", from: "orch", to: "writers", fromLabel: "_handle_component_description", toLabel: "ESC out-of-scope explicit save", status: "connected", band: "09 Components/State" },
 
   { id: "C-090", from: "free_text", to: "infer", fromLabel: "Free text", toLabel: "component_inference", status: "connected", band: "09 Components/State" },
@@ -639,19 +647,38 @@ export default function JarvisSystemMapCanvas() {
         76/76.
       </Callout>
 
-      <Callout tone="success" title="Shipped — Assistant jarvis explain canal, A1-A5 @ package 0.6.4 (2026-09-28)">
-        New C-114 (cli → intelligence, read-only ontology cite). Four Buys:
-        scaffold src/jarvis/intelligence/ (A1, v0.6.1), read-only retrieve
-        retrieve_by_id/retrieve_by_nombre over ontology/ solid notes (A2,
-        v0.6.2), the jarvis explain &lt;query&gt; CLI canal printing
-        DEFINICION/INTUICION/path/never_invents (A3, v0.6.3), and an alias
-        table (29 keys) plus static FS_EXPLAIN_MAP/HD_EXPLAIN_MAP product-key
-        maps with --list/--rung (A5, package 0.6.4 — awaiting Engineer ★
-        ACCEPT). No LLM, no embeddings/RAG, no import of jarvis.core
+      <Callout tone="success" title="Shipped — Assistant jarvis explain canal, A1-A5 @ v0.6.4 (2026-09-28)">
+        New C-114 (cli → intelligence, read-only ontology cite). Five Buys,
+        all ★ ACCEPT CLOSED: placement DC, scaffold src/jarvis/intelligence/
+        (A1, v0.6.1), read-only retrieve retrieve_by_id/retrieve_by_nombre
+        over ontology/ solid notes (A2, v0.6.2), the jarvis explain
+        &lt;query&gt; CLI canal printing DEFINICION/INTUICION/path/
+        never_invents (A3, v0.6.3), and an alias table (29 keys) plus static
+        FS_EXPLAIN_MAP/HD_EXPLAIN_MAP product-key maps with --list/--rung
+        (A5, v0.6.4). No LLM, no embeddings/RAG, no import of jarvis.core
         (Continuity/orchestrator), jarvis.flight_software, or
         jarvis.vehicle_profiles anywhere in jarvis.intelligence — AST-verified
         per Buy. Never writes ontology/ or library/. User guide:
         docs/USER_GUIDE_EXPLAIN.md.
+      </Callout>
+
+      <Callout tone="success" title="Shipped — Continuity explain cite R3, A6 @ package 0.6.5 (2026-09-28, awaiting Engineer ★ ACCEPT)">
+        New C-115 (continuity → intelligence, explain_topics tags →
+        continuity_cite.cites_for_topics, read-only). build_project_continuity
+        gains a finite, additive explain_topics: list[str] (seed: c_rate,
+        operating_point, motor, current, thrust_stand), computed by a pure
+        _explain_topics_for_continuity(...) helper as the LAST statement
+        before the return dict — strictly after situation/next_useful_step/
+        next_useful_why are final, so it can never feed back into Continuity's
+        own ranking. Proven, not just claimed: two existing fixtures' exact
+        pre-Buy next_useful_step/next_useful_why strings were captured as
+        golden values and re-asserted unchanged against the post-Buy code.
+        project_continuity.py still never imports jarvis.intelligence and
+        never reads ontology/ (AST-verified); continuity_cite.py still never
+        imports jarvis.core or calls submit_command. CLI (render_startup_
+        context + render_response's coherence footer) prints an optional
+        "Conceptos (ontology):" block — id + jarvis explain &lt;id&gt; pointer
+        only, never the note body. User guide: docs/USER_GUIDE_EXPLAIN.md §7.
       </Callout>
 
       {filter !== "forbidden" ? (

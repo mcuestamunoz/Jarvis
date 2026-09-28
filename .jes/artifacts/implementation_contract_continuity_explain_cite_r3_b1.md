@@ -6,7 +6,8 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED: **implement now**  
 **Reviewer:** Cursor against this IC · Engineer ACCEPT → tag **`v0.6.5`**
 
-**Status:** ★ **AUTHORIZED** — await Claude implementation + report  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-28) @ tag **`v0.6.5`**  
+**Review of record:** [`implementation_review_continuity_explain_cite_r3_b1.md`](implementation_review_continuity_explain_cite_r3_b1.md)  
 **Parents:**
 - Assistant A0–A5 ★ CLOSED @ **`v0.6.4`** (`jarvis explain` + maps)  
 - [`docs/JARVIS_KNOWLEDGE_VISION.md`](../../docs/JARVIS_KNOWLEDGE_VISION.md) §7 branch **(b) R3**  

@@ -1,8 +1,37 @@
-# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve + terminal canal + explain maps)
+# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve + terminal canal + explain maps + Continuity cite)
 
-**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) (★ ACCEPT CLOSED @ `v0.6.2`) · [`B1-assistant-terminal-canal`](../../../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) (★ ACCEPT CLOSED @ `v0.6.3`) · [`B1-explain-maps-expand`](../../../.jes/artifacts/implementation_contract_explain_maps_expand_b1.md)
-**Package:** `0.6.4` (tag `v0.6.4` on Engineer ACCEPT)
+**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) (★ ACCEPT CLOSED @ `v0.6.2`) · [`B1-assistant-terminal-canal`](../../../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) (★ ACCEPT CLOSED @ `v0.6.3`) · [`B1-explain-maps-expand`](../../../.jes/artifacts/implementation_contract_explain_maps_expand_b1.md) (★ ACCEPT CLOSED @ `v0.6.4`) · [`B1-continuity-explain-cite-r3`](../../../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md)
+**Package:** `0.6.5` (tag `v0.6.5` on Engineer ACCEPT)
 **Parent:** [`DC-assistant-placement`](../../../.jes/artifacts/design_contract_assistant_placement_b0.md) — ★ ACCEPT CLOSED
+
+## Continuity cite seam (A6/R3): `continuity_cite.py`
+
+`jarvis.intelligence.continuity_cite` adds `CONTINUITY_TOPIC_MAP` (a
+finite `dict[str, list[str]]`, 5 seed topics: `c_rate`,
+`operating_point`, `motor`, `current`, `thrust_stand`) and
+`cites_for_topics(topics) -> list[OntologyCite]` — exact topic → solid
+id(s) → A2 `retrieve_by_id` resolve. Unknown topics are skipped
+silently (never invented). `format_continuity_cite_lines(cites)` is the
+thin CLI formatter used by `adapters/cli/main.py`'s optional
+**"Conceptos"** block.
+
+**The fence (locked, test-enforced):**
+- `jarvis.core.project_continuity` **never imports this module** and
+  **never reads `ontology/`.** It only computes a finite list of topic
+  *tags* (`explain_topics`, via its own pure `_explain_topics_for_
+  continuity` helper) from signals it already had for
+  `situation`/`next_useful_step` — resolving those tags to cites is
+  this module's job, called only from the CLI layer, the same seam
+  `jarvis explain` itself uses.
+- Topics are computed **after** `next_useful_step`/`next_useful_why`
+  are finalized — they never feed back into Continuity's own ranking.
+  Continuity decides the craft step; the vault never does.
+- The CLI never dumps `[DEFINICION]`/`[INTUICION]` into `estado` — only
+  `id` + a `jarvis explain <id>` pointer. Full text stays behind the
+  explicit `jarvis explain` command (A3).
+- `continuity_cite.py` itself never imports `jarvis.core` and never
+  calls `submit_command` (AST-enforced, same as every other module in
+  this package).
 
 ## Explain maps (A5): `--list` / `--rung KEY`
 
@@ -120,8 +149,9 @@ physical systems — will live, **separate from**:
 Ontology explain epoch **CLOSED @ `v0.6.0`**
 ([close note](../../../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md)).
 Scaffold landed **`v0.6.1`**, retrieve landed **`v0.6.2`**, terminal
-canal landed **`v0.6.3`** (all ★ ACCEPT CLOSED). This expand Buy opens
-the next package/tag, `0.6.4` / `v0.6.4`, on Engineer ACCEPT.
+canal landed **`v0.6.3`**, explain maps landed **`v0.6.4`** (all ★
+ACCEPT CLOSED). This Continuity-cite Buy opens the next package/tag,
+`0.6.5` / `v0.6.5`, on Engineer ACCEPT.
 
 ## Tests
 
@@ -157,3 +187,14 @@ the next package/tag, `0.6.4` / `v0.6.4`, on Engineer ACCEPT.
   the real solid-id scan, the A3 query path is unchanged, and a
   subprocess smoke covers `--list`, `--rung C7`, and the
   `--list`+query mutual-exclusion error.
+- `tests/test_continuity_explain_cite_r3_b1.py` (T1–T6): topic `c_rate`
+  resolves to `c-rate-de-bateria` with non-empty `definicion`; two
+  Continuity fixtures (motor-catalog-gap, autonomy-target) tag the
+  expected topics (`["motor"]`, `["c_rate", "operating_point"]`) while
+  producing the exact same `next_useful_step`/`next_useful_why` text as
+  before this Buy (golden-string regression, captured from the code
+  pre-edit); `project_continuity.py` never imports `jarvis.intelligence`
+  (AST); `continuity_cite.py` never imports `jarvis.core` (AST); the
+  rendered "Conceptos" block mentions `c-rate-de-bateria` and
+  `jarvis explain`; an unknown topic never crashes and resolves to no
+  cite.

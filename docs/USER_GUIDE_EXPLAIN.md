@@ -122,8 +122,30 @@ jarvis explain --rung HD-005
 
 ---
 
-## 7. Límites conocidos
+## 7. Conceptos en `estado` / Continuity (R3)
+
+Cuando estás en el chat de Continuity (`jarvis --chat`) y escribes `estado`, a veces verás un bloque opcional al final del resumen del proyecto:
+
+```text
+Siguiente paso: Declara empuje real por motor (≥ 4.8 N) o elige una pieza
+   fuera de catálogo; Jarvis no inventará un SKU.
+   Por qué: Necesitas empuje ≥ 4.8 N/motor; no tengo motor en catálogo. ...
+Conceptos (ontology):
+  - motores  →  jarvis explain motores
+  - motor-dc  →  jarvis explain motor-dc
+```
+
+Estas líneas **no son parte de la decisión de Continuity** — son un garnish opcional. Continuity sigue decidiendo `situation`/`next_useful_step`/`next_useful_why` exactamente igual que antes; solo añade una etiqueta interna (`explain_topics`, un puñado de valores fijos como `motor`, `c_rate`, `operating_point`) cuando el paso que ya iba a mostrar toca un concepto con nota `solid` en el vault. Continuity **nunca lee `ontology/`** para decidir el paso — solo emite la etiqueta; la CLI es quien resuelve la etiqueta a una cita, con la misma función que usa `jarvis explain`.
+
+Si no ves el bloque "Conceptos", es porque no hay ningún concepto sembrado relacionado con el paso actual — no es un error, y no bloquea nada.
+
+**El bloque nunca muestra `[DEFINICION]`/`[INTUICION]` completas.** Solo el `id` y el comando exacto para leer la nota entera. Para el texto completo, siempre usa `jarvis explain <id>` (§2).
+
+---
+
+## 8. Límites conocidos
 
 - Cobertura parcial: solo las notas `solid` del spine (lotes 1–5) y los aliases/mapas sembrados hasta ahora — una consulta legítima puede no tener aún alias corto; usa `--list` para ver el `id` exacto.
 - `--rung` solo mapea las claves sembradas explícitamente (`C3`, `C7`, `C10`, `C39`, `C42`, `HD-001`, `HD-005`) — ampliar la cobertura es un IC futuro, no una búsqueda automática.
 - No hay canal conversacional todavía — cada consulta es una llamada de terminal independiente, sin memoria entre llamadas.
+- El bloque "Conceptos" en `estado`/Continuity solo cubre 5 etiquetas sembradas (`c_rate`, `operating_point`, `motor`, `current`, `thrust_stand`) y solo se activa cuando una señal concreta de Continuity ya existente coincide — no es una búsqueda ni una sugerencia generada por LLM.

@@ -87,6 +87,8 @@ C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the sa
 
 **Assistant `jarvis explain` canal, A1–A5 (2026-09-28, package `0.6.1`→`0.6.4`):** new sibling CLI entry point — **C-114** — `jarvis explain <query | --list | --rung KEY>` → `jarvis.intelligence.{explain,explain_maps,ontology_retrieve}` → read-only `ontology/` vault cite. Same isolation discipline as Fase C above: zero import from `jarvis.intelligence.*` into `jarvis.core` (Continuity/orchestrator), `jarvis.flight_software`, or `jarvis.vehicle_profiles` (AST-verified per Buy). One new `C-xxx`. User guide: `docs/USER_GUIDE_EXPLAIN.md`. Details: `CONNECTIONS.md` C-114 · `00_entry/ENTRY_MAP.md`.
 
+**Continuity explain cite R3, A6 (2026-09-28, package `0.6.5`, awaiting Engineer ★ ACCEPT):** first Continuity↔explain bridge — **C-115** — `build_project_continuity` emits a finite, additive `explain_topics` tag list (computed after `next_useful_step`/`next_useful_why`, never feeding back into ranking — regression-tested against two existing fixtures' exact pre-Buy output); CLI resolves the tags to solid cites via `jarvis.intelligence.continuity_cite` for an optional "Conceptos" pointer block. `project_continuity.py` still never imports `jarvis.intelligence` and never reads `ontology/` (AST-verified). One new `C-xxx`. User guide: `docs/USER_GUIDE_EXPLAIN.md` §7. Details: `CONNECTIONS.md` C-115 · `08_continuity/CONTINUITY_MAP.md` · `00_entry/ENTRY_MAP.md`.
+
 ## Subsystem index
 
 | Folder | One-line role | Inbound (from) | Outbound (to) |
@@ -105,7 +107,7 @@ C-042 (FN-024), C-025/C-044 (FN-025), and C-043 (FN-026) all bind through the sa
 
 ## Registries
 
-- [`CONNECTIONS.md`](CONNECTIONS.md) — every edge, `C-001`…`C-114` (67 unique, ID space sparse), with evidence
+- [`CONNECTIONS.md`](CONNECTIONS.md) — every edge, `C-001`…`C-115` (68 unique, ID space sparse), with evidence
 - [`AUTHORITY.md`](AUTHORITY.md) — decision → authority → forbidden, verified against code
 - [`FLOWS.md`](FLOWS.md) — `FLOW-001`…`FLOW-007`, user-visible journeys tied to connection IDs
 - [`MISMATCHES.md`](MISMATCHES.md) — doc↔code discrepancies, sticky-state lesson, design-only appendix (handoff-context lifecycle, H5)

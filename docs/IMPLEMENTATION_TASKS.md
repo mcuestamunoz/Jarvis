@@ -6,27 +6,25 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Assistant A6 / R3** — ★ AUTHORIZED IC [`B1-continuity-explain-cite-r3`](../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md) (Claude implement). A0–A5 ★ CLOSED @ **`v0.6.4`**. Target **`0.6.5`**. Continuity cite topics → Conceptos in estado; vault does not decide craft.  
+> **PRIORIDAD AHORA:** **Assistant A0–A6 CLOSED** @ tip **`v0.6.5`** (explain + maps + Continuity Conceptos). A4 voz/world **Parked**. R4 LLM cite **later**. Siguiente: smoke live `estado` Conceptos · o otra cola (silicon/craft).  
 > **Background:** Silicon parked. Standoff = visor-break. Continuity stays in `core/`. RAG/LLM = intérprete semántico only (later).  
-> SoT: [A6 IC](../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md) · [A5 ★](../.jes/artifacts/implementation_review_explain_maps_expand_b1.md) · [USER_GUIDE_EXPLAIN](USER_GUIDE_EXPLAIN.md).  
+> SoT: [A6 review ★](../.jes/artifacts/implementation_review_continuity_explain_cite_r3_b1.md) · [USER_GUIDE_EXPLAIN](USER_GUIDE_EXPLAIN.md) · [DC ★](../.jes/artifacts/design_contract_assistant_placement_b0.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.4`** · next **`0.6.5`**)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.5`** · A0–A6 CLOSED)
 
-SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [v0.6.0 close](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7 · [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md)
+SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
-| **A0** | **`DC-assistant-placement`** | **✅ ★ ACCEPT CLOSED** | Placement: `intelligence/` = Assistant home | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
-| **A1** | **`B1-intelligence-scaffold`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.1`** | Empty `src/jarvis/intelligence/` | [review](../.jes/artifacts/implementation_review_intelligence_scaffold_b1.md) |
-| **A2** | **`B1-ontology-retrieve-r2`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.2`** | `retrieve_by_id`/`retrieve_by_nombre` | [review](../.jes/artifacts/implementation_review_ontology_retrieve_r2_b1.md) |
-| **A3** | **`B1-assistant-terminal-canal`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.3`** | `jarvis explain <query>` | [review](../.jes/artifacts/implementation_review_assistant_terminal_canal_b1.md) |
-| **A4** | Voz / STT / world / casa | **Parked** | Horizon | DC §4 |
-| **A5** | **`B1-explain-maps-expand`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.4`** | Aliases + FS/HD maps + `--list`/`--rung` + C-114 | [review](../.jes/artifacts/implementation_review_explain_maps_expand_b1.md) · [guide](USER_GUIDE_EXPLAIN.md) |
-| **A6** | **`B1-continuity-explain-cite-r3`** | **★ AUTHORIZED** (Claude) · target **`0.6.5`** | Continuity `explain_topics` → Conceptos cite (R3) | [IC](../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md) |
+| **A0** | **`DC-assistant-placement`** | **✅ ★ ACCEPT CLOSED** | Placement | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
+| **A1**–**A5** | scaffold→maps | **✅ ★ CLOSED** @ **`v0.6.1`–`v0.6.4`** | explain CLI + maps | reviews A1–A5 |
+| **A4** | Voz / world | **Parked** | Horizon | DC §4 |
+| **A6** | **`B1-continuity-explain-cite-r3`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.5`** | Continuity Conceptos (R3) | [review](../.jes/artifacts/implementation_review_continuity_explain_cite_r3_b1.md) · [guide](USER_GUIDE_EXPLAIN.md) §7 |
+| **R4** | LLM cite | **Later** | Intérprete semántico only | vision §7 (b) |
 
 **Demo de valor (A3):** pregunta conceptual → explicación desde nota solid → sin inventar SKU watts/thrust.
 

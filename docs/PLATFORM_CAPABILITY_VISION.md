@@ -404,7 +404,7 @@ A system may combine different versions.
 
 Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resources across systems.
 
-**Placement (2026-09-28):** Ontology **CLOSED @ `v0.6.0`**. Assistant A0–A5 **★ CLOSED @ `v0.6.4`** (`jarvis explain` + maps). A4 voz/STT/`world`/casa **Parked**.
+**Placement (2026-09-28):** Ontology **CLOSED @ `v0.6.0`**. Assistant A0–A6 **★ CLOSED @ `v0.6.5`** (`jarvis explain` + maps + Continuity Conceptos). A4 voz/world **Parked**. R4 LLM cite later.
 
 ---
 

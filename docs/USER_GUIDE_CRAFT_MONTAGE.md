@@ -569,6 +569,8 @@ vtx 4.8 g                               # sin declaración de potencia (RF mW �
 
 **¿Por qué funciona esto?** Para conceptos (C-rate, IMU, magnetómetro, bancos de empuje…), `jarvis explain <id/alias>` es un comando de terminal **separado** de este chat — lee el vault conceptual `ontology/`, no tu proyecto. Ver [`docs/USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md).
 
+**Conceptos en `estado` (R3):** a veces `estado` añade un bloque opcional `Conceptos (ontology): - <id> → jarvis explain <id>` bajo el siguiente paso — es solo un puntero, nunca cambia qué decide Continuity ni inventa datos de catálogo. Detalle: [`docs/USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) §7.
+
 ---
 
 ## 13. Límites conocidos

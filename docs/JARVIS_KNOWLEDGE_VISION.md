@@ -99,8 +99,8 @@ ontology/          EXPLAINS
 |---|---|---|
 | **R1** | Vault hygiene + spine offline | **DONE** @ **`v0.6.0`** |
 | Docs crosswalks | FS / HD / geometry teach tables | **DONE** @ **`v0.6.0`** ([`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md)) |
-| Branch **(a)** | Assistant DC ★ → `intelligence/` → R2 → terminal | **NEXT** @ **`0.6.1+`** — cola A0–A3 |
-| Branch **(b)** | R3 Continuity cite / R4 LLM cite | Later |
+| Branch **(a)** | Assistant DC ★ → `intelligence/` → R2 → terminal | **DONE** @ **`v0.6.1`**–**`v0.6.4`** — A0–A5 ★ CLOSED (scaffold, retrieve, `jarvis explain`, alias/FS/HD maps) |
+| Branch **(b)** | R3 Continuity cite | **Delivered @ package `0.6.5`** ([report](../.jes/artifacts/implementation_report_continuity_explain_cite_r3_b1.md)) — Continuity emits finite `explain_topics`, CLI resolves optional Conceptos; vault still never decides the craft step. Awaiting Cursor review + Engineer ★ ACCEPT. R4 LLM cite: **Later** |
 | **R0** | Park product coupling; enrich vault only | Always available fallback |
 
 **Versioning:** tip **`v0.6.0`** closes ontology explain. Assistant Buys tag on **`0.6.1+`**. Bloque `0.5` tip remains historical **`v0.5.44`**.

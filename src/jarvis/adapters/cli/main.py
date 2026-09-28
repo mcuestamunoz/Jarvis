@@ -83,6 +83,29 @@ WARNING_SHORT: dict[str, str] = {
 }
 
 
+def _render_concept_lines(topics: list[str] | None) -> list[str]:
+    """R3 (`B1-continuity-explain-cite-r3`) — optional "Conceptos" garnish.
+
+    Resolves Continuity's finite `explain_topics` tags to solid ontology
+    cites via the same seam `jarvis explain` itself uses
+    (`jarvis.intelligence.continuity_cite`, local import — Continuity
+    never imports it). Returns `[]` (no block printed) when there are no
+    topics or none resolve to a solid cite — an unresolved topic is a
+    silent skip, never an invented note. Never dumps DEFINICION/
+    INTUICION here; each line only points at `jarvis explain <id>`."""
+    if not topics:
+        return []
+    from jarvis.intelligence.continuity_cite import (
+        cites_for_topics,
+        format_continuity_cite_lines,
+    )
+
+    cites = cites_for_topics(topics)
+    if not cites:
+        return []
+    return format_continuity_cite_lines(cites)
+
+
 def _human_warning(code: str) -> str:
     """Return full human-readable description for a simulator warning code."""
     return WARNING_MESSAGES.get(code, code)
@@ -278,6 +301,10 @@ def render_startup_context(ctx: dict) -> str:
             lines.append(f"Siguiente paso: {continuity['next_useful_step']}")
             if continuity.get("next_useful_why"):
                 lines.append(f"   Por qué: {_humanize_next_useful_why(continuity['next_useful_why'])}")
+        concept_lines = _render_concept_lines(continuity.get("explain_topics"))
+        if concept_lines:
+            lines.append("Conceptos (ontology):")
+            lines.extend(concept_lines)
         lines.append("─" * 44)
 
     phase = ctx.get("phase")
@@ -649,6 +676,10 @@ def render_response(result: dict) -> str:
                 parts.append(f"Siguiente paso: {coherence['next_useful_step']}")
                 if coherence.get("next_useful_why"):
                     parts.append(f"   Por qué: {coherence['next_useful_why']}")
+            concept_lines = _render_concept_lines(coherence.get("explain_topics"))
+            if concept_lines:
+                parts.append("Conceptos (ontology):")
+                parts.extend(concept_lines)
             return "\n".join(parts)
 
         reasoning = result.get("reasoning")
