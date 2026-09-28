@@ -6,7 +6,8 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED: **implement now**  
 **Reviewer:** Cursor against this IC · Engineer ACCEPT → tag **`v0.6.6`**
 
-**Status:** ★ **AUTHORIZED** — await Claude implementation + report  
+**Status:** **Parked** (Engineer 2026-09-28) — defer implementation; reopen when ready to intercept explain inside `--chat` without LLM.  
+**Was:** ★ AUTHORIZED briefly after field note (Mac collapse via LLM). Tip parent remains **`v0.6.5`**.  
 **Parents:**
 - A6/R3 ★ CLOSED @ **`v0.6.5`** — Conceptos lines print `jarvis explain <id>`  
 - Engineer field note 2026-09-28: typing that line **inside** `--chat` hits LLM → “No se pudo interpretar” + Mac collapse under local LLM load  
