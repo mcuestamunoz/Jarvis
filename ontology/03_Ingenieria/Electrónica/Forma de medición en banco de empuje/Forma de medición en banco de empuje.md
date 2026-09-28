@@ -171,7 +171,7 @@ La estructura propuesta es consistente con metodologías experimentales de UIUC 
   https://m-selig.ae.illinois.edu/props/volume-4/propDB-volume-4.html
 - Brandt & Selig / UIUC — Propeller performance at low Reynolds numbers (PDB Vol. 1 / methodology):
   https://m-selig.ae.illinois.edu/props/volume-1/propDB-volume-1.html
-- Shetty & Selig — AIAA 2011-1254 (LRN / VSR props; experimental context):
+- Shetty & Selig — AIAA 2011-1254 (LRN / VRS props; experimental context):
   https://m-selig.ae.illinois.edu/pubs/ShettySelig-2011-AIAA-2011-1254-LRN-VSR-Props.pdf
 - Dantsker, Selig & Mancuso — AIAA 2017-3745 (*A Rolling Rig for Propeller Performance Testing*):
   https://m-selig.ae.illinois.edu/pubs/DantskerSeligMancuso-2017-AIAA-Paper-2017-3745.pdf
@@ -187,6 +187,6 @@ La estructura propuesta es consistente con metodologías experimentales de UIUC 
 ---
 ## [ESTADO] Forma de medición en banco de empuje
 - comprensión: revisada
-- revisión: Engineer + contraste externo (GPT cite) · Cursor land `solid`
+- revisión: Engineer + contraste externo (GPT cite) · Cursor land `solid` · cite-audit R2 (Cursor)
 - jarvis_lote: spine-lote-5
 - estado: solid

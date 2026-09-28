@@ -194,7 +194,7 @@ Se precisan tres puntos:
 - PX4 — PositionSetpoint (UORB; NED / local setpoints):
   https://docs.px4.io/main/en/msg_docs/PositionSetpoint.html
 - Nav2 — Navigation Concepts:
-  https://docs.nav2.org/concepts/
+  https://docs.nav2.org/rolling/getting_started/navigation_concepts/
 - Nav2 — State Estimation:
   https://docs.nav2.org/rolling/getting_started/navigation_concepts/state_estimation/
 - MIT Underactuated Robotics — State Estimation:
@@ -207,6 +207,6 @@ Se precisan tres puntos:
 ---
 ## [ESTADO] Navegación y planificación
 - comprensión: revisada
-- revisión: Engineer + contraste externo (GPT cite) · Cursor land `solid`
+- revisión: Engineer + contraste externo (GPT cite) · Cursor land `solid` · cite-audit R1 (Cursor)
 - jarvis_lote: spine-lote-5
 - estado: solid
