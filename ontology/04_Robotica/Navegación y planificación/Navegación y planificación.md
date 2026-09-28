@@ -194,9 +194,9 @@ Se precisan tres puntos:
 - PX4 — PositionSetpoint (UORB; NED / local setpoints):
   https://docs.px4.io/main/en/msg_docs/PositionSetpoint.html
 - Nav2 — Navigation Concepts:
-  https://docs.nav2.org/concepts/index.html
+  https://docs.nav2.org/concepts/
 - Nav2 — State Estimation:
-  https://docs.nav2.org/concepts/navigation_concepts.html#state-estimation
+  https://docs.nav2.org/rolling/getting_started/navigation_concepts/state_estimation/
 - MIT Underactuated Robotics — State Estimation:
   https://underactuated.mit.edu/state_estimation.html
 - MIT Underactuated Robotics — Trajectory Optimization:
