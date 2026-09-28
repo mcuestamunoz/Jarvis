@@ -99,8 +99,8 @@ ontology/          EXPLAINS
 |---|---|---|
 | **R1** | Vault hygiene: extend `00_Mapa/Plantilla.md` with `jarvis_relevance`, `citation` / `never_invents`; Engineer fills **spine** offline | May be docs/`ontology/`-only; first landed Buy in this epoch may tag **`v0.6.0`** |
 | Docs crosswalks | FS ladder table, HD-005, geometry honesty lines | Usually no `src/`; tag optional |
-| Branch **(a)** | Assistant DC ★ → `intelligence/` scaffold → read-only retrieve (R2) | Own ICs |
-| Branch **(b)** | Thin LLM cite (R4) and/or Continuity explain-cites (R3) | Own ICs; after R1 |
+| Branch **(a)** | Assistant DC ★ → `intelligence/` scaffold → read-only retrieve (R2) → terminal/CLI canal | **ACTIVE cola** A0–A3 en [`IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md) |
+| Branch **(b)** | Thin LLM cite (R4) and/or Continuity explain-cites (R3) | Later / optional parallel |
 | **R0** | Park product coupling; enrich vault only | Always available fallback |
 
 **Versioning:** tip after first `0.6` tag advances on `0.6.x`. Future flight-control Buys also tag on **`0.6.x`** (or a later epoch) — not `0.5.45+`. Bloque `0.5` tip remains historical **`v0.5.44`**.

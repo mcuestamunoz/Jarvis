@@ -93,8 +93,10 @@ Standing vocabulary already solid in lote-4/5:
 
 ## 5) Non-goals
 
-- Importing `ontology/` from `src/` or `native/`
+- Importing `ontology/` from `src/` or `native/` **until** Assistant R2 IC ★
 - Replacing `library/` rows with note prose
 - Closing any HD-* by inventing OP tables
 - Claiming FS rungs are flight-validated because a note exists
-- RAG / Assistant retrieve (separate ICs after Assistant DC ★)
+- RAG / Assistant retrieve without cola A0–A2 ([`IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md) PRIORIDAD)
+
+**Next product use:** Assistant path — ★ DC placement → `intelligence/` scaffold → read-only spine retrieve → terminal “¿por qué?”.

@@ -6,7 +6,7 @@
 **Implementer:** none — **no `src/` / no new packages** until a later Implementation Contract is ★  
 **Reviewer:** Engineer ★ (ratify / amend)
 
-**Status:** **DISCUSS** — Engineer 2026-09-27: software-month C36–C43 ★ CLOSED @ **`v0.5.44`**. Este DC puede discutirse; **no** ★ implement / no `src/` hasta un IC de Assistant aparte.  
+**Status:** **DISCUSS** — Engineer 2026-09-28: ontology spine 1–5 + ONT-docs LANDED; **PRIORIDAD** = Assistant path (cola A0–A3 en [`IMPLEMENTATION_TASKS.md`](../../docs/IMPLEMENTATION_TASKS.md)). Este DC puede ★-ratificarse; **no** `src/` / **no** `intelligence/` en disco hasta A0 ★ + IC A1.  
 **Type:** Design / Architecture Lock — **where Assistant will live**, not voice, not house map, not lavadora.  
 **Not** an Implementation Contract. **Not** a version bump. **Not** permission to create `intelligence/` or `world/` on disk.
 
@@ -112,6 +112,12 @@ Those need their own ICs **much later**, after this placement is ★ and after t
 
 ## 5. Next after this DC is ★
 
-A later, tiny Implementation Contract **only if** the Engineer wants an empty on-disk scaffold (same grain as C1 registry): e.g. `src/jarvis/intelligence/` with a README + empty `__init__.py` and a test that the package imports and does **not** call `flight_software`. Until that IC, **zero directories**.
+Cola operativa (epoch `0.6`) — PRIORIDAD en [`IMPLEMENTATION_TASKS.md`](../../docs/IMPLEMENTATION_TASKS.md):
 
-Cola operativa del mes sigue siendo **C36+** (flight software en el Mac). Este DC no la adelanta ni la sustituye.
+1. **A1** — IC scaffold: `src/jarvis/intelligence/` vacío + README + test import; no llama `flight_software` (mismo grain que C1 registry).
+2. **A2** — IC R2: retrieve **read-only** del spine ontology (estrecho: lote-4/5 honesty + [`ONTOLOGY_CROSSWALKS.md`](../../docs/ONTOLOGY_CROSSWALKS.md)); cite; no escribe catalog/Continuity/`step()`.
+3. **A3** — canal terminal/CLI: pregunta “¿por qué?” → respuesta + cita nota. Voz / world / casa = **después** (A4 parked).
+
+Until A0 ★ + A1 IC, **zero filesystem** for `intelligence/` / `world/`.
+
+Ontology vault + crosswalks are **ready as explain SoT** for A2; they do not replace this placement DC.
