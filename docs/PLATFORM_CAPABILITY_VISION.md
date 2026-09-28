@@ -404,7 +404,7 @@ A system may combine different versions.
 
 Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resources across systems.
 
-**Placement (2026-09-28):** [`DC-assistant-placement`](../.jes/artifacts/design_contract_assistant_placement_b0.md) = **DISCUSS** (need ★). **PRIORIDAD** opened cola A0–A3 (scaffold `intelligence/` → R2 ontology retrieve → terminal canal). Still no `src/` until A0 ★ + IC. Ontology spine 1–5 + [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md) ready as explain SoT for R2.
+**Placement (2026-09-28):** Ontology explain **CLOSED @ `v0.6.0`**. [`DC-assistant-placement`](../.jes/artifacts/design_contract_assistant_placement_b0.md) = **DISCUSS** (need ★). **PRIORIDAD** = Assistant **`0.6.1+`** cola A0–A3. No `src/` until A0 ★ + IC.
 
 ---
 

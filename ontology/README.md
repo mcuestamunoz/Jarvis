@@ -2,9 +2,11 @@
 
 **What this is:** the Engineer’s Obsidian graph of math / physics / engineering / robotics concepts (notes + links). Theory and explanation.
 
-**Vision / epoch:** [`docs/JARVIS_KNOWLEDGE_VISION.md`](../docs/JARVIS_KNOWLEDGE_VISION.md) — opens with **`0.6.0`**; bloque `0.5` closed @ `v0.5.44`. Spine enrichment protocol lives there (§8).
+**Vision / epoch:** [`docs/JARVIS_KNOWLEDGE_VISION.md`](../docs/JARVIS_KNOWLEDGE_VISION.md) — ontology explain **CLOSED @ `v0.6.0`**; Assistant next **`0.6.1+`**. Spine protocol §8.
 
 **Docs crosswalks (teach only, no runtime):** [`docs/ONTOLOGY_CROSSWALKS.md`](../docs/ONTOLOGY_CROSSWALKS.md) — FS ladder · HD · geometry.
+
+**Close note:** [`.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md`](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md).
 
 **What this is not:**
 - Not the craft catalog (`library/` + `src/jarvis/knowledge/` / `ComponentLibrary`)

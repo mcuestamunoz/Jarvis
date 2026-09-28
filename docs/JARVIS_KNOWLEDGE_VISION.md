@@ -3,7 +3,7 @@
 **Status:** Directional — not implementation authority  
 **Type:** Vision / To-be (+ as-is placement locks)  
 **Date:** 2026-09-27  
-**Epoch:** opens with **`0.6.0`** · bloque **`0.5` CLOSED** @ tip **`v0.5.44`**  
+**Epoch:** **`v0.6.0` TAGGED** (ontology explain branch CLOSED) · bloque **`0.5` CLOSED** @ historical **`v0.5.44`** · next product slice Assistant **`0.6.1+`**  
 **Investigation SoT:** [B0 review](../.jes/artifacts/investigation_review_ontology_vault_value_for_jarvis_b0.md) · [Claude report](../.jes/artifacts/investigation_report_ontology_vault_value_for_jarvis_b0.md)
 
 ---
@@ -97,13 +97,13 @@ ontology/          EXPLAINS
 
 | Step | What | Tag / code |
 |---|---|---|
-| **R1** | Vault hygiene: extend `00_Mapa/Plantilla.md` with `jarvis_relevance`, `citation` / `never_invents`; Engineer fills **spine** offline | May be docs/`ontology/`-only; first landed Buy in this epoch may tag **`v0.6.0`** |
-| Docs crosswalks | FS ladder table, HD-005, geometry honesty lines | Usually no `src/`; tag optional |
-| Branch **(a)** | Assistant DC ★ → `intelligence/` scaffold → read-only retrieve (R2) → terminal/CLI canal | **ACTIVE cola** A0–A3 en [`IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md) |
-| Branch **(b)** | Thin LLM cite (R4) and/or Continuity explain-cites (R3) | Later / optional parallel |
+| **R1** | Vault hygiene + spine offline | **DONE** @ **`v0.6.0`** |
+| Docs crosswalks | FS / HD / geometry teach tables | **DONE** @ **`v0.6.0`** ([`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md)) |
+| Branch **(a)** | Assistant DC ★ → `intelligence/` → R2 → terminal | **NEXT** @ **`0.6.1+`** — cola A0–A3 |
+| Branch **(b)** | R3 Continuity cite / R4 LLM cite | Later |
 | **R0** | Park product coupling; enrich vault only | Always available fallback |
 
-**Versioning:** tip after first `0.6` tag advances on `0.6.x`. Future flight-control Buys also tag on **`0.6.x`** (or a later epoch) — not `0.5.45+`. Bloque `0.5` tip remains historical **`v0.5.44`**.
+**Versioning:** tip **`v0.6.0`** closes ontology explain. Assistant Buys tag on **`0.6.1+`**. Bloque `0.5` tip remains historical **`v0.5.44`**.
 
 ---
 

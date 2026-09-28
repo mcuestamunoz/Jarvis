@@ -6,29 +6,29 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Assistant path (epoch `0.6`)** — ★ **`DC-assistant-placement`** (hoy **DISCUSS**) → IC scaffold `intelligence/` → IC **R2** retrieve read-only spine → canal terminal/CLI. Ontology spine 1–5 + ONT-docs ✅. Tip **`v0.5.44`** (tag `v0.6.0` opcional en paralelo).  
-> **Background:** Silicon parked. Standoff = visor-break. Continuity craft stays in `core/` — Assistant no lo traga.  
-> SoT: [Assistant DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) · [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md).  
+> **PRIORIDAD AHORA:** **Assistant @ `0.6.1+`** — ★ **`DC-assistant-placement`** (DISCUSS) → IC scaffold `intelligence/` → R2 retrieve → canal terminal. Ontology explain branch **CLOSED @ `v0.6.0`**.  
+> **Background:** Silicon parked. Standoff = visor-break. Continuity stays in `core/`.  
+> SoT: [v0.6.0 close note](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md) · [Assistant DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md).  
 
-> Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
+> Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · epoch `0.6`)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.0`** · product target **`0.6.1+`**)
 
-SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §5 F / §7 branch (a) · [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md)
+SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [v0.6.0 close](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7 (a) · [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md)
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
-| **A0** | **`DC-assistant-placement`** | **DISCUSS → need ★** | Lock sitio repo: `intelligence/` = Assistant; ≠ FC; ≠ Continuity swallow | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) · **sin ★ no hay `src/`** |
-| **A1** | `B1-intelligence-scaffold` | **Blocked on A0 ★** | `src/jarvis/intelligence/` vacío + README + test import; **no** llama `flight_software` | IC propio tras A0 |
-| **A2** | `B1-ontology-retrieve-r2` | **Blocked on A1** | Retrieve **read-only** del spine (estrecho: lote-4/5 honesty + crosswalk); cite path; **no** escribe `library/` / Continuity / `step()` | vision R2 · IC propio |
-| **A3** | Canal terminal / CLI Assistant | **Blocked on A2** | Preguntar “¿qué es C-rate?” / “¿por qué no inventar thrust?” → respuesta + cita nota | Ingress terminal primero; voz **después** |
-| **A4** | Voz / STT / world / casa | **Parked** | Horizon only — no cola hasta A0–A3 | DC §4 out of scope |
+| **A0** | **`DC-assistant-placement`** | **DISCUSS → need ★** | Lock sitio: `intelligence/` = Assistant; ≠ FC; ≠ Continuity swallow | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) · **sin ★ no hay `src/`** |
+| **A1** | `B1-intelligence-scaffold` | **Blocked on A0 ★** · target **`v0.6.1`** | `src/jarvis/intelligence/` vacío + README + test import; **no** llama `flight_software` | IC propio tras A0 |
+| **A2** | `B1-ontology-retrieve-r2` | **Blocked on A1** · `0.6.x` | Retrieve **read-only** spine (lote-4/5 honesty + crosswalk); cite; **no** escribe `library/` / Continuity / `step()` | vision R2 · IC propio |
+| **A3** | Canal terminal / CLI Assistant | **Blocked on A2** · `0.6.x` | “¿qué es C-rate?” / “¿por qué no inventar thrust?” → respuesta + cita | Terminal primero; voz **después** |
+| **A4** | Voz / STT / world / casa | **Parked** | Horizon only | DC §4 |
 
 **Demo de valor (A3):** pregunta conceptual → explicación desde nota solid → sin inventar SKU watts/thrust.
 
-**Locks:** Assistant ≠ Flight Software · vault EXPLAINS only · `knowledge/retriever.py` vacío **no** se reutiliza en silencio · retrieve vive en `intelligence/`.
+**Locks:** Assistant ≠ Flight Software · vault EXPLAINS only · `knowledge/retriever.py` vacío **no** se reutiliza · retrieve vive en `intelligence/`.
 
 ### 📋 COLA — Software closeout (activa · sin calibre / sin banco)
 
@@ -108,8 +108,8 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C42** | **`B1-fase-c-icm-register-client`** | **✅ ACCEPT CLOSED** @ **`v0.5.43`** | ICM42688P WHO_AM_I on `ScriptedSpi` | [review](../.jes/artifacts/implementation_review_fase_c_icm_register_client_b1.md) · tag **`v0.5.43`** |
 | **C43** | **`B1-fase-c-craft-fs-bind`** | **✅ ACCEPT CLOSED** @ **`v0.5.44`** | This-quad profile reads craft identity | [review](../.jes/artifacts/implementation_review_fase_c_craft_fs_bind_b1.md) · tag **`v0.5.44`** |
 | **Silicon** | GPIO/DShot wire · on-chip USART · gyro SPI1 **live** · C30 desk DFU · Linux baud | **Parked** | Needs bench · [bench note](../.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md) | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
-| **ONT-0** | **`B0-ontology-vault-value-for-jarvis`** | **★ ACCEPTED (epoch)** — opens **`0.6.0`** | Value + seams; bloque 0.5 closed @ `v0.5.44`; tip still `v0.5.44` until first 0.6 tag | [review](../.jes/artifacts/investigation_review_ontology_vault_value_for_jarvis_b0.md) |
-| **ASSIST-0** | **`DC-assistant-placement`** | **DISCUSS → cola A0** | Placement lock; **PRIORIDAD** Assistant path | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) · cola A0–A3 arriba |
+| **ONT-0** | **`B0-ontology-vault-value-for-jarvis`** | **★ ACCEPTED (epoch)** — opens **`0.6.0`** | Value + seams; bloque 0.5 closed @ `v0.5.44`; ontology branch tagged **`v0.6.0`** | [review](../.jes/artifacts/investigation_review_ontology_vault_value_for_jarvis_b0.md) |
+| **ASSIST-0** | **`DC-assistant-placement`** | **DISCUSS → cola A0** · next **`0.6.1`** | Placement lock; **PRIORIDAD** Assistant | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) · cola A0–A3 arriba |
 
 ### 📋 COLA — Epoch 0.6 (ontology / explain layer)
 
@@ -128,10 +128,10 @@ SoT: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) · [B0 review](.
 | **ONT-4b** | **`B0-ontology-spine-lote4-citation-review`** | **✅ ACCEPT CLOSED** | 6 notes stay solid; R1–R5 applied · no tag (investigation) | [review](../.jes/artifacts/investigation_review_ontology_spine_lote4_citation_review_b0.md) |
 | **ONT-5** | **spine lote-5** | **LOTE-5 SOLID** (3 notes) | Magnetismo · Navegación y planificación · Forma medición banco empuje `solid` | Obsidian |
 | **ONT-5b** | **`B0-ontology-spine-lote5-citation-review`** | **✅ ACCEPT CLOSED** | 3 notes stay solid; R1–R2 applied · no tag (investigation) | [review](../.jes/artifacts/investigation_review_ontology_spine_lote5_citation_review_b0.md) |
-| **ONT-docs** | Docs crosswalks (FS / HD / geometry) | **✅ LANDED** | [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md) · pointers ARCHITECTURE / HD / native README | vision §5 D/G/C |
-| **ONT-tag** | First **`v0.6.0`** tag | **Optional** (Engineer ★) | Tip still `v0.5.44`; puede ir en paralelo a A0–A2 | vision §7 |
-| **ONT-branch** | **(a) Assistant→R2** | **ACTIVE** = cola A0–A3 | Retrieve ontology vía `intelligence/` | PRIORIDAD · vision §7 (a) |
-| **ONT-branch-b** | (b) R3 Continuity cite / R4 LLM cite | **Later** | Tras A2 o en paralelo si Engineer ★ | vision §7 (b) |
+| **ONT-docs** | Docs crosswalks (FS / HD / geometry) | **✅ LANDED** | [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md) | vision §5 D/G/C |
+| **ONT-tag** | **`v0.6.0`** ontology epoch close | **✅ TAGGED** | Package `0.6.0` · [close note](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md) | closes explain branch |
+| **ONT-branch** | **(a) Assistant→R2** | **ACTIVE** @ **`0.6.1+`** | cola A0–A3 | PRIORIDAD |
+| **ONT-branch-b** | (b) R3 / R4 cites | **Later** | Tras A2 o ★ aparte | vision §7 (b) |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 

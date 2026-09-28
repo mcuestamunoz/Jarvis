@@ -6,7 +6,7 @@
 **Implementer:** none — **no `src/` / no new packages** until a later Implementation Contract is ★  
 **Reviewer:** Engineer ★ (ratify / amend)
 
-**Status:** **DISCUSS** — Engineer 2026-09-28: ontology spine 1–5 + ONT-docs LANDED; **PRIORIDAD** = Assistant path (cola A0–A3 en [`IMPLEMENTATION_TASKS.md`](../../docs/IMPLEMENTATION_TASKS.md)). Este DC puede ★-ratificarse; **no** `src/` / **no** `intelligence/` en disco hasta A0 ★ + IC A1.  
+**Status:** **DISCUSS** — Engineer 2026-09-28: ontology explain **CLOSED @ `v0.6.0`**; **PRIORIDAD** = Assistant **`0.6.1+`** (cola A0–A3). Este DC puede ★-ratificarse; **no** `src/` / **no** `intelligence/` hasta A0 ★ + IC A1 (target tag **`v0.6.1`**).  
 **Type:** Design / Architecture Lock — **where Assistant will live**, not voice, not house map, not lavadora.  
 **Not** an Implementation Contract. **Not** a version bump. **Not** permission to create `intelligence/` or `world/` on disk.
 

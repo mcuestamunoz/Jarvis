@@ -1,9 +1,10 @@
 # Ontology crosswalks — FS · HD · Geometry
 
-**Status:** Docs teach only (ONT-docs) · landed 2026-09-28  
-**Epoch:** `0.6.x` explain layer · tip still **`v0.5.44`** (no runtime vault read)  
+**Status:** Docs teach only (ONT-docs) · landed 2026-09-28 · ontology branch **CLOSED @ `v0.6.0`**  
+**Epoch:** explain SoT ready for Assistant **`0.6.1+`** (R2) · no runtime vault read until A0 ★ + ICs  
 **Vision:** [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §5 B/C/D/G · §6 seams  
-**Vault:** [`ontology/`](../ontology/README.md) · spine lotes 1–5 solid + cite-audited
+**Vault:** [`ontology/`](../ontology/README.md) · spine lotes 1–5 solid + cite-audited  
+**Close:** [`engineer_note_v0_6_0_ontology_epoch_close.md`](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md)
 
 This file maps **product surfaces → concept notes**. It does **not** authorize `src/` imports of `ontology/`, catalog writes, HD curve invention, or treating sim rungs as flight validation.
 
