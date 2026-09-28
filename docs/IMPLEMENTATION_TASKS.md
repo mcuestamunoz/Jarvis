@@ -6,17 +6,17 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Assistant A0–A5 CLOSED** @ tip **`v0.6.4`** (`jarvis explain` + maps live). A4 voz/world **Parked**. Siguiente IC: Engineer elige (map expand / R3 Continuity cite / otra cola).  
+> **PRIORIDAD AHORA:** **Assistant A6 / R3** — ★ AUTHORIZED IC [`B1-continuity-explain-cite-r3`](../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md) (Claude implement). A0–A5 ★ CLOSED @ **`v0.6.4`**. Target **`0.6.5`**. Continuity cite topics → Conceptos in estado; vault does not decide craft.  
 > **Background:** Silicon parked. Standoff = visor-break. Continuity stays in `core/`. RAG/LLM = intérprete semántico only (later).  
-> SoT: [A5 review ★](../.jes/artifacts/implementation_review_explain_maps_expand_b1.md) · [USER_GUIDE_EXPLAIN](USER_GUIDE_EXPLAIN.md) · [DC ★](../.jes/artifacts/design_contract_assistant_placement_b0.md).  
+> SoT: [A6 IC](../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md) · [A5 ★](../.jes/artifacts/implementation_review_explain_maps_expand_b1.md) · [USER_GUIDE_EXPLAIN](USER_GUIDE_EXPLAIN.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.4`** · A0–A5 CLOSED)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.4`** · next **`0.6.5`**)
 
-SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [v0.6.0 close](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7 (a) · [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md)
+SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [v0.6.0 close](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7 · [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md)
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
@@ -25,7 +25,8 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **A2** | **`B1-ontology-retrieve-r2`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.2`** | `retrieve_by_id`/`retrieve_by_nombre` | [review](../.jes/artifacts/implementation_review_ontology_retrieve_r2_b1.md) |
 | **A3** | **`B1-assistant-terminal-canal`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.3`** | `jarvis explain <query>` | [review](../.jes/artifacts/implementation_review_assistant_terminal_canal_b1.md) |
 | **A4** | Voz / STT / world / casa | **Parked** | Horizon | DC §4 |
-| **A5** | **`B1-explain-maps-expand`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.4`** | Aliases + FS/HD maps + `--list`/`--rung` + C-114 docs | [review](../.jes/artifacts/implementation_review_explain_maps_expand_b1.md) · [guide](USER_GUIDE_EXPLAIN.md) |
+| **A5** | **`B1-explain-maps-expand`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.4`** | Aliases + FS/HD maps + `--list`/`--rung` + C-114 | [review](../.jes/artifacts/implementation_review_explain_maps_expand_b1.md) · [guide](USER_GUIDE_EXPLAIN.md) |
+| **A6** | **`B1-continuity-explain-cite-r3`** | **★ AUTHORIZED** (Claude) · target **`0.6.5`** | Continuity `explain_topics` → Conceptos cite (R3) | [IC](../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md) |
 
 **Demo de valor (A3):** pregunta conceptual → explicación desde nota solid → sin inventar SKU watts/thrust.
 
