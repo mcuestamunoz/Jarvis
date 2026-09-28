@@ -6,9 +6,9 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Assistant @ `0.6.1+`** — ★ **`DC-assistant-placement`** (DISCUSS) → IC scaffold `intelligence/` → R2 retrieve → canal terminal. Ontology explain branch **CLOSED @ `v0.6.0`**.  
+> **PRIORIDAD AHORA:** **Assistant A1** — ★ AUTHORIZED IC [`B1-intelligence-scaffold`](../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (Claude implement). A0 DC ★ CLOSED. Target tag **`v0.6.1`**. Ontology CLOSED @ **`v0.6.0`**.  
 > **Background:** Silicon parked. Standoff = visor-break. Continuity stays in `core/`.  
-> SoT: [v0.6.0 close note](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md) · [Assistant DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md).  
+> SoT: [A1 IC](../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [v0.6.0 close](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
@@ -20,10 +20,10 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
-| **A0** | **`DC-assistant-placement`** | **DISCUSS → need ★** | Lock sitio: `intelligence/` = Assistant; ≠ FC; ≠ Continuity swallow | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) · **sin ★ no hay `src/`** |
-| **A1** | `B1-intelligence-scaffold` | **Blocked on A0 ★** · target **`v0.6.1`** | `src/jarvis/intelligence/` vacío + README + test import; **no** llama `flight_software` | IC propio tras A0 |
-| **A2** | `B1-ontology-retrieve-r2` | **Blocked on A1** · `0.6.x` | Retrieve **read-only** spine (lote-4/5 honesty + crosswalk); cite; **no** escribe `library/` / Continuity / `step()` | vision R2 · IC propio |
-| **A3** | Canal terminal / CLI Assistant | **Blocked on A2** · `0.6.x` | “¿qué es C-rate?” / “¿por qué no inventar thrust?” → respuesta + cita | Terminal primero; voz **después** |
+| **A0** | **`DC-assistant-placement`** | **✅ ★ ACCEPT CLOSED** | Placement: `intelligence/` = Assistant home | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
+| **A1** | **`B1-intelligence-scaffold`** | **★ AUTHORIZED** (Claude) · target **`v0.6.1`** | Empty `src/jarvis/intelligence/` + README + tests; no retrieve | [IC](../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) |
+| **A2** | `B1-ontology-retrieve-r2` | **Blocked on A1 ACCEPT** · `0.6.x` | Retrieve **read-only** spine (lote-4/5 + crosswalk) | vision R2 · IC later |
+| **A3** | Canal terminal / CLI Assistant | **Blocked on A2** · `0.6.x` | “¿por qué?” → respuesta + cita | Terminal primero; voz **después** |
 | **A4** | Voz / STT / world / casa | **Parked** | Horizon only | DC §4 |
 
 **Demo de valor (A3):** pregunta conceptual → explicación desde nota solid → sin inventar SKU watts/thrust.
@@ -109,7 +109,7 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C43** | **`B1-fase-c-craft-fs-bind`** | **✅ ACCEPT CLOSED** @ **`v0.5.44`** | This-quad profile reads craft identity | [review](../.jes/artifacts/implementation_review_fase_c_craft_fs_bind_b1.md) · tag **`v0.5.44`** |
 | **Silicon** | GPIO/DShot wire · on-chip USART · gyro SPI1 **live** · C30 desk DFU · Linux baud | **Parked** | Needs bench · [bench note](../.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md) | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
 | **ONT-0** | **`B0-ontology-vault-value-for-jarvis`** | **★ ACCEPTED (epoch)** — opens **`0.6.0`** | Value + seams; bloque 0.5 closed @ `v0.5.44`; ontology branch tagged **`v0.6.0`** | [review](../.jes/artifacts/investigation_review_ontology_vault_value_for_jarvis_b0.md) |
-| **ASSIST-0** | **`DC-assistant-placement`** | **DISCUSS → cola A0** · next **`0.6.1`** | Placement lock; **PRIORIDAD** Assistant | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) · cola A0–A3 arriba |
+| **ASSIST-0** | **`DC-assistant-placement`** | **✅ ★ ACCEPT CLOSED** | Placement lock; next A1 scaffold @ **`0.6.1`** | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 
 ### 📋 COLA — Epoch 0.6 (ontology / explain layer)
 

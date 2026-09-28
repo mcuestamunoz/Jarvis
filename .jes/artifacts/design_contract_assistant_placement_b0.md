@@ -3,10 +3,10 @@
 **Project:** Jarvis  
 **Date:** 2026-09-26  
 **Author:** Cursor (Engineer Interface) — **design contract only**  
-**Implementer:** none — **no `src/` / no new packages** until a later Implementation Contract is ★  
+**Implementer:** none for this DC — disk scaffold is **A1 IC** (`B1-intelligence-scaffold`)  
 **Reviewer:** Engineer ★ (ratify / amend)
 
-**Status:** **DISCUSS** — Engineer 2026-09-28: ontology explain **CLOSED @ `v0.6.0`**; **PRIORIDAD** = Assistant **`0.6.1+`** (cola A0–A3). Este DC puede ★-ratificarse; **no** `src/` / **no** `intelligence/` hasta A0 ★ + IC A1 (target tag **`v0.6.1`**).  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-28) — placement lock ratified. Next: IC [`implementation_contract_intelligence_scaffold_b1.md`](implementation_contract_intelligence_scaffold_b1.md) ★ AUTHORIZED → package/tag **`0.6.1`**. Still no retrieve/canal until A2/A3.  
 **Type:** Design / Architecture Lock — **where Assistant will live**, not voice, not house map, not lavadora.  
 **Not** an Implementation Contract. **Not** a version bump. **Not** permission to create `intelligence/` or `world/` on disk.
 
@@ -56,7 +56,7 @@ src/jarvis/
 ├── capabilities/         # CAPABILITIES — already. Intent/Safety/registry. Voice adapter stays a peer here when its IC comes.
 ├── flight_software/      # VEHICLE      — already. Control + autonomy. Stay.
 ├── vehicle_profiles/     # already
-├── intelligence/         # NOT ON DISK  — candidate home for Assistant (tasking / memory / planning)
+├── intelligence/         # ON DISK via A1 IC scaffold — Assistant home (tasking / memory / planning later)
 │                         #                sits above Intent; never inside flight_control
 └── world/                # NOT ON DISK  — candidate later: rooms, doors, devices-per-room
                           #                consumed by Assistant; executed via capabilities → vehicle/device
@@ -103,7 +103,7 @@ Craft Engineer stays a **different** question (“cómo va el proyecto 10-min”
 - Mapa de casa, habitaciones, puerta principal, equipos por habitación
 - Ver si la lavadora ha terminado (device provider + perception)
 - `VoiceIntentAdapter` que deje de lanzar `NotImplementedError`
-- Cualquier `src/jarvis/intelligence/` o `world/` en disco
+- `world/` en disco · STT/casa (sigue parked). `intelligence/` scaffold = **A1 IC only**, not this DC alone
 - Mezclar esto con C36–C43 (planta sim / lazos / ejecutor)
 
 Those need their own ICs **much later**, after this placement is ★ and after the vehicle software ladder has somewhere to *bind* a GO_TO. Placement first so those ICs do not dump files into the wrong tree.
@@ -118,6 +118,6 @@ Cola operativa (epoch `0.6`) — PRIORIDAD en [`IMPLEMENTATION_TASKS.md`](../../
 2. **A2** — IC R2: retrieve **read-only** del spine ontology (estrecho: lote-4/5 honesty + [`ONTOLOGY_CROSSWALKS.md`](../../docs/ONTOLOGY_CROSSWALKS.md)); cite; no escribe catalog/Continuity/`step()`.
 3. **A3** — canal terminal/CLI: pregunta “¿por qué?” → respuesta + cita nota. Voz / world / casa = **después** (A4 parked).
 
-Until A0 ★ + A1 IC, **zero filesystem** for `intelligence/` / `world/`.
+A0 ★ CLOSED. A1 IC AUTHORIZED for empty `intelligence/` scaffold. Still **zero** `world/` / retrieve / canal until their ICs.
 
 Ontology vault + crosswalks are **ready as explain SoT** for A2; they do not replace this placement DC.
