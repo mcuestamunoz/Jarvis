@@ -6,25 +6,25 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Assistant A3** — ★ AUTHORIZED IC [`B1-assistant-terminal-canal`](../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) (Claude implement). A2 ★ ACCEPT CLOSED @ **`v0.6.2`**. Target package **`0.6.3`**. Command-first: `jarvis explain`.  
+> **PRIORIDAD AHORA:** **Assistant A0–A3 CLOSED** @ tip **`v0.6.3`** (`jarvis explain` live). A4 voz/world **Parked**. Siguiente foco: Engineer elige (silicon parked / craft / expand aliases-maps / o reabrir cola).  
 > **Background:** Silicon parked. Standoff = visor-break. Continuity stays in `core/`. RAG/LLM = intérprete semántico only (later).  
-> SoT: [A3 IC](../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) · [A2 review ★](../.jes/artifacts/implementation_review_ontology_retrieve_r2_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_placement_b0.md).  
+> SoT: [A3 review ★](../.jes/artifacts/implementation_review_assistant_terminal_canal_b1.md) · [A2 ★](../.jes/artifacts/implementation_review_ontology_retrieve_r2_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_placement_b0.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.2`** · next **`0.6.3`**)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.3`** · A0–A3 CLOSED)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [v0.6.0 close](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7 (a) · [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md)
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
 | **A0** | **`DC-assistant-placement`** | **✅ ★ ACCEPT CLOSED** | Placement: `intelligence/` = Assistant home | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
-| **A1** | **`B1-intelligence-scaffold`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.1`** | Empty `src/jarvis/intelligence/` + README + T1–T5 | [review](../.jes/artifacts/implementation_review_intelligence_scaffold_b1.md) · [report](../.jes/artifacts/implementation_report_intelligence_scaffold_b1.md) · [IC](../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) |
-| **A2** | **`B1-ontology-retrieve-r2`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.2`** | `retrieve_by_id`/`retrieve_by_nombre` — exact, solid-only | [review](../.jes/artifacts/implementation_review_ontology_retrieve_r2_b1.md) · [report](../.jes/artifacts/implementation_report_ontology_retrieve_r2_b1.md) · [IC](../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) |
-| **A3** | **`B1-assistant-terminal-canal`** | **★ AUTHORIZED** (Claude) · target **`0.6.3`** | `jarvis explain <query>` → cite (id/nombre/alias) | [IC](../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) |
-| **A4** | Voz / STT / world / casa | **Parked** | Horizon only | DC §4 |
+| **A1** | **`B1-intelligence-scaffold`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.1`** | Empty `src/jarvis/intelligence/` + README + T1–T5 | [review](../.jes/artifacts/implementation_review_intelligence_scaffold_b1.md) |
+| **A2** | **`B1-ontology-retrieve-r2`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.2`** | `retrieve_by_id`/`retrieve_by_nombre` | [review](../.jes/artifacts/implementation_review_ontology_retrieve_r2_b1.md) |
+| **A3** | **`B1-assistant-terminal-canal`** | **✅ ★ ACCEPT CLOSED** @ **`v0.6.3`** | `jarvis explain <query>` → cite | [review](../.jes/artifacts/implementation_review_assistant_terminal_canal_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_terminal_canal_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) |
+| **A4** | Voz / STT / world / casa | **Parked** | Horizon: ingress voz + mapa habitaciones/dispositivos | DC §4 — ICs propios más adelante |
 
 **Demo de valor (A3):** pregunta conceptual → explicación desde nota solid → sin inventar SKU watts/thrust.
 

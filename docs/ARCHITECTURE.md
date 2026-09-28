@@ -179,9 +179,9 @@ Visión / briefing: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION
 | `library/` + `src/jarvis/knowledge/` | Declara hechos de catálogo (SKU citados) | `ComponentLibrary` |
 | `ontology/` | Explica conceptos (math/physics/eng/robotics) | Humanos / Obsidian; **ningún** `src/jarvis/` import |
 | Continuity / FS | Decide craft · computa vehículo | Sus propios módulos |
-| `src/jarvis/intelligence/` | Assistant platform home — scaffold ★ @ `v0.6.1`; retrieve ★ @ `v0.6.2`; canal = A3 | `retrieve_by_id` / `explain` (A3) |
+| `src/jarvis/intelligence/` | Assistant platform home — A1–A3 ★ @ `v0.6.1`–`v0.6.3`; A4 voz/world parked | `retrieve_by_id` · `jarvis explain` |
 
-Bloque **`0.5` CLOSED** @ historical **`v0.5.44`**. Ontology explain branch **CLOSED @ `v0.6.0`**. Assistant scaffold **★ @ `v0.6.1`**. Retrieve R2 **★ ACCEPT CLOSED @ `v0.6.2`**. Next: A3 terminal canal **`0.6.3`**. To-be: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md). Vault: [`ontology/README.md`](../ontology/README.md). Crosswalks: [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md). Close note: [`engineer_note_v0_6_0_ontology_epoch_close.md`](../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md). **Assistant path (PRIORIDAD):** ★ DC → ★ A1 → ★ A2 → A3 `jarvis explain`. **No** fusionar con `knowledge/`.
+Bloque **`0.5` CLOSED** @ historical **`v0.5.44`**. Ontology **CLOSED @ `v0.6.0`**. Assistant path A0–A3 **★ CLOSED @ `v0.6.3`** (`jarvis explain` live). A4 voz/world **Parked**. To-be: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md). Vault: [`ontology/README.md`](../ontology/README.md). Crosswalks: [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md). **No** fusionar con `knowledge/`.
 
 ### 1b. `capabilities/` — Fase C · C1+C2+C5 scaffold (registry + Intent/Safety/Radio stubs, no runtime)
 

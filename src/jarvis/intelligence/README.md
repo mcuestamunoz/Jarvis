@@ -1,8 +1,26 @@
-# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve)
+# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve + terminal canal)
 
-**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md)
-**Package:** `0.6.2` (tag `v0.6.2` on Engineer ACCEPT)
+**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) (★ ACCEPT CLOSED @ `v0.6.2`) · [`B1-assistant-terminal-canal`](../../../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md)
+**Package:** `0.6.3` (tag `v0.6.3` on Engineer ACCEPT)
 **Parent:** [`DC-assistant-placement`](../../../.jes/artifacts/design_contract_assistant_placement_b0.md) — ★ ACCEPT CLOSED
+
+## Terminal canal (A3): `jarvis explain <query>`
+
+`jarvis.intelligence.explain` wires a real CLI command (`jarvis explain
+<query>` / `python -m jarvis.main explain <query>`) over A2 retrieve.
+**Command-first, not chat**: resolves `query` as (1) frontmatter `id`,
+(2) else exact `nombre`, (3) else a finite alias table
+(`explain_aliases.EXPLAIN_ALIASES` — currently `c-rate`/`crate` →
+`c-rate-de-bateria`, `op`/`operating point` →
+`punto-de-operacion-vs-capacidad-intrinseca`, both verified `solid`
+before seeding), else an honest miss (`No solid ontology note for: …`,
+exit code 1 — never a fabricated note). On a hit, prints `nombre`, `id`,
+repo-relative `path`, `[DEFINICION]`, `[INTUICION]`, an optional
+`formula_citation` line, and — when `never_invents` is non-empty — an
+explicit honesty line naming those craft quantities as catalog/Continuity's
+job, never this explanation's. No LLM call, no embeddings/fuzzy rank
+(the alias table is a fixed dict, not search), no `jarvis.core` import,
+no `JarvisOrchestrator` construction, no `submit_command`.
 
 ## Retrieve (R2, read-only)
 
@@ -51,9 +69,9 @@ physical systems — will live, **separate from**:
   no vector search, no ranking, no fuzzy match, no LLM in the loop.
   This package does not reuse the empty `jarvis.knowledge.retriever`
   module as a substitute retrieve surface.
-- **≠ terminal/CLI canal.** Calling `ontology_retrieve` from a
-  CLI/Board/Continuity prompt is **A3**, a separate, later Buy — not
-  wired here.
+- **Canal ≠ chat.** `jarvis explain` is one explicit subcommand, not a
+  free-form "oye Jarvis" loop and not the `JarvisOrchestrator`
+  chat/`--chat` path — those remain entirely separate code paths.
 - **≠ voice.** No STT/TTS, no audio I/O.
 - Does **not** call `jarvis.flight_software`, ESC, or any mixer.
 - Does **not** decide or drive Continuity craft steps — no import of
@@ -67,17 +85,17 @@ physical systems — will live, **separate from**:
 
 Ontology explain epoch **CLOSED @ `v0.6.0`**
 ([close note](../../../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md)).
-Scaffold landed **`v0.6.1`** (★ ACCEPT CLOSED). This retrieve Buy opens
-the next package/tag, `0.6.2` / `v0.6.2`, on Engineer ACCEPT.
+Scaffold landed **`v0.6.1`**, retrieve landed **`v0.6.2`** (both ★
+ACCEPT CLOSED). This canal Buy opens the next package/tag, `0.6.3` /
+`v0.6.3`, on Engineer ACCEPT.
 
 ## Tests
 
 - `tests/test_intelligence_scaffold_b1.py` (T1–T5): package imports
   cleanly, exists on disk under `src/jarvis/intelligence/`, never
   imports `jarvis.flight_software` or `jarvis.vehicle_profiles`, this
-  README states the scaffold/not-retrieve-canal honesty locks, and no
-  source file in this package calls into Continuity/orchestrator
-  (`jarvis.core`).
+  README states the scaffold/not-retrieve honesty locks, and no source
+  file in this package calls into Continuity/orchestrator (`jarvis.core`).
 - `tests/test_ontology_retrieve_r2_b1.py` (T1–T7): retrieve works
   against the real vault (`c-rate-de-bateria`), returns a non-empty
   `definicion` and a non-empty `never_invents`, an unknown id returns
@@ -85,3 +103,12 @@ the next package/tag, `0.6.2` / `v0.6.2`, on Engineer ACCEPT.
   no forbidden imports, retrieve never writes the target note, and
   retrieve never imports/calls Continuity `submit_command` or writes
   craft state.
+- `tests/test_assistant_terminal_canal_b1.py` (T1–T6): resolve yields a
+  non-empty-`definicion` cite for `c-rate-de-bateria`, the seeded
+  `c-rate`/`op` aliases resolve to the same note ids, an unknown query
+  is an honest miss (`None` / exit 1, no invented note), formatted
+  output includes the `never_invents` honesty line, `explain.py`/
+  `explain_aliases.py` never import `jarvis.core` or call
+  `submit_command`/construct `JarvisOrchestrator`, and neither module
+  imports any LLM client — plus an actual `python -m jarvis.main
+  explain …` subprocess smoke for both the hit and miss paths.

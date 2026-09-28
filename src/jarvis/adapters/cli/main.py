@@ -947,12 +947,23 @@ def main() -> None:
     parser.add_argument("--chat", action="store_true", help="Run minimal interactive CLI chat")
     subparsers = parser.add_subparsers(dest="command")
     subparsers.add_parser("board", help="Open the spatial board visor")
+    explain_parser = subparsers.add_parser(
+        "explain", help="Explain a solid ontology note (id, nombre, or alias)"
+    )
+    explain_parser.add_argument(
+        "query", help="Note id, exact nombre, or a known alias (e.g. 'c-rate')"
+    )
     args = parser.parse_args()
 
     if args.command == "board":
         from jarvis.adapters.cli.board import launch_board
 
         raise SystemExit(launch_board())
+
+    if args.command == "explain":
+        from jarvis.intelligence.explain import run_explain_cli
+
+        raise SystemExit(run_explain_cli(args.query))
 
     if args.chat:
         run_chat()
