@@ -4,11 +4,16 @@ nombre: {{concepto}}
 area: {{area}}
 subarea: {{subarea}}
 nivel: {{nivel}}
-estado: draft
+estado: stub | draft | solid
+jarvis_relevance: []   # craft | catalog | fs | assistant | none  (multi-ok)
+never_invents: []      # e.g. mass_g, power_w, thrust_gf, autonomy_min — when the concept touches craft/FS quantities
+formula_citation: ""   # textbook/section, or "toy/example only", or empty if no formula claimed
 tags: []
 ---
 
 # {{concepto}}
+
+> **Math (Obsidian):** use `$inline$` and `$$` display blocks. Do **not** use LaTeX `\(...\)` / `\[...\]` — Obsidian preview will not render them without a plugin.
 
 ---
 ## [DEFINICION] {{concepto}}
@@ -40,6 +45,7 @@ La {{concepto}} se utiliza en problemas donde ...
 ---
 ## [APLICACIONES] {{concepto}}
 La {{concepto}} se aplica en ...
+(Jarvis: dónde se *cita* este concepto — no valores de SKU.)
 
 ---
 ## [CONEXIONES] {{concepto}}
@@ -55,6 +61,12 @@ Errores comunes al usar la {{concepto}}:
 ...
 
 ---
+## [REFERENCIAS] {{concepto}}
+- …   # URLs / textbook §§ when formula_citation: cited
+
+---
 ## [ESTADO] {{concepto}}
 - comprensión:
 - revisión:
+- jarvis_lote:   # opcional: spine-lote-1, …
+- estado: stub | draft | solid

@@ -2,6 +2,8 @@
 
 **What this is:** the Engineer’s Obsidian graph of math / physics / engineering / robotics concepts (notes + links). Theory and explanation.
 
+**Vision / epoch:** [`docs/JARVIS_KNOWLEDGE_VISION.md`](../docs/JARVIS_KNOWLEDGE_VISION.md) — opens with **`0.6.0`**; bloque `0.5` closed @ `v0.5.44`. Spine enrichment protocol lives there (§8).
+
 **What this is not:**
 - Not the craft catalog (`library/` + `src/jarvis/knowledge/` / `ComponentLibrary`)
 - Not Continuity project state
@@ -12,4 +14,8 @@
 
 **Future use (when an Assistant IC is ★):** retrieve/cite from `intelligence/` — never mutate craft SoT from these notes.
 
-**Obsidian:** open this folder as the vault. A symlink remains at `Desktop/Ingenieria/Knowledge` → this directory for the old path.
+**Obsidian:** *Open folder as vault* on this directory:
+
+`Projects/Jarvis/ontology`
+
+The old `Ingenieria/Knowledge` path was removed (no symlink). If Obsidian still lists the old vault, close it and open this folder once.

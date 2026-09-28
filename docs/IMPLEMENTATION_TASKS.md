@@ -6,11 +6,11 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Software-month C36–C43 ★ CLOSED** @ tip **`v0.5.44`**. Next discuss: [`DC-assistant-placement`](../.jes/artifacts/design_contract_assistant_placement_b0.md) — **no implement** until Engineer ★ on an Assistant IC.  
-> **Just closed:** C43 @ **`v0.5.44`** · C42 @ **`v0.5.43`** · C41 @ **`v0.5.42`**. Silicon parked until bench. Standoff = visor-break (not blocking).  
-> SoT: [`engineer_note_software_month_until_bench_2026_09_26.md`](../.jes/artifacts/engineer_note_software_month_until_bench_2026_09_26.md).  
+> **PRIORIDAD AHORA:** **Epoch `0.6` ontology** — spine **lote-4 DRAFT** (actuadores/OP/C-rate/corriente). Lotes 1–3 audits CLOSED. Tip **`v0.5.44`**.  
+> **Background:** Assistant DC = DISCUSS. Silicon parked. Standoff = visor-break.  
+> SoT: [B0 review](../.jes/artifacts/investigation_review_ontology_vault_value_for_jarvis_b0.md) · [`engineer_note_software_month_until_bench_2026_09_26.md`](../.jes/artifacts/engineer_note_software_month_until_bench_2026_09_26.md).  
 
-> Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).  
+> Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge vision: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud. Gyro *driver* = C42 datasheet client on `ScriptedSpi`, not the chip. Assistant = discuss DC only until ★.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
@@ -92,7 +92,25 @@ SoT: [engineer_note_fase_m_mission_craft_to_control_gate.md](../.jes/artifacts/e
 | **C42** | **`B1-fase-c-icm-register-client`** | **✅ ACCEPT CLOSED** @ **`v0.5.43`** | ICM42688P WHO_AM_I on `ScriptedSpi` | [review](../.jes/artifacts/implementation_review_fase_c_icm_register_client_b1.md) · tag **`v0.5.43`** |
 | **C43** | **`B1-fase-c-craft-fs-bind`** | **✅ ACCEPT CLOSED** @ **`v0.5.44`** | This-quad profile reads craft identity | [review](../.jes/artifacts/implementation_review_fase_c_craft_fs_bind_b1.md) · tag **`v0.5.44`** |
 | **Silicon** | GPIO/DShot wire · on-chip USART · gyro SPI1 **live** · C30 desk DFU · Linux baud | **Parked** | Needs bench · [bench note](../.jes/artifacts/engineer_note_fase_c_bench_before_silicon_2026_09_24.md) | [process lock](../.jes/artifacts/engineer_note_fase_c_process_lock_after_c6_2026_09_20.md) |
+| **ONT-0** | **`B0-ontology-vault-value-for-jarvis`** | **★ ACCEPTED (epoch)** — opens **`0.6.0`** | Value + seams; bloque 0.5 closed @ `v0.5.44`; tip still `v0.5.44` until first 0.6 tag | [review](../.jes/artifacts/investigation_review_ontology_vault_value_for_jarvis_b0.md) |
 | **ASSIST-0** | **`DC-assistant-placement`** | **DISCUSS** (C43 CLOSED; no ★ implement yet) | Borrador de sitio en el repo — **no código** hasta IC ★ | [DC](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
+
+### 📋 COLA — Epoch 0.6 (ontology / explain layer)
+
+SoT: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) · [B0 review](../.jes/artifacts/investigation_review_ontology_vault_value_for_jarvis_b0.md)
+
+| # | ★ | Estado | Qué | Gate |
+|---|---|---|---|---|
+| **ONT-0** | **`B0-ontology-vault-value-for-jarvis`** | **★ ACCEPTED (epoch)** | Value + seams; opens `0.6.0`; tip still `v0.5.44` until first 0.6 tag | [review](../.jes/artifacts/investigation_review_ontology_vault_value_for_jarvis_b0.md) |
+| **ONT-1** | **`R1` + spine lote-1** | **LOTE-1 SOLID** (3 notes) | Vectores · Dinámica · Control clásico `solid` | [vision §8](JARVIS_KNOWLEDGE_VISION.md) |
+| **ONT-1b** | **`B0-ontology-spine-lote1-citation-review`** | **✅ ACCEPT CLOSED** | 3 notes stay solid; R1/R2 applied · no tag (investigation) | [review](../.jes/artifacts/investigation_review_ontology_spine_lote1_citation_review_b0.md) |
+| **ONT-2** | **spine lote-2** | **LOTE-2 SOLID** (3 notes) | Momento · Control robótico · Sensores de movimiento `solid` | Obsidian |
+| **ONT-2b** | **`B0-ontology-spine-lote2-citation-review`** | **✅ ACCEPT CLOSED** | 3 notes stay solid; R1–R3 applied · no tag (investigation) | [review](../.jes/artifacts/investigation_review_ontology_spine_lote2_citation_review_b0.md) |
+| **ONT-3** | **spine lote-3** | **LOTE-3 SOLID** (3 notes) | IMU · Giroscopio · Acelerómetro `solid` | Obsidian |
+| **ONT-3b** | **`B0-ontology-spine-lote3-citation-review`** | **✅ ACCEPT CLOSED** | 3 notes stay solid; R1–R3 applied · no tag (investigation) | [review](../.jes/artifacts/investigation_review_ontology_spine_lote3_citation_review_b0.md) |
+| **ONT-4** | **spine lote-4** | **DRAFT** (Cursor) | Actuadores · Motores · Motor DC · Corriente · OP vs intrínseco · C-rate — await GPT cite | Obsidian |
+| **ONT-docs** | Docs crosswalks (FS / HD / geometry) | After or with R1 | Teach tables only; no `src/` | vision §5 D/G/C |
+| **ONT-branch** | (a) Assistant→R2 · (b) R3/R4 | After R1 | Engineer picks | vision §7 |
 
 Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Distance note: [remaining](../.jes/artifacts/engineer_note_remaining_to_fase_c_team_software.md).
 

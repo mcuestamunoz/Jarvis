@@ -4,6 +4,7 @@
 >
 > **Target vision (to-be):** [`docs/ENGINEERING_READINESS_VISION.md`](ENGINEERING_READINESS_VISION.md) (engineering readiness / assembly-ready).  
 > **Platform vision (to-be):** [`docs/PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md) (skills / capabilities / physical systems — directional only).  
+> **Knowledge / explain vision (to-be):** [`docs/JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) (`ontology/` concepts — epoch **`0.6.x`**; not catalog, not Continuity, not FS).  
 > Keep this file as as-is architecture; move only implemented/validated behavior here.
 
 ## Modelo conceptual del sistema
@@ -168,6 +169,18 @@ Analogía: el plano de una casa marca “aquí irá la cocina”; aún no hay fr
 **Frase a memorizar:** *Scaffold Python ≠ el dron ya vuela.* Nadie arma, nadie escribe PWM, nadie decodifica ELRS real en estos paquetes. Cuando deje de ser scaffold, un IC lo dirá explícitamente.
 
 Visión / briefing: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md) · [briefing Fase C](../.jes/artifacts/engineer_briefing_fase_c_global_context.md).
+
+### Knowledge trees — `library/` vs `ontology/` (as-is · epoch `0.6.x`)
+
+**Tercera dimensión de conocimiento** (no confundir con craft catalog ni con Fase C runtime):
+
+| Árbol | Rol | Quién lee hoy |
+|---|---|---|
+| `library/` + `src/jarvis/knowledge/` | Declara hechos de catálogo (SKU citados) | `ComponentLibrary` |
+| `ontology/` | Explica conceptos (math/physics/eng/robotics) | Humanos / Obsidian; **ningún** `src/jarvis/` import |
+| Continuity / FS | Decide craft · computa vehículo | Sus propios módulos |
+
+Bloque **`0.5` CLOSED** @ **`v0.5.44`**. Epoch **`0.6.x`** = explain layer (visión + spine offline + futuros cites). To-be y protocolo de enriquecimiento: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md). Vault README: [`ontology/README.md`](../ontology/README.md). **No** fusionar con `knowledge/`. Runtime retrieve/cite solo tras ICs ★ (Assistant / LLM grounding) — hasta entonces esta sección permanece placement-only.
 
 ### 1b. `capabilities/` — Fase C · C1+C2+C5 scaffold (registry + Intent/Safety/Radio stubs, no runtime)
 

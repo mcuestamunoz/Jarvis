@@ -27,6 +27,8 @@ This document is a **future architecture note**. It is **not** an Implementation
   - `docs/ENGINEERING_READINESS_VISION.md`
 - **Platform capability vision (this document):**
   - `docs/PLATFORM_CAPABILITY_VISION.md`
+- **Knowledge / explain vision (separate to-be axis — epoch `0.6.x`):**
+  - `docs/JARVIS_KNOWLEDGE_VISION.md` (`ontology/` — not catalog, not this file’s skills tree)
 
 Rule: this vision evolves independently until an Engineer-approved design/implementation contract opens that work.  
 Do **not** create `flight_software/`, `capabilities/`, or `vehicle_profiles/` packages from this note alone.  
