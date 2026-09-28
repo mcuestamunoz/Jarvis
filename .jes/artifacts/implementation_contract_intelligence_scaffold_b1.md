@@ -6,7 +6,8 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED: **implement now**  
 **Reviewer:** Cursor against this IC · Engineer ACCEPT → tag **`v0.6.1`**
 
-**Status:** ★ **AUTHORIZED** — await Claude implementation + report  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-28) @ tag **`v0.6.1`**  
+**Review of record:** [`implementation_review_intelligence_scaffold_b1.md`](implementation_review_intelligence_scaffold_b1.md)  
 **Parents:**
 - [`DC-assistant-placement`](design_contract_assistant_placement_b0.md) — **★ ACCEPT CLOSED** (placement lock)  
 - Ontology explain **CLOSED @ `v0.6.0`** — [close note](engineer_note_v0_6_0_ontology_epoch_close.md)  
