@@ -6,7 +6,7 @@
 **Implementer:** none for this DC — disk behavior is a **later IC** after Engineer ★  
 **Reviewer:** Engineer ★ (ratify / amend)
 
-**Status:** **READY FOR ★**  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-29) — proceed to IC T1 (`redacta ic`). Unlocks IC only — not `src/` until IC ★.  
 **Type:** Design / Architecture Lock — **second Task kind**: craft/status asks → Continuity Engineer, without moving ranking into `intelligence/`.  
 **Not** an Implementation Contract. **Not** voice/world/GO_TO. **Not** Conversation Engine.
 

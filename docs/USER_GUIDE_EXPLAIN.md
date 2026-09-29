@@ -145,6 +145,8 @@ Si no ves el bloque "Conceptos", es porque no hay ningún concepto sembrado rela
 
 *Nota interna (T0, `B1-assistant-explain-task`): desde dentro, esa línea de chat pasa por el Assistant (`jarvis.intelligence.assistant_task`) como un `Task` explícito, no por un segundo camino de resolución dentro del orquestador — mismo resultado visible, arquitectura más honesta. No cambia nada de lo que escribes ni de lo que ves.*
 
+*Nota interna (T1, `B1-assistant-defer-continuity`): ese mismo Assistant reconoce, por separado, un segundo `Task` — `defer_to_continuity` — para frases de estado ya existentes como `estado` o `resumen`; ese Task se cumple con la Continuity de siempre (`_handle_project_status`), no con `jarvis explain`. Si una línea es explicativa (`explain …`), esa lectura **siempre gana** sobre cualquier lectura de estado para la misma línea.*
+
 **Desde A8 (`B1-continuity-explain-topics-expand`): también verás `corriente-y-circuitos` cuando el proyecto ya tenga un punto de operación eléctrico (`motor_op_current_a`) resuelto** — el mismo dato que la línea "OP eléctrico" de `estado` ya muestra. Ejemplo real:
 
 ```text

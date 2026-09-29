@@ -1,16 +1,39 @@
-# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve + terminal canal + explain maps + Continuity cite + chat intercept + topics expand + Assistant Task seam)
+# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve + terminal canal + explain maps + Continuity cite + chat intercept + topics expand + Assistant Task seam + Continuity defer)
 
-**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) (★ ACCEPT CLOSED @ `v0.6.2`) · [`B1-assistant-terminal-canal`](../../../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) (★ ACCEPT CLOSED @ `v0.6.3`) · [`B1-explain-maps-expand`](../../../.jes/artifacts/implementation_contract_explain_maps_expand_b1.md) (★ ACCEPT CLOSED @ `v0.6.4`) · [`B1-continuity-explain-cite-r3`](../../../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md) (★ ACCEPT CLOSED @ `v0.6.5`) · [`B1-chat-explain-intercept`](../../../.jes/artifacts/implementation_contract_chat_explain_intercept_b1.md) (★ ACCEPT CLOSED @ `v0.6.6`) · [`B1-continuity-explain-topics-expand`](../../../.jes/artifacts/implementation_contract_continuity_explain_topics_expand_b1.md) (★ ACCEPT CLOSED @ `v0.6.7`) · [`B1-assistant-explain-task`](../../../.jes/artifacts/implementation_contract_assistant_explain_task_b1.md)
-**Package:** `0.6.8` (tag `v0.6.8` on Engineer ACCEPT)
-**Parent:** [`DC-assistant-placement`](../../../.jes/artifacts/design_contract_assistant_placement_b0.md) · [`DC-assistant-first-task`](../../../.jes/artifacts/design_contract_assistant_first_task_b0.md) — both ★ ACCEPT CLOSED
+**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) (★ ACCEPT CLOSED @ `v0.6.2`) · [`B1-assistant-terminal-canal`](../../../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) (★ ACCEPT CLOSED @ `v0.6.3`) · [`B1-explain-maps-expand`](../../../.jes/artifacts/implementation_contract_explain_maps_expand_b1.md) (★ ACCEPT CLOSED @ `v0.6.4`) · [`B1-continuity-explain-cite-r3`](../../../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md) (★ ACCEPT CLOSED @ `v0.6.5`) · [`B1-chat-explain-intercept`](../../../.jes/artifacts/implementation_contract_chat_explain_intercept_b1.md) (★ ACCEPT CLOSED @ `v0.6.6`) · [`B1-continuity-explain-topics-expand`](../../../.jes/artifacts/implementation_contract_continuity_explain_topics_expand_b1.md) (★ ACCEPT CLOSED @ `v0.6.7`) · [`B1-assistant-explain-task`](../../../.jes/artifacts/implementation_contract_assistant_explain_task_b1.md) (★ ACCEPT CLOSED @ `v0.6.8`) · [`B1-assistant-defer-continuity`](../../../.jes/artifacts/implementation_contract_assistant_defer_continuity_b1.md)
+**Package:** `0.6.9` (tag `v0.6.9` on Engineer ACCEPT)
+**Parent:** [`DC-assistant-placement`](../../../.jes/artifacts/design_contract_assistant_placement_b0.md) · [`DC-assistant-first-task`](../../../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [`DC-assistant-defer-continuity`](../../../.jes/artifacts/design_contract_assistant_defer_continuity_b0.md) — all ★ ACCEPT CLOSED
 
-## Assistant Task seam (T0): the Assistant classifies, never a second brain
+## Continuity defer seam (T1): second Task kind, fulfilled entirely by `core/`
+
+`B1-assistant-defer-continuity` adds `defer_to_continuity`, the
+**second** Assistant Task kind (`DC-assistant-defer-continuity`, ★
+CLOSED). Classify, don't decide:
+
+```text
+Intent (raw_text)
+   ↓
+try_defer_to_continuity_task  →  Task(required_capability_ids=["engineering.continuity"]) | None
+   ↓ (if Task)
+core/orchestrator._handle_project_status()   ← existing, already-LLM-free; unchanged
+```
+
+- **`CAPABILITY_ENGINEERING_CONTINUITY = "engineering.continuity"`**, **`TASK_KIND_DEFER_TO_CONTINUITY = "defer_to_continuity"`** — finite strings, same grain as T0's `ontology.explain`.
+- **Phrase table is a hand-copy, not an import.** `jarvis.config.CONTINUITY_DEFER_PHRASES` is a manually-synced copy of `IntentResolver.STATUS_PATTERNS`' own string values as of tip `v0.6.8` — `assistant_task.py` never imports `jarvis.core.intent_resolver` (or `jarvis.core.project_continuity`); only the finite phrase *strings* cross that boundary, copied by hand into a leaf config module. A sync test (`tests/test_assistant_defer_continuity_b1.py` T5) asserts every `STATUS_PATTERNS` entry is present in the copy, so the two tables can't silently drift.
+- **Exact-phrase match, deliberately narrower than `IntentResolver`'s own matching.** `IntentResolver._looks_like_status_query` does a word-boundary *substring search* over an entire sentence; `try_defer_to_continuity_task` requires the **whole** normalized `raw_text` to equal one table entry. A status-shaped sentence that isn't an exact match still reaches the existing, unaffected Continuity/status path further down `_handle_user_text_inner` — this seam only adds an earlier, zero-LLM fast path for a strict subset, it narrows nothing that already worked.
+- **Explain always wins.** A line that is both explain-shaped and would otherwise match a status phrase (e.g. `"explain estado"`) resolves as `explain_concept` — checked twice: the orchestrator's own call order (explain branch runs first and returns), and `try_defer_to_continuity_task`'s own internal guard (refuses any explain-shaped `intent.raw_text` outright, so direct/test callers get the same precedence without relying on call order).
+- **`jarvis.intelligence` never formats a Continuity body.** On a Task, the orchestrator calls the exact same `_handle_project_status()` every other Continuity-status call site already uses — same dict shape, same UX, same `build_startup_context` under the hood. No second "fake Continuity" formatter anywhere in this package.
+- **Wizard soft-interrupts intentionally left alone.** Existing branches that already call `_handle_project_status()` directly (6+ call sites) are unmodified this Buy — only the `_handle_global_commands` global-command path is wired to classify through the Assistant (IC §0 row 9's explicit, narrower mandatory-wire scope).
+- Fences unchanged: `assistant_task.py` still never imports `jarvis.core`/`jarvis.flight_software`/`jarvis.vehicle_profiles` (now also explicitly never `jarvis.core.intent_resolver`); `project_continuity.py` still never imports `jarvis.intelligence`.
+
+## Assistant Task seam (T0, ★ ACCEPT CLOSED @ `v0.6.8`): the Assistant classifies, never a second brain
 
 `B1-assistant-explain-task` is the first on-disk `Task` emission per
 `DC-assistant-first-task` (★ CLOSED): `jarvis.intelligence.assistant_task`
 classifies an `Intent` (`jarvis.capabilities.intent.Intent`, reused
 as-is — no forked type) into a `Task` requiring one capability string,
-or refuses honestly. Ships exactly one kind this Buy:
+or refuses honestly. This Buy shipped exactly one kind (a second,
+`defer_to_continuity`, landed with T1 — see above):
 
 ```text
 Intent (raw_text)
@@ -220,8 +243,9 @@ Ontology explain epoch **CLOSED @ `v0.6.0`**
 Scaffold landed **`v0.6.1`**, retrieve landed **`v0.6.2`**, terminal
 canal landed **`v0.6.3`**, explain maps landed **`v0.6.4`**, Continuity
 cite landed **`v0.6.5`**, chat intercept landed **`v0.6.6`**, topics
-expand landed **`v0.6.7`** (all ★ ACCEPT CLOSED). This Assistant Task
-Buy opens the next package/tag, `0.6.8` / `v0.6.8`, on Engineer ACCEPT.
+expand landed **`v0.6.7`**, Assistant Task (explain) landed **`v0.6.8`**
+(all ★ ACCEPT CLOSED). This Continuity-defer Buy opens the next
+package/tag, `0.6.9` / `v0.6.9`, on Engineer ACCEPT.
 
 ## Tests
 
@@ -300,5 +324,19 @@ Buy opens the next package/tag, `0.6.8` / `v0.6.8`, on Engineer ACCEPT.
   the A7 exploding-LLM regression (hit/miss/`--list` all zero-LLM) through
   the new seam; `assistant_task.py` has zero `jarvis.core`/
   `jarvis.flight_software`/`jarvis.vehicle_profiles` imports and
+  `project_continuity.py` still has zero `jarvis.intelligence` import
+  (AST, both directions).
+- `tests/test_assistant_defer_continuity_b1.py` (T1–T7): status phrases
+  (`estado`, `resumen`, `siguiente paso`, `que falta`) yield a `Task`
+  with `required_capability_ids == ["engineering.continuity"]`; a
+  non-status craft line yields no Task; an explain-shaped line (even
+  one whose remainder looks like a status phrase, e.g. `"explain
+  estado"`) never gets a Continuity Task either; the full
+  `handle_user_text` path resolves `"estado"`/`"resumen"`/`"ESTADO"`
+  to `action == "project_status"` with zero LLM calls while explain
+  stays unaffected; every `IntentResolver.STATUS_PATTERNS` entry is
+  present in `CONTINUITY_DEFER_PHRASES` (sync); `assistant_task.py`
+  has zero `jarvis.core`/`jarvis.core.intent_resolver`/`jarvis.
+  flight_software`/`jarvis.vehicle_profiles` imports and
   `project_continuity.py` still has zero `jarvis.intelligence` import
   (AST, both directions).

@@ -410,6 +410,13 @@ class JarvisOrchestrator:
               zero LLM calls, ever, on a matched prefix. This orchestrator
               layer is ingress only; the Assistant (`jarvis.intelligence`)
               classifies and fulfills, never a second task brain here.
+            - Continuity defer intercept (T1/`B1-assistant-defer-continuity`):
+              a finite, explicit status/continuity phrase (e.g. "estado")
+              routes through `jarvis.intelligence.assistant_task.
+              try_defer_to_continuity_task` to classify, then fulfills via
+              the existing `_handle_project_status()` — zero LLM, and
+              intelligence never decides or formats the Continuity body.
+              Explain always wins over Continuity-defer for the same line.
         Sessions (ITERATE_INTERACTIVE, DEFINE_MISSING_PARAMETERS) keep their own internal
         escape as a safety fallback for direct callers — this layer coordinates, not replaces.
         """
@@ -467,6 +474,27 @@ class JarvisOrchestrator:
                     "action": "global_command",
                     "message": explain_message,
                 }
+
+        # ── Continuity defer intercept, via Assistant Task seam (T1) ─────────
+        # T1 (B1-assistant-defer-continuity): a finite, explicit set of
+        # status/continuity phrases (jarvis.config.CONTINUITY_DEFER_PHRASES,
+        # synced to IntentResolver.STATUS_PATTERNS) classifies to
+        # Task(defer_to_continuity) requiring engineering.continuity, fulfilled
+        # here by the existing, already-LLM-free _handle_project_status() —
+        # intelligence never formats the Continuity body itself. Explain
+        # always wins (the branch above already returned for any explain-
+        # shaped line, and try_defer_to_continuity_task's own internal guard
+        # refuses explain-shaped input too, so this is never reached for one
+        # either way). A line that doesn't match this finite table still
+        # reaches the existing Continuity/status path unaffected, further
+        # down the normal handle_user_text chain — this is only an earlier,
+        # zero-LLM fast path for a strict subset.
+        from jarvis.capabilities.intent import TerminalIntentAdapter
+        from jarvis.intelligence.assistant_task import try_defer_to_continuity_task
+
+        continuity_intent = TerminalIntentAdapter.parse(stripped)
+        if try_defer_to_continuity_task(continuity_intent) is not None:
+            return self._handle_project_status()
 
         return None
 

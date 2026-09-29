@@ -6,17 +6,17 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T0 ★ ACCEPT CLOSED** @ **`v0.6.8`**. Siguiente: **`DC-assistant-defer-continuity`** (**READY FOR ★**) — Task `defer_to_continuity` → `engineering.continuity`.  
-> **Background:** Silicon parked. Standoff = visor-break. Continuity stays in `core/`.  
-> SoT: [DC defer](../.jes/artifacts/design_contract_assistant_defer_continuity_b0.md) · [T0 ★](../.jes/artifacts/implementation_review_assistant_explain_task_b1.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md).  
+> **PRIORIDAD AHORA:** **T1 ★ ACCEPT CLOSED** @ **`v0.6.9`**. Siguiente: **`DC-capability-registry-product-fill`** (**READY FOR ★**) — seed `ontology.explain` + `engineering.continuity` as honest `available` software capabilities.  
+> **Background:** Silicon parked. Continuity stays in `core/`.  
+> SoT: [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [T1 ★](../.jes/artifacts/implementation_review_assistant_defer_continuity_b1.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.8`** · A0–A8 + T0 CLOSED)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.9`** · A0–A8 + T0–T1 CLOSED · T2 DC READY)
 
-SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
+SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
@@ -24,7 +24,9 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **A7** | **`B1-chat-explain-intercept`** | **✅ ★ ACCEPT CLOSED** · tag **`v0.6.6`** | `--chat` explain before LLM | [review](../.jes/artifacts/implementation_review_chat_explain_intercept_b1.md) |
 | **A8** | **`B1-continuity-explain-topics-expand`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.7`** | tag `current` when `motor_op_current_a` | [review](../.jes/artifacts/implementation_review_continuity_explain_topics_expand_b1.md) |
 | **T0** | **`B1-assistant-explain-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.8`** | Intent→Task `explain_concept`→`ontology.explain` | [review](../.jes/artifacts/implementation_review_assistant_explain_task_b1.md) |
-| **T1** | **`DC-assistant-defer-continuity`** | **READY FOR ★** | Task `defer_to_continuity`→`engineering.continuity` | [DC](../.jes/artifacts/design_contract_assistant_defer_continuity_b0.md) |
+| **T1** | **`DC-assistant-defer-continuity`** | **✅ ★ CLOSED** | Task kind lock | [DC](../.jes/artifacts/design_contract_assistant_defer_continuity_b0.md) |
+| **T1** | **`B1-assistant-defer-continuity`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.9`** | STATUS phrases→Task→`_handle_project_status` | [review](../.jes/artifacts/implementation_review_assistant_defer_continuity_b1.md) |
+| **T2** | **`DC-capability-registry-product-fill`** | **READY FOR ★** | seed `ontology.explain` + `engineering.continuity` available | [DC](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) |
 | **A4** | Voz / world | **Parked** | Horizon | DC placement §4 |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |
 | **N1** | `--list`/`--rung` casefold in chat | **Optional polish** | A7 residual | ★ pick later |

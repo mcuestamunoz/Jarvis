@@ -43,6 +43,18 @@ orchestrator is ingress only. See `assistant_task`'s own module
 docstring; not re-exported through this package's own `__all__` (same
 convention as `explain`/`explain_maps`/`continuity_cite` — import the
 submodule directly).
+
+`B1-assistant-defer-continuity` (T1, package `0.6.9`) — per
+`DC-assistant-defer-continuity` (★ CLOSED) — adds a **second** Task
+kind to `assistant_task.py`: `defer_to_continuity`, requiring
+`engineering.continuity`, classified from a finite, explicit phrase
+table (`jarvis.config.CONTINUITY_DEFER_PHRASES`, hand-synced to
+`IntentResolver.STATUS_PATTERNS`) and fulfilled entirely by `core/`'s
+existing `_handle_project_status()` — this package still never
+formats a Continuity body and still never imports
+`jarvis.core.intent_resolver`/`jarvis.core.project_continuity`. An
+explain-shaped line always wins over a Continuity-shaped one for the
+same turn.
 """
 
 SCAFFOLD_STATUS = "stub"

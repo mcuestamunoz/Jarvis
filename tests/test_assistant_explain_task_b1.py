@@ -128,9 +128,11 @@ def test_t6_fences_hold_ast():
     ), "project_continuity.py imports jarvis.intelligence"
 
 
-def test_t7_pyproject_version_is_0_6_8():
+def test_t7_pyproject_version_is_0_6_9():
+    """Bumped forward by T1 (B1-assistant-defer-continuity) per its own
+    IC §3 instruction to fix prior version-checkpoint tests forward."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.8"' in text
+    assert 'version = "0.6.9"' in text
 
 
 def test_handle_explain_intent_matches_try_plus_fulfill():

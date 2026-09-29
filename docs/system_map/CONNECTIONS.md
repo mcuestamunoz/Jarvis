@@ -238,13 +238,13 @@ Sections below expand evidence for canonical IDs. Summary tables that re-list ID
 |---|---|
 | Kind | CONTROL |
 | Mechanism | function call, first line of `_handle_user_text_inner` |
-| Symbols | `_handle_global_commands` (+ T0's `jarvis.intelligence.assistant_task.handle_explain_intent`, called from within it via `TerminalIntentAdapter.parse` — the old A7-only `_handle_chat_explain` method no longer exists, replaced by this Assistant Task seam) |
+| Symbols | `_handle_global_commands` (+ T0's `jarvis.intelligence.assistant_task.handle_explain_intent` and T1's `try_defer_to_continuity_task`, both called from within it via `TerminalIntentAdapter.parse` — the old A7-only `_handle_chat_explain` method no longer exists, replaced by the Assistant Task seam) |
 | Payload | `user_input` |
-| Authority | escape-word table (`config.ESCAPE_WORDS`), creation-shortcut table (`config.NEW_PROJECT_WORDS`), and — since A7 (`B1-chat-explain-intercept`), now via T0's Assistant Task classify — the explain-prefix tuple (`config.CHAT_EXPLAIN_PREFIXES`); a prefix match here routes to C-114 instead of any LLM path |
-| Mutation | YES (may `clear_runtime_session`); the explain branch specifically is read-only (see C-114) |
+| Authority | escape-word table (`config.ESCAPE_WORDS`), creation-shortcut table (`config.NEW_PROJECT_WORDS`), the explain-prefix tuple (`config.CHAT_EXPLAIN_PREFIXES`, since A7/T0) — a prefix match routes to C-114 — and, since T1 (`B1-assistant-defer-continuity`), the finite status-phrase table (`config.CONTINUITY_DEFER_PHRASES`, hand-synced to `IntentResolver.STATUS_PATTERNS`) — an exact match classifies to `Task(defer_to_continuity)` and routes to the existing `_handle_project_status()` (same destination C-021 already names), instead of any LLM path. Explain is checked first and always wins for the same line |
+| Mutation | YES (may `clear_runtime_session`); the explain and continuity-defer branches specifically are read-only/deterministic (see C-114, C-021) |
 | LLM | NO |
 | Status | 🟢 CONNECTED |
-| Evidence | `core/orchestrator.py:397` (`_handle_global_commands`), `src/jarvis/intelligence/assistant_task.py`, `config.py` (`CHAT_EXPLAIN_PREFIXES`), `tests/test_chat_explain_intercept_b1.py`, `tests/test_assistant_explain_task_b1.py` |
+| Evidence | `core/orchestrator.py:397` (`_handle_global_commands`), `src/jarvis/intelligence/assistant_task.py`, `config.py` (`CHAT_EXPLAIN_PREFIXES`, `CONTINUITY_DEFER_PHRASES`), `tests/test_chat_explain_intercept_b1.py`, `tests/test_assistant_explain_task_b1.py`, `tests/test_assistant_defer_continuity_b1.py` |
 
 ### C-011 — Runtime → FN-004 structural-confirm consume
 | Field | Value |
@@ -352,6 +352,8 @@ Sections below expand evidence for canonical IDs. Summary tables that re-list ID
 | C-024 | `dismiss_suggestion` | `_handle_dismiss_suggestion` | 🟢 |
 
 Evidence: `core/orchestrator.py:846,850,864,906`.
+
+**C-021, second ingress since T1 (`B1-assistant-defer-continuity`):** `_handle_project_status` is also reached earlier — before `IntentResolver` runs at all — from `_handle_global_commands` (C-010) when `jarvis.intelligence.assistant_task.try_defer_to_continuity_task` classifies the line as an exact `CONTINUITY_DEFER_PHRASES` match (`Task(defer_to_continuity)`, capability `engineering.continuity`). Same destination function, same dict shape, same UX — `jarvis.intelligence` never formats a Continuity body of its own. Not a new `C-xxx`.
 
 ### C-025 — "ayúdame" + named goal → Intent → `analyze` 🟢 CONNECTED (FN-025)
 | Field | Value |

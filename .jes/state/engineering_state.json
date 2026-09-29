@@ -1,41 +1,42 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T0 ★ ACCEPT CLOSED @ v0.6.8; DC-assistant-defer-continuity READY FOR ★",
-  "scope": "T0 closed. Next design: defer_to_continuity Task. Out: vehicle/world/R4 until ★.",
+  "cycle_intent": "T1 ★ ACCEPT CLOSED @ v0.6.9; DC-capability-registry-product-fill READY FOR ★ (T2)",
+  "scope": "T1 Continuity-defer ACCEPTed. Next design: seed registry with ontology.explain + engineering.continuity as available software. Out: vehicle/world/Safety dispatcher.",
   "execution_status": "awaiting_approval",
   "current_mode": "design",
   "movement_trigger": {
     "type": "star",
-    "reason": "Engineer ACCEPT T0 + proceed natural Continuity defer DC"
+    "reason": "Engineer ACCEPT T1 + proceed natural next = registry product fill"
   },
   "relevant_workflow_phases": ["Close", "Design"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_explain_task_b1.md",
-    ".jes/artifacts/design_contract_assistant_defer_continuity_b0.md"
+    ".jes/artifacts/implementation_review_assistant_defer_continuity_b1.md",
+    ".jes/artifacts/design_contract_capability_registry_product_fill_b0.md"
   ],
   "open_questions": [
-    "★ Engineer ratify DC-assistant-defer-continuity (or amend)?"
+    "★ Engineer ratify DC-capability-registry-product-fill (or amend enum/providers)?"
   ],
   "active_operation": {
     "type": "design_contract",
-    "contract": "design_contract_assistant_defer_continuity_b0.md",
-    "ids": ["T1", "DC-assistant-defer-continuity"],
+    "contract": "design_contract_capability_registry_product_fill_b0.md",
+    "ids": ["T2", "DC-capability-registry-product-fill"],
     "blocked_on": "Engineer ★ on DC before IC"
   },
   "closed_this_turn": [
-    "T0 ★ ACCEPT CLOSED",
-    "Commit + tag v0.6.8",
-    "DC defer-to-continuity drafted READY FOR ★"
+    "T1 ★ ACCEPT CLOSED + tag v0.6.9",
+    "Drafted DC-capability-registry-product-fill READY FOR ★"
   ],
   "authority_gates": [
-    "No src/ Continuity-defer until DC ★ then IC ★",
-    "Intelligence must not decide Continuity ranking",
-    "Explain-shaped lines still win over defer"
+    "No src/ until DC ★ then separate IC ★",
+    "No flight available in seed",
+    "Registry stays descriptive not dispatcher",
+    "Tag v0.6.10 only on later IC ACCEPT"
   ],
   "coherence_checklist": [
-    "Same Intent→Task→capability path as T0",
-    "Fulfill stays in core project_status/Continuity"
+    "T0/T1 capability strings match seed ids",
+    "C1 empty seed → product fill",
+    "Vehicle/world still parked"
   ],
-  "updated_at": "2026-09-29T09:15:00Z"
+  "updated_at": "2026-09-29T09:50:00Z"
 }
