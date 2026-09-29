@@ -1,39 +1,41 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "A7+A8 ★ ACCEPT CLOSED @ tip v0.6.7 — awaiting next front pick",
-  "scope": "Assistant / intelligence/ A0–A8 CLOSED. Out: maps/N1/R4 until ★; craft/silicon OOS.",
+  "cycle_intent": "T0 ★ ACCEPT CLOSED @ v0.6.8; DC-assistant-defer-continuity READY FOR ★",
+  "scope": "T0 closed. Next design: defer_to_continuity Task. Out: vehicle/world/R4 until ★.",
   "execution_status": "awaiting_approval",
   "current_mode": "design",
   "movement_trigger": {
     "type": "star",
-    "reason": "Engineer ★ ACCEPT A8 + commit/tags 2026-09-29"
+    "reason": "Engineer ACCEPT T0 + proceed natural Continuity defer DC"
   },
-  "relevant_workflow_phases": ["Close", "Interpretation"],
+  "relevant_workflow_phases": ["Close", "Design"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_chat_explain_intercept_b1.md",
-    ".jes/artifacts/implementation_review_continuity_explain_topics_expand_b1.md"
+    ".jes/artifacts/implementation_review_assistant_explain_task_b1.md",
+    ".jes/artifacts/design_contract_assistant_defer_continuity_b0.md"
   ],
   "open_questions": [
-    "★ Engineer: next ONE front? maps expand · N1 · R4 later · park"
+    "★ Engineer ratify DC-assistant-defer-continuity (or amend)?"
   ],
   "active_operation": {
-    "type": "intent_interpretation",
-    "contract": null,
-    "ids": ["Assistant", "intelligence"],
-    "blocked_on": "Engineer ★ next front pick"
+    "type": "design_contract",
+    "contract": "design_contract_assistant_defer_continuity_b0.md",
+    "ids": ["T1", "DC-assistant-defer-continuity"],
+    "blocked_on": "Engineer ★ on DC before IC"
   },
   "closed_this_turn": [
-    "A8 ★ ACCEPT CLOSED",
-    "Commit + tags v0.6.6 / v0.6.7"
+    "T0 ★ ACCEPT CLOSED",
+    "Commit + tag v0.6.8",
+    "DC defer-to-continuity drafted READY FOR ★"
   ],
   "authority_gates": [
-    "No push unless asked",
-    "One front per IC"
+    "No src/ Continuity-defer until DC ★ then IC ★",
+    "Intelligence must not decide Continuity ranking",
+    "Explain-shaped lines still win over defer"
   ],
   "coherence_checklist": [
-    "Tip package 0.6.7",
-    "A0–A8 CLOSED on intelligence path"
+    "Same Intent→Task→capability path as T0",
+    "Fulfill stays in core project_status/Continuity"
   ],
-  "updated_at": "2026-09-29T08:15:00Z"
+  "updated_at": "2026-09-29T09:15:00Z"
 }

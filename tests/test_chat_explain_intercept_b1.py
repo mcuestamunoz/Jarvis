@@ -115,11 +115,9 @@ def test_t6_intelligence_modules_still_do_not_import_core():
                 ), f"{path.relative_to(REPO_ROOT)} imports forbidden module '{module_name}'"
 
 
-def test_pyproject_version_is_0_6_7():
-    """Bumped by A8 (B1-continuity-explain-topics-expand) per its own IC
-    §4 instruction — same established convention as every prior Buy's
-    own version-checkpoint test going stale at the next bump, except
-    this one time the successor IC explicitly asked to fix it forward
-    rather than leave it as a known-stale marker."""
+def test_pyproject_version_is_0_6_8():
+    """Bumped forward again by T0 (B1-assistant-explain-task) per its own
+    IC §3 instruction ("bump prior version-checkpoint tests forward per
+    established pattern") — same courtesy A8 extended to this file."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.7"' in text
+    assert 'version = "0.6.8"' in text

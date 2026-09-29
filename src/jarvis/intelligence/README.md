@@ -1,10 +1,33 @@
-# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve + terminal canal + explain maps + Continuity cite + chat intercept + topics expand)
+# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve + terminal canal + explain maps + Continuity cite + chat intercept + topics expand + Assistant Task seam)
 
-**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) (★ ACCEPT CLOSED @ `v0.6.2`) · [`B1-assistant-terminal-canal`](../../../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) (★ ACCEPT CLOSED @ `v0.6.3`) · [`B1-explain-maps-expand`](../../../.jes/artifacts/implementation_contract_explain_maps_expand_b1.md) (★ ACCEPT CLOSED @ `v0.6.4`) · [`B1-continuity-explain-cite-r3`](../../../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md) (★ ACCEPT CLOSED @ `v0.6.5`) · [`B1-chat-explain-intercept`](../../../.jes/artifacts/implementation_contract_chat_explain_intercept_b1.md) (★ ACCEPT CLOSED @ `v0.6.6`) · [`B1-continuity-explain-topics-expand`](../../../.jes/artifacts/implementation_contract_continuity_explain_topics_expand_b1.md)
-**Package:** `0.6.7` (tag `v0.6.7` on Engineer ACCEPT)
-**Parent:** [`DC-assistant-placement`](../../../.jes/artifacts/design_contract_assistant_placement_b0.md) — ★ ACCEPT CLOSED
+**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) (★ ACCEPT CLOSED @ `v0.6.2`) · [`B1-assistant-terminal-canal`](../../../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) (★ ACCEPT CLOSED @ `v0.6.3`) · [`B1-explain-maps-expand`](../../../.jes/artifacts/implementation_contract_explain_maps_expand_b1.md) (★ ACCEPT CLOSED @ `v0.6.4`) · [`B1-continuity-explain-cite-r3`](../../../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md) (★ ACCEPT CLOSED @ `v0.6.5`) · [`B1-chat-explain-intercept`](../../../.jes/artifacts/implementation_contract_chat_explain_intercept_b1.md) (★ ACCEPT CLOSED @ `v0.6.6`) · [`B1-continuity-explain-topics-expand`](../../../.jes/artifacts/implementation_contract_continuity_explain_topics_expand_b1.md) (★ ACCEPT CLOSED @ `v0.6.7`) · [`B1-assistant-explain-task`](../../../.jes/artifacts/implementation_contract_assistant_explain_task_b1.md)
+**Package:** `0.6.8` (tag `v0.6.8` on Engineer ACCEPT)
+**Parent:** [`DC-assistant-placement`](../../../.jes/artifacts/design_contract_assistant_placement_b0.md) · [`DC-assistant-first-task`](../../../.jes/artifacts/design_contract_assistant_first_task_b0.md) — both ★ ACCEPT CLOSED
 
-## Topics expand (A8): `current` now tags on a real signal
+## Assistant Task seam (T0): the Assistant classifies, never a second brain
+
+`B1-assistant-explain-task` is the first on-disk `Task` emission per
+`DC-assistant-first-task` (★ CLOSED): `jarvis.intelligence.assistant_task`
+classifies an `Intent` (`jarvis.capabilities.intent.Intent`, reused
+as-is — no forked type) into a `Task` requiring one capability string,
+or refuses honestly. Ships exactly one kind this Buy:
+
+```text
+Intent (raw_text)
+   ↓
+try_explain_concept_task  →  Task(required_capability_ids=["ontology.explain"]) | None
+   ↓ (if Task)
+fulfill_ontology_explain  →  A3 cite text (or honest miss / --list|--rung redirect)
+```
+
+- **`CAPABILITY_ONTOLOGY_EXPLAIN = "ontology.explain"`**, **`TASK_KIND_EXPLAIN_CONCEPT = "explain_concept"`** — finite strings, not a capability-registry product (C1's registry stays empty; this is not that Buy).
+- **Match grain is identical to A7**: `_extract_explain_query` reuses `jarvis.config.CHAT_EXPLAIN_PREFIXES` — one shared prefix table, not a second copy. No bare-id/craft-phrase steal.
+- **`--list`/`--rung` get no Task** — explain-shaped but nothing is actually being explained, so claiming `ontology.explain` would be a fake capability claim (IC §0 row 6). `fulfill_ontology_explain` still gives the same honest terminal-redirect A7 always did; still zero LLM.
+- **A7's orchestrator branch now calls this seam** (`handle_explain_intent`) instead of holding its own parallel resolve+format copy — `_handle_chat_explain` (the old A7-only method) is gone; `_handle_global_commands` builds a `TerminalIntentAdapter`-parsed `Intent` and asks the Assistant. Zero user-visible behavior change, zero LLM change — re-proven by re-running every A7 test unmodified against the new path.
+- **`jarvis explain` (CLI, A3)** was deliberately left calling `resolve_explain_query`/`format_explain_cite` directly rather than routed through `fulfill_ontology_explain` — both already call the identical two underlying functions, so cite-text drift is structurally impossible either way, and the CLI's own exit-code/stderr contract (miss → stderr + exit 1, tested since A3) would have needed re-deriving hit/miss a second time to preserve if routed through the string-only `fulfill_ontology_explain` — a redundant indirection for zero benefit. IC §0 row 8 allows this ("either OK if cite text stays identical").
+- Fences unchanged from every prior Buy: `assistant_task.py` never imports `jarvis.core`/`jarvis.flight_software`/`jarvis.vehicle_profiles`; `project_continuity.py` still never imports `jarvis.intelligence`.
+
+## Topics expand (A8, ★ ACCEPT CLOSED @ `v0.6.7`): `current` now tags on a real signal
 
 `B1-continuity-explain-topics-expand` wires the `current` row of
 `CONTINUITY_TOPIC_MAP` — seeded since R3 but deliberately left untagged
@@ -21,26 +44,31 @@ computed strictly after `next_useful_step`/`next_useful_why`, still
 zero new `project_state` reads beyond that one field, still zero
 `jarvis.intelligence` import in `project_continuity.py`.
 
-## Chat intercept (A7, ★ ACCEPT CLOSED @ `v0.6.6`): `explain` works inside `--chat`, no LLM
+## Chat intercept (A7, ★ ACCEPT CLOSED @ `v0.6.6`; refactored onto the Assistant Task seam by T0): `explain` works inside `--chat`, no LLM
 
 `B1-chat-explain-intercept` extends
 `JarvisOrchestrator._handle_global_commands` (`core/orchestrator.py`) —
 the **same** intercept point escape words and `nuevo` already use, run
 as the very first check in `_handle_user_text_inner`, strictly before
 any LLM call. A line starting with `jarvis explain ` or `explain `
-(exact prefix + required space, casefold) is resolved via A3's
-`resolve_explain_query`/`format_explain_cite` and returned immediately
-— the LLM is never invoked on that turn. A `--list`/`--rung` line
-inside chat gets an honest one-line redirect to the terminal instead
-(still zero LLM calls) — those stay terminal-only this Buy.
+(exact prefix + required space, casefold) never reaches the LLM on that
+turn. **As of T0**, the mechanism is: a cheap local prefix probe (same
+`CHAT_EXPLAIN_PREFIXES` table), then `TerminalIntentAdapter.parse(...)`
+→ `assistant_task.handle_explain_intent(intent)` — see "Assistant Task
+seam" above for the classify/fulfill detail. The orchestrator no longer
+holds its own copy of the resolve+format logic (the old
+`_handle_chat_explain` method is gone). A `--list`/`--rung` line inside
+chat still gets an honest one-line redirect to the terminal (still zero
+LLM calls, still no Task emitted for it) — those stay terminal-only.
 
-**New import direction, explicitly scoped:** `jarvis.core.orchestrator`
-now imports `jarvis.intelligence.explain` (local import, inside
-`_handle_chat_explain` only) — the *orchestrator's* global-command
-layer, not `project_continuity.py`, which still never imports anything
-from `jarvis.intelligence` and still never reads `ontology/` (that
-fence, from R3, is unchanged by this Buy — see below). The direction
-stays one-way: `jarvis.intelligence.*` still must not import
+**Import direction, explicitly scoped:** `jarvis.core.orchestrator` now
+imports `jarvis.capabilities.intent.TerminalIntentAdapter` and
+`jarvis.intelligence.assistant_task.handle_explain_intent` (both local
+imports, inside `_handle_global_commands` only) — the *orchestrator's*
+global-command layer, not `project_continuity.py`, which still never
+imports anything from `jarvis.intelligence` and still never reads
+`ontology/` (that fence, from R3, is unchanged — see below). The
+direction stays one-way: `jarvis.intelligence.*` still must not import
 `jarvis.core`/`orchestrator` (AST-enforced, same as every prior Buy).
 
 ## Continuity cite seam (A6/R3, extended by A8): `continuity_cite.py`
@@ -191,9 +219,9 @@ Ontology explain epoch **CLOSED @ `v0.6.0`**
 ([close note](../../../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md)).
 Scaffold landed **`v0.6.1`**, retrieve landed **`v0.6.2`**, terminal
 canal landed **`v0.6.3`**, explain maps landed **`v0.6.4`**, Continuity
-cite landed **`v0.6.5`**, chat intercept landed **`v0.6.6`** (all ★
-ACCEPT CLOSED). This topics-expand Buy opens the next package/tag,
-`0.6.7` / `v0.6.7`, on Engineer ACCEPT.
+cite landed **`v0.6.5`**, chat intercept landed **`v0.6.6`**, topics
+expand landed **`v0.6.7`** (all ★ ACCEPT CLOSED). This Assistant Task
+Buy opens the next package/tag, `0.6.8` / `v0.6.8`, on Engineer ACCEPT.
 
 ## Tests
 
@@ -261,3 +289,16 @@ ACCEPT CLOSED). This topics-expand Buy opens the next package/tag,
   strings stay byte-identical; `project_continuity.py`/`continuity_cite.py`
   fences hold (AST); `cites_for_topics(["current"])` returns a cite with
   non-empty `definicion`.
+- `tests/test_assistant_explain_task_b1.py` (T1–T7): an explain-shaped
+  `Intent` (either A7 prefix) yields a `Task` with `required_capability_ids
+  == ["ontology.explain"]` and records `task_kind`/`explain_query` on
+  `intent.metadata`; a non-explain Intent (including near-miss phrases
+  like `"explica esto por favor"`) yields no Task; `fulfill_ontology_explain`
+  returns the A3 cite body on a hit and the honest-miss string on a miss,
+  never raising; `--list`/`--rung` get the terminal redirect via fulfill
+  with **no** Task emitted; the full `handle_user_text` path re-proves
+  the A7 exploding-LLM regression (hit/miss/`--list` all zero-LLM) through
+  the new seam; `assistant_task.py` has zero `jarvis.core`/
+  `jarvis.flight_software`/`jarvis.vehicle_profiles` imports and
+  `project_continuity.py` still has zero `jarvis.intelligence` import
+  (AST, both directions).

@@ -29,6 +29,20 @@ sections. Exact lookup only: no fuzzy match, no embeddings, no LLM
 ranking, no number synthesis. Still no CLI/Board/Continuity canal
 (that is **A3**), still no LLM call, still no write path anywhere in
 this package. See `ontology_retrieve`'s own module docstring.
+
+`B1-assistant-explain-task` (T0, package `0.6.8`) — per
+`DC-assistant-first-task` (★ CLOSED) — adds the first on-disk Assistant
+**Task** emission: `jarvis.intelligence.assistant_task` classifies an
+`Intent` (`jarvis.capabilities.intent.Intent`) into a
+`Task(required_capability_ids=["ontology.explain"])`, or refuses
+honestly, for the single `explain_concept` kind. Fulfillment reuses A3's
+`explain.py` unchanged. `jarvis.core.orchestrator`'s chat-explain branch
+(A7) now calls this seam instead of holding its own parallel
+resolve+format copy — the Assistant classifies/fulfills, the
+orchestrator is ingress only. See `assistant_task`'s own module
+docstring; not re-exported through this package's own `__all__` (same
+convention as `explain`/`explain_maps`/`continuity_cite` — import the
+submodule directly).
 """
 
 SCAFFOLD_STATUS = "stub"

@@ -143,6 +143,8 @@ Si no ves el bloque "Conceptos", es porque no hay ningún concepto sembrado rela
 
 **Desde A7 (`B1-chat-explain-intercept`): puedes escribir ese comando ahí mismo, dentro del chat.** Escribe `jarvis explain motores` o simplemente `explain motores` como tu siguiente línea — Jarvis lo reconoce **antes** de llamar al modelo de lenguaje local, así que responde al instante y no dispara una interpretación LLM (evita el colapso bajo carga local y el "No se pudo interpretar la instrucción" cuando lo que querías era leer una nota). Solo funciona con la consulta directa (id/nombre/alias); `--list`/`--rung` siguen siendo solo de terminal — si los escribes en el chat, Jarvis te lo dice y te redirige, sin llamar al LLM tampoco.
 
+*Nota interna (T0, `B1-assistant-explain-task`): desde dentro, esa línea de chat pasa por el Assistant (`jarvis.intelligence.assistant_task`) como un `Task` explícito, no por un segundo camino de resolución dentro del orquestador — mismo resultado visible, arquitectura más honesta. No cambia nada de lo que escribes ni de lo que ves.*
+
 **Desde A8 (`B1-continuity-explain-topics-expand`): también verás `corriente-y-circuitos` cuando el proyecto ya tenga un punto de operación eléctrico (`motor_op_current_a`) resuelto** — el mismo dato que la línea "OP eléctrico" de `estado` ya muestra. Ejemplo real:
 
 ```text
