@@ -8,7 +8,7 @@
 
 | # | Checkpoint | Anchor | C-xxx |
 |---|---|---|---|
-| 1 | Global commands (escape words, `n`/`nuevo`) | `_handle_global_commands` | C-010 |
+| 1 | Global commands (escape words, `n`/`nuevo`, A7 `jarvis explain `/`explain ` prefix — no LLM) | `_handle_global_commands` | C-010 / C-114 |
 | 2 | FN-004 structural-confirm consume | `pending_structural_change` | C-011 |
 | 3 | Bug 54 pending_define_missing consume | `pending_define_missing` | C-012 |
 | 4 | FN-005 "ayúdame a elegir" (IDLE) | `_try_start_assisted_motor_help` | C-030 |

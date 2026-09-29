@@ -93,7 +93,7 @@ from jarvis.schemas.action_schema import (
     ProjectDraft,
 )
 from jarvis.schemas.semantic_schema import SemanticState
-from jarvis.config import ESCAPE_WORDS, NEW_PROJECT_WORDS
+from jarvis.config import CHAT_EXPLAIN_PREFIXES, ESCAPE_WORDS, NEW_PROJECT_WORDS
 from jarvis.llm.semantic_intent_adapter import AdaptRejection, SemanticIntentAdapter, SemanticInterpretation
 from jarvis.simulation.simulator import FlightSimulator
 from jarvis.suggestions.suggestion_engine import SuggestionEngine
@@ -403,10 +403,14 @@ class JarvisOrchestrator:
         Handles:
             - Escape words: cancel the active session and return to idle
             - Creation shortcut: "n"/"nuevo" → start create_project wizard immediately
+            - Chat explain intercept (B1-chat-explain-intercept, A7): "jarvis
+              explain <query>" / "explain <query>" resolve via A3's read-only
+              ontology retrieve — zero LLM calls, ever, on a matched prefix.
         Sessions (ITERATE_INTERACTIVE, DEFINE_MISSING_PARAMETERS) keep their own internal
         escape as a safety fallback for direct callers — this layer coordinates, not replaces.
         """
-        normalized = user_input.strip().lower()
+        stripped = user_input.strip()
+        normalized = stripped.lower()
 
         # ── Escape: cancel any active session ────────────────────────────────
         if normalized in ESCAPE_WORDS:
@@ -440,7 +444,53 @@ class JarvisOrchestrator:
         if normalized in NEW_PROJECT_WORDS:
             return self.handle({"action": ActionName.CREATE_PROJECT.value, "parameters": {}})
 
+        # ── Chat explain intercept (B1-chat-explain-intercept, A7) ───────────
+        # Deliberately narrow: prefix + required space, so a bare ontology id
+        # or an unrelated craft phrase is never stolen here. --list/--rung
+        # stay terminal-only this Buy (see _handle_chat_explain).
+        for prefix in CHAT_EXPLAIN_PREFIXES:
+            if normalized.startswith(prefix):
+                query = stripped[len(prefix):].strip()
+                return self._handle_chat_explain(query)
+
         return None
+
+    def _handle_chat_explain(self, query: str) -> dict:
+        """B1-chat-explain-intercept — resolve `query` via A3's read-only
+        `jarvis.intelligence.explain` (same seam the CLI `jarvis explain`
+        subcommand and R3's Conceptos block already use), with zero LLM
+        calls on both the hit and the miss path. `--list`/`--rung` stay
+        terminal-only this Buy — an honest one-line redirect, not an
+        attempt to resolve them as a query (IC §0 row 4)."""
+        if query.startswith("--list") or query.startswith("--rung"):
+            return {
+                "status": "ok",
+                "action": "global_command",
+                "message": (
+                    "Eso solo está disponible en terminal: "
+                    "`jarvis explain --list` / `jarvis explain --rung <KEY>` "
+                    "no funcionan dentro del chat todavía."
+                ),
+            }
+
+        from jarvis.intelligence.explain import format_explain_cite, resolve_explain_query
+
+        cite = resolve_explain_query(query)
+        if cite is None:
+            return {
+                "status": "ok",
+                "action": "global_command",
+                "message": (
+                    f"No solid ontology note for: {query}"
+                    " (hint: use the note's id, its exact nombre, or a known alias"
+                    " such as 'c-rate')"
+                ),
+            }
+        return {
+            "status": "ok",
+            "action": "global_command",
+            "message": format_explain_cite(cite),
+        }
 
     _AFFIRMATIVE_WORDS: frozenset[str] = frozenset({
         "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante", "perfecto",

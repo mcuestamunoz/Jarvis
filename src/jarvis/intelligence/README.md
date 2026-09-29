@@ -1,14 +1,55 @@
-# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve + terminal canal + explain maps + Continuity cite)
+# `jarvis.intelligence` — Assistant platform home (scaffold + read-only retrieve + terminal canal + explain maps + Continuity cite + chat intercept + topics expand)
 
-**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) (★ ACCEPT CLOSED @ `v0.6.2`) · [`B1-assistant-terminal-canal`](../../../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) (★ ACCEPT CLOSED @ `v0.6.3`) · [`B1-explain-maps-expand`](../../../.jes/artifacts/implementation_contract_explain_maps_expand_b1.md) (★ ACCEPT CLOSED @ `v0.6.4`) · [`B1-continuity-explain-cite-r3`](../../../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md)
-**Package:** `0.6.5` (tag `v0.6.5` on Engineer ACCEPT)
+**Buys:** [`B1-intelligence-scaffold`](../../../.jes/artifacts/implementation_contract_intelligence_scaffold_b1.md) (★ ACCEPT CLOSED @ `v0.6.1`) · [`B1-ontology-retrieve-r2`](../../../.jes/artifacts/implementation_contract_ontology_retrieve_r2_b1.md) (★ ACCEPT CLOSED @ `v0.6.2`) · [`B1-assistant-terminal-canal`](../../../.jes/artifacts/implementation_contract_assistant_terminal_canal_b1.md) (★ ACCEPT CLOSED @ `v0.6.3`) · [`B1-explain-maps-expand`](../../../.jes/artifacts/implementation_contract_explain_maps_expand_b1.md) (★ ACCEPT CLOSED @ `v0.6.4`) · [`B1-continuity-explain-cite-r3`](../../../.jes/artifacts/implementation_contract_continuity_explain_cite_r3_b1.md) (★ ACCEPT CLOSED @ `v0.6.5`) · [`B1-chat-explain-intercept`](../../../.jes/artifacts/implementation_contract_chat_explain_intercept_b1.md) (★ ACCEPT CLOSED @ `v0.6.6`) · [`B1-continuity-explain-topics-expand`](../../../.jes/artifacts/implementation_contract_continuity_explain_topics_expand_b1.md)
+**Package:** `0.6.7` (tag `v0.6.7` on Engineer ACCEPT)
 **Parent:** [`DC-assistant-placement`](../../../.jes/artifacts/design_contract_assistant_placement_b0.md) — ★ ACCEPT CLOSED
 
-## Continuity cite seam (A6/R3): `continuity_cite.py`
+## Topics expand (A8): `current` now tags on a real signal
+
+`B1-continuity-explain-topics-expand` wires the `current` row of
+`CONTINUITY_TOPIC_MAP` — seeded since R3 but deliberately left untagged
+because no distinguished signal existed then — to a real one:
+`project_continuity._explain_topics_for_continuity` gained an
+`op_current_present: bool` kwarg, set at the same post-ranking call
+site as every other topic input from
+`current_parameters["motor_op_current_a"] is not None` (the identical
+field the CLI's own "OP eléctrico" line already surfaces via
+`_motor_op_electrical_from_params`). **Not** tagged from watts-recovery
+activity or a generic `energy_model_note` alone — only from that one
+distinguished field. Same fence, same call-site discipline as R3: still
+computed strictly after `next_useful_step`/`next_useful_why`, still
+zero new `project_state` reads beyond that one field, still zero
+`jarvis.intelligence` import in `project_continuity.py`.
+
+## Chat intercept (A7, ★ ACCEPT CLOSED @ `v0.6.6`): `explain` works inside `--chat`, no LLM
+
+`B1-chat-explain-intercept` extends
+`JarvisOrchestrator._handle_global_commands` (`core/orchestrator.py`) —
+the **same** intercept point escape words and `nuevo` already use, run
+as the very first check in `_handle_user_text_inner`, strictly before
+any LLM call. A line starting with `jarvis explain ` or `explain `
+(exact prefix + required space, casefold) is resolved via A3's
+`resolve_explain_query`/`format_explain_cite` and returned immediately
+— the LLM is never invoked on that turn. A `--list`/`--rung` line
+inside chat gets an honest one-line redirect to the terminal instead
+(still zero LLM calls) — those stay terminal-only this Buy.
+
+**New import direction, explicitly scoped:** `jarvis.core.orchestrator`
+now imports `jarvis.intelligence.explain` (local import, inside
+`_handle_chat_explain` only) — the *orchestrator's* global-command
+layer, not `project_continuity.py`, which still never imports anything
+from `jarvis.intelligence` and still never reads `ontology/` (that
+fence, from R3, is unchanged by this Buy — see below). The direction
+stays one-way: `jarvis.intelligence.*` still must not import
+`jarvis.core`/`orchestrator` (AST-enforced, same as every prior Buy).
+
+## Continuity cite seam (A6/R3, extended by A8): `continuity_cite.py`
 
 `jarvis.intelligence.continuity_cite` adds `CONTINUITY_TOPIC_MAP` (a
 finite `dict[str, list[str]]`, 5 seed topics: `c_rate`,
-`operating_point`, `motor`, `current`, `thrust_stand`) and
+`operating_point`, `motor`, `current`, `thrust_stand` — all five now
+actually tagged by Continuity as of A8; `current` was seeded-but-unused
+from R3 until then) and
 `cites_for_topics(topics) -> list[OntologyCite]` — exact topic → solid
 id(s) → A2 `retrieve_by_id` resolve. Unknown topics are skipped
 silently (never invented). `format_continuity_cite_lines(cites)` is the
@@ -149,9 +190,10 @@ physical systems — will live, **separate from**:
 Ontology explain epoch **CLOSED @ `v0.6.0`**
 ([close note](../../../.jes/artifacts/engineer_note_v0_6_0_ontology_epoch_close.md)).
 Scaffold landed **`v0.6.1`**, retrieve landed **`v0.6.2`**, terminal
-canal landed **`v0.6.3`**, explain maps landed **`v0.6.4`** (all ★
-ACCEPT CLOSED). This Continuity-cite Buy opens the next package/tag,
-`0.6.5` / `v0.6.5`, on Engineer ACCEPT.
+canal landed **`v0.6.3`**, explain maps landed **`v0.6.4`**, Continuity
+cite landed **`v0.6.5`**, chat intercept landed **`v0.6.6`** (all ★
+ACCEPT CLOSED). This topics-expand Buy opens the next package/tag,
+`0.6.7` / `v0.6.7`, on Engineer ACCEPT.
 
 ## Tests
 
@@ -198,3 +240,24 @@ ACCEPT CLOSED). This Continuity-cite Buy opens the next package/tag,
   rendered "Conceptos" block mentions `c-rate-de-bateria` and
   `jarvis explain`; an unknown topic never crashes and resolves to no
   cite.
+- `tests/test_chat_explain_intercept_b1.py` (T1–T6): `orchestrator.
+  handle_user_text("jarvis explain c-rate", llm)` and `"explain imu"`
+  both resolve via A3, with an LLM interface whose `interpret`/
+  `analyze`/`complete` all raise `AssertionError` if called — proving
+  zero LLM calls on the matched path; an unknown query is an honest
+  miss, still with the exploding LLM; unrelated global commands
+  (escape word, an unmatched `explica esto`/`no explain plz` phrase)
+  are unaffected by the new intercept; `explain --list` inside chat
+  redirects to the terminal rather than attempting the search there;
+  and every `jarvis.intelligence` module still has zero `jarvis.core`
+  imports (AST).
+- `tests/test_continuity_explain_topics_expand_b1.py` (T1–T5):
+  `motor_op_current_a` present tags `"current"` and resolves via
+  `cites_for_topics` to the solid `corriente-y-circuitos` cite; absent
+  (or explicitly `None`) never tags it; a generic `energy_model_note`
+  or a `motor_catalog_gap` fixture alone still never tags `current`
+  (only `c_rate`/`operating_point` or `motor`, per the IC's own
+  "forbidden" list); the R3 golden `next_useful_step`/`next_useful_why`
+  strings stay byte-identical; `project_continuity.py`/`continuity_cite.py`
+  fences hold (AST); `cites_for_topics(["current"])` returns a cite with
+  non-empty `definicion`.

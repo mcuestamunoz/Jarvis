@@ -52,13 +52,24 @@
  * src/jarvis/intelligence/ stays structurally isolated from this whole graph: zero
  * import into jarvis.core (Continuity/orchestrator), jarvis.flight_software, or
  * jarvis.vehicle_profiles (AST-verified per Buy). User guide: docs/USER_GUIDE_EXPLAIN.md.
- * Updated 2026-09-28 — Continuity explain cite R3, A6 (package 0.6.5, awaiting
- * Engineer ACCEPT): C-115 (continuity -> intelligence, explain_topics tags ->
+ * Updated 2026-09-28 — Continuity explain cite R3, A6, ACCEPT CLOSED @ v0.6.5:
+ * C-115 (continuity -> intelligence, explain_topics tags ->
  * continuity_cite.cites_for_topics, read-only). build_project_continuity computes
  * the finite explain_topics list strictly AFTER next_useful_step/next_useful_why
  * are final (never feeds back into ranking — two existing fixtures' exact pre-Buy
  * output strings re-asserted as a golden regression). project_continuity.py still
  * never imports jarvis.intelligence and never reads ontology/.
+ * Updated 2026-09-29 — Chat explain intercept, A7 (package 0.6.6, awaiting
+ * Engineer ACCEPT): C-114 EXTENDED (not a new id) -- second ingress edge
+ * cli/orch -> intelligence. Inside --chat, JarvisOrchestrator.
+ * _handle_global_commands (same checkpoint escape words/nuevo use, first
+ * line of _handle_user_text_inner, strictly before any LLM call) now also
+ * matches a "jarvis explain "/"explain " prefix and calls the identical
+ * resolve_explain_query/format_explain_cite A3 already uses. --list/--rung
+ * stay terminal-only (honest redirect in chat, still zero LLM). One new
+ * import edge, one-way only: jarvis.core.orchestrator -> jarvis.intelligence.
+ * explain; project_continuity.py is untouched by this Buy and still never
+ * imports jarvis.intelligence.
  */
 import {
   Button,
@@ -104,6 +115,7 @@ const CONNECTIONS: Conn[] = [
   { id: "C-002", from: "cli", to: "orch", fromLabel: "CLI/MCP", toLabel: "handle_user_text", status: "connected", band: "00 Entry" },
   { id: "C-003", from: "cli", to: "orch_handle", fromLabel: "CLI/MCP structured", toLabel: "orchestrator.handle", status: "connected", band: "00 Entry" },
   { id: "C-114", from: "cli", to: "intelligence", fromLabel: "CLI explain subcommand", toLabel: "intelligence/ontology_retrieve (read-only)", status: "connected", band: "00 Entry" },
+  { id: "C-114", from: "orch", to: "intelligence", fromLabel: "chat 'explain ' prefix (A7, no LLM)", toLabel: "intelligence/ontology_retrieve (read-only)", status: "connected", band: "00 Entry" },
 
   { id: "C-010", from: "orch", to: "g_cmds", fromLabel: "Runtime", toLabel: "Global commands", status: "connected", band: "01 Runtime" },
   { id: "C-011", from: "orch", to: "struct_c", fromLabel: "Runtime", toLabel: "FN-004 structural-confirm", status: "connected", band: "01 Runtime" },
@@ -662,7 +674,7 @@ export default function JarvisSystemMapCanvas() {
         docs/USER_GUIDE_EXPLAIN.md.
       </Callout>
 
-      <Callout tone="success" title="Shipped — Continuity explain cite R3, A6 @ package 0.6.5 (2026-09-28, awaiting Engineer ★ ACCEPT)">
+      <Callout tone="success" title="Shipped — Continuity explain cite R3, A6, ACCEPT CLOSED @ v0.6.5 (2026-09-28)">
         New C-115 (continuity → intelligence, explain_topics tags →
         continuity_cite.cites_for_topics, read-only). build_project_continuity
         gains a finite, additive explain_topics: list[str] (seed: c_rate,
@@ -679,6 +691,27 @@ export default function JarvisSystemMapCanvas() {
         context + render_response's coherence footer) prints an optional
         "Conceptos (ontology):" block — id + jarvis explain &lt;id&gt; pointer
         only, never the note body. User guide: docs/USER_GUIDE_EXPLAIN.md §7.
+      </Callout>
+
+      <Callout tone="success" title="Shipped — Chat explain intercept, A7 @ package 0.6.6 (2026-09-29, awaiting Engineer ★ ACCEPT)">
+        C-114 EXTENDED (no new id — same edge, second ingress). Inside
+        --chat, JarvisOrchestrator._handle_global_commands — the exact
+        checkpoint escape words and "n"/"nuevo" already use, first line of
+        _handle_user_text_inner, strictly before any LLM call — now also
+        matches an exact "jarvis explain "/"explain " prefix (casefold,
+        required trailing space) and calls the new _handle_chat_explain,
+        which resolves via the identical resolve_explain_query/
+        format_explain_cite A3 already uses. Zero LLM calls on hit or miss —
+        proven with tests whose mock llm_interface raises AssertionError if
+        interpret/analyze/complete are ever called. --list/--rung inside chat
+        get an honest one-line redirect to the terminal, never an attempted
+        search. One new import edge, one-way only: jarvis.core.orchestrator
+        → jarvis.intelligence.explain (local import inside
+        _handle_chat_explain); jarvis.intelligence.* still never imports back,
+        and project_continuity.py is untouched by this Buy — R3's fence
+        stands exactly as before. Conceptos block header text (R3) updated to
+        tell chat users the pointer command works right there. User guide:
+        docs/USER_GUIDE_EXPLAIN.md §2/§7.
       </Callout>
 
       {filter !== "forbidden" ? (

@@ -6,23 +6,26 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Assistant A0–A6 CLOSED** @ tip **`v0.6.5`**. CLI `jarvis explain` smoke OK (field). **A7** chat-intercept IC **Parked** (Engineer: dejar de momento — Mac/LLM). R4/A4 later. Siguiente foco: Engineer elige cola (silicon / craft / standoff / topic expand).  
+> **PRIORIDAD AHORA:** **A8 ★ ACCEPT CLOSED** @ tip **`v0.6.7`** (A7 ★ CLOSED co-landed; tag **`v0.6.6`** on same tip for A7 package marker). Siguiente: Engineer elige **un** frente (maps expand · N1 · R4 later · park). Craft / silicon **OOS**.  
 > **Background:** Silicon parked. Standoff = visor-break. Continuity stays in `core/`.  
-> SoT: [A6 ★](../.jes/artifacts/implementation_review_continuity_explain_cite_r3_b1.md) · [USER_GUIDE_EXPLAIN](USER_GUIDE_EXPLAIN.md) · [A7 IC parked](../.jes/artifacts/implementation_contract_chat_explain_intercept_b1.md).  
+> SoT: [A8 ★](../.jes/artifacts/implementation_review_continuity_explain_topics_expand_b1.md) · [A7 ★](../.jes/artifacts/implementation_review_chat_explain_intercept_b1.md) · [USER_GUIDE_EXPLAIN](USER_GUIDE_EXPLAIN.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.5`** · A0–A6 CLOSED)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.7`** · A0–A8 CLOSED)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
 | **A0**–**A6** | placement→R3 | **✅ ★ CLOSED** @ **`v0.6.1`–`v0.6.5`** | explain + maps + Continuity Conceptos | reviews |
+| **A7** | **`B1-chat-explain-intercept`** | **✅ ★ ACCEPT CLOSED** · tag **`v0.6.6`** | `--chat` explain before LLM | [review](../.jes/artifacts/implementation_review_chat_explain_intercept_b1.md) |
+| **A8** | **`B1-continuity-explain-topics-expand`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.7`** | tag `current` when `motor_op_current_a` | [review](../.jes/artifacts/implementation_review_continuity_explain_topics_expand_b1.md) |
 | **A4** | Voz / world | **Parked** | Horizon | DC §4 |
-| **A7** | **`B1-chat-explain-intercept`** | **Parked** (Engineer 2026-09-28) | `--chat` explain before LLM | [IC](../.jes/artifacts/implementation_contract_chat_explain_intercept_b1.md) — reopen when ready |
+| **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |
+| **N1** | `--list`/`--rung` casefold in chat | **Optional polish** | A7 residual | ★ pick later |
 | **R4** | LLM cite | **Later** | Intérprete semántico only | vision §7 (b) |
 
 **Demo de valor (A3):** pregunta conceptual → explicación desde nota solid → sin inventar SKU watts/thrust.

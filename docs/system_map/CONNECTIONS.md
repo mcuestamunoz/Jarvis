@@ -145,8 +145,8 @@ Visual companions (`DIAGRAMS.md`, `jarvis-system-map.canvas.tsx`) must mirror th
 | C-111 | `electrical_compatibility` checks | `engineering_readiness` gap generation (4 electrical gap types) | 🟢 (ERF-2) |
 | C-112 | `orchestrator._handle_component_description` | ESC out-of-scope explicit save (`OUT_OF_SCOPE_EXPLICIT_SAVE_KEYS`) | 🟢 (ERF-2, FN-ESC) |
 | C-113 | Board `Scene3D` situar drag (`POST /api/projects/:id/pose`) | `board_pose_bridge.apply_drag_pose` → `set_component_declared_box_pose` → `WorkspaceManager.save_state` | 🟢 (Board drag → Continuity pose B1) |
-| C-114 | `jarvis explain` CLI subcommand | `jarvis.intelligence.explain`/`explain_maps` → `jarvis.intelligence.ontology_retrieve` → `ontology/` vault (read-only) | 🟢 (Assistant A1–A5, `v0.6.1`→package `0.6.4`) |
-| C-115 | `project_continuity.build_project_continuity` (`explain_topics` tags) | CLI (`render_startup_context`/coherence footer) → `jarvis.intelligence.continuity_cite.cites_for_topics` → `ontology_retrieve` (read-only) | 🟢 (Assistant A6/R3, package `0.6.5`) |
+| C-114 | `jarvis explain` CLI subcommand **or** `--chat` `jarvis explain `/`explain ` prefix (A7) | `jarvis.intelligence.explain`/`explain_maps` → `jarvis.intelligence.ontology_retrieve` → `ontology/` vault (read-only) | 🟢 (Assistant A1–A5 `v0.6.1`→`v0.6.4`; A7 chat ingress, package `0.6.6`) |
+| C-115 | `project_continuity.build_project_continuity` (`explain_topics` tags, incl. A8's `current`) | CLI (`render_startup_context`/coherence footer) → `jarvis.intelligence.continuity_cite.cites_for_topics` → `ontology_retrieve` (read-only) | 🟢 (Assistant A6/R3 `v0.6.5`; A8 `current` tagging rule, package `0.6.7`) |
 
 ## Forbidden transitions (not registry edges)
 
@@ -214,20 +214,20 @@ Sections below expand evidence for canonical IDs. Summary tables that re-list ID
 | Status | 🟢 CONNECTED |
 | Evidence | `core/orchestrator.py:199` |
 
-### C-114 — `jarvis explain` CLI → `intelligence.ontology_retrieve` (read-only ontology cite)
+### C-114 — `jarvis explain` CLI (or `--chat` prefix, A7) → `intelligence.ontology_retrieve` (read-only ontology cite)
 | Field | Value |
 |---|---|
 | Kind | CONTROL, DATA |
-| Mechanism | `explain` argparse subcommand (positional `query` / `--list` / `--rung KEY`, mutually exclusive) → `jarvis.intelligence.explain.resolve_explain_query`/`run_explain_list_cli`/`run_explain_rung_cli` → `jarvis.intelligence.ontology_retrieve.retrieve_by_id`/`retrieve_by_nombre`/`list_solid_ids` → `ontology/*.md` frontmatter + `[DEFINICION]`/`[INTUICION]` sections |
-| Symbols | `adapters/cli/main.py` (`explain` subparser + dispatch), `jarvis.intelligence.explain`, `jarvis.intelligence.explain_aliases.EXPLAIN_ALIASES`, `jarvis.intelligence.explain_maps.{FS_EXPLAIN_MAP,HD_EXPLAIN_MAP,ids_for_rung}`, `jarvis.intelligence.ontology_retrieve` |
-| Payload | query string / rung key → `OntologyCite` (`id`, `nombre`, `path`, `estado`, `never_invents`, `formula_citation`, `definicion`, `intuicion`) or an honest miss (`None` / exit 1) |
-| Authority | `jarvis.intelligence.*` — a separate package, never `orchestrator`/Continuity |
+| Mechanism | **Two ingresses, one resolve path.** (1) `explain` argparse subcommand (positional `query` / `--list` / `--rung KEY`, mutually exclusive). (2) **A7 (`B1-chat-explain-intercept`, package `0.6.6`):** inside `--chat`, `JarvisOrchestrator._handle_global_commands` — the same checkpoint escape words/`nuevo` use, first line of `_handle_user_text_inner`, strictly before any LLM call (see C-010) — matches an exact `jarvis explain `/`explain ` prefix (casefold, required trailing space) and calls `_handle_chat_explain`. Both ingresses call the identical `jarvis.intelligence.explain.resolve_explain_query`/`run_explain_list_cli`/`run_explain_rung_cli` → `jarvis.intelligence.ontology_retrieve.retrieve_by_id`/`retrieve_by_nombre`/`list_solid_ids` → `ontology/*.md` frontmatter + `[DEFINICION]`/`[INTUICION]` sections. Inside chat, `--list`/`--rung` are **not** resolved as a query — `_handle_chat_explain` gives an honest one-line redirect to the terminal instead (still zero LLM) |
+| Symbols | `adapters/cli/main.py` (`explain` subparser + dispatch), `core/orchestrator.py` (`_handle_global_commands`, `_handle_chat_explain`), `config.CHAT_EXPLAIN_PREFIXES`, `jarvis.intelligence.explain`, `jarvis.intelligence.explain_aliases.EXPLAIN_ALIASES`, `jarvis.intelligence.explain_maps.{FS_EXPLAIN_MAP,HD_EXPLAIN_MAP,ids_for_rung}`, `jarvis.intelligence.ontology_retrieve` |
+| Payload | query string / rung key → `OntologyCite` (`id`, `nombre`, `path`, `estado`, `never_invents`, `formula_citation`, `definicion`, `intuicion`) or an honest miss (`None` / exit 1 from the CLI; a `status="ok"` honest-miss message from chat — never a raise, never an LLM fallback) |
+| Authority | `jarvis.intelligence.*` — a separate package, never `orchestrator`/Continuity. `core/orchestrator.py` **may** import `jarvis.intelligence.explain` (A7, one-way — see Non-edges); `jarvis.intelligence.*` still must never import back |
 | Mutation | NO (read-only `Path.read_text`; no write API anywhere in `jarvis.intelligence`) |
-| LLM | NO |
+| LLM | NO — on **both** ingresses. The A7 chat path is the one that matters here: it returns from `_handle_global_commands` before `_handle_user_text_inner` ever reaches an LLM call, on hit or miss, even if `llm_interface` itself would raise |
 | Status | 🟢 CONNECTED |
-| Evidence | `src/jarvis/adapters/cli/main.py`, `src/jarvis/intelligence/{explain,explain_aliases,explain_maps,ontology_retrieve}.py`, `tests/test_intelligence_scaffold_b1.py`, `tests/test_ontology_retrieve_r2_b1.py`, `tests/test_assistant_terminal_canal_b1.py`, `tests/test_explain_maps_expand_b1.py` |
+| Evidence | `src/jarvis/adapters/cli/main.py`, `src/jarvis/core/orchestrator.py`, `src/jarvis/config.py`, `src/jarvis/intelligence/{explain,explain_aliases,explain_maps,ontology_retrieve}.py`, `tests/test_intelligence_scaffold_b1.py`, `tests/test_ontology_retrieve_r2_b1.py`, `tests/test_assistant_terminal_canal_b1.py`, `tests/test_explain_maps_expand_b1.py`, `tests/test_chat_explain_intercept_b1.py` |
 
-**Non-edges (verified, not violated — same discipline as the Fase C isolation note above):** `jarvis.intelligence.*` never imports `jarvis.core` (Continuity/orchestrator) and never calls `submit_command` or constructs `JarvisOrchestrator` — this canal never reaches `CalculationEngine.build`, `step()`/the Fase C control loop, or any Continuity write; never imports `jarvis.flight_software` or `jarvis.vehicle_profiles`; never reads or writes `library/` catalog JSON. AST-enforced per Buy (see the evidence tests above: T3/T5 scaffold, T5/T7 retrieve, T5/T6 canal, T6 maps-expand).
+**Non-edges (verified, not violated — same discipline as the Fase C isolation note above):** `jarvis.intelligence.*` never imports `jarvis.core` (Continuity/orchestrator) and never calls `submit_command` or constructs `JarvisOrchestrator` — this canal never reaches `CalculationEngine.build`, `step()`/the Fase C control loop, or any Continuity write; never imports `jarvis.flight_software` or `jarvis.vehicle_profiles`; never reads or writes `library/` catalog JSON. AST-enforced per Buy (see the evidence tests above: T3/T5 scaffold, T5/T7 retrieve, T5/T6 canal, T6 maps-expand, T6 chat-intercept). A7 adds one new import edge, and only one direction: `jarvis.core.orchestrator` → `jarvis.intelligence.explain` (local import inside `_handle_chat_explain`) — this is the same kind of edge the CLI (`adapters/cli/main.py`) already had; `project_continuity.py` specifically remains untouched by A7 and still never imports `jarvis.intelligence` (that fence is R3's, unchanged here — see C-115).
 
 ---
 
@@ -238,13 +238,13 @@ Sections below expand evidence for canonical IDs. Summary tables that re-list ID
 |---|---|
 | Kind | CONTROL |
 | Mechanism | function call, first line of `_handle_user_text_inner` |
-| Symbols | `_handle_global_commands` |
+| Symbols | `_handle_global_commands` (+ A7's `_handle_chat_explain`, called from within it) |
 | Payload | `user_input` |
-| Authority | escape-word table (`config.ESCAPE_WORDS`) |
-| Mutation | YES (may `clear_runtime_session`) |
+| Authority | escape-word table (`config.ESCAPE_WORDS`), creation-shortcut table (`config.NEW_PROJECT_WORDS`), and — since A7 (`B1-chat-explain-intercept`) — the explain-prefix tuple (`config.CHAT_EXPLAIN_PREFIXES`); a prefix match here routes to C-114 instead of any LLM path |
+| Mutation | YES (may `clear_runtime_session`); the A7 explain branch specifically is read-only (see C-114) |
 | LLM | NO |
 | Status | 🟢 CONNECTED |
-| Evidence | `core/orchestrator.py:579` |
+| Evidence | `core/orchestrator.py:397` (`_handle_global_commands`), `core/orchestrator.py` (`_handle_chat_explain`), `config.py` (`CHAT_EXPLAIN_PREFIXES`), `tests/test_chat_explain_intercept_b1.py` |
 
 ### C-011 — Runtime → FN-004 structural-confirm consume
 | Field | Value |
@@ -881,16 +881,16 @@ User-facing `calcular` may two-pass via `build_with_estimative_sweep` (4S labele
 | Field | Value |
 |---|---|
 | Kind | DATA |
-| Mechanism | `build_project_continuity` computes a finite `explain_topics: list[str]` via its own pure `_explain_topics_for_continuity(...)` helper, called **after** `next_useful_step`/`next_useful_why` are finalized (last statement before the return dict) — from signals it already had (`motor_catalog_gap`, catalog-underspec, `energy_model_note`, `autonomy_target_min`, watts-recovery-active), never a new `project_state` read. The CLI (`render_startup_context`'s Continuity block, and `render_response`'s coherence footer) then calls `jarvis.intelligence.continuity_cite.cites_for_topics(topics)` → A2 `retrieve_by_id` per mapped id, and `format_continuity_cite_lines` to print an optional "Conceptos" block |
+| Mechanism | `build_project_continuity` computes a finite `explain_topics: list[str]` via its own pure `_explain_topics_for_continuity(...)` helper, called **after** `next_useful_step`/`next_useful_why` are finalized (last statement before the return dict) — from signals it already had (`motor_catalog_gap`, catalog-underspec, `energy_model_note`, `autonomy_target_min`, watts-recovery-active) **plus**, since A8, `op_current_present` (a direct read of the already-surfaced `current_parameters["motor_op_current_a"]` field — the same one the CLI's own "OP eléctrico" line uses). The CLI (`render_startup_context`'s Continuity block, and `render_response`'s coherence footer) then calls `jarvis.intelligence.continuity_cite.cites_for_topics(topics)` → A2 `retrieve_by_id` per mapped id, and `format_continuity_cite_lines` to print an optional "Conceptos" block |
 | Symbols | `core/project_continuity.py` (`_explain_topics_for_continuity`, `build_project_continuity`), `adapters/cli/main.py` (`_render_concept_lines`), `jarvis.intelligence.continuity_cite` (`CONTINUITY_TOPIC_MAP`, `cites_for_topics`, `format_continuity_cite_lines`) |
-| Payload | `explain_topics: list[str]` (finite seed: `c_rate`, `operating_point`, `motor`, `current`, `thrust_stand` — `current` seeded in the map but not yet tagged by any Continuity signal) → zero or more `OntologyCite`s → `"  - <id>  →  jarvis explain <id>"` lines |
+| Payload | `explain_topics: list[str]` (finite seed: `c_rate`, `operating_point`, `motor`, `current`, `thrust_stand` — **all five now tagged by a real signal as of A8**; `current` was seeded-but-unused from R3 until then) → zero or more `OntologyCite`s → `"  - <id>  →  jarvis explain <id>"` lines |
 | Authority | Continuity owns the tags (topic vocabulary only); `jarvis.intelligence` owns resolving a tag to a cite. Neither owns the other's decision |
 | Mutation | NO (topics are additive-only; resolving them is a read-only vault lookup, same as C-114) |
 | LLM | NO |
-| Status | 🟢 CONNECTED (Assistant A6/R3, package `0.6.5`, awaiting Engineer ★ ACCEPT) |
-| Evidence | `src/jarvis/core/project_continuity.py`, `src/jarvis/intelligence/continuity_cite.py`, `src/jarvis/adapters/cli/main.py`, `tests/test_continuity_explain_cite_r3_b1.py`, `tests/test_project_continuity.py` (unchanged, re-run as regression proof) |
+| Status | 🟢 CONNECTED (Assistant A6/R3 `v0.6.5`; A8 `current` tagging rule, package `0.6.7`, awaiting Engineer ★ ACCEPT) |
+| Evidence | `src/jarvis/core/project_continuity.py`, `src/jarvis/intelligence/continuity_cite.py`, `src/jarvis/adapters/cli/main.py`, `tests/test_continuity_explain_cite_r3_b1.py`, `tests/test_continuity_explain_topics_expand_b1.py`, `tests/test_project_continuity.py` (unchanged, re-run as regression proof) |
 
-**Non-edges (verified, not violated):** `project_continuity.py` never imports `jarvis.intelligence` and never reads `ontology/` (AST-enforced, T3) — it only ever emits the finite topic-tag list, and that computation happens strictly after `next_useful_step`/`next_useful_why`/`situation` are already decided, so topics can never feed back into Continuity's own ranking (regression-tested against two existing fixtures' exact pre-Buy `next_useful_step`/`next_useful_why` strings, T2). `continuity_cite.py` never imports `jarvis.core` and never calls `submit_command` (AST-enforced, T4). The CLI never dumps `[DEFINICION]`/`[INTUICION]` into `estado` — only `id` + a `jarvis explain <id>` pointer (full text stays behind the explicit C-114 canal).
+**Non-edges (verified, not violated):** `project_continuity.py` never imports `jarvis.intelligence` and never reads `ontology/` (AST-enforced, T3/A8-T4) — it only ever emits the finite topic-tag list, and that computation happens strictly after `next_useful_step`/`next_useful_why`/`situation` are already decided, so topics can never feed back into Continuity's own ranking (regression-tested against existing fixtures' exact pre-Buy `next_useful_step`/`next_useful_why` strings — R3's T2, A8's T3). `continuity_cite.py` never imports `jarvis.core` and never calls `submit_command` (AST-enforced, T4/A8-T4). The CLI never dumps `[DEFINICION]`/`[INTUICION]` into `estado` — only `id` + a `jarvis explain <id>` pointer (full text stays behind the explicit C-114 canal). **A8 addendum:** `current` is deliberately never tagged from watts-recovery activity or a generic `energy_model_note` alone — only from the one distinguished `motor_op_current_a` field (verified by A8's own T2b, two fixtures that exercise those other signals without setting `current`).
 
 ---
 

@@ -26,7 +26,7 @@ jarvis explain c-rate-de-bateria
 jarvis explain c-rate
 ```
 
-Ambos comandos devuelven la misma nota — el segundo usa un alias corto. Salida:
+Ambos comandos devuelven la misma nota — el segundo usa un alias corto. Funciona igual en la terminal y **dentro de `jarvis --chat`** (desde A7 — ver §7): la misma línea, escrita como tu siguiente turno del chat, responde sin pasar por el LLM. Salida:
 
 ```text
 C-rate de batería  (id: c-rate-de-bateria)
@@ -122,7 +122,7 @@ jarvis explain --rung HD-005
 
 ---
 
-## 7. Conceptos en `estado` / Continuity (R3)
+## 7. Conceptos en `estado` / Continuity (R3, extendido por A8)
 
 Cuando estás en el chat de Continuity (`jarvis --chat`) y escribes `estado`, a veces verás un bloque opcional al final del resumen del proyecto:
 
@@ -130,7 +130,7 @@ Cuando estás en el chat de Continuity (`jarvis --chat`) y escribes `estado`, a 
 Siguiente paso: Declara empuje real por motor (≥ 4.8 N) o elige una pieza
    fuera de catálogo; Jarvis no inventará un SKU.
    Por qué: Necesitas empuje ≥ 4.8 N/motor; no tengo motor en catálogo. ...
-Conceptos (ontology):
+Conceptos (ontology) — puedes escribirlo aquí mismo:
   - motores  →  jarvis explain motores
   - motor-dc  →  jarvis explain motor-dc
 ```
@@ -141,11 +141,25 @@ Si no ves el bloque "Conceptos", es porque no hay ningún concepto sembrado rela
 
 **El bloque nunca muestra `[DEFINICION]`/`[INTUICION]` completas.** Solo el `id` y el comando exacto para leer la nota entera. Para el texto completo, siempre usa `jarvis explain <id>` (§2).
 
+**Desde A7 (`B1-chat-explain-intercept`): puedes escribir ese comando ahí mismo, dentro del chat.** Escribe `jarvis explain motores` o simplemente `explain motores` como tu siguiente línea — Jarvis lo reconoce **antes** de llamar al modelo de lenguaje local, así que responde al instante y no dispara una interpretación LLM (evita el colapso bajo carga local y el "No se pudo interpretar la instrucción" cuando lo que querías era leer una nota). Solo funciona con la consulta directa (id/nombre/alias); `--list`/`--rung` siguen siendo solo de terminal — si los escribes en el chat, Jarvis te lo dice y te redirige, sin llamar al LLM tampoco.
+
+**Desde A8 (`B1-continuity-explain-topics-expand`): también verás `corriente-y-circuitos` cuando el proyecto ya tenga un punto de operación eléctrico (`motor_op_current_a`) resuelto** — el mismo dato que la línea "OP eléctrico" de `estado` ya muestra. Ejemplo real:
+
+```text
+Siguiente paso: Diseño en PASS — puedes iterar, explorar alternativas o documentar el cierre.
+   Por qué: No hay gaps bloqueantes en BOM/catálogo.
+Conceptos (ontology) — puedes escribirlo aquí mismo:
+  - corriente-y-circuitos  →  jarvis explain corriente-y-circuitos
+```
+
+Este topic **no** aparece solo porque haya un gap de energía genérico o un motor en recuperación de vatios — necesita ese dato eléctrico concreto ya presente. Si no lo ves, Continuity todavía no tiene esa evidencia — no es un error.
+
 ---
 
 ## 8. Límites conocidos
 
 - Cobertura parcial: solo las notas `solid` del spine (lotes 1–5) y los aliases/mapas sembrados hasta ahora — una consulta legítima puede no tener aún alias corto; usa `--list` para ver el `id` exacto.
 - `--rung` solo mapea las claves sembradas explícitamente (`C3`, `C7`, `C10`, `C39`, `C42`, `HD-001`, `HD-005`) — ampliar la cobertura es un IC futuro, no una búsqueda automática.
-- No hay canal conversacional todavía — cada consulta es una llamada de terminal independiente, sin memoria entre llamadas.
+- No hay canal conversacional todavía — cada consulta es una llamada de terminal independiente, sin memoria entre llamadas (esto también aplica dentro de `--chat`: cada `explain <id>` es una llamada aislada, sin historial).
 - El bloque "Conceptos" en `estado`/Continuity solo cubre 5 etiquetas sembradas (`c_rate`, `operating_point`, `motor`, `current`, `thrust_stand`) y solo se activa cuando una señal concreta de Continuity ya existente coincide — no es una búsqueda ni una sugerencia generada por LLM.
+- El intercepto de chat (A7) reconoce solo el prefijo exacto `jarvis explain ` o `explain ` (con espacio). No reconoce una hélice ni un id de ontología escrito a secas, ni frases como "explícame" — sigue el mismo camino que antes (LLM/wizard). `explain --list`/`explain --rung <KEY>` dentro del chat solo dan un redirect honesto a terminal, nunca ejecutan la búsqueda ahí mismo.

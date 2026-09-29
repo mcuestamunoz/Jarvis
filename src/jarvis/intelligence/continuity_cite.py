@@ -54,5 +54,9 @@ def cites_for_topics(
 def format_continuity_cite_lines(cites: list[OntologyCite]) -> list[str]:
     """Thin CLI formatter: one short line per cite, pointing at the full
     `jarvis explain <id>` command — never the note's own DEFINICION/
-    INTUICION bodies (those stay in `jarvis explain` itself, not here)."""
+    INTUICION bodies (those stay in `jarvis explain` itself, not here).
+    Since `B1-chat-explain-intercept` (A7), that exact command also works
+    typed directly into `--chat` — `JarvisOrchestrator._handle_global_
+    commands` intercepts `jarvis explain `/`explain ` prefixes before any
+    LLM call, so this pointer is honest in both the terminal and chat."""
     return [f"  - {cite.id}  →  jarvis explain {cite.id}" for cite in cites]

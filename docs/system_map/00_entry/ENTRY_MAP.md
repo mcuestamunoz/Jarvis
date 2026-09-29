@@ -2,7 +2,7 @@
 
 **Purpose.** The CLI/MCP surface, the spatial board visor launcher, and the seam where two independent dispatch mechanisms meet the same orchestrator. The visor does **not** call `handle` / `handle_user_text`.
 
-**Inbound:** C-001 (user → CLI). **Outbound:** C-002 (→ `handle_user_text`), C-003 (→ `handle`), C-114 (`explain` subcommand → `jarvis.intelligence` — a *sibling* CLI entry point that does **not** route through `handle_user_text`/`handle`), C-115 (Continuity `explain_topics` → `_render_concept_lines` → `jarvis.intelligence.continuity_cite` — reached from inside `render_startup_context`/`render_response`, not a separate subcommand).
+**Inbound:** C-001 (user → CLI). **Outbound:** C-002 (→ `handle_user_text`), C-003 (→ `handle`), C-114 (`explain` subcommand → `jarvis.intelligence` — a *sibling* CLI entry point that does **not** route through `handle_user_text`/`handle`; since A7, **also** reachable inside `--chat` via `_handle_global_commands`'s `jarvis explain `/`explain ` prefix intercept — same C-114 edge, before any LLM call), C-115 (Continuity `explain_topics` → `_render_concept_lines` → `jarvis.intelligence.continuity_cite` — reached from inside `render_startup_context`/`render_response`, not a separate subcommand).
 
 ## Key modules
 
@@ -13,7 +13,8 @@
 | `adapters/mcp/session_manager.py` | MCP-side session bookkeeping |
 | `adapters/cli/board.py` (`jarvis board`) + `workspace/spatial_board.py` | Spatial board launcher + read-only projector (`ProjectState` → cards/`slot`; `geometry`, `declaredBoxPose`, `solidCopies`/`solidCopyOffsetsMm` — quad-X radial L-aware arms + Main Plate corner stations). Mutation = CLI/writers/Continuity — not the visor. Card layout overlay = browser `localStorage` (not pose). **Continuity spatial assembly @ v0.4.0** + craft-montage / mission-payload / user-guide @ v0.4.1 + Fase M mission craft ladder (cameras + VTX catalog families) @ v0.4.2 (suite **3166**) — feature locks under `.jes/artifacts/engineer_lock_*`. Scene3D situar mutation = **C-113** only. Taller CSS visor faces (cuboid + cylinder) @ `v0.5.35` — a rendering fix (each face/cap now centers before rotate+`translateZ`) so a thin plate/short cylinder draws as one solid instead of exploding; still **C-094**/**C-113** class (presentation-only, no new writer, no new C-xxx). |
 | `adapters/cli/main.py` (`explain` subparser) + `intelligence/{explain,explain_aliases,explain_maps,ontology_retrieve}.py` | `jarvis explain <query \| --list \| --rung KEY>` — a second, independent CLI subcommand launcher, same grain as `board`: parses argv, then calls straight into `jarvis.intelligence` (read-only ontology cite lookup), never through `orchestrator.handle`/`handle_user_text`. Assistant A1–A5 (`v0.6.1`→package `0.6.4`). **C-114** only; no writer, no Continuity call. See `docs/USER_GUIDE_EXPLAIN.md`. |
-| `adapters/cli/main.py::_render_concept_lines` + `intelligence/continuity_cite.py` | R3 (`B1-continuity-explain-cite-r3`, package `0.6.5`) — **not** a subcommand: a helper called from inside `render_startup_context`/`render_response` when Continuity's `explain_topics` is non-empty. Resolves topic tags to solid cites via the same read-only `intelligence` seam as `explain`. **C-115** only; Continuity itself (`core/project_continuity.py`) never imports `jarvis.intelligence` — see `08_continuity/CONTINUITY_MAP.md`. |
+| `core/orchestrator.py::_handle_global_commands`/`_handle_chat_explain` | A7 (`B1-chat-explain-intercept`, package `0.6.6`) — the **same** global-command intercept escape words/`nuevo` already use (first check in `_handle_user_text_inner`, strictly before any LLM call) now also matches `jarvis explain `/`explain ` (exact prefix + required space) and resolves via the same A3 `resolve_explain_query`/`format_explain_cite` `intelligence/explain.py` calls use — a query hit or an honest miss, zero LLM either way. `--list`/`--rung` inside chat get a terminal redirect, not a search. Still **C-114** (same edge, new ingress); `jarvis.intelligence.*` still never imports `jarvis.core` back. |
+| `adapters/cli/main.py::_render_concept_lines` + `intelligence/continuity_cite.py` | R3 (`B1-continuity-explain-cite-r3`, package `0.6.5`) — **not** a subcommand: a helper called from inside `render_startup_context`/`render_response` when Continuity's `explain_topics` is non-empty. Resolves topic tags to solid cites via the same read-only `intelligence` seam as `explain`. **C-115** only; Continuity itself (`core/project_continuity.py`) never imports `jarvis.intelligence` — see `08_continuity/CONTINUITY_MAP.md`. Since A7, the block's own header text also tells the user they can type the pointer command right there in chat. |
 
 ## Important functions
 
@@ -49,11 +50,12 @@ _handle_user_text_inner                    interactive-session short-circuit
 
 CLI/MCP: none directly — those adapters forward to the orchestrator.  
 `jarvis board`: launches Vite; visor layout overlay lives in browser `localStorage` (not `ProjectState`). Projector is read-only.  
-`jarvis explain`: none — reads `ontology/*.md` via `Path.read_text` only (no write API anywhere in `jarvis.intelligence`); touches no `ProjectState`, no `library/`, no browser storage.  
+`jarvis explain`: none — reads `ontology/*.md` via `Path.read_text` only (no write API anywhere in `jarvis.intelligence`); touches no `ProjectState`, no `library/`, no browser storage. Same holds for the A7 in-chat intercept — it calls the identical read-only `explain.py` functions, no new state touched.  
 Conceptos block (R3): none — same read-only `ontology/` path as `jarvis explain`, reached from `render_startup_context`/`render_response` instead of the `explain` subcommand; `project_continuity.py` itself touches nothing new (additive `explain_topics` tag only, no new `ProjectState` read).
 
 ## Tests
 
 `tests/test_main_cli.py` (CLI rendering), `tests/test_cli_board.py` (launcher), `tests/test_spatial_board_projector.py` (cards + B3 slots). MCP-specific tests under the same `tests/` tree if present (not enumerated here — see `find tests -iname "*mcp*"`).  
 `explain`: `tests/test_intelligence_scaffold_b1.py`, `tests/test_ontology_retrieve_r2_b1.py`, `tests/test_assistant_terminal_canal_b1.py`, `tests/test_explain_maps_expand_b1.py`.  
-Conceptos / Continuity cite (R3): `tests/test_continuity_explain_cite_r3_b1.py`, `tests/test_project_continuity.py` (unchanged, re-run as regression proof).
+Conceptos / Continuity cite (R3): `tests/test_continuity_explain_cite_r3_b1.py`, `tests/test_project_continuity.py` (unchanged, re-run as regression proof).  
+Chat explain intercept (A7): `tests/test_chat_explain_intercept_b1.py` — asserts zero LLM calls via an exploding mock `llm_interface`.

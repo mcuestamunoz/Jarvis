@@ -226,13 +226,17 @@ _EXPLAIN_TOPIC_MOTOR = "motor"
 _EXPLAIN_TOPIC_C_RATE = "c_rate"
 _EXPLAIN_TOPIC_OPERATING_POINT = "operating_point"
 _EXPLAIN_TOPIC_THRUST_STAND = "thrust_stand"
-# "current" (corriente-y-circuitos) is seeded in the intelligence-side
-# CONTINUITY_TOPIC_MAP but not yet tagged here: unlike the other three
-# rows, IC §2's seed table gates it on "Electrical / current-related gap
-# copy if already distinguished" — no existing Continuity signal in this
-# module distinguishes a current-specific gap from the general catalog/
-# energy gaps today, so tagging it would be a guess, not a real signal.
-# A later Buy can add it once such a signal exists.
+_EXPLAIN_TOPIC_CURRENT = "current"
+# "current" (corriente-y-circuitos) was seeded in the intelligence-side
+# CONTINUITY_TOPIC_MAP since R3 but deliberately left untagged there —
+# R3's own IC gated it on "Electrical / current-related gap copy if
+# already distinguished," and no such signal existed at that Buy's close.
+# A8 (B1-continuity-explain-topics-expand) wires it to a real, already-
+# distinguished signal: the OP-electrical current field surfaced via
+# `_motor_op_electrical_from_params`/the CLI "OP eléctrico" line
+# (`current_parameters["motor_op_current_a"]`) — never from watts-
+# recovery alone or a generic energy/catalog gap, per that IC's own
+# explicit "forbidden" list (§1).
 
 
 def _explain_topics_for_continuity(
@@ -242,20 +246,24 @@ def _explain_topics_for_continuity(
     energy_model_note: str | None,
     autonomy_target_min: float | None,
     watts_recovery_active: bool,
+    op_current_present: bool,
 ) -> list[str]:
-    """R3 (`B1-continuity-explain-cite-r3`) — additive, read-nothing-new
+    """R3 (`B1-continuity-explain-cite-r3`), extended by A8
+    (`B1-continuity-explain-topics-expand`) — additive, read-nothing-new
     topic tags for the optional `jarvis explain` cite garnish.
 
     Pure: every input here is a value `build_project_continuity` already
-    computed for situation/evidence/next_step; this derives no new fact
-    from `project_state`. Called **after** next_step/next_why are
-    finalized (see the single call site at the end of
-    `build_project_continuity`) so it can never feed back into ranking —
-    moving this call, or basing it on anything computed inside the
-    ranking `if/elif` chain, would violate that IC lock (§0 row 2/§2).
-    No `ontology/` read and no `jarvis.intelligence` import anywhere in
-    this module — resolving these tags into cites is the CLI layer's
-    job, via `jarvis.intelligence.continuity_cite.cites_for_topics`.
+    computed for situation/evidence/next_step (or, for `op_current_present`,
+    a direct read of an already-surfaced `current_parameters` field — see
+    the call site); this derives no *new* fact from `project_state`.
+    Called **after** next_step/next_why are finalized (see the single
+    call site at the end of `build_project_continuity`) so it can never
+    feed back into ranking — moving this call, or basing it on anything
+    computed inside the ranking `if/elif` chain, would violate that IC
+    lock (§0 row 2/§2, unchanged by A8's own §0 row 3). No `ontology/`
+    read and no `jarvis.intelligence` import anywhere in this module —
+    resolving these tags into cites is the CLI layer's job, via
+    `jarvis.intelligence.continuity_cite.cites_for_topics`.
     """
     topics: list[str] = []
 
@@ -270,6 +278,9 @@ def _explain_topics_for_continuity(
         if _EXPLAIN_TOPIC_OPERATING_POINT not in topics:
             topics.append(_EXPLAIN_TOPIC_OPERATING_POINT)
         topics.append(_EXPLAIN_TOPIC_THRUST_STAND)
+
+    if op_current_present:
+        topics.append(_EXPLAIN_TOPIC_CURRENT)
 
     return topics
 
@@ -642,15 +653,24 @@ def build_project_continuity(
         next_step = proactive_question or "Continúa definiendo el sistema o lanza calculate/simulate."
         next_why = "Aún no hay un cierre físico claro."
 
-    # R3: additive-only, computed after next_step/next_why are final —
-    # never read here to change situation/evidence/ranking above. Pure
-    # over already-computed local values; no new project_state read.
+    # R3 (extended by A8): additive-only, computed after next_step/next_why
+    # are final — never read here to change situation/evidence/ranking
+    # above. `op_current_present` reads the same already-surfaced
+    # `motor_op_current_a` field the CLI's own "OP eléctrico" line uses
+    # (_motor_op_electrical_from_params) — a distinguished electrical
+    # signal, not a re-derivation of the generic energy/catalog gaps.
     explain_topics = _explain_topics_for_continuity(
         motor_catalog_gap=motor_catalog_gap,
         underspec_live=_underspec_live,
         energy_model_note=energy_model_note,
         autonomy_target_min=req.get("autonomy_target_min"),
         watts_recovery_active=_watts_recovery_next_step(project_state) is not None,
+        op_current_present=(
+            (getattr(project_state, "current_parameters", None) or {}).get(
+                "motor_op_current_a"
+            )
+            is not None
+        ),
     )
 
     return {

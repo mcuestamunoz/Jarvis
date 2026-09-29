@@ -83,6 +83,14 @@ WARNING_SHORT: dict[str, str] = {
 }
 
 
+# B1-chat-explain-intercept (A7): "jarvis explain <id>" — the exact command
+# every Conceptos line already prints — now also works typed straight into
+# --chat (JarvisOrchestrator._handle_global_commands intercepts it before
+# any LLM call), not just as a separate terminal subcommand. Header text
+# says so explicitly so a chat user doesn't read it as terminal-only.
+_CONCEPTOS_HEADER = "Conceptos (ontology) — puedes escribirlo aquí mismo:"
+
+
 def _render_concept_lines(topics: list[str] | None) -> list[str]:
     """R3 (`B1-continuity-explain-cite-r3`) — optional "Conceptos" garnish.
 
@@ -92,7 +100,10 @@ def _render_concept_lines(topics: list[str] | None) -> list[str]:
     never imports it). Returns `[]` (no block printed) when there are no
     topics or none resolve to a solid cite — an unresolved topic is a
     silent skip, never an invented note. Never dumps DEFINICION/
-    INTUICION here; each line only points at `jarvis explain <id>`."""
+    INTUICION here; each line only points at `jarvis explain <id>` — which,
+    since A7 (`B1-chat-explain-intercept`), also works typed directly into
+    `--chat` (intercepted before any LLM call), not only as a terminal
+    subcommand."""
     if not topics:
         return []
     from jarvis.intelligence.continuity_cite import (
@@ -303,7 +314,7 @@ def render_startup_context(ctx: dict) -> str:
                 lines.append(f"   Por qué: {_humanize_next_useful_why(continuity['next_useful_why'])}")
         concept_lines = _render_concept_lines(continuity.get("explain_topics"))
         if concept_lines:
-            lines.append("Conceptos (ontology):")
+            lines.append(_CONCEPTOS_HEADER)
             lines.extend(concept_lines)
         lines.append("─" * 44)
 
@@ -678,7 +689,7 @@ def render_response(result: dict) -> str:
                     parts.append(f"   Por qué: {coherence['next_useful_why']}")
             concept_lines = _render_concept_lines(coherence.get("explain_topics"))
             if concept_lines:
-                parts.append("Conceptos (ontology):")
+                parts.append(_CONCEPTOS_HEADER)
                 parts.extend(concept_lines)
             return "\n".join(parts)
 

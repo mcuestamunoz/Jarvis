@@ -182,6 +182,13 @@ def test_t3_continuity_module_does_not_import_intelligence():
 
 
 def test_t4_continuity_cite_module_does_not_import_core():
+    """AST-based import check is the real guarantee. A raw text search for
+    'JarvisOrchestrator' is deliberately NOT done here — since A7
+    (`B1-chat-explain-intercept`), this module's own docstring honestly
+    *names* `JarvisOrchestrator._handle_global_commands` to document that
+    the same pointer text is now also accurate inside `--chat`; that prose
+    mention is not a real import or call (same lesson as T3's own note
+    above)."""
     imported = _imported_module_names(CONTINUITY_CITE_PATH)
     for module_name in imported:
         assert not (
@@ -189,7 +196,6 @@ def test_t4_continuity_cite_module_does_not_import_core():
         ), f"continuity_cite.py imports {module_name}"
     source = CONTINUITY_CITE_PATH.read_text(encoding="utf-8")
     assert "submit_command" not in source
-    assert "JarvisOrchestrator" not in source
 
 
 def test_t5_render_path_mentions_c_rate_and_jarvis_explain():
@@ -216,7 +222,11 @@ def test_t5_render_path_mentions_c_rate_and_jarvis_explain():
         },
     }
     rendered = render_startup_context(ctx)
-    assert "Conceptos (ontology):" in rendered
+    # Header text updated by A7 (B1-chat-explain-intercept) to note the
+    # pointer also works typed straight into --chat — "Conceptos (ontology)"
+    # itself is the stable substring; the exact trailing wording is that
+    # Buy's own concern, not this test's.
+    assert "Conceptos (ontology)" in rendered
     assert "c-rate-de-bateria" in rendered
     assert "jarvis explain" in rendered
 
