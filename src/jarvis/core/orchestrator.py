@@ -496,7 +496,59 @@ class JarvisOrchestrator:
         if try_defer_to_continuity_task(continuity_intent) is not None:
             return self._handle_project_status()
 
+        # ── Vehicle HOLD intercept, via Assistant Task seam (T6) ──────────────
+        # T6 (B1-assistant-vehicle-hold-task): a finite, explicit set of HOLD
+        # phrases (jarvis.config.VEHICLE_HOLD_PHRASES) classifies to
+        # Task(request_hold) requiring flight.hold — the first **vehicle**
+        # Task kind. Precedence: explain → Continuity defer → HOLD →
+        # fallthrough (both branches above already returned for an explain-
+        # or Continuity-shaped line; try_request_hold_task's own internal
+        # guards refuse both shapes too, so this is unreachable for either
+        # either way). Fulfilled here, never inside jarvis.intelligence —
+        # _handle_vehicle_hold proposes+submits the command through the
+        # existing C4 autonomy surface with a fresh, never-armed
+        # ArmedAllowlistSafetyGate (DC §0 row 7); the honest reject this
+        # produces is surfaced verbatim, never a claim of executed flight.
+        from jarvis.intelligence.assistant_task import try_request_hold_task
+
+        hold_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_hold_task(hold_intent) is not None:
+            return self._handle_vehicle_hold(hold_intent)
+
         return None
+
+    def _handle_vehicle_hold(self, intent: Any) -> dict:
+        """T6 fulfill for a classified `request_hold` Task (DC §0 row 8):
+        proposes an `AutonomyVerb.HOLD` command and submits it through the
+        existing C4 autonomy surface (`flight_software.autonomy.
+        propose_command`/`submit_command`) using a **fresh, never-armed**
+        `ArmedAllowlistSafetyGate` — `gate.arm()` is never called anywhere
+        on this path (DC §0 row 7: "do not arm() on product chat path").
+        `default_safety_gate()` (still always `RejectAllSafetyGate`) is
+        untouched and not used here; this is a separate, explicitly
+        constructed gate instance per call, matching the disarmed-by-
+        default policy the DC locked (gate policy **B**).
+
+        The returned message surfaces `result.safety.outcome`,
+        `result.safety.reason`, and `result.execution` verbatim — with a
+        disarmed gate this is always `reject`/`"disarmed"`/
+        `"not_attempted"` — and never claims the vehicle actually held
+        position or that anything executed; `action="vehicle_hold"`
+        (deliberately distinct from the generic `"global_command"` bucket
+        used for escape/creation/explain, so a caller can tell this
+        specific, vehicle-facing outcome apart from those)."""
+        from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
+        from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
+
+        gate = ArmedAllowlistSafetyGate()
+        command = propose_command(AutonomyVerb.HOLD, intent_id=intent.id)
+        result = submit_command(command, gate)
+        message = (
+            "HOLD solicitado, pero no se ejecuta ningún vuelo real desde este chat "
+            f"todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
+            f"Ejecución: {result.execution}."
+        )
+        return {"status": "ok", "action": "vehicle_hold", "message": message}
 
     _AFFIRMATIVE_WORDS: frozenset[str] = frozenset({
         "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante", "perfecto",

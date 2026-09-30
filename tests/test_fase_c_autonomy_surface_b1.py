@@ -114,12 +114,16 @@ def test_t8_capability_registry_default_still_empty():
     # no longer empty (ontology.explain/engineering.continuity, both software-
     # provided) — see tests/test_capability_registry_product_fill_b1.py. T5
     # (B1-capability-skills-seed): skills() is no longer empty either — two
-    # declared-only stub rows, no execution path — see
-    # tests/test_capability_skills_seed_b1.py for that shape. This file's
-    # own isolation proof is unaffected either way.
+    # declared-only stub rows — see tests/test_capability_skills_seed_b1.py.
+    # T6 (B1-assistant-vehicle-hold-task): a third declared-only stub skill,
+    # skill.request_hold (requires flight.hold, not_implemented/vehicle) —
+    # see tests/test_assistant_vehicle_hold_task_b1.py. Still zero Skill
+    # execution path anywhere; this file's own isolation proof is
+    # unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
         "skill.explain_concept",
         "skill.project_status",
+        "skill.request_hold",
     }
 
 
@@ -129,10 +133,22 @@ def test_t9_pyproject_version_is_0_5_2():
 
 
 def test_t10_autonomy_not_imported_by_orchestrator_or_craft_paths():
+    """C4's own boundary: zero `core`/`adapters` coupling to
+    `flight_software.autonomy` at C4 time. T6
+    (`B1-assistant-vehicle-hold-task`) is the later, separately-
+    authorized Buy that deliberately opens exactly one such edge —
+    `core/orchestrator.py`'s own `_handle_vehicle_hold` fulfill helper,
+    which proposes/submits a HOLD command through this very surface
+    (DC §0 row 8) — see `tests/test_assistant_vehicle_hold_task_b1.py`
+    for that path's own tests. This test now scopes to every other
+    `core`/`adapters` file, which still carries zero such coupling."""
     core_dir = REPO_ROOT / "src" / "jarvis" / "core"
     adapters_dir = REPO_ROOT / "src" / "jarvis" / "adapters"
+    authorized_orchestrator_path = core_dir / "orchestrator.py"
     for directory in (core_dir, adapters_dir):
         for py_file in directory.rglob("*.py"):
+            if py_file == authorized_orchestrator_path:
+                continue
             text = py_file.read_text(encoding="utf-8")
             assert "flight_software.autonomy" not in text, (
                 f"{py_file} imports flight_software.autonomy — forbidden craft coupling"

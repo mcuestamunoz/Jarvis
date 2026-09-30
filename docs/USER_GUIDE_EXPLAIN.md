@@ -147,6 +147,8 @@ Si no ves el bloque "Conceptos", es porque no hay ningún concepto sembrado rela
 
 *Nota interna (T1, `B1-assistant-defer-continuity`): ese mismo Assistant reconoce, por separado, un segundo `Task` — `defer_to_continuity` — para frases de estado ya existentes como `estado` o `resumen`; ese Task se cumple con la Continuity de siempre (`_handle_project_status`), no con `jarvis explain`. Si una línea es explicativa (`explain …`), esa lectura **siempre gana** sobre cualquier lectura de estado para la misma línea.*
 
+*Nota interna (T6, `B1-assistant-vehicle-hold-task`): el mismo Assistant reconoce un tercer `Task` — `request_hold` — para frases como `hold` o `mantener`. No es una nota de `ontology/` ni un resumen de Continuity: es el primer Task **vehicle**, y la respuesta siempre es un rechazo honesto de Safety (nunca "vuelo mantenido") — ningún dron real está conectado. `explain …` y las frases de `estado` siguen ganando primero sobre esa misma línea, en ese orden.*
+
 **Desde A8 (`B1-continuity-explain-topics-expand`): también verás `corriente-y-circuitos` cuando el proyecto ya tenga un punto de operación eléctrico (`motor_op_current_a`) resuelto** — el mismo dato que la línea "OP eléctrico" de `estado` ya muestra. Ejemplo real:
 
 ```text

@@ -15,6 +15,14 @@
             "availability": "available",
             "requirements": [],
             "health": "unknown"
+        },
+        {
+            "id": "flight.hold",
+            "version": "0.6.14",
+            "provider_id": "provider.flight_hold",
+            "availability": "not_implemented",
+            "requirements": [],
+            "health": "unknown"
         }
     ],
     "providers": [
@@ -29,6 +37,12 @@
             "kind": "software",
             "offered_capability_ids": ["engineering.continuity"],
             "health": "unknown"
+        },
+        {
+            "id": "provider.flight_hold",
+            "kind": "vehicle",
+            "offered_capability_ids": ["flight.hold"],
+            "health": "unknown"
         }
     ],
     "skills": [
@@ -42,6 +56,12 @@
             "id": "skill.project_status",
             "version": "0.6.13",
             "required_capability_ids": ["engineering.continuity"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_hold",
+            "version": "0.6.14",
+            "required_capability_ids": ["flight.hold"],
             "availability": "stub"
         }
     ]

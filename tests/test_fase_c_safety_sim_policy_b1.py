@@ -132,10 +132,23 @@ def test_t6_authority_signal_never_flips_allow_for_go_to():
 
 
 def test_t7_no_craft_continuity_library_board_edits_and_c40_modules_untouched():
+    """C41's own boundary: zero `core`/`adapters` reference to
+    `ArmedAllowlistSafetyGate` at C41 time. T6
+    (`B1-assistant-vehicle-hold-task`) is the later, separately-
+    authorized Buy that deliberately references it exactly once —
+    `core/orchestrator.py`'s own `_handle_vehicle_hold` fulfill helper
+    constructs a **fresh, never-armed** instance per call (DC §0 row 7)
+    — see `tests/test_assistant_vehicle_hold_task_b1.py` for that path's
+    own tests. This test now scopes to every other `core`/`adapters`
+    file, which still carries zero such reference; the C40 `sim_executor`
+    isolation check below is unaffected and unchanged."""
     core_dir = REPO_ROOT / "src" / "jarvis" / "core"
     adapters_dir = REPO_ROOT / "src" / "jarvis" / "adapters"
+    authorized_orchestrator_path = core_dir / "orchestrator.py"
     for directory in (core_dir, adapters_dir):
         for py_file in directory.rglob("*.py"):
+            if py_file == authorized_orchestrator_path:
+                continue
             text = py_file.read_text(encoding="utf-8")
             assert "ArmedAllowlistSafetyGate" not in text, f"{py_file} references ArmedAllowlistSafetyGate"
 

@@ -206,10 +206,14 @@ def test_no_craft_or_core_imports_reference_this_buys_glue():
     # no longer empty (ontology.explain/engineering.continuity, both software-
     # provided) — see tests/test_capability_registry_product_fill_b1.py. T5
     # (B1-capability-skills-seed): skills() is no longer empty either — two
-    # declared-only stub rows, no execution path — see
-    # tests/test_capability_skills_seed_b1.py for that shape. This file's
-    # own isolation proof is unaffected either way.
+    # declared-only stub rows — see tests/test_capability_skills_seed_b1.py.
+    # T6 (B1-assistant-vehicle-hold-task): a third declared-only stub skill,
+    # skill.request_hold (requires flight.hold, not_implemented/vehicle) —
+    # see tests/test_assistant_vehicle_hold_task_b1.py. Still zero Skill
+    # execution path anywhere; this file's own isolation proof is
+    # unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
         "skill.explain_concept",
         "skill.project_status",
+        "skill.request_hold",
     }

@@ -175,22 +175,33 @@ def test_t10_pyproject_version_is_0_6_10():
     established pattern — was last accurate at 0.5.44 (C1's own tip),
     itself already long stale before this Buy touched the file."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.13"' in text
+    assert 'version = "0.6.14"' in text
 
 
 def test_default_seed_file_is_honestly_software_only():
     """H1/H2/H3, updated by T2: the checked-in seed loaded by
     `load_default()` is no longer empty (see `test_capability_registry_
-    product_fill_b1.py` for the full shape), but it still never contains
-    a flight-related capability id or a `vehicle`/`device` provider
-    claiming live actuation — every provider `kind` in the product seed
-    is `software`."""
+    product_fill_b1.py` for the full shape), but T2's own two rows still
+    never contain a flight-related capability id or a `vehicle`/`device`
+    provider claiming live actuation.
+
+    T6 (`B1-assistant-vehicle-hold-task`) is the later, separately-
+    authorized Buy that deliberately adds the first such row —
+    `flight.hold` (capability, `not_implemented`) / `provider.flight_hold`
+    (provider, `vehicle`) — this test no longer claims the *whole* seed
+    is software-only forever; that row's own honesty invariant (never
+    `available`, never `software`) is tested in
+    `tests/test_assistant_vehicle_hold_task_b1.py`, not here."""
     import json
 
     seed_path = REPO_ROOT / "src" / "jarvis" / "capabilities" / "data" / "default_registry.json"
     data = json.loads(seed_path.read_text())
+    t2_capability_ids = {"ontology.explain", "engineering.continuity"}
+    t2_provider_ids = {"provider.ontology_explain", "provider.engineering_continuity"}
 
     for capability in data["capabilities"]:
+        if capability["id"] not in t2_capability_ids:
+            continue
         capability_id = capability["id"].casefold()
         assert not capability_id.startswith("flight")
         assert "hold" not in capability_id
@@ -198,5 +209,7 @@ def test_default_seed_file_is_honestly_software_only():
         assert "go_to" not in capability_id
 
     for provider in data["providers"]:
+        if provider["id"] not in t2_provider_ids:
+            continue
         assert provider["kind"] not in {"vehicle", "device"}
         assert provider["kind"] == "software"

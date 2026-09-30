@@ -1,7 +1,20 @@
 """Assistant Task seam — `B1-assistant-explain-task` (T0), extended by
 `B1-assistant-defer-continuity` (T1),
-`B1-assistant-task-registry-coherence` (T3), and
-`B1-assistant-software-safety-bridge` (T4).
+`B1-assistant-task-registry-coherence` (T3),
+`B1-assistant-software-safety-bridge` (T4), and
+`B1-assistant-vehicle-hold-task` (T6).
+
+T6 adds the first **vehicle** Task kind, `request_hold` (requires
+`flight.hold`) — classified from a finite HOLD phrase table
+(`jarvis.config.VEHICLE_HOLD_PHRASES`), same membership-only T3 gate as
+every other kind, but deliberately **no** `SoftwareCapabilitySafetyGate`
+call (T4's gate only ever allows an `available`+`software`-provided
+capability; `flight.hold` is intentionally `not_implemented`+`vehicle`,
+so that gate would always and correctly refuse it — the real Safety
+check for this kind lives entirely in the orchestrator's fulfill step,
+via `flight_software.autonomy.submit_command` + a fresh, never-armed
+`ArmedAllowlistSafetyGate`, not in this module). This module still never
+imports `jarvis.flight_software`/`jarvis.vehicle_profiles`/`jarvis.core`.
 
 First on-disk `Task` emission per `DC-assistant-first-task`
 (`design_contract_assistant_first_task_b0.md`, ★ ACCEPT CLOSED):
@@ -39,12 +52,18 @@ from pathlib import Path
 from jarvis.capabilities.intent import Intent, Task
 from jarvis.capabilities.registry import CapabilityRegistry
 from jarvis.capabilities.safety import SafetyRequest, SoftwareCapabilitySafetyGate
-from jarvis.config import CHAT_EXPLAIN_PREFIXES, CONTINUITY_DEFER_PHRASES
+from jarvis.config import (
+    CHAT_EXPLAIN_PREFIXES,
+    CONTINUITY_DEFER_PHRASES,
+    VEHICLE_HOLD_PHRASES,
+)
 
 CAPABILITY_ONTOLOGY_EXPLAIN = "ontology.explain"
 TASK_KIND_EXPLAIN_CONCEPT = "explain_concept"
 CAPABILITY_ENGINEERING_CONTINUITY = "engineering.continuity"
 TASK_KIND_DEFER_TO_CONTINUITY = "defer_to_continuity"
+CAPABILITY_FLIGHT_HOLD = "flight.hold"
+TASK_KIND_REQUEST_HOLD = "request_hold"
 
 _LIST_RUNG_REDIRECT = (
     "Eso solo está disponible en terminal: "
@@ -229,4 +248,59 @@ def try_defer_to_continuity_task(intent: Intent) -> Task | None:
     if not _software_safety_allows(intent.id, required_capability_ids):
         return None
     intent.metadata["task_kind"] = TASK_KIND_DEFER_TO_CONTINUITY
+    return task
+
+
+def try_request_hold_task(intent: Intent) -> Task | None:
+    """Classify `intent` as a `request_hold` Task — the first **vehicle**
+    Task kind (`DC-assistant-vehicle-hold-task`, ★ CLOSED) — or refuse
+    (`None`) when `intent.raw_text` — after the same minimal normalize
+    used for Continuity-defer — isn't an exact member of
+    `jarvis.config.VEHICLE_HOLD_PHRASES`, **or** when it's explain-shaped
+    or Continuity-defer-shaped (precedence: explain → Continuity defer →
+    HOLD → fallthrough; DC §0 row 4). This function re-checks both
+    ahead-of-it kinds itself — mirroring `try_defer_to_continuity_task`'s
+    own internal explain guard — so a direct/test caller gets the same
+    precedence without depending on the orchestrator's own call order.
+
+    Exact-phrase match only, same finite-table discipline as every other
+    kind here — no fuzzy match, no stealing arbitrary craft design chat.
+
+    Never calls an LLM, never imports `jarvis.flight_software` or
+    `jarvis.vehicle_profiles`, never proposes or submits an autonomy
+    command itself — fulfilling a matched Task (via `propose_command`/
+    `submit_command` + a disarmed `ArmedAllowlistSafetyGate`) is
+    entirely the orchestrator's job (DC §0 row 8), same separation T1
+    already established for Continuity's own fulfill.
+
+    Side effect: on a match, records `task_kind` onto `intent.metadata`
+    in place — the only state this function touches.
+
+    T3-style membership check: before writing `intent.metadata`,
+    soft-checks `CAPABILITY_FLIGHT_HOLD` exists in
+    `CapabilityRegistry.load_default()` (membership only). Unknown id →
+    refuse (`None`), `intent.metadata` left untouched.
+
+    Deliberately **no** T4 `SoftwareCapabilitySafetyGate` call here (IC
+    §0 row 6) — that gate only ever `allow`s an `available`, `software`-
+    provided capability; `flight.hold` is intentionally seeded
+    `not_implemented`/`vehicle`, so calling it here would either always
+    (and confusingly) refuse via the wrong gate, or — if the seed ever
+    changed — silently imply a software fulfill path for a vehicle verb.
+    The real Safety check for this kind happens once, in the
+    orchestrator's fulfill step, via the autonomy surface's own
+    `submit_command(...)` — not duplicated or pre-empted here.
+    """
+    if _extract_explain_query(intent.raw_text) is not None:
+        return None
+    normalized = _normalize_for_continuity_match(intent.raw_text)
+    if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized not in VEHICLE_HOLD_PHRASES:
+        return None
+    required_capability_ids = [CAPABILITY_FLIGHT_HOLD]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    intent.metadata["task_kind"] = TASK_KIND_REQUEST_HOLD
     return task

@@ -101,12 +101,16 @@ def test_t7_capability_registry_default_still_empty():
     # no longer empty (ontology.explain/engineering.continuity, both software-
     # provided) — see tests/test_capability_registry_product_fill_b1.py. T5
     # (B1-capability-skills-seed): skills() is no longer empty either — two
-    # declared-only stub rows, no execution path — see
-    # tests/test_capability_skills_seed_b1.py for that shape. This file's
-    # own isolation proof is unaffected either way.
+    # declared-only stub rows — see tests/test_capability_skills_seed_b1.py.
+    # T6 (B1-assistant-vehicle-hold-task): a third declared-only stub skill,
+    # skill.request_hold (requires flight.hold, not_implemented/vehicle) —
+    # see tests/test_assistant_vehicle_hold_task_b1.py. Still zero Skill
+    # execution path anywhere; this file's own isolation proof is
+    # unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
         "skill.explain_concept",
         "skill.project_status",
+        "skill.request_hold",
     }
 
 
@@ -116,14 +120,28 @@ def test_t8_pyproject_version_is_0_5_1():
 
 
 def test_t9_flight_software_not_imported_by_orchestrator_or_craft_paths():
+    """This Buy's own boundary: zero `core`/`adapters` coupling to
+    `jarvis.flight_software`/`jarvis.vehicle_profiles` at this Buy's
+    time. T6 (`B1-assistant-vehicle-hold-task`) is the later,
+    separately-authorized Buy that deliberately opens exactly one such
+    edge — `core/orchestrator.py`'s own `_handle_vehicle_hold` fulfill
+    helper, which proposes/submits a HOLD command through
+    `flight_software.autonomy` (DC §0 row 8) — see
+    `tests/test_assistant_vehicle_hold_task_b1.py` for that path's own
+    tests. This test now scopes to every other `core`/`adapters` file,
+    which still carries zero such coupling; the `jarvis.vehicle_profiles`
+    half is completely unaffected (orchestrator still never imports
+    that package)."""
     core_dir = REPO_ROOT / "src" / "jarvis" / "core"
     adapters_dir = REPO_ROOT / "src" / "jarvis" / "adapters"
+    authorized_orchestrator_path = core_dir / "orchestrator.py"
     for directory in (core_dir, adapters_dir):
         for py_file in directory.rglob("*.py"):
             text = py_file.read_text(encoding="utf-8")
-            assert "jarvis.flight_software" not in text, (
-                f"{py_file} imports jarvis.flight_software — forbidden craft coupling"
-            )
+            if py_file != authorized_orchestrator_path:
+                assert "jarvis.flight_software" not in text, (
+                    f"{py_file} imports jarvis.flight_software — forbidden craft coupling"
+                )
             assert "jarvis.vehicle_profiles" not in text, (
                 f"{py_file} imports jarvis.vehicle_profiles — forbidden craft coupling"
             )

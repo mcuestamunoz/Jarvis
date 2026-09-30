@@ -99,6 +99,25 @@ CONTINUITY_DEFER_PHRASES: frozenset[str] = frozenset({
     "continuamos",
     "siguiente bloque",
 })
+# B1-assistant-vehicle-hold-task (T6): finite, explicit HOLD phrases —
+# same grain as CONTINUITY_DEFER_PHRASES above: exact match on the
+# normalized (strip/casefold/accent-strip) form via `assistant_task.
+# _normalize_for_continuity_match`, entries stored pre-normalized. A
+# minimum, deliberately narrow seed (DC/IC lock — no fuzzy match, no
+# stealing arbitrary craft chat): "hold", "mantener", "mantén"/"manten",
+# "quédate"/"quedate", "hold position", "mantener posición"/"mantener
+# posicion" — the accented originals normalize onto the same entries as
+# their accent-free forms, so only the deduplicated normalized set is
+# stored here (mirrors CONTINUITY_DEFER_PHRASES' own already-accent-free
+# storage convention).
+VEHICLE_HOLD_PHRASES: frozenset[str] = frozenset({
+    "hold",
+    "mantener",
+    "manten",
+    "quedate",
+    "hold position",
+    "mantener posicion",
+})
 # FN-016: navigation-back words, scoped to acquisition wizards only (NOT a
 # global escape — deliberately not merged into ESCAPE_WORDS/checked outside
 # DEFINE_MISSING_PARAMETERS). Values are already accent-normalized; callers
