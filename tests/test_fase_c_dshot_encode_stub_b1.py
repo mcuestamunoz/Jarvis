@@ -227,7 +227,10 @@ def test_no_craft_or_core_imports_of_dshot_and_registry_still_empty():
     # tests/test_assistant_vehicle_go_to_task_b1.py. T9
     # (B1-assistant-vehicle-takeoff-task): a sixth, skill.request_takeoff
     # (requires flight.takeoff, not_implemented/vehicle) — see
-    # tests/test_assistant_vehicle_takeoff_task_b1.py. Still zero Skill
+    # tests/test_assistant_vehicle_takeoff_task_b1.py. T10
+    # (B1-assistant-vehicle-return-home-task): a seventh, skill.request_return_home
+    # (requires flight.return_home, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_return_home_task_b1.py. Still zero Skill
     # execution path anywhere; this file's own isolation proof is
     # unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -237,4 +240,5 @@ def test_no_craft_or_core_imports_of_dshot_and_registry_still_empty():
         "skill.request_land",
         "skill.request_go_to",
         "skill.request_takeoff",
+        "skill.request_return_home",
     }

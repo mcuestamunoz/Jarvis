@@ -172,6 +172,31 @@ VEHICLE_TAKEOFF_PHRASES: frozenset[str] = frozenset({
     "sube",
     "ascender",
 })
+# B1-assistant-vehicle-return-home-task (T10): fifth and closing vehicle
+# Task kind, same discipline as the four VEHICLE_*_PHRASES tables above
+# — finite, exact match on the normalized form, entries stored
+# pre-normalized (already accent-free here). Minimum, deliberately
+# narrow seed (DC/IC lock): "return home", "returnhome", "rtl", "rth",
+# "vuelve", "volver", "vuelve a casa", "volver a casa", "casa", "home".
+# Phrase caution (IC): several of these are short single words — exact-
+# match only (never substring), so a longer craft-chat line containing
+# one of them (e.g. "volver al board") is never stolen; it simply
+# doesn't equal any table entry after normalize. Distinct from, and
+# never confused with, config.NAVIGATION_BACK_WORDS below (a separate
+# table scoped to acquisition-wizard back-navigation, checked from an
+# entirely different code path).
+VEHICLE_RETURN_HOME_PHRASES: frozenset[str] = frozenset({
+    "return home",
+    "returnhome",
+    "rtl",
+    "rth",
+    "vuelve",
+    "volver",
+    "vuelve a casa",
+    "volver a casa",
+    "casa",
+    "home",
+})
 # FN-016: navigation-back words, scoped to acquisition wizards only (NOT a
 # global escape — deliberately not merged into ESCAPE_WORDS/checked outside
 # DEFINE_MISSING_PARAMETERS). Values are already accent-normalized; callers

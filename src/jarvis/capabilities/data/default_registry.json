@@ -47,6 +47,14 @@
             "availability": "not_implemented",
             "requirements": [],
             "health": "unknown"
+        },
+        {
+            "id": "flight.return_home",
+            "version": "0.6.18",
+            "provider_id": "provider.flight_return_home",
+            "availability": "not_implemented",
+            "requirements": [],
+            "health": "unknown"
         }
     ],
     "providers": [
@@ -85,6 +93,12 @@
             "kind": "vehicle",
             "offered_capability_ids": ["flight.takeoff"],
             "health": "unknown"
+        },
+        {
+            "id": "provider.flight_return_home",
+            "kind": "vehicle",
+            "offered_capability_ids": ["flight.return_home"],
+            "health": "unknown"
         }
     ],
     "skills": [
@@ -122,6 +136,12 @@
             "id": "skill.request_takeoff",
             "version": "0.6.17",
             "required_capability_ids": ["flight.takeoff"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_return_home",
+            "version": "0.6.18",
+            "required_capability_ids": ["flight.return_home"],
             "availability": "stub"
         }
     ]

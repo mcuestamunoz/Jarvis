@@ -1,43 +1,43 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T9 ★ ACCEPT CLOSED @ v0.6.17; T10 RETURN_HOME IC ★ AUTHORIZED → Claude",
-  "scope": "TAKEOFF tip closed. RETURN_HOME Buy authorized (gate B, empty params, closes basic mando set). No Cursor src/ for T10.",
-  "execution_status": "authorized",
-  "current_mode": "implementation",
+  "cycle_intent": "T10 RETURN_HOME — review PASS WITH NOTES (dual-executor re-audit); await Engineer ★ ACCEPT → tag v0.6.18",
+  "scope": "Claude partial (config/classify/registry) + Cursor finish (orchestrator/tests/docs). Second Cursor review is review of record. Docs/T1/T7 hardened in review pass. No ACCEPT claim.",
+  "execution_status": "awaiting_approval",
+  "current_mode": "review",
   "movement_trigger": {
-    "type": "star",
-    "reason": "Engineer ACCEPT T9 + redacta IC siguiente (RETURN_HOME)"
+    "type": "engineer",
+    "reason": "Engineer: review a conciencia — dos ejecutores del mismo IC"
   },
-  "relevant_workflow_phases": ["Implementation"],
+  "relevant_workflow_phases": ["Review", "Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_return_home_task_b1.md",
-    ".jes/artifacts/design_contract_assistant_vehicle_return_home_task_b0.md"
+    ".jes/artifacts/implementation_review_assistant_vehicle_return_home_task_b1.md",
+    ".jes/artifacts/implementation_report_assistant_vehicle_return_home_task_b1.md"
   ],
   "open_questions": [
-    "Claude implements T10; Cursor reviews; Engineer ACCEPT → tag v0.6.18"
+    "★ ACCEPT T10 + tag v0.6.18?",
+    "Next after ACCEPT: arm() UX · FOLLOW · PATROL · CHARGE · park?"
   ],
   "active_operation": {
-    "type": "implementation",
+    "type": "await_engineer_accept",
     "contract": "implementation_contract_assistant_vehicle_return_home_task_b1.md",
     "ids": ["T10", "B1-assistant-vehicle-return-home-task"],
-    "blocked_on": "Claude Code implementation + report"
+    "blocked_on": "Engineer ★ ACCEPT → tag v0.6.18"
   },
   "closed_this_turn": [
-    "T9 ★ ACCEPT CLOSED + tag v0.6.17",
-    "DC-assistant-vehicle-return-home-task ★ CLOSED",
-    "B1-assistant-vehicle-return-home-task ★ AUTHORIZED"
+    "T10 dual-executor forensic review PASS WITH NOTES",
+    "C-010 precedence + PLATFORM T10 §13 + T1/T7 harden remediated"
   ],
   "authority_gates": [
-    "Cursor does not implement T10 src/",
-    "Do not edit prior vehicle fulfill bodies",
-    "Do not widen ArmedAllowlist allow-list",
-    "Exact match only for short phrases (casa/home/volver)"
+    "No ACCEPT/tag by Cursor",
+    "First same-session Cursor PASS is not review of record"
   ],
   "coherence_checklist": [
-    "Parent tip v0.6.17",
-    "Target package 0.6.18",
-    "After T10: TAKEOFF HOLD GO_TO RETURN_HOME LAND in chat"
+    "Classify↔fulfill seam clear (ids/verb/action)",
+    "Prior fulfill bodies identical to v0.6.17",
+    "Allow-list still HOLD/LAND/GO_TO only",
+    "Gate B held",
+    "Basic mando: TAKEOFF HOLD GO_TO RETURN_HOME LAND"
   ],
-  "updated_at": "2026-09-30T09:10:00Z"
+  "updated_at": "2026-09-30T09:45:00Z"
 }

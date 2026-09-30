@@ -153,7 +153,9 @@ Si no ves el bloque "Conceptos", es porque no hay ningún concepto sembrado rela
 
 *Nota interna (T8, `B1-assistant-vehicle-go-to-task`): mismo patrón, un quinto `Task` — `request_go_to` — para frases como `go to`, `ve a` o `navega`. Sin parseo de coordenadas: la propuesta siempre viaja sin destino real. Misma respuesta honesta (nunca "navegando"/"llegó"). Orden de precedencia: `explain …` → `estado` → `hold` → `land` → `go to`.*
 
-*Nota interna (T9, `B1-assistant-vehicle-takeoff-task`): mismo patrón, un sexto `Task` — `request_takeoff` — para frases como `takeoff`, `despega` o `sube`. Misma respuesta honesta (nunca "en el aire"/"despegó"). Orden de precedencia: `explain …` → `estado` → `hold` → `land` → `go to` → `takeoff`.*
+*Nota interna (T9, `B1-assistant-vehicle-takeoff-task`): mismo patrón, un sexto `Task` — `request_takeoff` — para frases como `takeoff`, `despega` o `sube`. Misma respuesta honesta (nunca "en el aire"/"despegó").*
+
+*Nota interna (T10, `B1-assistant-vehicle-return-home-task`): séptimo `Task` — `request_return_home` — para `rtl`, `casa`, `volver a casa`, etc. Exact match only (no "volver al board"). Precedencia: `explain …` → `estado` → `hold` → `land` → `go to` → `takeoff` → `rtl`/`casa`. Cierra el set de mando básico.*
 
 **Desde A8 (`B1-continuity-explain-topics-expand`): también verás `corriente-y-circuitos` cuando el proyecto ya tenga un punto de operación eléctrico (`motor_op_current_a`) resuelto** — el mismo dato que la línea "OP eléctrico" de `estado` ya muestra. Ejemplo real:
 

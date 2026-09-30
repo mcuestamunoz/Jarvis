@@ -249,4 +249,4 @@ def test_t7_default_safety_gate_reject_all_disarmed_armed_allowlist_empty_params
 
 def test_t8_pyproject_version_is_0_6_17():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.17"' in text
+    assert 'version = "0.6.18"' in text

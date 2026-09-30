@@ -11,10 +11,14 @@
             "id": "d66bc8aeb61cbc42",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Vista gráfica"
+              "type": "markdown",
+              "state": {
+                "file": "2026-09-27.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "2026-09-27"
             }
           }
         ]
@@ -37,7 +41,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": true
+                "autoReveal": true,
+                "showSearch": false,
+                "searchQuery": ""
               },
               "icon": "lucide-folder-closed",
               "title": "Explorador de archivos"
@@ -179,11 +185,25 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "d66bc8aeb61cbc42",
+  "active": "92c6bbc073334949",
   "lastOpenFiles": [
+    "03_Ingenieria/Electrónica/Forma de medición en banco de empuje/Forma de medición en banco de empuje.md",
+    "03_Ingenieria/Electrónica/Forma de medición en banco de empuje",
+    "03_Ingenieria/Electrónica/C-rate de batería/C-rate de batería.md",
+    "03_Ingenieria/Electrónica/C-rate de batería",
+    "03_Ingenieria/Electrónica/Punto de operación vs capacidad intrínseca/Punto de operación vs capacidad intrínseca.md",
+    "03_Ingenieria/Electrónica/Punto de operación vs capacidad intrínseca",
+    "04_Robotica/Actuadores/Motores/Motor DC/Motor DC.md",
+    "04_Robotica/Actuadores/Motores/Motor DC",
+    "04_Robotica/Sensores/Sensores de movimiento/IMU/IMU.md",
+    "04_Robotica/Sensores/Sensores de movimiento/IMU",
+    "04_Robotica/Sensores/Sensores de movimiento/Giroscopio/Giroscopio.md",
+    "04_Robotica/Sensores/Sensores de movimiento/Giroscopio",
+    "04_Robotica/Sensores/Sensores de movimiento/Acelerómetro/Acelerómetro.md",
+    "04_Robotica/Sensores/Sensores de movimiento/Acelerómetro",
     "Sin título.canvas",
-    "2026-09-27.md",
     "Sin título.base",
+    "2026-09-27.md",
     "refined/run_20260404_110946/ecuación_de_bernoulli.md",
     "refined/run_20260404_110946/ecuación_cuadrática.fallback.md",
     "refined/run_20260404_110946/ecuación.fallback.md",
@@ -202,21 +222,8 @@
     "refined/run_20260404_110946/componentes_electrónicos.md",
     "refined/run_20260404_110946/circuito_eléctrico.md",
     "refined/run_20260404_110946/cinemática.md",
-    "refined/run_20260404_110946/carga_eléctrica.md",
-    "refined/run_20260404_110946/campo_magnético.md",
-    "output/aceleración.md",
-    "refined/run_20260404_110946/aceleración.md",
     "refined/run_20260404_110946",
     "refined/run_20260404_110605",
-    "refined/run_20260404_110202",
-    "output/ley_de_ohm.md",
-    "refined/run_20260404_105435",
-    "prompt_generador.txt",
-    "refined/run_20260404_104731",
-    "refined/run_20260404_104042",
-    "refined/run_20260404_101840",
-    "refined/run_20260404_101339",
-    "output/planificación_de_trayectoria.md",
     "Pasted image 20260316103832.png"
   ]
 }

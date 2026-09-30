@@ -4,8 +4,9 @@
 `B1-assistant-software-safety-bridge` (T4),
 `B1-assistant-vehicle-hold-task` (T6),
 `B1-assistant-vehicle-land-task` (T7),
-`B1-assistant-vehicle-go-to-task` (T8), and
-`B1-assistant-vehicle-takeoff-task` (T9).
+`B1-assistant-vehicle-go-to-task` (T8),
+`B1-assistant-vehicle-takeoff-task` (T9), and
+`B1-assistant-vehicle-return-home-task` (T10).
 
 T6 adds the first **vehicle** Task kind, `request_hold` (requires
 `flight.hold`) — classified from a finite HOLD phrase table
@@ -49,6 +50,23 @@ doesn't change TAKEOFF's honest `disarmed` reject, but an armed caller
 would still get `verb_not_allowed` for TAKEOFF specifically until a
 later, separate allow-list Buy.
 
+T10 adds the **fifth and closing** vehicle Task kind of the basic
+command set, `request_return_home` (requires `flight.return_home`) —
+same seam again, own finite phrase table
+(`jarvis.config.VEHICLE_RETURN_HOME_PHRASES`). Precedence: explain →
+Continuity defer → HOLD → LAND → GO_TO → TAKEOFF → RETURN_HOME →
+fallthrough — `try_request_return_home_task` refuses explain-,
+Continuity-, HOLD-, LAND-, GO_TO-, *and* TAKEOFF-shaped input
+internally. No home-point/GPS parsing this Buy — `params` is always
+empty. `VEHICLE_RETURN_HOME_PHRASES` includes several short single
+words (`casa`, `home`, `volver`, `vuelve`) — exact-match only, same
+discipline as every table here, so a longer craft-chat line merely
+*containing* one of those words (e.g. "volver al board") is never
+stolen. `ArmedAllowlistSafetyGate`'s own allow-list stays unwidened
+(still `{HOLD, LAND, GO_TO}`, RETURN_HOME not included) — same honest-
+`disarmed`-regardless reasoning as TAKEOFF. After this kind, the basic
+chat vehicle command set is complete: TAKEOFF/HOLD/GO_TO/RETURN_HOME/LAND.
+
 First on-disk `Task` emission per `DC-assistant-first-task`
 (`design_contract_assistant_first_task_b0.md`, ★ ACCEPT CLOSED):
 `jarvis.intelligence` — the Assistant — classifies an `Intent` into a
@@ -91,6 +109,7 @@ from jarvis.config import (
     VEHICLE_GO_TO_PHRASES,
     VEHICLE_HOLD_PHRASES,
     VEHICLE_LAND_PHRASES,
+    VEHICLE_RETURN_HOME_PHRASES,
     VEHICLE_TAKEOFF_PHRASES,
 )
 
@@ -106,6 +125,8 @@ CAPABILITY_FLIGHT_GO_TO = "flight.go_to"
 TASK_KIND_REQUEST_GO_TO = "request_go_to"
 CAPABILITY_FLIGHT_TAKEOFF = "flight.takeoff"
 TASK_KIND_REQUEST_TAKEOFF = "request_takeoff"
+CAPABILITY_FLIGHT_RETURN_HOME = "flight.return_home"
+TASK_KIND_REQUEST_RETURN_HOME = "request_return_home"
 
 _LIST_RUNG_REDIRECT = (
     "Eso solo está disponible en terminal: "
@@ -526,4 +547,80 @@ def try_request_takeoff_task(intent: Intent) -> Task | None:
     if not _capabilities_known_in_default_registry(required_capability_ids):
         return None
     intent.metadata["task_kind"] = TASK_KIND_REQUEST_TAKEOFF
+    return task
+
+
+def try_request_return_home_task(intent: Intent) -> Task | None:
+    """Classify `intent` as a `request_return_home` Task — the **fifth
+    and closing** vehicle Task kind of the basic command set
+    (`DC-assistant-vehicle-return-home-task`, ★ CLOSED, same seam as
+    T6's HOLD/T7's LAND/T8's GO_TO/T9's TAKEOFF) — or refuse (`None`)
+    when `intent.raw_text` — after the same minimal normalize — isn't
+    an exact member of `jarvis.config.VEHICLE_RETURN_HOME_PHRASES`,
+    **or** when it's explain-shaped, Continuity-defer-shaped, HOLD-
+    shaped, LAND-shaped, GO_TO-shaped, **or** TAKEOFF-shaped
+    (precedence: explain → Continuity defer → HOLD → LAND → GO_TO →
+    TAKEOFF → RETURN_HOME → fallthrough; DC §0 row 4). This function
+    re-checks all six ahead-of-it kinds itself — mirroring
+    `try_request_takeoff_task`'s own internal guards — so a direct/test
+    caller (not just the orchestrator's own call order) cannot have any
+    earlier verb's phrase stolen by RETURN_HOME or vice versa.
+
+    Exact-phrase match only, same finite-table discipline as every
+    other kind here — no fuzzy match, no stealing arbitrary craft
+    design chat. This matters more than usual here: several
+    `VEHICLE_RETURN_HOME_PHRASES` entries are short single words
+    (`casa`, `home`, `volver`, `vuelve`) — the normalize-then-equality
+    check (never a substring/`in` check against the raw line) is what
+    keeps a longer craft-chat line like "volver al board" from ever
+    matching (IC's own explicit caution).
+
+    Never calls an LLM, never imports `jarvis.flight_software` or
+    `jarvis.vehicle_profiles`, never proposes or submits an autonomy
+    command itself — fulfilling a matched Task (via `propose_command`/
+    `submit_command` + a disarmed `ArmedAllowlistSafetyGate`) is
+    entirely the orchestrator's job (DC §0 row 8), same separation
+    T6/T7/T8/T9 already established. No home-point/GPS parsing happens
+    here or in the orchestrator this Buy — `params` is always empty
+    (DC §0 row 9).
+
+    Side effect: on a match, records `task_kind` onto `intent.metadata`
+    in place — the only state this function touches.
+
+    T3-style membership check: before writing `intent.metadata`,
+    soft-checks `CAPABILITY_FLIGHT_RETURN_HOME` exists in
+    `CapabilityRegistry.load_default()` (membership only). Unknown id →
+    refuse (`None`), `intent.metadata` left untouched.
+
+    Deliberately **no** T4 `SoftwareCapabilitySafetyGate` call here
+    (IC §0 row 6), same reasoning as every earlier vehicle kind:
+    `flight.return_home` is intentionally seeded `not_implemented`/
+    `vehicle`, so that gate would either always (and confusingly)
+    refuse via the wrong gate, or silently imply a software fulfill
+    path for a vehicle verb if the seed ever changed. The real Safety
+    check happens once, in the orchestrator's fulfill step — where a
+    disarmed gate yields `"disarmed"` regardless of whether
+    RETURN_HOME is even on `ArmedAllowlistSafetyGate`'s own allow-list
+    (DC §0 row 7 note: it still isn't, this Buy — not widened).
+    """
+    if _extract_explain_query(intent.raw_text) is not None:
+        return None
+    normalized = _normalize_for_continuity_match(intent.raw_text)
+    if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_HOLD_PHRASES:
+        return None
+    if normalized in VEHICLE_LAND_PHRASES:
+        return None
+    if normalized in VEHICLE_GO_TO_PHRASES:
+        return None
+    if normalized in VEHICLE_TAKEOFF_PHRASES:
+        return None
+    if normalized not in VEHICLE_RETURN_HOME_PHRASES:
+        return None
+    required_capability_ids = [CAPABILITY_FLIGHT_RETURN_HOME]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    intent.metadata["task_kind"] = TASK_KIND_REQUEST_RETURN_HOME
     return task

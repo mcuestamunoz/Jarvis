@@ -579,6 +579,20 @@ class JarvisOrchestrator:
         if try_request_takeoff_task(takeoff_intent) is not None:
             return self._handle_vehicle_takeoff(takeoff_intent)
 
+        # ── Vehicle RETURN_HOME intercept, via Assistant Task seam (T10) ──────
+        # T10 (B1-assistant-vehicle-return-home-task): finite RETURN_HOME/RTL
+        # phrases (jarvis.config.VEHICLE_RETURN_HOME_PHRASES) → Task
+        # (request_return_home) requiring flight.return_home — fifth vehicle
+        # kind, closes basic mando set. Precedence: … → TAKEOFF → RETURN_HOME
+        # → fallthrough. Exact match only (short words like casa/home/volver
+        # must not steal "volver al board"). Fulfilled here with empty params
+        # + fresh never-armed ArmedAllowlistSafetyGate; allow-list not widened.
+        from jarvis.intelligence.assistant_task import try_request_return_home_task
+
+        return_home_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_return_home_task(return_home_intent) is not None:
+            return self._handle_vehicle_return_home(return_home_intent)
+
         return None
 
     def _handle_vehicle_hold(self, intent: Any) -> dict:
@@ -721,6 +735,25 @@ class JarvisOrchestrator:
             f"Ejecución: {result.execution}."
         )
         return {"status": "ok", "action": "vehicle_takeoff", "message": message}
+
+    def _handle_vehicle_return_home(self, intent: Any) -> dict:
+        """T10 fulfill for a classified `request_return_home` Task — thin
+        sibling of HOLD/LAND/GO_TO/TAKEOFF (do not edit those bodies).
+        Proposes `AutonomyVerb.RETURN_HOME` with empty `params`, submits
+        through a fresh never-armed `ArmedAllowlistSafetyGate`. Allow-list
+        still `{HOLD, LAND, GO_TO}` (unwidened). Honest UX only."""
+        from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
+        from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
+
+        gate = ArmedAllowlistSafetyGate()
+        command = propose_command(AutonomyVerb.RETURN_HOME, intent_id=intent.id, params={})
+        result = submit_command(command, gate)
+        message = (
+            "RETURN_HOME solicitado, pero no se ejecuta ningún RTL real desde este "
+            f"chat todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
+            f"Ejecución: {result.execution}."
+        )
+        return {"status": "ok", "action": "vehicle_return_home", "message": message}
 
     _AFFIRMATIVE_WORDS: frozenset[str] = frozenset({
         "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante", "perfecto",

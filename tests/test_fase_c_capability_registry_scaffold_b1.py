@@ -175,7 +175,7 @@ def test_t10_pyproject_version_is_0_6_10():
     established pattern — was last accurate at 0.5.44 (C1's own tip),
     itself already long stale before this Buy touched the file."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.17"' in text
+    assert 'version = "0.6.18"' in text
 
 
 def test_default_seed_file_is_honestly_software_only():

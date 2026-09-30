@@ -122,7 +122,7 @@ def test_t5_fences_hold_ast():
 
 def test_t6_pyproject_version_is_0_6_11():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.17"' in text
+    assert 'version = "0.6.18"' in text
 
 
 def test_gate_does_not_touch_availability_or_providers(monkeypatch):
