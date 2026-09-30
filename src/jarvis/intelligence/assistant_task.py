@@ -1,5 +1,6 @@
 """Assistant Task seam — `B1-assistant-explain-task` (T0), extended by
-`B1-assistant-defer-continuity` (T1).
+`B1-assistant-defer-continuity` (T1) and
+`B1-assistant-task-registry-coherence` (T3).
 
 First on-disk `Task` emission per `DC-assistant-first-task`
 (`design_contract_assistant_first_task_b0.md`, ★ ACCEPT CLOSED):
@@ -35,6 +36,7 @@ import unicodedata
 from pathlib import Path
 
 from jarvis.capabilities.intent import Intent, Task
+from jarvis.capabilities.registry import CapabilityRegistry
 from jarvis.config import CHAT_EXPLAIN_PREFIXES, CONTINUITY_DEFER_PHRASES
 
 CAPABILITY_ONTOLOGY_EXPLAIN = "ontology.explain"
@@ -47,6 +49,14 @@ _LIST_RUNG_REDIRECT = (
     "`jarvis explain --list` / `jarvis explain --rung <KEY>` "
     "no funcionan dentro del chat todavía."
 )
+
+
+def _capabilities_known_in_default_registry(capability_ids: list[str]) -> bool:
+    """T3 soft coherence gate: membership only — never reads
+    `availability`, never calls a provider. Loads the product default
+    registry fresh each call (no caching, no alternate seed injection)."""
+    registry = CapabilityRegistry.load_default()
+    return all(registry.get_capability(cid) is not None for cid in capability_ids)
 
 
 def _extract_explain_query(raw_text: str) -> str | None:
@@ -84,13 +94,22 @@ def try_explain_concept_task(intent: Intent) -> Task | None:
     Side effect: on a real match, records `task_kind`/`explain_query`
     onto `intent.metadata` in place (IC §0 row 4) — the only state this
     function touches, and only the caller's own `Intent` object.
+
+    T3: before writing `intent.metadata`, soft-checks every id in
+    `required_capability_ids` exists in `CapabilityRegistry.load_default()`
+    (membership only — no availability read, no provider call). Unknown
+    id → refuse (`None`), `intent.metadata` left untouched.
     """
     query = _extract_explain_query(intent.raw_text)
     if query is None or _is_list_or_rung_flag(query):
         return None
+    required_capability_ids = [CAPABILITY_ONTOLOGY_EXPLAIN]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
     intent.metadata["task_kind"] = TASK_KIND_EXPLAIN_CONCEPT
     intent.metadata["explain_query"] = query
-    return Task(intent_id=intent.id, required_capability_ids=[CAPABILITY_ONTOLOGY_EXPLAIN])
+    return task
 
 
 def fulfill_ontology_explain(query: str, *, ontology_root: Path | None = None) -> str:
@@ -163,14 +182,20 @@ def try_defer_to_continuity_task(intent: Intent) -> Task | None:
 
     Side effect: on a match, records `task_kind` onto `intent.metadata`
     in place — the only state this function touches.
+
+    T3: before writing `intent.metadata`, soft-checks every id in
+    `required_capability_ids` exists in `CapabilityRegistry.load_default()`
+    (membership only — no availability read, no provider call). Unknown
+    id → refuse (`None`), `intent.metadata` left untouched.
     """
     if _extract_explain_query(intent.raw_text) is not None:
         return None
     normalized = _normalize_for_continuity_match(intent.raw_text)
     if normalized not in CONTINUITY_DEFER_PHRASES:
         return None
+    required_capability_ids = [CAPABILITY_ENGINEERING_CONTINUITY]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
     intent.metadata["task_kind"] = TASK_KIND_DEFER_TO_CONTINUITY
-    return Task(
-        intent_id=intent.id,
-        required_capability_ids=[CAPABILITY_ENGINEERING_CONTINUITY],
-    )
+    return task

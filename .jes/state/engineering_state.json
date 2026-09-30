@@ -1,39 +1,40 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T2 ★ ACCEPT CLOSED @ v0.6.10; T3 IC READY FOR ★; JES-in-product parked",
-  "scope": "T2 registry product fill ACCEPTed after smoke. Next: soft Task↔registry coherence (T3). Out: JES-in-product, vehicle, R4.",
+  "cycle_intent": "T3 ★ ACCEPT CLOSED @ v0.6.11; T4 B1-assistant-software-safety-bridge IC READY FOR ★",
+  "scope": "T3 soft registry coherence ACCEPTed. Next: wire software Tasks through SoftwareCapabilitySafetyGate. Out: vehicle verbs, default_safety_gate change.",
   "execution_status": "awaiting_approval",
   "current_mode": "design",
   "movement_trigger": {
     "type": "star",
-    "reason": "Engineer ACCEPT T2 after explain+estado smoke; T3 IC already drafted"
+    "reason": "Engineer ACCEPT T3 + propose next vision-coherent IC (software Safety bridge)"
   },
   "relevant_workflow_phases": ["Close", "Design"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_capability_registry_product_fill_b1.md",
-    ".jes/artifacts/implementation_contract_assistant_task_registry_coherence_b1.md"
+    ".jes/artifacts/implementation_review_assistant_task_registry_coherence_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_software_safety_bridge_b1.md"
   ],
-  "open_questions": ["★ Engineer authorize T3 IC implement (Claude)?"],
+  "open_questions": ["★ Engineer authorize T4 IC implement (Claude)?"],
   "active_operation": {
     "type": "implementation_contract",
-    "contract": "implementation_contract_assistant_task_registry_coherence_b1.md",
-    "ids": ["T3", "B1-assistant-task-registry-coherence"],
+    "contract": "implementation_contract_assistant_software_safety_bridge_b1.md",
+    "ids": ["T4", "B1-assistant-software-safety-bridge"],
     "blocked_on": "Engineer ★ to authorize Claude"
   },
   "closed_this_turn": [
-    "T2 ★ ACCEPT CLOSED + tag v0.6.10",
-    "Engineer smoke explain imu + estado OK",
-    "Reverted premature T3 edits in assistant_task.py (no ★ yet)"
+    "T3 ★ ACCEPT CLOSED + tag v0.6.11",
+    "Drafted T4 software Safety bridge IC READY FOR ★"
   ],
   "authority_gates": [
-    "No src/ for T3 until IC ★",
-    "Tag v0.6.11 only on T3 ACCEPT"
+    "No src/ for T4 until IC ★",
+    "default_safety_gate stays RejectAll",
+    "No HOLD/LAND this Buy",
+    "Tag v0.6.12 only on T4 ACCEPT"
   ],
   "coherence_checklist": [
-    "T2 seed live under load_default",
-    "Smoke held cite + Continuity",
-    "T3 IC READY; implementation not started under ★"
+    "Vision §10 Intent→Task→capability→Safety",
+    "Builds on T3 membership",
+    "Vehicle Task still separate later DC"
   ],
-  "updated_at": "2026-09-30T06:35:00Z"
+  "updated_at": "2026-09-30T06:50:00Z"
 }

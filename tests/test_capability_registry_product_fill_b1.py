@@ -121,16 +121,23 @@ def test_t6_no_dispatcher_method_added():
 
 def test_t6b_assistant_task_and_orchestrator_untouched_by_this_buy():
     """T2 IC §0 row 8: zero changes to assistant_task.py, orchestrator
-    Task wire, Continuity ranking, explain cite. Verified here as an
-    import-graph sanity check: the registry module itself must not
-    import assistant_task (no reverse coupling), and assistant_task
-    must not import the capability registry (T0/T1's own Task-string
-    classify stays authoritative — T2 IC §0 row 7: no registry lookup
-    before emit)."""
+    Task wire, Continuity ranking, explain cite, by *this* Buy (T2)
+    specifically. Verified here as an import-graph sanity check: the
+    registry module itself must not import assistant_task (no reverse
+    coupling) — still true.
+
+    T2 IC §0 row 7 additionally forbade assistant_task importing the
+    capability registry at all ("no registry lookup before emit"), but
+    that specific constraint was explicitly deferred to a later IC (see
+    T2 IC "Parents" / DC §0 row 7: "soft id known in registry check").
+    `B1-assistant-task-registry-coherence` (T3) is that later IC — it
+    deliberately adds `assistant_task -> capabilities.registry` as a
+    new, authorized one-way edge (T3 IC §0 row 6). This test therefore
+    no longer asserts that edge's absence; T3's own AST fence test
+    (`tests/test_assistant_task_registry_coherence_b1.py::
+    test_t5_fences_hold_ast`) is now the authoritative check for
+    assistant_task's import direction."""
     registry_path = REPO_ROOT / "src" / "jarvis" / "capabilities" / "registry.py"
-    assistant_task_path = (
-        REPO_ROOT / "src" / "jarvis" / "intelligence" / "assistant_task.py"
-    )
 
     registry_imports = _imported_module_names(registry_path)
     assert not any(
@@ -138,13 +145,7 @@ def test_t6b_assistant_task_and_orchestrator_untouched_by_this_buy():
         for m in registry_imports
     )
 
-    assistant_task_imports = _imported_module_names(assistant_task_path)
-    assert not any(
-        m == "jarvis.capabilities.registry" or m == "jarvis.capabilities"
-        for m in assistant_task_imports
-    )
-
 
 def test_t7_pyproject_version_is_0_6_10():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.10"' in text
+    assert 'version = "0.6.11"' in text
