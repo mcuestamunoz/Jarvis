@@ -591,6 +591,19 @@ class JarvisOrchestrator:
         if try_request_return_home_task(return_home_intent) is not None:
             return self._handle_vehicle_return_home(return_home_intent)
 
+        # ── Vehicle FOLLOW intercept, via Assistant Task seam (T12) ───────────
+        # T12 (B1-assistant-vehicle-follow-task): finite FOLLOW phrases → Task
+        # (request_follow) requiring flight.follow — sixth vehicle kind.
+        # Precedence: … → RETURN_HOME → FOLLOW → fallthrough. Exact match only
+        # (sigue/follow must not steal craft lines). Fulfilled here with empty
+        # params via the shared chat ArmedAllowlist (T11); allow-list not
+        # widened (FOLLOW → verb_not_allowed when armed).
+        from jarvis.intelligence.assistant_task import try_request_follow_task
+
+        follow_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_follow_task(follow_intent) is not None:
+            return self._handle_vehicle_follow(follow_intent)
+
         return None
 
     def _vehicle_chat_safety_gate(self):
@@ -706,6 +719,22 @@ class JarvisOrchestrator:
             f"Ejecución: {result.execution}."
         )
         return {"status": "ok", "action": "vehicle_return_home", "message": message}
+
+    def _handle_vehicle_follow(self, intent: Any) -> dict:
+        """T12 fulfill — empty params; shared chat ArmedAllowlist (T11).
+        Allow-list still excludes FOLLOW → verb_not_allowed when armed.
+        Never arms the gate here. Honest UX only — never claim following."""
+        from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
+
+        gate = self._vehicle_chat_safety_gate()
+        command = propose_command(AutonomyVerb.FOLLOW, intent_id=intent.id, params={})
+        result = submit_command(command, gate)
+        message = (
+            "FOLLOW solicitado, pero no se ejecuta ningún seguimiento real desde este "
+            f"chat todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
+            f"Ejecución: {result.execution}."
+        )
+        return {"status": "ok", "action": "vehicle_follow", "message": message}
 
     _AFFIRMATIVE_WORDS: frozenset[str] = frozenset({
         "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante", "perfecto",

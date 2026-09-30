@@ -1,43 +1,42 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T12 FOLLOW IC ★ AUTHORIZED for Claude after T11 close; await implementation",
-  "scope": "Sixth vehicle Task kind request_follow → flight.follow via shared ArmedAllowlist. Allow-list unwidened. No person-target parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "T12 FOLLOW implemented by Cursor (Engineer Implementa ic); await review → ★ ACCEPT → tag v0.6.20",
+  "scope": "Sixth vehicle Task request_follow via shared ArmedAllowlist. Allow-list unwidened. No person-target parse. No ACCEPT claim.",
+  "execution_status": "awaiting_approval",
+  "current_mode": "review",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: Redacta ic (next after T11 ★)"
+    "reason": "Engineer: Implementa ic (Cursor implements T12)"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
+  "relevant_workflow_phases": ["Review", "Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_follow_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_follow_task_b1.md"
+    ".jes/artifacts/implementation_report_assistant_vehicle_follow_task_b1.md",
+    ".jes/artifacts/implementation_review_assistant_vehicle_follow_task_b1.md"
   ],
   "open_questions": [
-    "Claude implements T12?",
-    "After T12 ★: PATROL · allow-list widen · CHARGE?"
+    "Independent Cursor review of record?",
+    "★ ACCEPT T12 + tag v0.6.20?",
+    "Next after ACCEPT: PATROL · allow-list widen · CHARGE?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
+    "type": "await_review_and_accept",
     "contract": "implementation_contract_assistant_vehicle_follow_task_b1.md",
     "ids": ["T12", "B1-assistant-vehicle-follow-task"],
-    "blocked_on": "Claude Code implementation"
+    "blocked_on": "review of record + Engineer ★ ACCEPT → tag v0.6.20"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-follow-task ★ CLOSED",
-    "IC B1-assistant-vehicle-follow-task ★ AUTHORIZED @ 0.6.20"
+    "T12 implementation landed (config/classify/orchestrator/registry/tests/docs)"
   ],
   "authority_gates": [
-    "Cursor IC/docs only — Claude implements src/",
-    "No allow-list widen in T12",
-    "No person/target parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "Same-session Cursor implementer PASS is not review of record",
+    "No ACCEPT/tag by Cursor without Engineer ★",
+    "Allow-list still HOLD/LAND/GO_TO only"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.FOLLOW already exists (C4)",
-    "Precedence after RETURN_HOME",
-    "Package target 0.6.20"
+    "Shared gate used for FOLLOW fulfill",
+    "Cascade 9 caps / 10 skills",
+    "Package 0.6.20"
   ],
-  "updated_at": "2026-09-30T12:05:00Z"
+  "updated_at": "2026-09-30T12:15:00Z"
 }

@@ -3,10 +3,10 @@
 **Project:** Jarvis  
 **Date:** 2026-09-30  
 **Author:** JES / Cursor — **IC only**  
-**Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
-**Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.20`**
+**Implementer:** **Cursor** (Engineer 2026-09-30: “Implementa ic”)  
+**Reviewer:** Cursor independent pass on request · Engineer ACCEPT → tag **`v0.6.20`**
 
-**Status:** ★ **AUTHORIZED** — await Claude implementation → Cursor review → Engineer ★ ACCEPT → tag **`v0.6.20`**.  
+**Status:** **Implemented** — await review / Engineer ★ ACCEPT → tag **`v0.6.20`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_assistant_vehicle_follow_task_b0.md)
 - T11 [`B1-assistant-vehicle-arm-ux`](implementation_review_assistant_vehicle_arm_ux_b1.md) — ★ ACCEPT CLOSED @ **`v0.6.19`**

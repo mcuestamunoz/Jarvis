@@ -228,6 +228,9 @@ def test_t9_registry_empty_and_no_craft_or_core_imports_of_loop():
     # (B1-assistant-vehicle-arm-ux): eighth+ninth, skill.request_arm_policy /
     # skill.request_disarm_policy (require safety.chat_armed_allowlist,
     # available/software) — see tests/test_assistant_vehicle_arm_ux_b1.py.
+    # T12 (B1-assistant-vehicle-follow-task): a tenth, skill.request_follow
+    # (requires flight.follow, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_follow_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -240,6 +243,7 @@ def test_t9_registry_empty_and_no_craft_or_core_imports_of_loop():
         "skill.request_return_home",
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
+        "skill.request_follow",
     }
 
     core_dir = REPO_ROOT / "src" / "jarvis" / "core"

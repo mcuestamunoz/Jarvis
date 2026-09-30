@@ -63,6 +63,14 @@
             "availability": "available",
             "requirements": [],
             "health": "unknown"
+        },
+        {
+            "id": "flight.follow",
+            "version": "0.6.20",
+            "provider_id": "provider.flight_follow",
+            "availability": "not_implemented",
+            "requirements": [],
+            "health": "unknown"
         }
     ],
     "providers": [
@@ -112,6 +120,12 @@
             "id": "provider.safety_chat_armed_allowlist",
             "kind": "software",
             "offered_capability_ids": ["safety.chat_armed_allowlist"],
+            "health": "unknown"
+        },
+        {
+            "id": "provider.flight_follow",
+            "kind": "vehicle",
+            "offered_capability_ids": ["flight.follow"],
             "health": "unknown"
         }
     ],
@@ -168,6 +182,12 @@
             "id": "skill.request_disarm_policy",
             "version": "0.6.19",
             "required_capability_ids": ["safety.chat_armed_allowlist"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_follow",
+            "version": "0.6.20",
+            "required_capability_ids": ["flight.follow"],
             "availability": "stub"
         }
     ]

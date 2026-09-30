@@ -6,18 +6,28 @@
 `B1-assistant-vehicle-land-task` (T7),
 `B1-assistant-vehicle-go-to-task` (T8),
 `B1-assistant-vehicle-takeoff-task` (T9),
-`B1-assistant-vehicle-return-home-task` (T10), and
-`B1-assistant-vehicle-arm-ux` (T11).
+`B1-assistant-vehicle-return-home-task` (T10),
+`B1-assistant-vehicle-arm-ux` (T11), and
+`B1-assistant-vehicle-follow-task` (T12).
 
 T11 adds Safety **policy** Tasks `request_arm_policy` /
 `request_disarm_policy` (require `safety.chat_armed_allowlist`,
 `available`+`software`) — classified from `VEHICLE_ARM_PHRASES` /
 `VEHICLE_DISARM_PHRASES`, through the T4 `SoftwareCapabilitySafetyGate`
 path (unlike vehicle verbs). Precedence: explain → Continuity defer →
-ARM → DISARM → HOLD → … → RETURN_HOME. Fulfill (gate.arm/disarm on the
-orchestrator's shared chat ArmedAllowlist) lives entirely in
+ARM → DISARM → HOLD → … → RETURN_HOME → FOLLOW. Fulfill (gate.arm/disarm
+on the orchestrator's shared chat ArmedAllowlist) lives entirely in
 `core/orchestrator.py` — this module still never imports
 `jarvis.flight_software`/`jarvis.vehicle_profiles`/`jarvis.core`.
+
+T12 adds the **sixth** vehicle Task kind, `request_follow` (requires
+`flight.follow`) — same membership-only seam as HOLD…RETURN_HOME, own
+finite phrase table (`jarvis.config.VEHICLE_FOLLOW_PHRASES`). Precedence:
+explain → Continuity defer → ARM → DISARM → HOLD → LAND → GO_TO →
+TAKEOFF → RETURN_HOME → **FOLLOW** → fallthrough. No person/target parse
+— orchestrator always proposes with empty `params={}`. Allow-list stays
+`{HOLD, LAND, GO_TO}` (unwidened) — after ARM, FOLLOW yields
+`verb_not_allowed` like TAKEOFF/RETURN_HOME.
 
 T6 adds the first **vehicle** Task kind, `request_hold` (requires
 `flight.hold`) — classified from a finite HOLD phrase table
@@ -120,6 +130,7 @@ from jarvis.config import (
     CONTINUITY_DEFER_PHRASES,
     VEHICLE_ARM_PHRASES,
     VEHICLE_DISARM_PHRASES,
+    VEHICLE_FOLLOW_PHRASES,
     VEHICLE_GO_TO_PHRASES,
     VEHICLE_HOLD_PHRASES,
     VEHICLE_LAND_PHRASES,
@@ -144,6 +155,8 @@ CAPABILITY_FLIGHT_TAKEOFF = "flight.takeoff"
 TASK_KIND_REQUEST_TAKEOFF = "request_takeoff"
 CAPABILITY_FLIGHT_RETURN_HOME = "flight.return_home"
 TASK_KIND_REQUEST_RETURN_HOME = "request_return_home"
+CAPABILITY_FLIGHT_FOLLOW = "flight.follow"
+TASK_KIND_REQUEST_FOLLOW = "request_follow"
 
 _LIST_RUNG_REDIRECT = (
     "Eso solo está disponible en terminal: "
@@ -359,6 +372,8 @@ def try_request_arm_policy_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_RETURN_HOME_PHRASES:
         return None
+    if normalized in VEHICLE_FOLLOW_PHRASES:
+        return None
     if normalized not in VEHICLE_ARM_PHRASES:
         return None
     required_capability_ids = [CAPABILITY_SAFETY_CHAT_ARMED_ALLOWLIST]
@@ -393,6 +408,8 @@ def try_request_disarm_policy_task(intent: Intent) -> Task | None:
     if normalized in VEHICLE_TAKEOFF_PHRASES:
         return None
     if normalized in VEHICLE_RETURN_HOME_PHRASES:
+        return None
+    if normalized in VEHICLE_FOLLOW_PHRASES:
         return None
     if normalized not in VEHICLE_DISARM_PHRASES:
         return None
@@ -453,6 +470,8 @@ def try_request_hold_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_ARM_PHRASES or normalized in VEHICLE_DISARM_PHRASES:
         return None
+    if normalized in VEHICLE_FOLLOW_PHRASES:
+        return None
     if normalized not in VEHICLE_HOLD_PHRASES:
         return None
     required_capability_ids = [CAPABILITY_FLIGHT_HOLD]
@@ -510,6 +529,8 @@ def try_request_land_task(intent: Intent) -> Task | None:
     if normalized in VEHICLE_ARM_PHRASES or normalized in VEHICLE_DISARM_PHRASES:
         return None
     if normalized in VEHICLE_HOLD_PHRASES:
+        return None
+    if normalized in VEHICLE_FOLLOW_PHRASES:
         return None
     if normalized not in VEHICLE_LAND_PHRASES:
         return None
@@ -572,6 +593,8 @@ def try_request_go_to_task(intent: Intent) -> Task | None:
     if normalized in VEHICLE_HOLD_PHRASES:
         return None
     if normalized in VEHICLE_LAND_PHRASES:
+        return None
+    if normalized in VEHICLE_FOLLOW_PHRASES:
         return None
     if normalized not in VEHICLE_GO_TO_PHRASES:
         return None
@@ -639,6 +662,8 @@ def try_request_takeoff_task(intent: Intent) -> Task | None:
     if normalized in VEHICLE_LAND_PHRASES:
         return None
     if normalized in VEHICLE_GO_TO_PHRASES:
+        return None
+    if normalized in VEHICLE_FOLLOW_PHRASES:
         return None
     if normalized not in VEHICLE_TAKEOFF_PHRASES:
         return None
@@ -718,6 +743,8 @@ def try_request_return_home_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_TAKEOFF_PHRASES:
         return None
+    if normalized in VEHICLE_FOLLOW_PHRASES:
+        return None
     if normalized not in VEHICLE_RETURN_HOME_PHRASES:
         return None
     required_capability_ids = [CAPABILITY_FLIGHT_RETURN_HOME]
@@ -725,4 +752,43 @@ def try_request_return_home_task(intent: Intent) -> Task | None:
     if not _capabilities_known_in_default_registry(required_capability_ids):
         return None
     intent.metadata["task_kind"] = TASK_KIND_REQUEST_RETURN_HOME
+    return task
+
+
+def try_request_follow_task(intent: Intent) -> Task | None:
+    """Classify `intent` as a `request_follow` Task — the **sixth**
+    vehicle Task kind (`DC-assistant-vehicle-follow-task`, ★ CLOSED,
+    same seam as HOLD…RETURN_HOME) — or refuse (`None`).
+
+    Exact match on `VEHICLE_FOLLOW_PHRASES` after normalize. Precedence:
+    explain → Continuity defer → ARM → DISARM → HOLD → LAND → GO_TO →
+    TAKEOFF → RETURN_HOME → **FOLLOW** → fallthrough. Refuses all
+    ahead-of-it kinds internally. Membership only — no
+    `SoftwareCapabilitySafetyGate`. No person/target parse; fulfill
+    always uses empty `params={}`. Never imports FS.
+    """
+    if _extract_explain_query(intent.raw_text) is not None:
+        return None
+    normalized = _normalize_for_continuity_match(intent.raw_text)
+    if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_ARM_PHRASES or normalized in VEHICLE_DISARM_PHRASES:
+        return None
+    if normalized in VEHICLE_HOLD_PHRASES:
+        return None
+    if normalized in VEHICLE_LAND_PHRASES:
+        return None
+    if normalized in VEHICLE_GO_TO_PHRASES:
+        return None
+    if normalized in VEHICLE_TAKEOFF_PHRASES:
+        return None
+    if normalized in VEHICLE_RETURN_HOME_PHRASES:
+        return None
+    if normalized not in VEHICLE_FOLLOW_PHRASES:
+        return None
+    required_capability_ids = [CAPABILITY_FLIGHT_FOLLOW]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    intent.metadata["task_kind"] = TASK_KIND_REQUEST_FOLLOW
     return task

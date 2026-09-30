@@ -216,6 +216,18 @@ VEHICLE_DISARM_PHRASES: frozenset[str] = frozenset({
     "disarm safety",
     "desarmar safety",
 })
+# B1-assistant-vehicle-follow-task (T12): sixth vehicle Task phrase table.
+# Exact match only — short words like "sigue"/"follow" must not steal craft
+# lines ("sigue con el frame", "follow the board layout").
+VEHICLE_FOLLOW_PHRASES: frozenset[str] = frozenset({
+    "follow",
+    "follow me",
+    "seguir",
+    "sigue",
+    "sigueme",
+    "seguirme",
+    "ven conmigo",
+})
 # FN-016: navigation-back words, scoped to acquisition wizards only (NOT a
 # global escape — deliberately not merged into ESCAPE_WORDS/checked outside
 # DEFINE_MISSING_PARAMETERS). Values are already accent-normalized; callers

@@ -278,6 +278,9 @@ def test_capability_registry_default_still_empty():
     # (B1-assistant-vehicle-arm-ux): eighth+ninth, skill.request_arm_policy /
     # skill.request_disarm_policy (require safety.chat_armed_allowlist,
     # available/software) — see tests/test_assistant_vehicle_arm_ux_b1.py.
+    # T12 (B1-assistant-vehicle-follow-task): a tenth, skill.request_follow
+    # (requires flight.follow, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_follow_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -290,6 +293,7 @@ def test_capability_registry_default_still_empty():
         "skill.request_return_home",
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
+        "skill.request_follow",
     }
 
 
