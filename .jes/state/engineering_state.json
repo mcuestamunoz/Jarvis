@@ -1,45 +1,45 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T6 ★ ACCEPT CLOSED @ v0.6.14; T7 LAND IC ★ AUTHORIZED → Claude",
-  "scope": "HOLD tip closed. LAND Task Buy authorized: same seam as HOLD, AutonomyVerb.LAND, gate B. No Cursor src/ for T7. No new INV.",
+  "cycle_intent": "T7 ★ ACCEPT CLOSED @ v0.6.15; T8 GO_TO IC ★ AUTHORIZED → Claude",
+  "scope": "LAND tip closed. GO_TO Task Buy authorized: same seam, AutonomyVerb.GO_TO, empty params, gate B. No Cursor src/ for T8. No new INV.",
   "execution_status": "authorized",
   "current_mode": "implementation",
   "movement_trigger": {
     "type": "star",
-    "reason": "Engineer ACCEPT T6 + redacta siguiente (LAND)"
+    "reason": "Engineer ACCEPT T7 + procede siguiente IC (GO_TO)"
   },
   "relevant_workflow_phases": ["Implementation"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_land_task_b1.md",
-    ".jes/artifacts/design_contract_assistant_vehicle_land_task_b0.md"
+    ".jes/artifacts/implementation_contract_assistant_vehicle_go_to_task_b1.md",
+    ".jes/artifacts/design_contract_assistant_vehicle_go_to_task_b0.md"
   ],
   "open_questions": [
-    "Claude implements T7; Cursor reviews on request; Engineer ACCEPT → tag v0.6.15"
+    "Claude implements T8; Cursor reviews on request; Engineer ACCEPT → tag v0.6.16"
   ],
   "active_operation": {
     "type": "implementation",
-    "contract": "implementation_contract_assistant_vehicle_land_task_b1.md",
-    "ids": ["T7", "B1-assistant-vehicle-land-task"],
+    "contract": "implementation_contract_assistant_vehicle_go_to_task_b1.md",
+    "ids": ["T8", "B1-assistant-vehicle-go-to-task"],
     "blocked_on": "Claude Code implementation + report"
   },
   "closed_this_turn": [
-    "T6 ★ ACCEPT CLOSED + tag v0.6.14",
-    "DC-assistant-vehicle-land-task ★ CLOSED",
-    "B1-assistant-vehicle-land-task ★ AUTHORIZED"
+    "T7 ★ ACCEPT CLOSED + tag v0.6.15",
+    "DC-assistant-vehicle-go-to-task ★ CLOSED",
+    "B1-assistant-vehicle-go-to-task ★ AUTHORIZED"
   ],
   "authority_gates": [
-    "Cursor does not implement T7 src/",
+    "Cursor does not implement T8 src/",
     "intelligence must not import flight_software",
     "do not arm ArmedAllowlist on product chat path",
-    "default_safety_gate stays RejectAll",
-    "GO_TO / arm UX remain later Buys"
+    "empty params — no coordinate parsing this Buy",
+    "do not edit HOLD/LAND fulfill bodies"
   ],
   "coherence_checklist": [
-    "Parent tip v0.6.14",
-    "Target package 0.6.15",
+    "Parent tip v0.6.15",
+    "Target package 0.6.16",
     "Gate B: ArmedAllowlist disarmed",
-    "Precedence explain > defer > hold > land"
+    "Precedence explain > defer > hold > land > go_to"
   ],
-  "updated_at": "2026-09-30T08:25:00Z"
+  "updated_at": "2026-09-30T08:40:00Z"
 }

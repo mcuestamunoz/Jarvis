@@ -23,6 +23,14 @@
             "availability": "not_implemented",
             "requirements": [],
             "health": "unknown"
+        },
+        {
+            "id": "flight.land",
+            "version": "0.6.15",
+            "provider_id": "provider.flight_land",
+            "availability": "not_implemented",
+            "requirements": [],
+            "health": "unknown"
         }
     ],
     "providers": [
@@ -43,6 +51,12 @@
             "kind": "vehicle",
             "offered_capability_ids": ["flight.hold"],
             "health": "unknown"
+        },
+        {
+            "id": "provider.flight_land",
+            "kind": "vehicle",
+            "offered_capability_ids": ["flight.land"],
+            "health": "unknown"
         }
     ],
     "skills": [
@@ -62,6 +76,12 @@
             "id": "skill.request_hold",
             "version": "0.6.14",
             "required_capability_ids": ["flight.hold"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_land",
+            "version": "0.6.15",
+            "required_capability_ids": ["flight.land"],
             "availability": "stub"
         }
     ]

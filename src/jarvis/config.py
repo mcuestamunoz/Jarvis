@@ -118,6 +118,23 @@ VEHICLE_HOLD_PHRASES: frozenset[str] = frozenset({
     "hold position",
     "mantener posicion",
 })
+# B1-assistant-vehicle-land-task (T7): second vehicle Task kind, same
+# discipline as VEHICLE_HOLD_PHRASES above — finite, exact match on the
+# normalized form via `assistant_task._normalize_for_continuity_match`,
+# entries stored pre-normalized (already accent-free here, so no
+# dedup needed). Minimum, deliberately narrow seed (DC/IC lock): "land",
+# "aterrizar", "aterriza", "aterrizaje", "baja", "bajar", "descend",
+# "descender".
+VEHICLE_LAND_PHRASES: frozenset[str] = frozenset({
+    "land",
+    "aterrizar",
+    "aterriza",
+    "aterrizaje",
+    "baja",
+    "bajar",
+    "descend",
+    "descender",
+})
 # FN-016: navigation-back words, scoped to acquisition wizards only (NOT a
 # global escape — deliberately not merged into ESCAPE_WORDS/checked outside
 # DEFINE_MISSING_PARAMETERS). Values are already accent-normalized; callers

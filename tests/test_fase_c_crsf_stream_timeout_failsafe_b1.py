@@ -243,13 +243,17 @@ def test_no_craft_or_core_imports_and_registry_still_empty():
     # declared-only stub rows — see tests/test_capability_skills_seed_b1.py.
     # T6 (B1-assistant-vehicle-hold-task): a third declared-only stub skill,
     # skill.request_hold (requires flight.hold, not_implemented/vehicle) —
-    # see tests/test_assistant_vehicle_hold_task_b1.py. Still zero Skill
+    # see tests/test_assistant_vehicle_hold_task_b1.py. T7
+    # (B1-assistant-vehicle-land-task): a fourth, skill.request_land
+    # (requires flight.land, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_land_task_b1.py. Still zero Skill
     # execution path anywhere; this file's own isolation proof is
     # unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
         "skill.explain_concept",
         "skill.project_status",
         "skill.request_hold",
+        "skill.request_land",
     }
 
 

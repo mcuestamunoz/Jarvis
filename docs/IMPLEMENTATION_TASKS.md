@@ -6,15 +6,15 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T7** vehicle LAND — IC ★ AUTHORIZED → **Claude implement**. Parent tip **`v0.6.14`**. Package target **`0.6.15`**. Gate **B** (same as HOLD).  
+> **PRIORIDAD AHORA:** **T8** vehicle GO_TO — IC ★ AUTHORIZED → **Claude implement**. Parent tip **`v0.6.15`**. Package target **`0.6.16`**. Gate **B**. Empty params (no coord parse).  
 > **Background:** Silicon parked. Continuity stays in `core/`.  
-> SoT: [IC LAND](../.jes/artifacts/implementation_contract_assistant_vehicle_land_task_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_vehicle_land_task_b0.md) · [T6 ★](../.jes/artifacts/implementation_review_assistant_vehicle_hold_task_b1.md).  
+> SoT: [IC GO_TO](../.jes/artifacts/implementation_contract_assistant_vehicle_go_to_task_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_vehicle_go_to_task_b0.md) · [T7 ★](../.jes/artifacts/implementation_review_assistant_vehicle_land_task_b1.md).  
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.14`** · A0–A8 + T0–T6 CLOSED · T7 IC ★ AUTHORIZED)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.15`** · A0–A8 + T0–T7 CLOSED · T8 IC ★ AUTHORIZED)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -35,7 +35,9 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T6** | **`DC-assistant-vehicle-hold-task`** | **✅ ★ CLOSED** | first vehicle Task kind HOLD | [DC](../.jes/artifacts/design_contract_assistant_vehicle_hold_task_b0.md) |
 | **T6** | **`B1-assistant-vehicle-hold-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.14`** | Task HOLD → submit_command via fresh, never-armed ArmedAllowlist | [review](../.jes/artifacts/implementation_review_assistant_vehicle_hold_task_b1.md) |
 | **T7** | **`DC-assistant-vehicle-land-task`** | **✅ ★ CLOSED** | second vehicle Task kind LAND | [DC](../.jes/artifacts/design_contract_assistant_vehicle_land_task_b0.md) |
-| **T7** | **`B1-assistant-vehicle-land-task`** | **★ AUTHORIZED** → Claude | Task LAND → submit_command disarmed ArmedAllowlist · `0.6.15` | [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_land_task_b1.md) |
+| **T7** | **`B1-assistant-vehicle-land-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.15`** | Task LAND → submit_command disarmed ArmedAllowlist · sibling of HOLD | [review](../.jes/artifacts/implementation_review_assistant_vehicle_land_task_b1.md) |
+| **T8** | **`DC-assistant-vehicle-go-to-task`** | **✅ ★ CLOSED** | third vehicle Task kind GO_TO | [DC](../.jes/artifacts/design_contract_assistant_vehicle_go_to_task_b0.md) |
+| **T8** | **`B1-assistant-vehicle-go-to-task`** | **★ AUTHORIZED** → Claude | Task GO_TO → submit_command disarmed ArmedAllowlist · empty params · `0.6.16` | [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_go_to_task_b1.md) |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Parked** | Horizon | DC placement §4 |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |

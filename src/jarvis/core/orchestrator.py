@@ -515,6 +515,26 @@ class JarvisOrchestrator:
         if try_request_hold_task(hold_intent) is not None:
             return self._handle_vehicle_hold(hold_intent)
 
+        # ── Vehicle LAND intercept, via Assistant Task seam (T7) ──────────────
+        # T7 (B1-assistant-vehicle-land-task): a finite, explicit set of LAND
+        # phrases (jarvis.config.VEHICLE_LAND_PHRASES) classifies to
+        # Task(request_land) requiring flight.land — the second vehicle Task
+        # kind, same seam as T6's HOLD. Precedence: explain → Continuity
+        # defer → HOLD → LAND → fallthrough (all three branches above already
+        # returned for an explain-, Continuity-, or HOLD-shaped line, and
+        # try_request_land_task's own internal guards refuse all three
+        # shapes too, so this is unreachable for any of them either way).
+        # Fulfilled here, never inside jarvis.intelligence — _handle_vehicle_land
+        # proposes+submits the command through the existing C4 autonomy
+        # surface with a fresh, never-armed ArmedAllowlistSafetyGate (DC §0
+        # row 7); the honest reject this produces is surfaced verbatim,
+        # never a claim of executed/landed flight.
+        from jarvis.intelligence.assistant_task import try_request_land_task
+
+        land_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_land_task(land_intent) is not None:
+            return self._handle_vehicle_land(land_intent)
+
         return None
 
     def _handle_vehicle_hold(self, intent: Any) -> dict:
@@ -549,6 +569,39 @@ class JarvisOrchestrator:
             f"Ejecución: {result.execution}."
         )
         return {"status": "ok", "action": "vehicle_hold", "message": message}
+
+    def _handle_vehicle_land(self, intent: Any) -> dict:
+        """T7 fulfill for a classified `request_land` Task (DC §0 row 8) —
+        same shape as `_handle_vehicle_hold` (T6), thin duplication rather
+        than a shared multi-verb helper (DC's own "Not" list: "collapsing
+        HOLD+LAND into a generic verb framework" is out of scope this Buy;
+        `_handle_vehicle_hold` itself is left byte-for-byte unchanged so
+        its own tested behavior cannot regress). Proposes an
+        `AutonomyVerb.LAND` command and submits it through the existing C4
+        autonomy surface using a **fresh, never-armed**
+        `ArmedAllowlistSafetyGate` — `gate.arm()` is never called anywhere
+        on this path. `default_safety_gate()` (still always
+        `RejectAllSafetyGate`) is untouched and not used here.
+
+        The returned message surfaces `result.safety.outcome`,
+        `result.safety.reason`, and `result.execution` verbatim — with a
+        disarmed gate this is always `reject`/`"disarmed"`/
+        `"not_attempted"` — and never claims the vehicle actually landed
+        or that anything executed; `action="vehicle_land"` (same
+        distinct-from-`"global_command"` discipline as T6's
+        `"vehicle_hold"`)."""
+        from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
+        from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
+
+        gate = ArmedAllowlistSafetyGate()
+        command = propose_command(AutonomyVerb.LAND, intent_id=intent.id)
+        result = submit_command(command, gate)
+        message = (
+            "LAND solicitado, pero no se ejecuta ningún vuelo real desde este chat "
+            f"todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
+            f"Ejecución: {result.execution}."
+        )
+        return {"status": "ok", "action": "vehicle_land", "message": message}
 
     _AFFIRMATIVE_WORDS: frozenset[str] = frozenset({
         "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante", "perfecto",

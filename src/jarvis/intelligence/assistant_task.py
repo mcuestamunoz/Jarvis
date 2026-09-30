@@ -1,8 +1,9 @@
 """Assistant Task seam — `B1-assistant-explain-task` (T0), extended by
 `B1-assistant-defer-continuity` (T1),
 `B1-assistant-task-registry-coherence` (T3),
-`B1-assistant-software-safety-bridge` (T4), and
-`B1-assistant-vehicle-hold-task` (T6).
+`B1-assistant-software-safety-bridge` (T4),
+`B1-assistant-vehicle-hold-task` (T6), and
+`B1-assistant-vehicle-land-task` (T7).
 
 T6 adds the first **vehicle** Task kind, `request_hold` (requires
 `flight.hold`) — classified from a finite HOLD phrase table
@@ -15,6 +16,15 @@ check for this kind lives entirely in the orchestrator's fulfill step,
 via `flight_software.autonomy.submit_command` + a fresh, never-armed
 `ArmedAllowlistSafetyGate`, not in this module). This module still never
 imports `jarvis.flight_software`/`jarvis.vehicle_profiles`/`jarvis.core`.
+
+T7 adds the **second** vehicle Task kind, `request_land` (requires
+`flight.land`) — same seam as T6, own finite phrase table
+(`jarvis.config.VEHICLE_LAND_PHRASES`), same membership-only gate, same
+deliberate absence of `SoftwareCapabilitySafetyGate`. Precedence: explain
+→ Continuity defer → HOLD → LAND → fallthrough — `try_request_land_task`
+refuses explain-, Continuity-, *and* HOLD-shaped input internally (a
+direct caller cannot steal HOLD's own phrases), mirroring the same
+internal-guard discipline every earlier kind here already uses.
 
 First on-disk `Task` emission per `DC-assistant-first-task`
 (`design_contract_assistant_first_task_b0.md`, ★ ACCEPT CLOSED):
@@ -56,6 +66,7 @@ from jarvis.config import (
     CHAT_EXPLAIN_PREFIXES,
     CONTINUITY_DEFER_PHRASES,
     VEHICLE_HOLD_PHRASES,
+    VEHICLE_LAND_PHRASES,
 )
 
 CAPABILITY_ONTOLOGY_EXPLAIN = "ontology.explain"
@@ -64,6 +75,8 @@ CAPABILITY_ENGINEERING_CONTINUITY = "engineering.continuity"
 TASK_KIND_DEFER_TO_CONTINUITY = "defer_to_continuity"
 CAPABILITY_FLIGHT_HOLD = "flight.hold"
 TASK_KIND_REQUEST_HOLD = "request_hold"
+CAPABILITY_FLIGHT_LAND = "flight.land"
+TASK_KIND_REQUEST_LAND = "request_land"
 
 _LIST_RUNG_REDIRECT = (
     "Eso solo está disponible en terminal: "
@@ -303,4 +316,60 @@ def try_request_hold_task(intent: Intent) -> Task | None:
     if not _capabilities_known_in_default_registry(required_capability_ids):
         return None
     intent.metadata["task_kind"] = TASK_KIND_REQUEST_HOLD
+    return task
+
+
+def try_request_land_task(intent: Intent) -> Task | None:
+    """Classify `intent` as a `request_land` Task — the **second**
+    vehicle Task kind (`DC-assistant-vehicle-land-task`, ★ CLOSED,
+    same seam as T6's HOLD) — or refuse (`None`) when `intent.raw_text`
+    — after the same minimal normalize — isn't an exact member of
+    `jarvis.config.VEHICLE_LAND_PHRASES`, **or** when it's explain-shaped,
+    Continuity-defer-shaped, **or** HOLD-shaped (precedence: explain →
+    Continuity defer → HOLD → LAND → fallthrough; DC §0 row 4). This
+    function re-checks all three ahead-of-it kinds itself — mirroring
+    `try_request_hold_task`'s own internal explain/Continuity guards —
+    so a direct/test caller (not just the orchestrator's own call order)
+    cannot have a HOLD phrase stolen by LAND or vice versa.
+
+    Exact-phrase match only, same finite-table discipline as every other
+    kind here — no fuzzy match, no stealing arbitrary craft design chat.
+
+    Never calls an LLM, never imports `jarvis.flight_software` or
+    `jarvis.vehicle_profiles`, never proposes or submits an autonomy
+    command itself — fulfilling a matched Task (via `propose_command`/
+    `submit_command` + a disarmed `ArmedAllowlistSafetyGate`) is
+    entirely the orchestrator's job (DC §0 row 8), same separation T6
+    already established for HOLD's own fulfill.
+
+    Side effect: on a match, records `task_kind` onto `intent.metadata`
+    in place — the only state this function touches.
+
+    T3-style membership check: before writing `intent.metadata`,
+    soft-checks `CAPABILITY_FLIGHT_LAND` exists in
+    `CapabilityRegistry.load_default()` (membership only). Unknown id →
+    refuse (`None`), `intent.metadata` left untouched.
+
+    Deliberately **no** T4 `SoftwareCapabilitySafetyGate` call here
+    (IC §0 row 6), same reasoning as HOLD's own `try_request_hold_task`:
+    `flight.land` is intentionally seeded `not_implemented`/`vehicle`,
+    so that gate would either always (and confusingly) refuse via the
+    wrong gate, or silently imply a software fulfill path for a vehicle
+    verb if the seed ever changed. The real Safety check happens once,
+    in the orchestrator's fulfill step.
+    """
+    if _extract_explain_query(intent.raw_text) is not None:
+        return None
+    normalized = _normalize_for_continuity_match(intent.raw_text)
+    if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_HOLD_PHRASES:
+        return None
+    if normalized not in VEHICLE_LAND_PHRASES:
+        return None
+    required_capability_ids = [CAPABILITY_FLIGHT_LAND]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    intent.metadata["task_kind"] = TASK_KIND_REQUEST_LAND
     return task

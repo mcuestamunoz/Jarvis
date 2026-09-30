@@ -149,6 +149,8 @@ Si no ves el bloque "Conceptos", es porque no hay ningún concepto sembrado rela
 
 *Nota interna (T6, `B1-assistant-vehicle-hold-task`): el mismo Assistant reconoce un tercer `Task` — `request_hold` — para frases como `hold` o `mantener`. No es una nota de `ontology/` ni un resumen de Continuity: es el primer Task **vehicle**, y la respuesta siempre es un rechazo honesto de Safety (nunca "vuelo mantenido") — ningún dron real está conectado. `explain …` y las frases de `estado` siguen ganando primero sobre esa misma línea, en ese orden.*
 
+*Nota interna (T7, `B1-assistant-vehicle-land-task`): mismo patrón, un cuarto `Task` — `request_land` — para frases como `land` o `aterrizar`. Misma respuesta honesta (nunca "aterrizó"). Orden de precedencia: `explain …` → `estado` → `hold` → `land`.*
+
 **Desde A8 (`B1-continuity-explain-topics-expand`): también verás `corriente-y-circuitos` cuando el proyecto ya tenga un punto de operación eléctrico (`motor_op_current_a`) resuelto** — el mismo dato que la línea "OP eléctrico" de `estado` ya muestra. Ejemplo real:
 
 ```text
