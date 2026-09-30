@@ -6,7 +6,7 @@
 **Implementer:** none for this DC — disk behavior is a **later IC** after Engineer ★  
 **Reviewer:** Engineer ★ (ratify / amend)
 
-**Status:** **READY FOR ★**  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-29) — proceed to IC T2 (`redacta`). Unlocks IC only — not `src/` until IC ★.  
 **Type:** Design / Architecture Lock — first **honest product seed** in C1’s empty Capability Registry for the two capability ids Assistant Tasks already require.  
 **Not** an Implementation Contract. **Not** a dispatcher. **Not** Safety / FS / vehicle verbs / voice / world. **Not** Conversation Engine.
 

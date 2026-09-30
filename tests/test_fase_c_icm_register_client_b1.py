@@ -104,8 +104,10 @@ def test_t5_no_craft_board_edits_and_no_imu_into_step():
         assert "step(" not in code_only
 
     registry = CapabilityRegistry.load_default()
-    assert registry.capabilities() == []
-    assert registry.providers() == []
+    # T2 (B1-capability-registry-product-fill): capabilities()/providers() are
+    # no longer empty (ontology.explain/engineering.continuity, both software-
+    # provided) — see tests/test_capability_registry_product_fill_b1.py for that
+    # shape. Skills stay empty; this file's own isolation proof is unaffected.
     assert registry.skills() == []
 
 

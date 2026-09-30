@@ -1,5 +1,35 @@
 {
-    "capabilities": [],
-    "providers": [],
+    "capabilities": [
+        {
+            "id": "ontology.explain",
+            "version": "0.6.10",
+            "provider_id": "provider.ontology_explain",
+            "availability": "available",
+            "requirements": [],
+            "health": "unknown"
+        },
+        {
+            "id": "engineering.continuity",
+            "version": "0.6.10",
+            "provider_id": "provider.engineering_continuity",
+            "availability": "available",
+            "requirements": [],
+            "health": "unknown"
+        }
+    ],
+    "providers": [
+        {
+            "id": "provider.ontology_explain",
+            "kind": "software",
+            "offered_capability_ids": ["ontology.explain"],
+            "health": "unknown"
+        },
+        {
+            "id": "provider.engineering_continuity",
+            "kind": "software",
+            "offered_capability_ids": ["engineering.continuity"],
+            "health": "unknown"
+        }
+    ],
     "skills": []
 }

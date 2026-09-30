@@ -142,8 +142,10 @@ def test_t8_filter_symbols_not_imported_by_orchestrator_or_craft_paths():
 
 def test_t9_capability_registry_default_still_empty():
     registry = CapabilityRegistry.load_default()
-    assert registry.capabilities() == []
-    assert registry.providers() == []
+    # T2 (B1-capability-registry-product-fill): capabilities()/providers() are
+    # no longer empty (ontology.explain/engineering.continuity, both software-
+    # provided) — see tests/test_capability_registry_product_fill_b1.py for that
+    # shape. Skills stay empty; this file's own isolation proof is unaffected.
     assert registry.skills() == []
 
 

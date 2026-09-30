@@ -1,12 +1,22 @@
-"""Fase C · C1 — Skill/Capability/Provider schemas (`B1-fase-c-capability-registry-scaffold`).
+"""Fase C · C1 — Skill/Capability/Provider schemas
+(`B1-fase-c-capability-registry-scaffold`), extended by T2
+(`B1-capability-registry-product-fill`).
 
 These are typed DATA records, not a runtime: nothing here executes,
-dispatches, or actuates anything. `availability` is deliberately
-restricted to `stub`/`not_implemented` in C1 — no `available`/`ready`
-value exists yet, so no record built against this schema can claim a
-capability (flight-related or otherwise) is live. See
+dispatches, or actuates anything. C1 restricted `availability` to
+`stub`/`not_implemented` — no record could claim anything was live. T2
+adds `CapabilityAvailability.AVAILABLE`, but **only** for non-actuation,
+already-shipped software fulfill paths (the two Assistant Task
+capabilities, `ontology.explain`/`engineering.continuity` — see
+`jarvis.capabilities.data.default_registry.json`): `ready`/`healthy`
+were deliberately **not** added, and no flight/vehicle/radio capability
+may be marked `available` in the product seed (T2 IC §0 row 9). T2 also
+adds `ProviderKind.SOFTWARE` for in-process product providers that are
+neither `vehicle` nor `device`. See
 `jarvis.capabilities.registry.CapabilityRegistry.load_default`, which is
-the only product-facing entrypoint and always returns empty.
+the only product-facing entrypoint — no longer always empty as of T2,
+but still purely descriptive (no dispatcher method exists anywhere in
+this package).
 """
 
 from __future__ import annotations
@@ -19,6 +29,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class CapabilityAvailability(str, Enum):
     STUB = "stub"
     NOT_IMPLEMENTED = "not_implemented"
+    AVAILABLE = "available"
 
 
 class CapabilityHealth(str, Enum):
@@ -28,6 +39,7 @@ class CapabilityHealth(str, Enum):
 class ProviderKind(str, Enum):
     VEHICLE = "vehicle"
     DEVICE = "device"
+    SOFTWARE = "software"
 
 
 class CapabilityRecord(BaseModel):

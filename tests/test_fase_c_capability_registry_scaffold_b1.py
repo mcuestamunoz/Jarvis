@@ -45,10 +45,16 @@ def _provider(**overrides):
     return ProviderRecord(**payload)
 
 
-def test_t1_load_default_is_empty():
+def test_t1_load_default_returns_product_seed():
+    """C1 shipped this always-empty (H1). T2 (`B1-capability-registry-
+    product-fill`) gave the checked-in seed its first honest, non-empty
+    rows — full assertions on that shape live in
+    `tests/test_capability_registry_product_fill_b1.py`; this test only
+    confirms `load_default()` no longer returns the C1-era empty
+    registry, so this file's own history stays accurate."""
     registry = CapabilityRegistry.load_default()
-    assert registry.capabilities() == []
-    assert registry.providers() == []
+    assert registry.capabilities() != []
+    assert registry.providers() != []
     assert registry.skills() == []
 
 
@@ -116,14 +122,18 @@ def test_t7_missing_get_returns_none():
     assert registry.get_provider("nope") is None
 
 
-def test_t8_availability_enum_rejects_available():
-    with pytest.raises(ValidationError):
-        _capability(availability="available")
+def test_t8_availability_enum_accepts_available_still_rejects_ready():
+    """C1 rejected `available` outright (T8's original name/assert). T2
+    (`B1-capability-registry-product-fill`) adds `AVAILABLE` for
+    non-actuation, already-shipped software fulfill paths — `ready`/
+    `healthy` were deliberately not added, and stay rejected."""
+    _capability(availability="available")  # no longer raises
     with pytest.raises(ValidationError):
         _capability(availability="ready")
     assert {member.value for member in CapabilityAvailability} == {
         "stub",
         "not_implemented",
+        "available",
     }
 
 
@@ -158,16 +168,33 @@ def test_t9b_no_execute_or_dispatch_field_on_records():
                 assert token not in lowered, f"{model.__name__}.{field_name} looks executable"
 
 
-def test_t10_pyproject_version_is_0_5_0():
+def test_t10_pyproject_version_is_0_6_10():
+    """Bumped forward by T2 (B1-capability-registry-product-fill) per
+    established pattern — was last accurate at 0.5.44 (C1's own tip),
+    itself already long stale before this Buy touched the file."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
+    assert 'version = "0.6.10"' in text
 
 
-def test_default_seed_file_is_honestly_empty():
-    """H1/H2/H3 — the checked-in seed loaded by `load_default()` never
-    contains a flight-related or `available`-claiming record."""
+def test_default_seed_file_is_honestly_software_only():
+    """H1/H2/H3, updated by T2: the checked-in seed loaded by
+    `load_default()` is no longer empty (see `test_capability_registry_
+    product_fill_b1.py` for the full shape), but it still never contains
+    a flight-related capability id or a `vehicle`/`device` provider
+    claiming live actuation — every provider `kind` in the product seed
+    is `software`."""
     import json
 
     seed_path = REPO_ROOT / "src" / "jarvis" / "capabilities" / "data" / "default_registry.json"
     data = json.loads(seed_path.read_text())
-    assert data == {"capabilities": [], "providers": [], "skills": []}
+
+    for capability in data["capabilities"]:
+        capability_id = capability["id"].casefold()
+        assert not capability_id.startswith("flight")
+        assert "hold" not in capability_id
+        assert "land" not in capability_id
+        assert "go_to" not in capability_id
+
+    for provider in data["providers"]:
+        assert provider["kind"] not in {"vehicle", "device"}
+        assert provider["kind"] == "software"

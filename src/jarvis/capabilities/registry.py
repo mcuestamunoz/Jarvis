@@ -1,12 +1,23 @@
-"""Fase C · C1 — Capability Registry stub (`B1-fase-c-capability-registry-scaffold`).
+"""Fase C · C1 — Capability Registry stub (`B1-fase-c-capability-registry-scaffold`),
+extended by T2 (`B1-capability-registry-product-fill`).
 
 Pure in-memory (or checked-in-JSON-seeded) catalog with a query-only API:
 list / get-by-id / "who offers capability X?". No network discovery, no
 process supervisor, no health probes against hardware, and — critically —
 no method that turns a Capability/Provider/Skill record into an actuator
-command. `load_default()` is the only product-facing constructor and it
-is always empty; see H1–H5 in the Implementation Contract and the report
-at `.jes/artifacts/implementation_report_fase_c_capability_registry_scaffold_b1.md`.
+command. `load_default()` is the only product-facing constructor; C1 had
+it always empty (see H1–H5 in that Implementation Contract and the report
+at `.jes/artifacts/implementation_report_fase_c_capability_registry_scaffold_b1.md`).
+
+**T2** fills the checked-in seed (`data/default_registry.json`) with the
+first honest, non-empty product rows: the two capability strings
+Assistant Tasks already require (`ontology.explain`,
+`engineering.continuity`, both `available`) plus one `software` provider
+each. This is still not a runtime router — `assistant_task.py` does not
+look up this registry before emitting a `Task` (T2 IC §0 row 7; that
+finite Task string set stays authoritative for classify on its own), and
+no dispatcher/execute/actuate method was added anywhere in this class.
+See `.jes/artifacts/implementation_report_capability_registry_product_fill_b1.md`.
 """
 
 from __future__ import annotations
@@ -100,11 +111,17 @@ class CapabilityRegistry:
 
     @classmethod
     def load_default(cls) -> "CapabilityRegistry":
-        """Product default. Always empty in C1 — see H1 in the Implementation
-        Contract. Reads the checked-in seed at `data/default_registry.json`
-        (`{"capabilities": [], "providers": [], "skills": []}`) rather than
-        hardcoding the shape twice, but the file is inert data: it never
-        contains a flight-related or `available` capability."""
+        """Product default. Reads the checked-in seed at
+        `data/default_registry.json` rather than hardcoding the shape
+        twice. As of T2 (`B1-capability-registry-product-fill`), that
+        seed is no longer empty — it declares the two software-fulfilled
+        capabilities Assistant Tasks already require
+        (`ontology.explain`, `engineering.continuity`), both `available`
+        via a `software` provider each, zero skills. The seed still
+        never contains a flight-related capability or a
+        `vehicle`/`device` provider claiming live actuation (T2 IC §0
+        row 9) — this stays inert descriptive data, read here, never
+        dispatched from here."""
         data = json.loads(_DEFAULT_SEED_PATH.read_text())
         return cls.from_dict(data)
 

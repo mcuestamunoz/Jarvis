@@ -96,16 +96,31 @@ def test_t7_no_execute_dispatch_command_esc_in_new_modules():
                     )
 
 
-def test_t8_capability_registry_default_still_empty():
+def test_t8_capability_registry_default_still_descriptive_only():
+    """C2 originally asserted the registry stays empty (T8's original
+    name/assert). T2 (`B1-capability-registry-product-fill`) gave the
+    checked-in seed its first honest, non-empty rows — full assertions
+    on that shape live in `tests/test_capability_registry_product_fill_
+    b1.py`. What this test still guarantees, unchanged since C2: skills
+    stay empty (no Skills catalog fill in T2 either), and the registry
+    is still purely descriptive (no dispatcher method — see T2's own
+    T6, same grain as C1's T9)."""
     registry = CapabilityRegistry.load_default()
-    assert registry.capabilities() == []
-    assert registry.providers() == []
     assert registry.skills() == []
+    forbidden_substrings = ("execute", "dispatch", "command_esc", "actuat", "run_skill")
+    public_members = [name for name in dir(CapabilityRegistry) if not name.startswith("_")]
+    for name in public_members:
+        lowered = name.lower()
+        for token in forbidden_substrings:
+            assert token not in lowered
 
 
-def test_t9_pyproject_version_stays_0_5_0():
+def test_t9_pyproject_version_stays_0_6_10():
+    """Bumped forward by T2 (B1-capability-registry-product-fill) per
+    established pattern — was last accurate at 0.5.44 (C2's own tip),
+    itself already long stale before this Buy touched the file."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
+    assert 'version = "0.6.10"' in text
 
 
 def test_safety_decision_requires_reason_on_reject():

@@ -211,6 +211,8 @@ def test_no_craft_or_core_imports_of_dshot_and_registry_still_empty():
             assert "dshot" not in text.lower(), f"{py_file} references dshot"
 
     registry = CapabilityRegistry.load_default()
-    assert registry.capabilities() == []
-    assert registry.providers() == []
+    # T2 (B1-capability-registry-product-fill): capabilities()/providers() are
+    # no longer empty (ontology.explain/engineering.continuity, both software-
+    # provided) — see tests/test_capability_registry_product_fill_b1.py for that
+    # shape. Skills stay empty; this file's own isolation proof is unaffected.
     assert registry.skills() == []

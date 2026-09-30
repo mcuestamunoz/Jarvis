@@ -341,6 +341,8 @@ def test_no_native_wiring_and_registry_still_empty():
             assert "CrsfHostSerialIngress" not in text, f"{py_file} references CrsfHostSerialIngress"
 
     registry = CapabilityRegistry.load_default()
-    assert registry.capabilities() == []
-    assert registry.providers() == []
+    # T2 (B1-capability-registry-product-fill): capabilities()/providers() are
+    # no longer empty (ontology.explain/engineering.continuity, both software-
+    # provided) — see tests/test_capability_registry_product_fill_b1.py for that
+    # shape. Skills stay empty; this file's own isolation proof is unaffected.
     assert registry.skills() == []

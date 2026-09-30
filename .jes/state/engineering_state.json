@@ -1,42 +1,39 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T1 ★ ACCEPT CLOSED @ v0.6.9; DC-capability-registry-product-fill READY FOR ★ (T2)",
-  "scope": "T1 Continuity-defer ACCEPTed. Next design: seed registry with ontology.explain + engineering.continuity as available software. Out: vehicle/world/Safety dispatcher.",
+  "cycle_intent": "T2 ★ ACCEPT CLOSED @ v0.6.10; T3 IC READY FOR ★; JES-in-product parked",
+  "scope": "T2 registry product fill ACCEPTed after smoke. Next: soft Task↔registry coherence (T3). Out: JES-in-product, vehicle, R4.",
   "execution_status": "awaiting_approval",
   "current_mode": "design",
   "movement_trigger": {
     "type": "star",
-    "reason": "Engineer ACCEPT T1 + proceed natural next = registry product fill"
+    "reason": "Engineer ACCEPT T2 after explain+estado smoke; T3 IC already drafted"
   },
   "relevant_workflow_phases": ["Close", "Design"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_defer_continuity_b1.md",
-    ".jes/artifacts/design_contract_capability_registry_product_fill_b0.md"
+    ".jes/artifacts/implementation_review_capability_registry_product_fill_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_task_registry_coherence_b1.md"
   ],
-  "open_questions": [
-    "★ Engineer ratify DC-capability-registry-product-fill (or amend enum/providers)?"
-  ],
+  "open_questions": ["★ Engineer authorize T3 IC implement (Claude)?"],
   "active_operation": {
-    "type": "design_contract",
-    "contract": "design_contract_capability_registry_product_fill_b0.md",
-    "ids": ["T2", "DC-capability-registry-product-fill"],
-    "blocked_on": "Engineer ★ on DC before IC"
+    "type": "implementation_contract",
+    "contract": "implementation_contract_assistant_task_registry_coherence_b1.md",
+    "ids": ["T3", "B1-assistant-task-registry-coherence"],
+    "blocked_on": "Engineer ★ to authorize Claude"
   },
   "closed_this_turn": [
-    "T1 ★ ACCEPT CLOSED + tag v0.6.9",
-    "Drafted DC-capability-registry-product-fill READY FOR ★"
+    "T2 ★ ACCEPT CLOSED + tag v0.6.10",
+    "Engineer smoke explain imu + estado OK",
+    "Reverted premature T3 edits in assistant_task.py (no ★ yet)"
   ],
   "authority_gates": [
-    "No src/ until DC ★ then separate IC ★",
-    "No flight available in seed",
-    "Registry stays descriptive not dispatcher",
-    "Tag v0.6.10 only on later IC ACCEPT"
+    "No src/ for T3 until IC ★",
+    "Tag v0.6.11 only on T3 ACCEPT"
   ],
   "coherence_checklist": [
-    "T0/T1 capability strings match seed ids",
-    "C1 empty seed → product fill",
-    "Vehicle/world still parked"
+    "T2 seed live under load_default",
+    "Smoke held cite + Continuity",
+    "T3 IC READY; implementation not started under ★"
   ],
-  "updated_at": "2026-09-29T09:50:00Z"
+  "updated_at": "2026-09-30T06:35:00Z"
 }

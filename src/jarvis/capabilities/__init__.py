@@ -1,8 +1,12 @@
-"""Fase C scaffold — typed Skill/Capability/Provider schemas (C1), an
-empty-by-default Capability Registry (C1), Intent ingress + Safety gate
-stubs (C2), and a simulated radio dual-role ingress (C5). Descriptive
-only: no execution path anywhere in this package. Scaffold @ 0.5.0 !=
-Flight Software shipped. See
+"""Fase C scaffold — typed Skill/Capability/Provider schemas (C1), the
+Capability Registry (C1, empty by default at scaffold time — T2/`B1-
+capability-registry-product-fill` later gives `load_default()` a first
+honest, non-empty product seed: `ontology.explain`/`engineering.
+continuity`, both software-fulfilled and `available`, still zero
+dispatcher method anywhere in this package), Intent ingress + Safety
+gate stubs (C2), and a simulated radio dual-role ingress (C5).
+Descriptive only: no execution path anywhere in this package. Scaffold
+@ 0.5.0 != Flight Software shipped. See
 `.jes/artifacts/implementation_contract_fase_c_capability_registry_scaffold_b1.md`,
 `.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md`,
 and

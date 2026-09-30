@@ -180,8 +180,8 @@ def test_t5_cites_for_topics_current_has_definicion():
     assert cites[0].definicion != ""
 
 
-def test_pyproject_version_is_0_6_9():
-    """Bumped forward by T1 (B1-assistant-defer-continuity) per its own
-    IC §3 instruction to fix prior version-checkpoint tests forward."""
+def test_pyproject_version_is_0_6_10():
+    """Bumped forward by T2 (B1-capability-registry-product-fill) per
+    established pattern."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.9"' in text
+    assert 'version = "0.6.10"' in text

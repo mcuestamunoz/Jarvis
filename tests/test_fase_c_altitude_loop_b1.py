@@ -135,8 +135,10 @@ def test_t7_no_craft_continuity_library_board_edits_and_safety_default_reject_al
             assert "SimulatedAltitudeHal" not in text, f"{py_file} references SimulatedAltitudeHal"
 
     registry = CapabilityRegistry.load_default()
-    assert registry.capabilities() == []
-    assert registry.providers() == []
+    # T2 (B1-capability-registry-product-fill): capabilities()/providers() are
+    # no longer empty (ontology.explain/engineering.continuity, both software-
+    # provided) — see tests/test_capability_registry_product_fill_b1.py for that
+    # shape. Skills stay empty; this file's own isolation proof is unaffected.
     assert registry.skills() == []
 
     gate = default_safety_gate()
