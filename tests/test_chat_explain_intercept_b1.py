@@ -120,4 +120,4 @@ def test_pyproject_version_is_0_6_10():
     per established pattern — same courtesy every successor Buy has
     extended to this file."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.18"' in text
+    assert 'version = "0.6.19"' in text

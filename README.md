@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.6.18 tagged tip** · Assistant basic mando CLOSED (TAKEOFF · HOLD · GO_TO · RETURN_HOME · LAND) · ontology explain @ `v0.6.0` · bloque 0.5 historical @ `v0.5.44`
+**v0.6.18 tagged tip** · package **`0.6.19`** (T11 arm UX landed, await ★) · basic mando CLOSED · ontology explain @ `v0.6.0` · bloque 0.5 historical @ `v0.5.44`
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 

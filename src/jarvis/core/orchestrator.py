@@ -316,6 +316,11 @@ class JarvisOrchestrator:
             simulate_action=simulate_action,
             iterate_action=iterate_action,
         )
+        # T11: process-scoped ArmedAllowlist for the vehicle chat path —
+        # lazy-created by `_vehicle_chat_safety_gate()`. Starts disarmed;
+        # ARM/DISARM Tasks toggle it. Not on InteractiveSessionState
+        # (clears would wipe the latch). Not SimulatedEscSink.arm().
+        self._vehicle_chat_safety_gate_instance = None
         # U4: restaurar snapshot del proyecto más reciente si existe.
         # No-op si no hay proyectos en el workspace o el snapshot está ausente/corrupto.
         try:
@@ -496,19 +501,30 @@ class JarvisOrchestrator:
         if try_defer_to_continuity_task(continuity_intent) is not None:
             return self._handle_project_status()
 
+        # ── Safety policy ARM intercept (T11) ─────────────────────────────────
+        # T11 (B1-assistant-vehicle-arm-ux): arm/disarm the process-scoped
+        # chat ArmedAllowlist latch — not an AutonomyVerb. Precedence:
+        # explain → Continuity defer → ARM → DISARM → HOLD → … .
+        from jarvis.intelligence.assistant_task import try_request_arm_policy_task
+
+        arm_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_arm_policy_task(arm_intent) is not None:
+            return self._handle_arm_policy(arm_intent)
+
+        # ── Safety policy DISARM intercept (T11) ──────────────────────────────
+        from jarvis.intelligence.assistant_task import try_request_disarm_policy_task
+
+        disarm_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_disarm_policy_task(disarm_intent) is not None:
+            return self._handle_disarm_policy(disarm_intent)
+
         # ── Vehicle HOLD intercept, via Assistant Task seam (T6) ──────────────
         # T6 (B1-assistant-vehicle-hold-task): a finite, explicit set of HOLD
         # phrases (jarvis.config.VEHICLE_HOLD_PHRASES) classifies to
         # Task(request_hold) requiring flight.hold — the first **vehicle**
-        # Task kind. Precedence: explain → Continuity defer → HOLD →
-        # fallthrough (both branches above already returned for an explain-
-        # or Continuity-shaped line; try_request_hold_task's own internal
-        # guards refuse both shapes too, so this is unreachable for either
-        # either way). Fulfilled here, never inside jarvis.intelligence —
-        # _handle_vehicle_hold proposes+submits the command through the
-        # existing C4 autonomy surface with a fresh, never-armed
-        # ArmedAllowlistSafetyGate (DC §0 row 7); the honest reject this
-        # produces is surfaced verbatim, never a claim of executed flight.
+        # Task kind. Precedence: explain → Continuity defer → ARM → DISARM →
+        # HOLD → fallthrough. Fulfilled here via the shared chat
+        # ArmedAllowlist (T11) — never a claim of executed flight.
         from jarvis.intelligence.assistant_task import try_request_hold_task
 
         hold_intent = TerminalIntentAdapter.parse(stripped)
@@ -595,30 +611,50 @@ class JarvisOrchestrator:
 
         return None
 
-    def _handle_vehicle_hold(self, intent: Any) -> dict:
-        """T6 fulfill for a classified `request_hold` Task (DC §0 row 8):
-        proposes an `AutonomyVerb.HOLD` command and submits it through the
-        existing C4 autonomy surface (`flight_software.autonomy.
-        propose_command`/`submit_command`) using a **fresh, never-armed**
-        `ArmedAllowlistSafetyGate` — `gate.arm()` is never called anywhere
-        on this path (DC §0 row 7: "do not arm() on product chat path").
-        `default_safety_gate()` (still always `RejectAllSafetyGate`) is
-        untouched and not used here; this is a separate, explicitly
-        constructed gate instance per call, matching the disarmed-by-
-        default policy the DC locked (gate policy **B**).
-
-        The returned message surfaces `result.safety.outcome`,
-        `result.safety.reason`, and `result.execution` verbatim — with a
-        disarmed gate this is always `reject`/`"disarmed"`/
-        `"not_attempted"` — and never claims the vehicle actually held
-        position or that anything executed; `action="vehicle_hold"`
-        (deliberately distinct from the generic `"global_command"` bucket
-        used for escape/creation/explain, so a caller can tell this
-        specific, vehicle-facing outcome apart from those)."""
+    def _vehicle_chat_safety_gate(self):
+        """T11 — lazy process-scoped `ArmedAllowlistSafetyGate` for the
+        vehicle chat path. Starts disarmed. ARM/DISARM toggle it; the
+        five vehicle fulfills submit through this same instance."""
         from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
+
+        if self._vehicle_chat_safety_gate_instance is None:
+            self._vehicle_chat_safety_gate_instance = ArmedAllowlistSafetyGate()
+        return self._vehicle_chat_safety_gate_instance
+
+    def _handle_arm_policy(self, intent: Any) -> dict:
+        """T11 fulfill: arm the shared chat ArmedAllowlist latch.
+        Software Safety policy only — never ESC/motors/drone/flight."""
+        gate = self._vehicle_chat_safety_gate()
+        gate.arm()
+        message = (
+            "Política Safety del chat ARMADA (latch de software ArmedAllowlist). "
+            "No es armado de ESC, motores ni del dron. HOLD/LAND/GO_TO pueden "
+            "pasar a allow/not_implemented; TAKEOFF/RETURN_HOME siguen "
+            "verb_not_allowed hasta un Buy que ensanche la allow-list. "
+            f"Latch armed={gate.armed}."
+        )
+        return {"status": "ok", "action": "vehicle_arm_policy", "message": message}
+
+    def _handle_disarm_policy(self, intent: Any) -> dict:
+        """T11 fulfill: disarm the shared chat ArmedAllowlist latch."""
+        gate = self._vehicle_chat_safety_gate()
+        gate.disarm()
+        message = (
+            "Política Safety del chat DESARMADA (latch de software ArmedAllowlist). "
+            "No es desarmado de ESC/motores/hardware. Los verbos vehicle vuelven "
+            f"a reject/disarmed. Latch armed={gate.armed}."
+        )
+        return {"status": "ok", "action": "vehicle_disarm_policy", "message": message}
+
+    def _handle_vehicle_hold(self, intent: Any) -> dict:
+        """T6 fulfill for a classified `request_hold` Task: proposes
+        `AutonomyVerb.HOLD` and submits through the **shared** chat
+        ArmedAllowlist (T11). Never calls `gate.arm()` here.
+        `default_safety_gate()` untouched. Honest UX — never claims hold
+        executed."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
-        gate = ArmedAllowlistSafetyGate()
+        gate = self._vehicle_chat_safety_gate()
         command = propose_command(AutonomyVerb.HOLD, intent_id=intent.id)
         result = submit_command(command, gate)
         message = (
@@ -629,29 +665,11 @@ class JarvisOrchestrator:
         return {"status": "ok", "action": "vehicle_hold", "message": message}
 
     def _handle_vehicle_land(self, intent: Any) -> dict:
-        """T7 fulfill for a classified `request_land` Task (DC §0 row 8) —
-        same shape as `_handle_vehicle_hold` (T6), thin duplication rather
-        than a shared multi-verb helper (DC's own "Not" list: "collapsing
-        HOLD+LAND into a generic verb framework" is out of scope this Buy;
-        `_handle_vehicle_hold` itself is left byte-for-byte unchanged so
-        its own tested behavior cannot regress). Proposes an
-        `AutonomyVerb.LAND` command and submits it through the existing C4
-        autonomy surface using a **fresh, never-armed**
-        `ArmedAllowlistSafetyGate` — `gate.arm()` is never called anywhere
-        on this path. `default_safety_gate()` (still always
-        `RejectAllSafetyGate`) is untouched and not used here.
-
-        The returned message surfaces `result.safety.outcome`,
-        `result.safety.reason`, and `result.execution` verbatim — with a
-        disarmed gate this is always `reject`/`"disarmed"`/
-        `"not_attempted"` — and never claims the vehicle actually landed
-        or that anything executed; `action="vehicle_land"` (same
-        distinct-from-`"global_command"` discipline as T6's
-        `"vehicle_hold"`)."""
-        from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
+        """T7 fulfill — thin sibling of HOLD; shared chat ArmedAllowlist
+        (T11). Never arms the gate here. Honest UX only."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
-        gate = ArmedAllowlistSafetyGate()
+        gate = self._vehicle_chat_safety_gate()
         command = propose_command(AutonomyVerb.LAND, intent_id=intent.id)
         result = submit_command(command, gate)
         message = (
@@ -662,31 +680,11 @@ class JarvisOrchestrator:
         return {"status": "ok", "action": "vehicle_land", "message": message}
 
     def _handle_vehicle_go_to(self, intent: Any) -> dict:
-        """T8 fulfill for a classified `request_go_to` Task (DC §0 row 8)
-        — same shape as `_handle_vehicle_hold`/`_handle_vehicle_land`
-        (T6/T7), thin sibling rather than a shared multi-verb helper (IC's
-        own "Not" list: no generic multi-verb framework this Buy;
-        `_handle_vehicle_hold`/`_handle_vehicle_land` are both left
-        byte-for-byte unchanged so their own tested behavior cannot
-        regress). Proposes an `AutonomyVerb.GO_TO` command with **empty
-        `params`** — no coordinate/waypoint parsing happens anywhere in
-        this Buy (DC §0 row 9) — and submits it through the existing C4
-        autonomy surface using a **fresh, never-armed**
-        `ArmedAllowlistSafetyGate` — `gate.arm()` is never called anywhere
-        on this path. `default_safety_gate()` (still always
-        `RejectAllSafetyGate`) is untouched and not used here.
-
-        The returned message surfaces `result.safety.outcome`,
-        `result.safety.reason`, and `result.execution` verbatim — with a
-        disarmed gate this is always `reject`/`"disarmed"`/
-        `"not_attempted"` — and never claims the vehicle actually
-        navigated, arrived, or that anything executed; `action="vehicle_go_to"`
-        (same distinct-from-`"global_command"` discipline as T6/T7's own
-        `"vehicle_hold"`/`"vehicle_land"`)."""
-        from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
+        """T8 fulfill — empty params; shared chat ArmedAllowlist (T11).
+        Never arms the gate here. Honest UX only."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
-        gate = ArmedAllowlistSafetyGate()
+        gate = self._vehicle_chat_safety_gate()
         command = propose_command(AutonomyVerb.GO_TO, intent_id=intent.id, params={})
         result = submit_command(command, gate)
         message = (
@@ -697,36 +695,12 @@ class JarvisOrchestrator:
         return {"status": "ok", "action": "vehicle_go_to", "message": message}
 
     def _handle_vehicle_takeoff(self, intent: Any) -> dict:
-        """T9 fulfill for a classified `request_takeoff` Task (DC §0 row
-        8) — same shape as `_handle_vehicle_hold`/`_handle_vehicle_land`/
-        `_handle_vehicle_go_to` (T6/T7/T8), thin sibling rather than a
-        shared multi-verb helper (IC's own "Not" list: no generic
-        multi-verb framework this Buy; the three earlier methods are all
-        left byte-for-byte unchanged so their own tested behavior cannot
-        regress). Proposes an `AutonomyVerb.TAKEOFF` command with **empty
-        `params`** — no altitude parsing happens anywhere in this Buy
-        (DC §0 row 9) — and submits it through the existing C4 autonomy
-        surface using a **fresh, never-armed** `ArmedAllowlistSafetyGate`
-        — `gate.arm()` is never called anywhere on this path.
-        `default_safety_gate()` (still always `RejectAllSafetyGate`) is
-        untouched and not used here. Note: `ArmedAllowlistSafetyGate`'s
-        own allow-list is still only `{HOLD, LAND, GO_TO}` (unwidened by
-        this Buy) — irrelevant here since the gate is always disarmed on
-        this path, but if a later Buy ever armed it, TAKEOFF would get
-        `verb_not_allowed` rather than `allow` until a separate,
-        explicit allow-list-widening Buy (DC §0 row 7).
-
-        The returned message surfaces `result.safety.outcome`,
-        `result.safety.reason`, and `result.execution` verbatim — with a
-        disarmed gate this is always `reject`/`"disarmed"`/
-        `"not_attempted"` — and never claims the vehicle is actually
-        airborne or that anything executed; `action="vehicle_takeoff"`
-        (same distinct-from-`"global_command"` discipline as T6/T7/T8's
-        own `"vehicle_hold"`/`"vehicle_land"`/`"vehicle_go_to"`)."""
-        from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
+        """T9 fulfill — empty params; shared chat ArmedAllowlist (T11).
+        Allow-list still excludes TAKEOFF → verb_not_allowed when armed.
+        Never arms the gate here. Honest UX only."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
-        gate = ArmedAllowlistSafetyGate()
+        gate = self._vehicle_chat_safety_gate()
         command = propose_command(AutonomyVerb.TAKEOFF, intent_id=intent.id, params={})
         result = submit_command(command, gate)
         message = (
@@ -737,15 +711,11 @@ class JarvisOrchestrator:
         return {"status": "ok", "action": "vehicle_takeoff", "message": message}
 
     def _handle_vehicle_return_home(self, intent: Any) -> dict:
-        """T10 fulfill for a classified `request_return_home` Task — thin
-        sibling of HOLD/LAND/GO_TO/TAKEOFF (do not edit those bodies).
-        Proposes `AutonomyVerb.RETURN_HOME` with empty `params`, submits
-        through a fresh never-armed `ArmedAllowlistSafetyGate`. Allow-list
-        still `{HOLD, LAND, GO_TO}` (unwidened). Honest UX only."""
-        from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
+        """T10 fulfill — empty params; shared chat ArmedAllowlist (T11).
+        Allow-list still excludes RETURN_HOME. Honest UX only."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
-        gate = ArmedAllowlistSafetyGate()
+        gate = self._vehicle_chat_safety_gate()
         command = propose_command(AutonomyVerb.RETURN_HOME, intent_id=intent.id, params={})
         result = submit_command(command, gate)
         message = (

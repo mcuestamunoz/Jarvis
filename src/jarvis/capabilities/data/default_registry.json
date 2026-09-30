@@ -55,6 +55,14 @@
             "availability": "not_implemented",
             "requirements": [],
             "health": "unknown"
+        },
+        {
+            "id": "safety.chat_armed_allowlist",
+            "version": "0.6.19",
+            "provider_id": "provider.safety_chat_armed_allowlist",
+            "availability": "available",
+            "requirements": [],
+            "health": "unknown"
         }
     ],
     "providers": [
@@ -99,6 +107,12 @@
             "kind": "vehicle",
             "offered_capability_ids": ["flight.return_home"],
             "health": "unknown"
+        },
+        {
+            "id": "provider.safety_chat_armed_allowlist",
+            "kind": "software",
+            "offered_capability_ids": ["safety.chat_armed_allowlist"],
+            "health": "unknown"
         }
     ],
     "skills": [
@@ -142,6 +156,18 @@
             "id": "skill.request_return_home",
             "version": "0.6.18",
             "required_capability_ids": ["flight.return_home"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_arm_policy",
+            "version": "0.6.19",
+            "required_capability_ids": ["safety.chat_armed_allowlist"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_disarm_policy",
+            "version": "0.6.19",
+            "required_capability_ids": ["safety.chat_armed_allowlist"],
             "availability": "stub"
         }
     ]

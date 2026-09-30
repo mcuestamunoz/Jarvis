@@ -287,9 +287,12 @@ def test_no_craft_or_core_imports_of_rc_setpoint_and_registry_still_empty():
     # tests/test_assistant_vehicle_takeoff_task_b1.py. T10
     # (B1-assistant-vehicle-return-home-task): a seventh, skill.request_return_home
     # (requires flight.return_home, not_implemented/vehicle) — see
-    # tests/test_assistant_vehicle_return_home_task_b1.py. Still zero Skill
-    # execution path anywhere; this file's own isolation proof is
-    # unaffected either way.
+    # tests/test_assistant_vehicle_return_home_task_b1.py. T11
+    # (B1-assistant-vehicle-arm-ux): eighth+ninth, skill.request_arm_policy /
+    # skill.request_disarm_policy (require safety.chat_armed_allowlist,
+    # available/software) — see tests/test_assistant_vehicle_arm_ux_b1.py.
+    # Still zero Skill execution path anywhere; this file's own isolation
+    # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
         "skill.explain_concept",
         "skill.project_status",
@@ -298,6 +301,8 @@ def test_no_craft_or_core_imports_of_rc_setpoint_and_registry_still_empty():
         "skill.request_go_to",
         "skill.request_takeoff",
         "skill.request_return_home",
+        "skill.request_arm_policy",
+        "skill.request_disarm_policy",
     }
 
 

@@ -5,8 +5,19 @@
 `B1-assistant-vehicle-hold-task` (T6),
 `B1-assistant-vehicle-land-task` (T7),
 `B1-assistant-vehicle-go-to-task` (T8),
-`B1-assistant-vehicle-takeoff-task` (T9), and
-`B1-assistant-vehicle-return-home-task` (T10).
+`B1-assistant-vehicle-takeoff-task` (T9),
+`B1-assistant-vehicle-return-home-task` (T10), and
+`B1-assistant-vehicle-arm-ux` (T11).
+
+T11 adds Safety **policy** Tasks `request_arm_policy` /
+`request_disarm_policy` (require `safety.chat_armed_allowlist`,
+`available`+`software`) — classified from `VEHICLE_ARM_PHRASES` /
+`VEHICLE_DISARM_PHRASES`, through the T4 `SoftwareCapabilitySafetyGate`
+path (unlike vehicle verbs). Precedence: explain → Continuity defer →
+ARM → DISARM → HOLD → … → RETURN_HOME. Fulfill (gate.arm/disarm on the
+orchestrator's shared chat ArmedAllowlist) lives entirely in
+`core/orchestrator.py` — this module still never imports
+`jarvis.flight_software`/`jarvis.vehicle_profiles`/`jarvis.core`.
 
 T6 adds the first **vehicle** Task kind, `request_hold` (requires
 `flight.hold`) — classified from a finite HOLD phrase table
@@ -16,9 +27,10 @@ call (T4's gate only ever allows an `available`+`software`-provided
 capability; `flight.hold` is intentionally `not_implemented`+`vehicle`,
 so that gate would always and correctly refuse it — the real Safety
 check for this kind lives entirely in the orchestrator's fulfill step,
-via `flight_software.autonomy.submit_command` + a fresh, never-armed
-`ArmedAllowlistSafetyGate`, not in this module). This module still never
-imports `jarvis.flight_software`/`jarvis.vehicle_profiles`/`jarvis.core`.
+via `flight_software.autonomy.submit_command` + the process-scoped chat
+`ArmedAllowlistSafetyGate` owned by the orchestrator since T11, not in
+this module). This module still never imports
+`jarvis.flight_software`/`jarvis.vehicle_profiles`/`jarvis.core`.
 
 T7 adds the **second** vehicle Task kind, `request_land` (requires
 `flight.land`) — same seam as T6, own finite phrase table
@@ -106,6 +118,8 @@ from jarvis.capabilities.safety import SafetyRequest, SoftwareCapabilitySafetyGa
 from jarvis.config import (
     CHAT_EXPLAIN_PREFIXES,
     CONTINUITY_DEFER_PHRASES,
+    VEHICLE_ARM_PHRASES,
+    VEHICLE_DISARM_PHRASES,
     VEHICLE_GO_TO_PHRASES,
     VEHICLE_HOLD_PHRASES,
     VEHICLE_LAND_PHRASES,
@@ -117,6 +131,9 @@ CAPABILITY_ONTOLOGY_EXPLAIN = "ontology.explain"
 TASK_KIND_EXPLAIN_CONCEPT = "explain_concept"
 CAPABILITY_ENGINEERING_CONTINUITY = "engineering.continuity"
 TASK_KIND_DEFER_TO_CONTINUITY = "defer_to_continuity"
+CAPABILITY_SAFETY_CHAT_ARMED_ALLOWLIST = "safety.chat_armed_allowlist"
+TASK_KIND_REQUEST_ARM_POLICY = "request_arm_policy"
+TASK_KIND_REQUEST_DISARM_POLICY = "request_disarm_policy"
 CAPABILITY_FLIGHT_HOLD = "flight.hold"
 TASK_KIND_REQUEST_HOLD = "request_hold"
 CAPABILITY_FLIGHT_LAND = "flight.land"
@@ -314,6 +331,81 @@ def try_defer_to_continuity_task(intent: Intent) -> Task | None:
     return task
 
 
+def try_request_arm_policy_task(intent: Intent) -> Task | None:
+    """Classify `intent` as a `request_arm_policy` Task (T11) — Safety
+    policy latch, **not** an AutonomyVerb — or refuse (`None`).
+
+    Exact match on `VEHICLE_ARM_PHRASES` after normalize. Precedence:
+    explain → Continuity defer → **ARM** → DISARM → HOLD → … . Refuses
+    explain-, Continuity-, DISARM-, and all five vehicle-shaped inputs.
+    Uses T3 membership **and** T4 `SoftwareCapabilitySafetyGate`
+    (`safety.chat_armed_allowlist` is `available`+`software`). Never
+    imports FS; fulfill (`gate.arm()`) is orchestrator-only.
+    """
+    if _extract_explain_query(intent.raw_text) is not None:
+        return None
+    normalized = _normalize_for_continuity_match(intent.raw_text)
+    if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_DISARM_PHRASES:
+        return None
+    if normalized in VEHICLE_HOLD_PHRASES:
+        return None
+    if normalized in VEHICLE_LAND_PHRASES:
+        return None
+    if normalized in VEHICLE_GO_TO_PHRASES:
+        return None
+    if normalized in VEHICLE_TAKEOFF_PHRASES:
+        return None
+    if normalized in VEHICLE_RETURN_HOME_PHRASES:
+        return None
+    if normalized not in VEHICLE_ARM_PHRASES:
+        return None
+    required_capability_ids = [CAPABILITY_SAFETY_CHAT_ARMED_ALLOWLIST]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    if not _software_safety_allows(intent.id, required_capability_ids):
+        return None
+    intent.metadata["task_kind"] = TASK_KIND_REQUEST_ARM_POLICY
+    return task
+
+
+def try_request_disarm_policy_task(intent: Intent) -> Task | None:
+    """Classify `intent` as a `request_disarm_policy` Task (T11) — pair
+    of `try_request_arm_policy_task`. Exact match on
+    `VEHICLE_DISARM_PHRASES`. Refuses explain / Continuity / ARM / five
+    vehicle shapes. T3 + T4 software Safety path.
+    """
+    if _extract_explain_query(intent.raw_text) is not None:
+        return None
+    normalized = _normalize_for_continuity_match(intent.raw_text)
+    if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_ARM_PHRASES:
+        return None
+    if normalized in VEHICLE_HOLD_PHRASES:
+        return None
+    if normalized in VEHICLE_LAND_PHRASES:
+        return None
+    if normalized in VEHICLE_GO_TO_PHRASES:
+        return None
+    if normalized in VEHICLE_TAKEOFF_PHRASES:
+        return None
+    if normalized in VEHICLE_RETURN_HOME_PHRASES:
+        return None
+    if normalized not in VEHICLE_DISARM_PHRASES:
+        return None
+    required_capability_ids = [CAPABILITY_SAFETY_CHAT_ARMED_ALLOWLIST]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    if not _software_safety_allows(intent.id, required_capability_ids):
+        return None
+    intent.metadata["task_kind"] = TASK_KIND_REQUEST_DISARM_POLICY
+    return task
+
+
 def try_request_hold_task(intent: Intent) -> Task | None:
     """Classify `intent` as a `request_hold` Task — the first **vehicle**
     Task kind (`DC-assistant-vehicle-hold-task`, ★ CLOSED) — or refuse
@@ -358,6 +450,8 @@ def try_request_hold_task(intent: Intent) -> Task | None:
         return None
     normalized = _normalize_for_continuity_match(intent.raw_text)
     if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_ARM_PHRASES or normalized in VEHICLE_DISARM_PHRASES:
         return None
     if normalized not in VEHICLE_HOLD_PHRASES:
         return None
@@ -412,6 +506,8 @@ def try_request_land_task(intent: Intent) -> Task | None:
         return None
     normalized = _normalize_for_continuity_match(intent.raw_text)
     if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_ARM_PHRASES or normalized in VEHICLE_DISARM_PHRASES:
         return None
     if normalized in VEHICLE_HOLD_PHRASES:
         return None
@@ -470,6 +566,8 @@ def try_request_go_to_task(intent: Intent) -> Task | None:
         return None
     normalized = _normalize_for_continuity_match(intent.raw_text)
     if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_ARM_PHRASES or normalized in VEHICLE_DISARM_PHRASES:
         return None
     if normalized in VEHICLE_HOLD_PHRASES:
         return None
@@ -533,6 +631,8 @@ def try_request_takeoff_task(intent: Intent) -> Task | None:
         return None
     normalized = _normalize_for_continuity_match(intent.raw_text)
     if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_ARM_PHRASES or normalized in VEHICLE_DISARM_PHRASES:
         return None
     if normalized in VEHICLE_HOLD_PHRASES:
         return None
@@ -607,6 +707,8 @@ def try_request_return_home_task(intent: Intent) -> Task | None:
         return None
     normalized = _normalize_for_continuity_match(intent.raw_text)
     if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_ARM_PHRASES or normalized in VEHICLE_DISARM_PHRASES:
         return None
     if normalized in VEHICLE_HOLD_PHRASES:
         return None

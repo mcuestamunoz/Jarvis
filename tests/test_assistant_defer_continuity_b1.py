@@ -134,4 +134,4 @@ def test_t7_pyproject_version_is_0_6_10():
     """Bumped forward by T3 (B1-assistant-task-registry-coherence) per
     established pattern."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.18"' in text
+    assert 'version = "0.6.19"' in text

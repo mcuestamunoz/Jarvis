@@ -1,42 +1,42 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T10 ★ ACCEPT CLOSED @ v0.6.18; T11 arm UX IC ★ AUTHORIZED → Claude",
-  "scope": "Basic mando closed. Next Buy is Safety policy latch (shared ArmedAllowlist), not a sixth verb. Cursor IC only — Claude implements.",
-  "execution_status": "authorized",
-  "current_mode": "implementation",
+  "cycle_intent": "T11 arm UX implemented by Cursor (Engineer implementa tú); await review → ★ ACCEPT → tag v0.6.19",
+  "scope": "Shared chat ArmedAllowlist latch + ARM/DISARM Tasks + retarget five vehicle fulfills. Allow-list unwidened. No ACCEPT claim.",
+  "execution_status": "awaiting_approval",
+  "current_mode": "review",
   "movement_trigger": {
-    "type": "star",
-    "reason": "Engineer ACCEPT T10 + procede redactar siguiente IC (arm UX)"
+    "type": "engineer",
+    "reason": "Engineer: implementa tú (Cursor implements T11)"
   },
-  "relevant_workflow_phases": ["Implementation"],
+  "relevant_workflow_phases": ["Review", "Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_arm_ux_b1.md",
-    ".jes/artifacts/design_contract_assistant_vehicle_arm_ux_b0.md"
+    ".jes/artifacts/implementation_report_assistant_vehicle_arm_ux_b1.md",
+    ".jes/artifacts/implementation_review_assistant_vehicle_arm_ux_b1.md"
   ],
   "open_questions": [
-    "Claude implements T11; Cursor reviews; Engineer ACCEPT → tag v0.6.19"
+    "Independent Cursor review of record?",
+    "★ ACCEPT T11 + tag v0.6.19?",
+    "Next after ACCEPT: FOLLOW · PATROL · allow-list widen · CHARGE?"
   ],
   "active_operation": {
-    "type": "implementation",
+    "type": "await_review_and_accept",
     "contract": "implementation_contract_assistant_vehicle_arm_ux_b1.md",
     "ids": ["T11", "B1-assistant-vehicle-arm-ux"],
-    "blocked_on": "Claude Code implementation + report"
+    "blocked_on": "review of record + Engineer ★ ACCEPT → tag v0.6.19"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-arm-ux ★ CLOSED",
-    "B1-assistant-vehicle-arm-ux ★ AUTHORIZED"
+    "T11 implementation landed (config/classify/orchestrator/registry/tests/docs)"
   ],
   "authority_gates": [
-    "Cursor does not implement T11 src/",
-    "Do not widen ArmedAllowlist allow-list this Buy",
-    "Shared process-scoped gate — not fresh per call",
-    "ARM is not an AutonomyVerb / not ESC arm"
+    "Same-session Cursor implementer PASS is not review of record",
+    "No ACCEPT/tag by Cursor without Engineer ★",
+    "Allow-list still HOLD/LAND/GO_TO only"
   ],
   "coherence_checklist": [
-    "Parent tip v0.6.18",
-    "Target package 0.6.19",
-    "After ARM: HOLD/LAND/GO_TO → allow/not_implemented; TAKEOFF/RH → verb_not_allowed"
+    "Shared gate retargeted on five vehicle fulfills",
+    "ARM uses T4 software Safety path",
+    "Package 0.6.19"
   ],
-  "updated_at": "2026-09-30T11:50:00Z"
+  "updated_at": "2026-09-30T12:00:00Z"
 }

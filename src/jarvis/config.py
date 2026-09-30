@@ -197,6 +197,25 @@ VEHICLE_RETURN_HOME_PHRASES: frozenset[str] = frozenset({
     "casa",
     "home",
 })
+# B1-assistant-vehicle-arm-ux (T11): Safety *policy* latch phrases — not an
+# AutonomyVerb. Same finite exact-match discipline as the VEHICLE_* tables
+# above (entries pre-normalized / accent-free). Short words like "arm"/
+# "arma" must not steal craft lines ("arma el frame").
+VEHICLE_ARM_PHRASES: frozenset[str] = frozenset({
+    "arm",
+    "armar",
+    "arma",
+    "armar safety",
+    "armar politica",
+    "arm safety",
+})
+VEHICLE_DISARM_PHRASES: frozenset[str] = frozenset({
+    "disarm",
+    "desarmar",
+    "desarma",
+    "disarm safety",
+    "desarmar safety",
+})
 # FN-016: navigation-back words, scoped to acquisition wizards only (NOT a
 # global escape — deliberately not merged into ESCAPE_WORDS/checked outside
 # DEFINE_MISSING_PARAMETERS). Values are already accent-normalized; callers
