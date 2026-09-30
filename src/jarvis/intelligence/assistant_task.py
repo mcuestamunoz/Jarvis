@@ -1,6 +1,7 @@
 """Assistant Task seam — `B1-assistant-explain-task` (T0), extended by
-`B1-assistant-defer-continuity` (T1) and
-`B1-assistant-task-registry-coherence` (T3).
+`B1-assistant-defer-continuity` (T1),
+`B1-assistant-task-registry-coherence` (T3), and
+`B1-assistant-software-safety-bridge` (T4).
 
 First on-disk `Task` emission per `DC-assistant-first-task`
 (`design_contract_assistant_first_task_b0.md`, ★ ACCEPT CLOSED):
@@ -37,6 +38,7 @@ from pathlib import Path
 
 from jarvis.capabilities.intent import Intent, Task
 from jarvis.capabilities.registry import CapabilityRegistry
+from jarvis.capabilities.safety import SafetyRequest, SoftwareCapabilitySafetyGate
 from jarvis.config import CHAT_EXPLAIN_PREFIXES, CONTINUITY_DEFER_PHRASES
 
 CAPABILITY_ONTOLOGY_EXPLAIN = "ontology.explain"
@@ -57,6 +59,21 @@ def _capabilities_known_in_default_registry(capability_ids: list[str]) -> bool:
     registry fresh each call (no caching, no alternate seed injection)."""
     registry = CapabilityRegistry.load_default()
     return all(registry.get_capability(cid) is not None for cid in capability_ids)
+
+
+def _software_safety_allows(intent_id: str, capability_ids: list[str]) -> bool:
+    """T4 — the first Safety link for a software Task, run *after* T3's
+    membership check passes so refuse reasons stay distinguishable in
+    tests (a T3 miss is `capability_unknown` territory the membership
+    helper already caught cheaply; this call covers `availability`/
+    provider-kind, which `_capabilities_known_in_default_registry`
+    deliberately never reads). Constructs `SoftwareCapabilitySafetyGate`
+    explicitly — `default_safety_gate()` (still always `RejectAllSafetyGate`)
+    is never touched by this seam."""
+    action_id = "capability:" + ",".join(capability_ids)
+    request = SafetyRequest(intent_id=intent_id, action_id=action_id)
+    decision = SoftwareCapabilitySafetyGate().evaluate(request)
+    return decision.outcome == "allow"
 
 
 def _extract_explain_query(raw_text: str) -> str | None:
@@ -99,6 +116,11 @@ def try_explain_concept_task(intent: Intent) -> Task | None:
     `required_capability_ids` exists in `CapabilityRegistry.load_default()`
     (membership only — no availability read, no provider call). Unknown
     id → refuse (`None`), `intent.metadata` left untouched.
+
+    T4: after the T3 membership check passes, also requires
+    `SoftwareCapabilitySafetyGate` to `allow` the same capability ids
+    (`availability == available` and a `software`-kind bound provider).
+    A reject → refuse (`None`), same untouched-metadata grain as T3.
     """
     query = _extract_explain_query(intent.raw_text)
     if query is None or _is_list_or_rung_flag(query):
@@ -106,6 +128,8 @@ def try_explain_concept_task(intent: Intent) -> Task | None:
     required_capability_ids = [CAPABILITY_ONTOLOGY_EXPLAIN]
     task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
     if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    if not _software_safety_allows(intent.id, required_capability_ids):
         return None
     intent.metadata["task_kind"] = TASK_KIND_EXPLAIN_CONCEPT
     intent.metadata["explain_query"] = query
@@ -187,6 +211,11 @@ def try_defer_to_continuity_task(intent: Intent) -> Task | None:
     `required_capability_ids` exists in `CapabilityRegistry.load_default()`
     (membership only — no availability read, no provider call). Unknown
     id → refuse (`None`), `intent.metadata` left untouched.
+
+    T4: after the T3 membership check passes, also requires
+    `SoftwareCapabilitySafetyGate` to `allow` the same capability ids
+    (`availability == available` and a `software`-kind bound provider).
+    A reject → refuse (`None`), same untouched-metadata grain as T3.
     """
     if _extract_explain_query(intent.raw_text) is not None:
         return None
@@ -196,6 +225,8 @@ def try_defer_to_continuity_task(intent: Intent) -> Task | None:
     required_capability_ids = [CAPABILITY_ENGINEERING_CONTINUITY]
     task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
     if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    if not _software_safety_allows(intent.id, required_capability_ids):
         return None
     intent.metadata["task_kind"] = TASK_KIND_DEFER_TO_CONTINUITY
     return task

@@ -46,6 +46,27 @@ second gate class with an overlapping `HOLD`/`LAND` allow-list would be
 two competing answers to "which gate do I use for an autonomy verb,"
 not one. `gate_id` stays `"armed_allowlist"` — callers checking that
 string are unaffected by this widening.
+
+**T4 (`B1-assistant-software-safety-bridge`) adds `SoftwareCapabilitySafetyGate`**
+— the first Safety link for the Assistant's **software-only** Tasks
+(`jarvis.intelligence.assistant_task`), sitting between T3's registry
+membership soft-check and a Task's `task_kind` write. `allow` iff every
+capability id encoded in `request.action_id` (`"capability:<id>[,<id>...]"`,
+parsed by `_parse_capability_action_id`) is a known row in
+`CapabilityRegistry.load_default()`, that row's `availability ==
+CapabilityAvailability.AVAILABLE`, and its bound provider (via
+`capability.provider_id` -> `registry.get_provider`) has `kind ==
+ProviderKind.SOFTWARE` — otherwise `reject` with one of a finite set of
+reason strings (`unparseable_action_id`, `empty_capabilities`,
+`capability_unknown`, `capability_unavailable`, `provider_not_software`).
+`default_safety_gate()` is **unchanged** (still always `RejectAllSafetyGate`)
+and this gate is never routed through it — the Assistant constructs
+`SoftwareCapabilitySafetyGate` explicitly. `ArmedAllowlistSafetyGate`'s
+own allow-list and arm state are untouched; this is a separate gate for a
+separate, non-autonomy request shape (`capability:...`, never
+`autonomy:{verb}:{id}`). Like every gate here, `evaluate(...)` never
+calls an actuator, a Skill's `execute`, or the registry's "run" anything
+— it only reads `CapabilityRecord`/`ProviderRecord` fields.
 """
 
 from __future__ import annotations
@@ -56,6 +77,8 @@ from typing import Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from jarvis.capabilities.intent import Intent
+from jarvis.capabilities.registry import CapabilityRegistry
+from jarvis.capabilities.schemas import CapabilityAvailability, ProviderKind
 
 AuthoritySource = Literal["radio", "api", "operator"]
 AuthorityKind = Literal["override", "kill", "mode", "unknown"]
@@ -185,6 +208,72 @@ def _parse_autonomy_verb(action_id: str | None) -> str | None:
     if len(parts) < 2 or parts[0] != "autonomy" or not parts[1]:
         return None
     return parts[1]
+
+
+def _parse_capability_action_id(action_id: str | None) -> list[str] | None:
+    """Parses `"capability:<id>[,<id>...]"` -> a list of ids, or `None`
+    if `action_id` is absent, does not start with the `"capability:"`
+    prefix, or has an empty/malformed id segment (e.g. a trailing comma).
+    An empty-but-well-formed list (`"capability:"`, nothing after the
+    prefix) is distinguished from this by the caller — it parses to `[]`
+    here, not `None`, so `SoftwareCapabilitySafetyGate` can reject it
+    with its own `"empty_capabilities"` reason rather than the more
+    generic `"unparseable_action_id"`."""
+    if action_id is None:
+        return None
+    prefix = "capability:"
+    if not action_id.startswith(prefix):
+        return None
+    remainder = action_id[len(prefix):]
+    if remainder == "":
+        return []
+    ids = remainder.split(",")
+    if any(not capability_id for capability_id in ids):
+        return None
+    return ids
+
+
+class SoftwareCapabilitySafetyGate:
+    """T4 — the first Safety link for the Assistant's software-only
+    Tasks. `allow` iff every capability id in `request.action_id`
+    exists in `CapabilityRegistry.load_default()`, is `available`, and
+    is bound to a `software`-kind provider. See this module's own
+    docstring for the full contract and finite reject-reason set."""
+
+    gate_id = "software_capability"
+
+    def evaluate(self, request: SafetyRequest) -> SafetyDecision:
+        capability_ids = _parse_capability_action_id(request.action_id)
+        if capability_ids is None:
+            return SafetyDecision(
+                outcome="reject", reason="unparseable_action_id", gate_id=self.gate_id
+            )
+        if not capability_ids:
+            return SafetyDecision(
+                outcome="reject", reason="empty_capabilities", gate_id=self.gate_id
+            )
+
+        registry = CapabilityRegistry.load_default()
+        for capability_id in capability_ids:
+            capability = registry.get_capability(capability_id)
+            if capability is None:
+                return SafetyDecision(
+                    outcome="reject", reason="capability_unknown", gate_id=self.gate_id
+                )
+            if capability.availability != CapabilityAvailability.AVAILABLE:
+                return SafetyDecision(
+                    outcome="reject", reason="capability_unavailable", gate_id=self.gate_id
+                )
+            provider = (
+                registry.get_provider(capability.provider_id)
+                if capability.provider_id is not None
+                else None
+            )
+            if provider is None or provider.kind != ProviderKind.SOFTWARE:
+                return SafetyDecision(
+                    outcome="reject", reason="provider_not_software", gate_id=self.gate_id
+                )
+        return SafetyDecision(outcome="allow", gate_id=self.gate_id)
 
 
 def default_safety_gate() -> SafetyGate:

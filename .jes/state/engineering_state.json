@@ -1,40 +1,39 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T3 ★ ACCEPT CLOSED @ v0.6.11; T4 B1-assistant-software-safety-bridge IC READY FOR ★",
-  "scope": "T3 soft registry coherence ACCEPTed. Next: wire software Tasks through SoftwareCapabilitySafetyGate. Out: vehicle verbs, default_safety_gate change.",
+  "cycle_intent": "T4 ★ ACCEPT CLOSED @ v0.6.12; await Engineer next Buy choice",
+  "scope": "Software Safety bridge ACCEPTed. Review format lock: explain what landed + where it leaves the path. Out: auto-open next IC until Engineer picks.",
   "execution_status": "awaiting_approval",
-  "current_mode": "design",
+  "current_mode": "close",
   "movement_trigger": {
     "type": "star",
-    "reason": "Engineer ACCEPT T3 + propose next vision-coherent IC (software Safety bridge)"
+    "reason": "Engineer ACCEPT T4; wants situational reviews for path decisions"
   },
-  "relevant_workflow_phases": ["Close", "Design"],
+  "relevant_workflow_phases": ["Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_task_registry_coherence_b1.md",
-    ".jes/artifacts/implementation_contract_assistant_software_safety_bridge_b1.md"
+    ".jes/artifacts/implementation_review_assistant_software_safety_bridge_b1.md"
   ],
-  "open_questions": ["★ Engineer authorize T4 IC implement (Claude)?"],
+  "open_questions": [
+    "Engineer next Buy: vehicle Task DC · Skills seed · R4 · park · other?"
+  ],
   "active_operation": {
-    "type": "implementation_contract",
-    "contract": "implementation_contract_assistant_software_safety_bridge_b1.md",
-    "ids": ["T4", "B1-assistant-software-safety-bridge"],
-    "blocked_on": "Engineer ★ to authorize Claude"
+    "type": "await_engineer_front",
+    "contract": null,
+    "ids": ["T4"],
+    "blocked_on": "Engineer names next intelligence / platform front"
   },
   "closed_this_turn": [
-    "T3 ★ ACCEPT CLOSED + tag v0.6.11",
-    "Drafted T4 software Safety bridge IC READY FOR ★"
+    "T4 ★ ACCEPT CLOSED + tag v0.6.12",
+    "Review format lock: what/where/how-it-adds for future reviews"
   ],
   "authority_gates": [
-    "No src/ for T4 until IC ★",
-    "default_safety_gate stays RejectAll",
-    "No HOLD/LAND this Buy",
-    "Tag v0.6.12 only on T4 ACCEPT"
+    "No next IC until Engineer picks front",
+    "IC-to-Claude paste = AUTHORIZED when drafted for paste"
   ],
   "coherence_checklist": [
-    "Vision §10 Intent→Task→capability→Safety",
-    "Builds on T3 membership",
-    "Vehicle Task still separate later DC"
+    "Vision §10 software Safety link closed",
+    "Vehicle still separate",
+    "default_safety_gate RejectAll held"
   ],
-  "updated_at": "2026-09-30T06:50:00Z"
+  "updated_at": "2026-09-30T07:15:00Z"
 }

@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — only after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer ACCEPT → tag **`v0.6.12`**
 
-**Status:** **READY FOR ★**  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review PASS; package/tag **`0.6.12` / `v0.6.12`**.
 **Parents:**
 - T3 [`B1-assistant-task-registry-coherence`](implementation_contract_assistant_task_registry_coherence_b1.md) — ★ **ACCEPT CLOSED** @ **`v0.6.11`** — membership soft-check before Task emit
 - T2 registry seed ★ CLOSED @ **`v0.6.10`** — `ontology.explain` / `engineering.continuity` as `available` software
@@ -149,7 +149,5 @@ No ACCEPT claim.
 
 ## 6. Engineer gate
 
-Reply **★** (or “procede / implementa”) to authorize Claude.  
-Until then: **no `src/` for T4.**
-
-**After T4 (not this IC):** first vehicle Task kind remains a **separate** DC/IC — Safety for software ≠ enabling HOLD.
+★ **AUTHORIZED** — Claude implements now.  
+Tag **`v0.6.12`** only after Cursor review + Engineer ACCEPT.

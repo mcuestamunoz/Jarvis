@@ -113,6 +113,7 @@ from jarvis.capabilities.safety import (
     SafetyDecision,
     SafetyGate,
     SafetyRequest,
+    SoftwareCapabilitySafetyGate,
     default_safety_gate,
     run_intent_through_safety,
 )
@@ -147,6 +148,7 @@ __all__ = [
     "SafetyRequest",
     "SimulatedRadioIngress",
     "SkillRecord",
+    "SoftwareCapabilitySafetyGate",
     "Task",
     "TerminalIntentAdapter",
     "VoiceIntentAdapter",

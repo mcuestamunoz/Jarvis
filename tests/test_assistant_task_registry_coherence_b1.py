@@ -122,13 +122,26 @@ def test_t5_fences_hold_ast():
 
 def test_t6_pyproject_version_is_0_6_11():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.11"' in text
+    assert 'version = "0.6.12"' in text
 
 
 def test_gate_does_not_touch_availability_or_providers(monkeypatch):
-    """Optional (IC §3 note): the gate is membership-only — assert it
-    never calls `availability()`/`providers()`/`get_provider` on the
-    registry, only `get_capability`."""
+    """Optional (IC §3 note): the T3 membership *helper*
+    (`_capabilities_known_in_default_registry`) is membership-only —
+    assert it never calls `providers()`/`get_provider` on the registry,
+    only `get_capability`.
+
+    This deliberately exercises the helper directly rather than the
+    full `try_explain_concept_task`/`try_defer_to_continuity_task` call
+    chain: `B1-assistant-software-safety-bridge` (T4) added a second,
+    explicitly authorized gate immediately after this one
+    (`_software_safety_allows` -> `SoftwareCapabilitySafetyGate`) that
+    *does* legitimately read `availability` and call `get_provider` —
+    that is the whole point of T4. Watching the end-to-end call chain
+    would make this test couple T3's own membership-only guarantee to
+    whatever gates a later, authorized Buy adds downstream of it. See
+    `tests/test_assistant_software_safety_bridge_b1.py` for T4's own
+    coverage of the Safety gate's registry reads."""
     real_registry = CapabilityRegistry.load_default()
     calls: list[str] = []
 
@@ -155,7 +168,7 @@ def test_gate_does_not_touch_availability_or_providers(monkeypatch):
         )),
     )
 
-    assistant_task.try_explain_concept_task(_intent("explain c-rate"))
-    assistant_task.try_defer_to_continuity_task(_intent("estado"))
+    assistant_task._capabilities_known_in_default_registry([CAPABILITY_ONTOLOGY_EXPLAIN])
+    assistant_task._capabilities_known_in_default_registry([CAPABILITY_ENGINEERING_CONTINUITY])
 
     assert calls == ["get_capability", "get_capability"]
