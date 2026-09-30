@@ -1,42 +1,40 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T12 FOLLOW implemented by Cursor (Engineer Implementa ic); await review → ★ ACCEPT → tag v0.6.20",
-  "scope": "Sixth vehicle Task request_follow via shared ArmedAllowlist. Allow-list unwidened. No person-target parse. No ACCEPT claim.",
+  "cycle_intent": "T12 FOLLOW Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT → tag v0.6.20",
+  "scope": "Sixth vehicle Task request_follow via shared ArmedAllowlist. Allow-list unwidened. Review of record landed. No ACCEPT claimed.",
   "execution_status": "awaiting_approval",
   "current_mode": "review",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: Implementa ic (Cursor implements T12)"
+    "reason": "Engineer: Review del ic"
   },
-  "relevant_workflow_phases": ["Review", "Close"],
+  "relevant_workflow_phases": ["Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_report_assistant_vehicle_follow_task_b1.md",
     ".jes/artifacts/implementation_review_assistant_vehicle_follow_task_b1.md"
   ],
   "open_questions": [
-    "Independent Cursor review of record?",
     "★ ACCEPT T12 + tag v0.6.20?",
     "Next after ACCEPT: PATROL · allow-list widen · CHARGE?"
   ],
   "active_operation": {
-    "type": "await_review_and_accept",
+    "type": "await_accept",
     "contract": "implementation_contract_assistant_vehicle_follow_task_b1.md",
     "ids": ["T12", "B1-assistant-vehicle-follow-task"],
-    "blocked_on": "review of record + Engineer ★ ACCEPT → tag v0.6.20"
+    "blocked_on": "Engineer ★ ACCEPT → tag v0.6.20"
   },
   "closed_this_turn": [
-    "T12 implementation landed (config/classify/orchestrator/registry/tests/docs)"
+    "T12 independent Cursor review PASS WITH NOTES (N1 PLATFORM tip narrative remediated)"
   ],
   "authority_gates": [
-    "Same-session Cursor implementer PASS is not review of record",
-    "No ACCEPT/tag by Cursor without Engineer ★",
-    "Allow-list still HOLD/LAND/GO_TO only"
+    "No ACCEPT/tag without Engineer ★",
+    "Allow-list still HOLD/LAND/GO_TO only",
+    "No person/target parse in FOLLOW"
   ],
   "coherence_checklist": [
-    "Shared gate used for FOLLOW fulfill",
+    "Shared gate used for FOLLOW",
     "Cascade 9 caps / 10 skills",
     "Package 0.6.20"
   ],
-  "updated_at": "2026-09-30T12:15:00Z"
+  "updated_at": "2026-09-30T19:20:00Z"
 }
