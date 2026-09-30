@@ -3,7 +3,7 @@
 **Date:** 2026-09-30  
 **Reviewer:** Cursor (independent pass — Engineer: *Review del ic*)  
 **Against:** [IC](implementation_contract_assistant_vehicle_follow_task_b1.md) · [report](implementation_report_assistant_vehicle_follow_task_b1.md) · [DC ★](design_contract_assistant_vehicle_follow_task_b0.md)  
-**Verdict:** **PASS WITH NOTES** — ready for Engineer ★ ACCEPT → tag **`v0.6.20`**. No ACCEPT claimed in this review.
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.20` / `v0.6.20`**.
 
 **Process note:** Cursor implemented (Engineer “Implementa ic”). Same-session implementer green is not review of record. This pass re-audits the tip against IC §0 locks with live E2E + pytest.
 
@@ -95,7 +95,7 @@ Expone `AutonomyVerb.FOLLOW` en el Tasker con la misma honestidad que TAKEOFF/RE
 
 **N1 — PLATFORM tip narrative drift (remediated).** §10 / Placement still said “FOLLOW … remain later Buys” after T12 landed. Updated to point at T12 + leave PATROL/widen/CHARGE as later. Historical T8–T10 ACCEPT blocks left as period records.
 
-**N2 — Process.** Same-session Cursor implementer green ≠ review of record. This pass is the review of record. No ★ ACCEPT / tag without Engineer.
+**N2 — Process.** Same-session Cursor implementer green ≠ review of record. This pass is the review of record. Engineer ★ ACCEPT applied this close.
 
 **N3 — Residual (informational).** Older intelligence README subsections for T8/T9 still say “no FOLLOW” in their historical “still not” bullets — period text under closed Buys; tip narrative is the T12 section at top.
 
@@ -104,6 +104,6 @@ Expone `AutonomyVerb.FOLLOW` en el Tasker con la misma honestidad que TAKEOFF/RE
 ## 7. Next
 
 ```text
-Await Engineer ★ ACCEPT → tag v0.6.20
-Then pick: PATROL · allow-list widen · CHARGE
+★ ACCEPT CLOSED @ v0.6.20 (Engineer 2026-09-30)
+Await Engineer ★ pick: PATROL · allow-list widen · CHARGE
 ```

@@ -6,15 +6,15 @@
 **Implementer:** **Cursor** (Engineer 2026-09-30: “Implementa ic”)  
 **Reviewer:** Cursor independent pass on request · Engineer ACCEPT → tag **`v0.6.20`**
 
-**Status:** **Implemented** — await review / Engineer ★ ACCEPT → tag **`v0.6.20`**.  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review PASS WITH NOTES; package/tag **`0.6.20` / `v0.6.20`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_assistant_vehicle_follow_task_b0.md)
 - T11 [`B1-assistant-vehicle-arm-ux`](implementation_review_assistant_vehicle_arm_ux_b1.md) — ★ ACCEPT CLOSED @ **`v0.6.19`**
 - HOLD INV ★ — no new INV · C4 `AutonomyVerb.FOLLOW` already shipped
 
 **Type:** Sixth vehicle Assistant Task — FOLLOW phrase → Task → orchestrator fulfill via **shared** chat ArmedAllowlist (T11).  
-**Opens:** **`0.6.20` / `v0.6.20`** on ACCEPT.  
-**Cola:** **T12**
+**Closed at:** **`0.6.20` / `v0.6.20`**.  
+**Cola:** **T12** ★
 
 **Not:** allow-list widen · PATROL · CHARGE · person/target/GPS parse · SoftwareCapabilitySafetyGate for flight · intelligence→FS import · voice · copper · edit prior vehicle/arm fulfill bodies · sim executor FOLLOW tick · generic verb framework.
 
@@ -78,10 +78,10 @@ Bump stale `0.6.19` checkpoints this Buy owns.
 
 ## 3. Acceptance
 
-- [ ] Classify + membership + fulfill `submit_command(FOLLOW)` via shared gate  
-- [ ] Allow-list unwidened · honest UX · prior verbs/arm unchanged  
-- [ ] Registry · cascade 9/10 · T1–T9 · docs · `0.6.20`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.20`**
+- [x] Classify + membership + fulfill `submit_command(FOLLOW)` via shared gate  
+- [x] Allow-list unwidened · honest UX · prior verbs/arm unchanged  
+- [x] Registry · cascade 9/10 · T1–T9 · docs · `0.6.20`  
+- [x] Cursor review · Engineer ACCEPT · tag **`v0.6.20`**
 
 ---
 

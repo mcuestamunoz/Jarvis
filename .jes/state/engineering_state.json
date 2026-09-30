@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T12 FOLLOW Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT → tag v0.6.20",
-  "scope": "Sixth vehicle Task request_follow via shared ArmedAllowlist. Allow-list unwidened. Review of record landed. No ACCEPT claimed.",
-  "execution_status": "awaiting_approval",
-  "current_mode": "review",
+  "cycle_intent": "T12 FOLLOW ★ ACCEPT CLOSED @ v0.6.20; await Engineer pick for next vehicle Buy",
+  "scope": "Sixth vehicle Task request_follow closed via shared ArmedAllowlist. Allow-list unwidened. Tip tagged.",
+  "execution_status": "idle",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: Review del ic"
+    "reason": "Engineer: Accept y cuando esté el commit dime cuál es el siguiente paso"
   },
   "relevant_workflow_phases": ["Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
@@ -14,27 +14,26 @@
     ".jes/artifacts/implementation_review_assistant_vehicle_follow_task_b1.md"
   ],
   "open_questions": [
-    "★ ACCEPT T12 + tag v0.6.20?",
-    "Next after ACCEPT: PATROL · allow-list widen · CHARGE?"
+    "Next after T12 ★: PATROL · allow-list widen · CHARGE?"
   ],
   "active_operation": {
-    "type": "await_accept",
-    "contract": "implementation_contract_assistant_vehicle_follow_task_b1.md",
-    "ids": ["T12", "B1-assistant-vehicle-follow-task"],
-    "blocked_on": "Engineer ★ ACCEPT → tag v0.6.20"
+    "type": "none",
+    "contract": null,
+    "ids": [],
+    "blocked_on": "Engineer ★ pick next Buy"
   },
   "closed_this_turn": [
-    "T12 independent Cursor review PASS WITH NOTES (N1 PLATFORM tip narrative remediated)"
+    "T12 B1-assistant-vehicle-follow-task ★ ACCEPT CLOSED @ v0.6.20"
   ],
   "authority_gates": [
-    "No ACCEPT/tag without Engineer ★",
-    "Allow-list still HOLD/LAND/GO_TO only",
-    "No person/target parse in FOLLOW"
+    "No allow-list widen without explicit Buy",
+    "PATROL/CHARGE require new IC",
+    "No person/target parse without new IC"
   ],
   "coherence_checklist": [
-    "Shared gate used for FOLLOW",
+    "Tag v0.6.20",
     "Cascade 9 caps / 10 skills",
-    "Package 0.6.20"
+    "Shared gate for FOLLOW"
   ],
-  "updated_at": "2026-09-30T19:20:00Z"
+  "updated_at": "2026-09-30T19:25:00Z"
 }

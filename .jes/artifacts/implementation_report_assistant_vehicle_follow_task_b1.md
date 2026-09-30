@@ -5,8 +5,8 @@
 **Implementer:** Cursor (Engineer: “Implementa ic”)  
 **Contract:** [`implementation_contract_assistant_vehicle_follow_task_b1.md`](implementation_contract_assistant_vehicle_follow_task_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_vehicle_follow_task_b0.md) · T11 ★ ACCEPT CLOSED @ **`v0.6.19`**  
-**Status:** Delivered for review → Engineer ACCEPT. **No ACCEPT claimed.**  
-**Package:** `0.6.20`. **No tag.**
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review PASS WITH NOTES.  
+**Package / tag:** `0.6.20` / **`v0.6.20`**.
 
 ---
 
@@ -52,5 +52,4 @@ pytest tests/test_assistant_vehicle_follow_task_b1.py \
 
 ## 4. Remaining
 
-- Independent Cursor review of record.
-- Engineer ★ ACCEPT → tag `v0.6.20`.
+None for this Buy. Next candidates: PATROL · allow-list widen · CHARGE.
