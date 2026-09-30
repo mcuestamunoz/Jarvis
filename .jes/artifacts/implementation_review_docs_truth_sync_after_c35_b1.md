@@ -3,7 +3,11 @@
 **Date:** 2026-09-25  
 **Reviewer:** Cursor (independent — not implementer)  
 **Against:** [IC](implementation_contract_docs_truth_sync_after_c35_b1.md) · [inventory](inventory_docs_truth_sync_after_c35_b0.md) · [report](implementation_report_docs_truth_sync_after_c35_b1.md)  
-**Verdict:** **PASS WITH NOTES** (N1–N2 residual, accepted) — awaiting Engineer **spot-check** (system_map tip + native README + USER_GUIDE §8.4) + ★ ACCEPT. **No `v0.5.36` tag.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-09-30) — prior Cursor **PASS WITH NOTES** held. **No `v0.5.36` tag** (package bump superseded by C36 @ `v0.5.37`). Administrative close only; docs epoch was `v0.5.35`. A later **D3** may retarget maps to tip `v0.6.x` if Engineer wants.
+
+**Original review body below preserved as historical.**
+
+---
 
 ---
 

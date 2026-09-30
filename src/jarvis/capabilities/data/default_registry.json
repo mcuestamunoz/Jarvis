@@ -31,6 +31,14 @@
             "availability": "not_implemented",
             "requirements": [],
             "health": "unknown"
+        },
+        {
+            "id": "flight.go_to",
+            "version": "0.6.16",
+            "provider_id": "provider.flight_go_to",
+            "availability": "not_implemented",
+            "requirements": [],
+            "health": "unknown"
         }
     ],
     "providers": [
@@ -57,6 +65,12 @@
             "kind": "vehicle",
             "offered_capability_ids": ["flight.land"],
             "health": "unknown"
+        },
+        {
+            "id": "provider.flight_go_to",
+            "kind": "vehicle",
+            "offered_capability_ids": ["flight.go_to"],
+            "health": "unknown"
         }
     ],
     "skills": [
@@ -82,6 +96,12 @@
             "id": "skill.request_land",
             "version": "0.6.15",
             "required_capability_ids": ["flight.land"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_go_to",
+            "version": "0.6.16",
+            "required_capability_ids": ["flight.go_to"],
             "availability": "stub"
         }
     ]

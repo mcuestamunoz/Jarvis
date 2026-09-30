@@ -194,7 +194,10 @@ def test_t7_no_craft_continuity_library_board_edits():
     # see tests/test_assistant_vehicle_hold_task_b1.py. T7
     # (B1-assistant-vehicle-land-task): a fourth, skill.request_land
     # (requires flight.land, not_implemented/vehicle) — see
-    # tests/test_assistant_vehicle_land_task_b1.py. Still zero Skill
+    # tests/test_assistant_vehicle_land_task_b1.py. T8
+    # (B1-assistant-vehicle-go-to-task): a fifth, skill.request_go_to
+    # (requires flight.go_to, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_go_to_task_b1.py. Still zero Skill
     # execution path anywhere; this file's own isolation proof is
     # unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -202,6 +205,7 @@ def test_t7_no_craft_continuity_library_board_edits():
         "skill.project_status",
         "skill.request_hold",
         "skill.request_land",
+        "skill.request_go_to",
     }
 
 

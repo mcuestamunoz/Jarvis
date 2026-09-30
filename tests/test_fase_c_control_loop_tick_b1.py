@@ -215,7 +215,10 @@ def test_t9_registry_empty_and_no_craft_or_core_imports_of_loop():
     # see tests/test_assistant_vehicle_hold_task_b1.py. T7
     # (B1-assistant-vehicle-land-task): a fourth, skill.request_land
     # (requires flight.land, not_implemented/vehicle) — see
-    # tests/test_assistant_vehicle_land_task_b1.py. Still zero Skill
+    # tests/test_assistant_vehicle_land_task_b1.py. T8
+    # (B1-assistant-vehicle-go-to-task): a fifth, skill.request_go_to
+    # (requires flight.go_to, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_go_to_task_b1.py. Still zero Skill
     # execution path anywhere; this file's own isolation proof is
     # unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -223,6 +226,7 @@ def test_t9_registry_empty_and_no_craft_or_core_imports_of_loop():
         "skill.project_status",
         "skill.request_hold",
         "skill.request_land",
+        "skill.request_go_to",
     }
 
     core_dir = REPO_ROOT / "src" / "jarvis" / "core"

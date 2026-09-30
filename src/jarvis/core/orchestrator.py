@@ -535,6 +535,28 @@ class JarvisOrchestrator:
         if try_request_land_task(land_intent) is not None:
             return self._handle_vehicle_land(land_intent)
 
+        # ── Vehicle GO_TO intercept, via Assistant Task seam (T8) ─────────────
+        # T8 (B1-assistant-vehicle-go-to-task): a finite, explicit set of
+        # GO_TO phrases (jarvis.config.VEHICLE_GO_TO_PHRASES) classifies to
+        # Task(request_go_to) requiring flight.go_to — the third vehicle Task
+        # kind, same seam as T6's HOLD/T7's LAND. Precedence: explain →
+        # Continuity defer → HOLD → LAND → GO_TO → fallthrough (all four
+        # branches above already returned for an explain-, Continuity-,
+        # HOLD-, or LAND-shaped line, and try_request_go_to_task's own
+        # internal guards refuse all four shapes too, so this is
+        # unreachable for any of them either way). Fulfilled here, never
+        # inside jarvis.intelligence — _handle_vehicle_go_to proposes+
+        # submits the command (empty params — no coordinate/waypoint
+        # parsing this Buy, DC §0 row 9) through the existing C4 autonomy
+        # surface with a fresh, never-armed ArmedAllowlistSafetyGate; the
+        # honest reject this produces is surfaced verbatim, never a claim
+        # of navigated/executed/arrived flight.
+        from jarvis.intelligence.assistant_task import try_request_go_to_task
+
+        go_to_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_go_to_task(go_to_intent) is not None:
+            return self._handle_vehicle_go_to(go_to_intent)
+
         return None
 
     def _handle_vehicle_hold(self, intent: Any) -> dict:
@@ -602,6 +624,41 @@ class JarvisOrchestrator:
             f"Ejecución: {result.execution}."
         )
         return {"status": "ok", "action": "vehicle_land", "message": message}
+
+    def _handle_vehicle_go_to(self, intent: Any) -> dict:
+        """T8 fulfill for a classified `request_go_to` Task (DC §0 row 8)
+        — same shape as `_handle_vehicle_hold`/`_handle_vehicle_land`
+        (T6/T7), thin sibling rather than a shared multi-verb helper (IC's
+        own "Not" list: no generic multi-verb framework this Buy;
+        `_handle_vehicle_hold`/`_handle_vehicle_land` are both left
+        byte-for-byte unchanged so their own tested behavior cannot
+        regress). Proposes an `AutonomyVerb.GO_TO` command with **empty
+        `params`** — no coordinate/waypoint parsing happens anywhere in
+        this Buy (DC §0 row 9) — and submits it through the existing C4
+        autonomy surface using a **fresh, never-armed**
+        `ArmedAllowlistSafetyGate` — `gate.arm()` is never called anywhere
+        on this path. `default_safety_gate()` (still always
+        `RejectAllSafetyGate`) is untouched and not used here.
+
+        The returned message surfaces `result.safety.outcome`,
+        `result.safety.reason`, and `result.execution` verbatim — with a
+        disarmed gate this is always `reject`/`"disarmed"`/
+        `"not_attempted"` — and never claims the vehicle actually
+        navigated, arrived, or that anything executed; `action="vehicle_go_to"`
+        (same distinct-from-`"global_command"` discipline as T6/T7's own
+        `"vehicle_hold"`/`"vehicle_land"`)."""
+        from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
+        from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
+
+        gate = ArmedAllowlistSafetyGate()
+        command = propose_command(AutonomyVerb.GO_TO, intent_id=intent.id, params={})
+        result = submit_command(command, gate)
+        message = (
+            "GO_TO solicitado, pero no se ejecuta ninguna navegación real desde este "
+            f"chat todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
+            f"Ejecución: {result.execution}."
+        )
+        return {"status": "ok", "action": "vehicle_go_to", "message": message}
 
     _AFFIRMATIVE_WORDS: frozenset[str] = frozenset({
         "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante", "perfecto",

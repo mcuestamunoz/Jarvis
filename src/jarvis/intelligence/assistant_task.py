@@ -2,8 +2,9 @@
 `B1-assistant-defer-continuity` (T1),
 `B1-assistant-task-registry-coherence` (T3),
 `B1-assistant-software-safety-bridge` (T4),
-`B1-assistant-vehicle-hold-task` (T6), and
-`B1-assistant-vehicle-land-task` (T7).
+`B1-assistant-vehicle-hold-task` (T6),
+`B1-assistant-vehicle-land-task` (T7), and
+`B1-assistant-vehicle-go-to-task` (T8).
 
 T6 adds the first **vehicle** Task kind, `request_hold` (requires
 `flight.hold`) — classified from a finite HOLD phrase table
@@ -25,6 +26,14 @@ deliberate absence of `SoftwareCapabilitySafetyGate`. Precedence: explain
 refuses explain-, Continuity-, *and* HOLD-shaped input internally (a
 direct caller cannot steal HOLD's own phrases), mirroring the same
 internal-guard discipline every earlier kind here already uses.
+
+T8 adds the **third** vehicle Task kind, `request_go_to` (requires
+`flight.go_to`) — same seam again, own finite phrase table
+(`jarvis.config.VEHICLE_GO_TO_PHRASES`). Precedence: explain →
+Continuity defer → HOLD → LAND → GO_TO → fallthrough —
+`try_request_go_to_task` refuses explain-, Continuity-, HOLD-, *and*
+LAND-shaped input internally. No coordinate/waypoint parsing this Buy —
+the orchestrator's own fulfill always proposes with empty `params={}`.
 
 First on-disk `Task` emission per `DC-assistant-first-task`
 (`design_contract_assistant_first_task_b0.md`, ★ ACCEPT CLOSED):
@@ -65,6 +74,7 @@ from jarvis.capabilities.safety import SafetyRequest, SoftwareCapabilitySafetyGa
 from jarvis.config import (
     CHAT_EXPLAIN_PREFIXES,
     CONTINUITY_DEFER_PHRASES,
+    VEHICLE_GO_TO_PHRASES,
     VEHICLE_HOLD_PHRASES,
     VEHICLE_LAND_PHRASES,
 )
@@ -77,6 +87,8 @@ CAPABILITY_FLIGHT_HOLD = "flight.hold"
 TASK_KIND_REQUEST_HOLD = "request_hold"
 CAPABILITY_FLIGHT_LAND = "flight.land"
 TASK_KIND_REQUEST_LAND = "request_land"
+CAPABILITY_FLIGHT_GO_TO = "flight.go_to"
+TASK_KIND_REQUEST_GO_TO = "request_go_to"
 
 _LIST_RUNG_REDIRECT = (
     "Eso solo está disponible en terminal: "
@@ -372,4 +384,64 @@ def try_request_land_task(intent: Intent) -> Task | None:
     if not _capabilities_known_in_default_registry(required_capability_ids):
         return None
     intent.metadata["task_kind"] = TASK_KIND_REQUEST_LAND
+    return task
+
+
+def try_request_go_to_task(intent: Intent) -> Task | None:
+    """Classify `intent` as a `request_go_to` Task — the **third**
+    vehicle Task kind (`DC-assistant-vehicle-go-to-task`, ★ CLOSED,
+    same seam as T6's HOLD/T7's LAND) — or refuse (`None`) when
+    `intent.raw_text` — after the same minimal normalize — isn't an
+    exact member of `jarvis.config.VEHICLE_GO_TO_PHRASES`, **or** when
+    it's explain-shaped, Continuity-defer-shaped, HOLD-shaped, **or**
+    LAND-shaped (precedence: explain → Continuity defer → HOLD → LAND →
+    GO_TO → fallthrough; DC §0 row 4). This function re-checks all four
+    ahead-of-it kinds itself — mirroring `try_request_land_task`'s own
+    internal guards — so a direct/test caller (not just the
+    orchestrator's own call order) cannot have a HOLD or LAND phrase
+    stolen by GO_TO or vice versa.
+
+    Exact-phrase match only, same finite-table discipline as every other
+    kind here — no fuzzy match, no stealing arbitrary craft design chat.
+
+    Never calls an LLM, never imports `jarvis.flight_software` or
+    `jarvis.vehicle_profiles`, never proposes or submits an autonomy
+    command itself — fulfilling a matched Task (via `propose_command`/
+    `submit_command` + a disarmed `ArmedAllowlistSafetyGate`) is
+    entirely the orchestrator's job (DC §0 row 8), same separation T6/T7
+    already established. No coordinate/waypoint parsing happens here or
+    in the orchestrator this Buy — `params` is always empty (DC §0 row 9).
+
+    Side effect: on a match, records `task_kind` onto `intent.metadata`
+    in place — the only state this function touches.
+
+    T3-style membership check: before writing `intent.metadata`,
+    soft-checks `CAPABILITY_FLIGHT_GO_TO` exists in
+    `CapabilityRegistry.load_default()` (membership only). Unknown id →
+    refuse (`None`), `intent.metadata` left untouched.
+
+    Deliberately **no** T4 `SoftwareCapabilitySafetyGate` call here
+    (IC §0 row 6), same reasoning as HOLD/LAND: `flight.go_to` is
+    intentionally seeded `not_implemented`/`vehicle`, so that gate would
+    either always (and confusingly) refuse via the wrong gate, or
+    silently imply a software fulfill path for a vehicle verb if the
+    seed ever changed. The real Safety check happens once, in the
+    orchestrator's fulfill step.
+    """
+    if _extract_explain_query(intent.raw_text) is not None:
+        return None
+    normalized = _normalize_for_continuity_match(intent.raw_text)
+    if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_HOLD_PHRASES:
+        return None
+    if normalized in VEHICLE_LAND_PHRASES:
+        return None
+    if normalized not in VEHICLE_GO_TO_PHRASES:
+        return None
+    required_capability_ids = [CAPABILITY_FLIGHT_GO_TO]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    intent.metadata["task_kind"] = TASK_KIND_REQUEST_GO_TO
     return task

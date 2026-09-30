@@ -151,6 +151,8 @@ Si no ves el bloque "Conceptos", es porque no hay ningún concepto sembrado rela
 
 *Nota interna (T7, `B1-assistant-vehicle-land-task`): mismo patrón, un cuarto `Task` — `request_land` — para frases como `land` o `aterrizar`. Misma respuesta honesta (nunca "aterrizó"). Orden de precedencia: `explain …` → `estado` → `hold` → `land`.*
 
+*Nota interna (T8, `B1-assistant-vehicle-go-to-task`): mismo patrón, un quinto `Task` — `request_go_to` — para frases como `go to`, `ve a` o `navega`. Sin parseo de coordenadas: la propuesta siempre viaja sin destino real. Misma respuesta honesta (nunca "navegando"/"llegó"). Orden de precedencia: `explain …` → `estado` → `hold` → `land` → `go to`.*
+
 **Desde A8 (`B1-continuity-explain-topics-expand`): también verás `corriente-y-circuitos` cuando el proyecto ya tenga un punto de operación eléctrico (`motor_op_current_a`) resuelto** — el mismo dato que la línea "OP eléctrico" de `estado` ya muestra. Ejemplo real:
 
 ```text

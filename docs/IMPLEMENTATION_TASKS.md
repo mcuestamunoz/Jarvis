@@ -6,15 +6,17 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T8** vehicle GO_TO — IC ★ AUTHORIZED → **Claude implement**. Parent tip **`v0.6.15`**. Package target **`0.6.16`**. Gate **B**. Empty params (no coord parse).  
-> **Background:** Silicon parked. Continuity stays in `core/`.  
-> SoT: [IC GO_TO](../.jes/artifacts/implementation_contract_assistant_vehicle_go_to_task_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_vehicle_go_to_task_b0.md) · [T7 ★](../.jes/artifacts/implementation_review_assistant_vehicle_land_task_b1.md).  
+> **PRIORIDAD AHORA:** **T9** vehicle TAKEOFF — IC ★ AUTHORIZED → **Claude implement**. Parent tip **`v0.6.16`**. Package target **`0.6.17`**. Gate **B**.  
+> **Cola vehicle locked:** T9 TAKEOFF → **T10 RETURN_HOME** (after T9 ★). Luego: `arm()` · FOLLOW · PATROL · CHARGE.  
+> **Background:** Silicon parked. Continuity stays in `core/`. D2 docs ★ CLOSED (no `v0.5.36` tag).  
+> SoT: [IC TAKEOFF](../.jes/artifacts/implementation_contract_assistant_vehicle_takeoff_task_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_vehicle_takeoff_task_b0.md) · [T8 ★](../.jes/artifacts/implementation_review_assistant_vehicle_go_to_task_b1.md).  
+
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.15`** · A0–A8 + T0–T7 CLOSED · T8 IC ★ AUTHORIZED)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.16`** · A0–A8 + T0–T8 CLOSED · T9 IC ★ AUTHORIZED · T10 queued)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -37,7 +39,11 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T7** | **`DC-assistant-vehicle-land-task`** | **✅ ★ CLOSED** | second vehicle Task kind LAND | [DC](../.jes/artifacts/design_contract_assistant_vehicle_land_task_b0.md) |
 | **T7** | **`B1-assistant-vehicle-land-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.15`** | Task LAND → submit_command disarmed ArmedAllowlist · sibling of HOLD | [review](../.jes/artifacts/implementation_review_assistant_vehicle_land_task_b1.md) |
 | **T8** | **`DC-assistant-vehicle-go-to-task`** | **✅ ★ CLOSED** | third vehicle Task kind GO_TO | [DC](../.jes/artifacts/design_contract_assistant_vehicle_go_to_task_b0.md) |
-| **T8** | **`B1-assistant-vehicle-go-to-task`** | **★ AUTHORIZED** → Claude | Task GO_TO → submit_command disarmed ArmedAllowlist · empty params · `0.6.16` | [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_go_to_task_b1.md) |
+| **T8** | **`B1-assistant-vehicle-go-to-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.16`** | Task GO_TO → submit_command disarmed ArmedAllowlist · empty params | [review](../.jes/artifacts/implementation_review_assistant_vehicle_go_to_task_b1.md) |
+| **T9** | **`DC-assistant-vehicle-takeoff-task`** | **✅ ★ CLOSED** | fourth vehicle Task kind TAKEOFF | [DC](../.jes/artifacts/design_contract_assistant_vehicle_takeoff_task_b0.md) |
+| **T9** | **`B1-assistant-vehicle-takeoff-task`** | **★ AUTHORIZED** → Claude | Task TAKEOFF → submit_command disarmed ArmedAllowlist · `0.6.17` | [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_takeoff_task_b1.md) |
+| **T10** | **`DC/B1-assistant-vehicle-return-home-task`** | **Queued** (after T9 ★) | fifth vehicle Task · RETURN_HOME / RTL · cierra set mando básico | Engineer lock 2026-09-30 |
+| **vehicle later** | FOLLOW · PATROL · `arm()` UX · CHARGE (ops) | **Candidate** | params/target o política Safety · CHARGE ≠ `AutonomyVerb` | pick after T10 |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Parked** | Horizon | DC placement §4 |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |
@@ -158,7 +164,7 @@ Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).
 | # | ★ | Estado | Qué | Gate |
 |---|---|---|---|---|
 | **D1** | **`B1-docs-folder-truth-sync`** | **✅ ACCEPT CLOSED** | Docs @ v0.4.2 · obsolete labeled · rebind hotfix vtx/cameras | [review](../.jes/artifacts/implementation_review_docs_folder_truth_sync_b1.md) |
-| **D2** | **`B1-docs-truth-sync-after-c35`** | **LANDED** (review PASS WITH NOTES; awaiting Engineer spot-check + ★ ACCEPT, no tag yet) | Maps/Connections/native README/USER_GUIDE → live tagged tip; no new C-xxx; package **`0.5.36`** | [review](../.jes/artifacts/implementation_review_docs_truth_sync_after_c35_b1.md) |
+| **D2** | **`B1-docs-truth-sync-after-c35`** | **✅ ★ ACCEPT CLOSED** (no tag `v0.5.36` — superseded by C36 @ `v0.5.37`) | Docs epoch `v0.5.35`; maps/native/guide aligned then | [review](../.jes/artifacts/implementation_review_docs_truth_sync_after_c35_b1.md) |
 
 ### 📋 COLA — Board UI workshop (cerrada · polish deferred)
 
@@ -172,7 +178,7 @@ Parent vision: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md).
 |---|---|---|---|---|
 | — | **`B1-geometry-taller-css-cuboid-faces`** | **✅ ACCEPT CLOSED** @ **`v0.5.34`** — four-front **#3** | Six faces meet on a thin plate; visor, not extra parts | [review](../.jes/artifacts/implementation_review_geometry_taller_css_cuboid_faces_b1.md) · tag **`v0.5.34`** |
 | — | **`B1-geometry-taller-css-cylinder-faces`** | **✅ ACCEPT CLOSED** @ **`v0.5.35`** | Caps + 16 slats meet on Ø×H; visor, not extra parts | [review](../.jes/artifacts/implementation_review_geometry_taller_css_cylinder_faces_b1.md) · tag **`v0.5.35`** |
-| — | **`B1-docs-truth-sync-after-c35`** | **LANDED** (review PASS WITH NOTES; awaiting Engineer spot-check + ★ ACCEPT, no tag yet) | Docs-only: maps/Connections/native README/USER_GUIDE match `v0.5.35`; no new C-xxx | [IC](../.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) · [inventory](../.jes/artifacts/inventory_docs_truth_sync_after_c35_b0.md) · [report](../.jes/artifacts/implementation_report_docs_truth_sync_after_c35_b1.md) · [review](../.jes/artifacts/implementation_review_docs_truth_sync_after_c35_b1.md) |
+| — | **`B1-docs-truth-sync-after-c35`** | **✅ ★ ACCEPT CLOSED** (no `v0.5.36` tag) | Docs-only epoch `v0.5.35` | [IC](../.jes/artifacts/implementation_contract_docs_truth_sync_after_c35_b1.md) · [review](../.jes/artifacts/implementation_review_docs_truth_sync_after_c35_b1.md) |
 | — | **`B1-standoff-cylinder-layout`** | **COLA visor-break** (no ACCEPT; does **not** block the software month) | 8 cilindros landed; **puntos de perímetro a corregir** | [IC](../.jes/artifacts/implementation_contract_geometry_standoff_cylinder_layout_b1.md) |
 | — | **`B1-plate-box`** | **Await bag** | L×W medida/citada | Caliper / cite |
 | — | Path N | **B0 HOLD** | Disk origin | No reabrir |

@@ -1,45 +1,46 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T7 ★ ACCEPT CLOSED @ v0.6.15; T8 GO_TO IC ★ AUTHORIZED → Claude",
-  "scope": "LAND tip closed. GO_TO Task Buy authorized: same seam, AutonomyVerb.GO_TO, empty params, gate B. No Cursor src/ for T8. No new INV.",
+  "cycle_intent": "T8 ★ ACCEPT CLOSED @ v0.6.16; T9 TAKEOFF IC ★ AUTHORIZED → Claude; D2 ★ CLOSED (no v0.5.36 tag)",
+  "scope": "GO_TO tip closed. TAKEOFF Buy authorized (gate B, empty params). D2 administrative close. T10 RETURN_HOME still queued after T9.",
   "execution_status": "authorized",
   "current_mode": "implementation",
   "movement_trigger": {
     "type": "star",
-    "reason": "Engineer ACCEPT T7 + procede siguiente IC (GO_TO)"
+    "reason": "Engineer ACCEPT T8 + close D2 + procede T9 TAKEOFF IC"
   },
   "relevant_workflow_phases": ["Implementation"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_go_to_task_b1.md",
-    ".jes/artifacts/design_contract_assistant_vehicle_go_to_task_b0.md"
+    ".jes/artifacts/implementation_contract_assistant_vehicle_takeoff_task_b1.md",
+    ".jes/artifacts/design_contract_assistant_vehicle_takeoff_task_b0.md"
   ],
   "open_questions": [
-    "Claude implements T8; Cursor reviews on request; Engineer ACCEPT → tag v0.6.16"
+    "Claude implements T9; Cursor reviews; Engineer ACCEPT → tag v0.6.17 → draft T10 RETURN_HOME"
   ],
   "active_operation": {
     "type": "implementation",
-    "contract": "implementation_contract_assistant_vehicle_go_to_task_b1.md",
-    "ids": ["T8", "B1-assistant-vehicle-go-to-task"],
+    "contract": "implementation_contract_assistant_vehicle_takeoff_task_b1.md",
+    "ids": ["T9", "B1-assistant-vehicle-takeoff-task"],
     "blocked_on": "Claude Code implementation + report"
   },
   "closed_this_turn": [
-    "T7 ★ ACCEPT CLOSED + tag v0.6.15",
-    "DC-assistant-vehicle-go-to-task ★ CLOSED",
-    "B1-assistant-vehicle-go-to-task ★ AUTHORIZED"
+    "T8 ★ ACCEPT CLOSED + tag v0.6.16",
+    "D2 ★ ACCEPT CLOSED without tag v0.5.36",
+    "DC-assistant-vehicle-takeoff-task ★ CLOSED",
+    "B1-assistant-vehicle-takeoff-task ★ AUTHORIZED"
+  ],
+  "queued_buys": [
+    {"id": "T10", "kind": "RETURN_HOME", "after": "T9 ACCEPT"}
   ],
   "authority_gates": [
-    "Cursor does not implement T8 src/",
-    "intelligence must not import flight_software",
-    "do not arm ArmedAllowlist on product chat path",
-    "empty params — no coordinate parsing this Buy",
-    "do not edit HOLD/LAND fulfill bodies"
+    "Cursor does not implement T9 src/",
+    "Do not edit HOLD/LAND/GO_TO fulfill bodies",
+    "ArmedAllowlist allow-list still lacks TAKEOFF — gate B disarmed path OK"
   ],
   "coherence_checklist": [
-    "Parent tip v0.6.15",
-    "Target package 0.6.16",
-    "Gate B: ArmedAllowlist disarmed",
-    "Precedence explain > defer > hold > land > go_to"
+    "Parent tip v0.6.16",
+    "Target package 0.6.17",
+    "Gate B held"
   ],
-  "updated_at": "2026-09-30T08:40:00Z"
+  "updated_at": "2026-09-30T08:50:00Z"
 }

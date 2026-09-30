@@ -135,6 +135,25 @@ VEHICLE_LAND_PHRASES: frozenset[str] = frozenset({
     "descend",
     "descender",
 })
+# B1-assistant-vehicle-go-to-task (T8): third vehicle Task kind, same
+# discipline as VEHICLE_HOLD_PHRASES/VEHICLE_LAND_PHRASES above — finite,
+# exact match on the normalized form, entries stored pre-normalized
+# (accented "dirígete"/"dirígete a" normalize onto the accent-free
+# entries already listed here, so no separate accented duplicates are
+# needed). Minimum, deliberately narrow seed (DC/IC lock): "go to",
+# "goto", "go_to", "ve a", "ir a", "dirigete", "dirigete a", "navega",
+# "navigate".
+VEHICLE_GO_TO_PHRASES: frozenset[str] = frozenset({
+    "go to",
+    "goto",
+    "go_to",
+    "ve a",
+    "ir a",
+    "dirigete",
+    "dirigete a",
+    "navega",
+    "navigate",
+})
 # FN-016: navigation-back words, scoped to acquisition wizards only (NOT a
 # global escape — deliberately not merged into ESCAPE_WORDS/checked outside
 # DEFINE_MISSING_PARAMETERS). Values are already accent-normalized; callers
