@@ -48,14 +48,16 @@ def _provider(**overrides):
 def test_t1_load_default_returns_product_seed():
     """C1 shipped this always-empty (H1). T2 (`B1-capability-registry-
     product-fill`) gave the checked-in seed its first honest, non-empty
-    rows — full assertions on that shape live in
-    `tests/test_capability_registry_product_fill_b1.py`; this test only
-    confirms `load_default()` no longer returns the C1-era empty
+    capabilities()/providers() rows — full assertions on that shape live
+    in `tests/test_capability_registry_product_fill_b1.py`. T5
+    (`B1-capability-skills-seed`) later did the same for `skills()` —
+    see `tests/test_capability_skills_seed_b1.py`. This test only
+    confirms `load_default()` no longer returns the C1-era all-empty
     registry, so this file's own history stays accurate."""
     registry = CapabilityRegistry.load_default()
     assert registry.capabilities() != []
     assert registry.providers() != []
-    assert registry.skills() == []
+    assert registry.skills() != []
 
 
 def test_t2_valid_capability_and_provider_are_accepted():
@@ -173,7 +175,7 @@ def test_t10_pyproject_version_is_0_6_10():
     established pattern — was last accurate at 0.5.44 (C1's own tip),
     itself already long stale before this Buy touched the file."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.12"' in text
+    assert 'version = "0.6.13"' in text
 
 
 def test_default_seed_file_is_honestly_software_only():

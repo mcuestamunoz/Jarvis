@@ -45,13 +45,18 @@ def _imported_module_names(source_path: Path) -> set[str]:
     return names
 
 
-def test_t1_load_default_has_exactly_two_available_capabilities_no_skills():
+def test_t1_load_default_has_exactly_two_available_capabilities():
+    """Named `..._no_skills` at T2 time, when `skills()` was still always
+    empty — T5 (`B1-capability-skills-seed`) later fills it with two stub
+    rows (see `tests/test_capability_skills_seed_b1.py`), so that half of
+    this test's original name/assertion no longer holds and was dropped
+    here rather than pinned to a stale claim; this test now scopes to
+    exactly what T2 itself changed (`capabilities()`)."""
     registry = CapabilityRegistry.load_default()
     capability_ids = {c.id for c in registry.capabilities()}
     assert capability_ids == {"ontology.explain", "engineering.continuity"}
     for capability in registry.capabilities():
         assert capability.availability == CapabilityAvailability.AVAILABLE
-    assert registry.skills() == []
 
 
 def test_t2_both_software_providers_exist_and_offer_the_right_capability():
@@ -148,4 +153,4 @@ def test_t6b_assistant_task_and_orchestrator_untouched_by_this_buy():
 
 def test_t7_pyproject_version_is_0_6_10():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.12"' in text
+    assert 'version = "0.6.13"' in text

@@ -88,6 +88,24 @@ this repo's own tests proves the Darwin path via a mocked `fcntl.ioctl`,
 and the one unmocked case (a `pty`, which is not a UART) is asserted to
 fail closed, not skipped for lack of hardware. See
 `jarvis.capabilities.crsf_serial`'s own docstring.
+
+T3 (`B1-assistant-task-registry-coherence`) adds the one edge T2's own
+IC deliberately deferred: `jarvis.intelligence.assistant_task` now
+imports `CapabilityRegistry` and soft-checks (membership only) every
+capability id a Task would require before emitting it — `registry.py`
+itself still never imports `jarvis.intelligence`. T4
+(`B1-assistant-software-safety-bridge`) adds `SoftwareCapabilitySafetyGate`
+(`gate_id="software_capability"`) — the first Assistant→Safety link,
+run immediately after that membership check: `allow` iff every id is
+`available` and bound to a `software`-kind provider. `default_safety_gate()`
+stays `RejectAllSafetyGate`; `ArmedAllowlistSafetyGate` is untouched. T5
+(`B1-capability-skills-seed`) fills the checked-in seed's `skills` array
+— two declared-only, `availability=stub` `SkillRecord` rows
+(`skill.explain_concept`/`skill.project_status`), naming the same two
+capability ids T0/T1's Task classify already requires. `skills()` is no
+longer always-empty, but there is still no Skill execution path
+anywhere in this package — the Assistant does not look these rows up
+before emitting a Task.
 """
 
 from jarvis.capabilities.intent import (

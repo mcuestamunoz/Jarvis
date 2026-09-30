@@ -106,9 +106,15 @@ def test_t5_no_craft_board_edits_and_no_imu_into_step():
     registry = CapabilityRegistry.load_default()
     # T2 (B1-capability-registry-product-fill): capabilities()/providers() are
     # no longer empty (ontology.explain/engineering.continuity, both software-
-    # provided) — see tests/test_capability_registry_product_fill_b1.py for that
-    # shape. Skills stay empty; this file's own isolation proof is unaffected.
-    assert registry.skills() == []
+    # provided) — see tests/test_capability_registry_product_fill_b1.py. T5
+    # (B1-capability-skills-seed): skills() is no longer empty either — two
+    # declared-only stub rows, no execution path — see
+    # tests/test_capability_skills_seed_b1.py for that shape. This file's
+    # own isolation proof is unaffected either way.
+    assert {skill.id for skill in registry.skills()} == {
+        "skill.explain_concept",
+        "skill.project_status",
+    }
 
 
 def test_cited_who_am_i_constants_present_and_documented():

@@ -63,8 +63,13 @@ class ProviderRecord(BaseModel):
 
 
 class SkillRecord(BaseModel):
-    """Optional in C1 — the registry ships this schema without any
-    instances of it by default (see `CapabilityRegistry.load_default`)."""
+    """Schema-only in C1 — the registry shipped it without any instances
+    by default. T5 (`B1-capability-skills-seed`) gave `CapabilityRegistry.
+    load_default()` its first two instances, `skill.explain_concept`/
+    `skill.project_status`, both `availability=stub` (declared catalog
+    rows only — still no Skill execution path anywhere in this package;
+    the Assistant Task seam in `jarvis.intelligence.assistant_task` never
+    looks these up before emitting a Task)."""
 
     model_config = ConfigDict(extra="forbid")
 

@@ -1,5 +1,7 @@
 """Fase C · C1 — Capability Registry stub (`B1-fase-c-capability-registry-scaffold`),
-extended by T2 (`B1-capability-registry-product-fill`).
+extended by T2 (`B1-capability-registry-product-fill`), T3
+(`B1-assistant-task-registry-coherence`), and T5
+(`B1-capability-skills-seed`).
 
 Pure in-memory (or checked-in-JSON-seeded) catalog with a query-only API:
 list / get-by-id / "who offers capability X?". No network discovery, no
@@ -13,11 +15,23 @@ at `.jes/artifacts/implementation_report_fase_c_capability_registry_scaffold_b1.
 first honest, non-empty product rows: the two capability strings
 Assistant Tasks already require (`ontology.explain`,
 `engineering.continuity`, both `available`) plus one `software` provider
-each. This is still not a runtime router — `assistant_task.py` does not
-look up this registry before emitting a `Task` (T2 IC §0 row 7; that
-finite Task string set stays authoritative for classify on its own), and
-no dispatcher/execute/actuate method was added anywhere in this class.
-See `.jes/artifacts/implementation_report_capability_registry_product_fill_b1.md`.
+each. No dispatcher/execute/actuate method was added anywhere in this
+class. See `.jes/artifacts/implementation_report_capability_registry_product_fill_b1.md`.
+
+**T3** adds the one edge T2 had deliberately deferred: `assistant_task.py`
+now imports this module and soft-checks (`get_capability(id) is not
+None`, membership only) every capability id a Task would require, before
+emitting it. `registry.py` itself still never imports `jarvis.intelligence`
+— the edge is one-way. See `.jes/artifacts/implementation_report_assistant_task_registry_coherence_b1.md`.
+
+**T5** fills the checked-in seed's `skills` array too — two declared-only
+`SkillRecord` rows (`skill.explain_concept`/`skill.project_status`, both
+`availability=stub`), each referencing the same capability ids T0/T1's
+Assistant Task classify already requires. Still zero Skill execution
+path: no `run_skill`, and the Assistant does not look these rows up
+before emitting a Task — the finite Task-kind classify in
+`assistant_task.py` stays authoritative on its own, unaffected by this
+seed's shape. See `.jes/artifacts/implementation_report_capability_skills_seed_b1.md`.
 """
 
 from __future__ import annotations

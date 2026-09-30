@@ -31,5 +31,18 @@
             "health": "unknown"
         }
     ],
-    "skills": []
+    "skills": [
+        {
+            "id": "skill.explain_concept",
+            "version": "0.6.13",
+            "required_capability_ids": ["ontology.explain"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.project_status",
+            "version": "0.6.13",
+            "required_capability_ids": ["engineering.continuity"],
+            "availability": "stub"
+        }
+    ]
 }

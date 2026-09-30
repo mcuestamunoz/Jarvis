@@ -1,39 +1,45 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T4 ★ ACCEPT CLOSED @ v0.6.12; await Engineer next Buy choice",
-  "scope": "Software Safety bridge ACCEPTed. Review format lock: explain what landed + where it leaves the path. Out: auto-open next IC until Engineer picks.",
-  "execution_status": "awaiting_approval",
-  "current_mode": "close",
+  "cycle_intent": "T5 ★ ACCEPT CLOSED @ v0.6.13; T6 HOLD IC ★ AUTHORIZED → Claude",
+  "scope": "Skills seed tip closed. HOLD Task Buy authorized: classify + orchestrator submit_command via disarmed ArmedAllowlist (gate B). Cursor: no src/ for T6.",
+  "execution_status": "authorized",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "star",
-    "reason": "Engineer ACCEPT T4; wants situational reviews for path decisions"
+    "reason": "Engineer ACCEPT T5 + procede IC HOLD"
   },
-  "relevant_workflow_phases": ["Close"],
+  "relevant_workflow_phases": ["Implementation"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_software_safety_bridge_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_vehicle_hold_task_b1.md",
+    ".jes/artifacts/design_contract_assistant_vehicle_hold_task_b0.md"
   ],
   "open_questions": [
-    "Engineer next Buy: vehicle Task DC · Skills seed · R4 · park · other?"
+    "Claude implements T6; Cursor reviews on request; Engineer ACCEPT → tag v0.6.14"
   ],
   "active_operation": {
-    "type": "await_engineer_front",
-    "contract": null,
-    "ids": ["T4"],
-    "blocked_on": "Engineer names next intelligence / platform front"
+    "type": "implementation",
+    "contract": "implementation_contract_assistant_vehicle_hold_task_b1.md",
+    "ids": ["T6", "B1-assistant-vehicle-hold-task"],
+    "blocked_on": "Claude Code implementation + report"
   },
   "closed_this_turn": [
-    "T4 ★ ACCEPT CLOSED + tag v0.6.12",
-    "Review format lock: what/where/how-it-adds for future reviews"
+    "T5 ★ ACCEPT CLOSED + tag v0.6.13",
+    "T6-inv ★ ACCEPT CLOSED",
+    "DC-assistant-vehicle-hold-task ★ CLOSED",
+    "B1-assistant-vehicle-hold-task ★ AUTHORIZED"
   ],
   "authority_gates": [
-    "No next IC until Engineer picks front",
-    "IC-to-Claude paste = AUTHORIZED when drafted for paste"
+    "Cursor does not implement T6 src/",
+    "intelligence must not import flight_software",
+    "do not arm ArmedAllowlist on product chat path",
+    "default_safety_gate stays RejectAll"
   ],
   "coherence_checklist": [
-    "Vision §10 software Safety link closed",
-    "Vehicle still separate",
-    "default_safety_gate RejectAll held"
+    "Parent tip v0.6.13",
+    "Target package 0.6.14",
+    "Gate B: ArmedAllowlist disarmed",
+    "Precedence explain > defer > hold"
   ],
-  "updated_at": "2026-09-30T07:15:00Z"
+  "updated_at": "2026-09-30T08:00:00Z"
 }
