@@ -6,8 +6,9 @@
 **Implementer:** **Claude Code** — only after Engineer ★  
 **Reviewer:** Cursor against this IC · Engineer ACCEPT → tag **`v0.6.11`**
 
-**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review PASS; package/tag **`0.6.11` / `v0.6.11`**.
-
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review PASS; package/tag **`0.6.11` / `v0.6.11`**.  
+**Parents:**
+- T2 [`B1-capability-registry-product-fill`](implementation_contract_capability_registry_product_fill_b1.md) — ★ **ACCEPT CLOSED** @ **`v0.6.10`** (Engineer smoke OK)
 - [`design_contract_capability_registry_product_fill_b0.md`](design_contract_capability_registry_product_fill_b0.md) §0 row 7 — explicitly deferred “soft id known in registry check” to a later IC
 - T0 / T1 ★ CLOSED — `assistant_task` emits Tasks with finite capability strings; classify stays authoritative for *kind*, registry only gates *known id*
 - Package parent: **`v0.6.10` / `0.6.10`**
