@@ -22,7 +22,7 @@
 | 7 | Safety: fresh **`ArmedAllowlistSafetyGate()` left disarmed** (gate **B**) · `default_safety_gate()` untouched · do not `arm()` |
 | 8 | Fulfill in orchestrator: `propose_command(GO_TO, …)` + `submit_command` · honest Spanish message · never claim navigated/executed |
 | 9 | **Params this Buy:** `params={}` (empty). **No** coordinate / waypoint parsing from chat. (Sim executor needs `x_m`/`y_m` only if a later Buy arms + ticks — out of scope here; disarmed path never executes) |
-| 10 | Out: `arm()` UX · voice · sim executor tick from chat · copper · shared multi-verb framework · TAKEOFF/FOLLOW/… |
-| 11 | Next code: IC **`B1-assistant-vehicle-go-to-task`** (T8) → package **`0.6.16`** |
+| 10 | Out: `arm()` UX · voice · sim executor tick from chat · copper · shared multi-verb framework · FOLLOW/PATROL/CHARGE · **TAKEOFF / RETURN_HOME** (queued as **T9 / T10** after this Buy — Engineer lock 2026-09-30; not this DC) |
+| 11 | Next code: IC **`B1-assistant-vehicle-go-to-task`** (T8) → package **`0.6.16`**; then T9 TAKEOFF → T10 RETURN_HOME |
 
 **Product sentence:** chat GO_TO phrase → Task(request_go_to) → core submits GO_TO through disarmed ArmedAllowlist → honest reject; never executed.
