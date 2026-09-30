@@ -1,40 +1,42 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T10 ★ ACCEPT CLOSED @ v0.6.18; basic mando set CLOSED. Await Engineer ★ pick next vehicle Buy.",
-  "scope": "RETURN_HOME tip closed. No next IC AUTHORIZED. Candidates: arm() UX · FOLLOW · PATROL · CHARGE.",
-  "execution_status": "idle",
-  "current_mode": "await_engineer",
+  "cycle_intent": "T10 ★ ACCEPT CLOSED @ v0.6.18; T11 arm UX IC ★ AUTHORIZED → Claude",
+  "scope": "Basic mando closed. Next Buy is Safety policy latch (shared ArmedAllowlist), not a sixth verb. Cursor IC only — Claude implements.",
+  "execution_status": "authorized",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "star",
-    "reason": "Engineer ACCEPT T10 + push to main (2026-09-30)"
+    "reason": "Engineer ACCEPT T10 + procede redactar siguiente IC (arm UX)"
   },
-  "relevant_workflow_phases": ["Close"],
+  "relevant_workflow_phases": ["Implementation"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_vehicle_return_home_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_return_home_task_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_vehicle_arm_ux_b1.md",
+    ".jes/artifacts/design_contract_assistant_vehicle_arm_ux_b0.md"
   ],
   "open_questions": [
-    "Next ★ pick: arm() UX · FOLLOW · PATROL · CHARGE · park?"
+    "Claude implements T11; Cursor reviews; Engineer ACCEPT → tag v0.6.19"
   ],
   "active_operation": {
-    "type": "await_engineer_pick",
-    "ids": [],
-    "blocked_on": "Engineer ★ pick next vehicle / Assistant Buy"
+    "type": "implementation",
+    "contract": "implementation_contract_assistant_vehicle_arm_ux_b1.md",
+    "ids": ["T11", "B1-assistant-vehicle-arm-ux"],
+    "blocked_on": "Claude Code implementation + report"
   },
   "closed_this_turn": [
-    "T10 ★ ACCEPT CLOSED + tag v0.6.18",
-    "Basic mando set CLOSED (TAKEOFF HOLD GO_TO RETURN_HOME LAND)"
+    "DC-assistant-vehicle-arm-ux ★ CLOSED",
+    "B1-assistant-vehicle-arm-ux ★ AUTHORIZED"
   ],
   "authority_gates": [
-    "No next IC without Engineer ★",
-    "Do not widen ArmedAllowlist allow-list without explicit Buy",
-    "Silicon parked until bench"
+    "Cursor does not implement T11 src/",
+    "Do not widen ArmedAllowlist allow-list this Buy",
+    "Shared process-scoped gate — not fresh per call",
+    "ARM is not an AutonomyVerb / not ESC arm"
   ],
   "coherence_checklist": [
-    "Tip v0.6.18 on main",
-    "Basic mando in chat: TAKEOFF HOLD GO_TO RETURN_HOME LAND",
-    "Allow-list still HOLD/LAND/GO_TO only"
+    "Parent tip v0.6.18",
+    "Target package 0.6.19",
+    "After ARM: HOLD/LAND/GO_TO → allow/not_implemented; TAKEOFF/RH → verb_not_allowed"
   ],
-  "updated_at": "2026-09-30T11:40:00Z"
+  "updated_at": "2026-09-30T11:50:00Z"
 }
