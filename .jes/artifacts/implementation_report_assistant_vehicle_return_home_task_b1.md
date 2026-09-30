@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (partial) + **Cursor** (completion — Engineer: Claude limit; “revisa qué hizo y sigue”)  
 **Contract:** [`implementation_contract_assistant_vehicle_return_home_task_b1.md`](implementation_contract_assistant_vehicle_return_home_task_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_vehicle_return_home_task_b0.md) · T9 ★ ACCEPT CLOSED @ **`v0.6.17`**  
-**Status:** Delivered for Cursor review → Engineer ACCEPT. **No ACCEPT claimed.**  
-**Package:** `0.6.18`. **No tag.**
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review PASS WITH NOTES.  
+**Package:** `0.6.18`. **Tag:** `v0.6.18`.
 
 ---
 

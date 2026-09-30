@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.6.0 tagged tip** · ontology explain branch CLOSED (spine 1–5 + ONT-docs) · Assistant next **`0.6.1+`** · bloque 0.5 historical @ `v0.5.44`
+**v0.6.18 tagged tip** · Assistant basic mando CLOSED (TAKEOFF · HOLD · GO_TO · RETURN_HOME · LAND) · ontology explain @ `v0.6.0` · bloque 0.5 historical @ `v0.5.44`
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 

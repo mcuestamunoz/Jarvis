@@ -6,17 +6,17 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T10** vehicle RETURN_HOME — Cursor review **PASS WITH NOTES** (dual-executor re-audit). Awaiting Engineer ★ ACCEPT → tag **`v0.6.18`**. Basic mando set complete in code.  
-> **Cola vehicle:** after ★ → candidates `arm()` · FOLLOW · PATROL · CHARGE.  
+> **PRIORIDAD AHORA:** **T10** vehicle RETURN_HOME — **★ ACCEPT CLOSED** @ tip **`v0.6.18`**. Basic mando set CLOSED (TAKEOFF · HOLD · GO_TO · RETURN_HOME · LAND).  
+> **Cola vehicle:** await Engineer ★ pick — candidates `arm()` · FOLLOW · PATROL · CHARGE. No IC AUTHORIZED.  
 > **Background:** Silicon parked. Continuity stays in `core/`.  
-> SoT: [review](../.jes/artifacts/implementation_review_assistant_vehicle_return_home_task_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_vehicle_return_home_task_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_return_home_task_b1.md).  
+> SoT: [review ★](../.jes/artifacts/implementation_review_assistant_vehicle_return_home_task_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_vehicle_return_home_task_b1.md) · [IC ★](../.jes/artifacts/implementation_contract_assistant_vehicle_return_home_task_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · package **`0.6.18`** · A0–A8 + T0–T9 CLOSED · T10 review PASS WITH NOTES · await ACCEPT)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.18`** · A0–A8 + T0–T10 CLOSED · basic mando CLOSED · await Engineer pick)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -43,8 +43,8 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T9** | **`DC-assistant-vehicle-takeoff-task`** | **✅ ★ CLOSED** | fourth vehicle Task kind TAKEOFF | [DC](../.jes/artifacts/design_contract_assistant_vehicle_takeoff_task_b0.md) |
 | **T9** | **`B1-assistant-vehicle-takeoff-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.17`** | Task TAKEOFF → submit_command disarmed ArmedAllowlist | [review](../.jes/artifacts/implementation_review_assistant_vehicle_takeoff_task_b1.md) |
 | **T10** | **`DC-assistant-vehicle-return-home-task`** | **✅ ★ CLOSED** | fifth vehicle Task · RETURN_HOME / RTL · cierra set mando | [DC](../.jes/artifacts/design_contract_assistant_vehicle_return_home_task_b0.md) |
-| **T10** | **`B1-assistant-vehicle-return-home-task`** | **Review PASS WITH NOTES** · await ★ ACCEPT (tag `v0.6.18`) | Task RETURN_HOME → submit_command disarmed ArmedAllowlist · closes basic mando | [review](../.jes/artifacts/implementation_review_assistant_vehicle_return_home_task_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_vehicle_return_home_task_b1.md) |
-| **vehicle later** | FOLLOW · PATROL · `arm()` UX · CHARGE (ops) | **Candidate** | params/target o política Safety · CHARGE ≠ `AutonomyVerb` | pick after T10 |
+| **T10** | **`B1-assistant-vehicle-return-home-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.18`** | Task RETURN_HOME → submit_command disarmed ArmedAllowlist · closes basic mando | [review](../.jes/artifacts/implementation_review_assistant_vehicle_return_home_task_b1.md) |
+| **vehicle later** | FOLLOW · PATROL · `arm()` UX · CHARGE (ops) | **Candidate** | params/target o política Safety · CHARGE ≠ `AutonomyVerb` | await Engineer ★ pick |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Parked** | Horizon | DC placement §4 |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |

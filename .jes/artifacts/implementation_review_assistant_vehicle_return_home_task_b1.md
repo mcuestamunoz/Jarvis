@@ -3,7 +3,7 @@
 **Date:** 2026-09-30  
 **Reviewer:** Cursor (second pass — Engineer: *review a conciencia; dos ejecutores del mismo IC*)  
 **Against:** [IC](implementation_contract_assistant_vehicle_return_home_task_b1.md) · [report](implementation_report_assistant_vehicle_return_home_task_b1.md) · [DC ★](design_contract_assistant_vehicle_return_home_task_b0.md)  
-**Verdict:** **PASS WITH NOTES** — code ready for Engineer ★ ACCEPT → tag **`v0.6.18`**. Notes are process + docs/test hardening fixed in this review pass; no IC behavioral FAIL.
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.18` / `v0.6.18`**. Notes were process + docs/test hardening fixed in the review pass; no IC behavioral FAIL.
 
 **Process note (why this review exists):** Claude hit limit mid-Buy. Cursor finished orchestrator/tests/docs. A first review claimed bare PASS in the same Cursor session that finished the Cursor half — that is **not** review of record. This pass re-audits the whole tip against IC, with explicit dual-executor seam checks.
 
@@ -113,7 +113,7 @@ Cierra el set de mando Vision en el Tasker. No abre `arm()`, no ensancha allow-l
 ## 7. Next
 
 ```text
-DONE — review PASS WITH NOTES (T10) — code/docs/tests aligned
-Awaiting Engineer ★ ACCEPT → tag v0.6.18
-No ACCEPT claimed by Cursor.
+★ ACCEPT CLOSED @ v0.6.18 (Engineer 2026-09-30)
+Basic mando set CLOSED
+Await Engineer ★ pick: arm() UX · FOLLOW · PATROL · CHARGE
 ```

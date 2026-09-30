@@ -6,15 +6,15 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.18`**
 
-**Status:** ★ **AUTHORIZED** (Engineer 2026-09-30 — ACCEPT T9 + redacta IC siguiente)  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review PASS WITH NOTES; package/tag **`0.6.18` / `v0.6.18`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_assistant_vehicle_return_home_task_b0.md)
 - T9 [`B1-assistant-vehicle-takeoff-task`](implementation_review_assistant_vehicle_takeoff_task_b1.md) — ★ ACCEPT CLOSED @ **`v0.6.17`**
 - Engineer cola T10 · HOLD INV ★ — no new INV
 
 **Type:** Fifth vehicle Assistant Task — RETURN_HOME / RTL phrase → Task → orchestrator fulfill via disarmed ArmedAllowlist. Closes basic mando set.  
-**Opens:** **`0.6.18` / `v0.6.18`** on ACCEPT.  
-**Cola:** **T10**
+**Opens:** **`0.6.18` / `v0.6.18`** — **CLOSED**.  
+**Cola:** **T10** — **CLOSED**
 
 **Not:** `arm()` · allow-list widen · home/GPS parse · SoftwareCapabilitySafetyGate for flight · intelligence→FS import · voice · copper · edit HOLD/LAND/GO_TO/TAKEOFF fulfill bodies · FOLLOW/PATROL/CHARGE · generic verb framework.
 
