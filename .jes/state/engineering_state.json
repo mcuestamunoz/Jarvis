@@ -1,39 +1,43 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T11 arm UX ★ ACCEPT CLOSED @ v0.6.19; await Engineer pick for next vehicle Buy",
-  "scope": "Shared chat ArmedAllowlist latch + ARM/DISARM Tasks closed. Allow-list unwidened. Basic mando + arm UX tip.",
-  "execution_status": "idle",
-  "current_mode": "idle",
+  "cycle_intent": "T12 FOLLOW IC ★ AUTHORIZED for Claude after T11 close; await implementation",
+  "scope": "Sixth vehicle Task kind request_follow → flight.follow via shared ArmedAllowlist. Allow-list unwidened. No person-target parse.",
+  "execution_status": "awaiting_implementation",
+  "current_mode": "implement",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: Revisa y si es todo correcto accept con tag y commit"
+    "reason": "Engineer: Redacta ic (next after T11 ★)"
   },
-  "relevant_workflow_phases": ["Close"],
+  "relevant_workflow_phases": ["Implement", "Review", "Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_vehicle_arm_ux_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_vehicle_follow_task_b1.md",
+    ".jes/artifacts/implementation_report_assistant_vehicle_follow_task_b1.md"
   ],
   "open_questions": [
-    "Next after T11 ★: FOLLOW · PATROL · allow-list widen · CHARGE?"
+    "Claude implements T12?",
+    "After T12 ★: PATROL · allow-list widen · CHARGE?"
   ],
   "active_operation": {
-    "type": "none",
-    "contract": null,
-    "ids": [],
-    "blocked_on": "Engineer ★ pick next Buy"
+    "type": "authorized_implementation",
+    "contract": "implementation_contract_assistant_vehicle_follow_task_b1.md",
+    "ids": ["T12", "B1-assistant-vehicle-follow-task"],
+    "blocked_on": "Claude Code implementation"
   },
   "closed_this_turn": [
-    "T11 B1-assistant-vehicle-arm-ux ★ ACCEPT CLOSED @ v0.6.19"
+    "DC-assistant-vehicle-follow-task ★ CLOSED",
+    "IC B1-assistant-vehicle-follow-task ★ AUTHORIZED @ 0.6.20"
   ],
   "authority_gates": [
-    "No allow-list widen without explicit Buy",
-    "No ESC/motors/flight claims from chat arm latch",
-    "FOLLOW/PATROL/CHARGE require new IC"
+    "Cursor IC/docs only — Claude implements src/",
+    "No allow-list widen in T12",
+    "No person/target parse; params={}",
+    "Use shared T11 gate — not fresh ArmedAllowlist"
   ],
   "coherence_checklist": [
-    "Shared gate retargeted on five vehicle fulfills",
-    "ARM uses T4 software Safety path",
-    "Tag v0.6.19"
+    "AutonomyVerb.FOLLOW already exists (C4)",
+    "Precedence after RETURN_HOME",
+    "Package target 0.6.20"
   ],
-  "updated_at": "2026-09-30T12:00:00Z"
+  "updated_at": "2026-09-30T12:05:00Z"
 }
