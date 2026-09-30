@@ -5,8 +5,8 @@
 **Implementer:** Cursor (Engineer: “implementa tú”)  
 **Contract:** [`implementation_contract_assistant_vehicle_arm_ux_b1.md`](implementation_contract_assistant_vehicle_arm_ux_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_vehicle_arm_ux_b0.md) · T10 ★ ACCEPT CLOSED @ **`v0.6.18`**  
-**Status:** Delivered for review → Engineer ACCEPT. **No ACCEPT claimed.**  
-**Package:** `0.6.19`. **No tag.**
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review PASS WITH NOTES.  
+**Package / tag:** `0.6.19` / **`v0.6.19`**.
 
 ---
 
@@ -63,5 +63,4 @@ pytest tests/test_assistant_*.py \
 
 ## 4. Remaining
 
-- Independent Cursor review of record (same-session implementer PASS is not review of record).
-- Engineer ★ ACCEPT → tag `v0.6.19`.
+None for this Buy. Next candidates: FOLLOW · PATROL · allow-list widen · CHARGE.

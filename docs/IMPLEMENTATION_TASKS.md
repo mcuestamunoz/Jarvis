@@ -6,17 +6,16 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T11** vehicle Safety **arm UX** — implemented (Cursor, Engineer “implementa tú”); await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.19`**. Parent tip **`v0.6.18`**.  
-> **Cola vehicle after T11 ★:** candidates FOLLOW · PATROL · allow-list widen · CHARGE · copper.  
+> **PRIORIDAD AHORA:** **T11** vehicle Safety **arm UX** ★ **ACCEPT CLOSED** @ **`v0.6.19`**. Await Engineer ★ pick next: FOLLOW · PATROL · allow-list widen · CHARGE · copper.  
 > **Background:** Silicon parked. Continuity stays in `core/`.  
-> SoT: [report](../.jes/artifacts/implementation_report_assistant_vehicle_arm_ux_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_arm_ux_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_vehicle_arm_ux_b0.md).  
+> SoT: [review](../.jes/artifacts/implementation_review_assistant_vehicle_arm_ux_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_vehicle_arm_ux_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_arm_ux_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_vehicle_arm_ux_b0.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · package **`0.6.19`** · A0–A8 + T0–T10 CLOSED · T11 implemented · await review/ACCEPT)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.19`** · A0–A8 + T0–T11 ★ CLOSED)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -45,8 +44,8 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T10** | **`DC-assistant-vehicle-return-home-task`** | **✅ ★ CLOSED** | fifth vehicle Task · RETURN_HOME / RTL · cierra set mando | [DC](../.jes/artifacts/design_contract_assistant_vehicle_return_home_task_b0.md) |
 | **T10** | **`B1-assistant-vehicle-return-home-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.18`** | Task RETURN_HOME → submit_command disarmed ArmedAllowlist · closes basic mando | [review](../.jes/artifacts/implementation_review_assistant_vehicle_return_home_task_b1.md) |
 | **T11** | **`DC-assistant-vehicle-arm-ux`** | **✅ ★ CLOSED** | Safety policy latch arm/disarm (not a verb) | [DC](../.jes/artifacts/design_contract_assistant_vehicle_arm_ux_b0.md) |
-| **T11** | **`B1-assistant-vehicle-arm-ux`** | **Implemented** · await review/★ ACCEPT (tag `v0.6.19`) | Shared chat ArmedAllowlist · retarget five vehicle fulfills | [report](../.jes/artifacts/implementation_report_assistant_vehicle_arm_ux_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_arm_ux_b1.md) |
-| **vehicle later** | FOLLOW · PATROL · allow-list widen · CHARGE (ops) | **Candidate** | params/target o política Safety · CHARGE ≠ `AutonomyVerb` | pick after T11 |
+| **T11** | **`B1-assistant-vehicle-arm-ux`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.19`** | Shared chat ArmedAllowlist · retarget five vehicle fulfills | [review](../.jes/artifacts/implementation_review_assistant_vehicle_arm_ux_b1.md) |
+| **vehicle later** | FOLLOW · PATROL · allow-list widen · CHARGE (ops) | **Candidate** | params/target o política Safety · CHARGE ≠ `AutonomyVerb` | pick after T11 ★ |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Parked** | Horizon | DC placement §4 |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |

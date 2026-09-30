@@ -1,42 +1,39 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T11 arm UX implemented by Cursor (Engineer implementa tú); await review → ★ ACCEPT → tag v0.6.19",
-  "scope": "Shared chat ArmedAllowlist latch + ARM/DISARM Tasks + retarget five vehicle fulfills. Allow-list unwidened. No ACCEPT claim.",
-  "execution_status": "awaiting_approval",
-  "current_mode": "review",
+  "cycle_intent": "T11 arm UX ★ ACCEPT CLOSED @ v0.6.19; await Engineer pick for next vehicle Buy",
+  "scope": "Shared chat ArmedAllowlist latch + ARM/DISARM Tasks closed. Allow-list unwidened. Basic mando + arm UX tip.",
+  "execution_status": "idle",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: implementa tú (Cursor implements T11)"
+    "reason": "Engineer: Revisa y si es todo correcto accept con tag y commit"
   },
-  "relevant_workflow_phases": ["Review", "Close"],
+  "relevant_workflow_phases": ["Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_report_assistant_vehicle_arm_ux_b1.md",
     ".jes/artifacts/implementation_review_assistant_vehicle_arm_ux_b1.md"
   ],
   "open_questions": [
-    "Independent Cursor review of record?",
-    "★ ACCEPT T11 + tag v0.6.19?",
-    "Next after ACCEPT: FOLLOW · PATROL · allow-list widen · CHARGE?"
+    "Next after T11 ★: FOLLOW · PATROL · allow-list widen · CHARGE?"
   ],
   "active_operation": {
-    "type": "await_review_and_accept",
-    "contract": "implementation_contract_assistant_vehicle_arm_ux_b1.md",
-    "ids": ["T11", "B1-assistant-vehicle-arm-ux"],
-    "blocked_on": "review of record + Engineer ★ ACCEPT → tag v0.6.19"
+    "type": "none",
+    "contract": null,
+    "ids": [],
+    "blocked_on": "Engineer ★ pick next Buy"
   },
   "closed_this_turn": [
-    "T11 implementation landed (config/classify/orchestrator/registry/tests/docs)"
+    "T11 B1-assistant-vehicle-arm-ux ★ ACCEPT CLOSED @ v0.6.19"
   ],
   "authority_gates": [
-    "Same-session Cursor implementer PASS is not review of record",
-    "No ACCEPT/tag by Cursor without Engineer ★",
-    "Allow-list still HOLD/LAND/GO_TO only"
+    "No allow-list widen without explicit Buy",
+    "No ESC/motors/flight claims from chat arm latch",
+    "FOLLOW/PATROL/CHARGE require new IC"
   ],
   "coherence_checklist": [
     "Shared gate retargeted on five vehicle fulfills",
     "ARM uses T4 software Safety path",
-    "Package 0.6.19"
+    "Tag v0.6.19"
   ],
   "updated_at": "2026-09-30T12:00:00Z"
 }

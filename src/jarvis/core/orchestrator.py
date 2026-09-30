@@ -536,15 +536,11 @@ class JarvisOrchestrator:
         # phrases (jarvis.config.VEHICLE_LAND_PHRASES) classifies to
         # Task(request_land) requiring flight.land — the second vehicle Task
         # kind, same seam as T6's HOLD. Precedence: explain → Continuity
-        # defer → HOLD → LAND → fallthrough (all three branches above already
-        # returned for an explain-, Continuity-, or HOLD-shaped line, and
-        # try_request_land_task's own internal guards refuse all three
-        # shapes too, so this is unreachable for any of them either way).
-        # Fulfilled here, never inside jarvis.intelligence — _handle_vehicle_land
-        # proposes+submits the command through the existing C4 autonomy
-        # surface with a fresh, never-armed ArmedAllowlistSafetyGate (DC §0
-        # row 7); the honest reject this produces is surfaced verbatim,
-        # never a claim of executed/landed flight.
+        # defer → ARM → DISARM → HOLD → LAND → fallthrough (branches above
+        # already returned for ahead-of-it shapes, and try_request_land_task
+        # guards refuse them too). Fulfilled here via the shared chat
+        # ArmedAllowlist (T11) — honest reject/allow only, never a claim
+        # of executed/landed flight.
         from jarvis.intelligence.assistant_task import try_request_land_task
 
         land_intent = TerminalIntentAdapter.parse(stripped)
@@ -556,17 +552,10 @@ class JarvisOrchestrator:
         # GO_TO phrases (jarvis.config.VEHICLE_GO_TO_PHRASES) classifies to
         # Task(request_go_to) requiring flight.go_to — the third vehicle Task
         # kind, same seam as T6's HOLD/T7's LAND. Precedence: explain →
-        # Continuity defer → HOLD → LAND → GO_TO → fallthrough (all four
-        # branches above already returned for an explain-, Continuity-,
-        # HOLD-, or LAND-shaped line, and try_request_go_to_task's own
-        # internal guards refuse all four shapes too, so this is
-        # unreachable for any of them either way). Fulfilled here, never
-        # inside jarvis.intelligence — _handle_vehicle_go_to proposes+
-        # submits the command (empty params — no coordinate/waypoint
-        # parsing this Buy, DC §0 row 9) through the existing C4 autonomy
-        # surface with a fresh, never-armed ArmedAllowlistSafetyGate; the
-        # honest reject this produces is surfaced verbatim, never a claim
-        # of navigated/executed/arrived flight.
+        # Continuity defer → ARM → DISARM → HOLD → LAND → GO_TO →
+        # fallthrough. Fulfilled here via the shared chat ArmedAllowlist
+        # (T11); empty params (no coordinate/waypoint parsing). Honest
+        # reject/allow only — never a claim of navigated/arrived flight.
         from jarvis.intelligence.assistant_task import try_request_go_to_task
 
         go_to_intent = TerminalIntentAdapter.parse(stripped)
@@ -578,17 +567,10 @@ class JarvisOrchestrator:
         # TAKEOFF phrases (jarvis.config.VEHICLE_TAKEOFF_PHRASES) classifies
         # to Task(request_takeoff) requiring flight.takeoff — the fourth
         # vehicle Task kind, same seam as T6/T7/T8. Precedence: explain →
-        # Continuity defer → HOLD → LAND → GO_TO → TAKEOFF → fallthrough
-        # (all five branches above already returned for an explain-,
-        # Continuity-, HOLD-, LAND-, or GO_TO-shaped line, and
-        # try_request_takeoff_task's own internal guards refuse all five
-        # shapes too, so this is unreachable for any of them either way).
-        # Fulfilled here, never inside jarvis.intelligence —
-        # _handle_vehicle_takeoff proposes+submits the command (empty
-        # params — no altitude parsing this Buy, DC §0 row 9) through the
-        # existing C4 autonomy surface with a fresh, never-armed
-        # ArmedAllowlistSafetyGate; the honest reject this produces is
-        # surfaced verbatim, never a claim of airborne/executed flight.
+        # Continuity defer → ARM → DISARM → HOLD → LAND → GO_TO → TAKEOFF
+        # → fallthrough. Fulfilled here via the shared chat ArmedAllowlist
+        # (T11); empty params (no altitude parsing). Allow-list still
+        # excludes TAKEOFF → verb_not_allowed when armed. Honest UX only.
         from jarvis.intelligence.assistant_task import try_request_takeoff_task
 
         takeoff_intent = TerminalIntentAdapter.parse(stripped)
@@ -602,7 +584,7 @@ class JarvisOrchestrator:
         # kind, closes basic mando set. Precedence: … → TAKEOFF → RETURN_HOME
         # → fallthrough. Exact match only (short words like casa/home/volver
         # must not steal "volver al board"). Fulfilled here with empty params
-        # + fresh never-armed ArmedAllowlistSafetyGate; allow-list not widened.
+        # via the shared chat ArmedAllowlist (T11); allow-list not widened.
         from jarvis.intelligence.assistant_task import try_request_return_home_task
 
         return_home_intent = TerminalIntentAdapter.parse(stripped)

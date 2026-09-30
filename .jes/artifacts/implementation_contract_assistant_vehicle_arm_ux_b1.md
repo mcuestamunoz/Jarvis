@@ -6,15 +6,15 @@
 **Implementer:** **Cursor** (Engineer 2026-09-30: “implementa tú”)  
 **Reviewer:** Cursor independent pass on request · Engineer ACCEPT → tag **`v0.6.19`**
 
-**Status:** **Implemented** — await review / Engineer ★ ACCEPT → tag **`v0.6.19`**.  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review PASS WITH NOTES; package/tag **`0.6.19` / `v0.6.19`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_assistant_vehicle_arm_ux_b0.md)
 - T10 [`B1-assistant-vehicle-return-home-task`](implementation_review_assistant_vehicle_return_home_task_b1.md) — ★ ACCEPT CLOSED @ **`v0.6.18`**
-- HOLD INV ★ — gate **B**; “who arms” now this Buy · **no new INV**
+- HOLD INV ★ — gate **B**; “who arms” closed by this Buy · **no new INV**
 
 **Type:** Safety-policy Assistant Tasks (arm/disarm) + shared chat `ArmedAllowlistSafetyGate` consumed by existing vehicle fulfills.  
-**Opens:** **`0.6.19` / `v0.6.19`** on ACCEPT.  
-**Cola:** **T11**
+**Closed at:** **`0.6.19` / `v0.6.19`**.  
+**Cola:** **T11** ★
 
 **Not:** allow-list widen · FOLLOW/PATROL/CHARGE · AutonomyVerb for arm · ESC/`SimulatedEscSink.arm()` · sim executor tick from chat · voice · copper · edit vehicle phrase tables · claim flight when `allow`
 
@@ -80,10 +80,10 @@ Bump stale `0.6.18` checkpoints this Buy owns.
 
 ## 3. Acceptance
 
-- [ ] ARM/DISARM classify + T4 software Safety + fulfill latch  
-- [ ] Shared gate retargeted on five vehicle fulfills · allow-list unwidened  
-- [ ] Honest UX · cascade · T1–T10 · docs · `0.6.19`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.19`**
+- [x] ARM/DISARM classify + T4 software Safety + fulfill latch  
+- [x] Shared gate retargeted on five vehicle fulfills · allow-list unwidened  
+- [x] Honest UX · cascade · T1–T10 · docs · `0.6.19`  
+- [x] Cursor review · Engineer ACCEPT · tag **`v0.6.19`**
 
 ---
 
