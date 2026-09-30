@@ -3,8 +3,9 @@
 `B1-assistant-task-registry-coherence` (T3),
 `B1-assistant-software-safety-bridge` (T4),
 `B1-assistant-vehicle-hold-task` (T6),
-`B1-assistant-vehicle-land-task` (T7), and
-`B1-assistant-vehicle-go-to-task` (T8).
+`B1-assistant-vehicle-land-task` (T7),
+`B1-assistant-vehicle-go-to-task` (T8), and
+`B1-assistant-vehicle-takeoff-task` (T9).
 
 T6 adds the first **vehicle** Task kind, `request_hold` (requires
 `flight.hold`) — classified from a finite HOLD phrase table
@@ -34,6 +35,19 @@ Continuity defer → HOLD → LAND → GO_TO → fallthrough —
 `try_request_go_to_task` refuses explain-, Continuity-, HOLD-, *and*
 LAND-shaped input internally. No coordinate/waypoint parsing this Buy —
 the orchestrator's own fulfill always proposes with empty `params={}`.
+
+T9 adds the **fourth** vehicle Task kind, `request_takeoff` (requires
+`flight.takeoff`) — same seam again, own finite phrase table
+(`jarvis.config.VEHICLE_TAKEOFF_PHRASES`). Precedence: explain →
+Continuity defer → HOLD → LAND → GO_TO → TAKEOFF → fallthrough —
+`try_request_takeoff_task` refuses explain-, Continuity-, HOLD-, LAND-,
+*and* GO_TO-shaped input internally. No altitude parsing this Buy —
+`params` is always empty, same as GO_TO. Note: `ArmedAllowlistSafetyGate`'s
+own allow-list is still only `{HOLD, LAND, GO_TO}` (unwidened by this
+Buy — DC §0 row 7) — the product chat path never arms anyway, so this
+doesn't change TAKEOFF's honest `disarmed` reject, but an armed caller
+would still get `verb_not_allowed` for TAKEOFF specifically until a
+later, separate allow-list Buy.
 
 First on-disk `Task` emission per `DC-assistant-first-task`
 (`design_contract_assistant_first_task_b0.md`, ★ ACCEPT CLOSED):
@@ -77,6 +91,7 @@ from jarvis.config import (
     VEHICLE_GO_TO_PHRASES,
     VEHICLE_HOLD_PHRASES,
     VEHICLE_LAND_PHRASES,
+    VEHICLE_TAKEOFF_PHRASES,
 )
 
 CAPABILITY_ONTOLOGY_EXPLAIN = "ontology.explain"
@@ -89,6 +104,8 @@ CAPABILITY_FLIGHT_LAND = "flight.land"
 TASK_KIND_REQUEST_LAND = "request_land"
 CAPABILITY_FLIGHT_GO_TO = "flight.go_to"
 TASK_KIND_REQUEST_GO_TO = "request_go_to"
+CAPABILITY_FLIGHT_TAKEOFF = "flight.takeoff"
+TASK_KIND_REQUEST_TAKEOFF = "request_takeoff"
 
 _LIST_RUNG_REDIRECT = (
     "Eso solo está disponible en terminal: "
@@ -444,4 +461,69 @@ def try_request_go_to_task(intent: Intent) -> Task | None:
     if not _capabilities_known_in_default_registry(required_capability_ids):
         return None
     intent.metadata["task_kind"] = TASK_KIND_REQUEST_GO_TO
+    return task
+
+
+def try_request_takeoff_task(intent: Intent) -> Task | None:
+    """Classify `intent` as a `request_takeoff` Task — the **fourth**
+    vehicle Task kind (`DC-assistant-vehicle-takeoff-task`, ★ CLOSED,
+    same seam as T6's HOLD/T7's LAND/T8's GO_TO) — or refuse (`None`)
+    when `intent.raw_text` — after the same minimal normalize — isn't an
+    exact member of `jarvis.config.VEHICLE_TAKEOFF_PHRASES`, **or** when
+    it's explain-shaped, Continuity-defer-shaped, HOLD-shaped, LAND-
+    shaped, **or** GO_TO-shaped (precedence: explain → Continuity defer
+    → HOLD → LAND → GO_TO → TAKEOFF → fallthrough; DC §0 row 4). This
+    function re-checks all five ahead-of-it kinds itself — mirroring
+    `try_request_go_to_task`'s own internal guards — so a direct/test
+    caller (not just the orchestrator's own call order) cannot have a
+    HOLD/LAND/GO_TO phrase stolen by TAKEOFF or vice versa.
+
+    Exact-phrase match only, same finite-table discipline as every other
+    kind here — no fuzzy match, no stealing arbitrary craft design chat.
+
+    Never calls an LLM, never imports `jarvis.flight_software` or
+    `jarvis.vehicle_profiles`, never proposes or submits an autonomy
+    command itself — fulfilling a matched Task (via `propose_command`/
+    `submit_command` + a disarmed `ArmedAllowlistSafetyGate`) is
+    entirely the orchestrator's job (DC §0 row 8), same separation
+    T6/T7/T8 already established. No altitude parsing happens here or
+    in the orchestrator this Buy — `params` is always empty (DC §0 row 9).
+
+    Side effect: on a match, records `task_kind` onto `intent.metadata`
+    in place — the only state this function touches.
+
+    T3-style membership check: before writing `intent.metadata`,
+    soft-checks `CAPABILITY_FLIGHT_TAKEOFF` exists in
+    `CapabilityRegistry.load_default()` (membership only). Unknown id →
+    refuse (`None`), `intent.metadata` left untouched.
+
+    Deliberately **no** T4 `SoftwareCapabilitySafetyGate` call here
+    (IC §0 row 6), same reasoning as HOLD/LAND/GO_TO: `flight.takeoff`
+    is intentionally seeded `not_implemented`/`vehicle`, so that gate
+    would either always (and confusingly) refuse via the wrong gate, or
+    silently imply a software fulfill path for a vehicle verb if the
+    seed ever changed. The real Safety check happens once, in the
+    orchestrator's fulfill step — where a disarmed gate yields
+    `"disarmed"` regardless of whether TAKEOFF is even on
+    `ArmedAllowlistSafetyGate`'s own allow-list (DC §0 row 7 note: it
+    still isn't, this Buy).
+    """
+    if _extract_explain_query(intent.raw_text) is not None:
+        return None
+    normalized = _normalize_for_continuity_match(intent.raw_text)
+    if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_HOLD_PHRASES:
+        return None
+    if normalized in VEHICLE_LAND_PHRASES:
+        return None
+    if normalized in VEHICLE_GO_TO_PHRASES:
+        return None
+    if normalized not in VEHICLE_TAKEOFF_PHRASES:
+        return None
+    required_capability_ids = [CAPABILITY_FLIGHT_TAKEOFF]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    intent.metadata["task_kind"] = TASK_KIND_REQUEST_TAKEOFF
     return task

@@ -293,7 +293,10 @@ def test_capability_registry_default_still_empty():
     # tests/test_assistant_vehicle_land_task_b1.py. T8
     # (B1-assistant-vehicle-go-to-task): a fifth, skill.request_go_to
     # (requires flight.go_to, not_implemented/vehicle) — see
-    # tests/test_assistant_vehicle_go_to_task_b1.py. Still zero Skill
+    # tests/test_assistant_vehicle_go_to_task_b1.py. T9
+    # (B1-assistant-vehicle-takeoff-task): a sixth, skill.request_takeoff
+    # (requires flight.takeoff, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_takeoff_task_b1.py. Still zero Skill
     # execution path anywhere; this file's own isolation proof is
     # unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -302,4 +305,5 @@ def test_capability_registry_default_still_empty():
         "skill.request_hold",
         "skill.request_land",
         "skill.request_go_to",
+        "skill.request_takeoff",
     }

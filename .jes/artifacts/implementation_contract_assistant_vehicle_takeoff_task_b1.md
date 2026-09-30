@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.17`**
 
-**Status:** ★ **AUTHORIZED** (Engineer 2026-09-30 — ACCEPT T8 + procede T9)  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-30) — Cursor review PASS; package/tag **`0.6.17` / `v0.6.17`**.
 **Parents:**
 - [DC ★ CLOSED](design_contract_assistant_vehicle_takeoff_task_b0.md)
 - T8 [`B1-assistant-vehicle-go-to-task`](implementation_review_assistant_vehicle_go_to_task_b1.md) — ★ ACCEPT CLOSED @ **`v0.6.16`**

@@ -1,46 +1,43 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T8 ★ ACCEPT CLOSED @ v0.6.16; T9 TAKEOFF IC ★ AUTHORIZED → Claude; D2 ★ CLOSED (no v0.5.36 tag)",
-  "scope": "GO_TO tip closed. TAKEOFF Buy authorized (gate B, empty params). D2 administrative close. T10 RETURN_HOME still queued after T9.",
+  "cycle_intent": "T9 ★ ACCEPT CLOSED @ v0.6.17; T10 RETURN_HOME IC ★ AUTHORIZED → Claude",
+  "scope": "TAKEOFF tip closed. RETURN_HOME Buy authorized (gate B, empty params, closes basic mando set). No Cursor src/ for T10.",
   "execution_status": "authorized",
   "current_mode": "implementation",
   "movement_trigger": {
     "type": "star",
-    "reason": "Engineer ACCEPT T8 + close D2 + procede T9 TAKEOFF IC"
+    "reason": "Engineer ACCEPT T9 + redacta IC siguiente (RETURN_HOME)"
   },
   "relevant_workflow_phases": ["Implementation"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_takeoff_task_b1.md",
-    ".jes/artifacts/design_contract_assistant_vehicle_takeoff_task_b0.md"
+    ".jes/artifacts/implementation_contract_assistant_vehicle_return_home_task_b1.md",
+    ".jes/artifacts/design_contract_assistant_vehicle_return_home_task_b0.md"
   ],
   "open_questions": [
-    "Claude implements T9; Cursor reviews; Engineer ACCEPT → tag v0.6.17 → draft T10 RETURN_HOME"
+    "Claude implements T10; Cursor reviews; Engineer ACCEPT → tag v0.6.18"
   ],
   "active_operation": {
     "type": "implementation",
-    "contract": "implementation_contract_assistant_vehicle_takeoff_task_b1.md",
-    "ids": ["T9", "B1-assistant-vehicle-takeoff-task"],
+    "contract": "implementation_contract_assistant_vehicle_return_home_task_b1.md",
+    "ids": ["T10", "B1-assistant-vehicle-return-home-task"],
     "blocked_on": "Claude Code implementation + report"
   },
   "closed_this_turn": [
-    "T8 ★ ACCEPT CLOSED + tag v0.6.16",
-    "D2 ★ ACCEPT CLOSED without tag v0.5.36",
-    "DC-assistant-vehicle-takeoff-task ★ CLOSED",
-    "B1-assistant-vehicle-takeoff-task ★ AUTHORIZED"
-  ],
-  "queued_buys": [
-    {"id": "T10", "kind": "RETURN_HOME", "after": "T9 ACCEPT"}
+    "T9 ★ ACCEPT CLOSED + tag v0.6.17",
+    "DC-assistant-vehicle-return-home-task ★ CLOSED",
+    "B1-assistant-vehicle-return-home-task ★ AUTHORIZED"
   ],
   "authority_gates": [
-    "Cursor does not implement T9 src/",
-    "Do not edit HOLD/LAND/GO_TO fulfill bodies",
-    "ArmedAllowlist allow-list still lacks TAKEOFF — gate B disarmed path OK"
+    "Cursor does not implement T10 src/",
+    "Do not edit prior vehicle fulfill bodies",
+    "Do not widen ArmedAllowlist allow-list",
+    "Exact match only for short phrases (casa/home/volver)"
   ],
   "coherence_checklist": [
-    "Parent tip v0.6.16",
-    "Target package 0.6.17",
-    "Gate B held"
+    "Parent tip v0.6.17",
+    "Target package 0.6.18",
+    "After T10: TAKEOFF HOLD GO_TO RETURN_HOME LAND in chat"
   ],
-  "updated_at": "2026-09-30T08:50:00Z"
+  "updated_at": "2026-09-30T09:10:00Z"
 }

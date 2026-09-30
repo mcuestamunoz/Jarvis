@@ -39,6 +39,14 @@
             "availability": "not_implemented",
             "requirements": [],
             "health": "unknown"
+        },
+        {
+            "id": "flight.takeoff",
+            "version": "0.6.17",
+            "provider_id": "provider.flight_takeoff",
+            "availability": "not_implemented",
+            "requirements": [],
+            "health": "unknown"
         }
     ],
     "providers": [
@@ -71,6 +79,12 @@
             "kind": "vehicle",
             "offered_capability_ids": ["flight.go_to"],
             "health": "unknown"
+        },
+        {
+            "id": "provider.flight_takeoff",
+            "kind": "vehicle",
+            "offered_capability_ids": ["flight.takeoff"],
+            "health": "unknown"
         }
     ],
     "skills": [
@@ -102,6 +116,12 @@
             "id": "skill.request_go_to",
             "version": "0.6.16",
             "required_capability_ids": ["flight.go_to"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_takeoff",
+            "version": "0.6.17",
+            "required_capability_ids": ["flight.takeoff"],
             "availability": "stub"
         }
     ]

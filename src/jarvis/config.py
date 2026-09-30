@@ -154,6 +154,24 @@ VEHICLE_GO_TO_PHRASES: frozenset[str] = frozenset({
     "navega",
     "navigate",
 })
+# B1-assistant-vehicle-takeoff-task (T9): fourth vehicle Task kind, same
+# discipline as VEHICLE_HOLD_PHRASES/VEHICLE_LAND_PHRASES/
+# VEHICLE_GO_TO_PHRASES above — finite, exact match on the normalized
+# form, entries stored pre-normalized (already accent-free here).
+# Minimum, deliberately narrow seed (DC/IC lock): "takeoff", "take off",
+# "despegar", "despega", "despegue", "levanta", "levantar", "sube",
+# "ascender".
+VEHICLE_TAKEOFF_PHRASES: frozenset[str] = frozenset({
+    "takeoff",
+    "take off",
+    "despegar",
+    "despega",
+    "despegue",
+    "levanta",
+    "levantar",
+    "sube",
+    "ascender",
+})
 # FN-016: navigation-back words, scoped to acquisition wizards only (NOT a
 # global escape — deliberately not merged into ESCAPE_WORDS/checked outside
 # DEFINE_MISSING_PARAMETERS). Values are already accent-normalized; callers

@@ -557,6 +557,28 @@ class JarvisOrchestrator:
         if try_request_go_to_task(go_to_intent) is not None:
             return self._handle_vehicle_go_to(go_to_intent)
 
+        # ── Vehicle TAKEOFF intercept, via Assistant Task seam (T9) ───────────
+        # T9 (B1-assistant-vehicle-takeoff-task): a finite, explicit set of
+        # TAKEOFF phrases (jarvis.config.VEHICLE_TAKEOFF_PHRASES) classifies
+        # to Task(request_takeoff) requiring flight.takeoff — the fourth
+        # vehicle Task kind, same seam as T6/T7/T8. Precedence: explain →
+        # Continuity defer → HOLD → LAND → GO_TO → TAKEOFF → fallthrough
+        # (all five branches above already returned for an explain-,
+        # Continuity-, HOLD-, LAND-, or GO_TO-shaped line, and
+        # try_request_takeoff_task's own internal guards refuse all five
+        # shapes too, so this is unreachable for any of them either way).
+        # Fulfilled here, never inside jarvis.intelligence —
+        # _handle_vehicle_takeoff proposes+submits the command (empty
+        # params — no altitude parsing this Buy, DC §0 row 9) through the
+        # existing C4 autonomy surface with a fresh, never-armed
+        # ArmedAllowlistSafetyGate; the honest reject this produces is
+        # surfaced verbatim, never a claim of airborne/executed flight.
+        from jarvis.intelligence.assistant_task import try_request_takeoff_task
+
+        takeoff_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_takeoff_task(takeoff_intent) is not None:
+            return self._handle_vehicle_takeoff(takeoff_intent)
+
         return None
 
     def _handle_vehicle_hold(self, intent: Any) -> dict:
@@ -659,6 +681,46 @@ class JarvisOrchestrator:
             f"Ejecución: {result.execution}."
         )
         return {"status": "ok", "action": "vehicle_go_to", "message": message}
+
+    def _handle_vehicle_takeoff(self, intent: Any) -> dict:
+        """T9 fulfill for a classified `request_takeoff` Task (DC §0 row
+        8) — same shape as `_handle_vehicle_hold`/`_handle_vehicle_land`/
+        `_handle_vehicle_go_to` (T6/T7/T8), thin sibling rather than a
+        shared multi-verb helper (IC's own "Not" list: no generic
+        multi-verb framework this Buy; the three earlier methods are all
+        left byte-for-byte unchanged so their own tested behavior cannot
+        regress). Proposes an `AutonomyVerb.TAKEOFF` command with **empty
+        `params`** — no altitude parsing happens anywhere in this Buy
+        (DC §0 row 9) — and submits it through the existing C4 autonomy
+        surface using a **fresh, never-armed** `ArmedAllowlistSafetyGate`
+        — `gate.arm()` is never called anywhere on this path.
+        `default_safety_gate()` (still always `RejectAllSafetyGate`) is
+        untouched and not used here. Note: `ArmedAllowlistSafetyGate`'s
+        own allow-list is still only `{HOLD, LAND, GO_TO}` (unwidened by
+        this Buy) — irrelevant here since the gate is always disarmed on
+        this path, but if a later Buy ever armed it, TAKEOFF would get
+        `verb_not_allowed` rather than `allow` until a separate,
+        explicit allow-list-widening Buy (DC §0 row 7).
+
+        The returned message surfaces `result.safety.outcome`,
+        `result.safety.reason`, and `result.execution` verbatim — with a
+        disarmed gate this is always `reject`/`"disarmed"`/
+        `"not_attempted"` — and never claims the vehicle is actually
+        airborne or that anything executed; `action="vehicle_takeoff"`
+        (same distinct-from-`"global_command"` discipline as T6/T7/T8's
+        own `"vehicle_hold"`/`"vehicle_land"`/`"vehicle_go_to"`)."""
+        from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
+        from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
+
+        gate = ArmedAllowlistSafetyGate()
+        command = propose_command(AutonomyVerb.TAKEOFF, intent_id=intent.id, params={})
+        result = submit_command(command, gate)
+        message = (
+            "TAKEOFF solicitado, pero no se ejecuta ningún despegue real desde este "
+            f"chat todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
+            f"Ejecución: {result.execution}."
+        )
+        return {"status": "ok", "action": "vehicle_takeoff", "message": message}
 
     _AFFIRMATIVE_WORDS: frozenset[str] = frozenset({
         "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante", "perfecto",
