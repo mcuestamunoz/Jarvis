@@ -240,13 +240,16 @@ def test_t7_default_safety_gate_reject_all_disarmed_armed_allowlist_empty_params
     assert "disarmed" in result["message"]
     assert result["status"] == "ok"
 
-    # DC §0 row 7: TAKEOFF is still not on ArmedAllowlistSafetyGate's own
-    # allow-list this Buy (unwidened) — irrelevant on the always-disarmed
-    # product path, but documented here as the honest current shape.
-    assert "TAKEOFF" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
-    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset({"HOLD", "LAND", "GO_TO"})
+    # T14 (B1-assistant-vehicle-allowlist-widen): TAKEOFF now joins the
+    # allow-list too — irrelevant on this always-disarmed product path
+    # (membership doesn't matter while disarmed), but documented here as
+    # the honest current shape.
+    assert "TAKEOFF" in ArmedAllowlistSafetyGate._ALLOWED_VERBS
+    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset(
+        {"HOLD", "LAND", "GO_TO", "TAKEOFF", "RETURN_HOME", "FOLLOW", "PATROL"}
+    )
 
 
 def test_t8_pyproject_version_is_0_6_17():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.24"' in text
+    assert 'version = "0.6.25"' in text

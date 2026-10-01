@@ -19,9 +19,13 @@ core/orchestrator._handle_vehicle_patrol()
 - Exact `VEHICLE_PATROL_PHRASES` only (`patrol`/`patrulla`/`patrullar`/…) — never steal `"patrulla del catalogo"`.
 - Membership only; no `SoftwareCapabilitySafetyGate`.
 - Precedence: explain → defer → ARM → DISARM → HOLD → LAND → GO_TO → TAKEOFF → RETURN_HOME → FOLLOW → **PATROL** → fallthrough.
-- Allow-list still `{HOLD,LAND,GO_TO}` (unwidened). After ARM: PATROL → `verb_not_allowed`.
+- Allow-list was `{HOLD,LAND,GO_TO}` at T13 ship time (PATROL → `verb_not_allowed` after ARM); **T14 widened it to all seven chat verbs** — see the new T14 section below.
 - Last C4 `AutonomyVerb` without a chat Task — closes the vehicle-verb cola.
 - See `tests/test_assistant_vehicle_patrol_task_b1.py`.
+
+## Chat ArmedAllowlist widen (T14): Safety-policy widen, not a new Task kind
+
+`B1-assistant-vehicle-allowlist-widen` widens `ArmedAllowlistSafetyGate._ALLOWED_VERBS` from `{HOLD,LAND,GO_TO}` to all seven chat `AutonomyVerb` values (`HOLD`/`LAND`/`GO_TO`/`TAKEOFF`/`RETURN_HOME`/`FOLLOW`/`PATROL`). Latch API, `gate_id`, and the disarmed path are all unchanged. After `armar`, **every** chat vehicle verb now resolves to Safety `allow` + execution `not_implemented` — never `"executed"`. Allow still ≠ execute: `SimAutonomyExecutor` remains HOLD/LAND/GO_TO-only in sim and is never wired from chat. No new Task kind/phrase/capability/skill — cascade stays 10 caps / 11 skills. See `tests/test_assistant_vehicle_allowlist_widen_b1.py`.
 
 ## Vehicle FOLLOW Task (T12): sixth vehicle Task kind
 
@@ -36,7 +40,7 @@ core/orchestrator._handle_vehicle_follow()
 - Exact `VEHICLE_FOLLOW_PHRASES` only (`follow`/`sígueme`/`ven conmigo`/…) — never steal `"sigue con el frame"`.
 - Membership only; no `SoftwareCapabilitySafetyGate`.
 - Precedence: explain → defer → ARM → DISARM → HOLD → LAND → GO_TO → TAKEOFF → RETURN_HOME → **FOLLOW** → fallthrough.
-- Allow-list still `{HOLD,LAND,GO_TO}` (unwidened). After ARM: FOLLOW → `verb_not_allowed`.
+- Allow-list was `{HOLD,LAND,GO_TO}` at T12 ship time (FOLLOW → `verb_not_allowed` after ARM); **T14 widened it to all seven chat verbs**.
 - See `tests/test_assistant_vehicle_follow_task_b1.py`.
 
 ## Vehicle Safety arm UX (T11): shared chat ArmedAllowlist latch
@@ -53,7 +57,7 @@ vehicle fulfills → submit_command(..., shared gate)
 - Exact `VEHICLE_ARM_PHRASES` / `VEHICLE_DISARM_PHRASES` only — never steal `"arma el frame"`.
 - T3 membership + T4 `SoftwareCapabilitySafetyGate` (`available`+software).
 - Precedence: explain → defer → **ARM** → **DISARM** → HOLD → LAND → GO_TO → TAKEOFF → RETURN_HOME → FOLLOW → PATROL.
-- Allow-list still `{HOLD,LAND,GO_TO}` (unwidened). After ARM: HOLD/LAND/GO_TO → `allow`/`not_implemented`; TAKEOFF/RH/FOLLOW/PATROL → `verb_not_allowed`.
+- Allow-list was `{HOLD,LAND,GO_TO}` at T11 ship time (TAKEOFF/RH/FOLLOW/PATROL → `verb_not_allowed` after ARM); **T14 widened it to all seven chat verbs**.
 - Honesty: software Safety latch only — never ESC/motors/drone. See `tests/test_assistant_vehicle_arm_ux_b1.py`.
 
 ## Vehicle RETURN_HOME Task (T10): fifth vehicle Task — closes basic mando set
@@ -69,7 +73,7 @@ core/orchestrator._handle_vehicle_return_home()
 - Exact `VEHICLE_RETURN_HOME_PHRASES` only (`rtl`/`casa`/`home`/`volver`/…) — never substring; `"volver al board"` does not match.
 - Membership only; no `SoftwareCapabilitySafetyGate`.
 - Precedence: explain → defer → ARM → DISARM → HOLD → LAND → GO_TO → TAKEOFF → **RETURN_HOME** → fallthrough.
-- Allow-list still `{HOLD,LAND,GO_TO}` (unwidened).
+- Allow-list was `{HOLD,LAND,GO_TO}` at T10 ship time; **T14 widened it to all seven chat verbs**.
 - See `tests/test_assistant_vehicle_return_home_task_b1.py`.
 
 ## Vehicle TAKEOFF Task (T9): the fourth vehicle Task kind — same seam, still not on ArmedAllowlist's own allow-list
@@ -91,7 +95,7 @@ core/orchestrator._handle_vehicle_takeoff()   ← propose_command(TAKEOFF, param
 - **T3-style membership only — deliberately no T4 gate**, same reasoning as HOLD/LAND/GO_TO.
 - **Precedence: explain → Continuity defer → HOLD → LAND → GO_TO → TAKEOFF → fallthrough**, enforced twice — orchestrator call order (TAKEOFF wired immediately after GO_TO), and `try_request_takeoff_task`'s own internal guards against explain-, Continuity-, HOLD-, LAND-, **and GO_TO**-shaped input.
 - **No altitude parsing this Buy (DC §0 row 9).** `_handle_vehicle_takeoff` always calls `propose_command(AutonomyVerb.TAKEOFF, params={})` — an empty dict, never populated from chat text.
-- **`ArmedAllowlistSafetyGate`'s own allow-list stays `{HOLD, LAND, GO_TO}` — unwidened (DC §0 row 7).** TAKEOFF is not on it. Irrelevant on the always-disarmed product chat path (still `"disarmed"` either way), but documented honestly: if a later Buy ever armed the gate, TAKEOFF would get `verb_not_allowed` rather than `allow` until a separate, explicit allow-list-widening Buy.
+- **`ArmedAllowlistSafetyGate`'s own allow-list was `{HOLD, LAND, GO_TO}` at T9 ship time (DC §0 row 7)** — TAKEOFF was not on it, so an armed gate would have yielded `verb_not_allowed` rather than `allow`. **T14 (`B1-assistant-vehicle-allowlist-widen`) widened it to all seven chat verbs**, so TAKEOFF now gets `allow`/`not_implemented` once armed.
 - **Fulfill lives entirely in `core/orchestrator.py`** (`_handle_vehicle_takeoff`) — thin sibling of `_handle_vehicle_hold`/`_handle_vehicle_land`/`_handle_vehicle_go_to`, not a shared multi-verb helper; all three earlier methods are left byte-for-byte unchanged (`git diff` shows zero removed/modified lines), so their own tested behavior cannot regress. `assistant_task.py` still never imports `jarvis.flight_software`/`jarvis.vehicle_profiles`/`jarvis.core`.
 - **Honest UX, never a claim of being airborne.** Same message shape as HOLD/LAND/GO_TO, verb-swapped — `action="vehicle_takeoff"`.
 - **Still not a dispatcher, still not flight.** No `arm()`, no FOLLOW/PATROL (separate future Buys); RETURN_HOME shipped as T10 above, no sim executor tick from chat, no voice ingress. See `tests/test_assistant_vehicle_takeoff_task_b1.py`.

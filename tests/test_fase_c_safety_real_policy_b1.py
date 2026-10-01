@@ -68,11 +68,15 @@ def test_t3_armed_hold_and_land_allow():
 
 
 def test_t4_armed_non_allowlisted_verb_rejects():
-    """`GO_TO` removed from this rejected-verbs list as of C41 — see
-    `test_t3_armed_hold_and_land_allow`'s own note above."""
+    """`GO_TO` removed from this rejected-verbs list as of C41; `TAKEOFF`/
+    `FOLLOW`/`RETURN_HOME`/`PATROL` removed as of T14
+    (`B1-assistant-vehicle-allowlist-widen`), which widened the allow-list
+    to the full seven-verb chat set — see `test_t3_armed_hold_and_land_allow`'s
+    own note above. The probe verb now has to be one that was never a
+    chat Task kind at all."""
     gate = ArmedAllowlistSafetyGate()
     gate.arm()
-    for verb in ("TAKEOFF", "FOLLOW", "RETURN_HOME", "PATROL"):
+    for verb in ("CHARGE",):
         decision = gate.evaluate(SafetyRequest(action_id=f"autonomy:{verb}:x"))
         assert decision.outcome == "reject"
         assert decision.reason == "verb_not_allowed"
@@ -101,9 +105,10 @@ def test_t5_authority_signal_never_flips_allow():
     assert decision_disarmed.reason == "disarmed"
 
     gate.arm()
-    # Armed + not-on-list verb + authority set: still reject.
+    # Armed + not-on-list verb + authority set: still reject. TAKEOFF is
+    # now allow-listed (T14) — CHARGE never was a chat Task kind.
     decision_not_listed = gate.evaluate(
-        SafetyRequest(action_id="autonomy:TAKEOFF:x", authority_signal_id=signal.id)
+        SafetyRequest(action_id="autonomy:CHARGE:x", authority_signal_id=signal.id)
     )
     assert decision_not_listed.outcome == "reject"
     assert decision_not_listed.reason == "verb_not_allowed"

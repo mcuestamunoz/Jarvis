@@ -207,8 +207,11 @@ def test_authority_from_bridge_never_flips_safety():
 
     armed_gate = ArmedAllowlistSafetyGate()
     armed_gate.arm()
+    # T14 (B1-assistant-vehicle-allowlist-widen) widened the allow-list to
+    # all seven chat AutonomyVerb values — TAKEOFF is now allowed, so the
+    # not-allowed probe uses a verb that was never a Task kind at all.
     armed_decision = armed_gate.evaluate(
-        SafetyRequest(action_id="autonomy:TAKEOFF:x", authority_signal_id=result.authority.id)
+        SafetyRequest(action_id="autonomy:CHARGE:x", authority_signal_id=result.authority.id)
     )
     assert armed_decision.outcome == "reject"
     assert armed_decision.reason == "verb_not_allowed"

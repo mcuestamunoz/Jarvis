@@ -137,12 +137,16 @@ def test_t4_orchestrator_follow_honest_disarmed_reject():
 
 
 def test_t5_armar_then_follow_verb_not_allowed_hold_still_allow():
+    """T14 (`B1-assistant-vehicle-allowlist-widen`) widened the allow-list
+    to the full seven-verb chat set — FOLLOW now joins HOLD at
+    `allow`/`not_implemented` once armed, instead of `verb_not_allowed`."""
     orch = JarvisOrchestrator()
     exploding = _ExplodingLLMInterface()
     assert orch.handle_user_text("armar", exploding)["action"] == "vehicle_arm_policy"
     follow = orch.handle_user_text("follow", exploding)
     assert follow["action"] == "vehicle_follow"
-    assert "verb_not_allowed" in follow["message"]
+    assert "allow" in follow["message"]
+    assert "not_implemented" in follow["message"]
     hold = orch.handle_user_text("hold", exploding)
     assert hold["action"] == "vehicle_hold"
     assert "allow" in hold["message"]
@@ -189,8 +193,11 @@ def test_t6_seed_honesty_prior_rows_allowlist_unwidened():
     } <= cap_ids
     assert len(cap_ids) == 10
 
-    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset({"HOLD", "LAND", "GO_TO"})
-    assert "FOLLOW" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
+    # T14 (B1-assistant-vehicle-allowlist-widen): widened to the full
+    # seven-verb chat set.
+    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset(
+        {"HOLD", "LAND", "GO_TO", "TAKEOFF", "RETURN_HOME", "FOLLOW", "PATROL"}
+    )
 
 
 def test_t7_ast_fence_shared_gate_empty_params():
@@ -206,17 +213,19 @@ def test_t7_ast_fence_shared_gate_empty_params():
     command = propose_command(AutonomyVerb.FOLLOW, params={})
     assert command.params == {}
     assert command.verb == AutonomyVerb.FOLLOW
-    assert "FOLLOW" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
+    assert "FOLLOW" in ArmedAllowlistSafetyGate._ALLOWED_VERBS
 
     orch = JarvisOrchestrator()
     gate = orch._vehicle_chat_safety_gate()
     assert gate is orch._vehicle_chat_safety_gate()
-    # Shared with arm path: arm then follow sees verb_not_allowed on same latch
+    # Shared with arm path: arm then follow sees allow/not_implemented on
+    # the same latch (T14 widened the allow-list).
     orch.handle_user_text("armar", _ExplodingLLMInterface())
     assert gate.armed is True
     assert gate is orch._vehicle_chat_safety_gate()
     follow = orch.handle_user_text("follow", _ExplodingLLMInterface())
-    assert "verb_not_allowed" in follow["message"]
+    assert "allow" in follow["message"]
+    assert "not_implemented" in follow["message"]
 
 
 def test_t8_precedence_return_home_then_follow():
@@ -233,4 +242,4 @@ def test_t8_precedence_return_home_then_follow():
 
 def test_t9_pyproject_version_is_0_6_20():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.24"' in text
+    assert 'version = "0.6.25"' in text

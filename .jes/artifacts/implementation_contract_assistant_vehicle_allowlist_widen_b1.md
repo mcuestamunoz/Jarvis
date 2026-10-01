@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.25`**
 
-**Status:** ★ **AUTHORIZED** — await Claude implement → Cursor review → Engineer ★ ACCEPT → tag **`v0.6.25`**.  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.25`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_assistant_vehicle_allowlist_widen_b0.md)
 - T16 [`B1-esc-fence-import-only`](implementation_review_esc_fence_import_only_b1.md) — ★ ACCEPT CLOSED @ **`v0.6.24`** (tip)

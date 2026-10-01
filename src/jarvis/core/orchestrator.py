@@ -655,14 +655,16 @@ class JarvisOrchestrator:
 
     def _handle_arm_policy(self, intent: Any) -> dict:
         """T11 fulfill: arm the shared chat ArmedAllowlist latch.
-        Software Safety policy only — never ESC/motors/drone/flight."""
+        Software Safety policy only — never ESC/motors/drone/flight.
+        T14 (B1-assistant-vehicle-allowlist-widen): the latch now allows
+        all seven chat verbs once armed — message updated to match."""
         gate = self._vehicle_chat_safety_gate()
         gate.arm()
         message = (
             "Política Safety del chat ARMADA (latch de software ArmedAllowlist). "
-            "No es armado de ESC, motores ni del dron. HOLD/LAND/GO_TO pueden "
-            "pasar a allow/not_implemented; TAKEOFF/RETURN_HOME siguen "
-            "verb_not_allowed hasta un Buy que ensanche la allow-list. "
+            "No es armado de ESC, motores ni del dron. HOLD/LAND/GO_TO/TAKEOFF/"
+            "RETURN_HOME/FOLLOW/PATROL pueden pasar a allow/not_implemented "
+            "(nunca ejecutado de verdad). "
             f"Latch armed={gate.armed}."
         )
         return {"status": "ok", "action": "vehicle_arm_policy", "message": message}

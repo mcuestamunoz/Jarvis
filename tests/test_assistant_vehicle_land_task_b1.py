@@ -196,4 +196,4 @@ def test_t7_default_safety_gate_still_reject_all_and_fulfill_uses_disarmed_armed
 
 def test_t8_pyproject_version_is_0_6_15():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.24"' in text
+    assert 'version = "0.6.25"' in text

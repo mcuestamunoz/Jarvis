@@ -58,7 +58,7 @@
         },
         {
             "id": "safety.chat_armed_allowlist",
-            "version": "0.6.19",
+            "version": "0.6.25",
             "provider_id": "provider.safety_chat_armed_allowlist",
             "availability": "available",
             "requirements": [],

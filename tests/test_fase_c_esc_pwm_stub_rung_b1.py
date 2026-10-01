@@ -277,7 +277,7 @@ def test_pyproject_version_is_0_6_24():
     untouched, per DC §0 row 5 / Engineer's explicit no-tip-pin-cleanup
     direction)."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.24"' in text
+    assert 'version = "0.6.25"' in text
 
 
 def test_smoke_esc_pwm_returns_at_least_one_result_disarmed_by_default():
