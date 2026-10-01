@@ -1,39 +1,43 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T12 FOLLOW ★ ACCEPT CLOSED @ v0.6.20; await Engineer pick for next vehicle Buy",
-  "scope": "Sixth vehicle Task request_follow closed via shared ArmedAllowlist. Allow-list unwidened. Tip tagged.",
-  "execution_status": "idle",
-  "current_mode": "idle",
+  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
+  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
+  "execution_status": "awaiting_implementation",
+  "current_mode": "implement",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: Accept y cuando esté el commit dime cuál es el siguiente paso"
+    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
   },
-  "relevant_workflow_phases": ["Close"],
+  "relevant_workflow_phases": ["Implement", "Review", "Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_vehicle_follow_task_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
+    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
   ],
   "open_questions": [
-    "Next after T12 ★: PATROL · allow-list widen · CHARGE?"
+    "Claude (or Engineer: implementa tú) implements T13?",
+    "After T13 ★: allow-list widen · CHARGE · copper?"
   ],
   "active_operation": {
-    "type": "none",
-    "contract": null,
-    "ids": [],
-    "blocked_on": "Engineer ★ pick next Buy"
+    "type": "authorized_implementation",
+    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
+    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
+    "blocked_on": "implementation"
   },
   "closed_this_turn": [
-    "T12 B1-assistant-vehicle-follow-task ★ ACCEPT CLOSED @ v0.6.20"
+    "DC-assistant-vehicle-patrol-task ★ CLOSED",
+    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
   ],
   "authority_gates": [
-    "No allow-list widen without explicit Buy",
-    "PATROL/CHARGE require new IC",
-    "No person/target parse without new IC"
+    "Cursor IC/docs only unless Engineer says implementa tú",
+    "No allow-list widen in T13",
+    "No route/waypoint parse; params={}",
+    "Use shared T11 gate — not fresh ArmedAllowlist"
   ],
   "coherence_checklist": [
-    "Tag v0.6.20",
-    "Cascade 9 caps / 10 skills",
-    "Shared gate for FOLLOW"
+    "AutonomyVerb.PATROL already exists (C4)",
+    "Precedence after FOLLOW",
+    "Package target 0.6.21"
   ],
-  "updated_at": "2026-09-30T19:25:00Z"
+  "updated_at": "2026-10-01T06:35:00Z"
 }
