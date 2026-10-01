@@ -6,17 +6,17 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** pick next Buy — **CHARGE** · **copper** · N1 fulfill docstring polish · Skills runtime.  
-> **Just closed:** **T14** allow-list ★ **ACCEPT CLOSED** @ **`v0.6.25`** · **T17** tip-pin cleanup ★ **ACCEPT CLOSED** @ **`v0.6.26`**. Forge PRs #3–#8 closed (hygiene).  
+> **PRIORIDAD AHORA:** **T18** fulfill docstring honesty — IC ★ AUTHORIZED @ **`0.6.27`** (Claude). Then T19 CHARGE → T20 copper → T21 Skills runtime.  
+> **Just closed:** **T14** ★ @ **`v0.6.25`** · **T17** ★ @ **`v0.6.26`**. CONNECTIONS synced.  
 > **Policy:** no tip/package version pins in tests.  
-> SoT: [T17 review ★](../.jes/artifacts/implementation_review_suite_tip_pin_cleanup_b1.md) · [T14 review ★](../.jes/artifacts/implementation_review_assistant_vehicle_allowlist_widen_b1.md).  
+> SoT: [T18 IC](../.jes/artifacts/implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md) · [cola ICs](../.jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.26`** · T0–T17 ★ CLOSED · next: CHARGE · copper · polish)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.26`** · T0–T17 ★ CLOSED · T18–T21 ICs ★ AUTHORIZED in coherence order)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -58,8 +58,14 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T16** | **`B1-esc-fence-import-only`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.24`** | AST fence for `SimulatedEscSink` / `flight_control.esc` in core/adapters | [review](../.jes/artifacts/implementation_review_esc_fence_import_only_b1.md) |
 | **T17** | **`DC-suite-tip-pin-cleanup`** | **✅ ★ CLOSED** | Retire tip/package version pins · policy: no tip pins in tests | [DC](../.jes/artifacts/design_contract_suite_tip_pin_cleanup_b0.md) |
 | **T17** | **`B1-suite-tip-pin-cleanup`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.26`** | Delete ~72 tip-pin tests · guardrail · no tip pins going forward | [review](../.jes/artifacts/implementation_review_suite_tip_pin_cleanup_b1.md) |
-| **vehicle later** | CHARGE (ops) · copper | **Candidate** | CHARGE ≠ `AutonomyVerb` · copper path | ★ pick next |
-| **polish** | N1 fulfill docstrings · Skills runtime | **Candidate** | docstrings stale post-T14 · skills stub | ★ pick later |
+| **T18** | **`DC-orchestrator-fulfill-docstring-honesty`** | **✅ ★ CLOSED** | T14 N1 — fulfill comments match seven-verb allow-list | [DC](../.jes/artifacts/design_contract_orchestrator_fulfill_docstring_honesty_b0.md) |
+| **T18** | **`B1-orchestrator-fulfill-docstring-honesty`** | **★ AUTHORIZED** @ `0.6.27` · Claude next | comment/docstring only · no behavior change | [IC](../.jes/artifacts/implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md) |
+| **T19** | **`DC-assistant-ops-charge-task`** | **✅ ★ CLOSED** | CHARGE ops Task ≠ AutonomyVerb | [DC](../.jes/artifacts/design_contract_assistant_ops_charge_task_b0.md) |
+| **T19** | **`B1-assistant-ops-charge-task`** | **★ AUTHORIZED** @ `0.6.28` · after T18 ★ | `ops.charge` device · no propose_command | [IC](../.jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md) |
+| **T20** | **`DC-assistant-chat-sim-copper`** | **✅ ★ CLOSED** | chat allow → sim tick HOLD/LAND/GO_TO | [DC](../.jes/artifacts/design_contract_assistant_chat_sim_copper_b0.md) |
+| **T20** | **`B1-assistant-chat-sim-copper`** | **★ AUTHORIZED** @ `0.6.29` · after T19 ★ | SimAutonomyExecutor from chat after allow | [IC](../.jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md) |
+| **T21** | **`DC-capability-skills-runtime-software`** | **✅ ★ CLOSED** | first Skill runner · software Skills only | [DC](../.jes/artifacts/design_contract_capability_skills_runtime_software_b0.md) |
+| **T21** | **`B1-capability-skills-runtime-software`** | **★ AUTHORIZED** @ `0.6.30` · after T20 ★ | explain/status Skills `available` + `run_skill` | [IC](../.jes/artifacts/implementation_contract_capability_skills_runtime_software_b1.md) |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Parked** | Horizon | DC placement §4 |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |
