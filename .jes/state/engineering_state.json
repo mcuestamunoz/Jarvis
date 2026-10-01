@@ -1,44 +1,46 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T19 ★ ACCEPT CLOSED @ v0.6.28; Claude implement T20 sim copper @ 0.6.29",
-  "scope": "T19 ops CHARGE closed. Next: chat allow → SimAutonomyExecutor.tick for HOLD/LAND/GO_TO only. Not ESC live.",
-  "execution_status": "authorized_awaiting_impl",
-  "current_mode": "implement",
+  "cycle_intent": "T20 chat sim copper Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT @ v0.6.29",
+  "scope": "Chat allow → SimAutonomyExecutor.tick for HOLD/LAND after allow. GO_TO honest unavailable without coords. submit_command unchanged. Not ESC live.",
+  "execution_status": "review_pass_awaiting_accept",
+  "current_mode": "close",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: accept y siguiente"
+    "reason": "Engineer pasted Claude T20 push summary; Cursor independent review"
   },
-  "relevant_workflow_phases": ["Close", "Implement"],
+  "relevant_workflow_phases": ["Review", "Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_ops_charge_task_b1.md",
-    ".jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md",
+    ".jes/artifacts/implementation_report_assistant_chat_sim_copper_b1.md",
+    ".jes/artifacts/implementation_review_assistant_chat_sim_copper_b1.md"
   ],
   "open_questions": [
-    "Claude T20 sim copper impl + Cursor review?",
-    "Then T21 Skills runtime software @ 0.6.30?"
+    "Engineer ★ ACCEPT for T20 @ v0.6.29 (incl. N1 GO_TO honesty)?",
+    "Then Claude T21 Skills runtime software @ 0.6.30?"
   ],
   "active_operation": {
-    "type": "authorized_awaiting_impl",
+    "type": "review_pass_awaiting_accept",
     "contract": "implementation_contract_assistant_chat_sim_copper_b1.md",
     "ids": ["T20", "B1-assistant-chat-sim-copper"],
-    "blocked_on": "claude_impl"
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "T19 B1-assistant-ops-charge-task ★ ACCEPT CLOSED @ v0.6.28",
-    "Tag v0.6.28",
-    "T20 AUTHORIZED for Claude"
+    "B1-assistant-chat-sim-copper implemented by Claude @ 0.6.29",
+    "Cursor independent review PASS WITH NOTES @ 3293e77"
   ],
   "authority_gates": [
+    "No tag v0.6.29 without Engineer ★ ACCEPT",
     "No tip/package version pin tests",
-    "T20 = sim tick HOLD/LAND/GO_TO only — not ESC live / not TAKEOFF/RH/FOLLOW/PATROL sim",
-    "submit_command preferred unchanged (path a)",
-    "T21 AUTHORIZED after T20 ★"
+    "GO_TO sim tick needs coords later — not invented this Buy",
+    "T21 remains AUTHORIZED after T20 ★"
   ],
   "coherence_checklist": [
-    "Tag v0.6.28",
-    "Package tip 0.6.28",
-    "T20 paste ready for Claude"
+    "HOLD/LAND tick after allow",
+    "PATROL/TAKEOFF/RH/FOLLOW no tick",
+    "Disarmed no tick",
+    "ESC fence green",
+    "Package 0.6.29"
   ],
-  "updated_at": "2026-10-01T09:30:00Z"
+  "updated_at": "2026-10-01T09:45:00Z"
 }
