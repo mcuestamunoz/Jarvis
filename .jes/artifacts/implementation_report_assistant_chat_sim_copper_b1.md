@@ -57,4 +57,6 @@ Diffed against this branch's pre-T20 tip: baseline was `3881 passed, 9 skipped, 
 
 ## 4. Remaining
 
-None for this Buy. Next in coherence order: T21 Skills runtime software.
+**This Buy:** none blocking.  
+**Listed debt (not in this Buy):** **SD-GO_TO** — chat GO_TO still has no destination (T8) while C40 requires `x_m`/`y_m`. T20 leaves the allow→tick seam ready and reports honest “sin destino”. SoT: [`engineer_note_t20_goto_chat_sim_destination_debt.md`](engineer_note_t20_goto_chat_sim_destination_debt.md).  
+**Next cola:** T21 Skills runtime software.

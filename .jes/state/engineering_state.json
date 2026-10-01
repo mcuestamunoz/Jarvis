@@ -1,23 +1,23 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T20 chat sim copper Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT @ v0.6.29",
-  "scope": "Chat allow → SimAutonomyExecutor.tick for HOLD/LAND after allow. GO_TO honest unavailable without coords. submit_command unchanged. Not ESC live.",
+  "cycle_intent": "T20 review PASS WITH NOTES; SD-GO_TO debt documented; await Engineer ★ ACCEPT @ v0.6.29",
+  "scope": "Chat allow→sim for HOLD/LAND. GO_TO seam ready + honest sin destino. Debt listed as SD-GO_TO — not blocking ACCEPT.",
   "execution_status": "review_pass_awaiting_accept",
   "current_mode": "close",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer pasted Claude T20 push summary; Cursor independent review"
+    "reason": "Engineer: leave architecture ready; list GO_TO destination debt documentalmente before ACCEPT"
   },
   "relevant_workflow_phases": ["Review", "Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md",
-    ".jes/artifacts/implementation_report_assistant_chat_sim_copper_b1.md",
-    ".jes/artifacts/implementation_review_assistant_chat_sim_copper_b1.md"
+    ".jes/artifacts/implementation_review_assistant_chat_sim_copper_b1.md",
+    ".jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT for T20 @ v0.6.29 (incl. N1 GO_TO honesty)?",
-    "Then Claude T21 Skills runtime software @ 0.6.30?"
+    "Engineer ★ ACCEPT for T20 @ v0.6.29?",
+    "Then Claude T21 Skills runtime software @ 0.6.30?",
+    "Later: authorize SD-GO_TO destination Buy when ready?"
   ],
   "active_operation": {
     "type": "review_pass_awaiting_accept",
@@ -26,21 +26,18 @@
     "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "B1-assistant-chat-sim-copper implemented by Claude @ 0.6.29",
-    "Cursor independent review PASS WITH NOTES @ 3293e77"
+    "SD-GO_TO debt note + PRIORIDAD row + CONNECTIONS/review pointers"
   ],
   "authority_gates": [
     "No tag v0.6.29 without Engineer ★ ACCEPT",
-    "No tip/package version pin tests",
-    "GO_TO sim tick needs coords later — not invented this Buy",
-    "T21 remains AUTHORIZED after T20 ★"
+    "No invent GO_TO coordinates without separate ★ Buy",
+    "SD-GO_TO does not block T20 ACCEPT",
+    "T21 AUTHORIZED after T20 ★"
   ],
   "coherence_checklist": [
-    "HOLD/LAND tick after allow",
-    "PATROL/TAKEOFF/RH/FOLLOW no tick",
-    "Disarmed no tick",
-    "ESC fence green",
-    "Package 0.6.29"
+    "Debt SoT: engineer_note_t20_goto_chat_sim_destination_debt.md",
+    "PRIORIDAD SD-GO_TO OPEN",
+    "T20 seam left intact for later wire"
   ],
-  "updated_at": "2026-10-01T09:45:00Z"
+  "updated_at": "2026-10-01T09:50:00Z"
 }

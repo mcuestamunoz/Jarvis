@@ -48,7 +48,7 @@
 
 ## 3. Notes
 
-**N1 — GO_TO without destination (IC gap, accepted resolution).** IC §2/§3 spoke of HOLD/LAND/GO_TO sim tick after allow, but chat GO_TO still ships empty params (T8 lock) while C40 `tick(GO_TO, …)` requires `x_m`/`y_m`. Claude’s resolution — catch `ValueError`, append honest “Simulación no disponible sin destino…” — is the correct in-Buy choice (no invented coords, no crash). Documented in report + T1c. **Not blocking.** Coordinate parse / real GO_TO sim remains a later Buy if Engineer wants it.
+**N1 — GO_TO without destination (IC gap, accepted resolution + listed debt).** IC §2/§3 spoke of HOLD/LAND/GO_TO sim tick after allow, but chat GO_TO still ships empty params (T8 lock) while C40 `tick(GO_TO, …)` requires `x_m`/`y_m`. Claude’s resolution — catch `ValueError`, append honest “Simulación no disponible sin destino…” — is the correct in-Buy choice (no invented coords, no crash). Documented in report + T1c. **Not blocking T20 ★.** Engineer 2026-10-01: leave seam ready; list as software debt **SD-GO_TO** — SoT [engineer_note_t20_goto_chat_sim_destination_debt.md](engineer_note_t20_goto_chat_sim_destination_debt.md) · PRIORIDAD row.
 
 **N2 — Isolation fence retarget.** Historical “no SimAutonomyExecutor under core/” tests now exclude `orchestrator.py` by name; other core/adapters files still checked. Correct for an intentional orch-side wire. T14’s own “no sim from chat” test rewritten to the permanent ESC-fence invariant.
 
