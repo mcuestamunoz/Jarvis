@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_assistant_vehicle_allowlist_widen_b1.md`](implementation_contract_assistant_vehicle_allowlist_widen_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_vehicle_allowlist_widen_b0.md) · T16 ESC fence ★ ACCEPT CLOSED @ **`v0.6.24`** · T13 PATROL ★ @ **`v0.6.21`** · T11 arm UX ★  
-**Status:** Implemented — await Cursor review → Engineer ★ ACCEPT. **No ACCEPT claim.**  
-**Package / tag:** `0.6.25` / **`v0.6.25`** (on ACCEPT).
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01).  
+**Package / tag:** `0.6.25` / **`v0.6.25`**.
 
 ---
 
