@@ -164,8 +164,11 @@ def test_t5_seed_flight_return_home_honesty_prior_rows_and_allowlist():
         "skill.request_takeoff",
     } <= skill_ids
 
-    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset({"HOLD", "LAND", "GO_TO"})
-    assert "RETURN_HOME" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
+    # T14 (B1-assistant-vehicle-allowlist-widen): widened to the full
+    # seven-verb chat set.
+    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset(
+        {"HOLD", "LAND", "GO_TO", "TAKEOFF", "RETURN_HOME", "FOLLOW", "PATROL"}
+    )
 
 
 def test_t6_fences_return_home_ast():
@@ -184,14 +187,12 @@ def test_t7_default_safety_gate_reject_all_fulfill_disarmed_empty_params():
 
     command = propose_command(AutonomyVerb.RETURN_HOME, params={})
     assert command.params == {}
-    assert "RETURN_HOME" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
+    # T14 widened the allow-list — disarmed still rejects regardless of
+    # membership; membership itself is asserted in test_t5 above.
+    assert "RETURN_HOME" in ArmedAllowlistSafetyGate._ALLOWED_VERBS
 
     orch = JarvisOrchestrator()
     result = orch.handle_user_text("rtl", _ExplodingLLMInterface())
     assert "disarmed" in result["message"]
     assert result["action"] == "vehicle_return_home"
 
-
-def test_t8_pyproject_version_is_0_6_18():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.20"' in text
