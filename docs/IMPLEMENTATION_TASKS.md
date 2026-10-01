@@ -6,11 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T21** Skills runtime software — implemented (Claude); await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.30`**. Last Buy of today's software block.  
+> **PRIORIDAD AHORA:** **T21** Skills runtime software — Cursor review **PASS WITH NOTES** @ `65a0c2f`; await Engineer ★ ACCEPT → tag **`v0.6.30`**. Closes today’s T18–T21 block.  
 > **Just closed:** **T20** chat sim copper ★ **ACCEPT CLOSED** @ **`v0.6.29`**.  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt (listed):** **SD-GO_TO** — chat GO_TO sin destino ↔ C40 exige `x_m`/`y_m` ([note](../.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md)).  
-> SoT: [T21 report](../.jes/artifacts/implementation_report_capability_skills_runtime_software_b1.md) · [T21 IC](../.jes/artifacts/implementation_contract_capability_skills_runtime_software_b1.md) · [T20 review ★](../.jes/artifacts/implementation_review_assistant_chat_sim_copper_b1.md).  
+> **After ★:** Skill-first chat (next block) → voz/world.  
+> SoT: [T21 review](../.jes/artifacts/implementation_review_capability_skills_runtime_software_b1.md) · [T21 report](../.jes/artifacts/implementation_report_capability_skills_runtime_software_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
