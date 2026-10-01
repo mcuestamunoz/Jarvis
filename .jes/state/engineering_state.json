@@ -1,16 +1,16 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T23 Cursor review PASS WITH NOTES @ 0.6.32; await Engineer \u2605 ACCEPT",
-  "scope": "Forensic review of vehicle HOLD Skill-first. No ACCEPT/tag this turn.",
-  "execution_status": "review_pass_awaiting_accept",
-  "current_mode": "close",
+  "cycle_intent": "T23 \u2605 ACCEPT CLOSED @ v0.6.32; T24 LAND Skill-first AUTHORIZED for Claude @ 0.6.33",
+  "scope": "Close HOLD Skill-first. Authorize LAND + shared vehicle gate (T23 N2).",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: Revisa"
+    "reason": "Engineer: Accept que viene siguiente?"
   },
   "relevant_workflow_phases": [
-    "Review",
-    "Close"
+    "Close",
+    "Authorize"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -19,34 +19,35 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_hold_b1.md"
+    ".jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_hold_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_land_b1.md"
   ],
   "open_questions": [
-    "Engineer \u2605 ACCEPT for T23 @ v0.6.32?",
-    "After \u2605: remaining vehicle Skill-first siblings?"
+    "Claude implements T24 @ 0.6.33?",
+    "After T24 \u2605: GO_TO / further siblings?"
   ],
   "active_operation": {
-    "type": "review_pass_awaiting_accept",
-    "contract": "implementation_contract_assistant_chat_skill_first_vehicle_hold_b1.md",
+    "type": "authorized_implementation",
+    "contract": "implementation_contract_assistant_chat_skill_first_vehicle_land_b1.md",
     "ids": [
-      "T23",
-      "B1-assistant-chat-skill-first-vehicle-hold"
+      "T24",
+      "B1-assistant-chat-skill-first-vehicle-land"
     ],
-    "blocked_on": "engineer_accept"
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "T23 Cursor forensic review PASS WITH NOTES"
+    "B1-assistant-chat-skill-first-vehicle-hold \u2605 ACCEPT CLOSED @ v0.6.32",
+    "Skill-first phase B HOLD CLOSED"
   ],
   "authority_gates": [
-    "No tag v0.6.32 without Engineer \u2605 ACCEPT",
     "No tip/package version pin tests",
     "SD-GO_TO remains OPEN",
-    "flight.hold stays not_implemented"
+    "Vehicle Skills must not use SoftwareCapabilitySafetyGate-only",
+    "flight.land stays not_implemented this Buy"
   ],
   "coherence_checklist": [
-    "Vehicle gate without SoftwareCapabilitySafetyGate",
-    "HOLD chat via run_skill then _handle_vehicle_hold",
-    "33 related tests green"
+    "Tag v0.6.32",
+    "T24 IC AUTHORIZED"
   ],
-  "updated_at": "2026-10-01T19:25:00Z"
+  "updated_at": "2026-10-01T19:30:00Z"
 }
