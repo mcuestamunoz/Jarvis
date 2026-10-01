@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.25`**
 
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.25`**.  
+**Status:** **Implemented** (Claude Code) — Cursor review **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag **`v0.6.25`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_assistant_vehicle_allowlist_widen_b0.md)
 - T16 [`B1-esc-fence-import-only`](implementation_review_esc_fence_import_only_b1.md) — ★ ACCEPT CLOSED @ **`v0.6.24`** (tip)
@@ -71,10 +71,11 @@ Bump stale `0.6.24` checkpoints this Buy owns.
 
 ## 3. Acceptance
 
-- [ ] `_ALLOWED_VERBS` widened to seven chat AutonomyVerbs  
-- [ ] Armed path: all seven → `allow`/`not_implemented`; disarmed unchanged  
-- [ ] Arm UX copy honest · prior suites retargeted · cascade 10/11 · T1–T8 · docs · `0.6.25`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.25`**
+- [x] `_ALLOWED_VERBS` widened to seven chat AutonomyVerbs  
+- [x] Armed path: all seven → `allow`/`not_implemented`; disarmed unchanged  
+- [x] Arm UX copy honest · prior suites retargeted · cascade 10/11 · T1–T8 · docs · `0.6.25`  
+- [x] Cursor review **PASS WITH NOTES** @ `a0964e8`  
+- [ ] Engineer ACCEPT · tag **`v0.6.25`**
 
 ---
 
