@@ -6,17 +6,17 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T18** fulfill docstring honesty — implemented (Claude); await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.27`**. Then T19 CHARGE → T20 copper → T21 Skills runtime.  
-> **Just closed:** **T14** ★ @ **`v0.6.25`** · **T17** ★ @ **`v0.6.26`**. CONNECTIONS synced.  
+> **PRIORIDAD AHORA:** **T18** fulfill docstring honesty — Cursor review **PASS WITH NOTES** @ `16678d6`; await Engineer ★ ACCEPT → tag **`v0.6.27`**. Then T19 CHARGE → T20 copper → T21 Skills.  
+> **Just closed:** **T14** ★ @ **`v0.6.25`** · **T17** ★ @ **`v0.6.26`**.  
 > **Policy:** no tip/package version pins in tests.  
-> SoT: [T18 IC](../.jes/artifacts/implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md) · [cola ICs](../.jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md).  
+> SoT: [T18 review](../.jes/artifacts/implementation_review_orchestrator_fulfill_docstring_honesty_b1.md) · [T18 report](../.jes/artifacts/implementation_report_orchestrator_fulfill_docstring_honesty_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.26`** · T0–T17 ★ CLOSED · T18–T21 ICs ★ AUTHORIZED in coherence order)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`0.6.27`** · T0–T17 ★ CLOSED · T18 Cursor PASS · await Engineer ★ ACCEPT · T19–T21 AUTHORIZED after)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -59,7 +59,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T17** | **`DC-suite-tip-pin-cleanup`** | **✅ ★ CLOSED** | Retire tip/package version pins · policy: no tip pins in tests | [DC](../.jes/artifacts/design_contract_suite_tip_pin_cleanup_b0.md) |
 | **T17** | **`B1-suite-tip-pin-cleanup`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.26`** | Delete ~72 tip-pin tests · guardrail · no tip pins going forward | [review](../.jes/artifacts/implementation_review_suite_tip_pin_cleanup_b1.md) |
 | **T18** | **`DC-orchestrator-fulfill-docstring-honesty`** | **✅ ★ CLOSED** | T14 N1 — fulfill comments match seven-verb allow-list | [DC](../.jes/artifacts/design_contract_orchestrator_fulfill_docstring_honesty_b0.md) |
-| **T18** | **`B1-orchestrator-fulfill-docstring-honesty`** | **Implemented** · await review/★ ACCEPT (tag `v0.6.27`) | comment/docstring only · no behavior change | [report](../.jes/artifacts/implementation_report_orchestrator_fulfill_docstring_honesty_b1.md) · [IC](../.jes/artifacts/implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md) |
+| **T18** | **`B1-orchestrator-fulfill-docstring-honesty`** | **Cursor PASS WITH NOTES** · await Engineer ★ ACCEPT (tag `v0.6.27`) | comment/docstring only · no behavior change | [review](../.jes/artifacts/implementation_review_orchestrator_fulfill_docstring_honesty_b1.md) · [report](../.jes/artifacts/implementation_report_orchestrator_fulfill_docstring_honesty_b1.md) · [IC](../.jes/artifacts/implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md) |
 | **T19** | **`DC-assistant-ops-charge-task`** | **✅ ★ CLOSED** | CHARGE ops Task ≠ AutonomyVerb | [DC](../.jes/artifacts/design_contract_assistant_ops_charge_task_b0.md) |
 | **T19** | **`B1-assistant-ops-charge-task`** | **★ AUTHORIZED** @ `0.6.28` · after T18 ★ | `ops.charge` device · no propose_command | [IC](../.jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md) |
 | **T20** | **`DC-assistant-chat-sim-copper`** | **✅ ★ CLOSED** | chat allow → sim tick HOLD/LAND/GO_TO | [DC](../.jes/artifacts/design_contract_assistant_chat_sim_copper_b0.md) |
