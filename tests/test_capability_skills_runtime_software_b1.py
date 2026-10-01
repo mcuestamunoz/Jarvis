@@ -79,8 +79,10 @@ def test_t2b_project_status_via_real_orchestrator_build_startup_context(tmp_path
 
 
 def test_t3_vehicle_and_ops_skills_stay_stub():
+    """T21: vehicle/ops Skills were stub. T23 flips HOLD to available
+    (vehicle gate) — see `test_assistant_chat_skill_first_vehicle_hold_b1`.
+    Remaining vehicle/ops Skills stay stub."""
     for skill_id in (
-        "skill.request_hold",
         "skill.request_land",
         "skill.request_go_to",
         "skill.request_takeoff",
@@ -103,12 +105,19 @@ def test_t3b_unknown_skill_id_honest_reject():
 
 
 def test_t4_seed_exactly_two_available_rest_stub():
+    """T21 shipped two available software Skills. T23 adds HOLD as a third
+    available Skill (vehicle gate) — membership widened, not a reopen of T21."""
     registry = CapabilityRegistry.load_default()
     available_ids = {s.id for s in registry.skills() if s.availability == CapabilityAvailability.AVAILABLE}
-    assert available_ids == {"skill.explain_concept", "skill.project_status"}
+    assert {"skill.explain_concept", "skill.project_status", "skill.request_hold"} <= available_ids
+    assert available_ids == {
+        "skill.explain_concept",
+        "skill.project_status",
+        "skill.request_hold",
+    }
 
     stub_ids = {s.id for s in registry.skills() if s.availability == CapabilityAvailability.STUB}
-    assert "skill.request_hold" in stub_ids
+    assert "skill.request_hold" not in stub_ids
     assert "skill.request_charge" in stub_ids
     assert available_ids.isdisjoint(stub_ids)
     assert len(registry.skills()) == 12

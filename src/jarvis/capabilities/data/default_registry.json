@@ -172,9 +172,9 @@
         },
         {
             "id": "skill.request_hold",
-            "version": "0.6.14",
+            "version": "0.6.32",
             "required_capability_ids": ["flight.hold"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_land",

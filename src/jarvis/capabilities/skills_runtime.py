@@ -1,45 +1,28 @@
-"""`B1-capability-skills-runtime-software` (T21) — first Skill **runner**,
-software Skills only. T5 (`B1-capability-skills-seed`) gave
-`CapabilityRegistry.load_default()` its first Skill rows, all declared
-`stub` — still no execution path anywhere. This module adds exactly one:
+"""Skill runner — software Skills (T21/T22) + first vehicle Skill gate (T23).
+
+T5 (`B1-capability-skills-seed`) declared Skill rows. T21 added
 `run_skill(skill_id, ...)`, a thin dispatcher that looks a Skill up,
-checks it is `available`, re-runs the same T4-shaped software Safety
-check `jarvis.intelligence.assistant_task` already uses before emitting
-a software Task, then calls the *existing* fulfill path for that one
-Skill — never a second, competing implementation of any of it.
+checks it is `available`, then either:
 
-**Only** `skill.explain_concept` / `skill.project_status` are marked
-`available` this Buy (`default_registry.json`). Every vehicle/ops Skill
-(`skill.request_hold`, …, `skill.request_patrol`, `skill.request_charge`)
-stays `stub` and `run_skill` rejects it with reason `"skill_stub"` —
-this module never calls `propose_command`/`AutonomyVerb`/any sim or
-flight path, and never imports `jarvis.flight_software`/
-`jarvis.vehicle_profiles`.
+* **software Skills** (`skill.explain_concept` / `skill.project_status`):
+  re-runs the T4-shaped `SoftwareCapabilitySafetyGate` check and calls
+  the existing fulfill path — never a second cite/Continuity brain;
+* **vehicle HOLD** (`skill.request_hold`, T23): does **not** use
+  `SoftwareCapabilitySafetyGate` (that gate only allows
+  `available`+`software`; `flight.hold` is intentionally
+  `not_implemented`/`vehicle`). Instead: registry membership that every
+  required capability exists and its bound provider `kind == vehicle`.
+  On pass → `outcome="ok"` as a **gate only** — no `propose_command`,
+  ArmedAllowlist, sim, or imports of `jarvis.core` /
+  `jarvis.flight_software` / `jarvis.vehicle_profiles`. Chat fulfill
+  stays in `core/orchestrator.py` (`_handle_vehicle_hold`).
 
-**Chat Task classify is unchanged.** `jarvis.intelligence.assistant_task`
-still never looks a Skill up before emitting a Task (T0's own original
-lock, still true). `run_skill` is an **additional**, separately-callable
-API — nothing in this Buy wires chat to call it. That Skill-first wiring
-is explicitly the next block after this one (DC §0 row 3 / IC "Not").
+Other vehicle/ops Skills stay `stub` → `skill_stub` reject.
 
-**`skill.explain_concept`** reuses `jarvis.intelligence.assistant_task.
-fulfill_ontology_explain` byte-for-byte — no second cite path.
-
-**`skill.project_status`** needs a live `ProjectState` to report
-anything — and this module, living in `jarvis.capabilities`, never
-imports `jarvis.core` (same one-directional layering `registry.py`/
-`safety.py` already hold: capabilities never imports core/intelligence
-upward except the one explicit exception above, which the DC itself
-names). So `run_skill` never reaches into the orchestrator itself;
-instead, a caller that already has the real Continuity status callable
-(e.g. an orchestrator's own `build_startup_context`, unmodified — the
-**read-only** builder, not `_handle_project_status`, which has a
-session-mutating side effect for `proactive_question`) may pass it in
-via `project_status_provider`. With no provider supplied —
-the default, and the only path this Buy's own tests exercise directly —
-`run_skill` honestly rejects with reason `"no_project"` rather than
-duplicating any Continuity ranking logic itself (DC §0 row 2: "No new
-Continuity ranking logic").
+**Chat Skill-first:** T22 wires explain/status fulfill through
+`run_skill`. T23 gates chat HOLD the same way, then orch fulfills.
+Classify (`try_*_task`) still chooses the Skill/Task id — Skill-first
+means fulfill-through-`run_skill`, not deleting Tasks.
 """
 
 from __future__ import annotations
@@ -51,10 +34,11 @@ from pydantic import BaseModel, ConfigDict
 
 from jarvis.capabilities.registry import CapabilityRegistry
 from jarvis.capabilities.safety import SafetyRequest, SoftwareCapabilitySafetyGate
-from jarvis.capabilities.schemas import CapabilityAvailability
+from jarvis.capabilities.schemas import CapabilityAvailability, ProviderKind, SkillRecord
 
 SKILL_ID_EXPLAIN_CONCEPT = "skill.explain_concept"
 SKILL_ID_PROJECT_STATUS = "skill.project_status"
+SKILL_ID_REQUEST_HOLD = "skill.request_hold"
 
 
 class SkillRunResult(BaseModel):
@@ -82,6 +66,29 @@ def _software_safety_allows_skill(required_capability_ids: list[str]) -> bool:
     return decision.outcome == "allow"
 
 
+def _vehicle_skill_gate(
+    registry: CapabilityRegistry, skill: SkillRecord
+) -> SkillRunResult:
+    """T23 HOLD gate: membership + provider kind==vehicle. Never software
+    Safety, never propose_command/sim."""
+    for capability_id in skill.required_capability_ids:
+        capability = registry.get_capability(capability_id)
+        if capability is None:
+            return SkillRunResult(
+                skill_id=skill.id, outcome="reject", reason="capability_unknown"
+            )
+        if not capability.provider_id:
+            return SkillRunResult(
+                skill_id=skill.id, outcome="reject", reason="provider_not_vehicle"
+            )
+        provider = registry.get_provider(capability.provider_id)
+        if provider is None or provider.kind != ProviderKind.VEHICLE:
+            return SkillRunResult(
+                skill_id=skill.id, outcome="reject", reason="provider_not_vehicle"
+            )
+    return SkillRunResult(skill_id=skill.id, outcome="ok")
+
+
 def run_skill(
     skill_id: str,
     *,
@@ -90,11 +97,15 @@ def run_skill(
     ontology_root: Path | None = None,
 ) -> SkillRunResult:
     """Look `skill_id` up in `CapabilityRegistry.load_default()`, require
-    `availability == AVAILABLE` (vehicle/ops Skills are `stub` → reject),
-    re-check required capability ids through the same T4-shaped software
-    Safety gate, then dispatch to the one existing fulfill path this
-    Skill reuses. Finite `reason`s: `unknown_skill` / `skill_stub` /
-    `safety_reject` / `missing_query` / `no_project` / `no_dispatcher`.
+    `availability == AVAILABLE`, then dispatch:
+
+    * software Skills → T4-shaped software Safety + existing fulfill;
+    * `skill.request_hold` → vehicle membership/provider gate (T23);
+    * other vehicle/ops still `stub` → `skill_stub`.
+
+    Finite `reason`s: `unknown_skill` / `skill_stub` / `safety_reject` /
+    `capability_unknown` / `provider_not_vehicle` / `missing_query` /
+    `no_project` / `no_dispatcher`.
 
     T22: chat Skill-first may pass `ontology_root` through to
     `fulfill_ontology_explain` (tests / alternate vault roots).
@@ -106,6 +117,10 @@ def run_skill(
 
     if skill.availability != CapabilityAvailability.AVAILABLE:
         return SkillRunResult(skill_id=skill_id, outcome="reject", reason="skill_stub")
+
+    # T23: vehicle HOLD must not route through SoftwareCapabilitySafetyGate.
+    if skill_id == SKILL_ID_REQUEST_HOLD:
+        return _vehicle_skill_gate(registry, skill)
 
     if not _software_safety_allows_skill(skill.required_capability_ids):
         return SkillRunResult(skill_id=skill_id, outcome="reject", reason="safety_reject")
@@ -126,7 +141,6 @@ def run_skill(
             return SkillRunResult(skill_id=skill_id, outcome="reject", reason="no_project")
         return SkillRunResult(skill_id=skill_id, outcome="ok", message=str(ctx))
 
-    # Only reachable if default_registry.json ever marks a third Skill
-    # `available` without this module growing a matching dispatch arm —
-    # a config/code mismatch, not a normal runtime outcome.
+    # Only reachable if default_registry.json marks another Skill
+    # `available` without a matching dispatch arm — config/code mismatch.
     return SkillRunResult(skill_id=skill_id, outcome="reject", reason="no_dispatcher")

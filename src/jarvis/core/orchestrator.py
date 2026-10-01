@@ -569,10 +569,22 @@ class JarvisOrchestrator:
         # Task kind. Precedence: explain → Continuity defer → ARM → DISARM →
         # HOLD → fallthrough. Fulfilled here via the shared chat
         # ArmedAllowlist (T11) — never a claim of executed flight.
+        # T23 Skill-first: gate through run_skill("skill.request_hold") first
+        # (vehicle membership/provider path — not SoftwareCapabilitySafetyGate);
+        # on ok keep _handle_vehicle_hold (ArmedAllowlist + T20 sim copper).
+        # `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_hold_task
 
         hold_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_hold_task(hold_intent) is not None:
+            hold_skill = run_skill("skill.request_hold")
+            if hold_skill.outcome != "ok":
+                reason = hold_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_hold no disponible ({reason}).",
+                }
             return self._handle_vehicle_hold(hold_intent)
 
         # ── Vehicle LAND intercept, via Assistant Task seam (T7) ──────────────

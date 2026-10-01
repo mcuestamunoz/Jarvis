@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T23** Skill-first vehicle HOLD — ★ **AUTHORIZED** for Claude @ **`0.6.32`**.  
+> **PRIORIDAD AHORA:** **T23** Skill-first vehicle HOLD — **Implemented** (Cursor, Engineer “Ejecuta tu ic t23”) @ **`0.6.32`**; await ★ ACCEPT → tag **`v0.6.32`**.  
 > **Just closed:** **T22** Skill-first software ★ **ACCEPT CLOSED** @ **`v0.6.31`** — Skill-first **phase A CLOSED**.  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt (listed):** **SD-GO_TO** ([note](../.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md)).  
 > **Horizon after T23 ★:** remaining vehicle Skill-first siblings → voz/world · phased CLI migrate.  
-> SoT: [T23 IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_hold_b1.md) · [T22 review ★](../.jes/artifacts/implementation_review_assistant_chat_skill_first_software_b1.md).  
+> SoT: [T23 report](../.jes/artifacts/implementation_report_assistant_chat_skill_first_vehicle_hold_b1.md) · [T23 IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_hold_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -19,7 +19,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`0.6.31`** · T0–T22 ★ CLOSED · T23 AUTHORIZED · then vehicle Skill-first siblings · voz/world)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`0.6.32`** · T0–T22 ★ CLOSED · T23 implemented await ★ ACCEPT · then vehicle Skill-first siblings · voz/world)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -72,7 +72,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T21** | **`B1-capability-skills-runtime-software`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.30`** | explain/status Skills `available` + `run_skill` · **not** vehicle Skill-first | [review](../.jes/artifacts/implementation_review_capability_skills_runtime_software_b1.md) |
 | **T22** | **`DC-assistant-chat-skill-first`** | **✅ ★ CLOSED** | Skill-first block lock · phased | [DC](../.jes/artifacts/design_contract_assistant_chat_skill_first_b0.md) |
 | **T22** | **`B1-assistant-chat-skill-first-software`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.31`** | chat explain/status via `run_skill` · vehicle still Task-direct | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_software_b1.md) |
-| **T23** | **`B1-assistant-chat-skill-first-vehicle-hold`** | ★ **AUTHORIZED** · Claude → `0.6.32` | HOLD Skill-first · no SoftwareCapabilitySafetyGate-only · `flight.hold` stays `not_implemented` | [IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_hold_b1.md) |
+| **T23** | **`B1-assistant-chat-skill-first-vehicle-hold`** | **Implemented** (Cursor) · await ★ ACCEPT (tag `v0.6.32`) | HOLD Skill-first · no SoftwareCapabilitySafetyGate-only · `flight.hold` stays `not_implemented` | [report](../.jes/artifacts/implementation_report_assistant_chat_skill_first_vehicle_hold_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_hold_b1.md) |
 | **after T23** | Skill-first remaining vehicle/ops Skills | **Candidate** | after T23 ★ · siblings of HOLD | ★ pick / new IC |
 | **after Skill-first** | Voz / world (A4) → same Skills · CLI by phases | **Horizon** | Engineer 2026-10-01: migrate CLI by phases, clean | DC placement §4 |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |

@@ -53,6 +53,9 @@ def test_t2_status_phrase_skill_gate_and_project_status_shape(tmp_path: Path):
 
 
 def test_t3_hold_and_charge_still_task_direct(tmp_path: Path):
+    """T22: charge stays Task-direct (no ops Skill-first). T23 later
+    gates HOLD via `skill.request_hold` — see
+    `test_assistant_chat_skill_first_vehicle_hold_b1`."""
     orch = JarvisOrchestrator(workspace_root=tmp_path)
     exploding = _ExplodingLLMInterface()
     with patch(
@@ -63,12 +66,8 @@ def test_t3_hold_and_charge_still_task_direct(tmp_path: Path):
         charge = orch.handle_user_text("charge", exploding)
     assert hold["action"] == "vehicle_hold"
     assert charge["action"] == "ops_charge"
-    # Skill-first software gate must not intercept vehicle/ops
     for call in skill_spy.call_args_list:
-        assert call.args[0] not in (
-            "skill.request_hold",
-            "skill.request_charge",
-        )
+        assert call.args[0] != "skill.request_charge"
 
 
 def test_t4_handle_explain_intent_does_not_bypass_run_skill():
