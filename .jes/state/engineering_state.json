@@ -1,45 +1,45 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T18 ★ ACCEPT CLOSED @ v0.6.27; Claude implement T19 CHARGE @ 0.6.28",
-  "scope": "T18 docstring honesty closed. Next software cola: T19 ops CHARGE → T20 sim copper HOLD/LAND/GO_TO → T21 Skills runtime software. Three hardware/assembly items parked.",
-  "execution_status": "authorized_awaiting_impl",
-  "current_mode": "implement",
+  "cycle_intent": "T19 CHARGE ops Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT @ v0.6.28",
+  "scope": "First ops Task — CHARGE ≠ AutonomyVerb. Membership only; device not_implemented; no propose_command/sim. Not real battery hardware.",
+  "execution_status": "review_pass_awaiting_accept",
+  "current_mode": "close",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: Accept T18 y manda T19 para claude; clarify parked vs next after IC block"
+    "reason": "Engineer pasted Claude T19 push summary; Cursor independent review"
   },
-  "relevant_workflow_phases": ["Close", "Implement"],
+  "relevant_workflow_phases": ["Review", "Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_orchestrator_fulfill_docstring_honesty_b1.md",
-    ".jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md",
+    ".jes/artifacts/implementation_report_assistant_ops_charge_task_b1.md",
+    ".jes/artifacts/implementation_review_assistant_ops_charge_task_b1.md"
   ],
   "open_questions": [
-    "Claude T19 CHARGE impl + Cursor review?",
-    "After T19–T21 ★: authorize Skill-first vehicle Skills IC? Voice/world stays horizon unless elevated?"
+    "Engineer ★ ACCEPT for T19 @ v0.6.28?",
+    "Then Claude T20 sim copper @ 0.6.29?"
   ],
   "active_operation": {
-    "type": "authorized_awaiting_impl",
+    "type": "review_pass_awaiting_accept",
     "contract": "implementation_contract_assistant_ops_charge_task_b1.md",
     "ids": ["T19", "B1-assistant-ops-charge-task"],
-    "blocked_on": "claude_impl"
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "T18 B1-orchestrator-fulfill-docstring-honesty ★ ACCEPT CLOSED @ v0.6.27",
-    "Tag v0.6.27",
-    "T19 AUTHORIZED for Claude"
+    "B1-assistant-ops-charge-task implemented by Claude @ 0.6.28",
+    "Cursor independent review PASS WITH NOTES @ 9b946f0"
   ],
   "authority_gates": [
+    "No tag v0.6.28 without Engineer ★ ACCEPT",
     "No tip/package version pin tests",
-    "T19 CHARGE = ops Task not_implemented — not real battery hardware",
-    "T20 copper = sim tick HOLD/LAND/GO_TO only — not ESC live / not TAKEOFF/RH/FOLLOW/PATROL sim",
-    "Parked until components/assembly: ESC live · sim TAKEOFF/RH/FOLLOW/PATROL · real CHARGE battery",
-    "After T21 ★ candidates: Skill-first vehicle Skills · Voice/world (A4 horizon)"
+    "CHARGE ≠ AutonomyVerb · not real battery",
+    "T20–T21 remain AUTHORIZED after T19 ★"
   ],
   "coherence_checklist": [
-    "Tag v0.6.27",
-    "Package tip 0.6.27",
-    "T19 paste ready for Claude"
+    "Cascade 11 caps / 12 skills",
+    "provider.ops_charge kind=device",
+    "Package 0.6.28",
+    "Armed ≡ disarmed message (T4b)"
   ],
-  "updated_at": "2026-10-01T09:05:00Z"
+  "updated_at": "2026-10-01T09:25:00Z"
 }
