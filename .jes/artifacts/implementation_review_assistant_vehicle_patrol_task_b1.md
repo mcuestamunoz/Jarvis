@@ -4,7 +4,7 @@
 **Reviewer:** Cursor (independent pass — Engineer pasted Claude T13 push summary)  
 **Against:** [IC](implementation_contract_assistant_vehicle_patrol_task_b1.md) · [report](implementation_report_assistant_vehicle_patrol_task_b1.md) · [DC ★](design_contract_assistant_vehicle_patrol_task_b0.md)  
 **Tip reviewed:** `7e583fb` on `cursor/assistant-patrol-impl-8ac5` (vs `origin/main` `843b77d`)  
-**Verdict:** **PASS WITH NOTES** — package ready for Engineer ★ ACCEPT → tag **`v0.6.21`**. **No ACCEPT claim from Cursor.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.21` / `v0.6.21`**.
 
 **Process note:** Claude Code implemented. Same-session implementer green is not review of record. This pass re-audits the tip against IC §0 locks with live E2E + pytest.
 
@@ -100,7 +100,7 @@ Expone `AutonomyVerb.PATROL` en el Tasker con la misma honestidad que FOLLOW/TAK
 
 **N1 — Stale gate docstring (remediated).** `_vehicle_chat_safety_gate` still said “five vehicle fulfills” after T12/T13. Updated to “vehicle fulfills (HOLD…PATROL)”.
 
-**N2 — Process.** Claude implementer green ≠ review of record. This Cursor pass is the review of record for IC compliance. Engineer ★ ACCEPT still required for tag `v0.6.21`.
+**N2 — Process.** Claude implementer green ≠ review of record. This Cursor pass is the review of record for IC compliance. Engineer ★ ACCEPT applied this close.
 
 **N3 — Residual (informational).** Historical T8–T12 ACCEPT blocks in PLATFORM still say “PATROL remain later” in their period text; tip narrative is the T13 section + Placement line. T11 ARM UX Spanish message still names TAKEOFF/RETURN_HOME as the `verb_not_allowed` examples (period honesty from that Buy) — FOLLOW/PATROL share the same class by allow-list, covered by tests.
 
@@ -111,8 +111,7 @@ Expone `AutonomyVerb.PATROL` en el Tasker con la misma honestidad que FOLLOW/TAK
 ## 7. Next
 
 ```text
-Cursor review: PASS WITH NOTES @ 7e583fb
-Await Engineer ★ ACCEPT → tag v0.6.21
-Then pick: allow-list widen · CHARGE · copper
-(FN-016 / ESC comment: separate Buy when authorized — not in this tip)
+★ ACCEPT CLOSED @ v0.6.21 (Engineer 2026-10-01)
+Await Engineer ★ pick: allow-list widen · CHARGE · copper
+(FN-016 / ESC comment: separate Buy when authorized)
 ```

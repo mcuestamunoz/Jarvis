@@ -1,48 +1,41 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT @ v0.6.21",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "review_pass_awaiting_accept",
-  "current_mode": "close",
+  "cycle_intent": "T13 PATROL ★ ACCEPT CLOSED @ v0.6.21; await Engineer pick for next Buy",
+  "scope": "Seventh vehicle Task request_patrol closed via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. Tip tagged.",
+  "execution_status": "idle",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer pasted Claude T13 push summary; Cursor independent review"
+    "reason": "Engineer: accedpt (ACCEPT T13)"
   },
-  "relevant_workflow_phases": ["Review", "Close"],
+  "relevant_workflow_phases": ["Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md",
     ".jes/artifacts/implementation_review_assistant_vehicle_patrol_task_b1.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT for T13 @ v0.6.21?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Next after T13 ★: allow-list widen · CHARGE · copper?"
   ],
   "active_operation": {
-    "type": "review_pass_awaiting_accept",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "engineer_accept"
+    "type": "none",
+    "contract": null,
+    "ids": [],
+    "blocked_on": "Engineer ★ pick next Buy"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21",
-    "B1-assistant-vehicle-patrol-task implemented by Claude @ 0.6.21 (T1-T9 green; no ACCEPT claim)",
-    "Cursor independent review PASS WITH NOTES @ 7e583fb (+ N1 docstring remediation)"
+    "T13 B1-assistant-vehicle-patrol-task ★ ACCEPT CLOSED @ v0.6.21"
   ],
   "authority_gates": [
-    "Cursor IC/docs/review only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist",
-    "No tag v0.6.21 without Engineer ★ ACCEPT"
+    "No allow-list widen without explicit Buy",
+    "CHARGE/copper require new IC",
+    "No route/waypoint parse without new IC",
+    "FN-016/ESC separate Buy when authorized"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21",
-    "Cascade 10 caps / 11 skills"
+    "Tag v0.6.21",
+    "Cascade 10 caps / 11 skills",
+    "Shared gate for PATROL",
+    "Vehicle-verb cola closed"
   ],
-  "updated_at": "2026-10-01T07:30:00Z"
+  "updated_at": "2026-10-01T07:25:00Z"
 }

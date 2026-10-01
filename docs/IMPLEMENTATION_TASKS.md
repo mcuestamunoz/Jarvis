@@ -6,8 +6,7 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T13** vehicle **PATROL** Task — Cursor review **PASS WITH NOTES** @ `7e583fb`; await Engineer ★ ACCEPT → tag **`v0.6.21`**. Parent tip **`v0.6.20`** (T12 FOLLOW ★). Last C4 AutonomyVerb in chat Tasker.  
-> **Cola after T13 ★:** allow-list widen · CHARGE · copper.  
+> **PRIORIDAD AHORA:** **T13** vehicle **PATROL** ★ **ACCEPT CLOSED** @ **`v0.6.21`**. Await Engineer ★ pick next: allow-list widen · CHARGE · copper.  
 > **Background:** Silicon parked. Continuity stays in `core/`.  
 > SoT: [review](../.jes/artifacts/implementation_review_assistant_vehicle_patrol_task_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_vehicle_patrol_task_b0.md).  
 
@@ -16,7 +15,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · package **`0.6.21`** · A0–A8 + T0–T12 ★ CLOSED · T13 Cursor PASS · await Engineer ★ ACCEPT)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.21`** · A0–A8 + T0–T13 ★ CLOSED · await Engineer ★ pick)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -49,8 +48,8 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T12** | **`DC-assistant-vehicle-follow-task`** | **✅ ★ CLOSED** | sixth vehicle Task kind FOLLOW | [DC](../.jes/artifacts/design_contract_assistant_vehicle_follow_task_b0.md) |
 | **T12** | **`B1-assistant-vehicle-follow-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.20`** | Task FOLLOW → shared ArmedAllowlist · empty params · allow-list unwidened | [review](../.jes/artifacts/implementation_review_assistant_vehicle_follow_task_b1.md) |
 | **T13** | **`DC-assistant-vehicle-patrol-task`** | **✅ ★ CLOSED** | seventh vehicle Task kind PATROL · last C4 verb in chat | [DC](../.jes/artifacts/design_contract_assistant_vehicle_patrol_task_b0.md) |
-| **T13** | **`B1-assistant-vehicle-patrol-task`** | **Cursor PASS WITH NOTES** · await Engineer ★ ACCEPT (tag `v0.6.21`) | Task PATROL → shared ArmedAllowlist · empty params · allow-list unwidened | [review](../.jes/artifacts/implementation_review_assistant_vehicle_patrol_task_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md) |
-| **vehicle later** | allow-list widen · CHARGE (ops) · copper | **Candidate** | política Safety · CHARGE ≠ `AutonomyVerb` | pick after T13 ★ |
+| **T13** | **`B1-assistant-vehicle-patrol-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.21`** | Task PATROL → shared ArmedAllowlist · empty params · allow-list unwidened · closes vehicle-verb cola | [review](../.jes/artifacts/implementation_review_assistant_vehicle_patrol_task_b1.md) |
+| **vehicle later** | allow-list widen · CHARGE (ops) · copper | **Candidate** | política Safety · CHARGE ≠ `AutonomyVerb` | ★ pick next |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Parked** | Horizon | DC placement §4 |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |

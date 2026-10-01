@@ -161,7 +161,7 @@ Si no ves el bloque "Conceptos", es porque no hay ningún concepto sembrado rela
 
 *Nota interna (T12, `B1-assistant-vehicle-follow-task`, package `0.6.20`): `follow` / `sígueme` / `ven conmigo` → Task `request_follow` por el ArmedAllowlist compartido. Exact match only (no "sigue con el frame"). Sin parseo de persona/target. Tras `armar` → verb_not_allowed.*
 
-*Nota interna (T13, `B1-assistant-vehicle-patrol-task`, package `0.6.21`): `patrol` / `patrulla` / `iniciar patrulla` → Task `request_patrol` por el ArmedAllowlist compartido. Exact match only (no "patrulla del catalogo"). Sin parseo de waypoint/ruta. Tras `armar` → verb_not_allowed. Último `AutonomyVerb` sin Task en el chat — cierra la cola vehicle.*
+*Nota interna (T13, `B1-assistant-vehicle-patrol-task`, ★ ACCEPT CLOSED @ `v0.6.21`): `patrol` / `patrulla` / `iniciar patrulla` → Task `request_patrol` por el ArmedAllowlist compartido. Exact match only (no "patrulla del catalogo"). Sin parseo de waypoint/ruta. Tras `armar` → verb_not_allowed. Último `AutonomyVerb` sin Task en el chat — cierra la cola vehicle.*
 
 **Desde A8 (`B1-continuity-explain-topics-expand`): también verás `corriente-y-circuitos` cuando el proyecto ya tenga un punto de operación eléctrico (`motor_op_current_a`) resuelto** — el mismo dato que la línea "OP eléctrico" de `estado` ya muestra. Ejemplo real:
 
