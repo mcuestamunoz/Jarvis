@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_fn016_rtl_wizard_precedence_b1.md`](implementation_contract_fn016_rtl_wizard_precedence_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_fn016_rtl_wizard_precedence_b0.md) · [FN-016 cycle close ★](cycle_close_fn016.md) · T10 RETURN_HOME ★ @ **`v0.6.18`** · tip **`v0.6.21`**  
-**Status:** Implemented — await Cursor review → Engineer ★ ACCEPT. **No ACCEPT claim.**  
-**Package / tag:** `0.6.23` / **`v0.6.23`** (on ACCEPT).
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review PASS WITH NOTES.  
+**Package / tag:** `0.6.23` / **`v0.6.23`**.
 
 ---
 

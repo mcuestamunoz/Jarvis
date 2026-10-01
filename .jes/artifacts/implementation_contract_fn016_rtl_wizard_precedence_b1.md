@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.23`**
 
-**Status:** **Implemented** (Claude Code) — Cursor review **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag **`v0.6.23`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES**. Tag **`v0.6.23`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_fn016_rtl_wizard_precedence_b0.md)
 - [FN-016 cycle close ★](cycle_close_fn016.md)
@@ -59,10 +59,10 @@
 
 ## 3. Acceptance
 
-- [ ] Wizard navigation-back beats RETURN_HOME intercept  
-- [ ] IDLE RTL phrases unchanged  
-- [ ] FN-016 suite green · T1–T5 · `0.6.23`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.23`**
+- [x] Wizard navigation-back beats RETURN_HOME intercept  
+- [x] IDLE RTL phrases unchanged  
+- [x] FN-016 suite green · T1–T5 · `0.6.23`  
+- [x] Cursor review (**PASS WITH NOTES**) · [x] Engineer ACCEPT · tag **`v0.6.23`**
 
 ---
 

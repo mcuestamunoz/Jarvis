@@ -4,7 +4,7 @@
 **Reviewer:** Cursor (independent pass — Engineer pasted Claude T15 push summary)  
 **Against:** [IC](implementation_contract_fn016_rtl_wizard_precedence_b1.md) · [report](implementation_report_fn016_rtl_wizard_precedence_b1.md) · [DC ★](design_contract_fn016_rtl_wizard_precedence_b0.md)  
 **Tip reviewed:** `702babe` on `cursor/fn016-rtl-precedence-impl-8ac5` (parent IC tip `4d73435`)  
-**Verdict:** **PASS WITH NOTES** — package ready for Engineer ★ ACCEPT → tag **`v0.6.23`**. **No ACCEPT claim from Cursor.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.23` / `v0.6.23`**.
 
 **Process note:** Claude Code implemented. Same-session implementer green is not review of record. This pass re-audits the tip against IC §0 locks with live E2E + pytest.
 
@@ -82,7 +82,7 @@ Cierra la regresión real introducida al solapar frases RTL con navegación de w
 
 **N1 — Package numbering vs T14.** Tip jumps `0.6.21` → `0.6.23` because T14 (`0.6.22`) is still AUTHORIZED-only. Correct for this Buy. When Claude implements T14, retarget its package to the then-current tip+1 (likely `0.6.25` if T16 takes `0.6.24`), or land T14 before tagging if Engineer wants linear `0.6.22` consumed.
 
-**N2 — Process.** Claude implementer green ≠ review of record. This Cursor pass is the review of record for IC compliance. Engineer ★ ACCEPT still required for tag `v0.6.23`.
+**N2 — Process.** Claude implementer green ≠ review of record. This Cursor pass is the review of record for IC compliance. Engineer ★ ACCEPT applied this close.
 
 **N3 — Baseline.** Report’s 54→53 (FN-016 fixed; ESC fence + historical pins remain) matches the two-Buy split already authorized.
 
@@ -91,7 +91,6 @@ Cierra la regresión real introducida al solapar frases RTL con navegación de w
 ## 7. Next
 
 ```text
-Cursor review: PASS WITH NOTES @ 702babe
-Await Engineer ★ ACCEPT → tag v0.6.23
-Then: T16 ESC fence · and/or T14 allow-list (retarget version if needed)
+★ ACCEPT CLOSED @ v0.6.23 (Engineer 2026-10-01)
+Await Engineer ★ pick: T16 ESC fence · T14 allow-list (retarget T14 package)
 ```

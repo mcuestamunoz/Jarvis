@@ -1,43 +1,38 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T15 FN-016 RTL precedence Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT @ v0.6.23",
-  "scope": "DEFINE_MISSING nav-back cancel before vehicle RETURN_HOME intercept. IDLE RTL intact. T14/T16 still AUTHORIZED only.",
-  "execution_status": "review_pass_awaiting_accept",
-  "current_mode": "close",
+  "cycle_intent": "T15 FN-016 RTL precedence ★ ACCEPT CLOSED @ v0.6.23; await Engineer pick T16/T14",
+  "scope": "Wizard nav-back cancel restored vs RETURN_HOME steal. IDLE RTL intact. Tip tagged.",
+  "execution_status": "idle",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer pasted Claude T15 push summary; Cursor independent review"
+    "reason": "Engineer: accepty (ACCEPT T15)"
   },
-  "relevant_workflow_phases": ["Review", "Close"],
+  "relevant_workflow_phases": ["Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_fn016_rtl_wizard_precedence_b1.md",
-    ".jes/artifacts/implementation_report_fn016_rtl_wizard_precedence_b1.md",
     ".jes/artifacts/implementation_review_fn016_rtl_wizard_precedence_b1.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT for T15 @ v0.6.23?",
-    "Next: T16 ESC fence and/or T14 allow-list (retarget T14 package if tip already 0.6.23+)?"
+    "Next: T16 ESC fence @ 0.6.24 and/or T14 allow-list (retarget package off tip)?"
   ],
   "active_operation": {
-    "type": "review_pass_awaiting_accept",
-    "contract": "implementation_contract_fn016_rtl_wizard_precedence_b1.md",
-    "ids": ["T15", "B1-fn016-rtl-wizard-precedence"],
-    "blocked_on": "engineer_accept"
+    "type": "none",
+    "contract": null,
+    "ids": [],
+    "blocked_on": "Engineer ★ pick next Buy"
   },
   "closed_this_turn": [
-    "B1-fn016-rtl-wizard-precedence implemented by Claude @ 0.6.23",
-    "Cursor independent review PASS WITH NOTES @ 702babe"
+    "T15 B1-fn016-rtl-wizard-precedence ★ ACCEPT CLOSED @ v0.6.23"
   ],
   "authority_gates": [
-    "No tag v0.6.23 without Engineer ★ ACCEPT",
-    "T14/T16 not implemented in this tip",
-    "Do not mass-bump historical Fase C tip pins"
+    "T14 package must retarget tip+1 when implemented",
+    "T16 still AUTHORIZED @ 0.6.24",
+    "Tip-pin mass cleanup still a separate candidate"
   ],
   "coherence_checklist": [
-    "Wizard volver cancels; IDLE volver → RETURN_HOME",
-    "Package 0.6.23",
-    "Active-lineage checkpoints only"
+    "Tag v0.6.23",
+    "Wizard volver cancels; IDLE volver → RETURN_HOME"
   ],
-  "updated_at": "2026-10-01T07:55:00Z"
+  "updated_at": "2026-10-01T07:58:00Z"
 }
