@@ -645,6 +645,21 @@ class JarvisOrchestrator:
         if try_request_patrol_task(patrol_intent) is not None:
             return self._handle_vehicle_patrol(patrol_intent)
 
+        # ── Ops CHARGE intercept, via Assistant Task seam (T19) ───────────────
+        # T19 (B1-assistant-ops-charge-task): finite CHARGE phrases → Task
+        # (request_charge) requiring ops.charge — first **ops** Task kind.
+        # CHARGE is deliberately NOT an AutonomyVerb — never goes through
+        # ArmedAllowlistSafetyGate, armed or disarmed makes no difference.
+        # Precedence: … → PATROL → CHARGE → fallthrough. Exact match only
+        # (charge/cargar must not steal payload/mission lines like "carga
+        # util"). Fulfilled here without propose_command/AutonomyVerb/sim
+        # executor — honest Spanish that charge ops are not implemented.
+        from jarvis.intelligence.assistant_task import try_request_charge_task
+
+        charge_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_charge_task(charge_intent) is not None:
+            return self._handle_ops_charge(charge_intent)
+
         return None
 
     def _vehicle_chat_safety_gate(self):
@@ -798,6 +813,20 @@ class JarvisOrchestrator:
             f"Ejecución: {result.execution}."
         )
         return {"status": "ok", "action": "vehicle_patrol", "message": message}
+
+    def _handle_ops_charge(self, intent: Any) -> dict:
+        """T19 fulfill — first **ops** Task, not an AutonomyVerb. Never
+        calls `propose_command`/`AutonomyVerb`/the sim executor, and
+        never touches `ArmedAllowlistSafetyGate` (armed or disarmed makes
+        no difference to a non-flight-verb ops concept). Honest Spanish
+        — charge ops are not implemented; never a claim of real battery
+        charging."""
+        message = (
+            "Carga de batería solicitada, pero esta operación aún no está "
+            "implementada — no se inicia ninguna carga real. No es un "
+            "AutonomyVerb de vuelo."
+        )
+        return {"status": "ok", "action": "ops_charge", "message": message}
 
     _AFFIRMATIVE_WORDS: frozenset[str] = frozenset({
         "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante", "perfecto",

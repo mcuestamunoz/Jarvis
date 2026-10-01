@@ -180,7 +180,7 @@ def test_t6_seed_honesty_prior_rows_allowlist_unwidened():
         "skill.explain_concept",
         "skill.project_status",
     } <= skill_ids
-    assert len(skill_ids) == 11
+    assert len(skill_ids) == 12
 
     cap_ids = {c.id for c in registry.capabilities()}
     assert {
@@ -195,7 +195,7 @@ def test_t6_seed_honesty_prior_rows_allowlist_unwidened():
         "flight.follow",
         "flight.patrol",
     } <= cap_ids
-    assert len(cap_ids) == 10
+    assert len(cap_ids) == 11
 
     # T14 (B1-assistant-vehicle-allowlist-widen): widened to the full
     # seven-verb chat set.

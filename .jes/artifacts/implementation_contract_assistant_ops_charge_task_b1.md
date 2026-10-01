@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED after T18 ★ (implement in order)  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.28`**
 
-**Status:** ★ **AUTHORIZED — Claude implement now** (T18 ★ @ `v0.6.27`).  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.28`**.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_ops_charge_task_b0.md) · T14 ★ · T18 ★ @ **`v0.6.27`**  
 **Type:** First ops Task — CHARGE ≠ `AutonomyVerb`.  
 **Opens:** **`0.6.28` / `v0.6.28`**. **Cola:** **T19**

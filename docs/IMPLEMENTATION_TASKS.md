@@ -6,10 +6,10 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T19** CHARGE ops Task — ★ AUTHORIZED for **Claude** @ **`0.6.28`**. Then T20 sim copper → T21 Skills runtime software.  
+> **PRIORIDAD AHORA:** **T19** CHARGE ops Task — implemented (Claude); await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.28`**. Then T20 sim copper → T21 Skills runtime software.  
 > **Just closed:** **T18** docstring honesty ★ **ACCEPT CLOSED** @ **`v0.6.27`**.  
 > **Policy:** no tip/package version pins in tests.  
-> SoT: [T19 IC](../.jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md) · [T18 review ★](../.jes/artifacts/implementation_review_orchestrator_fulfill_docstring_honesty_b1.md).  
+> SoT: [T19 report](../.jes/artifacts/implementation_report_assistant_ops_charge_task_b1.md) · [T19 IC](../.jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md) · [T18 review ★](../.jes/artifacts/implementation_review_orchestrator_fulfill_docstring_honesty_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -62,7 +62,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T18** | **`DC-orchestrator-fulfill-docstring-honesty`** | **✅ ★ CLOSED** | T14 N1 — fulfill comments match seven-verb allow-list | [DC](../.jes/artifacts/design_contract_orchestrator_fulfill_docstring_honesty_b0.md) |
 | **T18** | **`B1-orchestrator-fulfill-docstring-honesty`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.27`** | comment/docstring only · no behavior change | [review](../.jes/artifacts/implementation_review_orchestrator_fulfill_docstring_honesty_b1.md) |
 | **T19** | **`DC-assistant-ops-charge-task`** | **✅ ★ CLOSED** | CHARGE ops Task ≠ AutonomyVerb · **not** real battery | [DC](../.jes/artifacts/design_contract_assistant_ops_charge_task_b0.md) |
-| **T19** | **`B1-assistant-ops-charge-task`** | **★ AUTHORIZED — Claude now** @ `0.6.28` | `ops.charge` device · no propose_command · honest not_implemented | [IC](../.jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md) |
+| **T19** | **`B1-assistant-ops-charge-task`** | **Implemented** · await review/★ ACCEPT (tag `v0.6.28`) | `ops.charge` device · no propose_command · honest not_implemented | [report](../.jes/artifacts/implementation_report_assistant_ops_charge_task_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md) |
 | **T20** | **`DC-assistant-chat-sim-copper`** | **✅ ★ CLOSED** | chat allow → sim tick HOLD/LAND/GO_TO only | [DC](../.jes/artifacts/design_contract_assistant_chat_sim_copper_b0.md) |
 | **T20** | **`B1-assistant-chat-sim-copper`** | **★ AUTHORIZED** @ `0.6.29` · after T19 ★ | SimAutonomyExecutor from chat after allow · **not** ESC live | [IC](../.jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md) |
 | **T21** | **`DC-capability-skills-runtime-software`** | **✅ ★ CLOSED** | first Skill runner · software Skills only | [DC](../.jes/artifacts/design_contract_capability_skills_runtime_software_b0.md) |

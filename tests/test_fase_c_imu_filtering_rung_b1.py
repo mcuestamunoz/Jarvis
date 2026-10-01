@@ -171,6 +171,9 @@ def test_t9_capability_registry_default_still_empty():
     # T13 (B1-assistant-vehicle-patrol-task): an eleventh, skill.request_patrol
     # (requires flight.patrol, not_implemented/vehicle) — see
     # tests/test_assistant_vehicle_patrol_task_b1.py.
+    # T19 (B1-assistant-ops-charge-task): a twelfth, skill.request_charge
+    # (requires ops.charge, not_implemented/device). CHARGE is not an
+    # AutonomyVerb — see tests/test_assistant_ops_charge_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -185,6 +188,7 @@ def test_t9_capability_registry_default_still_empty():
         "skill.request_disarm_policy",
         "skill.request_follow",
         "skill.request_patrol",
+        "skill.request_charge",
     }
 
 

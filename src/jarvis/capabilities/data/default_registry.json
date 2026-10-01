@@ -79,6 +79,14 @@
             "availability": "not_implemented",
             "requirements": [],
             "health": "unknown"
+        },
+        {
+            "id": "ops.charge",
+            "version": "0.6.28",
+            "provider_id": "provider.ops_charge",
+            "availability": "not_implemented",
+            "requirements": [],
+            "health": "unknown"
         }
     ],
     "providers": [
@@ -140,6 +148,12 @@
             "id": "provider.flight_patrol",
             "kind": "vehicle",
             "offered_capability_ids": ["flight.patrol"],
+            "health": "unknown"
+        },
+        {
+            "id": "provider.ops_charge",
+            "kind": "device",
+            "offered_capability_ids": ["ops.charge"],
             "health": "unknown"
         }
     ],
@@ -208,6 +222,12 @@
             "id": "skill.request_patrol",
             "version": "0.6.21",
             "required_capability_ids": ["flight.patrol"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_charge",
+            "version": "0.6.28",
+            "required_capability_ids": ["ops.charge"],
             "availability": "stub"
         }
     ]

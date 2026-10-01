@@ -108,9 +108,9 @@ def test_t5_armar_desarmar_patrol_back_to_disarmed():
 def test_t6_seed_cascade_unchanged_and_default_gate_still_reject_all():
     registry = CapabilityRegistry.load_default()
     cap_ids = {c.id for c in registry.capabilities()}
-    assert len(cap_ids) == 10
+    assert len(cap_ids) == 11
     skill_ids = {s.id for s in registry.skills()}
-    assert len(skill_ids) == 11
+    assert len(skill_ids) == 12
     assert isinstance(default_safety_gate(), RejectAllSafetyGate)
     assert default_safety_gate().evaluate(SafetyRequest()).outcome == "reject"
 
