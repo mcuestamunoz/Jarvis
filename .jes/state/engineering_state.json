@@ -1,43 +1,53 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "T23 \u2605 ACCEPT CLOSED @ v0.6.32; T24 LAND Skill-first AUTHORIZED for Claude @ 0.6.33",
+  "scope": "Close HOLD Skill-first. Authorize LAND + shared vehicle gate (T23 N2).",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: Accept que viene siguiente?"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
-  "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
+  "relevant_workflow_phases": [
+    "Close",
+    "Authorize"
+  ],
+  "applicable_rules": [
+    "R-GOV-1",
+    "R-GOV-2",
+    "R-COL-1",
+    "R-KNW-1"
+  ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_hold_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_land_b1.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Claude implements T24 @ 0.6.33?",
+    "After T24 \u2605: GO_TO / further siblings?"
   ],
   "active_operation": {
     "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "contract": "implementation_contract_assistant_chat_skill_first_vehicle_land_b1.md",
+    "ids": [
+      "T24",
+      "B1-assistant-chat-skill-first-vehicle-land"
+    ],
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "B1-assistant-chat-skill-first-vehicle-hold \u2605 ACCEPT CLOSED @ v0.6.32",
+    "Skill-first phase B HOLD CLOSED"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "No tip/package version pin tests",
+    "SD-GO_TO remains OPEN",
+    "Vehicle Skills must not use SoftwareCapabilitySafetyGate-only",
+    "flight.land stays not_implemented this Buy"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "Tag v0.6.32",
+    "T24 IC AUTHORIZED"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-01T19:30:00Z"
 }
