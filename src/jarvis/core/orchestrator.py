@@ -696,14 +696,21 @@ class JarvisOrchestrator:
         `SimAutonomyExecutor.tick` and return a short, honest Spanish
         note for the chat message. Never claims copper flight/motors/
         ESC. `GO_TO` from chat always carries empty params (T8 — no
-        coordinate parsing this Buy either), which the sim executor's
-        own contract rejects (`GO_TO` requires `x_m`/`y_m`) — caught
-        here and reported as sim-unavailable-without-a-target, never a
-        crash, never an invented destination."""
+        coordinate parsing), which the sim executor's own contract
+        rejects (`GO_TO` requires `x_m`/`y_m`) — caught here and
+        reported as sim-unavailable-without-a-target, never a crash,
+        never an invented destination.
+
+        Later wire (debt **SD-GO_TO**): pass real destination into
+        `SimAutonomyParams` on this same path when chat/voice can name
+        a target honestly. SoT:
+        `.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md`.
+        """
         from jarvis.flight_software.autonomy.sim_executor import SimAutonomyParams
 
         executor = self._sim_autonomy_executor()
         try:
+            # Seam for SD-GO_TO: today empty params; later supply x_m/y_m here.
             tick_result = executor.tick(verb, SimAutonomyParams(), dt_s=0.01)
         except ValueError:
             return "Simulación no disponible sin destino (GO_TO requiere coordenadas; este chat no las parsea aún)."
