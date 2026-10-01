@@ -1,42 +1,49 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T14 ★ ACCEPT CLOSED @ v0.6.25; T17 ★ ACCEPT CLOSED @ v0.6.26; forge PRs #3–#8 closed. Next: CHARGE · copper · polish.",
-  "scope": "Allow-list seven verbs + suite tip-pin cleanup closed. Tip v0.6.26. No tip pins in tests.",
-  "execution_status": "idle_pick_next",
-  "current_mode": "idle",
+  "cycle_intent": "T18–T21 ICs ★ AUTHORIZED in coherence order; Claude implements T18 docstring honesty @ 0.6.27 next",
+  "scope": "T18 comment honesty → T19 CHARGE ops → T20 sim copper → T21 software Skills runtime. No tip pins.",
+  "execution_status": "ic_authorized_awaiting_implement",
+  "current_mode": "implement",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: accept y limpieza de forge"
+    "reason": "Engineer: Arranca con ICs por orden de prioridad o coherencia; antes commit pendiente"
   },
-  "relevant_workflow_phases": ["Close"],
+  "relevant_workflow_phases": ["Design", "Implement"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_vehicle_allowlist_widen_b1.md",
-    ".jes/artifacts/implementation_review_suite_tip_pin_cleanup_b1.md"
+    ".jes/artifacts/implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md",
+    ".jes/artifacts/implementation_contract_capability_skills_runtime_software_b1.md"
   ],
   "open_questions": [
-    "Next Buy: CHARGE · copper · N1 fulfill docstring polish · Skills runtime?"
+    "Claude implement T18 @ 0.6.27?",
+    "After each ★: next IC in sequence T19→T20→T21"
   ],
   "active_operation": {
-    "type": "idle",
-    "contract": null,
-    "ids": [],
-    "blocked_on": "engineer_pick_next"
+    "type": "ic_authorized",
+    "contract": "implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md",
+    "ids": ["T18", "B1-orchestrator-fulfill-docstring-honesty"],
+    "blocked_on": "claude_implement"
   },
   "closed_this_turn": [
-    "T14 B1-assistant-vehicle-allowlist-widen ★ ACCEPT CLOSED @ v0.6.25",
-    "T17 B1-suite-tip-pin-cleanup ★ ACCEPT CLOSED @ v0.6.26",
-    "Forge hygiene: close superseded PRs #3–#8"
+    "DC+IC T18 docstring honesty AUTHORIZED @ 0.6.27",
+    "DC+IC T19 CHARGE AUTHORIZED @ 0.6.28 (after T18 ★)",
+    "DC+IC T20 sim copper AUTHORIZED @ 0.6.29 (after T19 ★)",
+    "DC+IC T21 Skills runtime AUTHORIZED @ 0.6.30 (after T20 ★)",
+    "Working tree was clean — CONNECTIONS already committed"
   ],
   "authority_gates": [
+    "Cursor IC/docs/review only — Claude implements unless implementa tú",
     "No tip/package version pin tests",
-    "allow ≠ execute until copper Buy",
-    "No new Buy without Engineer ★"
+    "Implement T18→T19→T20→T21 in order",
+    "allow ≠ live copper flight"
   ],
   "coherence_checklist": [
-    "Tags v0.6.25 and v0.6.26",
-    "Tip package 0.6.26",
-    "Suite 0 failed"
+    "T18 first (closes T14 N1)",
+    "CHARGE ≠ AutonomyVerb",
+    "Copper = sim tick HOLD/LAND/GO_TO only",
+    "Skills runtime software-only first"
   ],
-  "updated_at": "2026-10-01T08:50:00Z"
+  "updated_at": "2026-10-01T09:00:00Z"
 }
