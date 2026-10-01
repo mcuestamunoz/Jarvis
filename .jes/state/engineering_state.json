@@ -1,44 +1,42 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T17 suite tip-pin cleanup implemented @ 0.6.26; await Engineer ★ ACCEPT. T14 still await ACCEPT @ v0.6.25.",
-  "scope": "Retire all pyproject tip-version pin tests. Policy guard: no tip pins going forward. No product behavior change.",
-  "execution_status": "implemented_awaiting_accept",
-  "current_mode": "close",
+  "cycle_intent": "T14 ★ ACCEPT CLOSED @ v0.6.25; T17 ★ ACCEPT CLOSED @ v0.6.26; forge PRs #3–#8 closed. Next: CHARGE · copper · polish.",
+  "scope": "Allow-list seven verbs + suite tip-pin cleanup closed. Tip v0.6.26. No tip pins in tests.",
+  "execution_status": "idle_pick_next",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: hay que corregir los 52 tip pins; a partir de ahora no atar tests a pin"
+    "reason": "Engineer: accept y limpieza de forge"
   },
-  "relevant_workflow_phases": ["Implement", "Close"],
+  "relevant_workflow_phases": ["Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/design_contract_suite_tip_pin_cleanup_b0.md",
-    ".jes/artifacts/implementation_contract_suite_tip_pin_cleanup_b1.md",
-    ".jes/artifacts/implementation_report_suite_tip_pin_cleanup_b1.md"
+    ".jes/artifacts/implementation_review_assistant_vehicle_allowlist_widen_b1.md",
+    ".jes/artifacts/implementation_review_suite_tip_pin_cleanup_b1.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT for T17 @ v0.6.26?",
-    "Engineer ★ ACCEPT for T14 @ v0.6.25?",
-    "Next: CHARGE · copper · N1 docstrings · Skills runtime · forge hygiene?"
+    "Next Buy: CHARGE · copper · N1 fulfill docstring polish · Skills runtime?"
   ],
   "active_operation": {
-    "type": "implemented_awaiting_accept",
-    "contract": "implementation_contract_suite_tip_pin_cleanup_b1.md",
-    "ids": ["T17", "B1-suite-tip-pin-cleanup"],
-    "blocked_on": "engineer_accept"
+    "type": "idle",
+    "contract": null,
+    "ids": [],
+    "blocked_on": "engineer_pick_next"
   },
   "closed_this_turn": [
-    "DC-suite-tip-pin-cleanup ★ CLOSED",
-    "B1-suite-tip-pin-cleanup implemented — tip pins removed + guardrail"
+    "T14 B1-assistant-vehicle-allowlist-widen ★ ACCEPT CLOSED @ v0.6.25",
+    "T17 B1-suite-tip-pin-cleanup ★ ACCEPT CLOSED @ v0.6.26",
+    "Forge hygiene: close superseded PRs #3–#8"
   ],
   "authority_gates": [
-    "No tag v0.6.26 without Engineer ★ ACCEPT",
-    "No tip/package version pin tests going forward",
-    "Registry capability version fields remain valid product checks"
+    "No tip/package version pin tests",
+    "allow ≠ execute until copper Buy",
+    "No new Buy without Engineer ★"
   ],
   "coherence_checklist": [
-    "Guardrail test green",
-    "Package 0.6.26",
-    "No product behavior change"
+    "Tags v0.6.25 and v0.6.26",
+    "Tip package 0.6.26",
+    "Suite 0 failed"
   ],
-  "updated_at": "2026-10-01T08:45:00Z"
+  "updated_at": "2026-10-01T08:50:00Z"
 }

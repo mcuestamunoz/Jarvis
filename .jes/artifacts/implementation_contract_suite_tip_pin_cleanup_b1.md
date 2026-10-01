@@ -6,7 +6,7 @@
 **Implementer:** **Cursor** — Engineer ordered correction (“hay que corregir esto”)  
 **Reviewer:** Cursor self-audit + Engineer ACCEPT → tag **`v0.6.26`**
 
-**Status:** **Implemented** — await Engineer ★ ACCEPT → tag **`v0.6.26`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01). Tag **`v0.6.26`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_suite_tip_pin_cleanup_b0.md)
 - Tip parent: T14 allow-list package `0.6.25` (Cursor PASS WITH NOTES; ACCEPT may land same tip chain)
@@ -60,4 +60,4 @@
 - [x] Historical tip pins removed  
 - [x] Live tip pin tests removed (policy)  
 - [x] Guardrail landed  
-- [ ] Engineer ACCEPT · tag **`v0.6.26`**
+- [x] Engineer ACCEPT · tag **`v0.6.26`**

@@ -4,7 +4,7 @@
 **Reviewer:** Cursor (independent pass — Engineer pasted Claude T14 push summary)  
 **Against:** [IC](implementation_contract_assistant_vehicle_allowlist_widen_b1.md) · [report](implementation_report_assistant_vehicle_allowlist_widen_b1.md) · [DC ★](design_contract_assistant_vehicle_allowlist_widen_b0.md)  
 **Tip reviewed:** `a0964e8` on `cursor/allowlist-widen-impl-8ac5` (parent tip T16 ★ `v0.6.24` / `8e2ad8f`)  
-**Verdict:** **PASS WITH NOTES** — package ready for Engineer ★ ACCEPT → tag **`v0.6.25`**. **No ACCEPT claim from Cursor.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.25` / `v0.6.25`**.
 
 **Process note:** Claude Code implemented. Same-session implementer green is not review of record. This pass re-audits the tip against IC §0 locks with live E2E + pytest.
 
@@ -93,7 +93,7 @@ El latch de T11 deja de mentir a medias: armar el chat ahora implica la misma cl
 ## 7. Next
 
 ```text
-Cursor review: PASS WITH NOTES @ a0964e8
-Await Engineer ★ ACCEPT → tag v0.6.25
-Then pick: CHARGE · copper · tip-pin cleanup candidate
+★ ACCEPT CLOSED @ v0.6.25 (Engineer 2026-10-01)
+T17 tip-pin cleanup ★ ACCEPT CLOSED @ v0.6.26 (same tip chain)
+Next candidates: CHARGE · copper · N1 fulfill docstring polish · Skills runtime
 ```

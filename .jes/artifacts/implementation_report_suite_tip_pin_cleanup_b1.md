@@ -4,7 +4,7 @@
 **Implementer:** Cursor (Engineer ordered correction)  
 **Against:** [IC](implementation_contract_suite_tip_pin_cleanup_b1.md) · [DC ★](design_contract_suite_tip_pin_cleanup_b0.md)  
 **Package:** `0.6.26`  
-**No ACCEPT claim** — await Engineer ★ ACCEPT → tag **`v0.6.26`**.
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — tag **`v0.6.26`**.
 
 ---
 
