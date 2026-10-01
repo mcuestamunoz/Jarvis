@@ -6,12 +6,12 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED after T18 ★ (implement in order)  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.28`**
 
-**Status:** ★ **AUTHORIZED** (sequence: after T18 ★ ACCEPT).  
-**Parents:** [DC ★ CLOSED](design_contract_assistant_ops_charge_task_b0.md) · T14 ★ · tip after T18  
+**Status:** ★ **AUTHORIZED — Claude implement now** (T18 ★ @ `v0.6.27`).  
+**Parents:** [DC ★ CLOSED](design_contract_assistant_ops_charge_task_b0.md) · T14 ★ · T18 ★ @ **`v0.6.27`**  
 **Type:** First ops Task — CHARGE ≠ `AutonomyVerb`.  
 **Opens:** **`0.6.28` / `v0.6.28`**. **Cola:** **T19**
 
-**Not:** copper · AutonomyVerb.CHARGE · allow-list · Skills runtime · tip pins · payload “carga útil”.
+**Not:** copper · AutonomyVerb.CHARGE · allow-list · Skills runtime · tip pins · payload “carga útil” · real battery charge hardware.
 
 ---
 
