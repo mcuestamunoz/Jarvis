@@ -1,4 +1,4 @@
-"""Skill runner — software Skills (T21/T22) + first vehicle Skill gate (T23).
+"""Skill runner — software Skills (T21/T22) + vehicle Skill gate (T23/T24).
 
 T5 (`B1-capability-skills-seed`) declared Skill rows. T21 added
 `run_skill(skill_id, ...)`, a thin dispatcher that looks a Skill up,
@@ -7,28 +7,27 @@ checks it is `available`, then either:
 * **software Skills** (`skill.explain_concept` / `skill.project_status`):
   re-runs the T4-shaped `SoftwareCapabilitySafetyGate` check and calls
   the existing fulfill path — never a second cite/Continuity brain;
-* **vehicle HOLD** (`skill.request_hold`, T23): does **not** use
+* **vehicle Skills** (`skill.request_hold`, T23; `skill.request_land`,
+  T24): shared `_vehicle_skill_gate` — does **not** use
   `SoftwareCapabilitySafetyGate` (that gate only allows
-  `available`+`software`; `flight.hold` is intentionally
-  `not_implemented`/`vehicle`). Instead: registry membership that every
+  `available`+`software`; `flight.*` is intentionally
+  `not_implemented`/`vehicle`). Registry membership that every
   required capability exists and its bound provider `kind == vehicle`.
   On pass → `outcome="ok"` as a **gate only** — no `propose_command`,
   ArmedAllowlist, sim, or imports of `jarvis.core` /
   `jarvis.flight_software` / `jarvis.vehicle_profiles`. Chat fulfill
-  stays in `core/orchestrator.py` (`_handle_vehicle_hold`).
+  stays in `core/orchestrator.py`.
 
 Other vehicle/ops Skills stay `stub` → `skill_stub` reject.
 
-**Chat Skill-first:** T22 wires explain/status fulfill through
-`run_skill`. T23 gates chat HOLD the same way, then orch fulfills.
-Classify (`try_*_task`) still chooses the Skill/Task id — Skill-first
-means fulfill-through-`run_skill`, not deleting Tasks.
+**Chat Skill-first:** T22 wires explain/status; T23 HOLD; T24 LAND —
+classify (`try_*_task`) still chooses the Skill/Task id.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Final
 
 from pydantic import BaseModel, ConfigDict
 
@@ -39,6 +38,15 @@ from jarvis.capabilities.schemas import CapabilityAvailability, ProviderKind, Sk
 SKILL_ID_EXPLAIN_CONCEPT = "skill.explain_concept"
 SKILL_ID_PROJECT_STATUS = "skill.project_status"
 SKILL_ID_REQUEST_HOLD = "skill.request_hold"
+SKILL_ID_REQUEST_LAND = "skill.request_land"
+
+# T23/T24: finite set of vehicle Skills that use the shared vehicle gate.
+_VEHICLE_GATE_SKILL_IDS: Final[frozenset[str]] = frozenset(
+    {
+        SKILL_ID_REQUEST_HOLD,
+        SKILL_ID_REQUEST_LAND,
+    }
+)
 
 
 class SkillRunResult(BaseModel):
@@ -69,8 +77,8 @@ def _software_safety_allows_skill(required_capability_ids: list[str]) -> bool:
 def _vehicle_skill_gate(
     registry: CapabilityRegistry, skill: SkillRecord
 ) -> SkillRunResult:
-    """T23 HOLD gate: membership + provider kind==vehicle. Never software
-    Safety, never propose_command/sim."""
+    """Shared vehicle Skill gate (T23 HOLD / T24 LAND): membership +
+    provider kind==vehicle. Never software Safety, never propose_command/sim."""
     for capability_id in skill.required_capability_ids:
         capability = registry.get_capability(capability_id)
         if capability is None:
@@ -100,7 +108,7 @@ def run_skill(
     `availability == AVAILABLE`, then dispatch:
 
     * software Skills → T4-shaped software Safety + existing fulfill;
-    * `skill.request_hold` → vehicle membership/provider gate (T23);
+    * HOLD/LAND → shared vehicle membership/provider gate (T23/T24);
     * other vehicle/ops still `stub` → `skill_stub`.
 
     Finite `reason`s: `unknown_skill` / `skill_stub` / `safety_reject` /
@@ -118,8 +126,8 @@ def run_skill(
     if skill.availability != CapabilityAvailability.AVAILABLE:
         return SkillRunResult(skill_id=skill_id, outcome="reject", reason="skill_stub")
 
-    # T23: vehicle HOLD must not route through SoftwareCapabilitySafetyGate.
-    if skill_id == SKILL_ID_REQUEST_HOLD:
+    # T23/T24: vehicle Skills must not route through SoftwareCapabilitySafetyGate.
+    if skill_id in _VEHICLE_GATE_SKILL_IDS:
         return _vehicle_skill_gate(registry, skill)
 
     if not _software_safety_allows_skill(skill.required_capability_ids):

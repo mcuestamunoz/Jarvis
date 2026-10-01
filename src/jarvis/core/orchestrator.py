@@ -597,10 +597,21 @@ class JarvisOrchestrator:
         # guards refuse them too). Fulfilled here via the shared chat
         # ArmedAllowlist (T11) — honest reject/allow only, never a claim
         # of executed/landed flight.
+        # T24 Skill-first: gate through run_skill("skill.request_land") first
+        # (shared vehicle gate with HOLD — not SoftwareCapabilitySafetyGate);
+        # on ok keep _handle_vehicle_land (ArmedAllowlist + T20 sim copper).
         from jarvis.intelligence.assistant_task import try_request_land_task
 
         land_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_land_task(land_intent) is not None:
+            land_skill = run_skill("skill.request_land")
+            if land_skill.outcome != "ok":
+                reason = land_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_land no disponible ({reason}).",
+                }
             return self._handle_vehicle_land(land_intent)
 
         # ── Vehicle GO_TO intercept, via Assistant Task seam (T8) ─────────────

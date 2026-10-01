@@ -3,10 +3,10 @@
 **Project:** Jarvis  
 **Date:** 2026-10-01  
 **Author:** JES / Cursor — **IC only**  
-**Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
-**Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.33`**
+**Implementer:** **Cursor** (Engineer: “Ejecuta”)  
+**Reviewer:** Cursor self-impl ≠ review of record · Engineer ACCEPT → tag **`v0.6.33`**
 
-**Status:** ★ **AUTHORIZED — Claude implement now** (T23 ★ @ `v0.6.32`).  
+**Status:** **Implemented** (Cursor) — await review / Engineer ★ ACCEPT → tag **`v0.6.33`**.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T23 ★ @ **`v0.6.32`** · T7 LAND ★ @ `v0.6.15`  
 **Type:** Second vehicle Skill-first slice — **LAND**; generalize shared vehicle gate (T23 N2).  
 **Opens:** **`0.6.33` / `v0.6.33`**. **Cola:** **T24**

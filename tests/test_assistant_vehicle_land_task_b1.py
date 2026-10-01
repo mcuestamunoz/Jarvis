@@ -144,7 +144,10 @@ def test_t5_seed_flight_land_not_implemented_vehicle_provider_skill_stub_hold_un
     assert "skill.request_land" in skill_ids
     land_skill = next(s for s in registry.skills() if s.id == "skill.request_land")
     assert land_skill.required_capability_ids == ["flight.land"]
-    assert land_skill.availability == CapabilityAvailability.STUB
+    # T7 seeded stub; T24 Skill-first flips Skill to available while
+    # flight.land stays not_implemented — see
+    # tests/test_assistant_chat_skill_first_vehicle_land_b1.py.
+    assert land_skill.availability == CapabilityAvailability.AVAILABLE
 
     # HOLD (T6) and software (T2/T5) rows are still present and untouched.
     hold_capability = registry.get_capability("flight.hold")
