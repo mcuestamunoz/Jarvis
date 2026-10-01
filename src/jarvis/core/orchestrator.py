@@ -319,7 +319,8 @@ class JarvisOrchestrator:
         # T11: process-scoped ArmedAllowlist for the vehicle chat path —
         # lazy-created by `_vehicle_chat_safety_gate()`. Starts disarmed;
         # ARM/DISARM Tasks toggle it. Not on InteractiveSessionState
-        # (clears would wipe the latch). Not SimulatedEscSink.arm().
+        # (clears would wipe the latch). Distinct from the simulated ESC
+        # sink's own arm sequence in flight_control — never imported here.
         self._vehicle_chat_safety_gate_instance = None
         # U4: restaurar snapshot del proyecto más reciente si existe.
         # No-op si no hay proyectos en el workspace o el snapshot está ausente/corrupto.
@@ -501,6 +502,28 @@ class JarvisOrchestrator:
         if try_defer_to_continuity_task(continuity_intent) is not None:
             return self._handle_project_status()
 
+        # ── FN-016 wizard-cancel precedence (T15) ──────────────────────────────
+        # B1-fn016-rtl-wizard-precedence: "volver"/"vuelve"/"atras" are exact
+        # members of both NAVIGATION_BACK_WORDS (acquisition-wizard back-
+        # navigation) and VEHICLE_RETURN_HOME_PHRASES (T10 RTL). A
+        # DEFINE_MISSING_PARAMETERS wizard's own cancel must win over any
+        # vehicle Task intercept below — same result shape as the existing
+        # DEFINE_MISSING-mode FN-016 cancel further down this dispatch chain
+        # (kept there too, as defense in depth for direct callers). IDLE (no
+        # active wizard): this check is skipped, so "volver" still reaches
+        # RETURN_HOME via the existing T10 path below.
+        if (
+            self.state_manager.runtime_state.session.mode
+            == OrchestratorMode.DEFINE_MISSING_PARAMETERS
+            and is_navigation_back_phrase(stripped)
+        ):
+            self.state_manager.clear_runtime_session()
+            return {
+                "status": "cancelled",
+                "action": "define_missing_params",
+                "message": "Definición cancelada. Puedes retomar cuando quieras.",
+            }
+
         # ── Safety policy ARM intercept (T11) ─────────────────────────────────
         # T11 (B1-assistant-vehicle-arm-ux): arm/disarm the process-scoped
         # chat ArmedAllowlist latch — not an AutonomyVerb. Precedence:
@@ -604,12 +627,26 @@ class JarvisOrchestrator:
         if try_request_follow_task(follow_intent) is not None:
             return self._handle_vehicle_follow(follow_intent)
 
+        # ── Vehicle PATROL intercept, via Assistant Task seam (T13) ──────────
+        # T13 (B1-assistant-vehicle-patrol-task): finite PATROL phrases → Task
+        # (request_patrol) requiring flight.patrol — seventh and last vehicle
+        # kind (last C4 AutonomyVerb without a chat Task). Precedence: … →
+        # FOLLOW → PATROL → fallthrough. Exact match only (patrol/patrulla
+        # must not steal craft lines). Fulfilled here with empty params via
+        # the shared chat ArmedAllowlist (T11); allow-list not widened
+        # (PATROL → verb_not_allowed when armed).
+        from jarvis.intelligence.assistant_task import try_request_patrol_task
+
+        patrol_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_patrol_task(patrol_intent) is not None:
+            return self._handle_vehicle_patrol(patrol_intent)
+
         return None
 
     def _vehicle_chat_safety_gate(self):
         """T11 — lazy process-scoped `ArmedAllowlistSafetyGate` for the
         vehicle chat path. Starts disarmed. ARM/DISARM toggle it; the
-        five vehicle fulfills submit through this same instance."""
+        vehicle fulfills (HOLD…PATROL) submit through this same instance."""
         from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
 
         if self._vehicle_chat_safety_gate_instance is None:
@@ -618,14 +655,16 @@ class JarvisOrchestrator:
 
     def _handle_arm_policy(self, intent: Any) -> dict:
         """T11 fulfill: arm the shared chat ArmedAllowlist latch.
-        Software Safety policy only — never ESC/motors/drone/flight."""
+        Software Safety policy only — never ESC/motors/drone/flight.
+        T14 (B1-assistant-vehicle-allowlist-widen): the latch now allows
+        all seven chat verbs once armed — message updated to match."""
         gate = self._vehicle_chat_safety_gate()
         gate.arm()
         message = (
             "Política Safety del chat ARMADA (latch de software ArmedAllowlist). "
-            "No es armado de ESC, motores ni del dron. HOLD/LAND/GO_TO pueden "
-            "pasar a allow/not_implemented; TAKEOFF/RETURN_HOME siguen "
-            "verb_not_allowed hasta un Buy que ensanche la allow-list. "
+            "No es armado de ESC, motores ni del dron. HOLD/LAND/GO_TO/TAKEOFF/"
+            "RETURN_HOME/FOLLOW/PATROL pueden pasar a allow/not_implemented "
+            "(nunca ejecutado de verdad). "
             f"Latch armed={gate.armed}."
         )
         return {"status": "ok", "action": "vehicle_arm_policy", "message": message}
@@ -735,6 +774,23 @@ class JarvisOrchestrator:
             f"Ejecución: {result.execution}."
         )
         return {"status": "ok", "action": "vehicle_follow", "message": message}
+
+    def _handle_vehicle_patrol(self, intent: Any) -> dict:
+        """T13 fulfill — empty params; shared chat ArmedAllowlist (T11).
+        Allow-list still excludes PATROL → verb_not_allowed when armed.
+        Never arms the gate here. Honest UX only — never claim patrol/
+        circuit/route executed."""
+        from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
+
+        gate = self._vehicle_chat_safety_gate()
+        command = propose_command(AutonomyVerb.PATROL, intent_id=intent.id, params={})
+        result = submit_command(command, gate)
+        message = (
+            "PATROL solicitado, pero no se ejecuta ningún circuito real desde este "
+            f"chat todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
+            f"Ejecución: {result.execution}."
+        )
+        return {"status": "ok", "action": "vehicle_patrol", "message": message}
 
     _AFFIRMATIVE_WORDS: frozenset[str] = frozenset({
         "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante", "perfecto",

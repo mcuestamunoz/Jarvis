@@ -1,43 +1,49 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
+  "cycle_intent": "T18–T21 ICs ★ AUTHORIZED in coherence order; Claude implements T18 docstring honesty @ 0.6.27 next",
+  "scope": "T18 comment honesty → T19 CHARGE ops → T20 sim copper → T21 software Skills runtime. No tip pins.",
+  "execution_status": "ic_authorized_awaiting_implement",
   "current_mode": "implement",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: Arranca con ICs por orden de prioridad o coherencia; antes commit pendiente"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
+  "relevant_workflow_phases": ["Design", "Implement"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md",
+    ".jes/artifacts/implementation_contract_capability_skills_runtime_software_b1.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Claude implement T18 @ 0.6.27?",
+    "After each ★: next IC in sequence T19→T20→T21"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "type": "ic_authorized",
+    "contract": "implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md",
+    "ids": ["T18", "B1-orchestrator-fulfill-docstring-honesty"],
+    "blocked_on": "claude_implement"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "DC+IC T18 docstring honesty AUTHORIZED @ 0.6.27",
+    "DC+IC T19 CHARGE AUTHORIZED @ 0.6.28 (after T18 ★)",
+    "DC+IC T20 sim copper AUTHORIZED @ 0.6.29 (after T19 ★)",
+    "DC+IC T21 Skills runtime AUTHORIZED @ 0.6.30 (after T20 ★)",
+    "Working tree was clean — CONNECTIONS already committed"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "Cursor IC/docs/review only — Claude implements unless implementa tú",
+    "No tip/package version pin tests",
+    "Implement T18→T19→T20→T21 in order",
+    "allow ≠ live copper flight"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "T18 first (closes T14 N1)",
+    "CHARGE ≠ AutonomyVerb",
+    "Copper = sim tick HOLD/LAND/GO_TO only",
+    "Skills runtime software-only first"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-01T09:00:00Z"
 }

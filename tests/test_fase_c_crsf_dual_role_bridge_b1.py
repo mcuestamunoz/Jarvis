@@ -207,8 +207,11 @@ def test_authority_from_bridge_never_flips_safety():
 
     armed_gate = ArmedAllowlistSafetyGate()
     armed_gate.arm()
+    # T14 (B1-assistant-vehicle-allowlist-widen) widened the allow-list to
+    # all seven chat AutonomyVerb values — TAKEOFF is now allowed, so the
+    # not-allowed probe uses a verb that was never a Task kind at all.
     armed_decision = armed_gate.evaluate(
-        SafetyRequest(action_id="autonomy:TAKEOFF:x", authority_signal_id=result.authority.id)
+        SafetyRequest(action_id="autonomy:CHARGE:x", authority_signal_id=result.authority.id)
     )
     assert armed_decision.outcome == "reject"
     assert armed_decision.reason == "verb_not_allowed"
@@ -273,6 +276,9 @@ def test_capability_registry_default_still_empty():
     # T12 (B1-assistant-vehicle-follow-task): a tenth, skill.request_follow
     # (requires flight.follow, not_implemented/vehicle) — see
     # tests/test_assistant_vehicle_follow_task_b1.py.
+    # T13 (B1-assistant-vehicle-patrol-task): an eleventh, skill.request_patrol
+    # (requires flight.patrol, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_patrol_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -286,9 +292,6 @@ def test_capability_registry_default_still_empty():
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
         "skill.request_follow",
+        "skill.request_patrol",
     }
 
-
-def test_t10_pyproject_version_is_0_5_18():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text

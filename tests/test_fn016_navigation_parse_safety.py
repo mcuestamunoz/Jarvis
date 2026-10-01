@@ -135,6 +135,19 @@ def test_atras_unaccented_also_cancels(tmp_path: Path):
 # ── B) navigation cancels — Phase B (numeric-driven) ────────────────────────
 
 def test_volver_cancels_numeric_wizard_phase_b(tmp_path: Path):
+    """Also the regression test for a T10 (`B1-assistant-vehicle-return-
+    home-task`) precedence bug, fixed by T15 (`B1-fn016-rtl-wizard-
+    precedence`): `VEHICLE_RETURN_HOME_PHRASES` deliberately includes
+    "volver"/"vuelve" (IC §0 row 4), which collides with this same FN-016
+    `NAVIGATION_BACK_WORDS` entry. `_handle_global_commands` now runs its
+    own early FN-016 cancel check — before any vehicle Task intercept,
+    including RETURN_HOME — whenever `session.mode == OrchestratorMode.
+    DEFINE_MISSING_PARAMETERS`. This test is what would fail
+    (`status='ok'`/`action='vehicle_return_home'` instead of
+    `'cancelled'`) if that check were ever removed or narrowed. The
+    IDLE-state, no-active-wizard side of this same precedence rule
+    (RETURN_HOME still winning for "volver"/"vuelve" there) is covered by
+    `test_idle_volver_still_vehicle_return_home` below."""
     orch = _project_with_active_propulsion(tmp_path, components_done=True)
     orch.start_define_missing_params(
         ["per_motor_max_thrust_n"], reason=MISSING_PROPULSION_PARAMETERS
@@ -145,12 +158,46 @@ def test_volver_cancels_numeric_wizard_phase_b(tmp_path: Path):
     result = orch.handle_user_text("volver", _RefuseLLM())
 
     assert result["status"] == "cancelled"
+    assert result["action"] == "define_missing_params"
     session_after = orch.state_manager.get_runtime_session()
     assert session_after.mode == OrchestratorMode.IDLE
     # No value stored for that turn.
     saved = orch.state_manager.load_active_project(orch.workspace_manager)
     assert saved.current_parameters.get("per_motor_max_thrust_n") is None
     assert collected_before == {}
+
+
+def test_vuelve_and_atras_also_cancel_numeric_wizard_phase_b(tmp_path: Path):
+    """Same precedence fix as above, for the other two
+    `NAVIGATION_BACK_WORDS` entries that are exact-match phrases
+    elsewhere too ("vuelve" also sits in `VEHICLE_RETURN_HOME_PHRASES`;
+    "atras" does not, but is covered here for completeness alongside it
+    in the numeric Phase B wizard)."""
+    for raw in ("vuelve", "atras"):
+        orch = _project_with_active_propulsion(tmp_path, components_done=True)
+        orch.start_define_missing_params(
+            ["per_motor_max_thrust_n"], reason=MISSING_PROPULSION_PARAMETERS
+        )
+        result = orch.handle_user_text(raw, _RefuseLLM())
+        assert result["status"] == "cancelled", f"{raw!r} should cancel the wizard"
+        assert result["action"] == "define_missing_params"
+        session_after = orch.state_manager.get_runtime_session()
+        assert session_after.mode == OrchestratorMode.IDLE
+
+
+def test_idle_volver_still_vehicle_return_home(tmp_path: Path):
+    """IDLE / no active wizard: "volver"/"vuelve" must still classify and
+    fulfill as RETURN_HOME via the existing T10 path — the T15 FN-016
+    precedence check only fires when
+    `session.mode == OrchestratorMode.DEFINE_MISSING_PARAMETERS`."""
+    orch = _project_with_active_propulsion(tmp_path, components_done=True)
+    for raw in ("volver", "vuelve"):
+        session = orch.state_manager.get_runtime_session()
+        assert session.mode == OrchestratorMode.IDLE
+        result = orch.handle_user_text(raw, _RefuseLLM())
+        assert result["status"] == "ok"
+        assert result["action"] == "vehicle_return_home"
+        assert "disarmed" in result["message"]
 
 
 # ── C) numeric entry still works (regression) ───────────────────────────────
@@ -297,3 +344,6 @@ def test_idle_atras_does_not_open_acquisition(tmp_path: Path):
     session = orch.state_manager.get_runtime_session()
     assert session.mode != OrchestratorMode.DEFINE_MISSING_PARAMETERS
     assert result is not None  # no crash
+
+
+# ── J) package checkpoint ────────────────────────────────────────────────────
