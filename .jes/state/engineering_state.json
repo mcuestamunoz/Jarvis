@@ -1,43 +1,42 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "T14 ★ ACCEPT CLOSED @ v0.6.25; T17 ★ ACCEPT CLOSED @ v0.6.26; forge PRs #3–#8 closed. Next: CHARGE · copper · polish.",
+  "scope": "Allow-list seven verbs + suite tip-pin cleanup closed. Tip v0.6.26. No tip pins in tests.",
+  "execution_status": "idle_pick_next",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: accept y limpieza de forge"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
+  "relevant_workflow_phases": ["Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/implementation_review_assistant_vehicle_allowlist_widen_b1.md",
+    ".jes/artifacts/implementation_review_suite_tip_pin_cleanup_b1.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Next Buy: CHARGE · copper · N1 fulfill docstring polish · Skills runtime?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "type": "idle",
+    "contract": null,
+    "ids": [],
+    "blocked_on": "engineer_pick_next"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "T14 B1-assistant-vehicle-allowlist-widen ★ ACCEPT CLOSED @ v0.6.25",
+    "T17 B1-suite-tip-pin-cleanup ★ ACCEPT CLOSED @ v0.6.26",
+    "Forge hygiene: close superseded PRs #3–#8"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "No tip/package version pin tests",
+    "allow ≠ execute until copper Buy",
+    "No new Buy without Engineer ★"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "Tags v0.6.25 and v0.6.26",
+    "Tip package 0.6.26",
+    "Suite 0 failed"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-01T08:50:00Z"
 }

@@ -68,11 +68,15 @@ def test_t3_armed_hold_and_land_allow():
 
 
 def test_t4_armed_non_allowlisted_verb_rejects():
-    """`GO_TO` removed from this rejected-verbs list as of C41 — see
-    `test_t3_armed_hold_and_land_allow`'s own note above."""
+    """`GO_TO` removed from this rejected-verbs list as of C41; `TAKEOFF`/
+    `FOLLOW`/`RETURN_HOME`/`PATROL` removed as of T14
+    (`B1-assistant-vehicle-allowlist-widen`), which widened the allow-list
+    to the full seven-verb chat set — see `test_t3_armed_hold_and_land_allow`'s
+    own note above. The probe verb now has to be one that was never a
+    chat Task kind at all."""
     gate = ArmedAllowlistSafetyGate()
     gate.arm()
-    for verb in ("TAKEOFF", "FOLLOW", "RETURN_HOME", "PATROL"):
+    for verb in ("CHARGE",):
         decision = gate.evaluate(SafetyRequest(action_id=f"autonomy:{verb}:x"))
         assert decision.outcome == "reject"
         assert decision.reason == "verb_not_allowed"
@@ -101,9 +105,10 @@ def test_t5_authority_signal_never_flips_allow():
     assert decision_disarmed.reason == "disarmed"
 
     gate.arm()
-    # Armed + not-on-list verb + authority set: still reject.
+    # Armed + not-on-list verb + authority set: still reject. TAKEOFF is
+    # now allow-listed (T14) — CHARGE never was a chat Task kind.
     decision_not_listed = gate.evaluate(
-        SafetyRequest(action_id="autonomy:TAKEOFF:x", authority_signal_id=signal.id)
+        SafetyRequest(action_id="autonomy:CHARGE:x", authority_signal_id=signal.id)
     )
     assert decision_not_listed.outcome == "reject"
     assert decision_not_listed.reason == "verb_not_allowed"
@@ -211,6 +216,9 @@ def test_capability_registry_default_still_empty():
     # T12 (B1-assistant-vehicle-follow-task): a tenth, skill.request_follow
     # (requires flight.follow, not_implemented/vehicle) — see
     # tests/test_assistant_vehicle_follow_task_b1.py.
+    # T13 (B1-assistant-vehicle-patrol-task): an eleventh, skill.request_patrol
+    # (requires flight.patrol, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_patrol_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -224,6 +232,7 @@ def test_capability_registry_default_still_empty():
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
         "skill.request_follow",
+        "skill.request_patrol",
     }
 
 
@@ -260,7 +269,3 @@ def test_gate_not_coupled_to_esc_sink_or_gpio():
     for token in ("gpio.", "pigpio.", "PWM.", "serial.Serial"):
         assert token not in code_text, f"safety.py contains forbidden-shaped code token '{token}'"
 
-
-def test_t9_pyproject_version_is_0_5_15():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text

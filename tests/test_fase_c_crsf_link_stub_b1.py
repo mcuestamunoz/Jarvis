@@ -193,6 +193,9 @@ def test_capability_registry_default_still_empty():
     # T12 (B1-assistant-vehicle-follow-task): a tenth, skill.request_follow
     # (requires flight.follow, not_implemented/vehicle) — see
     # tests/test_assistant_vehicle_follow_task_b1.py.
+    # T13 (B1-assistant-vehicle-patrol-task): an eleventh, skill.request_patrol
+    # (requires flight.patrol, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_patrol_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -206,6 +209,7 @@ def test_capability_registry_default_still_empty():
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
         "skill.request_follow",
+        "skill.request_patrol",
     }
 
 
@@ -247,7 +251,3 @@ def test_no_route_from_crsf_to_autonomy_submit_command():
     assert "flight_software" not in code_only
     assert "submit_command" not in code_only
 
-
-def test_t10_pyproject_version_is_0_5_17():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
