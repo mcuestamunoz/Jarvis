@@ -160,15 +160,15 @@
     "skills": [
         {
             "id": "skill.explain_concept",
-            "version": "0.6.13",
+            "version": "0.6.30",
             "required_capability_ids": ["ontology.explain"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.project_status",
-            "version": "0.6.13",
+            "version": "0.6.30",
             "required_capability_ids": ["engineering.continuity"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_hold",

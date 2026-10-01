@@ -32,14 +32,17 @@ def test_t1_load_default_has_the_two_stub_skills():
     skill, `skill.request_hold` (see
     `tests/test_assistant_vehicle_hold_task_b1.py`). This test no longer
     claims T5's two are the *only* skills, only that they remain present
-    and still `stub` (membership, not exact-set equality)."""
+    — still `stub` at T5 ship time. T21
+    (`B1-capability-skills-runtime-software`) later marks these same two
+    `available` once a real runner (`skills_runtime.run_skill`) exists
+    to fulfill them — see `tests/test_capability_skills_runtime_software_b1.py`."""
     registry = CapabilityRegistry.load_default()
     skill_ids = {s.id for s in registry.skills()}
     t5_skill_ids = {"skill.explain_concept", "skill.project_status"}
     assert t5_skill_ids <= skill_ids
     for skill in registry.skills():
         if skill.id in t5_skill_ids:
-            assert skill.availability == CapabilityAvailability.STUB
+            assert skill.availability == CapabilityAvailability.AVAILABLE
 
 
 def test_t2_each_skills_required_capability_resolves():
@@ -114,17 +117,21 @@ def test_seed_file_skills_shape_matches_ic_normative_seed():
     `skill.request_hold` (see `tests/test_assistant_vehicle_hold_task_b1.py`
     for that row's own shape check) — this test now checks T5's own two
     rows are present with the exact shape IC §1 locked, not that they
-    are the only rows in the file (membership, not full-list equality)."""
+    are the only rows in the file (membership, not full-list equality).
+    T21 (`B1-capability-skills-runtime-software`) later flips both rows'
+    `availability` to `available` (version bumped to `0.6.30` too, per
+    that IC's own §0 row 2) now that `skills_runtime.run_skill` is a
+    real runner — see `tests/test_capability_skills_runtime_software_b1.py`."""
     data = json.loads(SEED_PATH.read_text())
     assert {
         "id": "skill.explain_concept",
-        "version": "0.6.13",
+        "version": "0.6.30",
         "required_capability_ids": ["ontology.explain"],
-        "availability": "stub",
+        "availability": "available",
     } in data["skills"]
     assert {
         "id": "skill.project_status",
-        "version": "0.6.13",
+        "version": "0.6.30",
         "required_capability_ids": ["engineering.continuity"],
-        "availability": "stub",
+        "availability": "available",
     } in data["skills"]
