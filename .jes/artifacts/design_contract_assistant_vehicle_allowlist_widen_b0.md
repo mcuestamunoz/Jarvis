@@ -17,12 +17,12 @@
 | 2 | Latch semantics unchanged: starts **disarmed** → all verbs `reject`/`disarmed`; after chat `armar` → listed verbs `allow`; `desarmar` clears |
 | 3 | Honesty unchanged: `allow` still yields execution **`not_implemented`** on `submit_command` — never `"executed"`, never motors/ESC/copper, never claim flight |
 | 4 | **Do not** wire `SimAutonomyExecutor.tick` (or any sim driver) from chat fulfills this Buy. Sim executor may remain HOLD/LAND/GO_TO-only — Safety allow-list may be **wider** than sim-supported verbs (allow ≠ execute) |
-| 5 | **No** new Task kind / phrase table / capability / skill / provider. Cascade stays **10** caps / **11** skills. Optional: bump `safety.chat_armed_allowlist` seed `version` → `0.6.22` |
+| 5 | **No** new Task kind / phrase table / capability / skill / provider. Cascade stays **10** caps / **11** skills. Optional: bump `safety.chat_armed_allowlist` seed `version` → `0.6.25` |
 | 6 | Shared T11 gate remains the one chat latch — do not construct a second gate; do not call `gate.arm()` inside vehicle fulfills |
 | 7 | Update arm-policy Spanish copy that still says TAKEOFF/RETURN_HOME stay `verb_not_allowed` after `armar` — after this Buy they join allow/`not_implemented` |
 | 8 | Retarget prior vehicle/arm suites that asserted armed → `verb_not_allowed` for TAKEOFF/RETURN_HOME/FOLLOW/PATROL to expect `allow` + `not_implemented` instead; HOLD/LAND/GO_TO paths stay green |
 | 9 | Out: CHARGE (not an `AutonomyVerb`) · copper · route/person parse · FN-016 · mass historical `0.5.x` tip-pin cleanup · voice · edit classify phrase tables |
-| 10 | Next code: IC **`B1-assistant-vehicle-allowlist-widen`** (T14) → package **`0.6.22`** |
+| 10 | Next code: IC **`B1-assistant-vehicle-allowlist-widen`** (T14) → package **`0.6.25`** |
 
 **Product sentence:** after `armar`, every chat vehicle verb (HOLD…PATROL) gets Safety `allow` / execution `not_implemented` — still not flight; `verb_not_allowed` no longer hides the four post–basic-mando verbs.
 

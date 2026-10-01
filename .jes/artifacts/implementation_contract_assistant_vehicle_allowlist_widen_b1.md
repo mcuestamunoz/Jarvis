@@ -4,16 +4,16 @@
 **Date:** 2026-10-01  
 **Author:** JES / Cursor — **IC only**  
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
-**Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.22`**
+**Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.25`**
 
-**Status:** ★ **AUTHORIZED** — await Claude implement → Cursor review → Engineer ★ ACCEPT → tag **`v0.6.22`**.  
+**Status:** ★ **AUTHORIZED** — await Claude implement → Cursor review → Engineer ★ ACCEPT → tag **`v0.6.25`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_assistant_vehicle_allowlist_widen_b0.md)
-- T13 [`B1-assistant-vehicle-patrol-task`](implementation_review_assistant_vehicle_patrol_task_b1.md) — ★ ACCEPT CLOSED @ **`v0.6.21`**
-- T11 arm UX ★ — shared chat latch · **no new INV**
+- T16 [`B1-esc-fence-import-only`](implementation_review_esc_fence_import_only_b1.md) — ★ ACCEPT CLOSED @ **`v0.6.24`** (tip)
+- T13 PATROL ★ @ **`v0.6.21`** · T11 arm UX ★ — shared chat latch · **no new INV**
 
 **Type:** Safety-policy widen of `ArmedAllowlistSafetyGate._ALLOWED_VERBS` so all seven chat vehicle verbs pass when armed. No new Task kind.  
-**Opens:** **`0.6.22` / `v0.6.22`** on ACCEPT.  
+**Opens:** **`0.6.25` / `v0.6.25`** on ACCEPT.  
 **Cola:** **T14**
 
 **Not:** CHARGE · copper · sim executor tick from chat · new Task/phrase/cap/skill · route/person parse · FN-016 · mass `0.5.x` tip-pin cleanup · voice · edit prior classify bodies beyond copy/tests that this Buy owns.
@@ -31,9 +31,9 @@
 | 5 | After `armar`: **every** chat vehicle fulfill (HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME/FOLLOW/PATROL) → Safety `allow` + execution `not_implemented`; never `"executed"`; honest Spanish unchanged in meaning |
 | 6 | Default (disarmed): all seven still `reject`/`disarmed` |
 | 7 | Update `_handle_arm_policy` message text that currently claims TAKEOFF/RETURN_HOME remain `verb_not_allowed` — after widen they do not. Keep “software Safety latch / not ESC/motors/drone” honesty |
-| 8 | **No** new registry rows required. Cascade remains **10** caps / **11** skills. Bump `safety.chat_armed_allowlist` capability `version` → `0.6.22` if present |
+| 8 | **No** new registry rows required. Cascade remains **10** caps / **11** skills. Bump `safety.chat_armed_allowlist` capability `version` → `0.6.25` if present |
 | 9 | Tests: **new** `tests/test_assistant_vehicle_allowlist_widen_b1.py` T1–T8. Update prior arm/follow/patrol/takeoff/return_home (and any other) suites that assert armed → `verb_not_allowed` for TAKEOFF/RETURN_HOME/FOLLOW/PATROL or frozenset `{HOLD,LAND,GO_TO}` |
-| 10 | Version **`0.6.22`**; docs: PRIORIDAD · PLATFORM · CONNECTIONS (**no new C-xxx**) · intelligence README one line · USER_GUIDE one line if needed |
+| 10 | Version **`0.6.25`**; docs: PRIORIDAD · PLATFORM · CONNECTIONS (**no new C-xxx**) · intelligence README one line · USER_GUIDE one line if needed |
 | 11 | Out: CHARGE · copper · sim tick from chat · FN-016 · historical tip-pin mass cleanup |
 
 ---
@@ -47,7 +47,7 @@
 | `src/jarvis/capabilities/data/default_registry.json` | optional version bump on `safety.chat_armed_allowlist` |
 | `tests/test_assistant_vehicle_allowlist_widen_b1.py` | **new** T1–T8 |
 | Prior vehicle / arm suites | armed expectations + allow-list frozenset |
-| `pyproject.toml` | `0.6.22` |
+| `pyproject.toml` | `0.6.25` |
 | Docs | §0.10 |
 
 ---
@@ -63,9 +63,9 @@
 | T5 | `armar` → `desarmar` → `patrol` → back to `disarmed` |
 | T6 | Seed: cascade still 10 caps / 11 skills; `default_safety_gate()` still RejectAll |
 | T7 | No chat path calls `SimAutonomyExecutor` / no new import of sim executor in orchestrator vehicle fulfills (AST or source scan) |
-| T8 | `pyproject` `0.6.22` |
+| T8 | `pyproject` `0.6.25` |
 
-Bump stale `0.6.21` checkpoints this Buy owns.
+Bump stale `0.6.24` checkpoints this Buy owns.
 
 ---
 
@@ -73,8 +73,8 @@ Bump stale `0.6.21` checkpoints this Buy owns.
 
 - [ ] `_ALLOWED_VERBS` widened to seven chat AutonomyVerbs  
 - [ ] Armed path: all seven → `allow`/`not_implemented`; disarmed unchanged  
-- [ ] Arm UX copy honest · prior suites retargeted · cascade 10/11 · T1–T8 · docs · `0.6.22`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.22`**
+- [ ] Arm UX copy honest · prior suites retargeted · cascade 10/11 · T1–T8 · docs · `0.6.25`  
+- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.25`**
 
 ---
 
@@ -85,7 +85,7 @@ Bump stale `0.6.21` checkpoints this Buy owns.
 
 IC: .jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md
 DC: .jes/artifacts/design_contract_assistant_vehicle_allowlist_widen_b0.md (★ CLOSED)
-Parent: T13 PATROL ★ ACCEPT CLOSED @ v0.6.21 (shared chat ArmedAllowlist)
+Parent tip: T16 ESC fence ★ ACCEPT CLOSED @ v0.6.24 (shared chat ArmedAllowlist)
 
 Widen ArmedAllowlistSafetyGate._ALLOWED_VERBS in capabilities/safety.py to:
   {HOLD, LAND, GO_TO, TAKEOFF, RETURN_HOME, FOLLOW, PATROL}
@@ -96,9 +96,9 @@ Disarmed path unchanged (reject/disarmed).
 Update _handle_arm_policy Spanish copy that still says TAKEOFF/RH stay
 verb_not_allowed — they no longer do.
 No new Task/phrase/cap/skill. Cascade stays 10/11.
-Optional: bump safety.chat_armed_allowlist version to 0.6.22.
+Optional: bump safety.chat_armed_allowlist version to 0.6.25.
 New tests T1–T8. Retarget prior arm/follow/patrol/takeoff/return_home
 suites that asserted verb_not_allowed or frozenset {HOLD,LAND,GO_TO}.
-Bump to 0.6.22. Docs + PRIORIDAD. Report.
+Bump to 0.6.25. Docs + PRIORIDAD. Report.
 No ACCEPT claim. CHARGE / copper / FN-016 / mass tip-pin cleanup out.
 ```

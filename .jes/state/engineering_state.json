@@ -1,43 +1,43 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T16 ESC fence Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT @ v0.6.24",
-  "scope": "AST/import-only ESC fence in core/adapters. Prose OK. Rebased onto T15 ★ v0.6.23 tip.",
-  "execution_status": "review_pass_awaiting_accept",
-  "current_mode": "close",
+  "cycle_intent": "T16 ESC fence ★ ACCEPT CLOSED @ v0.6.24; T14 allow-list widen AUTHORIZED @ 0.6.25 retargeted — await Claude",
+  "scope": "T16 closed. Next Buy T14 widens ArmedAllowlist to seven chat AutonomyVerbs. allow ≠ execute.",
+  "execution_status": "ic_authorized_awaiting_implement",
+  "current_mode": "implement",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer pasted Claude T16 push summary; Cursor independent review"
+    "reason": "Engineer: accepty siguiente (ACCEPT T16 + next T14)"
   },
-  "relevant_workflow_phases": ["Review", "Close"],
+  "relevant_workflow_phases": ["Close", "Implement"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_esc_fence_import_only_b1.md",
-    ".jes/artifacts/implementation_report_esc_fence_import_only_b1.md",
-    ".jes/artifacts/implementation_review_esc_fence_import_only_b1.md"
+    ".jes/artifacts/implementation_review_esc_fence_import_only_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT for T16 @ v0.6.24?",
-    "Next: T14 allow-list widen (retarget package)?"
+    "Claude implement T14 @ 0.6.25?",
+    "After T14 ★: CHARGE · copper · tip-pin cleanup?"
   ],
   "active_operation": {
-    "type": "review_pass_awaiting_accept",
-    "contract": "implementation_contract_esc_fence_import_only_b1.md",
-    "ids": ["T16", "B1-esc-fence-import-only"],
-    "blocked_on": "engineer_accept"
+    "type": "ic_authorized",
+    "contract": "implementation_contract_assistant_vehicle_allowlist_widen_b1.md",
+    "ids": ["T14", "B1-assistant-vehicle-allowlist-widen"],
+    "blocked_on": "claude_implement"
   },
   "closed_this_turn": [
-    "B1-esc-fence-import-only implemented by Claude @ 0.6.24",
-    "Cursor independent review PASS WITH NOTES (rebase + report count remediated)"
+    "T16 B1-esc-fence-import-only ★ ACCEPT CLOSED @ v0.6.24",
+    "T14 IC package retargeted 0.6.22 → 0.6.25"
   ],
   "authority_gates": [
-    "No tag v0.6.24 without Engineer ★ ACCEPT",
-    "Do not weaken real ESC import ban",
-    "T14 still AUTHORIZED only"
+    "Cursor IC/docs/review only — Claude implements T14 unless implementa tú",
+    "No SimAutonomyExecutor from chat",
+    "allow ≠ execute",
+    "No tip-pin mass cleanup in T14"
   ],
   "coherence_checklist": [
-    "AST fence green; historical pin parked",
-    "Tip contains v0.6.23",
-    "Package 0.6.24"
+    "Tag v0.6.24",
+    "T14 package 0.6.25",
+    "Parent tip v0.6.24"
   ],
   "updated_at": "2026-10-01T08:05:00Z"
 }

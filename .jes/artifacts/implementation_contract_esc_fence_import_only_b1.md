@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.24`**
 
-**Status:** **Implemented** (Claude Code) — Cursor review **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag **`v0.6.24`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES**. Tag **`v0.6.24`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_esc_fence_import_only_b0.md)
 - C10 ESC PWM stub ★ · T11 arm UX ★  
@@ -58,9 +58,9 @@
 
 ## 3. Acceptance
 
-- [ ] Fence is import/use-only · prose allowed  
-- [ ] Real import still forbidden · T1–T4 · `0.6.24`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.24`**
+- [x] Fence is import/use-only · prose allowed  
+- [x] Real import still forbidden · T1–T4 · `0.6.24`  
+- [x] Cursor review (**PASS WITH NOTES**) · [x] Engineer ACCEPT · tag **`v0.6.24`**
 
 ---
 

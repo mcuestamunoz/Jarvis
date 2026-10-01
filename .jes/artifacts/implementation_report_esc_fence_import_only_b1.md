@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_esc_fence_import_only_b1.md`](implementation_contract_esc_fence_import_only_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_esc_fence_import_only_b0.md) · C10 ESC PWM stub ★ · T11 arm UX ★ @ **`v0.6.19`** · landed after T15 (**`0.6.23`**)  
-**Status:** Implemented — await Cursor review → Engineer ★ ACCEPT. **No ACCEPT claim.**  
-**Package / tag:** `0.6.24` / **`v0.6.24`** (on ACCEPT).
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review PASS WITH NOTES.  
+**Package / tag:** `0.6.24` / **`v0.6.24`**.
 
 ---
 

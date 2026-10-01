@@ -4,7 +4,7 @@
 **Reviewer:** Cursor (independent pass — Engineer pasted Claude T16 push summary)  
 **Against:** [IC](implementation_contract_esc_fence_import_only_b1.md) · [report](implementation_report_esc_fence_import_only_b1.md) · [DC ★](design_contract_esc_fence_import_only_b0.md)  
 **Tip reviewed:** rebased onto T15 ★ `v0.6.23` (was `f28f1a5` on T15-implement-only; now includes ACCEPT tip)  
-**Verdict:** **PASS WITH NOTES** — package ready for Engineer ★ ACCEPT → tag **`v0.6.24`**. **No ACCEPT claim from Cursor.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.24` / `v0.6.24`**.
 
 **Process note:** Claude Code implemented. Same-session implementer green is not review of record. This pass re-audits the tip against IC §0 locks with helper controls + pytest.
 
@@ -83,14 +83,13 @@ El fence deja de mentir: solo falla acoplamiento real ESC en `core`/`adapters`, 
 
 **N2 — Report test count (remediated).** File collects 20 tests; Buy-owned greens are 19; one parked historical pin remains red. Report wording updated.
 
-**N3 — Process.** Claude implementer green ≠ review of record. Engineer ★ ACCEPT still required for tag `v0.6.24`.
+**N3 — Process.** Claude implementer green ≠ review of record. Engineer ★ ACCEPT applied this close.
 
 ---
 
 ## 7. Next
 
 ```text
-Cursor review: PASS WITH NOTES (rebased tip)
-Await Engineer ★ ACCEPT → tag v0.6.24
-Then: T14 allow-list widen (retarget package) · tip-pin cleanup candidate
+★ ACCEPT CLOSED @ v0.6.24 (Engineer 2026-10-01)
+Await Engineer ★ pick / Claude: T14 allow-list widen @ 0.6.25 (retargeted)
 ```
