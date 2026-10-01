@@ -210,6 +210,12 @@ def test_t7_no_craft_continuity_library_board_edits():
     # T12 (B1-assistant-vehicle-follow-task): a tenth, skill.request_follow
     # (requires flight.follow, not_implemented/vehicle) — see
     # tests/test_assistant_vehicle_follow_task_b1.py.
+    # T13 (B1-assistant-vehicle-patrol-task): an eleventh, skill.request_patrol
+    # (requires flight.patrol, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_patrol_task_b1.py.
+    # T19 (B1-assistant-ops-charge-task): a twelfth, skill.request_charge
+    # (requires ops.charge, not_implemented/device). CHARGE is not an
+    # AutonomyVerb — see tests/test_assistant_ops_charge_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -223,12 +229,9 @@ def test_t7_no_craft_continuity_library_board_edits():
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
         "skill.request_follow",
+        "skill.request_patrol",
+        "skill.request_charge",
     }
-
-
-def test_t8_pyproject_version_is_0_5_41():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
 
 
 def test_t8_full_suite_process_gate_placeholder():

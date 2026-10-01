@@ -1,43 +1,44 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
+  "cycle_intent": "T19 ★ ACCEPT CLOSED @ v0.6.28; Claude implement T20 sim copper @ 0.6.29",
+  "scope": "T19 ops CHARGE closed. Next: chat allow → SimAutonomyExecutor.tick for HOLD/LAND/GO_TO only. Not ESC live.",
+  "execution_status": "authorized_awaiting_impl",
   "current_mode": "implement",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: accept y siguiente"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
+  "relevant_workflow_phases": ["Close", "Implement"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/implementation_review_assistant_ops_charge_task_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Claude T20 sim copper impl + Cursor review?",
+    "Then T21 Skills runtime software @ 0.6.30?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "type": "authorized_awaiting_impl",
+    "contract": "implementation_contract_assistant_chat_sim_copper_b1.md",
+    "ids": ["T20", "B1-assistant-chat-sim-copper"],
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "T19 B1-assistant-ops-charge-task ★ ACCEPT CLOSED @ v0.6.28",
+    "Tag v0.6.28",
+    "T20 AUTHORIZED for Claude"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "No tip/package version pin tests",
+    "T20 = sim tick HOLD/LAND/GO_TO only — not ESC live / not TAKEOFF/RH/FOLLOW/PATROL sim",
+    "submit_command preferred unchanged (path a)",
+    "T21 AUTHORIZED after T20 ★"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "Tag v0.6.28",
+    "Package tip 0.6.28",
+    "T20 paste ready for Claude"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-01T09:30:00Z"
 }
