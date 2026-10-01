@@ -5,7 +5,7 @@
 **Implementer:** Cursor (Engineer: “Ejecuta”)  
 **Contract:** [`implementation_contract_assistant_chat_skill_first_vehicle_land_b1.md`](implementation_contract_assistant_chat_skill_first_vehicle_land_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T23 ★ @ **`v0.6.32`** · T7 LAND ★  
-**Status:** Implemented — await Cursor review / Engineer ★ ACCEPT. **No ACCEPT claim.**  
+**Status:** Implemented — Cursor review **PASS WITH NOTES** → await Engineer ★ ACCEPT. **No ACCEPT claim.**  
 **Package / tag:** `0.6.33` / **`v0.6.33`** (on ACCEPT).
 
 ---
