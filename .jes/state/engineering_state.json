@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
+  "cycle_intent": "T13 PATROL implemented by Claude; await Cursor review → Engineer ★ ACCEPT @ v0.6.21",
   "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "execution_status": "implemented_awaiting_review",
+  "current_mode": "review",
   "movement_trigger": {
     "type": "engineer",
     "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
@@ -15,18 +15,19 @@
     ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
+    "Cursor review + Engineer ★ ACCEPT for T13 @ v0.6.21?",
     "After T13 ★: allow-list widen · CHARGE · copper?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
+    "type": "implemented_awaiting_review",
     "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
     "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "blocked_on": "cursor_review_then_engineer_accept"
   },
   "closed_this_turn": [
     "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21",
+    "B1-assistant-vehicle-patrol-task implemented by Claude @ 0.6.21 (T1-T9 green; no ACCEPT claim)"
   ],
   "authority_gates": [
     "Cursor IC/docs only unless Engineer says implementa tú",
@@ -39,5 +40,5 @@
     "Precedence after FOLLOW",
     "Package target 0.6.21"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-01T09:00:00Z"
 }

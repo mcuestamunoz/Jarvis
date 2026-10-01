@@ -210,6 +210,9 @@ def test_t7_no_craft_continuity_library_board_edits():
     # T12 (B1-assistant-vehicle-follow-task): a tenth, skill.request_follow
     # (requires flight.follow, not_implemented/vehicle) — see
     # tests/test_assistant_vehicle_follow_task_b1.py.
+    # T13 (B1-assistant-vehicle-patrol-task): an eleventh, skill.request_patrol
+    # (requires flight.patrol, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_patrol_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -223,6 +226,7 @@ def test_t7_no_craft_continuity_library_board_edits():
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
         "skill.request_follow",
+        "skill.request_patrol",
     }
 
 

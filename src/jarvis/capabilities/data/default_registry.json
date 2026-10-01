@@ -71,6 +71,14 @@
             "availability": "not_implemented",
             "requirements": [],
             "health": "unknown"
+        },
+        {
+            "id": "flight.patrol",
+            "version": "0.6.21",
+            "provider_id": "provider.flight_patrol",
+            "availability": "not_implemented",
+            "requirements": [],
+            "health": "unknown"
         }
     ],
     "providers": [
@@ -126,6 +134,12 @@
             "id": "provider.flight_follow",
             "kind": "vehicle",
             "offered_capability_ids": ["flight.follow"],
+            "health": "unknown"
+        },
+        {
+            "id": "provider.flight_patrol",
+            "kind": "vehicle",
+            "offered_capability_ids": ["flight.patrol"],
             "health": "unknown"
         }
     ],
@@ -188,6 +202,12 @@
             "id": "skill.request_follow",
             "version": "0.6.20",
             "required_capability_ids": ["flight.follow"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_patrol",
+            "version": "0.6.21",
+            "required_capability_ids": ["flight.patrol"],
             "availability": "stub"
         }
     ]

@@ -1,6 +1,7 @@
-"""Tests T1–T9 for `B1-assistant-vehicle-follow-task` (T12).
+"""Tests T1–T9 for `B1-assistant-vehicle-patrol-task` (T13).
 
-Sixth vehicle Assistant Task kind — FOLLOW via shared chat ArmedAllowlist.
+Seventh and last vehicle Assistant Task kind — PATROL via shared chat
+ArmedAllowlist. Last C4 AutonomyVerb without a chat Task.
 """
 
 from __future__ import annotations
@@ -19,14 +20,15 @@ from jarvis.capabilities.schemas import CapabilityAvailability, ProviderKind
 from jarvis.core.orchestrator import JarvisOrchestrator
 from jarvis.flight_software.autonomy import AutonomyVerb, propose_command
 from jarvis.intelligence.assistant_task import (
-    CAPABILITY_FLIGHT_FOLLOW,
-    TASK_KIND_REQUEST_FOLLOW,
+    CAPABILITY_FLIGHT_PATROL,
+    TASK_KIND_REQUEST_PATROL,
     try_request_arm_policy_task,
     try_request_disarm_policy_task,
     try_request_follow_task,
     try_request_go_to_task,
     try_request_hold_task,
     try_request_land_task,
+    try_request_patrol_task,
     try_request_return_home_task,
     try_request_takeoff_task,
 )
@@ -37,13 +39,13 @@ ASSISTANT_TASK_PATH = REPO_ROOT / "src" / "jarvis" / "intelligence" / "assistant
 
 class _ExplodingLLMInterface:
     def interpret(self, *args, **kwargs):
-        raise AssertionError("llm must not be called for a FOLLOW phrase")
+        raise AssertionError("llm must not be called for a PATROL phrase")
 
     def analyze(self, *args, **kwargs):
-        raise AssertionError("llm must not be called for a FOLLOW phrase")
+        raise AssertionError("llm must not be called for a PATROL phrase")
 
     def complete(self, *args, **kwargs):
-        raise AssertionError("llm must not be called for a FOLLOW phrase")
+        raise AssertionError("llm must not be called for a PATROL phrase")
 
 
 def _imported_module_names(source_path: Path) -> set[str]:
@@ -62,41 +64,39 @@ def _intent(raw_text: str):
     return TerminalIntentAdapter.parse(raw_text)
 
 
-def test_t1_follow_phrase_yields_task():
+def test_t1_patrol_phrase_yields_task():
     for raw in (
-        "follow",
-        "follow me",
-        "seguir",
-        "sigue",
-        "sigueme",
-        "sígueme",
-        "seguirme",
-        "ven conmigo",
-        "FOLLOW",
-        "Sígueme",
+        "patrol",
+        "patrulla",
+        "patrullar",
+        "hacer patrulla",
+        "start patrol",
+        "iniciar patrulla",
+        "PATROL",
+        "Patrulla",
     ):
         intent = _intent(raw)
-        task = try_request_follow_task(intent)
+        task = try_request_patrol_task(intent)
         assert isinstance(task, Task), f"{raw!r} should classify"
-        assert task.required_capability_ids == [CAPABILITY_FLIGHT_FOLLOW]
-        assert intent.metadata.get("task_kind") == TASK_KIND_REQUEST_FOLLOW
+        assert task.required_capability_ids == [CAPABILITY_FLIGHT_PATROL]
+        assert intent.metadata.get("task_kind") == TASK_KIND_REQUEST_PATROL
 
 
-def test_t2_non_follow_craft_line_yields_no_task():
+def test_t2_non_patrol_craft_line_yields_no_task():
     for raw in (
-        "sigue con el frame",
-        "follow the board",
-        "follow the board layout",
+        "patrulla del catalogo",
+        "patrol the board",
+        "patrol the board layout",
         "quiero diseñar un dron",
     ):
         intent = _intent(raw)
-        assert try_request_follow_task(intent) is None
+        assert try_request_patrol_task(intent) is None
         assert "task_kind" not in intent.metadata
 
 
-def test_t3_prior_kinds_never_stolen_by_follow():
-    for raw in ("explain follow", "estado", "resumen"):
-        assert try_request_follow_task(_intent(raw)) is None
+def test_t3_prior_kinds_never_stolen_by_patrol():
+    for raw in ("explain patrol", "estado", "resumen"):
+        assert try_request_patrol_task(_intent(raw)) is None
 
     for raw, fn in (
         ("armar", try_request_arm_policy_task),
@@ -106,11 +106,12 @@ def test_t3_prior_kinds_never_stolen_by_follow():
         ("go to", try_request_go_to_task),
         ("takeoff", try_request_takeoff_task),
         ("rtl", try_request_return_home_task),
+        ("follow", try_request_follow_task),
     ):
-        assert try_request_follow_task(_intent(raw)) is None
+        assert try_request_patrol_task(_intent(raw)) is None
         assert fn(_intent(raw)) is not None
 
-    # Prior classifiers refuse FOLLOW phrases
+    # Prior classifiers refuse PATROL phrases
     for fn in (
         try_request_arm_policy_task,
         try_request_disarm_policy_task,
@@ -119,30 +120,31 @@ def test_t3_prior_kinds_never_stolen_by_follow():
         try_request_go_to_task,
         try_request_takeoff_task,
         try_request_return_home_task,
+        try_request_follow_task,
     ):
-        assert fn(_intent("follow")) is None
+        assert fn(_intent("patrol")) is None
 
 
-def test_t4_orchestrator_follow_honest_disarmed_reject():
+def test_t4_orchestrator_patrol_honest_disarmed_reject():
     orch = JarvisOrchestrator()
     exploding = _ExplodingLLMInterface()
-    for raw in ("follow", "sígueme", "ven conmigo"):
+    for raw in ("patrol", "patrulla", "iniciar patrulla"):
         result = orch.handle_user_text(raw, exploding)
         assert result["status"] == "ok"
-        assert result["action"] == "vehicle_follow"
+        assert result["action"] == "vehicle_patrol"
         assert "disarmed" in result["message"]
         assert "reject" in result["message"]
         assert "executed" not in result["message"].lower()
-        assert "seguimiento" in result["message"].lower() or "follow" in result["message"].lower()
+        assert "circuito" in result["message"].lower() or "patrol" in result["message"].lower()
 
 
-def test_t5_armar_then_follow_verb_not_allowed_hold_still_allow():
+def test_t5_armar_then_patrol_verb_not_allowed_hold_still_allow():
     orch = JarvisOrchestrator()
     exploding = _ExplodingLLMInterface()
     assert orch.handle_user_text("armar", exploding)["action"] == "vehicle_arm_policy"
-    follow = orch.handle_user_text("follow", exploding)
-    assert follow["action"] == "vehicle_follow"
-    assert "verb_not_allowed" in follow["message"]
+    patrol = orch.handle_user_text("patrol", exploding)
+    assert patrol["action"] == "vehicle_patrol"
+    assert "verb_not_allowed" in patrol["message"]
     hold = orch.handle_user_text("hold", exploding)
     assert hold["action"] == "vehicle_hold"
     assert "allow" in hold["message"]
@@ -152,19 +154,20 @@ def test_t5_armar_then_follow_verb_not_allowed_hold_still_allow():
 def test_t6_seed_honesty_prior_rows_allowlist_unwidened():
     registry = CapabilityRegistry.load_default()
 
-    cap = registry.get_capability("flight.follow")
+    cap = registry.get_capability("flight.patrol")
     assert cap is not None
     assert cap.availability == CapabilityAvailability.NOT_IMPLEMENTED
-    assert cap.provider_id == "provider.flight_follow"
-    assert cap.version == "0.6.20"
+    assert cap.provider_id == "provider.flight_patrol"
+    assert cap.version == "0.6.21"
 
-    provider = registry.get_provider("provider.flight_follow")
+    provider = registry.get_provider("provider.flight_patrol")
     assert provider is not None
     assert provider.kind == ProviderKind.VEHICLE
-    assert provider.offered_capability_ids == ["flight.follow"]
+    assert provider.offered_capability_ids == ["flight.patrol"]
 
     skill_ids = {s.id for s in registry.skills()}
     assert {
+        "skill.request_patrol",
         "skill.request_follow",
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
@@ -186,11 +189,12 @@ def test_t6_seed_honesty_prior_rows_allowlist_unwidened():
         "flight.return_home",
         "safety.chat_armed_allowlist",
         "flight.follow",
+        "flight.patrol",
     } <= cap_ids
     assert len(cap_ids) == 10
 
     assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset({"HOLD", "LAND", "GO_TO"})
-    assert "FOLLOW" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
+    assert "PATROL" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
 
 
 def test_t7_ast_fence_shared_gate_empty_params():
@@ -203,34 +207,34 @@ def test_t7_ast_fence_shared_gate_empty_params():
             ), f"assistant_task.py imports forbidden module '{module_name}'"
     assert isinstance(default_safety_gate(), RejectAllSafetyGate)
 
-    command = propose_command(AutonomyVerb.FOLLOW, params={})
+    command = propose_command(AutonomyVerb.PATROL, params={})
     assert command.params == {}
-    assert command.verb == AutonomyVerb.FOLLOW
-    assert "FOLLOW" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
+    assert command.verb == AutonomyVerb.PATROL
+    assert "PATROL" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
 
     orch = JarvisOrchestrator()
     gate = orch._vehicle_chat_safety_gate()
     assert gate is orch._vehicle_chat_safety_gate()
-    # Shared with arm path: arm then follow sees verb_not_allowed on same latch
+    # Shared with arm path: arm then patrol sees verb_not_allowed on same latch
     orch.handle_user_text("armar", _ExplodingLLMInterface())
     assert gate.armed is True
     assert gate is orch._vehicle_chat_safety_gate()
-    follow = orch.handle_user_text("follow", _ExplodingLLMInterface())
-    assert "verb_not_allowed" in follow["message"]
+    patrol = orch.handle_user_text("patrol", _ExplodingLLMInterface())
+    assert "verb_not_allowed" in patrol["message"]
 
 
-def test_t8_precedence_return_home_then_follow():
+def test_t8_precedence_follow_then_patrol():
     orch = JarvisOrchestrator()
     exploding = _ExplodingLLMInterface()
-    rtl = orch.handle_user_text("rtl", exploding)
-    assert rtl["action"] == "vehicle_return_home"
     follow = orch.handle_user_text("follow", exploding)
     assert follow["action"] == "vehicle_follow"
-    # RETURN_HOME phrase must not be stolen by FOLLOW
-    assert try_request_follow_task(_intent("rtl")) is None
-    assert try_request_return_home_task(_intent("rtl")) is not None
+    patrol = orch.handle_user_text("patrol", exploding)
+    assert patrol["action"] == "vehicle_patrol"
+    # FOLLOW phrase must not be stolen by PATROL
+    assert try_request_patrol_task(_intent("follow")) is None
+    assert try_request_follow_task(_intent("follow")) is not None
 
 
-def test_t9_pyproject_version_is_0_6_20():
+def test_t9_pyproject_version_is_0_6_21():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     assert 'version = "0.6.21"' in text

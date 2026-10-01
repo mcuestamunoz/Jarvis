@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.21`**
 
-**Status:** ★ **AUTHORIZED** — await Claude implementation → Cursor review → Engineer ★ ACCEPT → tag **`v0.6.21`**.  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.21`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_assistant_vehicle_patrol_task_b0.md)
 - T12 [`B1-assistant-vehicle-follow-task`](implementation_review_assistant_vehicle_follow_task_b1.md) — ★ ACCEPT CLOSED @ **`v0.6.20`**
