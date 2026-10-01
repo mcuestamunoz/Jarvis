@@ -1,43 +1,46 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
+  "cycle_intent": "T20 ★ ACCEPT CLOSED @ v0.6.29; Claude implement T21 Skills runtime @ 0.6.30",
+  "scope": "T20 chat→sim copper closed. SD-GO_TO OPEN debt remains. Last Buy of today’s block: T21 software Skills runtime.",
+  "execution_status": "authorized_awaiting_impl",
   "current_mode": "implement",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: accept"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
+  "relevant_workflow_phases": ["Close", "Implement"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/implementation_review_assistant_chat_sim_copper_b1.md",
+    ".jes/artifacts/implementation_contract_capability_skills_runtime_software_b1.md",
+    ".jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Claude T21 Skills runtime impl + Cursor review?",
+    "After T21 ★: open Skill-first chat DC/IC?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "type": "authorized_awaiting_impl",
+    "contract": "implementation_contract_capability_skills_runtime_software_b1.md",
+    "ids": ["T21", "B1-capability-skills-runtime-software"],
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "T20 B1-assistant-chat-sim-copper ★ ACCEPT CLOSED @ v0.6.29",
+    "Tag v0.6.29",
+    "T21 AUTHORIZED for Claude",
+    "SD-GO_TO remains OPEN debt"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "No tip/package version pin tests",
+    "T21 = software Skills only — not Skill-first chat · not vehicle Skills",
+    "SD-GO_TO not invent coords without separate ★",
+    "After T21 ★: Skill-first then voz/world (Engineer horizon)"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "Tag v0.6.29",
+    "Package tip 0.6.29",
+    "T21 paste ready for Claude"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-01T09:55:00Z"
 }

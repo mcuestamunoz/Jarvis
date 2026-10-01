@@ -7,8 +7,10 @@
 `B1-assistant-vehicle-go-to-task` (T8),
 `B1-assistant-vehicle-takeoff-task` (T9),
 `B1-assistant-vehicle-return-home-task` (T10),
-`B1-assistant-vehicle-arm-ux` (T11), and
-`B1-assistant-vehicle-follow-task` (T12).
+`B1-assistant-vehicle-arm-ux` (T11),
+`B1-assistant-vehicle-follow-task` (T12),
+`B1-assistant-vehicle-patrol-task` (T13), and
+`B1-assistant-ops-charge-task` (T19).
 
 T11 adds Safety **policy** Tasks `request_arm_policy` /
 `request_disarm_policy` (require `safety.chat_armed_allowlist`,
@@ -28,6 +30,33 @@ TAKEOFF → RETURN_HOME → **FOLLOW** → fallthrough. No person/target parse
 — orchestrator always proposes with empty `params={}`. Allow-list stays
 `{HOLD, LAND, GO_TO}` (unwidened) — after ARM, FOLLOW yields
 `verb_not_allowed` like TAKEOFF/RETURN_HOME.
+
+T13 adds the **seventh and last** vehicle Task kind, `request_patrol`
+(requires `flight.patrol`) — last C4 `AutonomyVerb` without a chat Task,
+same membership-only seam, own finite phrase table
+(`jarvis.config.VEHICLE_PATROL_PHRASES`). Precedence: explain →
+Continuity defer → ARM → DISARM → HOLD → LAND → GO_TO → TAKEOFF →
+RETURN_HOME → FOLLOW → **PATROL** → fallthrough. No waypoint/route
+parse — orchestrator always proposes with empty `params={}`. Allow-list
+stays `{HOLD, LAND, GO_TO}` (unwidened) — after ARM, PATROL yields
+`verb_not_allowed` like FOLLOW/TAKEOFF/RETURN_HOME. (T14 later widened
+the allow-list to the full seven-verb chat set — see `capabilities/
+safety.py`'s own docstring for the current, authoritative allow-list.)
+
+T19 adds the **first ops** Task kind, `request_charge` (requires
+`ops.charge`) — deliberately **not** an `AutonomyVerb`: CHARGE is a
+battery/charge ops concept, not a C4 flight verb, so it never goes
+through `ArmedAllowlistSafetyGate` at all (armed or disarmed makes no
+difference to it). Own finite phrase table
+(`jarvis.config.OPS_CHARGE_PHRASES`). Precedence: explain → Continuity
+defer → ARM → DISARM → HOLD → LAND → GO_TO → TAKEOFF → RETURN_HOME →
+FOLLOW → PATROL → **CHARGE** → fallthrough. Exact match only — never
+steals mission/payload lines ("carga util", "aumentar la carga").
+Membership only, no `SoftwareCapabilitySafetyGate` either (`ops.charge`
+is seeded `not_implemented`/`device`). Fulfilled in the orchestrator's
+`_handle_ops_charge` — never `propose_command`/`AutonomyVerb`/sim
+executor; honest Spanish that charge ops are not implemented, never a
+claim of real battery charging.
 
 T6 adds the first **vehicle** Task kind, `request_hold` (requires
 `flight.hold`) — classified from a finite HOLD phrase table
@@ -89,6 +118,14 @@ stolen. `ArmedAllowlistSafetyGate`'s own allow-list stays unwidened
 `disarmed`-regardless reasoning as TAKEOFF. After this kind, the basic
 chat vehicle command set is complete: TAKEOFF/HOLD/GO_TO/RETURN_HOME/LAND.
 
+**Note (T14, `B1-assistant-vehicle-allowlist-widen`):** every `verb_not_allowed`
+mention above describes the allow-list as it stood at each paragraph's
+own ship time. `ArmedAllowlistSafetyGate._ALLOWED_VERBS` was later
+widened to all seven chat verbs — after `armar`, TAKEOFF/RETURN_HOME/
+FOLLOW/PATROL now resolve to `allow`/`not_implemented` like HOLD/LAND/
+GO_TO, never `verb_not_allowed`. See `capabilities/safety.py`'s own
+docstring for the current, authoritative allow-list.
+
 First on-disk `Task` emission per `DC-assistant-first-task`
 (`design_contract_assistant_first_task_b0.md`, ★ ACCEPT CLOSED):
 `jarvis.intelligence` — the Assistant — classifies an `Intent` into a
@@ -128,12 +165,14 @@ from jarvis.capabilities.safety import SafetyRequest, SoftwareCapabilitySafetyGa
 from jarvis.config import (
     CHAT_EXPLAIN_PREFIXES,
     CONTINUITY_DEFER_PHRASES,
+    OPS_CHARGE_PHRASES,
     VEHICLE_ARM_PHRASES,
     VEHICLE_DISARM_PHRASES,
     VEHICLE_FOLLOW_PHRASES,
     VEHICLE_GO_TO_PHRASES,
     VEHICLE_HOLD_PHRASES,
     VEHICLE_LAND_PHRASES,
+    VEHICLE_PATROL_PHRASES,
     VEHICLE_RETURN_HOME_PHRASES,
     VEHICLE_TAKEOFF_PHRASES,
 )
@@ -157,6 +196,10 @@ CAPABILITY_FLIGHT_RETURN_HOME = "flight.return_home"
 TASK_KIND_REQUEST_RETURN_HOME = "request_return_home"
 CAPABILITY_FLIGHT_FOLLOW = "flight.follow"
 TASK_KIND_REQUEST_FOLLOW = "request_follow"
+CAPABILITY_FLIGHT_PATROL = "flight.patrol"
+TASK_KIND_REQUEST_PATROL = "request_patrol"
+CAPABILITY_OPS_CHARGE = "ops.charge"
+TASK_KIND_REQUEST_CHARGE = "request_charge"
 
 _LIST_RUNG_REDIRECT = (
     "Eso solo está disponible en terminal: "
@@ -374,6 +417,8 @@ def try_request_arm_policy_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_FOLLOW_PHRASES:
         return None
+    if normalized in VEHICLE_PATROL_PHRASES:
+        return None
     if normalized not in VEHICLE_ARM_PHRASES:
         return None
     required_capability_ids = [CAPABILITY_SAFETY_CHAT_ARMED_ALLOWLIST]
@@ -410,6 +455,8 @@ def try_request_disarm_policy_task(intent: Intent) -> Task | None:
     if normalized in VEHICLE_RETURN_HOME_PHRASES:
         return None
     if normalized in VEHICLE_FOLLOW_PHRASES:
+        return None
+    if normalized in VEHICLE_PATROL_PHRASES:
         return None
     if normalized not in VEHICLE_DISARM_PHRASES:
         return None
@@ -472,6 +519,8 @@ def try_request_hold_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_FOLLOW_PHRASES:
         return None
+    if normalized in VEHICLE_PATROL_PHRASES:
+        return None
     if normalized not in VEHICLE_HOLD_PHRASES:
         return None
     required_capability_ids = [CAPABILITY_FLIGHT_HOLD]
@@ -531,6 +580,8 @@ def try_request_land_task(intent: Intent) -> Task | None:
     if normalized in VEHICLE_HOLD_PHRASES:
         return None
     if normalized in VEHICLE_FOLLOW_PHRASES:
+        return None
+    if normalized in VEHICLE_PATROL_PHRASES:
         return None
     if normalized not in VEHICLE_LAND_PHRASES:
         return None
@@ -595,6 +646,8 @@ def try_request_go_to_task(intent: Intent) -> Task | None:
     if normalized in VEHICLE_LAND_PHRASES:
         return None
     if normalized in VEHICLE_FOLLOW_PHRASES:
+        return None
+    if normalized in VEHICLE_PATROL_PHRASES:
         return None
     if normalized not in VEHICLE_GO_TO_PHRASES:
         return None
@@ -664,6 +717,8 @@ def try_request_takeoff_task(intent: Intent) -> Task | None:
     if normalized in VEHICLE_GO_TO_PHRASES:
         return None
     if normalized in VEHICLE_FOLLOW_PHRASES:
+        return None
+    if normalized in VEHICLE_PATROL_PHRASES:
         return None
     if normalized not in VEHICLE_TAKEOFF_PHRASES:
         return None
@@ -745,6 +800,8 @@ def try_request_return_home_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_FOLLOW_PHRASES:
         return None
+    if normalized in VEHICLE_PATROL_PHRASES:
+        return None
     if normalized not in VEHICLE_RETURN_HOME_PHRASES:
         return None
     required_capability_ids = [CAPABILITY_FLIGHT_RETURN_HOME]
@@ -784,6 +841,8 @@ def try_request_follow_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_RETURN_HOME_PHRASES:
         return None
+    if normalized in VEHICLE_PATROL_PHRASES:
+        return None
     if normalized not in VEHICLE_FOLLOW_PHRASES:
         return None
     required_capability_ids = [CAPABILITY_FLIGHT_FOLLOW]
@@ -791,4 +850,96 @@ def try_request_follow_task(intent: Intent) -> Task | None:
     if not _capabilities_known_in_default_registry(required_capability_ids):
         return None
     intent.metadata["task_kind"] = TASK_KIND_REQUEST_FOLLOW
+    return task
+
+
+def try_request_patrol_task(intent: Intent) -> Task | None:
+    """Classify `intent` as a `request_patrol` Task — the **seventh and
+    last** vehicle Task kind (`DC-assistant-vehicle-patrol-task`,
+    ★ CLOSED, same seam as HOLD…FOLLOW) — or refuse (`None`).
+
+    Exact match on `VEHICLE_PATROL_PHRASES` after normalize. Precedence:
+    explain → Continuity defer → ARM → DISARM → HOLD → LAND → GO_TO →
+    TAKEOFF → RETURN_HOME → FOLLOW → **PATROL** → fallthrough. Refuses
+    all ahead-of-it kinds internally. Membership only — no
+    `SoftwareCapabilitySafetyGate`. No waypoint/route parse; fulfill
+    always uses empty `params={}`. Never imports FS.
+    """
+    if _extract_explain_query(intent.raw_text) is not None:
+        return None
+    normalized = _normalize_for_continuity_match(intent.raw_text)
+    if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_ARM_PHRASES or normalized in VEHICLE_DISARM_PHRASES:
+        return None
+    if normalized in VEHICLE_HOLD_PHRASES:
+        return None
+    if normalized in VEHICLE_LAND_PHRASES:
+        return None
+    if normalized in VEHICLE_GO_TO_PHRASES:
+        return None
+    if normalized in VEHICLE_TAKEOFF_PHRASES:
+        return None
+    if normalized in VEHICLE_RETURN_HOME_PHRASES:
+        return None
+    if normalized in VEHICLE_FOLLOW_PHRASES:
+        return None
+    if normalized not in VEHICLE_PATROL_PHRASES:
+        return None
+    required_capability_ids = [CAPABILITY_FLIGHT_PATROL]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    intent.metadata["task_kind"] = TASK_KIND_REQUEST_PATROL
+    return task
+
+
+def try_request_charge_task(intent: Intent) -> Task | None:
+    """Classify `intent` as a `request_charge` Task — the **first ops**
+    Task kind (`DC-assistant-ops-charge-task`, ★ CLOSED) — or refuse
+    (`None`). CHARGE is deliberately **not** an `AutonomyVerb` (DC §0
+    row 1) — it is a battery/charge ops concept, not a C4 flight verb.
+
+    Exact match on `OPS_CHARGE_PHRASES` after normalize. Precedence:
+    explain → Continuity defer → ARM → DISARM → HOLD → LAND → GO_TO →
+    TAKEOFF → RETURN_HOME → FOLLOW → PATROL → **CHARGE** → fallthrough.
+    Refuses all ahead-of-it kinds internally. Exact-match discipline
+    also means mission/payload lines ("carga util", "aumentar la
+    carga") never match — they are different full phrases, not a
+    substring/collision concern.
+
+    Membership only — no `ArmedAllowlistSafetyGate` (not a flight verb),
+    no `SoftwareCapabilitySafetyGate` (`ops.charge` is seeded
+    `not_implemented`/`device`, never `available`/`software`). Fulfill
+    (orchestrator's `_handle_ops_charge`) never calls `propose_command`/
+    `AutonomyVerb`/the sim executor. Never imports FS.
+    """
+    if _extract_explain_query(intent.raw_text) is not None:
+        return None
+    normalized = _normalize_for_continuity_match(intent.raw_text)
+    if normalized in CONTINUITY_DEFER_PHRASES:
+        return None
+    if normalized in VEHICLE_ARM_PHRASES or normalized in VEHICLE_DISARM_PHRASES:
+        return None
+    if normalized in VEHICLE_HOLD_PHRASES:
+        return None
+    if normalized in VEHICLE_LAND_PHRASES:
+        return None
+    if normalized in VEHICLE_GO_TO_PHRASES:
+        return None
+    if normalized in VEHICLE_TAKEOFF_PHRASES:
+        return None
+    if normalized in VEHICLE_RETURN_HOME_PHRASES:
+        return None
+    if normalized in VEHICLE_FOLLOW_PHRASES:
+        return None
+    if normalized in VEHICLE_PATROL_PHRASES:
+        return None
+    if normalized not in OPS_CHARGE_PHRASES:
+        return None
+    required_capability_ids = [CAPABILITY_OPS_CHARGE]
+    task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
+    if not _capabilities_known_in_default_registry(required_capability_ids):
+        return None
+    intent.metadata["task_kind"] = TASK_KIND_REQUEST_CHARGE
     return task
