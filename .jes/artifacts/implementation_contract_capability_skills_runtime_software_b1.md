@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED after T20 ★  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.30`**
 
-**Status:** **Implemented** (Claude Code) — Cursor review **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag **`v0.6.30`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES** · tag **`v0.6.30`**.  
 **Parents:** [DC ★ CLOSED](design_contract_capability_skills_runtime_software_b0.md) · T5 ★ · T20 ★ @ **`v0.6.29`**  
 **Type:** First Skill runner — software Skills only.  
 **Opens:** **`0.6.30` / `v0.6.30`**. **Cola:** **T21**

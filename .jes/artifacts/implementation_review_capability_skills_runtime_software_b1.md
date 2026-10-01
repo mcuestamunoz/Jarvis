@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (independent pass — Engineer pasted Claude T21 push summary)  
 **Against:** [IC](implementation_contract_capability_skills_runtime_software_b1.md) · [report](implementation_report_capability_skills_runtime_software_b1.md) · [DC ★](design_contract_capability_skills_runtime_software_b0.md)  
 **Tip reviewed:** `65a0c2f` on `cursor/skills-runtime-impl-8ac5` (parent tip T20 ★ `v0.6.29` @ `ca22362`)  
-**Verdict:** **PASS WITH NOTES** — package ready for Engineer ★ ACCEPT → tag **`v0.6.30`**. **No ACCEPT claim from Cursor.** Closes today’s T18–T21 software block pending ★.
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.30` / `v0.6.30`**. Closes today’s **T18–T21** software block.
 
-**Process note:** Claude Code implemented. Same-session implementer green is not review of record.
+**Process note:** Claude Code implemented. Same-session implementer green is not review of record. Engineer: review notes = forward friction (Skill-first / later parked work), already annotated — not blocking ★.
 
 ---
 
@@ -51,14 +51,14 @@
 
 **N2 — `project_status` via injectable provider.** Avoids `capabilities → core`. Without provider → `no_project`. With provider, message is currently `str(ctx)` (or whatever the callable returns) — not a second Continuity ranker, and not a byte-copy of `_handle_project_status` Spanish. Correct layering for this Buy; Skill-first can pass a provider that returns the same user-facing string as defer fulfill. **Not blocking.**
 
-**N3 — Process.** Await Engineer ★ ACCEPT → tag `v0.6.30`. After ★: today’s T18–T21 block closed; next horizon **Skill-first chat** (then voz/world). SD-GO_TO remains OPEN debt.
+**N3 — Process.** Engineer ★ ACCEPT applied → tag `v0.6.30`. T18–T21 block closed. Next block: Skill-first chat (DC/IC). SD-GO_TO remains OPEN debt.
 
 ---
 
 ## 4. Next
 
 ```text
-Cursor review: PASS WITH NOTES @ 65a0c2f
-Await Engineer ★ ACCEPT → tag v0.6.30
-Then: Skill-first chat DC/IC (next block) — not auto-AUTHORIZED
+★ ACCEPT CLOSED @ v0.6.30 (Engineer 2026-10-01)
+T18–T21 software block CLOSED
+Next: Skill-first chat (T22+)
 ```
