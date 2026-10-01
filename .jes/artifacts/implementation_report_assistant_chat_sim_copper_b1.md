@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_assistant_chat_sim_copper_b1.md`](implementation_contract_assistant_chat_sim_copper_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_sim_copper_b0.md) · T14 ★ · T19 ★ ACCEPT CLOSED @ **`v0.6.28`** · C40 sim executor  
-**Status:** Implemented — await Cursor review → Engineer ★ ACCEPT. **No ACCEPT claim.**  
-**Package / tag:** `0.6.29` / **`v0.6.29`** (on ACCEPT).
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review PASS WITH NOTES.  
+**Package / tag:** `0.6.29` / **`v0.6.29`**.
 
 ---
 

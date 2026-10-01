@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED after T19 ★  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.29`**
 
-**Status:** **Implemented** (Claude Code) — Cursor review **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag **`v0.6.29`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES** · tag **`v0.6.29`**. SD-GO_TO debt remains OPEN.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_sim_copper_b0.md) · T14 ★ · T19 ★ @ **`v0.6.28`** · C40 sim executor  
 **Type:** Chat allow → **sim** tick for HOLD/LAND/GO_TO only.  
 **Opens:** **`0.6.29` / `v0.6.29`**. **Cola:** **T20**

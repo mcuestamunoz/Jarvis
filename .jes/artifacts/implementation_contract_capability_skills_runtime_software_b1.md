@@ -6,8 +6,8 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED after T20 ★  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.30`**
 
-**Status:** ★ **AUTHORIZED** (sequence: after T20 ★ ACCEPT).  
-**Parents:** [DC ★ CLOSED](design_contract_capability_skills_runtime_software_b0.md) · T5 ★  
+**Status:** ★ **AUTHORIZED — Claude implement now** (T20 ★ @ `v0.6.29`).  
+**Parents:** [DC ★ CLOSED](design_contract_capability_skills_runtime_software_b0.md) · T5 ★ · T20 ★ @ **`v0.6.29`**  
 **Type:** First Skill runner — software Skills only.  
 **Opens:** **`0.6.30` / `v0.6.30`**. **Cola:** **T21**
 
@@ -64,11 +64,11 @@
 
 ---
 
-## 4. Paste for Claude (AUTHORIZED — after T20 ★)
+## 4. Paste for Claude (AUTHORIZED — T20 ★ done)
 
 ```text
 ★ AUTHORIZED implementation — B1-capability-skills-runtime-software (T21)
-Implement after T20 ★ ACCEPT @ v0.6.29.
+Parent tip: T20 ★ ACCEPT CLOSED @ v0.6.29. Implement now → package 0.6.30.
 
 IC: .jes/artifacts/implementation_contract_capability_skills_runtime_software_b1.md
 DC: .jes/artifacts/design_contract_capability_skills_runtime_software_b0.md (★ CLOSED)
@@ -77,4 +77,5 @@ Mark skill.explain_concept + skill.project_status available.
 Add skills_runtime.run_skill dispatching to existing fulfill paths.
 Vehicle/ops skills stay stub. Chat Task classify unchanged.
 Bump 0.6.30. No tip pins. No ACCEPT claim.
+Not Skill-first chat (that is the next block after T21 ★).
 ```

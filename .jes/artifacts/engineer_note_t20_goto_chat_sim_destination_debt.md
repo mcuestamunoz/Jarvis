@@ -2,8 +2,8 @@
 
 **Date:** 2026-10-01  
 **Authority:** Engineer (pre-ACCEPT T20) — leave architecture ready; document debt; wire later when destination exists  
-**Status:** **OPEN debt** · not blocking T20 ★ ACCEPT  
-**Parents:** T8 ★ (`B1-assistant-vehicle-go-to-task` @ `v0.6.16`) · C40 ★ (`B1-fase-c-autonomy-executor` @ `v0.5.41`) · T20 package `0.6.29`  
+**Status:** **OPEN debt** · T20 ★ ACCEPT CLOSED @ **`v0.6.29`** (debt remains; seam ready)  
+**Parents:** T8 ★ (`B1-assistant-vehicle-go-to-task` @ `v0.6.16`) · C40 ★ (`B1-fase-c-autonomy-executor` @ `v0.5.41`) · T20 ★ @ **`v0.6.29`**  
 **SoT pointers:** [T20 review N1](implementation_review_assistant_chat_sim_copper_b1.md) · [T20 report §2](implementation_report_assistant_chat_sim_copper_b1.md) · PRIORIDAD cola row **SD-GO_TO**
 
 ---

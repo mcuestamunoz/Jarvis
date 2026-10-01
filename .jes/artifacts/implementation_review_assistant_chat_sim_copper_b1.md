@@ -4,7 +4,7 @@
 **Reviewer:** Cursor (independent pass — Engineer pasted Claude T20 push summary)  
 **Against:** [IC](implementation_contract_assistant_chat_sim_copper_b1.md) · [report](implementation_report_assistant_chat_sim_copper_b1.md) · [DC ★](design_contract_assistant_chat_sim_copper_b0.md)  
 **Tip reviewed:** `3293e77` on `cursor/chat-sim-copper-impl-8ac5` (parent tip T19 ★ `v0.6.28` @ `43ece84`)  
-**Verdict:** **PASS WITH NOTES** — package ready for Engineer ★ ACCEPT → tag **`v0.6.29`**. **No ACCEPT claim from Cursor.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.29` / `v0.6.29`**. SD-GO_TO remains OPEN debt (not blocking).
 
 **Process note:** Claude Code implemented. Same-session implementer green is not review of record.
 
@@ -52,14 +52,14 @@
 
 **N2 — Isolation fence retarget.** Historical “no SimAutonomyExecutor under core/” tests now exclude `orchestrator.py` by name; other core/adapters files still checked. Correct for an intentional orch-side wire. T14’s own “no sim from chat” test rewritten to the permanent ESC-fence invariant.
 
-**N3 — Process.** Await Engineer ★ ACCEPT for tag `v0.6.29`. Next cola: T21 Skills runtime software.
+**N3 — Process.** Engineer ★ ACCEPT applied this close → tag `v0.6.29`. SD-GO_TO stays listed. Next: Claude T21 Skills runtime software.
 
 ---
 
 ## 4. Next
 
 ```text
-Cursor review: PASS WITH NOTES @ 3293e77
-Await Engineer ★ ACCEPT → tag v0.6.29
-Then Claude: T21 Skills runtime software @ 0.6.30
+★ ACCEPT CLOSED @ v0.6.29 (Engineer 2026-10-01)
+Claude: T21 Skills runtime software @ 0.6.30
+SD-GO_TO: OPEN debt — wire destination later
 ```

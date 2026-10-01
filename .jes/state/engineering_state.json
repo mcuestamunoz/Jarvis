@@ -1,43 +1,46 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T20 review PASS WITH NOTES; SD-GO_TO debt documented; await Engineer ★ ACCEPT @ v0.6.29",
-  "scope": "Chat allow→sim for HOLD/LAND. GO_TO seam ready + honest sin destino. Debt listed as SD-GO_TO — not blocking ACCEPT.",
-  "execution_status": "review_pass_awaiting_accept",
-  "current_mode": "close",
+  "cycle_intent": "T20 ★ ACCEPT CLOSED @ v0.6.29; Claude implement T21 Skills runtime @ 0.6.30",
+  "scope": "T20 chat→sim copper closed. SD-GO_TO OPEN debt remains. Last Buy of today’s block: T21 software Skills runtime.",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "implement",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: leave architecture ready; list GO_TO destination debt documentalmente before ACCEPT"
+    "reason": "Engineer: accept"
   },
-  "relevant_workflow_phases": ["Review", "Close"],
+  "relevant_workflow_phases": ["Close", "Implement"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
     ".jes/artifacts/implementation_review_assistant_chat_sim_copper_b1.md",
+    ".jes/artifacts/implementation_contract_capability_skills_runtime_software_b1.md",
     ".jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT for T20 @ v0.6.29?",
-    "Then Claude T21 Skills runtime software @ 0.6.30?",
-    "Later: authorize SD-GO_TO destination Buy when ready?"
+    "Claude T21 Skills runtime impl + Cursor review?",
+    "After T21 ★: open Skill-first chat DC/IC?"
   ],
   "active_operation": {
-    "type": "review_pass_awaiting_accept",
-    "contract": "implementation_contract_assistant_chat_sim_copper_b1.md",
-    "ids": ["T20", "B1-assistant-chat-sim-copper"],
-    "blocked_on": "engineer_accept"
+    "type": "authorized_awaiting_impl",
+    "contract": "implementation_contract_capability_skills_runtime_software_b1.md",
+    "ids": ["T21", "B1-capability-skills-runtime-software"],
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "SD-GO_TO debt note + PRIORIDAD row + CONNECTIONS/review pointers"
+    "T20 B1-assistant-chat-sim-copper ★ ACCEPT CLOSED @ v0.6.29",
+    "Tag v0.6.29",
+    "T21 AUTHORIZED for Claude",
+    "SD-GO_TO remains OPEN debt"
   ],
   "authority_gates": [
-    "No tag v0.6.29 without Engineer ★ ACCEPT",
-    "No invent GO_TO coordinates without separate ★ Buy",
-    "SD-GO_TO does not block T20 ACCEPT",
-    "T21 AUTHORIZED after T20 ★"
+    "No tip/package version pin tests",
+    "T21 = software Skills only — not Skill-first chat · not vehicle Skills",
+    "SD-GO_TO not invent coords without separate ★",
+    "After T21 ★: Skill-first then voz/world (Engineer horizon)"
   ],
   "coherence_checklist": [
-    "Debt SoT: engineer_note_t20_goto_chat_sim_destination_debt.md",
-    "PRIORIDAD SD-GO_TO OPEN",
-    "T20 seam left intact for later wire"
+    "Tag v0.6.29",
+    "Package tip 0.6.29",
+    "T21 paste ready for Claude"
   ],
-  "updated_at": "2026-10-01T09:50:00Z"
+  "updated_at": "2026-10-01T09:55:00Z"
 }
