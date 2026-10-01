@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.23`**
 
-**Status:** ★ **AUTHORIZED** — await Claude implement → Cursor review → Engineer ★ ACCEPT → tag **`v0.6.23`**.  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.23`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_fn016_rtl_wizard_precedence_b0.md)
 - [FN-016 cycle close ★](cycle_close_fn016.md)

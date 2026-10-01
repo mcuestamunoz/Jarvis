@@ -121,7 +121,7 @@ def test_t9_pyproject_version_stays_0_6_10():
     established pattern — was last accurate at 0.5.44 (C2's own tip),
     itself already long stale before this Buy touched the file."""
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.21"' in text
+    assert 'version = "0.6.23"' in text
 
 
 def test_safety_decision_requires_reason_on_reject():

@@ -501,6 +501,28 @@ class JarvisOrchestrator:
         if try_defer_to_continuity_task(continuity_intent) is not None:
             return self._handle_project_status()
 
+        # ── FN-016 wizard-cancel precedence (T15) ──────────────────────────────
+        # B1-fn016-rtl-wizard-precedence: "volver"/"vuelve"/"atras" are exact
+        # members of both NAVIGATION_BACK_WORDS (acquisition-wizard back-
+        # navigation) and VEHICLE_RETURN_HOME_PHRASES (T10 RTL). A
+        # DEFINE_MISSING_PARAMETERS wizard's own cancel must win over any
+        # vehicle Task intercept below — same result shape as the existing
+        # DEFINE_MISSING-mode FN-016 cancel further down this dispatch chain
+        # (kept there too, as defense in depth for direct callers). IDLE (no
+        # active wizard): this check is skipped, so "volver" still reaches
+        # RETURN_HOME via the existing T10 path below.
+        if (
+            self.state_manager.runtime_state.session.mode
+            == OrchestratorMode.DEFINE_MISSING_PARAMETERS
+            and is_navigation_back_phrase(stripped)
+        ):
+            self.state_manager.clear_runtime_session()
+            return {
+                "status": "cancelled",
+                "action": "define_missing_params",
+                "message": "Definición cancelada. Puedes retomar cuando quieras.",
+            }
+
         # ── Safety policy ARM intercept (T11) ─────────────────────────────────
         # T11 (B1-assistant-vehicle-arm-ux): arm/disarm the process-scoped
         # chat ArmedAllowlist latch — not an AutonomyVerb. Precedence:
