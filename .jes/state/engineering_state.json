@@ -1,47 +1,53 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T21 ★ ACCEPT CLOSED @ v0.6.30; T18–T21 block CLOSED; T22 Skill-first software AUTHORIZED for Claude",
-  "scope": "Closed today’s software block. Opened Skill-first chat phase A (explain/status via run_skill). Vehicle Skill-first and voice later.",
-  "execution_status": "authorized_awaiting_impl",
-  "current_mode": "implement",
+  "cycle_intent": "T22 Skill-first software implemented by Cursor @ 0.6.31; await Engineer \u2605 ACCEPT",
+  "scope": "Chat explain/status via run_skill. Vehicle/ops Task-direct. Engineer authorized Cursor to implement.",
+  "execution_status": "implemented_awaiting_accept",
+  "current_mode": "close",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: notes are forward friction; Accept and close block; go Skill-first chat"
+    "reason": "Engineer: ejecutalo tu"
   },
-  "relevant_workflow_phases": ["Close", "Design", "Implement"],
-  "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
+  "relevant_workflow_phases": [
+    "Implement",
+    "Close"
+  ],
+  "applicable_rules": [
+    "R-GOV-1",
+    "R-GOV-2",
+    "R-COL-1",
+    "R-KNW-1"
+  ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_capability_skills_runtime_software_b1.md",
-    ".jes/artifacts/design_contract_assistant_chat_skill_first_b0.md",
-    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_software_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_software_b1.md",
+    ".jes/artifacts/implementation_report_assistant_chat_skill_first_software_b1.md"
   ],
   "open_questions": [
-    "Claude T22 Skill-first software impl + Cursor review?",
-    "After T22 ★: authorize vehicle Skill-first slice?"
+    "Engineer \u2605 ACCEPT for T22 @ v0.6.31?",
+    "After \u2605: vehicle Skill-first IC?"
   ],
   "active_operation": {
-    "type": "authorized_awaiting_impl",
+    "type": "implemented_awaiting_accept",
     "contract": "implementation_contract_assistant_chat_skill_first_software_b1.md",
-    "ids": ["T22", "B1-assistant-chat-skill-first-software"],
-    "blocked_on": "claude_impl"
+    "ids": [
+      "T22",
+      "B1-assistant-chat-skill-first-software"
+    ],
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "T21 ★ ACCEPT CLOSED @ v0.6.30",
-    "Tag v0.6.30",
-    "T18–T21 software block CLOSED",
-    "DC-assistant-chat-skill-first ★ CLOSED",
-    "B1-assistant-chat-skill-first-software ★ AUTHORIZED"
+    "B1-assistant-chat-skill-first-software implemented by Cursor @ 0.6.31"
   ],
   "authority_gates": [
+    "No tag v0.6.31 without Engineer \u2605 ACCEPT",
+    "Same-session Cursor impl \u2260 independent review of record",
     "No tip/package version pin tests",
-    "T22 = software Skills only — not vehicle Skill-first · not voice",
-    "SD-GO_TO remains OPEN debt",
-    "T21 N1/N2 treated as forward friction for Skill-first — annotated"
+    "SD-GO_TO remains OPEN"
   ],
   "coherence_checklist": [
-    "Tag v0.6.30",
-    "T22 paste ready for Claude",
-    "Skill-first DC phase A/B/C listed"
+    "Explain via run_skill",
+    "Status gated via run_skill",
+    "Package 0.6.31"
   ],
-  "updated_at": "2026-10-01T10:25:00Z"
+  "updated_at": "2026-10-01T10:35:00Z"
 }

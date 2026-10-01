@@ -44,6 +44,7 @@ Continuity ranking logic").
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Callable
 
 from pydantic import BaseModel, ConfigDict
@@ -86,13 +87,18 @@ def run_skill(
     *,
     query: str | None = None,
     project_status_provider: Callable[[], dict] | None = None,
+    ontology_root: Path | None = None,
 ) -> SkillRunResult:
     """Look `skill_id` up in `CapabilityRegistry.load_default()`, require
     `availability == AVAILABLE` (vehicle/ops Skills are `stub` → reject),
     re-check required capability ids through the same T4-shaped software
     Safety gate, then dispatch to the one existing fulfill path this
     Skill reuses. Finite `reason`s: `unknown_skill` / `skill_stub` /
-    `safety_reject` / `missing_query` / `no_project` / `no_dispatcher`."""
+    `safety_reject` / `missing_query` / `no_project` / `no_dispatcher`.
+
+    T22: chat Skill-first may pass `ontology_root` through to
+    `fulfill_ontology_explain` (tests / alternate vault roots).
+    """
     registry = CapabilityRegistry.load_default()
     skill = next((s for s in registry.skills() if s.id == skill_id), None)
     if skill is None:
@@ -109,7 +115,7 @@ def run_skill(
             return SkillRunResult(skill_id=skill_id, outcome="reject", reason="missing_query")
         from jarvis.intelligence.assistant_task import fulfill_ontology_explain
 
-        message = fulfill_ontology_explain(query)
+        message = fulfill_ontology_explain(query, ontology_root=ontology_root)
         return SkillRunResult(skill_id=skill_id, outcome="ok", message=message)
 
     if skill_id == SKILL_ID_PROJECT_STATUS:

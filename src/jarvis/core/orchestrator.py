@@ -500,10 +500,27 @@ class JarvisOrchestrator:
         # down the normal handle_user_text chain — this is only an earlier,
         # zero-LLM fast path for a strict subset.
         from jarvis.capabilities.intent import TerminalIntentAdapter
+        from jarvis.capabilities.skills_runtime import run_skill
         from jarvis.intelligence.assistant_task import try_defer_to_continuity_task
 
         continuity_intent = TerminalIntentAdapter.parse(stripped)
         if try_defer_to_continuity_task(continuity_intent) is not None:
+            # T22 Skill-first: gate Continuity defer through run_skill, then
+            # keep the existing project_status / startup_context product shape
+            # (+ proactive_question side effects) via _handle_project_status.
+            skill_result = run_skill(
+                "skill.project_status",
+                project_status_provider=self.build_startup_context,
+            )
+            if skill_result.reason in ("skill_stub", "safety_reject", "unknown_skill"):
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": (
+                        "Skill project_status no disponible "
+                        f"({skill_result.reason})."
+                    ),
+                }
             return self._handle_project_status()
 
         # ── FN-016 wizard-cancel precedence (T15) ──────────────────────────────

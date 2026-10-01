@@ -321,12 +321,27 @@ def handle_explain_intent(intent: Intent, *, ontology_root: Path | None = None) 
     falls through to its normal LLM/craft path unchanged). Otherwise
     always returns a message string — including for `--list`/`--rung`
     lines, which are handled here (honest redirect) without a Task ever
-    being emitted for them."""
+    being emitted for them.
+
+    T22 (`B1-assistant-chat-skill-first-software`): user-facing cite/miss
+    text comes from `run_skill("skill.explain_concept", …)` — Skill-first
+    on the chat seam — not a direct `fulfill_ontology_explain` bypass.
+    """
     query = _extract_explain_query(intent.raw_text)
     if query is None:
         return None
     try_explain_concept_task(intent)
-    return fulfill_ontology_explain(query, ontology_root=ontology_root)
+    from jarvis.capabilities.skills_runtime import run_skill
+
+    result = run_skill(
+        "skill.explain_concept",
+        query=query,
+        ontology_root=ontology_root,
+    )
+    if result.outcome == "ok" and result.message is not None:
+        return result.message
+    reason = result.reason or "reject"
+    return f"Skill explain_concept no disponible ({reason})."
 
 
 def _normalize_for_continuity_match(text: str) -> str:

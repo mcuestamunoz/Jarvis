@@ -114,17 +114,20 @@ def test_t4_seed_exactly_two_available_rest_stub():
     assert len(registry.skills()) == 12
 
 
-def test_t5_chat_task_path_still_green_without_skill_first(tmp_path: Path):
-    """Chat Task classify is unchanged this Buy — `jarvis.intelligence.
-    assistant_task` still never looks a Skill up before emitting a Task."""
+def test_t5_chat_task_classify_still_emits_without_skill_lookup(tmp_path: Path):
+    """T21 lock: Task *classify* still does not look Skills up before emit.
+    T22 later wires *fulfill* through `run_skill` in `handle_explain_intent`
+    — that import is expected now; classify body must still not call
+    `registry.skills()` / Skill ids as a gate."""
     orch = JarvisOrchestrator(workspace_root=tmp_path)
     exploding = _ExplodingLLMInterface()
     result = orch.handle_user_text("explain c-rate-de-bateria", exploding)
     assert result["status"] == "ok"
     assert result["action"] == "global_command"
 
-    assistant_task_source = (
+    classify_source = (
         REPO_ROOT / "src" / "jarvis" / "intelligence" / "assistant_task.py"
     ).read_text(encoding="utf-8")
-    assert "skills_runtime" not in assistant_task_source
-    assert "run_skill" not in assistant_task_source
+    # try_explain_concept_task body must not consult the Skills catalog
+    assert "registry.skills(" not in classify_source
+    assert "skill.explain_concept" not in classify_source.split("def handle_explain_intent")[0]

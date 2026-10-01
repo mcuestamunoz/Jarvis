@@ -3,10 +3,10 @@
 **Project:** Jarvis  
 **Date:** 2026-10-01  
 **Author:** JES / Cursor — **IC only**  
-**Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
-**Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.31`**
+**Implementer:** **Cursor** (Engineer: “ejecutalo tú”)  
+**Reviewer:** Cursor self-impl ≠ review of record · Engineer ACCEPT → tag **`v0.6.31`**
 
-**Status:** ★ **AUTHORIZED — Claude implement now** (T21 ★ @ `v0.6.30`).  
+**Status:** **Implemented** (Cursor) — await Engineer ★ ACCEPT → tag **`v0.6.31`**.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T21 ★ @ **`v0.6.30`**  
 **Type:** First Skill-first chat slice — **software Skills only**.  
 **Opens:** **`0.6.31` / `v0.6.31`**. **Cola:** **T22**
