@@ -623,7 +623,7 @@ class JarvisOrchestrator:
     def _vehicle_chat_safety_gate(self):
         """T11 — lazy process-scoped `ArmedAllowlistSafetyGate` for the
         vehicle chat path. Starts disarmed. ARM/DISARM toggle it; the
-        five vehicle fulfills submit through this same instance."""
+        vehicle fulfills (HOLD…PATROL) submit through this same instance."""
         from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
 
         if self._vehicle_chat_safety_gate_instance is None:
