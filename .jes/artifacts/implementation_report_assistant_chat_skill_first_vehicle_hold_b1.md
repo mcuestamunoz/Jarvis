@@ -5,7 +5,7 @@
 **Implementer:** Cursor (Engineer: “Ejecuta tu ic t23”)  
 **Contract:** [`implementation_contract_assistant_chat_skill_first_vehicle_hold_b1.md`](implementation_contract_assistant_chat_skill_first_vehicle_hold_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T22 ★ @ **`v0.6.31`** · T6 HOLD ★  
-**Status:** Implemented — await Cursor review of record / Engineer ★ ACCEPT. **No ACCEPT claim.**  
+**Status:** Implemented — Cursor review **PASS WITH NOTES** → await Engineer ★ ACCEPT. **No ACCEPT claim.**  
 **Package / tag:** `0.6.32` / **`v0.6.32`** (on ACCEPT).
 
 ---
