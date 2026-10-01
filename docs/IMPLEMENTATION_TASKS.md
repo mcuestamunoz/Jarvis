@@ -6,9 +6,10 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T13** vehicle **PATROL** ★ **ACCEPT CLOSED** @ **`v0.6.21`**. Await Engineer ★ pick next: allow-list widen · CHARGE · copper.  
+> **PRIORIDAD AHORA:** **T14** chat **allow-list widen** — DC ★ CLOSED · IC ★ AUTHORIZED @ **`0.6.22`**. Parent tip **`v0.6.21`** (T13 PATROL ★). Await Claude implement.  
+> **Cola after T14 ★:** CHARGE · copper.  
 > **Background:** Silicon parked. Continuity stays in `core/`.  
-> SoT: [review](../.jes/artifacts/implementation_review_assistant_vehicle_patrol_task_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_vehicle_patrol_task_b0.md).  
+> SoT: [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_vehicle_allowlist_widen_b0.md) · parent [T13 review ★](../.jes/artifacts/implementation_review_assistant_vehicle_patrol_task_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  

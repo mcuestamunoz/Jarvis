@@ -1,41 +1,46 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL ★ ACCEPT CLOSED @ v0.6.21; await Engineer pick for next Buy",
-  "scope": "Seventh vehicle Task request_patrol closed via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. Tip tagged.",
-  "execution_status": "idle",
-  "current_mode": "idle",
+  "cycle_intent": "T14 allow-list widen DC★ + IC★ AUTHORIZED @ 0.6.22; await Claude implement",
+  "scope": "Widen ArmedAllowlistSafetyGate._ALLOWED_VERBS to all seven chat AutonomyVerbs. No new Task. allow ≠ execute. CHARGE/copper out.",
+  "execution_status": "ic_authorized_awaiting_implement",
+  "current_mode": "implement",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: accedpt (ACCEPT T13)"
+    "reason": "Engineer: procede con accept del ultimo ic y redactar siguiente ic"
   },
-  "relevant_workflow_phases": ["Close"],
+  "relevant_workflow_phases": ["Design", "Implement"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/design_contract_assistant_vehicle_allowlist_widen_b0.md",
+    ".jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md"
   ],
   "open_questions": [
-    "Next after T13 ★: allow-list widen · CHARGE · copper?"
+    "Claude implement T14?",
+    "After T14 ★: CHARGE · copper?"
   ],
   "active_operation": {
-    "type": "none",
-    "contract": null,
-    "ids": [],
-    "blocked_on": "Engineer ★ pick next Buy"
+    "type": "ic_authorized",
+    "contract": "implementation_contract_assistant_vehicle_allowlist_widen_b1.md",
+    "ids": ["T14", "B1-assistant-vehicle-allowlist-widen"],
+    "blocked_on": "claude_implement"
   },
   "closed_this_turn": [
-    "T13 B1-assistant-vehicle-patrol-task ★ ACCEPT CLOSED @ v0.6.21"
+    "T13 B1-assistant-vehicle-patrol-task ★ ACCEPT CLOSED @ v0.6.21 (already tagged)",
+    "DC-assistant-vehicle-allowlist-widen ★ CLOSED",
+    "IC B1-assistant-vehicle-allowlist-widen ★ AUTHORIZED @ 0.6.22"
   ],
   "authority_gates": [
-    "No allow-list widen without explicit Buy",
-    "CHARGE/copper require new IC",
-    "No route/waypoint parse without new IC",
-    "FN-016/ESC separate Buy when authorized"
+    "Cursor IC/docs/review only — Claude implements unless Engineer says implementa tú",
+    "No CHARGE / copper in T14",
+    "No SimAutonomyExecutor from chat",
+    "allow ≠ execute — never claim flight",
+    "No mass historical tip-pin cleanup in T14"
   ],
   "coherence_checklist": [
-    "Tag v0.6.21",
-    "Cascade 10 caps / 11 skills",
-    "Shared gate for PATROL",
-    "Vehicle-verb cola closed"
+    "Parent tip v0.6.21",
+    "Seven chat AutonomyVerbs only",
+    "Cascade stays 10/11",
+    "Package target 0.6.22"
   ],
-  "updated_at": "2026-10-01T07:25:00Z"
+  "updated_at": "2026-10-01T07:35:00Z"
 }
