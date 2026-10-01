@@ -23,7 +23,7 @@
 ## Verification
 
 - Targeted sample (former pin files + guard + allowlist + FN-016 + ESC): **159 passed**.
-- Full suite run follows in same tip (see commit notes / CI).
+- Full suite: **3856 passed / 23 skipped / 0 failed** (was ~3889 / 9 skip / **52 fail** tip pins).
 
 ---
 
