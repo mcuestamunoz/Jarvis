@@ -1,45 +1,44 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T19 CHARGE ops Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT @ v0.6.28",
-  "scope": "First ops Task — CHARGE ≠ AutonomyVerb. Membership only; device not_implemented; no propose_command/sim. Not real battery hardware.",
-  "execution_status": "review_pass_awaiting_accept",
-  "current_mode": "close",
+  "cycle_intent": "T19 ★ ACCEPT CLOSED @ v0.6.28; Claude implement T20 sim copper @ 0.6.29",
+  "scope": "T19 ops CHARGE closed. Next: chat allow → SimAutonomyExecutor.tick for HOLD/LAND/GO_TO only. Not ESC live.",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "implement",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer pasted Claude T19 push summary; Cursor independent review"
+    "reason": "Engineer: accept y siguiente"
   },
-  "relevant_workflow_phases": ["Review", "Close"],
+  "relevant_workflow_phases": ["Close", "Implement"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_ops_charge_task_b1.md",
-    ".jes/artifacts/implementation_review_assistant_ops_charge_task_b1.md"
+    ".jes/artifacts/implementation_review_assistant_ops_charge_task_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT for T19 @ v0.6.28?",
-    "Then Claude T20 sim copper @ 0.6.29?"
+    "Claude T20 sim copper impl + Cursor review?",
+    "Then T21 Skills runtime software @ 0.6.30?"
   ],
   "active_operation": {
-    "type": "review_pass_awaiting_accept",
-    "contract": "implementation_contract_assistant_ops_charge_task_b1.md",
-    "ids": ["T19", "B1-assistant-ops-charge-task"],
-    "blocked_on": "engineer_accept"
+    "type": "authorized_awaiting_impl",
+    "contract": "implementation_contract_assistant_chat_sim_copper_b1.md",
+    "ids": ["T20", "B1-assistant-chat-sim-copper"],
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "B1-assistant-ops-charge-task implemented by Claude @ 0.6.28",
-    "Cursor independent review PASS WITH NOTES @ 9b946f0"
+    "T19 B1-assistant-ops-charge-task ★ ACCEPT CLOSED @ v0.6.28",
+    "Tag v0.6.28",
+    "T20 AUTHORIZED for Claude"
   ],
   "authority_gates": [
-    "No tag v0.6.28 without Engineer ★ ACCEPT",
     "No tip/package version pin tests",
-    "CHARGE ≠ AutonomyVerb · not real battery",
-    "T20–T21 remain AUTHORIZED after T19 ★"
+    "T20 = sim tick HOLD/LAND/GO_TO only — not ESC live / not TAKEOFF/RH/FOLLOW/PATROL sim",
+    "submit_command preferred unchanged (path a)",
+    "T21 AUTHORIZED after T20 ★"
   ],
   "coherence_checklist": [
-    "Cascade 11 caps / 12 skills",
-    "provider.ops_charge kind=device",
-    "Package 0.6.28",
-    "Armed ≡ disarmed message (T4b)"
+    "Tag v0.6.28",
+    "Package tip 0.6.28",
+    "T20 paste ready for Claude"
   ],
-  "updated_at": "2026-10-01T09:25:00Z"
+  "updated_at": "2026-10-01T09:30:00Z"
 }

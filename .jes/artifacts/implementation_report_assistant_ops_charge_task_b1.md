@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_assistant_ops_charge_task_b1.md`](implementation_contract_assistant_ops_charge_task_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_ops_charge_task_b0.md) · T14 ★ · T18 ★ ACCEPT CLOSED @ **`v0.6.27`**  
-**Status:** Implemented — await Cursor review → Engineer ★ ACCEPT. **No ACCEPT claim.**  
-**Package / tag:** `0.6.28` / **`v0.6.28`** (on ACCEPT).
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review PASS WITH NOTES.  
+**Package / tag:** `0.6.28` / **`v0.6.28`**.
 
 ---
 

@@ -6,8 +6,8 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED after T19 ★  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.29`**
 
-**Status:** ★ **AUTHORIZED** (sequence: after T19 ★ ACCEPT).  
-**Parents:** [DC ★ CLOSED](design_contract_assistant_chat_sim_copper_b0.md) · T14 ★ · C40 sim executor  
+**Status:** ★ **AUTHORIZED — Claude implement now** (T19 ★ @ `v0.6.28`).  
+**Parents:** [DC ★ CLOSED](design_contract_assistant_chat_sim_copper_b0.md) · T14 ★ · T19 ★ @ **`v0.6.28`** · C40 sim executor  
 **Type:** Chat allow → **sim** tick for HOLD/LAND/GO_TO only.  
 **Opens:** **`0.6.29` / `v0.6.29`**. **Cola:** **T20**
 
@@ -62,11 +62,11 @@
 
 ---
 
-## 4. Paste for Claude (AUTHORIZED — after T19 ★)
+## 4. Paste for Claude (AUTHORIZED — T19 ★ done)
 
 ```text
 ★ AUTHORIZED implementation — B1-assistant-chat-sim-copper (T20)
-Implement after T19 ★ ACCEPT @ v0.6.28.
+Parent tip: T19 ★ ACCEPT CLOSED @ v0.6.28. Implement now → package 0.6.29.
 
 IC: .jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md
 DC: .jes/artifacts/design_contract_assistant_chat_sim_copper_b0.md (★ CLOSED)
@@ -75,4 +75,5 @@ After Safety allow on chat HOLD/LAND/GO_TO, run SimAutonomyExecutor.tick
 (orchestrator-owned, lazy). Prefer leaving submit_command unchanged.
 TAKEOFF/RH/FOLLOW/PATROL: allow but no tick. Never ESC/copper flight claim.
 Bump 0.6.29. No tip pins. No ACCEPT claim. Skills out.
+Not ESC live / not sim for TAKEOFF/RH/FOLLOW/PATROL (those stay parked).
 ```

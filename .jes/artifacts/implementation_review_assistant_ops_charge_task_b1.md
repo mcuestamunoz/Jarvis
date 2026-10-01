@@ -4,7 +4,7 @@
 **Reviewer:** Cursor (independent pass — Engineer pasted Claude T19 push summary)  
 **Against:** [IC](implementation_contract_assistant_ops_charge_task_b1.md) · [report](implementation_report_assistant_ops_charge_task_b1.md) · [DC ★](design_contract_assistant_ops_charge_task_b0.md)  
 **Tip reviewed:** `9b946f0` on `cursor/ops-charge-impl-8ac5` (parent tip T18 ★ `v0.6.27` @ `5648667`)  
-**Verdict:** **PASS WITH NOTES** — package ready for Engineer ★ ACCEPT → tag **`v0.6.28`**. **No ACCEPT claim from Cursor.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.28` / `v0.6.28`**.
 
 **Process note:** Claude Code implemented. Same-session implementer green is not review of record.
 
@@ -52,14 +52,13 @@
 
 **N1 — IC §2 T7 label vs suite.** IC table T7 said “No tip-version pins”; suite T7 asserts PATROL→CHARGE precedence. Tip-pin policy is covered by T17 guardrail (re-verified green). Extra T4b (armed≡disarmed) strengthens §0.6. Not blocking.
 
-**N2 — Process.** Await Engineer ★ ACCEPT for tag `v0.6.28`. Next cola: T20 sim copper.
+**N2 — Process.** Engineer ★ ACCEPT applied this close → tag `v0.6.28`. Next: Claude T20 sim copper.
 
 ---
 
 ## 4. Next
 
 ```text
-Cursor review: PASS WITH NOTES @ 9b946f0
-Await Engineer ★ ACCEPT → tag v0.6.28
-Then Claude: T20 chat sim copper @ 0.6.29
+★ ACCEPT CLOSED @ v0.6.28 (Engineer 2026-10-01)
+Claude: T20 chat sim copper @ 0.6.29
 ```
