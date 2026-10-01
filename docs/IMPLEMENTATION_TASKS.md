@@ -19,7 +19,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.29`** · T0–T20 ★ CLOSED · T21 Claude now · after ★: Skill-first → voz/world)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`0.6.30`** · T0–T20 ★ CLOSED · T21 Cursor PASS · await Engineer ★ ACCEPT · after ★: Skill-first → voz/world)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -69,7 +69,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T20** | **`B1-assistant-chat-sim-copper`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.29`** | SimAutonomyExecutor from chat after allow · GO_TO honest sin destino · **not** ESC live | [review](../.jes/artifacts/implementation_review_assistant_chat_sim_copper_b1.md) |
 | **SD-GO_TO** | chat GO_TO destination → C40 sim tick | **OPEN debt** · listed at T20 ★ | T8 empty params ↔ C40 needs `x_m`/`y_m`; seam ready in T20 helper | [debt note](../.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md) |
 | **T21** | **`DC-capability-skills-runtime-software`** | **✅ ★ CLOSED** | first Skill runner · software Skills only | [DC](../.jes/artifacts/design_contract_capability_skills_runtime_software_b0.md) |
-| **T21** | **`B1-capability-skills-runtime-software`** | **Implemented** · await review/★ ACCEPT (tag `v0.6.30`) | explain/status Skills `available` + `run_skill` · **not** vehicle Skill-first | [report](../.jes/artifacts/implementation_report_capability_skills_runtime_software_b1.md) · [IC](../.jes/artifacts/implementation_contract_capability_skills_runtime_software_b1.md) |
+| **T21** | **`B1-capability-skills-runtime-software`** | **Cursor PASS WITH NOTES** · await Engineer ★ ACCEPT (tag `v0.6.30`) | explain/status Skills `available` + `run_skill` · **not** vehicle Skill-first | [review](../.jes/artifacts/implementation_review_capability_skills_runtime_software_b1.md) · [report](../.jes/artifacts/implementation_report_capability_skills_runtime_software_b1.md) · [IC](../.jes/artifacts/implementation_contract_capability_skills_runtime_software_b1.md) |
 | **after T21** | Skill-first chat (vehicle Skills) | **Candidate** | after T19–T21 ★ software block | ★ pick / new IC |
 | **after Skill-first** | Voz / world (A4) → same Skills · CLI by phases | **Horizon** | Engineer 2026-10-01: migrate CLI by phases, clean | DC placement §4 |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
