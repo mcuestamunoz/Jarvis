@@ -16,7 +16,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.21`** · A0–A8 + T0–T13 ★ CLOSED · await Engineer ★ pick)
+### 📋 COLA — Assistant + ontology retrieve (activa · package **`0.6.22`** · A0–A8 + T0–T13 ★ CLOSED · T14 IC ★ AUTHORIZED)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -50,7 +50,9 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T12** | **`B1-assistant-vehicle-follow-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.20`** | Task FOLLOW → shared ArmedAllowlist · empty params · allow-list unwidened | [review](../.jes/artifacts/implementation_review_assistant_vehicle_follow_task_b1.md) |
 | **T13** | **`DC-assistant-vehicle-patrol-task`** | **✅ ★ CLOSED** | seventh vehicle Task kind PATROL · last C4 verb in chat | [DC](../.jes/artifacts/design_contract_assistant_vehicle_patrol_task_b0.md) |
 | **T13** | **`B1-assistant-vehicle-patrol-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.21`** | Task PATROL → shared ArmedAllowlist · empty params · allow-list unwidened · closes vehicle-verb cola | [review](../.jes/artifacts/implementation_review_assistant_vehicle_patrol_task_b1.md) |
-| **vehicle later** | allow-list widen · CHARGE (ops) · copper | **Candidate** | política Safety · CHARGE ≠ `AutonomyVerb` | ★ pick next |
+| **T14** | **`DC-assistant-vehicle-allowlist-widen`** | **✅ ★ CLOSED** | Safety policy: widen chat ArmedAllowlist to all 7 chat verbs | [DC](../.jes/artifacts/design_contract_assistant_vehicle_allowlist_widen_b0.md) |
+| **T14** | **`B1-assistant-vehicle-allowlist-widen`** | **★ AUTHORIZED** · package `0.6.22` | `_ALLOWED_VERBS` → HOLD…PATROL · allow ≠ execute · no sim tick | [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md) |
+| **vehicle later** | CHARGE (ops) · copper | **Candidate** | CHARGE ≠ `AutonomyVerb` · copper path | pick after T14 ★ |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Parked** | Horizon | DC placement §4 |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |
