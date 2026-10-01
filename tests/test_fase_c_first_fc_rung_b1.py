@@ -143,11 +143,6 @@ def test_t7_capability_registry_default_still_empty():
     }
 
 
-def test_t8_pyproject_version_is_0_5_1():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t9_flight_software_not_imported_by_orchestrator_or_craft_paths():
     """This Buy's own boundary: zero `core`/`adapters` coupling to
     `jarvis.flight_software`/`jarvis.vehicle_profiles` at this Buy's

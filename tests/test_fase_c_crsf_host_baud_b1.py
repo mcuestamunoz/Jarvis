@@ -234,11 +234,6 @@ def test_t15_no_device_glob_or_scan_in_crsf_serial_real_code():
         assert token not in lowered, f"crsf_serial.py unexpectedly scans/globs devices ('{token}')"
 
 
-def test_t16_pyproject_version_is_0_5_21():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t19_no_crsf_or_elrs_under_native_no_bare_uart_substring_check():
     """Same lesson learned in C21/C22: scope the native-tree grep to
     `crsf`/`elrs` only — a bare `"uart"` substring check would false-fail

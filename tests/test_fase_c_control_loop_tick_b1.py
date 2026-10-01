@@ -259,11 +259,6 @@ def test_t9_registry_empty_and_no_craft_or_core_imports_of_loop():
             assert "FlightControlLoop" not in text, f"{py_file} references FlightControlLoop"
 
 
-def test_t10_pyproject_version_is_0_5_22():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t11_full_suite_process_gate_placeholder():
     """The full Python suite being green (and host `ctest` green) is
     verified by running them, not asserted here — see the implementation

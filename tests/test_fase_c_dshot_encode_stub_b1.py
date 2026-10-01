@@ -137,11 +137,6 @@ def test_t7_no_gpio_tim_bsrr_pigpio_in_new_dshot_files():
         assert token not in lowered, f"dshot.py unexpectedly contains '{token}'"
 
 
-def test_t9_pyproject_version_is_0_5_29():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t10_full_suite_process_gate_placeholder():
     """The full Python suite being green (and host `ctest` green) is
     verified by running them, not asserted here — see the implementation

@@ -163,11 +163,6 @@ def test_t9_capability_registry_default_still_empty():
     }
 
 
-def test_t10_pyproject_version_is_0_5_3():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_radio_stub_frame_rejects_missing_intent_text_for_intent_role():
     with pytest.raises(ValidationError):
         RadioStubFrame(role="intent")

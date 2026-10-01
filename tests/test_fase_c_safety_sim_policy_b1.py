@@ -167,11 +167,6 @@ def test_t7_no_craft_continuity_library_board_edits_and_c40_modules_untouched():
     assert "from jarvis.capabilities import" not in code_only
 
 
-def test_t8_pyproject_version_is_0_5_42():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t8_full_suite_process_gate_placeholder():
     """The full Python suite being green is verified by running it, not
     asserted here — see the implementation report's own test-run

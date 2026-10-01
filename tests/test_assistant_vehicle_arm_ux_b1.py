@@ -216,7 +216,3 @@ def test_t9_ast_fence_and_default_safety_gate():
             ), f"assistant_task.py imports forbidden module '{module_name}'"
     assert isinstance(default_safety_gate(), RejectAllSafetyGate)
 
-
-def test_t10_pyproject_version_is_0_6_19():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.25"' in text

@@ -201,11 +201,6 @@ def test_t9_capability_registry_default_still_empty():
     }
 
 
-def test_t10_pyproject_version_is_0_5_9():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_plant_step_consumes_motor_force_command_not_pwm():
     """Locks IC §0 decision 4: plant advances from MotorForceCommand, not
     from PWM microseconds."""

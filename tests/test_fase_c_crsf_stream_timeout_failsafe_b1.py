@@ -150,11 +150,6 @@ def test_t8_loop_and_esc_apply_paths_unchanged_no_timeout_wiring():
     assert "CrsfRcHoldWatch" not in esc_code
 
 
-def test_t10_pyproject_version_is_0_5_25():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t11_full_suite_process_gate_placeholder():
     """The full Python suite being green (and host `ctest` green) is
     verified by running them, not asserted here — see the implementation

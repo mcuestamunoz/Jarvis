@@ -192,11 +192,6 @@ def test_t9_capability_registry_default_still_empty():
     }
 
 
-def test_t10_pyproject_version_is_0_5_6():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_smoke_controller_returns_at_least_one_command():
     commands = run_attitude_controller_smoke(samples=3)
     assert len(commands) == 3

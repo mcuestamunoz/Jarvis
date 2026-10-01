@@ -125,7 +125,3 @@ def test_t7_no_sim_autonomy_executor_wired_from_chat():
             f"orchestrator.py references {token!r} — chat must never drive the sim executor"
         )
 
-
-def test_t8_pyproject_version_is_0_6_25():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.25"' in text

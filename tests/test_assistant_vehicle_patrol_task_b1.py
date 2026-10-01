@@ -243,7 +243,3 @@ def test_t8_precedence_follow_then_patrol():
     assert try_request_patrol_task(_intent("follow")) is None
     assert try_request_follow_task(_intent("follow")) is not None
 
-
-def test_t9_pyproject_version_is_0_6_21():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.25"' in text

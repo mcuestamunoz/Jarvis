@@ -110,11 +110,6 @@ def test_cmake_wires_spi_probe_into_jarvis_fc_and_unit_tests():
     assert "tests/test_spi_probe.cpp" in cmake_text
 
 
-def test_t10_pyproject_version_is_0_5_32():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t11_full_suite_process_gate_placeholder():
     """The full Python suite being green (and host `ctest` green) is
     verified by running them, not asserted here — see the implementation

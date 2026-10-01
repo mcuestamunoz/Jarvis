@@ -6,17 +6,17 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T14** chat **allow-list widen** — Cursor review **PASS WITH NOTES** @ `a0964e8`; await Engineer ★ ACCEPT → tag **`v0.6.25`**.  
-> **Later candidate:** retire historical tip-version pins.  
-> **Cola after T14 ★:** CHARGE · copper.  
-> SoT: [T14 review](../.jes/artifacts/implementation_review_assistant_vehicle_allowlist_widen_b1.md) · [T14 report](../.jes/artifacts/implementation_report_assistant_vehicle_allowlist_widen_b1.md) · [T14 IC](../.jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md) · [T14 DC ★](../.jes/artifacts/design_contract_assistant_vehicle_allowlist_widen_b0.md).  
+> **PRIORIDAD AHORA:** **T17** suite **tip-pin cleanup** — implemented @ `0.6.26`; await Engineer ★ ACCEPT → tag **`v0.6.26`**. Policy: **no tip/package version pins in tests** going forward.  
+> **Still open:** **T14** allow-list widen Cursor PASS @ `a0964e8` — await ★ ACCEPT → tag **`v0.6.25`** (same tip chain).  
+> **Cola after T14/T17 ★:** CHARGE · copper · N1 fulfill docstring polish · Skills runtime · forge PR hygiene.  
+> SoT: [T17 IC](../.jes/artifacts/implementation_contract_suite_tip_pin_cleanup_b1.md) · [T17 DC ★](../.jes/artifacts/design_contract_suite_tip_pin_cleanup_b0.md) · [T14 review](../.jes/artifacts/implementation_review_assistant_vehicle_allowlist_widen_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.24`** · T0–T13 + T15–T16 ★ CLOSED · T14 Cursor PASS · await Engineer ★ ACCEPT @ `0.6.25`)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`0.6.26`** · T0–T13 + T15–T16 ★ CLOSED · T14 Cursor PASS · T17 tip-pin cleanup implemented, await ★ ACCEPT)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -56,8 +56,10 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T15** | **`B1-fn016-rtl-wizard-precedence`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.23`** | `_handle_global_commands` DEFINE_MISSING nav-back before vehicle intercepts | [review](../.jes/artifacts/implementation_review_fn016_rtl_wizard_precedence_b1.md) |
 | **T16** | **`DC-esc-fence-import-only`** | **✅ ★ CLOSED** | ESC isolation fence = imports/use only, not prose | [DC](../.jes/artifacts/design_contract_esc_fence_import_only_b0.md) |
 | **T16** | **`B1-esc-fence-import-only`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.24`** | AST fence for `SimulatedEscSink` / `flight_control.esc` in core/adapters | [review](../.jes/artifacts/implementation_review_esc_fence_import_only_b1.md) |
-| **suite debt** | retire historical tip-version pins | **Candidate** | ~52 `pyproject_version_is_0_5_x` asserts ≠ live tip | ★ pick later |
-| **vehicle later** | CHARGE (ops) · copper | **Candidate** | CHARGE ≠ `AutonomyVerb` · copper path | pick after T14–T16 ★ |
+| **T17** | **`DC-suite-tip-pin-cleanup`** | **✅ ★ CLOSED** | Retire tip/package version pins · policy: no tip pins in tests | [DC](../.jes/artifacts/design_contract_suite_tip_pin_cleanup_b0.md) |
+| **T17** | **`B1-suite-tip-pin-cleanup`** | **Implemented** · await Engineer ★ ACCEPT (tag `v0.6.26`) | Delete ~72 tip-pin tests · guardrail · package `0.6.26` | [IC](../.jes/artifacts/implementation_contract_suite_tip_pin_cleanup_b1.md) · [report](../.jes/artifacts/implementation_report_suite_tip_pin_cleanup_b1.md) |
+| **vehicle later** | CHARGE (ops) · copper | **Candidate** | CHARGE ≠ `AutonomyVerb` · copper path | pick after T14/T17 ★ |
+| **polish** | N1 fulfill docstrings · Skills runtime · forge PR hygiene | **Candidate** | docstrings stale post-T14 · skills stub · close old PRs | pick later |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Parked** | Horizon | DC placement §4 |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |

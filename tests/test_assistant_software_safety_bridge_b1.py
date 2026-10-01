@@ -213,7 +213,3 @@ def test_t6_fences_hold_ast():
         for m in safety_imports
     ), "safety.py imports jarvis.intelligence"
 
-
-def test_t7_pyproject_version_is_0_6_12():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.25"' in text

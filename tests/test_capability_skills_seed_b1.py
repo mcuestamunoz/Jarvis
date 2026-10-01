@@ -105,11 +105,6 @@ def test_t5_no_execute_dispatch_or_run_skill_public_method():
             )
 
 
-def test_t6_pyproject_version_is_0_6_13():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.25"' in text
-
-
 def test_seed_file_skills_shape_matches_ic_normative_seed():
     """Direct check against the checked-in JSON, independent of
     `load_default()`'s own parsing — proves the file on disk matches

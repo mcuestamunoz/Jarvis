@@ -238,11 +238,6 @@ def test_t13_module_import_does_not_require_a_plugged_dfu_device():
     assert True
 
 
-def test_t14_pyproject_version_is_0_5_28():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t15_full_suite_process_gate_placeholder():
     """The full Python suite being green (and host `ctest` green) is
     verified by running them, not asserted here — see the implementation

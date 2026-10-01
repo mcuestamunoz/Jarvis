@@ -168,11 +168,6 @@ def test_t7_native_tree_zero_crsf_elrs_tokens():
             assert "elrs" not in text.lower(), f"{path} unexpectedly references ELRS"
 
 
-def test_t8_pyproject_version_is_0_5_33():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t9_full_suite_process_gate_placeholder():
     """The full Python suite being green (and host `ctest` green) is
     verified by running them, not asserted here — see the implementation

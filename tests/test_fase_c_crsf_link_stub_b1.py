@@ -251,7 +251,3 @@ def test_no_route_from_crsf_to_autonomy_submit_command():
     assert "flight_software" not in code_only
     assert "submit_command" not in code_only
 
-
-def test_t10_pyproject_version_is_0_5_17():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text

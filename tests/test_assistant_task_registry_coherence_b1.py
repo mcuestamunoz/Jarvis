@@ -120,11 +120,6 @@ def test_t5_fences_hold_ast():
     ), "registry.py imports jarvis.intelligence"
 
 
-def test_t6_pyproject_version_is_0_6_11():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.25"' in text
-
-
 def test_gate_does_not_touch_availability_or_providers(monkeypatch):
     """Optional (IC §3 note): the T3 membership *helper*
     (`_capabilities_known_in_default_registry`) is membership-only —

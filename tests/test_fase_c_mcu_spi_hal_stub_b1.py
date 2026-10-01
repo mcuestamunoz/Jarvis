@@ -93,11 +93,6 @@ def test_desk_gyro_identity_may_appear_only_as_comment_citation():
     assert "icm42688p" not in code_only  # never appears in real code, only in the comment
 
 
-def test_t9_pyproject_version_is_0_5_30():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t10_full_suite_process_gate_placeholder():
     """The full Python suite being green (and host `ctest` green) is
     verified by running them, not asserted here — see the implementation

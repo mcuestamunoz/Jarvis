@@ -116,14 +116,6 @@ def test_t8_capability_registry_default_still_descriptive_only():
             assert token not in lowered
 
 
-def test_t9_pyproject_version_stays_0_6_10():
-    """Bumped forward by T2 (B1-capability-registry-product-fill) per
-    established pattern — was last accurate at 0.5.44 (C2's own tip),
-    itself already long stale before this Buy touched the file."""
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.25"' in text
-
-
 def test_safety_decision_requires_reason_on_reject():
     with pytest.raises(ValidationError):
         SafetyDecision(outcome="reject", reason="", gate_id="x")

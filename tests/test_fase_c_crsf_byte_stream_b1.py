@@ -217,11 +217,6 @@ def test_t13_default_safety_gate_still_reject_all():
     assert gate.gate_id == "reject_all"
 
 
-def test_t14_pyproject_version_is_0_5_19():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t17_assembler_calls_c19_parse_crsf_frame_not_a_second_crc_impl():
     code_only = _strip_python_comments_and_docstrings(inspect.getsource(crsf_stream_module))
     assert "parse_crsf_frame" in code_only

@@ -156,11 +156,6 @@ def test_t8_capability_registry_default_still_empty():
     }
 
 
-def test_t9_pyproject_version_is_0_5_2():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t10_autonomy_not_imported_by_orchestrator_or_craft_paths():
     """C4's own boundary: zero `core`/`adapters` coupling to
     `flight_software.autonomy` at C4 time. T6

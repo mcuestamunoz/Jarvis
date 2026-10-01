@@ -244,7 +244,3 @@ def test_no_native_flight_control_wiring_into_craft_or_orchestrator():
             assert "jarvis_fc" not in text, f"{py_file} references the C++ jarvis_fc target"
             assert "fc_closed_loop_smoke" not in text, f"{py_file} references the C++ smoke binary"
 
-
-def test_t11_pyproject_version_is_0_5_11():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text

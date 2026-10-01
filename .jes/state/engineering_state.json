@@ -1,44 +1,44 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T14 allow-list widen Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT @ v0.6.25",
-  "scope": "ArmedAllowlist widened to seven chat AutonomyVerbs. allow ≠ execute. CHARGE probes for verb_not_allowed.",
-  "execution_status": "review_pass_awaiting_accept",
+  "cycle_intent": "T17 suite tip-pin cleanup implemented @ 0.6.26; await Engineer ★ ACCEPT. T14 still await ACCEPT @ v0.6.25.",
+  "scope": "Retire all pyproject tip-version pin tests. Policy guard: no tip pins going forward. No product behavior change.",
+  "execution_status": "implemented_awaiting_accept",
   "current_mode": "close",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer pasted Claude T14 push summary; Cursor independent review"
+    "reason": "Engineer: hay que corregir los 52 tip pins; a partir de ahora no atar tests a pin"
   },
-  "relevant_workflow_phases": ["Review", "Close"],
+  "relevant_workflow_phases": ["Implement", "Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_allowlist_widen_b1.md",
-    ".jes/artifacts/implementation_review_assistant_vehicle_allowlist_widen_b1.md"
+    ".jes/artifacts/design_contract_suite_tip_pin_cleanup_b0.md",
+    ".jes/artifacts/implementation_contract_suite_tip_pin_cleanup_b1.md",
+    ".jes/artifacts/implementation_report_suite_tip_pin_cleanup_b1.md"
   ],
   "open_questions": [
+    "Engineer ★ ACCEPT for T17 @ v0.6.26?",
     "Engineer ★ ACCEPT for T14 @ v0.6.25?",
-    "Next: CHARGE · copper · tip-pin cleanup?"
+    "Next: CHARGE · copper · N1 docstrings · Skills runtime · forge hygiene?"
   ],
   "active_operation": {
-    "type": "review_pass_awaiting_accept",
-    "contract": "implementation_contract_assistant_vehicle_allowlist_widen_b1.md",
-    "ids": ["T14", "B1-assistant-vehicle-allowlist-widen"],
+    "type": "implemented_awaiting_accept",
+    "contract": "implementation_contract_suite_tip_pin_cleanup_b1.md",
+    "ids": ["T17", "B1-suite-tip-pin-cleanup"],
     "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "B1-assistant-vehicle-allowlist-widen implemented by Claude @ 0.6.25",
-    "Cursor independent review PASS WITH NOTES @ a0964e8"
+    "DC-suite-tip-pin-cleanup ★ CLOSED",
+    "B1-suite-tip-pin-cleanup implemented — tip pins removed + guardrail"
   ],
   "authority_gates": [
-    "No tag v0.6.25 without Engineer ★ ACCEPT",
-    "allow ≠ execute — never claim flight",
-    "No tip-pin mass cleanup"
+    "No tag v0.6.26 without Engineer ★ ACCEPT",
+    "No tip/package version pin tests going forward",
+    "Registry capability version fields remain valid product checks"
   ],
   "coherence_checklist": [
-    "Seven-verb allow-list",
-    "Sim executor still HOLD/LAND/GO_TO",
-    "Cascade 10/11",
-    "Package 0.6.25"
+    "Guardrail test green",
+    "Package 0.6.26",
+    "No product behavior change"
   ],
-  "updated_at": "2026-10-01T08:25:00Z"
+  "updated_at": "2026-10-01T08:45:00Z"
 }

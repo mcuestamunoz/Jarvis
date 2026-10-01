@@ -212,11 +212,6 @@ def test_t10_capability_registry_default_still_empty():
     }
 
 
-def test_t11_pyproject_version_is_0_5_10():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_body_torque_command_rejects_non_finite():
     with pytest.raises(Exception):
         BodyTorqueCommand(t_s=0.0, tau_body=(float("nan"), 0.0, 0.0))

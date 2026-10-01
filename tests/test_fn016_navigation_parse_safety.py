@@ -347,7 +347,3 @@ def test_idle_atras_does_not_open_acquisition(tmp_path: Path):
 
 
 # ── J) package checkpoint ────────────────────────────────────────────────────
-
-def test_pyproject_version_is_0_6_23():
-    text = (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.25"' in text

@@ -94,11 +94,6 @@ def test_scripted_spi_declared_alongside_loopback_spi_not_a_new_file():
     assert not (NATIVE_FC_DIR / "include" / "jarvis" / "fc" / "scripted_spi.hpp").exists()
 
 
-def test_t8_pyproject_version_is_0_5_31():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t9_full_suite_process_gate_placeholder():
     """The full Python suite being green (and host `ctest` green) is
     verified by running them, not asserted here — see the implementation
