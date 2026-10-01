@@ -5,8 +5,8 @@
 **Implementer:** Cursor (Engineer: “ejecutalo tú”)  
 **Contract:** [`implementation_contract_assistant_chat_skill_first_software_b1.md`](implementation_contract_assistant_chat_skill_first_software_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T21 ★ @ **`v0.6.30`**  
-**Status:** Implemented — await Cursor review of record is same-session; Engineer may treat as PASS pending ★ ACCEPT. **No ACCEPT claim.**  
-**Package / tag:** `0.6.31` / **`v0.6.31`** (on ACCEPT).
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review PASS WITH NOTES.  
+**Package / tag:** `0.6.31` / **`v0.6.31`**.
 
 ---
 

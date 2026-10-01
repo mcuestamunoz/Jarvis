@@ -4,9 +4,9 @@
 **Date:** 2026-10-01  
 **Author:** JES / Cursor — **IC only**  
 **Implementer:** **Cursor** (Engineer: “ejecutalo tú”)  
-**Reviewer:** Cursor self-impl ≠ review of record · Engineer ACCEPT → tag **`v0.6.31`**
+**Reviewer:** Cursor forensic PASS WITH NOTES · Engineer ★ ACCEPT → tag **`v0.6.31`**
 
-**Status:** **Implemented** (Cursor) — await Engineer ★ ACCEPT → tag **`v0.6.31`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES** · tag **`v0.6.31`**.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T21 ★ @ **`v0.6.30`**  
 **Type:** First Skill-first chat slice — **software Skills only**.  
 **Opens:** **`0.6.31` / `v0.6.31`**. **Cola:** **T22**
@@ -56,8 +56,8 @@
 
 ## 3. Acceptance
 
-- [ ] Explain + status chat go through `run_skill` · vehicle/ops unchanged · `0.6.31`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.31`**
+- [x] Explain + status chat go through `run_skill` · vehicle/ops unchanged · `0.6.31`  
+- [x] Cursor review · Engineer ACCEPT · tag **`v0.6.31`**
 
 ---
 
