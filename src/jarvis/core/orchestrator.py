@@ -322,6 +322,10 @@ class JarvisOrchestrator:
         # (clears would wipe the latch). Distinct from the simulated ESC
         # sink's own arm sequence in flight_control — never imported here.
         self._vehicle_chat_safety_gate_instance = None
+        # T20: lazy process-scoped SimAutonomyExecutor (C40) for the chat
+        # vehicle path — separate from submit_command, never wired into the
+        # C4 surface. See `_sim_autonomy_executor()`.
+        self._sim_autonomy_executor_instance = None
         # U4: restaurar snapshot del proyecto más reciente si existe.
         # No-op si no hay proyectos en el workspace o el snapshot está ausente/corrupto.
         try:
@@ -672,6 +676,42 @@ class JarvisOrchestrator:
             self._vehicle_chat_safety_gate_instance = ArmedAllowlistSafetyGate()
         return self._vehicle_chat_safety_gate_instance
 
+    def _sim_autonomy_executor(self):
+        """T20 — lazy process-scoped `SimAutonomyExecutor` (C40) for the
+        chat vehicle path. Separate from, and never wired into,
+        `submit_command`/`AutonomySubmissionResult` (C4 surface honesty
+        unchanged — `submit_command` still always returns execution
+        `"not_implemented"`). Only called after Safety `allow`, for
+        HOLD/LAND/GO_TO. Owns its own `ToyQuad6DofPlant` — never
+        `SimulatedEscSink`/ESC HAL, never imported here."""
+        from jarvis.flight_software.autonomy.sim_executor import SimAutonomyExecutor
+        from jarvis.flight_software.flight_control.plant import ToyQuad6DofPlant
+
+        if self._sim_autonomy_executor_instance is None:
+            self._sim_autonomy_executor_instance = SimAutonomyExecutor(ToyQuad6DofPlant())
+        return self._sim_autonomy_executor_instance
+
+    def _sim_autonomy_tick_note(self, verb: Any) -> str:
+        """T20 — after Safety `allow` for HOLD/LAND/GO_TO, run one
+        `SimAutonomyExecutor.tick` and return a short, honest Spanish
+        note for the chat message. Never claims copper flight/motors/
+        ESC. `GO_TO` from chat always carries empty params (T8 — no
+        coordinate parsing this Buy either), which the sim executor's
+        own contract rejects (`GO_TO` requires `x_m`/`y_m`) — caught
+        here and reported as sim-unavailable-without-a-target, never a
+        crash, never an invented destination."""
+        from jarvis.flight_software.autonomy.sim_executor import SimAutonomyParams
+
+        executor = self._sim_autonomy_executor()
+        try:
+            tick_result = executor.tick(verb, SimAutonomyParams(), dt_s=0.01)
+        except ValueError:
+            return "Simulación no disponible sin destino (GO_TO requiere coordenadas; este chat no las parsea aún)."
+        return (
+            f"Simulación (no vuelo real, sin ESC/motores): tick en t={tick_result.t_s:.2f}s, "
+            f"colectivo={tick_result.collective:.3f}."
+        )
+
     def _handle_arm_policy(self, intent: Any) -> dict:
         """T11 fulfill: arm the shared chat ArmedAllowlist latch.
         Software Safety policy only — never ESC/motors/drone/flight.
@@ -704,7 +744,10 @@ class JarvisOrchestrator:
         `AutonomyVerb.HOLD` and submits through the **shared** chat
         ArmedAllowlist (T11). Never calls `gate.arm()` here.
         `default_safety_gate()` untouched. Honest UX — never claims hold
-        executed."""
+        executed. T20: after Safety `allow`, also runs one
+        `SimAutonomyExecutor.tick` (sim only, never copper) and reports
+        it in the message; `submit_command`'s own `execution` field
+        stays byte-unchanged at `"not_implemented"`."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -715,11 +758,15 @@ class JarvisOrchestrator:
             f"todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
             f"Ejecución: {result.execution}."
         )
+        if result.safety.outcome == "allow":
+            message += " " + self._sim_autonomy_tick_note(AutonomyVerb.HOLD)
         return {"status": "ok", "action": "vehicle_hold", "message": message}
 
     def _handle_vehicle_land(self, intent: Any) -> dict:
         """T7 fulfill — thin sibling of HOLD; shared chat ArmedAllowlist
-        (T11). Never arms the gate here. Honest UX only."""
+        (T11). Never arms the gate here. Honest UX only. T20: after
+        Safety `allow`, also runs one `SimAutonomyExecutor.tick` (sim
+        only, never copper)."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -730,11 +777,18 @@ class JarvisOrchestrator:
             f"todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
             f"Ejecución: {result.execution}."
         )
+        if result.safety.outcome == "allow":
+            message += " " + self._sim_autonomy_tick_note(AutonomyVerb.LAND)
         return {"status": "ok", "action": "vehicle_land", "message": message}
 
     def _handle_vehicle_go_to(self, intent: Any) -> dict:
         """T8 fulfill — empty params; shared chat ArmedAllowlist (T11).
-        Never arms the gate here. Honest UX only."""
+        Never arms the gate here. Honest UX only. T20: after Safety
+        `allow`, also attempts one `SimAutonomyExecutor.tick` (sim only,
+        never copper) — the sim executor requires a target for GO_TO,
+        which this chat path never parses, so the note honestly says
+        simulation is unavailable without one rather than inventing a
+        destination."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -745,6 +799,8 @@ class JarvisOrchestrator:
             f"chat todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
             f"Ejecución: {result.execution}."
         )
+        if result.safety.outcome == "allow":
+            message += " " + self._sim_autonomy_tick_note(AutonomyVerb.GO_TO)
         return {"status": "ok", "action": "vehicle_go_to", "message": message}
 
     def _handle_vehicle_takeoff(self, intent: Any) -> dict:

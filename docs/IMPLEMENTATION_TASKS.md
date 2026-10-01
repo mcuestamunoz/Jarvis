@@ -6,10 +6,10 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T20** chat sim copper — ★ AUTHORIZED for **Claude** @ **`0.6.29`**. Then T21 Skills runtime software.  
+> **PRIORIDAD AHORA:** **T20** chat sim copper — implemented (Claude); await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.29`**. Then T21 Skills runtime software.  
 > **Just closed:** **T19** ops CHARGE ★ **ACCEPT CLOSED** @ **`v0.6.28`**.  
 > **Policy:** no tip/package version pins in tests.  
-> SoT: [T20 IC](../.jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md) · [T19 review ★](../.jes/artifacts/implementation_review_assistant_ops_charge_task_b1.md).  
+> SoT: [T20 report](../.jes/artifacts/implementation_report_assistant_chat_sim_copper_b1.md) · [T20 IC](../.jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md) · [T19 review ★](../.jes/artifacts/implementation_review_assistant_ops_charge_task_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -64,7 +64,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T19** | **`DC-assistant-ops-charge-task`** | **✅ ★ CLOSED** | CHARGE ops Task ≠ AutonomyVerb · **not** real battery | [DC](../.jes/artifacts/design_contract_assistant_ops_charge_task_b0.md) |
 | **T19** | **`B1-assistant-ops-charge-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.28`** | `ops.charge` device · no propose_command · honest not_implemented | [review](../.jes/artifacts/implementation_review_assistant_ops_charge_task_b1.md) |
 | **T20** | **`DC-assistant-chat-sim-copper`** | **✅ ★ CLOSED** | chat allow → sim tick HOLD/LAND/GO_TO only | [DC](../.jes/artifacts/design_contract_assistant_chat_sim_copper_b0.md) |
-| **T20** | **`B1-assistant-chat-sim-copper`** | **★ AUTHORIZED — Claude now** @ `0.6.29` | SimAutonomyExecutor from chat after allow · **not** ESC live | [IC](../.jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md) |
+| **T20** | **`B1-assistant-chat-sim-copper`** | **Implemented** · await review/★ ACCEPT (tag `v0.6.29`) | SimAutonomyExecutor from chat after allow · **not** ESC live | [report](../.jes/artifacts/implementation_report_assistant_chat_sim_copper_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_chat_sim_copper_b1.md) |
 | **T21** | **`DC-capability-skills-runtime-software`** | **✅ ★ CLOSED** | first Skill runner · software Skills only | [DC](../.jes/artifacts/design_contract_capability_skills_runtime_software_b0.md) |
 | **T21** | **`B1-capability-skills-runtime-software`** | **★ AUTHORIZED** @ `0.6.30` · after T20 ★ | explain/status Skills `available` + `run_skill` · **not** vehicle Skill-first | [IC](../.jes/artifacts/implementation_contract_capability_skills_runtime_software_b1.md) |
 | **after T21** | Skill-first chat (vehicle Skills) | **Candidate** | after T19–T21 ★ software block | ★ pick / new IC |

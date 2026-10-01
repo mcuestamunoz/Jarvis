@@ -115,13 +115,24 @@ def test_t6_seed_cascade_unchanged_and_default_gate_still_reject_all():
     assert default_safety_gate().evaluate(SafetyRequest()).outcome == "reject"
 
 
-def test_t7_no_sim_autonomy_executor_wired_from_chat():
-    forbidden = ("SimAutonomyExecutor", "sim_executor")
+def test_t7_no_esc_coupling_from_chat():
+    """At T14 ship time this test asserted `orchestrator.py` never
+    references `SimAutonomyExecutor`/`sim_executor` at all — true then,
+    since this Buy only widens the Safety allow-list and explicitly does
+    not wire the sim executor. T20 (`B1-assistant-chat-sim-copper`)
+    later did wire it in deliberately (after Safety `allow`, for
+    HOLD/LAND/GO_TO only — see `tests/test_assistant_chat_sim_copper_b1.py`),
+    so that specific prohibition is now stale. The invariant that must
+    still hold forever, from both T14 and T20's own DCs, is the T16 ESC
+    fence: never a real import/use of `SimulatedEscSink` or
+    `flight_control.esc` from the chat path — use
+    `_esc_fence_violations` (T16's own AST-honest check) rather than a
+    stale substring ban."""
+    from tests.test_fase_c_esc_pwm_stub_rung_b1 import _esc_fence_violations
+
     orchestrator_source = (
         REPO_ROOT / "src" / "jarvis" / "core" / "orchestrator.py"
     ).read_text(encoding="utf-8")
-    for token in forbidden:
-        assert token not in orchestrator_source, (
-            f"orchestrator.py references {token!r} — chat must never drive the sim executor"
-        )
+    violations = _esc_fence_violations(orchestrator_source)
+    assert not violations, f"orchestrator.py forbidden ESC coupling: {violations}"
 

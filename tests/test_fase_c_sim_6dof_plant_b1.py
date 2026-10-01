@@ -172,10 +172,18 @@ def test_t10_smoke_helper_shows_pose_moves():
 
 
 def test_t11_no_craft_continuity_library_board_edits_and_safety_default_reject_all():
+    """T20 (`B1-assistant-chat-sim-copper`) deliberately and explicitly
+    constructs `ToyQuad6DofPlant` inside `core/orchestrator.py` (to back
+    the lazy `SimAutonomyExecutor` for the chat sim-copper bridge) —
+    that one file is excluded by name here; every other file under
+    `core/`/`adapters/` must still never reference it. See
+    `tests/test_assistant_chat_sim_copper_b1.py`."""
     core_dir = REPO_ROOT / "src" / "jarvis" / "core"
     adapters_dir = REPO_ROOT / "src" / "jarvis" / "adapters"
     for directory in (core_dir, adapters_dir):
         for py_file in directory.rglob("*.py"):
+            if py_file.name == "orchestrator.py":
+                continue
             text = py_file.read_text(encoding="utf-8")
             assert "ToyQuad6DofPlant" not in text, f"{py_file} references ToyQuad6DofPlant"
 

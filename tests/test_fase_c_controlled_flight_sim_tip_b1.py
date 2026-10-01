@@ -140,16 +140,25 @@ def test_t7_default_safety_and_autonomy_submit_still_reject():
 
 
 def test_t8_plant_symbols_not_imported_by_orchestrator_or_craft_paths():
+    """T20 (`B1-assistant-chat-sim-copper`) deliberately imports
+    `flight_control.plant.ToyQuad6DofPlant` into `core/orchestrator.py`
+    (to construct the lazy, process-scoped `SimAutonomyExecutor` for the
+    chat sim-copper bridge) — that one file is excluded by name below.
+    `ToyQuadAttitudePlant` (a different, older plant class this Buy
+    never touches) stays banned everywhere, orchestrator included.
+    See `tests/test_assistant_chat_sim_copper_b1.py`."""
     core_dir = REPO_ROOT / "src" / "jarvis" / "core"
     adapters_dir = REPO_ROOT / "src" / "jarvis" / "adapters"
     for directory in (core_dir, adapters_dir):
         for py_file in directory.rglob("*.py"):
             text = py_file.read_text(encoding="utf-8")
-            assert "flight_control.plant" not in text, (
-                f"{py_file} imports flight_control.plant — forbidden craft coupling"
-            )
             assert "ToyQuadAttitudePlant" not in text, (
                 f"{py_file} references ToyQuadAttitudePlant — forbidden craft coupling"
+            )
+            if py_file.name == "orchestrator.py":
+                continue
+            assert "flight_control.plant" not in text, (
+                f"{py_file} imports flight_control.plant — forbidden craft coupling"
             )
 
 

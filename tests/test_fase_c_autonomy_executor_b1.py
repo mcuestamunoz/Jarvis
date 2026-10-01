@@ -176,10 +176,18 @@ def test_t6_loop_step_never_calls_plant_and_c11_c36_c37_c38_c39_smokes_still_gre
 
 
 def test_t7_no_craft_continuity_library_board_edits():
+    """T20 (`B1-assistant-chat-sim-copper`) deliberately and explicitly
+    wires `SimAutonomyExecutor` into `core/orchestrator.py` — after
+    Safety `allow` on chat HOLD/LAND/GO_TO only, never into
+    `submit_command` itself. That one file is excluded by name here;
+    every other file under `core/`/`adapters/` must still never
+    reference it. See `tests/test_assistant_chat_sim_copper_b1.py`."""
     core_dir = REPO_ROOT / "src" / "jarvis" / "core"
     adapters_dir = REPO_ROOT / "src" / "jarvis" / "adapters"
     for directory in (core_dir, adapters_dir):
         for py_file in directory.rglob("*.py"):
+            if py_file.name == "orchestrator.py":
+                continue
             text = py_file.read_text(encoding="utf-8")
             assert "SimAutonomyExecutor" not in text, f"{py_file} references SimAutonomyExecutor"
 
