@@ -35,8 +35,8 @@
 ## 3. Tests executed
 
 ```text
-pytest tests/test_fase_c_esc_pwm_stub_rung_b1.py -q
-→ 21 passed
+pytest tests/test_fase_c_esc_pwm_stub_rung_b1.py -q -k 'not test_t11_pyproject_version'
+→ 19 passed (file collects 20; parked historical tip-pin `test_t11_pyproject_version_is_0_5_8` left red by design)
 
 pytest tests/ -q
 → 3881 passed, 9 skipped, 52 failed

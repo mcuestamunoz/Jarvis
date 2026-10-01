@@ -1,38 +1,43 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T15 FN-016 RTL precedence ★ ACCEPT CLOSED @ v0.6.23; await Engineer pick T16/T14",
-  "scope": "Wizard nav-back cancel restored vs RETURN_HOME steal. IDLE RTL intact. Tip tagged.",
-  "execution_status": "idle",
-  "current_mode": "idle",
+  "cycle_intent": "T16 ESC fence Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT @ v0.6.24",
+  "scope": "AST/import-only ESC fence in core/adapters. Prose OK. Rebased onto T15 ★ v0.6.23 tip.",
+  "execution_status": "review_pass_awaiting_accept",
+  "current_mode": "close",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: accepty (ACCEPT T15)"
+    "reason": "Engineer pasted Claude T16 push summary; Cursor independent review"
   },
-  "relevant_workflow_phases": ["Close"],
+  "relevant_workflow_phases": ["Review", "Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_fn016_rtl_wizard_precedence_b1.md"
+    ".jes/artifacts/implementation_contract_esc_fence_import_only_b1.md",
+    ".jes/artifacts/implementation_report_esc_fence_import_only_b1.md",
+    ".jes/artifacts/implementation_review_esc_fence_import_only_b1.md"
   ],
   "open_questions": [
-    "Next: T16 ESC fence @ 0.6.24 and/or T14 allow-list (retarget package off tip)?"
+    "Engineer ★ ACCEPT for T16 @ v0.6.24?",
+    "Next: T14 allow-list widen (retarget package)?"
   ],
   "active_operation": {
-    "type": "none",
-    "contract": null,
-    "ids": [],
-    "blocked_on": "Engineer ★ pick next Buy"
+    "type": "review_pass_awaiting_accept",
+    "contract": "implementation_contract_esc_fence_import_only_b1.md",
+    "ids": ["T16", "B1-esc-fence-import-only"],
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "T15 B1-fn016-rtl-wizard-precedence ★ ACCEPT CLOSED @ v0.6.23"
+    "B1-esc-fence-import-only implemented by Claude @ 0.6.24",
+    "Cursor independent review PASS WITH NOTES (rebase + report count remediated)"
   ],
   "authority_gates": [
-    "T14 package must retarget tip+1 when implemented",
-    "T16 still AUTHORIZED @ 0.6.24",
-    "Tip-pin mass cleanup still a separate candidate"
+    "No tag v0.6.24 without Engineer ★ ACCEPT",
+    "Do not weaken real ESC import ban",
+    "T14 still AUTHORIZED only"
   ],
   "coherence_checklist": [
-    "Tag v0.6.23",
-    "Wizard volver cancels; IDLE volver → RETURN_HOME"
+    "AST fence green; historical pin parked",
+    "Tip contains v0.6.23",
+    "Package 0.6.24"
   ],
-  "updated_at": "2026-10-01T07:58:00Z"
+  "updated_at": "2026-10-01T08:05:00Z"
 }
