@@ -100,6 +100,14 @@ stolen. `ArmedAllowlistSafetyGate`'s own allow-list stays unwidened
 `disarmed`-regardless reasoning as TAKEOFF. After this kind, the basic
 chat vehicle command set is complete: TAKEOFF/HOLD/GO_TO/RETURN_HOME/LAND.
 
+**Note (T14, `B1-assistant-vehicle-allowlist-widen`):** every `verb_not_allowed`
+mention above describes the allow-list as it stood at each paragraph's
+own ship time. `ArmedAllowlistSafetyGate._ALLOWED_VERBS` was later
+widened to all seven chat verbs — after `armar`, TAKEOFF/RETURN_HOME/
+FOLLOW/PATROL now resolve to `allow`/`not_implemented` like HOLD/LAND/
+GO_TO, never `verb_not_allowed`. See `capabilities/safety.py`'s own
+docstring for the current, authoritative allow-list.
+
 First on-disk `Task` emission per `DC-assistant-first-task`
 (`design_contract_assistant_first_task_b0.md`, ★ ACCEPT CLOSED):
 `jarvis.intelligence` — the Assistant — classifies an `Intent` into a

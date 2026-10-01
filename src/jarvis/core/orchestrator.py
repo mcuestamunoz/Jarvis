@@ -592,8 +592,9 @@ class JarvisOrchestrator:
         # vehicle Task kind, same seam as T6/T7/T8. Precedence: explain →
         # Continuity defer → ARM → DISARM → HOLD → LAND → GO_TO → TAKEOFF
         # → fallthrough. Fulfilled here via the shared chat ArmedAllowlist
-        # (T11); empty params (no altitude parsing). Allow-list still
-        # excludes TAKEOFF → verb_not_allowed when armed. Honest UX only.
+        # (T11); empty params (no altitude parsing). Allow-list widened
+        # in T14 — after `armar`, TAKEOFF → `allow`/`not_implemented`
+        # (never executed). Honest UX only.
         from jarvis.intelligence.assistant_task import try_request_takeoff_task
 
         takeoff_intent = TerminalIntentAdapter.parse(stripped)
@@ -607,7 +608,9 @@ class JarvisOrchestrator:
         # kind, closes basic mando set. Precedence: … → TAKEOFF → RETURN_HOME
         # → fallthrough. Exact match only (short words like casa/home/volver
         # must not steal "volver al board"). Fulfilled here with empty params
-        # via the shared chat ArmedAllowlist (T11); allow-list not widened.
+        # via the shared chat ArmedAllowlist (T11); allow-list widened in
+        # T14 — after `armar`, RETURN_HOME → `allow`/`not_implemented`
+        # (never executed).
         from jarvis.intelligence.assistant_task import try_request_return_home_task
 
         return_home_intent = TerminalIntentAdapter.parse(stripped)
@@ -619,8 +622,9 @@ class JarvisOrchestrator:
         # (request_follow) requiring flight.follow — sixth vehicle kind.
         # Precedence: … → RETURN_HOME → FOLLOW → fallthrough. Exact match only
         # (sigue/follow must not steal craft lines). Fulfilled here with empty
-        # params via the shared chat ArmedAllowlist (T11); allow-list not
-        # widened (FOLLOW → verb_not_allowed when armed).
+        # params via the shared chat ArmedAllowlist (T11); allow-list widened
+        # in T14 — after `armar`, FOLLOW → `allow`/`not_implemented`
+        # (never executed).
         from jarvis.intelligence.assistant_task import try_request_follow_task
 
         follow_intent = TerminalIntentAdapter.parse(stripped)
@@ -633,8 +637,8 @@ class JarvisOrchestrator:
         # kind (last C4 AutonomyVerb without a chat Task). Precedence: … →
         # FOLLOW → PATROL → fallthrough. Exact match only (patrol/patrulla
         # must not steal craft lines). Fulfilled here with empty params via
-        # the shared chat ArmedAllowlist (T11); allow-list not widened
-        # (PATROL → verb_not_allowed when armed).
+        # the shared chat ArmedAllowlist (T11); allow-list widened in T14 —
+        # after `armar`, PATROL → `allow`/`not_implemented` (never executed).
         from jarvis.intelligence.assistant_task import try_request_patrol_task
 
         patrol_intent = TerminalIntentAdapter.parse(stripped)
@@ -730,8 +734,9 @@ class JarvisOrchestrator:
 
     def _handle_vehicle_takeoff(self, intent: Any) -> dict:
         """T9 fulfill — empty params; shared chat ArmedAllowlist (T11).
-        Allow-list still excludes TAKEOFF → verb_not_allowed when armed.
-        Never arms the gate here. Honest UX only."""
+        Allow-list widened in T14 — after `armar`, TAKEOFF →
+        `allow`/`not_implemented` (never executed). Never arms the gate
+        here. Honest UX only."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -746,7 +751,8 @@ class JarvisOrchestrator:
 
     def _handle_vehicle_return_home(self, intent: Any) -> dict:
         """T10 fulfill — empty params; shared chat ArmedAllowlist (T11).
-        Allow-list still excludes RETURN_HOME. Honest UX only."""
+        Allow-list widened in T14 — after `armar`, RETURN_HOME →
+        `allow`/`not_implemented` (never executed). Honest UX only."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -761,8 +767,9 @@ class JarvisOrchestrator:
 
     def _handle_vehicle_follow(self, intent: Any) -> dict:
         """T12 fulfill — empty params; shared chat ArmedAllowlist (T11).
-        Allow-list still excludes FOLLOW → verb_not_allowed when armed.
-        Never arms the gate here. Honest UX only — never claim following."""
+        Allow-list widened in T14 — after `armar`, FOLLOW →
+        `allow`/`not_implemented` (never executed). Never arms the gate
+        here. Honest UX only — never claim following."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -777,9 +784,9 @@ class JarvisOrchestrator:
 
     def _handle_vehicle_patrol(self, intent: Any) -> dict:
         """T13 fulfill — empty params; shared chat ArmedAllowlist (T11).
-        Allow-list still excludes PATROL → verb_not_allowed when armed.
-        Never arms the gate here. Honest UX only — never claim patrol/
-        circuit/route executed."""
+        Allow-list widened in T14 — after `armar`, PATROL →
+        `allow`/`not_implemented` (never executed). Never arms the gate
+        here. Honest UX only — never claim patrol/circuit/route executed."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()

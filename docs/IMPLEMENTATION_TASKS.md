@@ -6,7 +6,7 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T18** fulfill docstring honesty — IC ★ AUTHORIZED @ **`0.6.27`** (Claude). Then T19 CHARGE → T20 copper → T21 Skills runtime.  
+> **PRIORIDAD AHORA:** **T18** fulfill docstring honesty — implemented (Claude); await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.27`**. Then T19 CHARGE → T20 copper → T21 Skills runtime.  
 > **Just closed:** **T14** ★ @ **`v0.6.25`** · **T17** ★ @ **`v0.6.26`**. CONNECTIONS synced.  
 > **Policy:** no tip/package version pins in tests.  
 > SoT: [T18 IC](../.jes/artifacts/implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md) · [cola ICs](../.jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md).  
@@ -59,7 +59,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T17** | **`DC-suite-tip-pin-cleanup`** | **✅ ★ CLOSED** | Retire tip/package version pins · policy: no tip pins in tests | [DC](../.jes/artifacts/design_contract_suite_tip_pin_cleanup_b0.md) |
 | **T17** | **`B1-suite-tip-pin-cleanup`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.26`** | Delete ~72 tip-pin tests · guardrail · no tip pins going forward | [review](../.jes/artifacts/implementation_review_suite_tip_pin_cleanup_b1.md) |
 | **T18** | **`DC-orchestrator-fulfill-docstring-honesty`** | **✅ ★ CLOSED** | T14 N1 — fulfill comments match seven-verb allow-list | [DC](../.jes/artifacts/design_contract_orchestrator_fulfill_docstring_honesty_b0.md) |
-| **T18** | **`B1-orchestrator-fulfill-docstring-honesty`** | **★ AUTHORIZED** @ `0.6.27` · Claude next | comment/docstring only · no behavior change | [IC](../.jes/artifacts/implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md) |
+| **T18** | **`B1-orchestrator-fulfill-docstring-honesty`** | **Implemented** · await review/★ ACCEPT (tag `v0.6.27`) | comment/docstring only · no behavior change | [report](../.jes/artifacts/implementation_report_orchestrator_fulfill_docstring_honesty_b1.md) · [IC](../.jes/artifacts/implementation_contract_orchestrator_fulfill_docstring_honesty_b1.md) |
 | **T19** | **`DC-assistant-ops-charge-task`** | **✅ ★ CLOSED** | CHARGE ops Task ≠ AutonomyVerb | [DC](../.jes/artifacts/design_contract_assistant_ops_charge_task_b0.md) |
 | **T19** | **`B1-assistant-ops-charge-task`** | **★ AUTHORIZED** @ `0.6.28` · after T18 ★ | `ops.charge` device · no propose_command | [IC](../.jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md) |
 | **T20** | **`DC-assistant-chat-sim-copper`** | **✅ ★ CLOSED** | chat allow → sim tick HOLD/LAND/GO_TO | [DC](../.jes/artifacts/design_contract_assistant_chat_sim_copper_b0.md) |
