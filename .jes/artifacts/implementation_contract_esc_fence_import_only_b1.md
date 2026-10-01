@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.24`**
 
-**Status:** ★ **AUTHORIZED** — await Claude implement → Cursor review → Engineer ★ ACCEPT → tag **`v0.6.24`**.  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.24`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_esc_fence_import_only_b0.md)
 - C10 ESC PWM stub ★ · T11 arm UX ★  

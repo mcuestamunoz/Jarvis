@@ -319,7 +319,8 @@ class JarvisOrchestrator:
         # T11: process-scoped ArmedAllowlist for the vehicle chat path —
         # lazy-created by `_vehicle_chat_safety_gate()`. Starts disarmed;
         # ARM/DISARM Tasks toggle it. Not on InteractiveSessionState
-        # (clears would wipe the latch). Not SimulatedEscSink.arm().
+        # (clears would wipe the latch). Distinct from the simulated ESC
+        # sink's own arm sequence in flight_control — never imported here.
         self._vehicle_chat_safety_gate_instance = None
         # U4: restaurar snapshot del proyecto más reciente si existe.
         # No-op si no hay proyectos en el workspace o el snapshot está ausente/corrupto.

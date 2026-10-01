@@ -212,4 +212,4 @@ def test_t6_fences_hold_ast():
 
 def test_t7_pyproject_version_is_0_6_12():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.23"' in text
+    assert 'version = "0.6.24"' in text

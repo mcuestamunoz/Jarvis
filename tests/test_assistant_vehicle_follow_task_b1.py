@@ -233,4 +233,4 @@ def test_t8_precedence_return_home_then_follow():
 
 def test_t9_pyproject_version_is_0_6_20():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.23"' in text
+    assert 'version = "0.6.24"' in text
