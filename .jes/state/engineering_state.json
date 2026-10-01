@@ -1,46 +1,48 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T14 allow-list widen DC★ + IC★ AUTHORIZED @ 0.6.22; await Claude implement",
-  "scope": "Widen ArmedAllowlistSafetyGate._ALLOWED_VERBS to all seven chat AutonomyVerbs. No new Task. allow ≠ execute. CHARGE/copper out.",
+  "cycle_intent": "T15 FN-016 RTL precedence + T16 ESC fence ICs ★ AUTHORIZED; T14 still AUTHORIZED; tip-pin cleanup candidate later",
+  "scope": "Two real suite/behavior Buys: wizard volver cancel vs RETURN_HOME steal; ESC fence import-only. Not tip-pin mass rewrite.",
   "execution_status": "ic_authorized_awaiting_implement",
   "current_mode": "implement",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: procede con accept del ultimo ic y redactar siguiente ic"
+    "reason": "Engineer: Cres que los test tienen que ir asociados a version? y los 2 tests son buys reales. Lanza IC"
   },
   "relevant_workflow_phases": ["Design", "Implement"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/design_contract_assistant_vehicle_allowlist_widen_b0.md",
-    ".jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md"
+    ".jes/artifacts/design_contract_fn016_rtl_wizard_precedence_b0.md",
+    ".jes/artifacts/implementation_contract_fn016_rtl_wizard_precedence_b1.md",
+    ".jes/artifacts/design_contract_esc_fence_import_only_b0.md",
+    ".jes/artifacts/implementation_contract_esc_fence_import_only_b1.md"
   ],
   "open_questions": [
-    "Claude implement T14?",
-    "After T14 ★: CHARGE · copper?"
+    "Claude implement T15 then T16?",
+    "Later Buy to retire historical tip-version pins?",
+    "T14 allow-list widen still in flight?"
   ],
   "active_operation": {
     "type": "ic_authorized",
-    "contract": "implementation_contract_assistant_vehicle_allowlist_widen_b1.md",
-    "ids": ["T14", "B1-assistant-vehicle-allowlist-widen"],
+    "contract": "implementation_contract_fn016_rtl_wizard_precedence_b1.md",
+    "ids": ["T15", "B1-fn016-rtl-wizard-precedence", "T16", "B1-esc-fence-import-only"],
     "blocked_on": "claude_implement"
   },
   "closed_this_turn": [
-    "T13 B1-assistant-vehicle-patrol-task ★ ACCEPT CLOSED @ v0.6.21 (already tagged)",
-    "DC-assistant-vehicle-allowlist-widen ★ CLOSED",
-    "IC B1-assistant-vehicle-allowlist-widen ★ AUTHORIZED @ 0.6.22"
+    "DC-fn016-rtl-wizard-precedence ★ CLOSED",
+    "IC B1-fn016-rtl-wizard-precedence ★ AUTHORIZED @ 0.6.23",
+    "DC-esc-fence-import-only ★ CLOSED",
+    "IC B1-esc-fence-import-only ★ AUTHORIZED @ 0.6.24"
   ],
   "authority_gates": [
-    "Cursor IC/docs/review only — Claude implements unless Engineer says implementa tú",
-    "No CHARGE / copper in T14",
-    "No SimAutonomyExecutor from chat",
-    "allow ≠ execute — never claim flight",
-    "No mass historical tip-pin cleanup in T14"
+    "Cursor IC/docs/review only — Claude implements unless implementa tú",
+    "Do not remove volver from VEHICLE_RETURN_HOME_PHRASES",
+    "Do not weaken ESC import ban — only ignore prose",
+    "Tip-pin mass cleanup is a separate candidate Buy"
   ],
   "coherence_checklist": [
-    "Parent tip v0.6.21",
-    "Seven chat AutonomyVerbs only",
-    "Cascade stays 10/11",
-    "Package target 0.6.22"
+    "Root cause confirmed: volver → vehicle_return_home mid-DEFINE_MISSING",
+    "ESC fail is comment substring false positive",
+    "Preferred land order T15@0.6.23 then T16@0.6.24"
   ],
-  "updated_at": "2026-10-01T07:35:00Z"
+  "updated_at": "2026-10-01T07:40:00Z"
 }

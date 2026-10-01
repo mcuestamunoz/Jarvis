@@ -6,10 +6,11 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T14** chat **allow-list widen** — DC ★ CLOSED · IC ★ AUTHORIZED @ **`0.6.22`**. Parent tip **`v0.6.21`** (T13 PATROL ★). Await Claude implement.  
-> **Cola after T14 ★:** CHARGE · copper.  
-> **Background:** Silicon parked. Continuity stays in `core/`.  
-> SoT: [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_vehicle_allowlist_widen_b0.md) · parent [T13 review ★](../.jes/artifacts/implementation_review_assistant_vehicle_patrol_task_b1.md).  
+> **PRIORIDAD AHORA:** **T15** FN-016 RTL wizard precedence — DC ★ CLOSED · IC ★ AUTHORIZED @ **`0.6.23`**. Real regression: mid-wizard `volver` stolen by RETURN_HOME.  
+> **Also AUTHORIZED:** **T16** ESC fence import-only @ **`0.6.24`** · **T14** allow-list widen @ **`0.6.22`** (land order: T15 → T16; T14 may interleave if Claude already mid-flight).  
+> **Later candidate:** retire historical tip-version pins (not associated with live tip — suite debt, not product gaps).  
+> **Cola after these ★:** CHARGE · copper.  
+> SoT: [T15 IC](../.jes/artifacts/implementation_contract_fn016_rtl_wizard_precedence_b1.md) · [T16 IC](../.jes/artifacts/implementation_contract_esc_fence_import_only_b1.md) · [T14 IC](../.jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
