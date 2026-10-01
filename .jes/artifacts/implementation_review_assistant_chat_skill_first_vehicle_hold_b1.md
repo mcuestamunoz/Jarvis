@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Engineer: “Revisa”)  
 **Against:** [IC](implementation_contract_assistant_chat_skill_first_vehicle_hold_b1.md) · [report](implementation_report_assistant_chat_skill_first_vehicle_hold_b1.md) · [DC ★](design_contract_assistant_chat_skill_first_b0.md)  
 **Tip reviewed:** `4e62c14` on `cursor/skill-first-vehicle-hold-impl-8ac5` (parent tip T22 ★ `v0.6.31` @ `cec9a79`)  
-**Verdict:** **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.6.32`**.
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.32` / `v0.6.32`**. First vehicle Skill-first (phase B HOLD) closed.
 
-**Process note:** Cursor implemented under Engineer “Ejecuta tu ic t23”. Same-session implementer green is not normally review of record; Engineer ordered review this turn — this pass is the review of record under that authority. **No ★ ACCEPT / tag until Engineer says so.**
+**Process note:** Cursor implemented under Engineer “Ejecuta tu ic t23”. Same-session implementer green is not normally review of record; Engineer ordered review then ★ ACCEPT — this pass is the review of record under that authority.
 
 ---
 
@@ -63,14 +63,14 @@ pytest tests/test_assistant_chat_skill_first_vehicle_hold_b1.py \
 
 **N2 — HOLD is skill-id special-cased in `run_skill`.** Correct for this HOLD-only Buy. Sibling vehicle Skill-first Buys will need a shared vehicle gate (or per-id arms) rather than inventing software Safety for them. **Forward friction — not blocking.**
 
-**N3 — Process.** Await Engineer ★ ACCEPT → tag `v0.6.32`. Next after ★: remaining vehicle Skill-first siblings (LAND…).
+**N3 — Process.** Engineer ★ ACCEPT applied → tag `v0.6.32`. Next: T24 LAND Skill-first + shared vehicle gate.
 
 ---
 
 ## 4. Next
 
 ```text
-Cursor review PASS WITH NOTES — await Engineer ★ ACCEPT @ v0.6.32
-Skill-first phase B started (HOLD)
-Next after ★: vehicle Skill-first siblings
+★ ACCEPT CLOSED @ v0.6.32 (Engineer 2026-10-01)
+Skill-first phase B HOLD CLOSED
+Next: T24 B1-assistant-chat-skill-first-vehicle-land @ 0.6.33
 ```

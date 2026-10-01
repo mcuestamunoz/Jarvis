@@ -15,7 +15,7 @@ Today chat still fulfills explain/status (and vehicle/ops) via the **Task** seam
 | Phase | Buy (indicative) | Scope |
 |---|---|---|
 | **A — software** | `B1-assistant-chat-skill-first-software` @ `0.6.31` | explain + project_status via `run_skill` |
-| **B — vehicle/ops** | `B1-assistant-chat-skill-first-vehicle-hold` @ `0.6.32` (first); later ICs for siblings | Skill-first only where Skill is `available` and fulfill truth exists; stubs stay honest rejects; **never** SoftwareCapabilitySafetyGate-only for vehicle |
+| **B — vehicle/ops** | HOLD ★ @ `0.6.32` · LAND @ `0.6.33` (next); later ICs for siblings | Skill-first only where Skill is `available` and fulfill truth exists; stubs stay honest rejects; **never** SoftwareCapabilitySafetyGate-only for vehicle |
 | **C — channels** | voz / world / CLI migrate | same Skills; new ingress only |
 
 ## Locks (block-level)
@@ -28,4 +28,4 @@ Today chat still fulfills explain/status (and vehicle/ops) via the **Task** seam
 
 ## Opens
 
-Phase A ★ CLOSED @ **`v0.6.31`**. Phase B IC: **`B1-assistant-chat-skill-first-vehicle-hold`** → package **`0.6.32`** (cola **T23**).
+Phase A ★ CLOSED @ **`v0.6.31`**. Phase B HOLD ★ CLOSED @ **`v0.6.32`**. Next IC: **`B1-assistant-chat-skill-first-vehicle-land`** → package **`0.6.33`** (cola **T24**).
