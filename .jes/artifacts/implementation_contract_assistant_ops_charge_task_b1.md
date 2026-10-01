@@ -69,11 +69,11 @@
 
 ---
 
-## 4. Paste for Claude (AUTHORIZED — after T18 ★)
+## 4. Paste for Claude (AUTHORIZED — T18 ★ done)
 
 ```text
 ★ AUTHORIZED implementation — B1-assistant-ops-charge-task (T19)
-Implement after T18 ★ ACCEPT @ v0.6.27.
+Parent tip: T18 ★ ACCEPT CLOSED @ v0.6.27. Implement now → package 0.6.28.
 
 IC: .jes/artifacts/implementation_contract_assistant_ops_charge_task_b1.md
 DC: .jes/artifacts/design_contract_assistant_ops_charge_task_b0.md (★ CLOSED)
@@ -83,4 +83,5 @@ CHARGE ≠ AutonomyVerb. Add OPS_CHARGE_PHRASES + try_request_charge_task
 availability=not_implemented. Fulfill without propose_command/sim.
 Refuse payload "carga útil" lines. Wire after PATROL. Cascade 11/12.
 Bump 0.6.28. No tip pins. No ACCEPT claim. Copper / Skills out.
+Not real battery hardware (that stays parked until assembly).
 ```
