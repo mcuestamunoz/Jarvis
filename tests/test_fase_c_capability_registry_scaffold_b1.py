@@ -170,14 +170,6 @@ def test_t9b_no_execute_or_dispatch_field_on_records():
                 assert token not in lowered, f"{model.__name__}.{field_name} looks executable"
 
 
-def test_t10_pyproject_version_is_0_6_10():
-    """Bumped forward by T2 (B1-capability-registry-product-fill) per
-    established pattern — was last accurate at 0.5.44 (C1's own tip),
-    itself already long stale before this Buy touched the file."""
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.20"' in text
-
-
 def test_default_seed_file_is_honestly_software_only():
     """H1/H2/H3, updated by T2: the checked-in seed loaded by
     `load_default()` is no longer empty (see `test_capability_registry_

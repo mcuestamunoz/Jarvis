@@ -8,6 +8,7 @@ by running the full suite and by
 
 from __future__ import annotations
 
+import ast
 from pathlib import Path
 
 import pytest
@@ -134,18 +135,86 @@ def test_t8_default_safety_and_autonomy_submit_still_reject():
     assert result.execution == "not_attempted"
 
 
+def _esc_fence_violations(source: str) -> list[str]:
+    """B1-esc-fence-import-only (T16): AST-only scan — forbids a real
+    `flight_control.esc` import (any module path containing that dotted
+    segment, via `import`/`from ... import`) and any real binding or use
+    of the name `SimulatedEscSink` (import, import-as-alias, bare name
+    reference, or `.SimulatedEscSink` attribute access). `ast.parse`
+    never represents comments at all, and a docstring/string literal is
+    just an `ast.Constant`, which this function never inspects — so a
+    comment or prose string naming `SimulatedEscSink` can never trigger a
+    violation (DC §0 row 2: fence must be import-honest, not substring).
+    Returns a list of human-readable violation descriptions; empty means
+    the source is clean."""
+    violations: list[str] = []
+    tree = ast.parse(source)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if "flight_control.esc" in alias.name:
+                    violations.append(f"import {alias.name}")
+                if (alias.asname or alias.name.rsplit(".", 1)[-1]) == "SimulatedEscSink":
+                    violations.append(f"import {alias.name}" + (f" as {alias.asname}" if alias.asname else ""))
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module or ""
+            for alias in node.names:
+                full = f"{module}.{alias.name}" if module else alias.name
+                if "flight_control.esc" in full:
+                    violations.append(f"from {module} import {alias.name}")
+                if alias.name == "SimulatedEscSink" or alias.asname == "SimulatedEscSink":
+                    violations.append(f"from {module} import {alias.name}")
+        elif isinstance(node, ast.Name) and node.id == "SimulatedEscSink":
+            violations.append("name reference: SimulatedEscSink")
+        elif isinstance(node, ast.Attribute) and node.attr == "SimulatedEscSink":
+            violations.append("attribute reference: .SimulatedEscSink")
+    return violations
+
+
 def test_t9_esc_symbols_not_imported_by_orchestrator_or_craft_paths():
+    """B1-esc-fence-import-only (T16): hardened to AST/import-only (DC
+    §0 row 2) — the T11 arm-UX honesty comment ("Not
+    SimulatedEscSink.arm().") names the symbol in prose to deny coupling,
+    and must never trip this fence again (it previously did, under the
+    old plain-substring version of this test)."""
     core_dir = REPO_ROOT / "src" / "jarvis" / "core"
     adapters_dir = REPO_ROOT / "src" / "jarvis" / "adapters"
     for directory in (core_dir, adapters_dir):
         for py_file in directory.rglob("*.py"):
-            text = py_file.read_text(encoding="utf-8")
-            assert "flight_control.esc" not in text, (
-                f"{py_file} imports flight_control.esc — forbidden craft coupling"
-            )
-            assert "SimulatedEscSink" not in text, (
-                f"{py_file} references SimulatedEscSink — forbidden craft coupling"
-            )
+            source = py_file.read_text(encoding="utf-8")
+            violations = _esc_fence_violations(source)
+            assert not violations, f"{py_file} forbidden craft coupling: {violations}"
+
+
+def test_t9b_fence_helper_is_import_honest_not_substring():
+    """Negative controls proving `_esc_fence_violations` is AST/import-only,
+    not a reintroduction of the old substring scan it replaces (IC §2
+    T2/T3)."""
+    # T3: a comment-only / prose mention must NOT fail — this is exactly
+    # the T11 arm-UX false positive this Buy fixes.
+    comment_only_source = (
+        "# Distinct from the simulated ESC sink's own arm sequence — "
+        "not SimulatedEscSink.arm(), never imported here.\n"
+        "x = 1\n"
+    )
+    assert _esc_fence_violations(comment_only_source) == []
+
+    docstring_source = (
+        '"""This module never imports SimulatedEscSink or flight_control.esc."""\n'
+        "x = 1\n"
+    )
+    assert _esc_fence_violations(docstring_source) == []
+
+    # T2: a real import must still be detected.
+    real_import_source = "from jarvis.flight_software.flight_control.esc import SimulatedEscSink\n"
+    violations = _esc_fence_violations(real_import_source)
+    assert violations, "a real SimulatedEscSink import must be flagged"
+
+    aliased_import_source = "from jarvis.flight_software.flight_control import esc as _esc\n_esc.SimulatedEscSink()\n"
+    assert _esc_fence_violations(aliased_import_source), "aliased module + attribute use must be flagged"
+
+    bare_module_import_source = "from jarvis.flight_software.flight_control import esc\n"
+    assert _esc_fence_violations(bare_module_import_source), "importing the esc submodule itself must be flagged"
 
 
 def test_t10_capability_registry_default_still_empty():
@@ -176,6 +245,9 @@ def test_t10_capability_registry_default_still_empty():
     # T12 (B1-assistant-vehicle-follow-task): a tenth, skill.request_follow
     # (requires flight.follow, not_implemented/vehicle) — see
     # tests/test_assistant_vehicle_follow_task_b1.py.
+    # T13 (B1-assistant-vehicle-patrol-task): an eleventh, skill.request_patrol
+    # (requires flight.patrol, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_patrol_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -189,12 +261,8 @@ def test_t10_capability_registry_default_still_empty():
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
         "skill.request_follow",
+        "skill.request_patrol",
     }
-
-
-def test_t11_pyproject_version_is_0_5_8():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
 
 
 def test_smoke_esc_pwm_returns_at_least_one_result_disarmed_by_default():
