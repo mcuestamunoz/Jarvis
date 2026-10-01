@@ -6,7 +6,7 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T24** Skill-first vehicle LAND — **Implemented** (Cursor, Engineer “Ejecuta”) @ **`0.6.33`**; await ★ ACCEPT → tag **`v0.6.33`**.  
+> **PRIORIDAD AHORA:** **T24** Skill-first vehicle LAND — Cursor review **PASS WITH NOTES** @ **`0.6.33`**; await Engineer ★ ACCEPT → tag **`v0.6.33`**.  
 > **Just closed:** **T23** Skill-first vehicle HOLD ★ **ACCEPT CLOSED** @ **`v0.6.32`**.  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt (listed):** **SD-GO_TO** ([note](../.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md)).  
@@ -73,7 +73,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T22** | **`DC-assistant-chat-skill-first`** | **✅ ★ CLOSED** | Skill-first block lock · phased | [DC](../.jes/artifacts/design_contract_assistant_chat_skill_first_b0.md) |
 | **T22** | **`B1-assistant-chat-skill-first-software`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.31`** | chat explain/status via `run_skill` · vehicle still Task-direct | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_software_b1.md) |
 | **T23** | **`B1-assistant-chat-skill-first-vehicle-hold`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.32`** | HOLD Skill-first · no SoftwareCapabilitySafetyGate-only · `flight.hold` stays `not_implemented` | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_hold_b1.md) |
-| **T24** | **`B1-assistant-chat-skill-first-vehicle-land`** | **Implemented** (Cursor) · await ★ ACCEPT (tag `v0.6.33`) | LAND Skill-first · shared vehicle gate (T23 N2) · `flight.land` stays `not_implemented` | [report](../.jes/artifacts/implementation_report_assistant_chat_skill_first_vehicle_land_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_land_b1.md) |
+| **T24** | **`B1-assistant-chat-skill-first-vehicle-land`** | Cursor **PASS WITH NOTES** · await ★ ACCEPT (tag `v0.6.33`) | LAND Skill-first · shared vehicle gate (T23 N2) · `flight.land` stays `not_implemented` | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_land_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_chat_skill_first_vehicle_land_b1.md) |
 | **after T24** | Skill-first remaining vehicle/ops Skills | **Candidate** | after T24 ★ · GO_TO… / CHARGE | ★ pick / new IC |
 | **after Skill-first** | Voz / world (A4) → same Skills · CLI by phases | **Horizon** | Engineer 2026-10-01: migrate CLI by phases, clean | DC placement §4 |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
