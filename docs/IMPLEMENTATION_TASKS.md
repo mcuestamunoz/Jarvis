@@ -6,11 +6,11 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T15** FN-016 RTL wizard precedence — implemented (Claude); await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.23`**. Real regression: mid-wizard `volver` stolen by RETURN_HOME.  
-> **Also AUTHORIZED:** **T16** ESC fence import-only @ **`0.6.24`** · **T14** allow-list widen @ **`0.6.22`** (land order: T15 → T16; T14 may interleave if Claude already mid-flight).  
-> **Later candidate:** retire historical tip-version pins (not associated with live tip — suite debt, not product gaps).  
+> **PRIORIDAD AHORA:** **T15** FN-016 RTL wizard precedence — Cursor review **PASS WITH NOTES** @ `702babe`; await Engineer ★ ACCEPT → tag **`v0.6.23`**.  
+> **Also AUTHORIZED:** **T16** ESC fence @ **`0.6.24`** · **T14** allow-list widen (IC still says `0.6.22` — retarget tip+1 when implementing if T15/T16 land first).  
+> **Later candidate:** retire historical tip-version pins.  
 > **Cola after these ★:** CHARGE · copper.  
-> SoT: [T15 IC](../.jes/artifacts/implementation_contract_fn016_rtl_wizard_precedence_b1.md) · [T16 IC](../.jes/artifacts/implementation_contract_esc_fence_import_only_b1.md) · [T14 IC](../.jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md).  
+> SoT: [T15 review](../.jes/artifacts/implementation_review_fn016_rtl_wizard_precedence_b1.md) · [T15 IC](../.jes/artifacts/implementation_contract_fn016_rtl_wizard_precedence_b1.md) · [T16 IC](../.jes/artifacts/implementation_contract_esc_fence_import_only_b1.md) · [T14 IC](../.jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -54,7 +54,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T14** | **`DC-assistant-vehicle-allowlist-widen`** | **✅ ★ CLOSED** | Safety policy: widen chat ArmedAllowlist to all 7 chat verbs | [DC](../.jes/artifacts/design_contract_assistant_vehicle_allowlist_widen_b0.md) |
 | **T14** | **`B1-assistant-vehicle-allowlist-widen`** | **★ AUTHORIZED** · package `0.6.22` | `_ALLOWED_VERBS` → HOLD…PATROL · allow ≠ execute · no sim tick | [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_allowlist_widen_b1.md) |
 | **T15** | **`DC-fn016-rtl-wizard-precedence`** | **✅ ★ CLOSED** | FN-016 cancel beats RETURN_HOME for `volver`/`vuelve` mid-wizard | [DC](../.jes/artifacts/design_contract_fn016_rtl_wizard_precedence_b0.md) |
-| **T15** | **`B1-fn016-rtl-wizard-precedence`** | **Implemented** · await review/★ ACCEPT (tag `v0.6.23`) | `_handle_global_commands` DEFINE_MISSING nav-back before vehicle intercepts | [IC](../.jes/artifacts/implementation_contract_fn016_rtl_wizard_precedence_b1.md) |
+| **T15** | **`B1-fn016-rtl-wizard-precedence`** | **Cursor PASS WITH NOTES** · await Engineer ★ ACCEPT (tag `v0.6.23`) | `_handle_global_commands` DEFINE_MISSING nav-back before vehicle intercepts | [review](../.jes/artifacts/implementation_review_fn016_rtl_wizard_precedence_b1.md) · [IC](../.jes/artifacts/implementation_contract_fn016_rtl_wizard_precedence_b1.md) |
 | **T16** | **`DC-esc-fence-import-only`** | **✅ ★ CLOSED** | ESC isolation fence = imports/use only, not prose | [DC](../.jes/artifacts/design_contract_esc_fence_import_only_b0.md) |
 | **T16** | **`B1-esc-fence-import-only`** | **★ AUTHORIZED** · package `0.6.24` | AST fence for `SimulatedEscSink` / `flight_control.esc` in core/adapters | [IC](../.jes/artifacts/implementation_contract_esc_fence_import_only_b1.md) |
 | **suite debt** | retire historical tip-version pins | **Candidate** | ~52 `pyproject_version_is_0_5_x` asserts ≠ live tip | ★ pick later |

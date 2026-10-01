@@ -1,48 +1,43 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T15 FN-016 RTL precedence + T16 ESC fence ICs ★ AUTHORIZED; T14 still AUTHORIZED; tip-pin cleanup candidate later",
-  "scope": "Two real suite/behavior Buys: wizard volver cancel vs RETURN_HOME steal; ESC fence import-only. Not tip-pin mass rewrite.",
-  "execution_status": "ic_authorized_awaiting_implement",
-  "current_mode": "implement",
+  "cycle_intent": "T15 FN-016 RTL precedence Cursor review PASS WITH NOTES; await Engineer ★ ACCEPT @ v0.6.23",
+  "scope": "DEFINE_MISSING nav-back cancel before vehicle RETURN_HOME intercept. IDLE RTL intact. T14/T16 still AUTHORIZED only.",
+  "execution_status": "review_pass_awaiting_accept",
+  "current_mode": "close",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: Cres que los test tienen que ir asociados a version? y los 2 tests son buys reales. Lanza IC"
+    "reason": "Engineer pasted Claude T15 push summary; Cursor independent review"
   },
-  "relevant_workflow_phases": ["Design", "Implement"],
+  "relevant_workflow_phases": ["Review", "Close"],
   "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
   "required_artifacts": [
-    ".jes/artifacts/design_contract_fn016_rtl_wizard_precedence_b0.md",
     ".jes/artifacts/implementation_contract_fn016_rtl_wizard_precedence_b1.md",
-    ".jes/artifacts/design_contract_esc_fence_import_only_b0.md",
-    ".jes/artifacts/implementation_contract_esc_fence_import_only_b1.md"
+    ".jes/artifacts/implementation_report_fn016_rtl_wizard_precedence_b1.md",
+    ".jes/artifacts/implementation_review_fn016_rtl_wizard_precedence_b1.md"
   ],
   "open_questions": [
-    "Claude implement T15 then T16?",
-    "Later Buy to retire historical tip-version pins?",
-    "T14 allow-list widen still in flight?"
+    "Engineer ★ ACCEPT for T15 @ v0.6.23?",
+    "Next: T16 ESC fence and/or T14 allow-list (retarget T14 package if tip already 0.6.23+)?"
   ],
   "active_operation": {
-    "type": "ic_authorized",
+    "type": "review_pass_awaiting_accept",
     "contract": "implementation_contract_fn016_rtl_wizard_precedence_b1.md",
-    "ids": ["T15", "B1-fn016-rtl-wizard-precedence", "T16", "B1-esc-fence-import-only"],
-    "blocked_on": "claude_implement"
+    "ids": ["T15", "B1-fn016-rtl-wizard-precedence"],
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "DC-fn016-rtl-wizard-precedence ★ CLOSED",
-    "IC B1-fn016-rtl-wizard-precedence ★ AUTHORIZED @ 0.6.23",
-    "DC-esc-fence-import-only ★ CLOSED",
-    "IC B1-esc-fence-import-only ★ AUTHORIZED @ 0.6.24"
+    "B1-fn016-rtl-wizard-precedence implemented by Claude @ 0.6.23",
+    "Cursor independent review PASS WITH NOTES @ 702babe"
   ],
   "authority_gates": [
-    "Cursor IC/docs/review only — Claude implements unless implementa tú",
-    "Do not remove volver from VEHICLE_RETURN_HOME_PHRASES",
-    "Do not weaken ESC import ban — only ignore prose",
-    "Tip-pin mass cleanup is a separate candidate Buy"
+    "No tag v0.6.23 without Engineer ★ ACCEPT",
+    "T14/T16 not implemented in this tip",
+    "Do not mass-bump historical Fase C tip pins"
   ],
   "coherence_checklist": [
-    "Root cause confirmed: volver → vehicle_return_home mid-DEFINE_MISSING",
-    "ESC fail is comment substring false positive",
-    "Preferred land order T15@0.6.23 then T16@0.6.24"
+    "Wizard volver cancels; IDLE volver → RETURN_HOME",
+    "Package 0.6.23",
+    "Active-lineage checkpoints only"
   ],
-  "updated_at": "2026-10-01T07:40:00Z"
+  "updated_at": "2026-10-01T07:55:00Z"
 }
