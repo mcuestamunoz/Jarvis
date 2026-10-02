@@ -15,7 +15,7 @@ Today chat still fulfills explain/status (and vehicle/ops) via the **Task** seam
 | Phase | Buy (indicative) | Scope |
 |---|---|---|
 | **A — software** | `B1-assistant-chat-skill-first-software` @ `0.6.31` | explain + project_status via `run_skill` |
-| **B — vehicle/ops** | HOLD ★ @ `0.6.32` · LAND @ `0.6.33` (next); later ICs for siblings | Skill-first only where Skill is `available` and fulfill truth exists; stubs stay honest rejects; **never** SoftwareCapabilitySafetyGate-only for vehicle |
+| **B — vehicle/ops** | HOLD ★ @ `0.6.32` · LAND ★ @ `0.6.33` · GO_TO @ `0.6.34` (next); later ICs for siblings | Skill-first only where Skill is `available` and fulfill truth exists; stubs stay honest rejects; **never** SoftwareCapabilitySafetyGate-only for vehicle |
 | **C — channels** | voz / world / CLI migrate | same Skills; new ingress only |
 
 ## Locks (block-level)

@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T24 \u2605 ACCEPT CLOSED @ v0.6.33; branch+env health checked after mobile work",
-  "scope": "Accept LAND Skill-first. Tip branch clean and synced. Remediated stale installed package 0.6.21\u21920.6.33 and pruned invalid reflog entries (not commit corruption).",
-  "execution_status": "accepted_awaiting_next_pick",
-  "current_mode": "close",
+  "cycle_intent": "T25 GO_TO Skill-first IC AUTHORIZED for Claude @ 0.6.34; SD-GO_TO stays OPEN",
+  "scope": "IC-only authorize. Gate Skill-first for GO_TO; empty-params + sin-destino honesty unchanged. No destination parse this Buy.",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: Accept T24 y evalua entorno/rama (trabajo desde movil)"
+    "reason": "Engineer: procede con redactar IC"
   },
   "relevant_workflow_phases": [
-    "Close"
+    "Authorize"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,36 +18,34 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_land_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_go_to_b1.md"
   ],
   "open_questions": [
-    "Next IC: GO_TO Skill-first sibling?",
-    "Voice still after remaining vehicle Skill-first siblings"
+    "Claude implements T25 @ 0.6.34?",
+    "SD-GO_TO remains OPEN until separate destination Buy"
   ],
   "active_operation": {
-    "type": "awaiting_engineer_next_pick",
-    "contract": null,
+    "type": "authorized_implementation",
+    "contract": "implementation_contract_assistant_chat_skill_first_vehicle_go_to_b1.md",
     "ids": [
-      "T24",
-      "B1-assistant-chat-skill-first-vehicle-land"
+      "T25",
+      "B1-assistant-chat-skill-first-vehicle-go-to"
     ],
-    "blocked_on": "engineer_next_pick"
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "B1-assistant-chat-skill-first-vehicle-land \u2605 ACCEPT CLOSED @ v0.6.33",
-    "Env: pip install -e . \u2192 jarvis 0.6.33",
-    "Git: tip clean; T23 ancestor OK; reflog noise cleared"
+    "T25 IC written and AUTHORIZED"
   ],
   "authority_gates": [
     "No tip/package version pin tests",
-    "SD-GO_TO remains OPEN",
-    "Voice/world is phase C after Skill-first vehicle siblings",
-    "main still behind tip stack (T13) \u2014 expected until merges"
+    "SD-GO_TO remains OPEN — do not invent x_m/y_m",
+    "Vehicle Skills must not use SoftwareCapabilitySafetyGate-only",
+    "flight.go_to stays not_implemented this Buy",
+    "Voice still after remaining Skill-first siblings"
   ],
   "coherence_checklist": [
-    "Tag v0.6.33",
-    "Branch not corrupted",
-    "Installed package matches tip"
+    "IC AUTHORIZED @ 0.6.34",
+    "Paste for Claude ready"
   ],
-  "updated_at": "2026-10-02T06:50:00Z"
+  "updated_at": "2026-10-02T06:55:00Z"
 }
