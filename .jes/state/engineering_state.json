@@ -1,43 +1,54 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "T27 RETURN_HOME Skill-first IC AUTHORIZED for Claude @ 0.6.36; FN-016 precedence untouched; SD-GO_TO stays OPEN; no sim RTL tick",
+  "scope": "IC-only authorize. Gate Skill-first for RETURN_HOME; empty-params + ArmedAllowlist honesty unchanged. Do not add RETURN_HOME to T20 sim copper tick set. Do not reorder FN-016 wizard cancel vs RETURN_HOME.",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: accept y procede con redactar siguiente"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
-  "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
+  "relevant_workflow_phases": [
+    "Authorize"
+  ],
+  "applicable_rules": [
+    "R-GOV-1",
+    "R-GOV-2",
+    "R-COL-1",
+    "R-KNW-1"
+  ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_return_home_b1.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Claude implements T27 @ 0.6.36?",
+    "SD-GO_TO remains OPEN until separate destination Buy"
   ],
   "active_operation": {
     "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "contract": "implementation_contract_assistant_chat_skill_first_vehicle_return_home_b1.md",
+    "ids": [
+      "T27",
+      "B1-assistant-chat-skill-first-vehicle-return-home"
+    ],
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "T26 ★ ACCEPT CLOSED @ v0.6.35",
+    "T27 IC written and AUTHORIZED"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "No tip/package version pin tests",
+    "SD-GO_TO remains OPEN — do not invent x_m/y_m",
+    "Do not add RETURN_HOME to T20 sim copper tick set",
+    "FN-016 wizard nav-back cancel still before RETURN_HOME intercept",
+    "Vehicle Skills must not use SoftwareCapabilitySafetyGate-only",
+    "flight.return_home stays not_implemented this Buy",
+    "Voice still after remaining Skill-first siblings"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "IC AUTHORIZED @ 0.6.36",
+    "Paste for Claude ready"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-02T08:00:00Z"
 }
