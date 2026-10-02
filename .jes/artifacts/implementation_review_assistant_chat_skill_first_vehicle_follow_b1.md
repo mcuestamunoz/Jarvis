@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T28 implementado…”)  
 **Against:** [IC](implementation_contract_assistant_chat_skill_first_vehicle_follow_b1.md) · [report](implementation_report_assistant_chat_skill_first_vehicle_follow_b1.md) · [DC ★](design_contract_assistant_chat_skill_first_b0.md) · [SD-GO_TO OPEN](engineer_note_t20_goto_chat_sim_destination_debt.md)  
 **Tip reviewed:** `747d472` on `cursor/skill-first-vehicle-follow-impl-8ac5` (parent tip T27 ★ `v0.6.36` @ `40902b4` / `e82b960`)  
-**Verdict:** **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.6.37`**. **No ACCEPT claim in this pass.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.37` / `v0.6.37`**. Sixth vehicle Skill-first (FOLLOW) closed.
 
-**Process note:** Claude Code implemented under ★ AUTHORIZED IC. This is the independent Cursor review of record. Same-session self-PASS is not review of record.
+**Process note:** Claude Code implemented under ★ AUTHORIZED IC. Cursor forensic PASS WITH NOTES; Engineer ★ ACCEPT this turn (“procede”).
 
 ---
 
@@ -70,16 +70,15 @@ Report’s full-suite claim (3937 passed / +6 vs 3931) not re-run in this pass; 
 
 **N1 — Finite id set growth (carry-forward).** `_VEHICLE_GATE_SKILL_IDS` remains the shared dispatch; this Buy correctly grows membership. Remaining siblings (PATROL…) still need their own Buys. **Not blocking.**
 
-**N2 — Process.** Await Engineer ★ ACCEPT → tag `v0.6.37`. Cola after ★: remaining vehicle Skill-first siblings (PATROL…) before voz/world (phase C). **SD-GO_TO stays OPEN.** FOLLOW remains outside T20 sim tick set.
+**N2 — Process.** Engineer ★ ACCEPT applied → tag `v0.6.37`. Cola after ★: remaining vehicle Skill-first siblings (PATROL…) before voz/world (phase C). **SD-GO_TO stays OPEN.** FOLLOW remains outside T20 sim tick set.
 
 ---
 
 ## 4. Next
 
 ```text
-Cursor: PASS WITH NOTES @ 747d472 (+ review commit)
-Await: Engineer ★ ACCEPT → tag v0.6.37
-Skill-first phase B: HOLD ★ + LAND ★ + GO_TO ★ + TAKEOFF ★ + RETURN_HOME ★ + FOLLOW (pending ★)
+★ ACCEPT CLOSED @ v0.6.37 (Engineer 2026-10-02)
+Skill-first phase B: HOLD ★ + LAND ★ + GO_TO ★ + TAKEOFF ★ + RETURN_HOME ★ + FOLLOW ★
 SD-GO_TO: still OPEN
-Next after ★: vehicle Skill-first siblings (PATROL…) — not voice yet
+Next: vehicle Skill-first siblings (PATROL…) — not voice yet
 ```

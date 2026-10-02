@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.37`**
 
-**Status:** Cursor **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.6.37`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor review **PASS WITH NOTES** · tag **`v0.6.37`**.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T27 ★ @ **`v0.6.36`** · T12 FOLLOW ★ @ `v0.6.20` · T14 allow-list widen ★ · T20 sim copper ★ (FOLLOW **not** in sim tick set)  
 **Type:** Sixth vehicle Skill-first slice — **FOLLOW**; grow shared vehicle gate.  
 **Opens:** **`0.6.37` / `v0.6.37`**. **Cola:** **T28**
@@ -59,8 +59,8 @@
 
 ## 3. Acceptance
 
-- [ ] FOLLOW chat gated via `run_skill` · shared vehicle gate · `flight.follow` still `not_implemented` · `0.6.37`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.37`**
+- [x] FOLLOW chat gated via `run_skill` · shared vehicle gate · `flight.follow` still `not_implemented` · `0.6.37`  
+- [x] Cursor review · Engineer ACCEPT · tag **`v0.6.37`**
 
 ---
 

@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T28 FOLLOW Skill-first IC AUTHORIZED for Claude @ 0.6.37; SD-GO_TO stays OPEN; no sim FOLLOW tick",
-  "scope": "IC-only authorize. Gate Skill-first for FOLLOW; empty-params + ArmedAllowlist honesty unchanged. Do not add FOLLOW to T20 sim copper tick set.",
-  "execution_status": "authorized_awaiting_impl",
-  "current_mode": "authorize",
+  "cycle_intent": "T28 FOLLOW Skill-first ★ ACCEPT CLOSED @ v0.6.37; next pick PATROL Skill-first sibling",
+  "scope": "Engineer ★ ACCEPT closes T28. SD-GO_TO stays OPEN. Next IC: Skill-first vehicle PATROL (not voice).",
+  "execution_status": "accepted_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: procede con ic"
+    "reason": "Engineer: procede"
   },
   "relevant_workflow_phases": [
-    "Authorize"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,36 +18,33 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_follow_b1.md"
+    ".jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_follow_b1.md"
   ],
   "open_questions": [
-    "Claude implements T28 @ 0.6.37?",
+    "Next sibling IC: PATROL Skill-first @ 0.6.38?",
     "SD-GO_TO remains OPEN until separate destination Buy"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
+    "type": "accept_closed",
     "contract": "implementation_contract_assistant_chat_skill_first_vehicle_follow_b1.md",
     "ids": [
       "T28",
       "B1-assistant-chat-skill-first-vehicle-follow"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": null
   },
   "closed_this_turn": [
-    "T27 ★ ACCEPT CLOSED @ v0.6.36",
-    "T28 IC written and AUTHORIZED"
+    "T28 ★ ACCEPT CLOSED @ v0.6.37"
   ],
   "authority_gates": [
     "No tip/package version pin tests",
     "SD-GO_TO remains OPEN — do not invent x_m/y_m",
-    "Do not add FOLLOW to T20 sim copper tick set",
     "Vehicle Skills must not use SoftwareCapabilitySafetyGate-only",
-    "flight.follow stays not_implemented this Buy",
     "Voice still after remaining Skill-first siblings"
   ],
   "coherence_checklist": [
-    "IC AUTHORIZED @ 0.6.37",
-    "Paste for Claude ready"
+    "Tag v0.6.37 on ACCEPT commit",
+    "PRIORIDAD points to next sibling (PATROL…)"
   ],
-  "updated_at": "2026-10-02T08:26:00Z"
+  "updated_at": "2026-10-02T08:58:00Z"
 }
