@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.35`**
 
-**Status:** Cursor **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.6.35`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor review **PASS WITH NOTES** · tag **`v0.6.35`**.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T25 ★ @ **`v0.6.34`** · T9 TAKEOFF ★ @ `v0.6.17` · T14 allow-list widen ★ · T20 sim copper ★ (TAKEOFF **not** in sim tick set)  
 **Type:** Fourth vehicle Skill-first slice — **TAKEOFF**; grow shared vehicle gate.  
 **Opens:** **`0.6.35` / `v0.6.35`**. **Cola:** **T26**
@@ -59,8 +59,8 @@
 
 ## 3. Acceptance
 
-- [ ] TAKEOFF chat gated via `run_skill` · shared vehicle gate · `flight.takeoff` still `not_implemented` · `0.6.35`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.35`**
+- [x] TAKEOFF chat gated via `run_skill` · shared vehicle gate · `flight.takeoff` still `not_implemented` · `0.6.35`  
+- [x] Cursor review · Engineer ACCEPT · tag **`v0.6.35`**
 
 ---
 

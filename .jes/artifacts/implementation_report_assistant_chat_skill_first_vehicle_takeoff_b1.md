@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_assistant_chat_skill_first_vehicle_takeoff_b1.md`](implementation_contract_assistant_chat_skill_first_vehicle_takeoff_b1.md)  
 **Parents:** [DC ★ CLOSED — phase B](design_contract_assistant_chat_skill_first_b0.md) · T25 ★ ACCEPT CLOSED @ **`v0.6.34`** · T9 TAKEOFF ★ @ `v0.6.17` · T14 allow-list widen ★ · T20 sim copper ★ (TAKEOFF **not** in sim tick set)  
-**Status:** Implemented — await Cursor review → Engineer ★ ACCEPT. **No ACCEPT claim.**  
-**Package / tag:** `0.6.35` / **`v0.6.35`** (on ACCEPT).
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor **PASS WITH NOTES**.  
+**Package / tag:** `0.6.35` / **`v0.6.35`**.
 
 ---
 
