@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T25 implementado…”)  
 **Against:** [IC](implementation_contract_assistant_chat_skill_first_vehicle_go_to_b1.md) · [report](implementation_report_assistant_chat_skill_first_vehicle_go_to_b1.md) · [DC ★](design_contract_assistant_chat_skill_first_b0.md) · [SD-GO_TO OPEN](engineer_note_t20_goto_chat_sim_destination_debt.md)  
 **Tip reviewed:** `3071e5d` on `cursor/skill-first-vehicle-go-to-impl-8ac5` (parent tip T24 ★ `v0.6.33` @ `c5b6a4d` / `af71f05`)  
-**Verdict:** **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.6.34`**. **No ACCEPT claim in this pass.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.34` / `v0.6.34`**. Third vehicle Skill-first (GO_TO) closed.
 
-**Process note:** Claude Code implemented under ★ AUTHORIZED IC. This is the independent Cursor review of record. Same-session self-PASS is not review of record.
+**Process note:** Claude Code implemented under ★ AUTHORIZED IC. Cursor forensic PASS WITH NOTES; Engineer ★ ACCEPT this turn.
 
 ---
 
@@ -68,16 +68,15 @@ Report’s full-suite claim (3916 passed / +6 vs 3910) not re-run in this pass; 
 
 **N2 — Finite id set growth (carry-forward of T24 N1).** `_VEHICLE_GATE_SKILL_IDS` remains the shared dispatch; this Buy correctly grows membership. Remaining siblings still need their own Buys. **Not blocking.**
 
-**N3 — Process.** Await Engineer ★ ACCEPT → tag `v0.6.34`. Cola after ★: remaining vehicle Skill-first siblings (TAKEOFF…) before voz/world (phase C). **SD-GO_TO stays OPEN.**
+**N3 — Process.** Engineer ★ ACCEPT applied → tag `v0.6.34`. Cola after ★: remaining vehicle Skill-first siblings (TAKEOFF…) before voz/world (phase C). **SD-GO_TO stays OPEN.**
 
 ---
 
 ## 4. Next
 
 ```text
-Cursor: PASS WITH NOTES @ 3071e5d (+ review commit)
-Await: Engineer ★ ACCEPT → tag v0.6.34
-Skill-first phase B: HOLD ★ + LAND ★ + GO_TO (pending ★)
+★ ACCEPT CLOSED @ v0.6.34 (Engineer 2026-10-02)
+Skill-first phase B: HOLD ★ + LAND ★ + GO_TO ★
 SD-GO_TO: still OPEN
-Next after ★: vehicle Skill-first siblings (TAKEOFF…) — not voice yet
+Next: vehicle Skill-first siblings (TAKEOFF…) — not voice yet
 ```

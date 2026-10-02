@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T25 GO_TO Skill-first IC AUTHORIZED for Claude @ 0.6.34; SD-GO_TO stays OPEN",
-  "scope": "IC-only authorize. Gate Skill-first for GO_TO; empty-params + sin-destino honesty unchanged. No destination parse this Buy.",
-  "execution_status": "authorized_awaiting_impl",
-  "current_mode": "authorize",
+  "cycle_intent": "T25 GO_TO Skill-first ★ ACCEPT CLOSED @ v0.6.34; next pick TAKEOFF Skill-first sibling",
+  "scope": "Engineer ★ ACCEPT closes T25. SD-GO_TO stays OPEN. Next IC: Skill-first vehicle TAKEOFF (not voice).",
+  "execution_status": "accepted_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: procede con redactar IC"
+    "reason": "Engineer: accept y procede con siguiente ic"
   },
   "relevant_workflow_phases": [
-    "Authorize"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,34 +18,33 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_go_to_b1.md"
+    ".jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_go_to_b1.md"
   ],
   "open_questions": [
-    "Claude implements T25 @ 0.6.34?",
+    "Next sibling IC: TAKEOFF Skill-first @ 0.6.35?",
     "SD-GO_TO remains OPEN until separate destination Buy"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
+    "type": "accept_closed",
     "contract": "implementation_contract_assistant_chat_skill_first_vehicle_go_to_b1.md",
     "ids": [
       "T25",
       "B1-assistant-chat-skill-first-vehicle-go-to"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": null
   },
   "closed_this_turn": [
-    "T25 IC written and AUTHORIZED"
+    "T25 ★ ACCEPT CLOSED @ v0.6.34"
   ],
   "authority_gates": [
     "No tip/package version pin tests",
     "SD-GO_TO remains OPEN — do not invent x_m/y_m",
     "Vehicle Skills must not use SoftwareCapabilitySafetyGate-only",
-    "flight.go_to stays not_implemented this Buy",
     "Voice still after remaining Skill-first siblings"
   ],
   "coherence_checklist": [
-    "IC AUTHORIZED @ 0.6.34",
-    "Paste for Claude ready"
+    "Tag v0.6.34 on ACCEPT commit",
+    "PRIORIDAD points to next sibling (TAKEOFF…)"
   ],
-  "updated_at": "2026-10-02T06:55:00Z"
+  "updated_at": "2026-10-02T07:25:00Z"
 }

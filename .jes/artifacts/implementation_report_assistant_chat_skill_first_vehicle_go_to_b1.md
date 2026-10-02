@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_assistant_chat_skill_first_vehicle_go_to_b1.md`](implementation_contract_assistant_chat_skill_first_vehicle_go_to_b1.md)  
 **Parents:** [DC ★ CLOSED — phase B](design_contract_assistant_chat_skill_first_b0.md) · T24 ★ ACCEPT CLOSED @ **`v0.6.33`** · T8 GO_TO ★ @ `v0.6.16` · T20 (sim copper) · [SD-GO_TO OPEN](engineer_note_t20_goto_chat_sim_destination_debt.md)  
-**Status:** Implemented — await Cursor review → Engineer ★ ACCEPT. **No ACCEPT claim.**  
-**Package / tag:** `0.6.34` / **`v0.6.34`** (on ACCEPT).
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor **PASS WITH NOTES**.  
+**Package / tag:** `0.6.34` / **`v0.6.34`**.
 
 ---
 
