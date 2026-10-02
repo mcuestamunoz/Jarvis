@@ -202,15 +202,15 @@
         },
         {
             "id": "skill.request_arm_policy",
-            "version": "0.6.19",
+            "version": "0.6.39",
             "required_capability_ids": ["safety.chat_armed_allowlist"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_disarm_policy",
-            "version": "0.6.19",
+            "version": "0.6.39",
             "required_capability_ids": ["safety.chat_armed_allowlist"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_follow",

@@ -82,15 +82,11 @@ def test_t3_vehicle_and_ops_skills_stay_stub():
     """T21: vehicle/ops Skills were stub. T23-T29 flip
     HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME/FOLLOW/PATROL to available
     (shared vehicle gate) — closing the full seven-verb AutonomyVerb
-    set. Remaining vehicle/ops Skills (ARM/DISARM/CHARGE) stay stub."""
-    for skill_id in (
-        "skill.request_arm_policy",
-        "skill.request_disarm_policy",
-        "skill.request_charge",
-    ):
-        result = run_skill(skill_id)
-        assert result.outcome == "reject"
-        assert result.reason == "skill_stub", f"{skill_id} should still be stub"
+    set. T30 flips ARM/DISARM too (policy gate, not vehicle gate). Only
+    CHARGE stays stub now."""
+    result = run_skill("skill.request_charge")
+    assert result.outcome == "reject"
+    assert result.reason == "skill_stub"
 
 
 def test_t3b_unknown_skill_id_honest_reject():
@@ -102,7 +98,8 @@ def test_t3b_unknown_skill_id_honest_reject():
 def test_t4_seed_exactly_two_available_rest_stub():
     """T21 shipped two available software Skills. T23-T29 add
     HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME/FOLLOW/PATROL (shared vehicle
-    gate) — membership widened, not a reopen of T21."""
+    gate); T30 adds ARM/DISARM (policy gate) — membership widened, not
+    a reopen of T21."""
     registry = CapabilityRegistry.load_default()
     available_ids = {s.id for s in registry.skills() if s.availability == CapabilityAvailability.AVAILABLE}
     assert available_ids == {
@@ -115,6 +112,8 @@ def test_t4_seed_exactly_two_available_rest_stub():
         "skill.request_return_home",
         "skill.request_follow",
         "skill.request_patrol",
+        "skill.request_arm_policy",
+        "skill.request_disarm_policy",
     }
 
     stub_ids = {s.id for s in registry.skills() if s.availability == CapabilityAvailability.STUB}

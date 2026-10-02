@@ -1,4 +1,5 @@
-"""Skill runner — software Skills (T21/T22) + vehicle Skill gate (T23-T29).
+"""Skill runner — software Skills (T21/T22) + vehicle Skill gate
+(T23-T29) + policy Skill gate (T30).
 
 T5 (`B1-capability-skills-seed`) declared Skill rows. T21 added
 `run_skill(skill_id, ...)`, a thin dispatcher that looks a Skill up,
@@ -20,18 +21,28 @@ checks it is `available`, then either:
   On pass → `outcome="ok"` as a **gate only** — no `propose_command`,
   ArmedAllowlist, sim, or imports of `jarvis.core` /
   `jarvis.flight_software` / `jarvis.vehicle_profiles`. Chat fulfill
-  stays in `core/orchestrator.py`.
+  stays in `core/orchestrator.py`;
+* **policy Skills** (`skill.request_arm_policy` / `skill.request_disarm_policy`,
+  T30 — first policy slice, deliberately separate from the vehicle gate
+  since ARM/DISARM are a software latch, not an `AutonomyVerb`): same
+  `SoftwareCapabilitySafetyGate` check as software Skills (their
+  required capability, `safety.chat_armed_allowlist`, is
+  `available`+`software`); on allow → gate-only `outcome="ok"`, no
+  latch mutate here — `core/orchestrator.py`'s existing
+  `_handle_arm_policy`/`_handle_disarm_policy` still own the real
+  `gate.arm()`/`gate.disarm()` call and honesty message.
 
-Other vehicle/ops Skills (ARM/DISARM/CHARGE) stay `stub` →
+Other vehicle/ops Skills (`skill.request_charge`) stay `stub` →
 `skill_stub` reject.
 
 **Chat Skill-first:** T22 wires explain/status; T23 HOLD; T24 LAND; T25
-GO_TO; T26 TAKEOFF; T27 RETURN_HOME; T28 FOLLOW; T29 PATROL — classify
-(`try_*_task`) still chooses the Skill/Task id. GO_TO's own
-`flight.go_to` capability stays `not_implemented` — only the Skill row
-flips `available`; SD-GO_TO (chat GO_TO never parses a destination,
-while the T20 sim executor requires one) stays explicitly OPEN, not
-touched by this gate. TAKEOFF's/RETURN_HOME's/FOLLOW's/PATROL's own
+GO_TO; T26 TAKEOFF; T27 RETURN_HOME; T28 FOLLOW; T29 PATROL; T30
+ARM/DISARM — classify (`try_*_task`) still chooses the Skill/Task id.
+GO_TO's own `flight.go_to` capability stays `not_implemented` — only
+the Skill row flips `available`; SD-GO_TO (chat GO_TO never parses a
+destination, while the T20 sim executor requires one) stays
+explicitly OPEN, not touched by this gate. TAKEOFF's/RETURN_HOME's/
+FOLLOW's/PATROL's own
 `flight.takeoff`/`flight.return_home`/`flight.follow`/`flight.patrol`
 capabilities likewise stay `not_implemented`; none of the four is in
 the T20 sim-copper tick set (that only covers HOLD/LAND/GO_TO) — this
@@ -61,6 +72,8 @@ SKILL_ID_REQUEST_TAKEOFF = "skill.request_takeoff"
 SKILL_ID_REQUEST_RETURN_HOME = "skill.request_return_home"
 SKILL_ID_REQUEST_FOLLOW = "skill.request_follow"
 SKILL_ID_REQUEST_PATROL = "skill.request_patrol"
+SKILL_ID_REQUEST_ARM_POLICY = "skill.request_arm_policy"
+SKILL_ID_REQUEST_DISARM_POLICY = "skill.request_disarm_policy"
 
 # T23-T29: finite set of vehicle Skills that use the shared vehicle gate.
 _VEHICLE_GATE_SKILL_IDS: Final[frozenset[str]] = frozenset(
@@ -72,6 +85,15 @@ _VEHICLE_GATE_SKILL_IDS: Final[frozenset[str]] = frozenset(
         SKILL_ID_REQUEST_RETURN_HOME,
         SKILL_ID_REQUEST_FOLLOW,
         SKILL_ID_REQUEST_PATROL,
+    }
+)
+
+# T30: first policy Skill-first pair — software Safety gate-only, never the
+# vehicle gate (ARM/DISARM are a software latch, not an AutonomyVerb).
+_POLICY_GATE_SKILL_IDS: Final[frozenset[str]] = frozenset(
+    {
+        SKILL_ID_REQUEST_ARM_POLICY,
+        SKILL_ID_REQUEST_DISARM_POLICY,
     }
 )
 
@@ -134,9 +156,14 @@ def run_skill(
     """Look `skill_id` up in `CapabilityRegistry.load_default()`, require
     `availability == AVAILABLE`, then dispatch:
 
-    * software Skills → T4-shaped software Safety + existing fulfill;
-    * HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME → shared vehicle membership/provider gate (T23/T24/T25/T26/T27);
-    * other vehicle/ops still `stub` → `skill_stub`.
+    * vehicle Skills (HOLD…PATROL) → shared vehicle membership/provider
+      gate (T23-T29), never `SoftwareCapabilitySafetyGate`;
+    * policy Skills (ARM/DISARM, T30) → `SoftwareCapabilitySafetyGate`
+      on `safety.chat_armed_allowlist`; on allow, gate-only `ok` — no
+      latch mutate here, orch owns `_handle_arm_policy`/`_handle_disarm_policy`;
+    * software Skills (explain/status) → same software Safety check +
+      existing fulfill;
+    * other vehicle/ops (CHARGE) still `stub` → `skill_stub`.
 
     Finite `reason`s: `unknown_skill` / `skill_stub` / `safety_reject` /
     `capability_unknown` / `provider_not_vehicle` / `missing_query` /
@@ -153,12 +180,17 @@ def run_skill(
     if skill.availability != CapabilityAvailability.AVAILABLE:
         return SkillRunResult(skill_id=skill_id, outcome="reject", reason="skill_stub")
 
-    # T23/T24/T25/T26/T27: vehicle Skills must not route through SoftwareCapabilitySafetyGate.
+    # T23-T29: vehicle Skills must not route through SoftwareCapabilitySafetyGate.
     if skill_id in _VEHICLE_GATE_SKILL_IDS:
         return _vehicle_skill_gate(registry, skill)
 
     if not _software_safety_allows_skill(skill.required_capability_ids):
         return SkillRunResult(skill_id=skill_id, outcome="reject", reason="safety_reject")
+
+    # T30: policy Skills (ARM/DISARM) are gate-only after software Safety
+    # allow — no latch mutate inside skills_runtime; orch owns fulfill.
+    if skill_id in _POLICY_GATE_SKILL_IDS:
+        return SkillRunResult(skill_id=skill_id, outcome="ok")
 
     if skill_id == SKILL_ID_EXPLAIN_CONCEPT:
         if query is None:

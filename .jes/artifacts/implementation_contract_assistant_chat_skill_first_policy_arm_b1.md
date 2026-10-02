@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.39`**
 
-**Status:** ★ **AUTHORIZED — Claude implement now** (T29 ★ @ `v0.6.38`).  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag `v0.6.39`.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T29 ★ @ **`v0.6.38`** · T11 ARM UX ★ @ `v0.6.19` · T22 software Skill-first ★ @ `v0.6.31`  
 **Type:** First **policy** Skill-first slice — **ARM + DISARM** together; software Safety gate-only (not vehicle gate).  
 **Opens:** **`0.6.39` / `v0.6.39`**. **Cola:** **T30**

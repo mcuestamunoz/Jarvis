@@ -549,17 +549,40 @@ class JarvisOrchestrator:
         # T11 (B1-assistant-vehicle-arm-ux): arm/disarm the process-scoped
         # chat ArmedAllowlist latch — not an AutonomyVerb. Precedence:
         # explain → Continuity defer → ARM → DISARM → HOLD → … .
+        # T30 Skill-first: gate through run_skill("skill.request_arm_policy")
+        # first (software Safety + policy gate-only — not the vehicle gate);
+        # on ok keep _handle_arm_policy unchanged (same latch mutate +
+        # honesty). `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_arm_policy_task
 
         arm_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_arm_policy_task(arm_intent) is not None:
+            arm_skill = run_skill("skill.request_arm_policy")
+            if arm_skill.outcome != "ok":
+                reason = arm_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_arm_policy no disponible ({reason}).",
+                }
             return self._handle_arm_policy(arm_intent)
 
         # ── Safety policy DISARM intercept (T11) ──────────────────────────────
+        # T30 Skill-first: gate through run_skill("skill.request_disarm_policy")
+        # first (same software Safety + policy gate-only shape as ARM); on ok
+        # keep _handle_disarm_policy unchanged.
         from jarvis.intelligence.assistant_task import try_request_disarm_policy_task
 
         disarm_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_disarm_policy_task(disarm_intent) is not None:
+            disarm_skill = run_skill("skill.request_disarm_policy")
+            if disarm_skill.outcome != "ok":
+                reason = disarm_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_disarm_policy no disponible ({reason}).",
+                }
             return self._handle_disarm_policy(disarm_intent)
 
         # ── Vehicle HOLD intercept, via Assistant Task seam (T6) ──────────────
