@@ -214,9 +214,9 @@
         },
         {
             "id": "skill.request_follow",
-            "version": "0.6.20",
+            "version": "0.6.37",
             "required_capability_ids": ["flight.follow"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_patrol",

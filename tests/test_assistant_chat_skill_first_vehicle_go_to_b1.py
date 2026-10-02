@@ -78,9 +78,9 @@ def test_t3_hold_land_still_ok_takeoff_still_stub():
     assert hold.outcome == "ok"
     land = run_skill("skill.request_land")
     assert land.outcome == "ok"
-    follow = run_skill("skill.request_follow")
-    assert follow.outcome == "reject"
-    assert follow.reason == "skill_stub"
+    patrol = run_skill("skill.request_patrol")
+    assert patrol.outcome == "reject"
+    assert patrol.reason == "skill_stub"
 
 
 def test_t4_chat_hold_and_land_still_skill_first_vehicle(tmp_path: Path):

@@ -68,9 +68,9 @@ def test_t3_other_vehicle_skill_still_stub():
     charge = run_skill("skill.request_charge")
     assert charge.outcome == "reject"
     assert charge.reason == "skill_stub"
-    follow = run_skill("skill.request_follow")
-    assert follow.outcome == "reject"
-    assert follow.reason == "skill_stub"
+    patrol = run_skill("skill.request_patrol")
+    assert patrol.outcome == "reject"
+    assert patrol.reason == "skill_stub"
 
 
 def test_t4_software_skill_first_still_green(tmp_path: Path):

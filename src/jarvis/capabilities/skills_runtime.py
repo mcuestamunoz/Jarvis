@@ -1,4 +1,4 @@
-"""Skill runner — software Skills (T21/T22) + vehicle Skill gate (T23/T24/T25/T26/T27).
+"""Skill runner — software Skills (T21/T22) + vehicle Skill gate (T23-T28).
 
 T5 (`B1-capability-skills-seed`) declared Skill rows. T21 added
 `run_skill(skill_id, ...)`, a thin dispatcher that looks a Skill up,
@@ -9,8 +9,8 @@ checks it is `available`, then either:
   the existing fulfill path — never a second cite/Continuity brain;
 * **vehicle Skills** (`skill.request_hold`, T23; `skill.request_land`,
   T24; `skill.request_go_to`, T25; `skill.request_takeoff`, T26;
-  `skill.request_return_home`, T27): shared `_vehicle_skill_gate` — does
-  **not** use
+  `skill.request_return_home`, T27; `skill.request_follow`, T28):
+  shared `_vehicle_skill_gate` — does **not** use
   `SoftwareCapabilitySafetyGate` (that gate only allows
   `available`+`software`; `flight.*` is intentionally
   `not_implemented`/`vehicle`). Registry membership that every
@@ -23,13 +23,14 @@ checks it is `available`, then either:
 Other vehicle/ops Skills stay `stub` → `skill_stub` reject.
 
 **Chat Skill-first:** T22 wires explain/status; T23 HOLD; T24 LAND; T25
-GO_TO; T26 TAKEOFF; T27 RETURN_HOME — classify (`try_*_task`) still
-chooses the Skill/Task id. GO_TO's own `flight.go_to` capability stays
-`not_implemented` — only the Skill row flips `available`; SD-GO_TO
-(chat GO_TO never parses a destination, while the T20 sim executor
-requires one) stays explicitly OPEN, not touched by this gate.
-TAKEOFF's/RETURN_HOME's own `flight.takeoff`/`flight.return_home`
-capabilities likewise stay `not_implemented`; neither is in the T20
+GO_TO; T26 TAKEOFF; T27 RETURN_HOME; T28 FOLLOW — classify
+(`try_*_task`) still chooses the Skill/Task id. GO_TO's own
+`flight.go_to` capability stays `not_implemented` — only the Skill row
+flips `available`; SD-GO_TO (chat GO_TO never parses a destination,
+while the T20 sim executor requires one) stays explicitly OPEN, not
+touched by this gate. TAKEOFF's/RETURN_HOME's/FOLLOW's own
+`flight.takeoff`/`flight.return_home`/`flight.follow` capabilities
+likewise stay `not_implemented`; none of the three is in the T20
 sim-copper tick set (that only covers HOLD/LAND/GO_TO) — this gate
 never changes that. RETURN_HOME also keeps the FN-016 wizard nav-back
 cancel (`is_navigation_back_phrase`) winning over this gate whenever
@@ -55,8 +56,9 @@ SKILL_ID_REQUEST_LAND = "skill.request_land"
 SKILL_ID_REQUEST_GO_TO = "skill.request_go_to"
 SKILL_ID_REQUEST_TAKEOFF = "skill.request_takeoff"
 SKILL_ID_REQUEST_RETURN_HOME = "skill.request_return_home"
+SKILL_ID_REQUEST_FOLLOW = "skill.request_follow"
 
-# T23/T24/T25/T26/T27: finite set of vehicle Skills that use the shared vehicle gate.
+# T23/T24/T25/T26/T27/T28: finite set of vehicle Skills that use the shared vehicle gate.
 _VEHICLE_GATE_SKILL_IDS: Final[frozenset[str]] = frozenset(
     {
         SKILL_ID_REQUEST_HOLD,
@@ -64,6 +66,7 @@ _VEHICLE_GATE_SKILL_IDS: Final[frozenset[str]] = frozenset(
         SKILL_ID_REQUEST_GO_TO,
         SKILL_ID_REQUEST_TAKEOFF,
         SKILL_ID_REQUEST_RETURN_HOME,
+        SKILL_ID_REQUEST_FOLLOW,
     }
 )
 

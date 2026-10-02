@@ -712,10 +712,24 @@ class JarvisOrchestrator:
         # params via the shared chat ArmedAllowlist (T11); allow-list widened
         # in T14 — after `armar`, FOLLOW → `allow`/`not_implemented`
         # (never executed).
+        # T28 Skill-first: gate through run_skill("skill.request_follow") first
+        # (shared vehicle gate with HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME — not
+        # SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_follow
+        # unchanged. FOLLOW is NOT in the T20 sim-copper tick set (only
+        # HOLD/LAND/GO_TO) — no tick added here either. `run_skill` already
+        # imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_follow_task
 
         follow_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_follow_task(follow_intent) is not None:
+            follow_skill = run_skill("skill.request_follow")
+            if follow_skill.outcome != "ok":
+                reason = follow_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_follow no disponible ({reason}).",
+                }
             return self._handle_vehicle_follow(follow_intent)
 
         # ── Vehicle PATROL intercept, via Assistant Task seam (T13) ──────────
