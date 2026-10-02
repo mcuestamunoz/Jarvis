@@ -6,7 +6,7 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T29** Skill-first vehicle PATROL — ★ **AUTHORIZED** for Claude @ **`0.6.38`** (closes seven AutonomyVerb Skill-first set · **SD-GO_TO** stays OPEN · no route invent · no sim PATROL tick).  
+> **PRIORIDAD AHORA:** **T29** Skill-first vehicle PATROL — **Implemented** (Claude Code) @ **`0.6.38`**, await Cursor review → Engineer ★ ACCEPT (closes seven AutonomyVerb Skill-first set · **SD-GO_TO** stays OPEN · no route invent · no sim PATROL tick).  
 > **Just closed:** **T28** Skill-first vehicle FOLLOW ★ **ACCEPT CLOSED** @ **`v0.6.37`**.  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt (listed):** **SD-GO_TO** ([note](../.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md)).  
@@ -78,7 +78,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T26** | **`B1-assistant-chat-skill-first-vehicle-takeoff`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.35`** | TAKEOFF Skill-first · grow vehicle gate · no altitude invent · no sim TAKEOFF tick | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_takeoff_b1.md) |
 | **T27** | **`B1-assistant-chat-skill-first-vehicle-return-home`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.36`** | RETURN_HOME Skill-first · grow vehicle gate · FN-016 precedence untouched · no sim RTL tick | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_return_home_b1.md) |
 | **T28** | **`B1-assistant-chat-skill-first-vehicle-follow`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.37`** | FOLLOW Skill-first · grow vehicle gate · no track invent · no sim FOLLOW tick | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_follow_b1.md) |
-| **T29** | **`B1-assistant-chat-skill-first-vehicle-patrol`** | ★ **AUTHORIZED** · Claude → `0.6.38` | PATROL Skill-first · closes 7 AutonomyVerb Skill-first set · no route invent · no sim PATROL tick | [IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_patrol_b1.md) |
+| **T29** | **`B1-assistant-chat-skill-first-vehicle-patrol`** | **Implemented** (Claude Code) · `0.6.38` · await Cursor review → Engineer ★ ACCEPT | PATROL Skill-first · closes 7 AutonomyVerb Skill-first set · no route invent · no sim PATROL tick | [IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_patrol_b1.md) |
 | **after T29** | Skill-first remaining policy/ops Skills | **Candidate** | ARM/DISARM/CHARGE · before voz | ★ pick / new IC |
 | **after Skill-first** | Voz / world (A4) → same Skills · CLI by phases | **Horizon** | Engineer 2026-10-01: migrate CLI by phases, clean | DC placement §4 |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |

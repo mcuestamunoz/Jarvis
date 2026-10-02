@@ -60,9 +60,9 @@ def test_t3_hold_still_ok_takeoff_still_stub():
     coverage."""
     hold = run_skill("skill.request_hold")
     assert hold.outcome == "ok"
-    patrol = run_skill("skill.request_patrol")
-    assert patrol.outcome == "reject"
-    assert patrol.reason == "skill_stub"
+    charge = run_skill("skill.request_charge")
+    assert charge.outcome == "reject"
+    assert charge.reason == "skill_stub"
 
 
 def test_t4_chat_hold_still_skill_first_vehicle(tmp_path: Path):

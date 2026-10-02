@@ -220,9 +220,9 @@
         },
         {
             "id": "skill.request_patrol",
-            "version": "0.6.21",
+            "version": "0.6.38",
             "required_capability_ids": ["flight.patrol"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_charge",

@@ -740,10 +740,25 @@ class JarvisOrchestrator:
         # must not steal craft lines). Fulfilled here with empty params via
         # the shared chat ArmedAllowlist (T11); allow-list widened in T14 —
         # after `armar`, PATROL → `allow`/`not_implemented` (never executed).
+        # T29 Skill-first: gate through run_skill("skill.request_patrol") first
+        # (shared vehicle gate with HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME/FOLLOW —
+        # not SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_patrol
+        # unchanged. PATROL is NOT in the T20 sim-copper tick set (only
+        # HOLD/LAND/GO_TO) — no tick added here either. This closes the full
+        # seven-verb chat AutonomyVerb Skill-first set. `run_skill` already
+        # imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_patrol_task
 
         patrol_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_patrol_task(patrol_intent) is not None:
+            patrol_skill = run_skill("skill.request_patrol")
+            if patrol_skill.outcome != "ok":
+                reason = patrol_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_patrol no disponible ({reason}).",
+                }
             return self._handle_vehicle_patrol(patrol_intent)
 
         # ── Ops CHARGE intercept, via Assistant Task seam (T19) ───────────────
