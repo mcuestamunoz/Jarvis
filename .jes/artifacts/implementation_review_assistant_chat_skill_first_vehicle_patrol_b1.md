@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T29 implementado…”)  
 **Against:** [IC](implementation_contract_assistant_chat_skill_first_vehicle_patrol_b1.md) · [report](implementation_report_assistant_chat_skill_first_vehicle_patrol_b1.md) · [DC ★](design_contract_assistant_chat_skill_first_b0.md) · [SD-GO_TO OPEN](engineer_note_t20_goto_chat_sim_destination_debt.md)  
 **Tip reviewed:** `274d3b1` on `cursor/skill-first-vehicle-patrol-impl-8ac5` (parent tip T28 ★ `v0.6.37` @ `5f742be` / `435f2ae`)  
-**Verdict:** **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.6.38`**. **No ACCEPT claim in this pass.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.38` / `v0.6.38`**. Seventh vehicle Skill-first (PATROL) closed — seven AutonomyVerb Skill-first set complete.
 
-**Process note:** Claude Code implemented under ★ AUTHORIZED IC. This is the independent Cursor review of record. Same-session self-PASS is not review of record.
+**Process note:** Claude Code implemented under ★ AUTHORIZED IC. Cursor forensic PASS WITH NOTES; Engineer ★ ACCEPT this turn (“procede con policy”).
 
 ---
 
@@ -71,16 +71,15 @@ Report’s full-suite claim (3943 passed / +6 vs 3937) not re-run in this pass; 
 
 **N1 — AutonomyVerb Skill-first set closed.** This Buy completes phase B for the seven chat AutonomyVerbs. Remaining Skill-first candidates are policy/ops (ARM/DISARM/CHARGE) — different shape; may need a non-vehicle gate later. **Not blocking.**
 
-**N2 — Process.** Await Engineer ★ ACCEPT → tag `v0.6.38`. Cola after ★: policy/ops Skill-first or phase C (voz/world). **SD-GO_TO stays OPEN.** PATROL remains outside T20 sim tick set.
+**N2 — Process.** Engineer ★ ACCEPT applied → tag `v0.6.38`. Cola after ★: policy Skill-first (ARM/DISARM) then ops CHARGE / phase C. **SD-GO_TO stays OPEN.** PATROL remains outside T20 sim tick set.
 
 ---
 
 ## 4. Next
 
 ```text
-Cursor: PASS WITH NOTES @ 274d3b1 (+ review commit)
-Await: Engineer ★ ACCEPT → tag v0.6.38
-Skill-first phase B AutonomyVerbs: HOLD ★ … PATROL (pending ★) — set complete on ★
+★ ACCEPT CLOSED @ v0.6.38 (Engineer 2026-10-02)
+Skill-first phase B AutonomyVerbs: HOLD ★ … PATROL ★ — set complete
 SD-GO_TO: still OPEN
-Next after ★: policy/ops Skill-first (ARM/DISARM/CHARGE) or phase C — Engineer pick
+Next: policy Skill-first (ARM/DISARM) — not voice yet
 ```

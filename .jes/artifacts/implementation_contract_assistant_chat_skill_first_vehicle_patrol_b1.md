@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.38`**
 
-**Status:** Cursor **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.6.38`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor review **PASS WITH NOTES** · tag **`v0.6.38`**.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T28 ★ @ **`v0.6.37`** · T13 PATROL ★ @ `v0.6.21` · T14 allow-list widen ★ · T20 sim copper ★ (PATROL **not** in sim tick set)  
 **Type:** Seventh vehicle Skill-first slice — **PATROL**; grow shared vehicle gate; **closes the seven chat AutonomyVerb Skill-first set**.  
 **Opens:** **`0.6.38` / `v0.6.38`**. **Cola:** **T29**
@@ -59,8 +59,8 @@
 
 ## 3. Acceptance
 
-- [ ] PATROL chat gated via `run_skill` · shared vehicle gate · seven AutonomyVerb Skills available · `flight.patrol` still `not_implemented` · `0.6.38`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.38`**
+- [x] PATROL chat gated via `run_skill` · shared vehicle gate · seven AutonomyVerb Skills available · `flight.patrol` still `not_implemented` · `0.6.38`  
+- [x] Cursor review · Engineer ACCEPT · tag **`v0.6.38`**
 
 ---
 

@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_assistant_chat_skill_first_vehicle_patrol_b1.md`](implementation_contract_assistant_chat_skill_first_vehicle_patrol_b1.md)  
 **Parents:** [DC ★ CLOSED — phase B](design_contract_assistant_chat_skill_first_b0.md) · T28 ★ ACCEPT CLOSED @ **`v0.6.37`** · T13 PATROL ★ @ `v0.6.21` · T14 allow-list widen ★ · T20 sim copper ★ (PATROL **not** in sim tick set)  
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT.  
-**Package / tag:** `0.6.38` / pending **`v0.6.38`**.
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor **PASS WITH NOTES**.  
+**Package / tag:** `0.6.38` / **`v0.6.38`**.
 
 ---
 
