@@ -15,7 +15,7 @@ Today chat still fulfills explain/status (and vehicle/ops) via the **Task** seam
 | Phase | Buy (indicative) | Scope |
 |---|---|---|
 | **A — software** | `B1-assistant-chat-skill-first-software` @ `0.6.31` | explain + project_status via `run_skill` |
-| **B — vehicle/ops** | HOLD ★ @ `0.6.32` · LAND ★ @ `0.6.33` · GO_TO ★ @ `0.6.34`; later ICs for siblings (TAKEOFF…) | Skill-first only where Skill is `available` and fulfill truth exists; stubs stay honest rejects; **never** SoftwareCapabilitySafetyGate-only for vehicle |
+| **B — vehicle/ops** | HOLD ★ @ `0.6.32` · LAND ★ @ `0.6.33` · GO_TO ★ @ `0.6.34` · TAKEOFF @ `0.6.35` (next); later ICs for siblings | Skill-first only where Skill is `available` and fulfill truth exists; stubs stay honest rejects; **never** SoftwareCapabilitySafetyGate-only for vehicle |
 | **C — channels** | voz / world / CLI migrate | same Skills; new ingress only |
 
 ## Locks (block-level)
@@ -28,4 +28,4 @@ Today chat still fulfills explain/status (and vehicle/ops) via the **Task** seam
 
 ## Opens
 
-Phase A ★ CLOSED @ **`v0.6.31`**. Phase B HOLD ★ @ **`v0.6.32`** · LAND ★ @ **`v0.6.33`** · GO_TO ★ @ **`v0.6.34`**. Next: vehicle Skill-first siblings (TAKEOFF…) before phase C voz/world. SD-GO_TO stays OPEN.
+Phase A ★ CLOSED @ **`v0.6.31`**. Phase B HOLD ★ @ **`v0.6.32`** · LAND ★ @ **`v0.6.33`** · GO_TO ★ @ **`v0.6.34`**. Next IC: **`B1-assistant-chat-skill-first-vehicle-takeoff`** → package **`0.6.35`** (cola **T26**). SD-GO_TO stays OPEN. Phase C voz/world after remaining siblings.

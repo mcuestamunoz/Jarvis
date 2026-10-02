@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T25 GO_TO Skill-first ★ ACCEPT CLOSED @ v0.6.34; next pick TAKEOFF Skill-first sibling",
-  "scope": "Engineer ★ ACCEPT closes T25. SD-GO_TO stays OPEN. Next IC: Skill-first vehicle TAKEOFF (not voice).",
-  "execution_status": "accepted_closed",
-  "current_mode": "accept",
+  "cycle_intent": "T26 TAKEOFF Skill-first IC AUTHORIZED for Claude @ 0.6.35; SD-GO_TO stays OPEN; no sim TAKEOFF tick",
+  "scope": "IC-only authorize. Gate Skill-first for TAKEOFF; empty-params + ArmedAllowlist honesty unchanged. Do not add TAKEOFF to T20 sim copper tick set.",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
     "reason": "Engineer: accept y procede con siguiente ic"
   },
   "relevant_workflow_phases": [
-    "Accept"
+    "Authorize"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,33 +18,36 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_go_to_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_takeoff_b1.md"
   ],
   "open_questions": [
-    "Next sibling IC: TAKEOFF Skill-first @ 0.6.35?",
+    "Claude implements T26 @ 0.6.35?",
     "SD-GO_TO remains OPEN until separate destination Buy"
   ],
   "active_operation": {
-    "type": "accept_closed",
-    "contract": "implementation_contract_assistant_chat_skill_first_vehicle_go_to_b1.md",
+    "type": "authorized_implementation",
+    "contract": "implementation_contract_assistant_chat_skill_first_vehicle_takeoff_b1.md",
     "ids": [
-      "T25",
-      "B1-assistant-chat-skill-first-vehicle-go-to"
+      "T26",
+      "B1-assistant-chat-skill-first-vehicle-takeoff"
     ],
-    "blocked_on": null
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "T25 ★ ACCEPT CLOSED @ v0.6.34"
+    "T25 ★ ACCEPT CLOSED @ v0.6.34",
+    "T26 IC written and AUTHORIZED"
   ],
   "authority_gates": [
     "No tip/package version pin tests",
     "SD-GO_TO remains OPEN — do not invent x_m/y_m",
+    "Do not add TAKEOFF to T20 sim copper tick set",
     "Vehicle Skills must not use SoftwareCapabilitySafetyGate-only",
+    "flight.takeoff stays not_implemented this Buy",
     "Voice still after remaining Skill-first siblings"
   ],
   "coherence_checklist": [
-    "Tag v0.6.34 on ACCEPT commit",
-    "PRIORIDAD points to next sibling (TAKEOFF…)"
+    "IC AUTHORIZED @ 0.6.35",
+    "Paste for Claude ready"
   ],
-  "updated_at": "2026-10-02T07:25:00Z"
+  "updated_at": "2026-10-02T07:28:00Z"
 }

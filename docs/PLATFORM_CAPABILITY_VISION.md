@@ -469,6 +469,8 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 
 **T25 (`B1-assistant-chat-skill-first-vehicle-go-to`, ★ ACCEPT CLOSED @ `v0.6.34`) — third vehicle Skill-first:** `skill.request_go_to` → `available`; HOLD/LAND/GO_TO share `_vehicle_skill_gate`; `flight.go_to` stays `not_implemented`. Chat `go to` → `run_skill` then existing `_handle_vehicle_go_to` (empty params + ArmedAllowlist + T20 sim-copper honesty). **SD-GO_TO stays OPEN** — gate only, no destination parse/invent. See [review ★](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_go_to_b1.md).
 
+**T26 (`B1-assistant-chat-skill-first-vehicle-takeoff`, ★ AUTHORIZED → `0.6.35`) — fourth vehicle Skill-first:** TAKEOFF into shared vehicle gate; `flight.takeoff` stays `not_implemented`; no altitude invent; **no** T20 sim TAKEOFF tick (sim executor still HOLD/LAND/GO_TO-only). See [IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_takeoff_b1.md).
+
 **C2 (ACCEPT CLOSED, package stays `0.5.0` — no new tag):**  
 [`.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md`](../.jes/artifacts/implementation_contract_fase_c_intent_safety_stub_b1.md) — typed Intent ingress + Safety/Authority gate **interface**, added to `src/jarvis/capabilities/` (`intent.py` + `safety.py`). Only `TerminalIntentAdapter` produces a real `Intent`; voice/radio/api always raise `NotImplementedError`. The only shipped gate factory, `default_safety_gate()`, always returns `RejectAllSafetyGate` — no `AllowAllSafetyGate` exists under `src/`. See [review](../.jes/artifacts/implementation_review_fase_c_intent_safety_stub_b1.md) · [report](../.jes/artifacts/implementation_report_fase_c_intent_safety_stub_b1.md).
 
