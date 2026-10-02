@@ -58,7 +58,7 @@
         },
         {
             "id": "safety.chat_armed_allowlist",
-            "version": "0.6.19",
+            "version": "0.6.25",
             "provider_id": "provider.safety_chat_armed_allowlist",
             "availability": "available",
             "requirements": [],
@@ -68,6 +68,22 @@
             "id": "flight.follow",
             "version": "0.6.20",
             "provider_id": "provider.flight_follow",
+            "availability": "not_implemented",
+            "requirements": [],
+            "health": "unknown"
+        },
+        {
+            "id": "flight.patrol",
+            "version": "0.6.21",
+            "provider_id": "provider.flight_patrol",
+            "availability": "not_implemented",
+            "requirements": [],
+            "health": "unknown"
+        },
+        {
+            "id": "ops.charge",
+            "version": "0.6.28",
+            "provider_id": "provider.ops_charge",
             "availability": "not_implemented",
             "requirements": [],
             "health": "unknown"
@@ -127,32 +143,44 @@
             "kind": "vehicle",
             "offered_capability_ids": ["flight.follow"],
             "health": "unknown"
+        },
+        {
+            "id": "provider.flight_patrol",
+            "kind": "vehicle",
+            "offered_capability_ids": ["flight.patrol"],
+            "health": "unknown"
+        },
+        {
+            "id": "provider.ops_charge",
+            "kind": "device",
+            "offered_capability_ids": ["ops.charge"],
+            "health": "unknown"
         }
     ],
     "skills": [
         {
             "id": "skill.explain_concept",
-            "version": "0.6.13",
+            "version": "0.6.30",
             "required_capability_ids": ["ontology.explain"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.project_status",
-            "version": "0.6.13",
+            "version": "0.6.30",
             "required_capability_ids": ["engineering.continuity"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_hold",
-            "version": "0.6.14",
+            "version": "0.6.32",
             "required_capability_ids": ["flight.hold"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_land",
-            "version": "0.6.15",
+            "version": "0.6.33",
             "required_capability_ids": ["flight.land"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_go_to",
@@ -188,6 +216,18 @@
             "id": "skill.request_follow",
             "version": "0.6.20",
             "required_capability_ids": ["flight.follow"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_patrol",
+            "version": "0.6.21",
+            "required_capability_ids": ["flight.patrol"],
+            "availability": "stub"
+        },
+        {
+            "id": "skill.request_charge",
+            "version": "0.6.28",
+            "required_capability_ids": ["ops.charge"],
             "availability": "stub"
         }
     ]
