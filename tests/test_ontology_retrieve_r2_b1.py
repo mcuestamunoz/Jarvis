@@ -131,7 +131,3 @@ def test_prior_scaffold_status_constant_untouched():
     assert intelligence.SCAFFOLD_STATUS == "stub"
     assert intelligence.RETRIEVE_STATUS == "r2"
 
-
-def test_pyproject_version_is_0_6_2():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.2"' in text
