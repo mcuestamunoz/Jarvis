@@ -28,4 +28,4 @@ Today chat still fulfills explain/status (and vehicle/ops) via the **Task** seam
 
 ## Opens
 
-Phase A ★ CLOSED @ **`v0.6.31`**. Phase B HOLD ★ @ **`v0.6.32`** · LAND ★ @ **`v0.6.33`**. Next: vehicle Skill-first siblings (GO_TO…) before phase C voz/world.
+Phase A ★ CLOSED @ **`v0.6.31`**. Phase B HOLD ★ @ **`v0.6.32`** · LAND ★ @ **`v0.6.33`**. Next IC: **`B1-assistant-chat-skill-first-vehicle-go-to`** → package **`0.6.34`** (cola **T25**). SD-GO_TO stays OPEN. Phase C voz/world after remaining siblings.
