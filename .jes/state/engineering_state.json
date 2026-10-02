@@ -1,43 +1,54 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "T29 PATROL Skill-first IC AUTHORIZED for Claude @ 0.6.38; closes seven AutonomyVerb Skill-first set; SD-GO_TO stays OPEN; no sim PATROL tick",
+  "scope": "IC-only authorize. Gate Skill-first for PATROL; empty-params + ArmedAllowlist honesty unchanged. Do not add PATROL to T20 sim copper tick set. CHARGE/ARM/DISARM stay stub.",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: procede"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
-  "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
+  "relevant_workflow_phases": [
+    "Authorize"
+  ],
+  "applicable_rules": [
+    "R-GOV-1",
+    "R-GOV-2",
+    "R-COL-1",
+    "R-KNW-1"
+  ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_patrol_b1.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Claude implements T29 @ 0.6.38?",
+    "After T29 ★: ARM/DISARM/CHARGE Skill-first or phase C?",
+    "SD-GO_TO remains OPEN until separate destination Buy"
   ],
   "active_operation": {
     "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "contract": "implementation_contract_assistant_chat_skill_first_vehicle_patrol_b1.md",
+    "ids": [
+      "T29",
+      "B1-assistant-chat-skill-first-vehicle-patrol"
+    ],
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "T28 ★ ACCEPT CLOSED @ v0.6.37",
+    "T29 IC written and AUTHORIZED"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "No tip/package version pin tests",
+    "SD-GO_TO remains OPEN — do not invent x_m/y_m",
+    "Do not add PATROL to T20 sim copper tick set",
+    "Vehicle Skills must not use SoftwareCapabilitySafetyGate-only",
+    "flight.patrol stays not_implemented this Buy",
+    "Voice still after remaining Skill-first siblings"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "IC AUTHORIZED @ 0.6.38",
+    "Paste for Claude ready"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-02T09:00:00Z"
 }
