@@ -53,17 +53,16 @@ def test_t2_direct_run_skill_land_ok_flight_land_not_implemented():
 
 
 def test_t3_hold_still_ok_takeoff_still_stub():
-    """T25 (`B1-assistant-chat-skill-first-vehicle-go-to`) later flips
-    `skill.request_go_to` to `available` too, and T26 flips TAKEOFF —
-    this test's own "still stub" sibling probe moves to RETURN_HOME,
-    which stays stub. See `tests/test_assistant_chat_skill_first_vehicle_go_to_b1.py`
-    / `tests/test_assistant_chat_skill_first_vehicle_takeoff_b1.py` for
-    GO_TO's/TAKEOFF's own coverage."""
+    """T25/T26/T27 later flip GO_TO/TAKEOFF/RETURN_HOME too — this
+    test's own "still stub" sibling probe moves to FOLLOW, which stays
+    stub. See `tests/test_assistant_chat_skill_first_vehicle_go_to_b1.py`
+    / `..._takeoff_b1.py` / `..._return_home_b1.py` for their own
+    coverage."""
     hold = run_skill("skill.request_hold")
     assert hold.outcome == "ok"
-    return_home = run_skill("skill.request_return_home")
-    assert return_home.outcome == "reject"
-    assert return_home.reason == "skill_stub"
+    follow = run_skill("skill.request_follow")
+    assert follow.outcome == "reject"
+    assert follow.reason == "skill_stub"
 
 
 def test_t4_chat_hold_still_skill_first_vehicle(tmp_path: Path):

@@ -683,10 +683,25 @@ class JarvisOrchestrator:
         # via the shared chat ArmedAllowlist (T11); allow-list widened in
         # T14 — after `armar`, RETURN_HOME → `allow`/`not_implemented`
         # (never executed).
+        # T27 Skill-first: gate through run_skill("skill.request_return_home")
+        # first (shared vehicle gate with HOLD/LAND/GO_TO/TAKEOFF — not
+        # SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_return_home
+        # unchanged. RETURN_HOME is NOT in the T20 sim-copper tick set — no
+        # tick added here either. The FN-016 wizard nav-back cancel above
+        # (T15) still runs before this branch is ever reached — unreordered.
+        # `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_return_home_task
 
         return_home_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_return_home_task(return_home_intent) is not None:
+            return_home_skill = run_skill("skill.request_return_home")
+            if return_home_skill.outcome != "ok":
+                reason = return_home_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_return_home no disponible ({reason}).",
+                }
             return self._handle_vehicle_return_home(return_home_intent)
 
         # ── Vehicle FOLLOW intercept, via Assistant Task seam (T12) ───────────

@@ -1,4 +1,4 @@
-"""Skill runner — software Skills (T21/T22) + vehicle Skill gate (T23/T24/T25/T26).
+"""Skill runner — software Skills (T21/T22) + vehicle Skill gate (T23/T24/T25/T26/T27).
 
 T5 (`B1-capability-skills-seed`) declared Skill rows. T21 added
 `run_skill(skill_id, ...)`, a thin dispatcher that looks a Skill up,
@@ -8,8 +8,9 @@ checks it is `available`, then either:
   re-runs the T4-shaped `SoftwareCapabilitySafetyGate` check and calls
   the existing fulfill path — never a second cite/Continuity brain;
 * **vehicle Skills** (`skill.request_hold`, T23; `skill.request_land`,
-  T24; `skill.request_go_to`, T25; `skill.request_takeoff`, T26): shared
-  `_vehicle_skill_gate` — does **not** use
+  T24; `skill.request_go_to`, T25; `skill.request_takeoff`, T26;
+  `skill.request_return_home`, T27): shared `_vehicle_skill_gate` — does
+  **not** use
   `SoftwareCapabilitySafetyGate` (that gate only allows
   `available`+`software`; `flight.*` is intentionally
   `not_implemented`/`vehicle`). Registry membership that every
@@ -22,14 +23,18 @@ checks it is `available`, then either:
 Other vehicle/ops Skills stay `stub` → `skill_stub` reject.
 
 **Chat Skill-first:** T22 wires explain/status; T23 HOLD; T24 LAND; T25
-GO_TO; T26 TAKEOFF — classify (`try_*_task`) still chooses the Skill/
-Task id. GO_TO's own `flight.go_to` capability stays `not_implemented`
-— only the Skill row flips `available`; SD-GO_TO (chat GO_TO never
-parses a destination, while the T20 sim executor requires one) stays
-explicitly OPEN, not touched by this gate. TAKEOFF's own
-`flight.takeoff` capability likewise stays `not_implemented`; TAKEOFF
-is **not** in the T20 sim-copper tick set (that only covers HOLD/LAND/
-GO_TO) — this gate never changes that.
+GO_TO; T26 TAKEOFF; T27 RETURN_HOME — classify (`try_*_task`) still
+chooses the Skill/Task id. GO_TO's own `flight.go_to` capability stays
+`not_implemented` — only the Skill row flips `available`; SD-GO_TO
+(chat GO_TO never parses a destination, while the T20 sim executor
+requires one) stays explicitly OPEN, not touched by this gate.
+TAKEOFF's/RETURN_HOME's own `flight.takeoff`/`flight.return_home`
+capabilities likewise stay `not_implemented`; neither is in the T20
+sim-copper tick set (that only covers HOLD/LAND/GO_TO) — this gate
+never changes that. RETURN_HOME also keeps the FN-016 wizard nav-back
+cancel (`is_navigation_back_phrase`) winning over this gate whenever
+`DEFINE_MISSING_PARAMETERS` is active — that check runs earlier in
+`core/orchestrator.py`, untouched by this module.
 """
 
 from __future__ import annotations
@@ -49,14 +54,16 @@ SKILL_ID_REQUEST_HOLD = "skill.request_hold"
 SKILL_ID_REQUEST_LAND = "skill.request_land"
 SKILL_ID_REQUEST_GO_TO = "skill.request_go_to"
 SKILL_ID_REQUEST_TAKEOFF = "skill.request_takeoff"
+SKILL_ID_REQUEST_RETURN_HOME = "skill.request_return_home"
 
-# T23/T24/T25/T26: finite set of vehicle Skills that use the shared vehicle gate.
+# T23/T24/T25/T26/T27: finite set of vehicle Skills that use the shared vehicle gate.
 _VEHICLE_GATE_SKILL_IDS: Final[frozenset[str]] = frozenset(
     {
         SKILL_ID_REQUEST_HOLD,
         SKILL_ID_REQUEST_LAND,
         SKILL_ID_REQUEST_GO_TO,
         SKILL_ID_REQUEST_TAKEOFF,
+        SKILL_ID_REQUEST_RETURN_HOME,
     }
 )
 
@@ -120,7 +127,7 @@ def run_skill(
     `availability == AVAILABLE`, then dispatch:
 
     * software Skills → T4-shaped software Safety + existing fulfill;
-    * HOLD/LAND/GO_TO/TAKEOFF → shared vehicle membership/provider gate (T23/T24/T25/T26);
+    * HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME → shared vehicle membership/provider gate (T23/T24/T25/T26/T27);
     * other vehicle/ops still `stub` → `skill_stub`.
 
     Finite `reason`s: `unknown_skill` / `skill_stub` / `safety_reject` /
@@ -138,7 +145,7 @@ def run_skill(
     if skill.availability != CapabilityAvailability.AVAILABLE:
         return SkillRunResult(skill_id=skill_id, outcome="reject", reason="skill_stub")
 
-    # T23/T24/T25/T26: vehicle Skills must not route through SoftwareCapabilitySafetyGate.
+    # T23/T24/T25/T26/T27: vehicle Skills must not route through SoftwareCapabilitySafetyGate.
     if skill_id in _VEHICLE_GATE_SKILL_IDS:
         return _vehicle_skill_gate(registry, skill)
 

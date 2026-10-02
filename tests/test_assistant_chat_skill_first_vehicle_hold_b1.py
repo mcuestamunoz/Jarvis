@@ -58,17 +58,19 @@ def test_t2_direct_run_skill_hold_ok_gate_not_software_safety():
 
 
 def test_t3_other_vehicle_skill_still_stub():
-    """T23: LAND/GO_TO/TAKEOFF were stub. T24 flips LAND (see
+    """T23: LAND/GO_TO/TAKEOFF/RETURN_HOME were stub. T24 flips LAND (see
     `test_assistant_chat_skill_first_vehicle_land_b1`); T25 flips GO_TO
     (see `test_assistant_chat_skill_first_vehicle_go_to_b1`); T26 flips
-    TAKEOFF (see `test_assistant_chat_skill_first_vehicle_takeoff_b1`).
-    CHARGE/RETURN_HOME stay stub."""
+    TAKEOFF (see `test_assistant_chat_skill_first_vehicle_takeoff_b1`);
+    T27 flips RETURN_HOME (see
+    `test_assistant_chat_skill_first_vehicle_return_home_b1`).
+    CHARGE/FOLLOW stay stub."""
     charge = run_skill("skill.request_charge")
     assert charge.outcome == "reject"
     assert charge.reason == "skill_stub"
-    return_home = run_skill("skill.request_return_home")
-    assert return_home.outcome == "reject"
-    assert return_home.reason == "skill_stub"
+    follow = run_skill("skill.request_follow")
+    assert follow.outcome == "reject"
+    assert follow.reason == "skill_stub"
 
 
 def test_t4_software_skill_first_still_green(tmp_path: Path):

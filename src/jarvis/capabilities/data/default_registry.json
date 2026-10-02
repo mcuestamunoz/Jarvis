@@ -196,9 +196,9 @@
         },
         {
             "id": "skill.request_return_home",
-            "version": "0.6.18",
+            "version": "0.6.36",
             "required_capability_ids": ["flight.return_home"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_arm_policy",

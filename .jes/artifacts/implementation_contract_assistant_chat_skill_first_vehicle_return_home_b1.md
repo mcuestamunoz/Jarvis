@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.36`**
 
-**Status:** ★ **AUTHORIZED — Claude implement now** (T26 ★ @ `v0.6.35`).  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.36`**.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T26 ★ @ **`v0.6.35`** · T10 RETURN_HOME ★ @ `v0.6.18` · T14 allow-list widen ★ · T15 FN-016 wizard precedence ★ · T20 sim copper ★ (RETURN_HOME **not** in sim tick set)  
 **Type:** Fifth vehicle Skill-first slice — **RETURN_HOME**; grow shared vehicle gate.  
 **Opens:** **`0.6.36` / `v0.6.36`**. **Cola:** **T27**

@@ -70,12 +70,17 @@ def test_t2_direct_run_skill_takeoff_ok_flight_takeoff_not_implemented():
 
 
 def test_t3_hold_land_go_to_still_ok_return_home_still_stub():
+    """T27 (`B1-assistant-chat-skill-first-vehicle-return-home`) later
+    flips `skill.request_return_home` too — this test's own "still
+    stub" sibling probe moves to FOLLOW. See
+    `tests/test_assistant_chat_skill_first_vehicle_return_home_b1.py`
+    for RETURN_HOME's own coverage."""
     for skill_id in ("skill.request_hold", "skill.request_land", "skill.request_go_to"):
         result = run_skill(skill_id)
         assert result.outcome == "ok", f"{skill_id} should still be ok"
-    return_home = run_skill("skill.request_return_home")
-    assert return_home.outcome == "reject"
-    assert return_home.reason == "skill_stub"
+    follow = run_skill("skill.request_follow")
+    assert follow.outcome == "reject"
+    assert follow.reason == "skill_stub"
 
 
 def test_t4_chat_hold_land_go_to_still_skill_first_vehicle(tmp_path: Path):

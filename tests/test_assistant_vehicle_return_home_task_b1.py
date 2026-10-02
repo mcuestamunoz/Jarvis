@@ -145,7 +145,10 @@ def test_t5_seed_flight_return_home_honesty_prior_rows_and_allowlist():
     assert "skill.request_return_home" in skill_ids
     skill = next(s for s in registry.skills() if s.id == "skill.request_return_home")
     assert skill.required_capability_ids == ["flight.return_home"]
-    assert skill.availability == CapabilityAvailability.STUB
+    # T10 seeded stub; T27 Skill-first flips Skill to available while
+    # flight.return_home stays not_implemented — see
+    # tests/test_assistant_chat_skill_first_vehicle_return_home_b1.py.
+    assert skill.availability == CapabilityAvailability.AVAILABLE
 
     assert {
         "ontology.explain",
