@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_assistant_chat_skill_first_vehicle_return_home_b1.md`](implementation_contract_assistant_chat_skill_first_vehicle_return_home_b1.md)  
 **Parents:** [DC ★ CLOSED — phase B](design_contract_assistant_chat_skill_first_b0.md) · T26 ★ ACCEPT CLOSED @ **`v0.6.35`** · T10 RETURN_HOME ★ @ `v0.6.18` · T14 allow-list widen ★ · T15 FN-016 wizard precedence ★ · T20 sim copper ★ (RETURN_HOME **not** in sim tick set)  
-**Status:** Implemented — await Cursor review → Engineer ★ ACCEPT. **No ACCEPT claim.**  
-**Package / tag:** `0.6.36` / **`v0.6.36`** (on ACCEPT).
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor **PASS WITH NOTES**.  
+**Package / tag:** `0.6.36` / **`v0.6.36`**.
 
 ---
 
