@@ -623,10 +623,24 @@ class JarvisOrchestrator:
         # fallthrough. Fulfilled here via the shared chat ArmedAllowlist
         # (T11); empty params (no coordinate/waypoint parsing). Honest
         # reject/allow only — never a claim of navigated/arrived flight.
+        # T25 Skill-first: gate through run_skill("skill.request_go_to")
+        # first (shared vehicle gate with HOLD/LAND — not
+        # SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_go_to
+        # (ArmedAllowlist + T20 sim copper + SD-GO_TO "sin destino" honesty
+        # — SD-GO_TO stays OPEN, no coordinate parse/invent here either).
+        # `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_go_to_task
 
         go_to_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_go_to_task(go_to_intent) is not None:
+            go_to_skill = run_skill("skill.request_go_to")
+            if go_to_skill.outcome != "ok":
+                reason = go_to_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_go_to no disponible ({reason}).",
+                }
             return self._handle_vehicle_go_to(go_to_intent)
 
         # ── Vehicle TAKEOFF intercept, via Assistant Task seam (T9) ───────────

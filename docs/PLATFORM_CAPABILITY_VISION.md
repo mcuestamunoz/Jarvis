@@ -467,6 +467,8 @@ Assistant, Voice, Perception, Memory, Navigation, etc. can become reusable resou
 
 **T24 (`B1-assistant-chat-skill-first-vehicle-land`, ★ ACCEPT CLOSED @ `v0.6.33`) — second vehicle Skill-first:** LAND + shared vehicle gate for HOLD+LAND (T23 N2). See [review ★](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_land_b1.md).
 
+**T25 (`B1-assistant-chat-skill-first-vehicle-go-to`, package `0.6.34` — implemented, await ★ ACCEPT) — third vehicle Skill-first:** `skill.request_go_to` → `available`; HOLD/LAND/GO_TO now share `_vehicle_skill_gate`; `flight.go_to` stays `not_implemented`. Chat `go to` → `run_skill` then existing `_handle_vehicle_go_to` (empty params + ArmedAllowlist + T20 sim-copper honesty). **SD-GO_TO stays OPEN** — gate only, no destination parse/invent. See `.jes/artifacts/implementation_report_assistant_chat_skill_first_vehicle_go_to_b1.md`.
+
 **T25 (`B1-assistant-chat-skill-first-vehicle-go-to`, ★ AUTHORIZED → `0.6.34`) — third vehicle Skill-first:** GO_TO into shared vehicle gate; `flight.go_to` stays `not_implemented`; **SD-GO_TO stays OPEN** (no destination invent). See [IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_go_to_b1.md).
 
 **C2 (ACCEPT CLOSED, package stays `0.5.0` — no new tag):**  

@@ -1,0 +1,63 @@
+# Implementation Report — Chat Skill-first vehicle GO_TO (`B1-assistant-chat-skill-first-vehicle-go-to`, T25)
+
+**Project:** Jarvis  
+**Date:** 2026-10-02  
+**Implementer:** Claude Code (Engineer authorization paste)  
+**Contract:** [`implementation_contract_assistant_chat_skill_first_vehicle_go_to_b1.md`](implementation_contract_assistant_chat_skill_first_vehicle_go_to_b1.md)  
+**Parents:** [DC ★ CLOSED — phase B](design_contract_assistant_chat_skill_first_b0.md) · T24 ★ ACCEPT CLOSED @ **`v0.6.33`** · T8 GO_TO ★ @ `v0.6.16` · T20 (sim copper) · [SD-GO_TO OPEN](engineer_note_t20_goto_chat_sim_destination_debt.md)  
+**Status:** Implemented — await Cursor review → Engineer ★ ACCEPT. **No ACCEPT claim.**  
+**Package / tag:** `0.6.34` / **`v0.6.34`** (on ACCEPT).
+
+---
+
+## 1. What landed
+
+| Area | Change |
+|---|---|
+| `src/jarvis/capabilities/data/default_registry.json` | `skill.request_go_to` → `availability=available`, `version` → `0.6.34`. `flight.go_to` capability byte-unchanged — still `not_implemented`, provider still `vehicle` |
+| `src/jarvis/capabilities/skills_runtime.py` | `SKILL_ID_REQUEST_GO_TO` added to `_VEHICLE_GATE_SKILL_IDS` (now `{HOLD, LAND, GO_TO}`) — same shared `_vehicle_skill_gate`, still never `SoftwareCapabilitySafetyGate`, still gate-only (no `propose_command`/sim/`jarvis.core` import). Docstrings updated to mention T25 |
+| `src/jarvis/core/orchestrator.py` | GO_TO intercept in `_handle_global_commands`: on a matched `try_request_go_to_task`, calls `run_skill("skill.request_go_to")` first; non-`ok` → honest `"Skill request_go_to no disponible (reason)."`, no silent Task-only fallback; `ok` → existing `_handle_vehicle_go_to` unchanged byte-for-byte (empty params, shared ArmedAllowlist, T20's own "sin destino" sim-copper honesty note — **SD-GO_TO untouched**) |
+| `tests/test_assistant_chat_skill_first_vehicle_go_to_b1.py` | **new** T1–T5 |
+| `tests/test_assistant_chat_skill_first_vehicle_hold_b1.py`, `tests/test_assistant_chat_skill_first_vehicle_land_b1.py` | each had a "sibling stays stub" probe naming `skill.request_go_to` — retargeted to `skill.request_takeoff` (still genuinely stub), consistent with how T24 itself retargeted T23's own probe |
+| `tests/test_capability_skills_runtime_software_b1.py` (T21's own file) | `test_t3_vehicle_and_ops_skills_stay_stub`'s loop no longer includes `skill.request_go_to`; `test_t4_seed_exactly_two_available_rest_stub`'s exact-set assertion extended to include it |
+| `tests/test_assistant_vehicle_go_to_task_b1.py` (T8's own file) | its own seed-honesty assertion (`go_to_skill.availability == STUB`) flipped to `AVAILABLE`, same pattern T24 used for LAND's own T7 file |
+| `pyproject.toml` | `0.6.34` |
+| Docs | PRIORIDAD · PLATFORM · CONNECTIONS (no new C-xxx) |
+
+**Not touched:** `flight.go_to` capability (`not_implemented`, never flipped — IC's own explicit "Not"), any coordinate/destination parsing or invention (SD-GO_TO stays exactly as OPEN as before), TAKEOFF/RETURN_HOME/FOLLOW/PATROL/ARM/DISARM/CHARGE/explain/status classify or fulfill, `AutonomyVerb` enum, `SoftwareCapabilitySafetyGate`, live ESC, voice, tip-version pins (T17 guardrail re-verified green).
+
+---
+
+## 2. Behavior
+
+- Disarmed + `go to` → Skill gate `ok` (GO_TO is now a real vehicle-gated Skill), then `_handle_vehicle_go_to`'s own unchanged Safety path → `reject`/`disarmed`, same as before this Buy.
+- Armed + `go to` → Skill gate `ok` → `_handle_vehicle_go_to` → Safety `allow`/`not_implemented`, **plus** the pre-existing T20 sim-copper attempt, which still honestly reports "Simulación no disponible sin destino" since chat GO_TO still never supplies `x_m`/`y_m` — unchanged, SD-GO_TO untouched.
+- HOLD and LAND Skill-first behavior is byte-identical to before (regression-tested: T4).
+- TAKEOFF (and every other non-flipped vehicle/ops Skill) still `reject`/`skill_stub` via `run_skill`.
+
+---
+
+## 3. Tests executed
+
+```text
+pytest tests/test_assistant_chat_skill_first_vehicle_go_to_b1.py \
+  tests/test_assistant_chat_skill_first_vehicle_land_b1.py \
+  tests/test_assistant_chat_skill_first_vehicle_hold_b1.py \
+  tests/test_capability_skills_runtime_software_b1.py \
+  tests/test_assistant_vehicle_go_to_task_b1.py -q
+→ 30 passed
+
+pytest tests/test_suite_no_tip_version_pins_b1.py tests/test_fase_c_esc_pwm_stub_rung_b1.py -q
+→ 19 passed (T17 guardrail + T16 ESC fence both still green)
+
+pytest tests/ -q
+→ 3916 passed, 9 skipped, 0 failed
+```
+
+Diffed against this branch's pre-T25 tip: baseline was `3910 passed, 9 skipped, 0 failed`. **Zero regressions** — the only delta is the 6 new T25 tests passing.
+
+---
+
+## 4. Remaining
+
+None for this Buy. SD-GO_TO stays OPEN for a later, explicit Buy. Next candidates per the DC: remaining vehicle Skill-first siblings (TAKEOFF/RETURN_HOME/FOLLOW/PATROL/ARM/DISARM/CHARGE), then phase C (voice/world, phased CLI migrate).

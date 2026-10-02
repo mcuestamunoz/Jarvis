@@ -184,9 +184,9 @@
         },
         {
             "id": "skill.request_go_to",
-            "version": "0.6.16",
+            "version": "0.6.34",
             "required_capability_ids": ["flight.go_to"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_takeoff",

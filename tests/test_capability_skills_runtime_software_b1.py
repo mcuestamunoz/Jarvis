@@ -79,10 +79,9 @@ def test_t2b_project_status_via_real_orchestrator_build_startup_context(tmp_path
 
 
 def test_t3_vehicle_and_ops_skills_stay_stub():
-    """T21: vehicle/ops Skills were stub. T23/T24 flip HOLD/LAND to
-    available (shared vehicle gate). Remaining vehicle/ops stay stub."""
+    """T21: vehicle/ops Skills were stub. T23/T24/T25 flip HOLD/LAND/GO_TO
+    to available (shared vehicle gate). Remaining vehicle/ops stay stub."""
     for skill_id in (
-        "skill.request_go_to",
         "skill.request_takeoff",
         "skill.request_return_home",
         "skill.request_arm_policy",
@@ -103,8 +102,9 @@ def test_t3b_unknown_skill_id_honest_reject():
 
 
 def test_t4_seed_exactly_two_available_rest_stub():
-    """T21 shipped two available software Skills. T23/T24 add HOLD/LAND
-    (shared vehicle gate) — membership widened, not a reopen of T21."""
+    """T21 shipped two available software Skills. T23/T24/T25 add
+    HOLD/LAND/GO_TO (shared vehicle gate) — membership widened, not a
+    reopen of T21."""
     registry = CapabilityRegistry.load_default()
     available_ids = {s.id for s in registry.skills() if s.availability == CapabilityAvailability.AVAILABLE}
     assert available_ids == {
@@ -112,6 +112,7 @@ def test_t4_seed_exactly_two_available_rest_stub():
         "skill.project_status",
         "skill.request_hold",
         "skill.request_land",
+        "skill.request_go_to",
     }
 
     stub_ids = {s.id for s in registry.skills() if s.availability == CapabilityAvailability.STUB}

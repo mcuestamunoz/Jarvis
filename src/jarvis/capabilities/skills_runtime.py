@@ -1,4 +1,4 @@
-"""Skill runner — software Skills (T21/T22) + vehicle Skill gate (T23/T24).
+"""Skill runner — software Skills (T21/T22) + vehicle Skill gate (T23/T24/T25).
 
 T5 (`B1-capability-skills-seed`) declared Skill rows. T21 added
 `run_skill(skill_id, ...)`, a thin dispatcher that looks a Skill up,
@@ -8,7 +8,8 @@ checks it is `available`, then either:
   re-runs the T4-shaped `SoftwareCapabilitySafetyGate` check and calls
   the existing fulfill path — never a second cite/Continuity brain;
 * **vehicle Skills** (`skill.request_hold`, T23; `skill.request_land`,
-  T24): shared `_vehicle_skill_gate` — does **not** use
+  T24; `skill.request_go_to`, T25): shared `_vehicle_skill_gate` — does
+  **not** use
   `SoftwareCapabilitySafetyGate` (that gate only allows
   `available`+`software`; `flight.*` is intentionally
   `not_implemented`/`vehicle`). Registry membership that every
@@ -20,8 +21,12 @@ checks it is `available`, then either:
 
 Other vehicle/ops Skills stay `stub` → `skill_stub` reject.
 
-**Chat Skill-first:** T22 wires explain/status; T23 HOLD; T24 LAND —
-classify (`try_*_task`) still chooses the Skill/Task id.
+**Chat Skill-first:** T22 wires explain/status; T23 HOLD; T24 LAND; T25
+GO_TO — classify (`try_*_task`) still chooses the Skill/Task id. GO_TO's
+own `flight.go_to` capability stays `not_implemented` — only the Skill
+row flips `available`; SD-GO_TO (chat GO_TO never parses a destination,
+while the T20 sim executor requires one) stays explicitly OPEN, not
+touched by this gate.
 """
 
 from __future__ import annotations
@@ -39,12 +44,14 @@ SKILL_ID_EXPLAIN_CONCEPT = "skill.explain_concept"
 SKILL_ID_PROJECT_STATUS = "skill.project_status"
 SKILL_ID_REQUEST_HOLD = "skill.request_hold"
 SKILL_ID_REQUEST_LAND = "skill.request_land"
+SKILL_ID_REQUEST_GO_TO = "skill.request_go_to"
 
-# T23/T24: finite set of vehicle Skills that use the shared vehicle gate.
+# T23/T24/T25: finite set of vehicle Skills that use the shared vehicle gate.
 _VEHICLE_GATE_SKILL_IDS: Final[frozenset[str]] = frozenset(
     {
         SKILL_ID_REQUEST_HOLD,
         SKILL_ID_REQUEST_LAND,
+        SKILL_ID_REQUEST_GO_TO,
     }
 )
 
@@ -108,7 +115,7 @@ def run_skill(
     `availability == AVAILABLE`, then dispatch:
 
     * software Skills → T4-shaped software Safety + existing fulfill;
-    * HOLD/LAND → shared vehicle membership/provider gate (T23/T24);
+    * HOLD/LAND/GO_TO → shared vehicle membership/provider gate (T23/T24/T25);
     * other vehicle/ops still `stub` → `skill_stub`.
 
     Finite `reason`s: `unknown_skill` / `skill_stub` / `safety_reject` /
@@ -126,7 +133,7 @@ def run_skill(
     if skill.availability != CapabilityAvailability.AVAILABLE:
         return SkillRunResult(skill_id=skill_id, outcome="reject", reason="skill_stub")
 
-    # T23/T24: vehicle Skills must not route through SoftwareCapabilitySafetyGate.
+    # T23/T24/T25: vehicle Skills must not route through SoftwareCapabilitySafetyGate.
     if skill_id in _VEHICLE_GATE_SKILL_IDS:
         return _vehicle_skill_gate(registry, skill)
 

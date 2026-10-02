@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.34`**
 
-**Status:** ★ **AUTHORIZED — Claude implement now** (T24 ★ @ `v0.6.33`).  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.34`**.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T24 ★ @ **`v0.6.33`** · T8 GO_TO ★ @ `v0.6.16` · T20 ★ (sim copper) · [SD-GO_TO OPEN](engineer_note_t20_goto_chat_sim_destination_debt.md)  
 **Type:** Third vehicle Skill-first slice — **GO_TO**; grow shared vehicle gate.  
 **Opens:** **`0.6.34` / `v0.6.34`**. **Cola:** **T25**

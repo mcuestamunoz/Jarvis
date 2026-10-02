@@ -52,12 +52,17 @@ def test_t2_direct_run_skill_land_ok_flight_land_not_implemented():
     assert flight_land.availability == CapabilityAvailability.NOT_IMPLEMENTED
 
 
-def test_t3_hold_still_ok_goto_still_stub():
+def test_t3_hold_still_ok_takeoff_still_stub():
+    """T25 (`B1-assistant-chat-skill-first-vehicle-go-to`) later flips
+    `skill.request_go_to` to `available` too — this test's own "still
+    stub" sibling probe moves to TAKEOFF, which stays stub. See
+    `tests/test_assistant_chat_skill_first_vehicle_go_to_b1.py` for
+    GO_TO's own coverage."""
     hold = run_skill("skill.request_hold")
     assert hold.outcome == "ok"
-    go_to = run_skill("skill.request_go_to")
-    assert go_to.outcome == "reject"
-    assert go_to.reason == "skill_stub"
+    takeoff = run_skill("skill.request_takeoff")
+    assert takeoff.outcome == "reject"
+    assert takeoff.reason == "skill_stub"
 
 
 def test_t4_chat_hold_still_skill_first_vehicle(tmp_path: Path):
