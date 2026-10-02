@@ -5,7 +5,7 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_assistant_chat_skill_first_policy_arm_b1.md`](implementation_contract_assistant_chat_skill_first_policy_arm_b1.md)  
 **Parents:** [DC ★ CLOSED — phase B](design_contract_assistant_chat_skill_first_b0.md) · T29 ★ ACCEPT CLOSED @ **`v0.6.38`** · T11 ARM UX ★ @ `v0.6.19` · T22 software Skill-first ★ @ `v0.6.31`  
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT.  
+**Status:** Cursor **PASS WITH NOTES** — await Engineer ★ ACCEPT.  
 **Package / tag:** `0.6.39` / pending **`v0.6.39`**.
 
 ---

@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T30 policy ARM/DISARM Skill-first IC AUTHORIZED for Claude @ 0.6.39; software Safety + policy gate-only; not vehicle gate; CHARGE stays stub; SD-GO_TO stays OPEN",
-  "scope": "IC-only authorize. Flip skill.request_arm_policy + skill.request_disarm_policy available; _POLICY_GATE_SKILL_IDS after SoftwareCapabilitySafetyGate; chat gates then existing _handle_arm/disarm_policy. Do not put policy Skills in _VEHICLE_GATE_SKILL_IDS. CHARGE stays stub.",
-  "execution_status": "authorized_awaiting_impl",
-  "current_mode": "authorize",
+  "cycle_intent": "T30 policy ARM/DISARM Skill-first Cursor PASS WITH NOTES @ 0.6.39; await Engineer ★ ACCEPT → tag v0.6.39",
+  "scope": "Independent Cursor forensic review of Claude T30 impl. No ACCEPT claim. CHARGE remains stub. SD-GO_TO stays OPEN.",
+  "execution_status": "review_pass_awaiting_accept",
+  "current_mode": "review",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: procede con policy"
+    "reason": "Engineer pasted Claude T30 done — Cursor review of record"
   },
   "relevant_workflow_phases": [
-    "Authorize"
+    "Review"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,37 +18,36 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_policy_arm_b1.md"
+    ".jes/artifacts/implementation_review_assistant_chat_skill_first_policy_arm_b1.md"
   ],
   "open_questions": [
-    "Claude implements T30 @ 0.6.39?",
+    "Engineer ★ ACCEPT T30 → tag v0.6.39?",
     "After T30 ★: CHARGE Skill-first or phase C?",
     "SD-GO_TO remains OPEN until separate destination Buy"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
+    "type": "review_complete_awaiting_accept",
     "contract": "implementation_contract_assistant_chat_skill_first_policy_arm_b1.md",
     "ids": [
       "T30",
       "B1-assistant-chat-skill-first-policy-arm"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "T29 ★ ACCEPT CLOSED @ v0.6.38",
-    "T30 IC written and AUTHORIZED"
+    "T30 Cursor PASS WITH NOTES @ d887575"
   ],
   "authority_gates": [
     "No tip/package version pin tests",
     "SD-GO_TO remains OPEN — do not invent x_m/y_m",
-    "Policy Skills must use SoftwareCapabilitySafetyGate + _POLICY_GATE_SKILL_IDS — not _VEHICLE_GATE_SKILL_IDS",
-    "CHARGE stays stub this Buy",
-    "No ESC / SimulatedEscSink.arm() from policy Skills",
-    "Voice still after remaining Skill-first siblings"
+    "Policy Skills must not join _VEHICLE_GATE_SKILL_IDS",
+    "CHARGE stays stub until its own Buy",
+    "No ACCEPT claim without Engineer ★"
   ],
   "coherence_checklist": [
-    "IC AUTHORIZED @ 0.6.39",
-    "Paste for Claude ready"
+    "Review artifact written",
+    "Targeted suite 91 passed",
+    "PRIORIDAD points to await ★ ACCEPT"
   ],
-  "updated_at": "2026-10-02T09:30:00Z"
+  "updated_at": "2026-10-02T10:05:00Z"
 }
