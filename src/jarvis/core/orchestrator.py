@@ -653,10 +653,24 @@ class JarvisOrchestrator:
         # (T11); empty params (no altitude parsing). Allow-list widened
         # in T14 — after `armar`, TAKEOFF → `allow`/`not_implemented`
         # (never executed). Honest UX only.
+        # T26 Skill-first: gate through run_skill("skill.request_takeoff")
+        # first (shared vehicle gate with HOLD/LAND/GO_TO — not
+        # SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_takeoff
+        # unchanged. TAKEOFF is NOT in the T20 sim-copper tick set (only
+        # HOLD/LAND/GO_TO) — no tick added here either. `run_skill` already
+        # imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_takeoff_task
 
         takeoff_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_takeoff_task(takeoff_intent) is not None:
+            takeoff_skill = run_skill("skill.request_takeoff")
+            if takeoff_skill.outcome != "ok":
+                reason = takeoff_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_takeoff no disponible ({reason}).",
+                }
             return self._handle_vehicle_takeoff(takeoff_intent)
 
         # ── Vehicle RETURN_HOME intercept, via Assistant Task seam (T10) ──────

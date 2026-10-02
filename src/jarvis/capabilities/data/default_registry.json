@@ -190,9 +190,9 @@
         },
         {
             "id": "skill.request_takeoff",
-            "version": "0.6.17",
+            "version": "0.6.35",
             "required_capability_ids": ["flight.takeoff"],
-            "availability": "stub"
+            "availability": "available"
         },
         {
             "id": "skill.request_return_home",

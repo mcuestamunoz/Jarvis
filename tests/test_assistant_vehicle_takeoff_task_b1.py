@@ -177,7 +177,10 @@ def test_t5_seed_flight_takeoff_not_implemented_vehicle_provider_skill_stub_prio
     assert "skill.request_takeoff" in skill_ids
     takeoff_skill = next(s for s in registry.skills() if s.id == "skill.request_takeoff")
     assert takeoff_skill.required_capability_ids == ["flight.takeoff"]
-    assert takeoff_skill.availability == CapabilityAvailability.STUB
+    # T9 seeded stub; T26 Skill-first flips Skill to available while
+    # flight.takeoff stays not_implemented — see
+    # tests/test_assistant_chat_skill_first_vehicle_takeoff_b1.py.
+    assert takeoff_skill.availability == CapabilityAvailability.AVAILABLE
 
     # HOLD (T6), LAND (T7), GO_TO (T8), and software (T2/T5) rows are still present.
     for capability_id in ("flight.hold", "flight.land", "flight.go_to"):

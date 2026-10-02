@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T26** Skill-first vehicle TAKEOFF — ★ **AUTHORIZED** for Claude @ **`0.6.35`** (**SD-GO_TO** stays OPEN · no altitude invent · no sim TAKEOFF tick).  
+> **PRIORIDAD AHORA:** **T26** Skill-first vehicle TAKEOFF — implemented (Claude); await Cursor review → Engineer ★ ACCEPT → tag **`v0.6.35`** (**SD-GO_TO** stays OPEN · no altitude invent · no sim TAKEOFF tick).  
 > **Just closed:** **T25** Skill-first vehicle GO_TO ★ **ACCEPT CLOSED** @ **`v0.6.34`**.  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt (listed):** **SD-GO_TO** ([note](../.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md)).  
 > **Horizon after siblings:** voz/world · phased CLI migrate (phase C — **not** immediate next).  
-> SoT: [T26 IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_takeoff_b1.md) · [T25 review ★](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_go_to_b1.md).  
+> SoT: [T26 report](../.jes/artifacts/implementation_report_assistant_chat_skill_first_vehicle_takeoff_b1.md) · [T26 IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_takeoff_b1.md) · [T25 review ★](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_go_to_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -75,7 +75,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T23** | **`B1-assistant-chat-skill-first-vehicle-hold`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.32`** | HOLD Skill-first · no SoftwareCapabilitySafetyGate-only · `flight.hold` stays `not_implemented` | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_hold_b1.md) |
 | **T24** | **`B1-assistant-chat-skill-first-vehicle-land`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.33`** | LAND Skill-first · shared vehicle gate (T23 N2) · `flight.land` stays `not_implemented` | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_land_b1.md) |
 | **T25** | **`B1-assistant-chat-skill-first-vehicle-go-to`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.34`** | GO_TO Skill-first · grow vehicle gate · **SD-GO_TO stays OPEN** · empty params honesty | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_go_to_b1.md) |
-| **T26** | **`B1-assistant-chat-skill-first-vehicle-takeoff`** | ★ **AUTHORIZED** · Claude → `0.6.35` | TAKEOFF Skill-first · grow vehicle gate · no altitude invent · no sim TAKEOFF tick | [IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_takeoff_b1.md) |
+| **T26** | **`B1-assistant-chat-skill-first-vehicle-takeoff`** | **Implemented** · await review/★ ACCEPT (tag `v0.6.35`) | TAKEOFF Skill-first · grow vehicle gate · no altitude invent · no sim TAKEOFF tick | [report](../.jes/artifacts/implementation_report_assistant_chat_skill_first_vehicle_takeoff_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_vehicle_takeoff_b1.md) |
 | **after T26** | Skill-first remaining vehicle/ops Skills | **Candidate** | RETURN_HOME… / CHARGE · before voz | ★ pick / new IC |
 | **after Skill-first** | Voz / world (A4) → same Skills · CLI by phases | **Horizon** | Engineer 2026-10-01: migrate CLI by phases, clean | DC placement §4 |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
