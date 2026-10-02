@@ -6,7 +6,7 @@
 **Implementer:** **Cursor** (Engineer: “Ejecuta”)  
 **Reviewer:** Cursor forensic **PASS WITH NOTES** · Engineer ACCEPT → tag **`v0.6.33`**
 
-**Status:** **Implemented** (Cursor) — Cursor review **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag **`v0.6.33`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor review **PASS WITH NOTES** · tag **`v0.6.33`**.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T23 ★ @ **`v0.6.32`** · T7 LAND ★ @ `v0.6.15`  
 **Type:** Second vehicle Skill-first slice — **LAND**; generalize shared vehicle gate (T23 N2).  
 **Opens:** **`0.6.33` / `v0.6.33`**. **Cola:** **T24**
@@ -58,8 +58,8 @@
 
 ## 3. Acceptance
 
-- [ ] LAND chat gated via `run_skill` · shared vehicle gate · `0.6.33`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.33`**
+- [x] LAND chat gated via `run_skill` · shared vehicle gate · `0.6.33`  
+- [x] Cursor review · Engineer ACCEPT · tag **`v0.6.33`**
 
 ---
 

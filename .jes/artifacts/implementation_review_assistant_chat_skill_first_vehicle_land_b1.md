@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Engineer: “Review y después dime en que estado…”)  
 **Against:** [IC](implementation_contract_assistant_chat_skill_first_vehicle_land_b1.md) · [report](implementation_report_assistant_chat_skill_first_vehicle_land_b1.md) · [DC ★](design_contract_assistant_chat_skill_first_b0.md)  
 **Tip reviewed:** `667d250` / `fe404ce` on `cursor/skill-first-vehicle-land-impl-8ac5` (parent tip T23 ★ `v0.6.32`)  
-**Verdict:** **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.6.33`**.
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-02) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.33` / `v0.6.33`**. Second vehicle Skill-first (LAND) closed.
 
-**Process note:** Cursor implemented under Engineer “Ejecuta”. Engineer ordered review this turn — this pass is the review of record under that authority. **No ★ ACCEPT / tag until Engineer says so.**
+**Process note:** Cursor implemented under Engineer “Ejecuta”. Engineer ordered review then ★ ACCEPT — this pass is the review of record under that authority.
 
 ---
 
@@ -56,14 +56,14 @@ Available Skills: explain, project_status, request_hold, request_land.
 
 **N1 — Finite id set, not provider-kind auto-dispatch.** `_VEHICLE_GATE_SKILL_IDS` is the shared dispatch (IC preferred). Sibling Buys grow the set. **Not blocking.**
 
-**N2 — Process.** Await Engineer ★ ACCEPT → tag `v0.6.33`. Cola after ★: remaining vehicle Skill-first siblings (GO_TO…) before voz/world (phase C).
+**N2 — Process.** Engineer ★ ACCEPT applied → tag `v0.6.33`. Cola after ★: remaining vehicle Skill-first siblings (GO_TO…) before voz/world (phase C).
 
 ---
 
 ## 4. Next
 
 ```text
-Cursor review PASS WITH NOTES — await Engineer ★ ACCEPT @ v0.6.33
-Skill-first phase B: HOLD ★ + LAND (await ★)
-Next after ★: vehicle Skill-first siblings — not voice yet
+★ ACCEPT CLOSED @ v0.6.33 (Engineer 2026-10-02)
+Skill-first phase B: HOLD ★ + LAND ★
+Next: vehicle Skill-first siblings (GO_TO…) — not voice yet
 ```
