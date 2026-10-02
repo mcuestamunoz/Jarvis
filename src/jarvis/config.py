@@ -228,6 +228,30 @@ VEHICLE_FOLLOW_PHRASES: frozenset[str] = frozenset({
     "seguirme",
     "ven conmigo",
 })
+# B1-assistant-vehicle-patrol-task (T13): seventh and last vehicle Task
+# phrase table — last C4 AutonomyVerb without a chat Task. Exact match
+# only — short words like "patrol"/"patrulla" must not steal craft lines
+# ("patrulla del catalogo", "patrol the board layout").
+VEHICLE_PATROL_PHRASES: frozenset[str] = frozenset({
+    "patrol",
+    "patrulla",
+    "patrullar",
+    "hacer patrulla",
+    "start patrol",
+    "iniciar patrulla",
+})
+# B1-assistant-ops-charge-task (T19): first **ops** Task phrase table —
+# CHARGE is deliberately NOT an AutonomyVerb (DC §0 row 1). Exact match
+# only — short words like "cargar" must not steal mission/payload lines
+# ("carga util", "aumentar la carga", "carga util kg").
+OPS_CHARGE_PHRASES: frozenset[str] = frozenset({
+    "charge",
+    "cargar",
+    "cargar bateria",
+    "cargar la bateria",
+    "charge battery",
+    "iniciar carga",
+})
 # FN-016: navigation-back words, scoped to acquisition wizards only (NOT a
 # global escape — deliberately not merged into ESCAPE_WORDS/checked outside
 # DEFINE_MISSING_PARAMETERS). Values are already accent-normalized; callers
