@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import math
 import re
 from pathlib import Path
 from typing import Any
@@ -644,14 +645,18 @@ class JarvisOrchestrator:
         # kind, same seam as T6's HOLD/T7's LAND. Precedence: explain →
         # Continuity defer → ARM → DISARM → HOLD → LAND → GO_TO →
         # fallthrough. Fulfilled here via the shared chat ArmedAllowlist
-        # (T11); empty params (no coordinate/waypoint parsing). Honest
-        # reject/allow only — never a claim of navigated/arrived flight.
+        # (T11). Honest reject/allow only — never a claim of
+        # navigated/arrived flight.
         # T25 Skill-first: gate through run_skill("skill.request_go_to")
         # first (shared vehicle gate with HOLD/LAND — not
-        # SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_go_to
-        # (ArmedAllowlist + T20 sim copper + SD-GO_TO "sin destino" honesty
-        # — SD-GO_TO stays OPEN, no coordinate parse/invent here either).
-        # `run_skill` already imported above (Continuity defer T22).
+        # SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_go_to.
+        # T32 (B1-assistant-chat-go-to-destination, closes SD-GO_TO):
+        # try_request_go_to_task now also accepts a destination-bearing
+        # prove-now line (go to <x> <y> etc.); _handle_vehicle_go_to
+        # resolves it via _resolve_go_to_destination and ticks the sim
+        # with real coordinates when present, else keeps the honest
+        # "sin destino" note. `run_skill` already imported above
+        # (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_go_to_task
 
         go_to_intent = TerminalIntentAdapter.parse(stripped)
@@ -839,33 +844,74 @@ class JarvisOrchestrator:
             self._sim_autonomy_executor_instance = SimAutonomyExecutor(ToyQuad6DofPlant())
         return self._sim_autonomy_executor_instance
 
-    def _sim_autonomy_tick_note(self, verb: Any) -> str:
+    def _sim_autonomy_tick_note(
+        self, verb: Any, *, x_m: float | None = None, y_m: float | None = None
+    ) -> str:
         """T20 — after Safety `allow` for HOLD/LAND/GO_TO, run one
         `SimAutonomyExecutor.tick` and return a short, honest Spanish
         note for the chat message. Never claims copper flight/motors/
-        ESC. `GO_TO` from chat always carries empty params (T8 — no
-        coordinate parsing), which the sim executor's own contract
-        rejects (`GO_TO` requires `x_m`/`y_m`) — caught here and
-        reported as sim-unavailable-without-a-target, never a crash,
-        never an invented destination.
+        ESC. HOLD/LAND callers omit `x_m`/`y_m` (unchanged — the sim
+        executor falls back to the plant's current position for
+        those).
 
-        Later wire (debt **SD-GO_TO**): pass real destination into
-        `SimAutonomyParams` on this same path when chat/voice can name
-        a target honestly. SoT:
-        `.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md`.
+        T32 (`B1-assistant-chat-go-to-destination`, closes **SD-GO_TO**):
+        when `verb` is `GO_TO` and both `x_m`/`y_m` are supplied (from
+        `_resolve_go_to_destination`), they're passed into
+        `SimAutonomyParams` so GO_TO ticks a real sim note just like
+        HOLD/LAND. When either is missing, `SimAutonomyParams()` stays
+        empty, the sim executor's own contract rejects a GO_TO tick
+        without a target, and this still reports sim-unavailable-
+        without-a-target — caught here, never a crash, never an
+        invented destination.
         """
         from jarvis.flight_software.autonomy.sim_executor import SimAutonomyParams
 
         executor = self._sim_autonomy_executor()
         try:
-            # Seam for SD-GO_TO: today empty params; later supply x_m/y_m here.
-            tick_result = executor.tick(verb, SimAutonomyParams(), dt_s=0.01)
+            tick_result = executor.tick(verb, SimAutonomyParams(x_m=x_m, y_m=y_m), dt_s=0.01)
         except ValueError:
-            return "Simulación no disponible sin destino (GO_TO requiere coordenadas; este chat no las parsea aún)."
+            return (
+                "Simulación no disponible sin destino "
+                "(falta x_m/y_m; prueba go to 1.0 2.0 o conecta coords)."
+            )
         return (
             f"Simulación (no vuelo real, sin ESC/motores): tick en t={tick_result.t_s:.2f}s, "
             f"colectivo={tick_result.collective:.3f}."
         )
+
+    def _resolve_go_to_destination(self, intent: Any) -> tuple[float, float] | None:
+        """T32 (`B1-assistant-chat-go-to-destination`) resolver seam —
+        closes **SD-GO_TO**. Ordered sources, never inventing a default
+        (DC §0 lock 1):
+
+        1. **Connect plug** (primary for later GPS/world/voice): both
+           `intent.metadata["go_to_x_m"]` and `["go_to_y_m"]` present
+           and finite. `Intent.metadata` is `dict[str, str]`, so values
+           are cast from string here; a future provider only has to
+           fill these two keys to plug in a real destination — no
+           second sim stack to build.
+        2. **Finite prove-now parse** (proves the wire today):
+           `jarvis.intelligence.assistant_task.parse_go_to_destination`
+           on `intent.raw_text` — same exact `go to|goto|ir a|ve a
+           <x> <y>` pattern `try_request_go_to_task` already used to
+           classify this line.
+        3. Else `None` — caller keeps the existing honest sin-destino
+           note. Never `0,0`/home.
+        """
+        x_raw = intent.metadata.get("go_to_x_m")
+        y_raw = intent.metadata.get("go_to_y_m")
+        if x_raw is not None and y_raw is not None:
+            try:
+                x_m, y_m = float(x_raw), float(y_raw)
+            except (TypeError, ValueError):
+                pass
+            else:
+                if math.isfinite(x_m) and math.isfinite(y_m):
+                    return (x_m, y_m)
+
+        from jarvis.intelligence.assistant_task import parse_go_to_destination
+
+        return parse_go_to_destination(intent.raw_text)
 
     def _handle_arm_policy(self, intent: Any) -> dict:
         """T11 fulfill: arm the shared chat ArmedAllowlist latch.
@@ -937,17 +983,29 @@ class JarvisOrchestrator:
         return {"status": "ok", "action": "vehicle_land", "message": message}
 
     def _handle_vehicle_go_to(self, intent: Any) -> dict:
-        """T8 fulfill — empty params; shared chat ArmedAllowlist (T11).
-        Never arms the gate here. Honest UX only. T20: after Safety
-        `allow`, also attempts one `SimAutonomyExecutor.tick` (sim only,
-        never copper) — the sim executor requires a target for GO_TO,
-        which this chat path never parses, so the note honestly says
-        simulation is unavailable without one rather than inventing a
-        destination."""
+        """T8 fulfill — shared chat ArmedAllowlist (T11). Never arms the
+        gate here. Honest UX only.
+
+        T32 (`B1-assistant-chat-go-to-destination`, closes **SD-GO_TO**):
+        resolves a destination via `_resolve_go_to_destination` —
+        `params` stays empty `{}` when there is none (bare phrase),
+        else carries `x_m`/`y_m` as strings (`AutonomyCommand.params`
+        is `dict[str, str]`). After Safety `allow`, the
+        `SimAutonomyExecutor` tick (sim only, never copper) gets those
+        same coordinates when present, producing a real sim note like
+        HOLD/LAND; when absent, the note still honestly says
+        simulation is unavailable without a target rather than
+        inventing one."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
-        command = propose_command(AutonomyVerb.GO_TO, intent_id=intent.id, params={})
+        destination = self._resolve_go_to_destination(intent)
+        params = (
+            {"x_m": str(destination[0]), "y_m": str(destination[1])}
+            if destination is not None
+            else {}
+        )
+        command = propose_command(AutonomyVerb.GO_TO, intent_id=intent.id, params=params)
         result = submit_command(command, gate)
         message = (
             "GO_TO solicitado, pero no se ejecuta ninguna navegación real desde este "
@@ -955,7 +1013,13 @@ class JarvisOrchestrator:
             f"Ejecución: {result.execution}."
         )
         if result.safety.outcome == "allow":
-            message += " " + self._sim_autonomy_tick_note(AutonomyVerb.GO_TO)
+            if destination is not None:
+                tick_note = self._sim_autonomy_tick_note(
+                    AutonomyVerb.GO_TO, x_m=destination[0], y_m=destination[1]
+                )
+            else:
+                tick_note = self._sim_autonomy_tick_note(AutonomyVerb.GO_TO)
+            message += " " + tick_note
         return {"status": "ok", "action": "vehicle_go_to", "message": message}
 
     def _handle_vehicle_takeoff(self, intent: Any) -> dict:

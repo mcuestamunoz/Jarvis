@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T33 connect-plugs real-data map IC AUTHORIZED for Claude @ 0.6.42; forensic SoT index of all connect-later debts; T32 remains AUTHORIZED @ 0.6.41",
-  "scope": "IC+DC authorize docs-only map Buy. Claude forensically verifies tip and writes engineer_note_connect_plugs_real_data_map.md. Does not implement GPS/ESC/battery/voice or close T32.",
-  "execution_status": "authorized_awaiting_impl",
-  "current_mode": "authorize",
+  "cycle_intent": "T32 ★ stacked under T33 tip; T33 Cursor PASS awaiting ★ ACCEPT @ v0.6.42",
+  "scope": "Merge T32 ACCEPT @ v0.6.41 into connect-plugs tip. Next commit: Engineer ★ ACCEPT T33, update map sd-go-to rows to landed/CLOSED, tag v0.6.42.",
+  "execution_status": "stacked_awaiting_accept",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: IC para Claude — revisar a fondo y mapear todas las deudas de datos reales"
+    "reason": "Engineer: si es ok, damos por accept todo lo que hay pendiente (T32+T33)"
   },
   "relevant_workflow_phases": [
-    "Authorize"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,41 +18,40 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/design_contract_connect_plugs_real_data_map_b0.md",
-    ".jes/artifacts/implementation_contract_connect_plugs_real_data_map_b1.md"
+    ".jes/artifacts/implementation_review_connect_plugs_real_data_map_b1.md",
+    ".jes/artifacts/engineer_note_connect_plugs_real_data_map.md"
   ],
   "open_questions": [
-    "Claude implements T33 map @ 0.6.42?",
-    "Claude implements T32 SD-GO_TO @ 0.6.41?",
-    "After both ★: phase C voz/world?"
+    "★ ACCEPT T33 → tag v0.6.42?",
+    "After T33 ★: phase C voz/world?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
+    "type": "review_complete_awaiting_accept",
     "contract": "implementation_contract_connect_plugs_real_data_map_b1.md",
     "ids": [
       "T33",
       "B1-connect-plugs-real-data-map"
     ],
-    "blocked_on": "claude_impl",
-    "parallel_authorized": [
-      "T32 B1-assistant-chat-go-to-destination @ 0.6.41"
-    ]
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "T33 DC ★ CLOSED",
-    "T33 IC written and AUTHORIZED"
+    "T32 ★ ACCEPT CLOSED @ v0.6.41",
+    "SD-GO_TO note CLOSED",
+    "T33 Cursor PASS @ e39a4ce",
+    "T32 tip merged into T33 tip"
   ],
   "authority_gates": [
-    "Docs-only — no src/ behavior change",
+    "Docs-only for T33 — no src/ behavior change from map Buy",
     "Do not invent plugs that do not exist",
-    "Do not claim debts CLOSED by writing the map",
+    "Map row closes only in that row's own Buy (sd-go-to closed by T32 ★)",
     "No tip/package version pin tests",
-    "T32 remains separate Buy @ 0.6.41"
+    "Never invent default coordinates 0,0/home"
   ],
   "coherence_checklist": [
-    "IC AUTHORIZED @ 0.6.42",
-    "Paste for Claude ready",
-    "Seed inventory in IC §0b"
+    "Merge conflicts resolved",
+    "pyproject 0.6.42",
+    "T32 code present on tip",
+    "PRIORIDAD points to T33 ★ ACCEPT"
   ],
-  "updated_at": "2026-10-03T08:25:00Z"
+  "updated_at": "2026-10-03T08:55:00Z"
 }

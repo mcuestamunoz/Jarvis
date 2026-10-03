@@ -56,10 +56,13 @@ def test_t1b_armar_then_land_sim_tick_observed():
 
 
 def test_t1c_armar_then_go_to_sim_unavailable_without_target():
-    """GO_TO from chat always carries empty params (T8 — no coordinate
-    parsing) — the sim executor's own contract requires x_m/y_m for
-    GO_TO, so the honest note says simulation is unavailable without a
-    target rather than inventing a destination or crashing."""
+    """A *bare* GO_TO phrase (no destination) still carries empty
+    params and still gets this same honest note. T32
+    (`B1-assistant-chat-go-to-destination`, closes SD-GO_TO) adds a
+    destination-bearing prove-now parse (e.g. "go to 1.0 2.0") that
+    ticks a real sim note instead — see
+    `tests/test_assistant_chat_go_to_destination_b1.py` for that
+    coverage; this test only locks the bare-phrase honesty."""
     orch = JarvisOrchestrator()
     exploding = _ExplodingLLMInterface()
     orch.handle_user_text("armar", exploding)

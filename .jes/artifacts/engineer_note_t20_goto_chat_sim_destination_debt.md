@@ -2,10 +2,10 @@
 
 **Date:** 2026-10-01  
 **Authority:** Engineer (pre-ACCEPT T20) — leave architecture ready; document debt; wire later when destination exists  
-**Status:** **Buy AUTHORIZED** · T32 `B1-assistant-chat-go-to-destination` @ **`0.6.41`** — closes on Engineer ★ ACCEPT of that Buy · T20 ★ @ **`v0.6.29`**  
+**Status:** **★ CLOSED** · T32 `B1-assistant-chat-go-to-destination` ★ ACCEPT CLOSED @ tip **`v0.6.41`** · T20 ★ @ **`v0.6.29`**  
 
 **Parents:** T8 ★ (`B1-assistant-vehicle-go-to-task` @ `v0.6.16`) · C40 ★ (`B1-fase-c-autonomy-executor` @ `v0.5.41`) · T20 ★ @ **`v0.6.29`**  
-**SoT pointers:** [T20 review N1](implementation_review_assistant_chat_sim_copper_b1.md) · [T20 report §2](implementation_report_assistant_chat_sim_copper_b1.md) · PRIORIDAD cola row **SD-GO_TO** · this row is indexed, alongside every other connect-later debt, in the [connect plugs / real-data map](engineer_note_connect_plugs_real_data_map.md) (T33, id `sd-go-to`)
+**SoT pointers:** [T32 review ★](implementation_review_assistant_chat_go_to_destination_b1.md) · [T20 review N1](implementation_review_assistant_chat_sim_copper_b1.md) · [T20 report §2](implementation_report_assistant_chat_sim_copper_b1.md) · [connect plugs map](engineer_note_connect_plugs_real_data_map.md) row `sd-go-to`
 
 ---
 
