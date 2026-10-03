@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T38 implementado…”)  
 **Against:** [IC](implementation_contract_assistant_voice_tts_external_b1.md) · [report](implementation_report_assistant_voice_tts_external_b1.md) · [DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [TTS brief](engineer_note_voice_tts_product_brief.md) · [cola note](engineer_note_voice_phase_c_cola.md)  
 **Tip reviewed:** `ba308e9` on `cursor/voice-tts-external-impl-8ac5` (parent IC `a38d134` / tip `v0.6.45`)  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ **ACCEPT** → tag **`v0.6.46`**.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-03) @ tip **`v0.6.46`**.
 
-**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record.
 
 ---
 
@@ -62,14 +62,14 @@ Report full-suite claim (3986 / +6) not re-run here.
 
 **N1 — Docstring names Piper while claiming “never names Piper in code”.** Module/`__init__` docstrings point at the product brief and mention Piper as the external free-first demo. **No import, no dep, no hardcode.** Soft honesty nit only — behavior matches the IC. Optional polish: drop the self-contradicting “never names” sentence later.
 
-**N2 — Process.** Engineer ★ ACCEPT → tag **`v0.6.46`**. Construction V1–V4 complete. Next: **T39** voice v1 checkpoint opens product milestone **`v0.7.0`** (docs/checkpoint Buy — not more seam code unless IC says so).
+**N2 — Process.** Engineer ★ ACCEPT (2026-10-03) → tag **`v0.6.46`**. Construction V1–V4 complete. Next when Engineer says proceed: **T39** voice v1 checkpoint opens product milestone **`v0.7.0`** (docs/checkpoint Buy — not more seam code unless IC says so).
 
 ---
 
-## 4. Awaiting
+## 4. Closed
 
 ```text
 Cursor verdict: PASS WITH NOTES
-Await Engineer ★ ACCEPT → tag v0.6.46
+Engineer ★ ACCEPT CLOSED → tag v0.6.46
 Next when Engineer says proceed: T39 B1-assistant-voice-v1-checkpoint @ 0.7.0
 ```

@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T38** voice TTS-external — **Implemented** @ **`0.6.46`**, Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT (V4: external TTS process seam · Piper brief rescued · **not** vendor SDK in core).  
-> **Just closed:** **T37** voice STT-external ★ **ACCEPT CLOSED** @ tip **`v0.6.45`**.  
+> **PRIORIDAD AHORA:** **T39** voice v1 checkpoint — **Parked** @ product milestone **`0.7.0` / `v0.7.0`** (docs/checkpoint Buy after T37+T38 ★; not more seam code unless IC says so).  
+> **Just closed:** **T38** voice TTS-external ★ **ACCEPT CLOSED** @ tip **`v0.6.46`**.  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice cola: [phase C note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
-> **Cola voz:** T37 ★ @ `v0.6.45` → T38 Implemented, pending review @ `0.6.46` → **T39 = `v0.7.0`** · T40 Parked.  
-> SoT: [T38 IC](../.jes/artifacts/implementation_contract_assistant_voice_tts_external_b1.md) · [TTS brief](../.jes/artifacts/engineer_note_voice_tts_product_brief.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
+> **Cola voz:** T35–T38 ★ @ `v0.6.43`–`v0.6.46` (construcción V1–V4) → **T39 = `v0.7.0`** · T40 Parked.  
+> SoT: [T38 review ★](../.jes/artifacts/implementation_review_assistant_voice_tts_external_b1.md) · [TTS brief](../.jes/artifacts/engineer_note_voice_tts_product_brief.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -19,7 +19,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.45`** · T0–T37 ★ CLOSED · SD-GO_TO ★ CLOSED · **T38** voice TTS-external Implemented, pending review @ `0.6.46`)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.46`** · T0–T38 ★ CLOSED · SD-GO_TO ★ CLOSED · **T39** voice v1 checkpoint Parked @ `0.7.0`)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -88,7 +88,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T35** | **`B1-assistant-voice-intent-ingress`** (V1) | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.43`** | Fill `VoiceIntentAdapter.parse(raw_text)`; thread `source` through 12 orch parse sites via shared `_parse_intent` helper; default `TERMINAL` | [review ★](../.jes/artifacts/implementation_review_assistant_voice_intent_ingress_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
 | **T36** | **`B1-assistant-voice-fixture-loop`** (V2) | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.44`** | New `adapters/voice/` package (`FixtureSttSource`, `run_voice_turn`, `run_voice`); optional `--voice-fixture PATH` CLI flag, `--chat` unchanged; prove ingress→Skill→egress without mic | [review ★](../.jes/artifacts/implementation_review_assistant_voice_fixture_loop_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
 | **T37** | **`B1-assistant-voice-stt-external`** (V3) | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.45`** | External STT process seam (`JARVIS_STT_CMD` env + `{audio}` → transcript → `run_voice_turn`); typed `SttError` family; optional `--voice-audio PATH`; no speech deps added; vendor choice = separate ★ | [review ★](../.jes/artifacts/implementation_review_assistant_voice_stt_external_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
-| **T38** | **`B1-assistant-voice-tts-external`** (V4) | **Implemented** · `0.6.46` · Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT | External TTS process seam (`JARVIS_TTS_CMD`, stdin egress); typed `TtsError` family; wire `run_voice`/`speak=`; optional `--voice-speak` CLI flag; no speech deps; Piper free-first = external demo only | [IC](../.jes/artifacts/implementation_contract_assistant_voice_tts_external_b1.md) · [review](../.jes/artifacts/implementation_review_assistant_voice_tts_external_b1.md) · [brief](../.jes/artifacts/engineer_note_voice_tts_product_brief.md) |
+| **T38** | **`B1-assistant-voice-tts-external`** (V4) | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.46`** | External TTS process seam (`JARVIS_TTS_CMD`, stdin egress); typed `TtsError` family; wire `run_voice`/`speak=`; optional `--voice-speak` CLI flag; no speech deps; Piper free-first = external demo only | [review ★](../.jes/artifacts/implementation_review_assistant_voice_tts_external_b1.md) · [brief](../.jes/artifacts/engineer_note_voice_tts_product_brief.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
 | **T39** | **`B1-assistant-voice-v1-checkpoint`** (V5) | **Parked** — after T37+T38 ★ · opens **`0.7.0` / `v0.7.0`** | **Product milestone** — speak → twelve Skills → spoken reply | hito voz v1 (not `0.6.47`) |
 | **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |

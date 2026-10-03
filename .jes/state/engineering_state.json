@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T38 voice TTS-external IC ready for Claude @ 0.6.46; Engineer paste = Buy; Piper product brief rescued onto tip",
-  "scope": "IC-only. Claude implements external TTS process seam (JARVIS_TTS_CMD, stdin egress text, speak= for run_voice). No speech SDK in pyproject. Piper remains external free-first demo per brief.",
-  "execution_status": "ic_ready_for_claude",
-  "current_mode": "ic",
+  "cycle_intent": "T38 voice TTS-external ★ ACCEPT CLOSED @ v0.6.46; next candidate T39 voice v1 checkpoint Parked @ 0.7.0 awaiting Engineer paste",
+  "scope": "Engineer ACCEPT of T38 after Cursor PASS WITH NOTES. Tag v0.6.46. Construction V1–V4 complete. Advance a4-voice-world. No T39 IC until Engineer asks.",
+  "execution_status": "accept_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: redacta"
+    "reason": "Engineer: accept"
   },
   "relevant_workflow_phases": [
-    "IC"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,34 +18,33 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_tts_external_b1.md",
-    ".jes/artifacts/engineer_note_voice_tts_product_brief.md"
+    ".jes/artifacts/implementation_review_assistant_voice_tts_external_b1.md"
   ],
   "open_questions": [
-    "Claude implements T38 @ 0.6.46?"
+    "Engineer paste T39 B1-assistant-voice-v1-checkpoint @ 0.7.0?"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "accept_closed",
     "contract": "implementation_contract_assistant_voice_tts_external_b1.md",
     "ids": [
       "T38",
-      "B1-assistant-voice-tts-external"
+      "B1-assistant-voice-tts-external",
+      "v0.6.46"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "engineer_paste_t39"
   },
   "closed_this_turn": [
-    "T38 IC written; TTS product brief rescued onto tip"
+    "T38 ★ ACCEPT CLOSED @ v0.6.46"
   ],
   "authority_gates": [
-    "No AUTHORIZED stamp — Engineer paste is the Buy",
-    "No Piper/speech SDK in pyproject",
-    "Do not open 0.7.0 (T39 only)",
-    "No ACCEPT claim"
+    "Do not write T39 IC until Engineer asks",
+    "T39 opens product milestone 0.7.0 (not 0.6.47)",
+    "No tip/package version pin tests"
   ],
   "coherence_checklist": [
-    "IC ready @ 0.6.46",
-    "TTS brief on tip",
-    "Paste for Claude ready (no AUTHORIZED)"
+    "Tag v0.6.46 on ACCEPT tip",
+    "PRIORIDAD points to T39 Parked @ 0.7.0",
+    "a4-voice-world advanced to T38 ★"
   ],
-  "updated_at": "2026-10-03T16:23:00Z"
+  "updated_at": "2026-10-03T16:40:00Z"
 }
