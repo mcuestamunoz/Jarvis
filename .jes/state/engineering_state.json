@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T31 ops CHARGE Skill-first ★ ACCEPT CLOSED @ v0.6.40; Chat Skill-first phase B complete (twelve Skills); next pick phase C or SD-GO_TO",
-  "scope": "Engineer ★ ACCEPT closes T31 and DC phase B. No new IC this turn. SD-GO_TO remains OPEN software debt (chat destination), not tied to board assembly.",
-  "execution_status": "accepted_closed",
-  "current_mode": "accept",
+  "cycle_intent": "T32 chat GO_TO destination IC AUTHORIZED for Claude @ 0.6.41; closes SD-GO_TO; metadata connect plug + prove-now parse; bare sin destino; not copper",
+  "scope": "IC+DC authorize only. Resolver seam so later real coords only fill intent.metadata go_to_x_m/go_to_y_m. Wire existing T20 tick. No invent defaults. No board/ESC.",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: darlo por aceptado"
+    "reason": "Engineer: abrimos buy SD-GO_TO — listo para conectar coords reales despues"
   },
   "relevant_workflow_phases": [
-    "Accept"
+    "Authorize"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,34 +18,37 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_chat_skill_first_ops_charge_b1.md"
+    ".jes/artifacts/design_contract_assistant_chat_go_to_destination_b0.md",
+    ".jes/artifacts/implementation_contract_assistant_chat_go_to_destination_b1.md"
   ],
   "open_questions": [
-    "Next pick: phase C voz/world or SD-GO_TO?",
-    "SD-GO_TO remains OPEN until separate destination Buy"
+    "Claude implements T32 @ 0.6.41?",
+    "After T32 ★: phase C voz/world?"
   ],
   "active_operation": {
-    "type": "accept_closed",
-    "contract": "implementation_contract_assistant_chat_skill_first_ops_charge_b1.md",
+    "type": "authorized_implementation",
+    "contract": "implementation_contract_assistant_chat_go_to_destination_b1.md",
     "ids": [
-      "T31",
-      "B1-assistant-chat-skill-first-ops-charge"
+      "T32",
+      "B1-assistant-chat-go-to-destination",
+      "SD-GO_TO"
     ],
-    "blocked_on": null
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "T31 ★ ACCEPT CLOSED @ v0.6.40",
-    "DC-assistant-chat-skill-first phase B ★ CLOSED"
+    "T32 DC ★ CLOSED",
+    "T32 IC written and AUTHORIZED"
   ],
   "authority_gates": [
     "No tip/package version pin tests",
-    "SD-GO_TO remains OPEN — do not invent x_m/y_m",
-    "Phase C voice not automatic",
-    "SD-GO_TO is chat↔sim destination debt — not board/ESC assembly trigger"
+    "Never invent default coordinates 0,0/home",
+    "Connect plug is intent.metadata go_to_x_m/go_to_y_m — not a second sim stack",
+    "No live ESC / copper / GPS hardware this Buy",
+    "SD-GO_TO note CLOSED only on Engineer ★ ACCEPT"
   ],
   "coherence_checklist": [
-    "Tag v0.6.40 on ACCEPT commit",
-    "PRIORIDAD points to phase C or SD-GO_TO pick"
+    "IC AUTHORIZED @ 0.6.41",
+    "Paste for Claude ready"
   ],
-  "updated_at": "2026-10-03T08:18:00Z"
+  "updated_at": "2026-10-03T08:20:00Z"
 }

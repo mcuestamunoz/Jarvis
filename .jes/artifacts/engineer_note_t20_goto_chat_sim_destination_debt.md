@@ -2,7 +2,8 @@
 
 **Date:** 2026-10-01  
 **Authority:** Engineer (pre-ACCEPT T20) — leave architecture ready; document debt; wire later when destination exists  
-**Status:** **OPEN debt** · T20 ★ ACCEPT CLOSED @ **`v0.6.29`** (debt remains; seam ready)  
+**Status:** **Buy AUTHORIZED** · T32 `B1-assistant-chat-go-to-destination` @ **`0.6.41`** — closes on Engineer ★ ACCEPT of that Buy · T20 ★ @ **`v0.6.29`**  
+
 **Parents:** T8 ★ (`B1-assistant-vehicle-go-to-task` @ `v0.6.16`) · C40 ★ (`B1-fase-c-autonomy-executor` @ `v0.5.41`) · T20 ★ @ **`v0.6.29`**  
 **SoT pointers:** [T20 review N1](implementation_review_assistant_chat_sim_copper_b1.md) · [T20 report §2](implementation_report_assistant_chat_sim_copper_b1.md) · PRIORIDAD cola row **SD-GO_TO**
 
@@ -45,19 +46,15 @@ The wire is already shaped for a later fill-in:
 
 ---
 
-## 4. Future Buy sketch (not AUTHORIZED)
+## 4. Buy (★ AUTHORIZED 2026-10-03)
 
-**Candidate id:** `B1-assistant-chat-go-to-destination` (name flexible)  
-**When:** after T20 ★; typically after Skill-first / when chat (or voice) can name a target honestly.  
-**Likely locks (draft — DC later):**
+**Id:** `B1-assistant-chat-go-to-destination` (cola **T32**, package **`0.6.41`**)  
+**DC:** [design_contract_assistant_chat_go_to_destination_b0.md](design_contract_assistant_chat_go_to_destination_b0.md) ★ CLOSED  
+**IC:** [implementation_contract_assistant_chat_go_to_destination_b1.md](implementation_contract_assistant_chat_go_to_destination_b1.md) ★ AUTHORIZED  
 
-1. Finite, honest way to obtain destination for chat GO_TO (phrase params, follow-up turn, or documented default with Engineer ★).
-2. Pass `x_m`/`y_m` into `SimAutonomyParams` on the existing T20 tick path.
-3. Message: real simulación note when tick succeeds; keep “sin destino” if still missing.
-4. Still never copper / ESC; still path (a) unless a separate execution Buy.
-5. Retarget T1c; no tip pins.
+Locks (summary): resolver seam — (1) metadata `go_to_x_m`/`go_to_y_m` connect plug for later real coords, (2) finite prove-now parse `go to <x> <y>` etc., (3) else None / sin destino — never invent defaults; wire into existing T20 tick path only.
 
-**Out of that Buy unless ★:** TAKEOFF/RH/FOLLOW/PATROL sim ticks · live copper · voice.
+**Out unless ★:** TAKEOFF/RH/FOLLOW/PATROL sim ticks · live copper · voice · GPS hardware.
 
 ---
 
@@ -74,3 +71,5 @@ The wire is already shaped for a later fill-in:
 ## 6. Engineer decision (this note)
 
 **2026-10-01:** Leave T20 as-is for ACCEPT. Architecture seam stays. Debt listed in PRIORIDAD as **SD-GO_TO**. Do not block the cola on coordinate parse today.
+
+**2026-10-03:** After Skill-first phase B ★ @ `v0.6.40`, Engineer opens T32 Buy now — leave wire ready so real coordinates later only connect into the metadata plug. Close this note on T32 ★ ACCEPT.
