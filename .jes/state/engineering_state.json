@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T30 policy ARM/DISARM Skill-first Cursor PASS WITH NOTES @ 0.6.39; await Engineer ★ ACCEPT → tag v0.6.39",
-  "scope": "Independent Cursor forensic review of Claude T30 impl. No ACCEPT claim. CHARGE remains stub. SD-GO_TO stays OPEN.",
-  "execution_status": "review_pass_awaiting_accept",
-  "current_mode": "review",
+  "cycle_intent": "T30 policy ARM/DISARM Skill-first ★ ACCEPT CLOSED @ v0.6.39; next pick ops CHARGE Skill-first",
+  "scope": "Engineer ★ ACCEPT closes T30 first policy Skill-first. Next IC: Skill-first ops CHARGE (device gate; not vehicle/policy; not voice).",
+  "execution_status": "accepted_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer pasted Claude T30 done — Cursor review of record"
+    "reason": "Engineer: procede con ic"
   },
   "relevant_workflow_phases": [
-    "Review"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -21,33 +21,30 @@
     ".jes/artifacts/implementation_review_assistant_chat_skill_first_policy_arm_b1.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT T30 → tag v0.6.39?",
-    "After T30 ★: CHARGE Skill-first or phase C?",
+    "Next IC: ops CHARGE Skill-first @ 0.6.40?",
     "SD-GO_TO remains OPEN until separate destination Buy"
   ],
   "active_operation": {
-    "type": "review_complete_awaiting_accept",
+    "type": "accept_closed",
     "contract": "implementation_contract_assistant_chat_skill_first_policy_arm_b1.md",
     "ids": [
       "T30",
       "B1-assistant-chat-skill-first-policy-arm"
     ],
-    "blocked_on": "engineer_accept"
+    "blocked_on": null
   },
   "closed_this_turn": [
-    "T30 Cursor PASS WITH NOTES @ d887575"
+    "T30 ★ ACCEPT CLOSED @ v0.6.39"
   ],
   "authority_gates": [
     "No tip/package version pin tests",
     "SD-GO_TO remains OPEN — do not invent x_m/y_m",
     "Policy Skills must not join _VEHICLE_GATE_SKILL_IDS",
-    "CHARGE stays stub until its own Buy",
-    "No ACCEPT claim without Engineer ★"
+    "Voice still after remaining Skill-first siblings"
   ],
   "coherence_checklist": [
-    "Review artifact written",
-    "Targeted suite 91 passed",
-    "PRIORIDAD points to await ★ ACCEPT"
+    "Tag v0.6.39 on ACCEPT commit",
+    "PRIORIDAD points to CHARGE Skill-first"
   ],
-  "updated_at": "2026-10-02T10:05:00Z"
+  "updated_at": "2026-10-03T07:58:00Z"
 }

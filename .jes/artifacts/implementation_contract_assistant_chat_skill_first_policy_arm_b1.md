@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.39`**
 
-**Status:** Cursor **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.6.39`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-03) — Cursor review **PASS WITH NOTES** · tag **`v0.6.39`**.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T29 ★ @ **`v0.6.38`** · T11 ARM UX ★ @ `v0.6.19` · T22 software Skill-first ★ @ `v0.6.31`  
 **Type:** First **policy** Skill-first slice — **ARM + DISARM** together; software Safety gate-only (not vehicle gate).  
 **Opens:** **`0.6.39` / `v0.6.39`**. **Cola:** **T30**
@@ -60,8 +60,8 @@
 
 ## 3. Acceptance
 
-- [ ] ARM + DISARM chat gated via `run_skill` · software Safety + policy gate-only · not vehicle gate · CHARGE still stub · `0.6.39`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.39`**
+- [x] ARM + DISARM chat gated via `run_skill` · software Safety + policy gate-only · not vehicle gate · CHARGE still stub · `0.6.39`  
+- [x] Cursor review · Engineer ACCEPT · tag **`v0.6.39`**
 
 ---
 

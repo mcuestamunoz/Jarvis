@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T30 implementado…”)  
 **Against:** [IC](implementation_contract_assistant_chat_skill_first_policy_arm_b1.md) · [report](implementation_report_assistant_chat_skill_first_policy_arm_b1.md) · [DC ★](design_contract_assistant_chat_skill_first_b0.md) · [T11 ARM UX ★](implementation_review_assistant_vehicle_arm_ux_b1.md) · [SD-GO_TO OPEN](engineer_note_t20_goto_chat_sim_destination_debt.md)  
 **Tip reviewed:** `d887575` on `cursor/skill-first-policy-arm-impl-8ac5` (parent tip T29 ★ `v0.6.38` @ `bba3f58` / authorize `6316df6`)  
-**Verdict:** **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.6.39`**. **No ACCEPT claim in this pass.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-03) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.39` / `v0.6.39`**. First policy Skill-first (ARM+DISARM) closed.
 
-**Process note:** Claude Code implemented under ★ AUTHORIZED IC. This is the independent Cursor review of record. Same-session self-PASS is not review of record.
+**Process note:** Claude Code implemented under ★ AUTHORIZED IC. Cursor forensic PASS WITH NOTES; Engineer ★ ACCEPT this turn (“procede con ic”).
 
 ---
 
@@ -73,16 +73,15 @@ Report’s full-suite claim (3948 passed / +5 vs 3943) not re-run in this pass; 
 
 **N1 — Last stub Skill is CHARGE.** After this Buy, only `skill.request_charge` remains stub among chat Skills. Next Skill-first candidate is ops CHARGE (device shape — different from policy/vehicle). **Not blocking.**
 
-**N2 — Process.** Await Engineer ★ ACCEPT → tag `v0.6.39`. Cola after ★: CHARGE Skill-first or phase C (voz/world). **SD-GO_TO stays OPEN.**
+**N2 — Process.** Engineer ★ ACCEPT applied → tag `v0.6.39`. Cola after ★: CHARGE Skill-first then phase C. **SD-GO_TO stays OPEN.**
 
 ---
 
 ## 4. Next
 
 ```text
-Cursor: PASS WITH NOTES @ d887575 (+ review commit)
-Await: Engineer ★ ACCEPT → tag v0.6.39
-Skill-first: seven AutonomyVerbs ★ + policy ARM/DISARM (pending ★)
+★ ACCEPT CLOSED @ v0.6.39 (Engineer 2026-10-03)
+Skill-first: seven AutonomyVerbs ★ + policy ARM/DISARM ★
 SD-GO_TO: still OPEN
-Next after ★: CHARGE Skill-first (last stub) — not voice yet
+Next: CHARGE Skill-first (last stub) — not voice yet
 ```
