@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T32 ★ stacked under T33 tip; T33 Cursor PASS awaiting ★ ACCEPT @ v0.6.42",
-  "scope": "Merge T32 ACCEPT @ v0.6.41 into connect-plugs tip. Next commit: Engineer ★ ACCEPT T33, update map sd-go-to rows to landed/CLOSED, tag v0.6.42.",
-  "execution_status": "stacked_awaiting_accept",
-  "current_mode": "accept",
+  "cycle_intent": "T32 ★ ACCEPT CLOSED @ v0.6.41 + T33 ★ ACCEPT CLOSED @ v0.6.42; SD-GO_TO CLOSED; living connect-plugs map SoT; horizon phase C voz/world",
+  "scope": "Engineer ★ ACCEPT batch closed both pending Buys. Tip of record is connect-plugs branch stacked on T32. Map sd-go-to row CLOSED; other rows remain living.",
+  "execution_status": "accept_closed",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
     "reason": "Engineer: si es ok, damos por accept todo lo que hay pendiente (T32+T33)"
@@ -19,39 +19,34 @@
   ],
   "required_artifacts": [
     ".jes/artifacts/implementation_review_connect_plugs_real_data_map_b1.md",
-    ".jes/artifacts/engineer_note_connect_plugs_real_data_map.md"
+    ".jes/artifacts/engineer_note_connect_plugs_real_data_map.md",
+    ".jes/artifacts/implementation_review_assistant_chat_go_to_destination_b1.md"
   ],
   "open_questions": [
-    "★ ACCEPT T33 → tag v0.6.42?",
-    "After T33 ★: phase C voz/world?"
+    "Next pick: phase C voz/world?"
   ],
   "active_operation": {
-    "type": "review_complete_awaiting_accept",
-    "contract": "implementation_contract_connect_plugs_real_data_map_b1.md",
-    "ids": [
-      "T33",
-      "B1-connect-plugs-real-data-map"
-    ],
-    "blocked_on": "engineer_accept"
+    "type": "none",
+    "contract": "",
+    "ids": [],
+    "blocked_on": "engineer_next_pick"
   },
   "closed_this_turn": [
     "T32 ★ ACCEPT CLOSED @ v0.6.41",
     "SD-GO_TO note CLOSED",
-    "T33 Cursor PASS @ e39a4ce",
-    "T32 tip merged into T33 tip"
+    "T33 ★ ACCEPT CLOSED @ v0.6.42",
+    "Map sd-go-to row CLOSED on stacked tip"
   ],
   "authority_gates": [
-    "Docs-only for T33 — no src/ behavior change from map Buy",
-    "Do not invent plugs that do not exist",
-    "Map row closes only in that row's own Buy (sd-go-to closed by T32 ★)",
+    "Living map updates only when a row's own Buy closes",
     "No tip/package version pin tests",
-    "Never invent default coordinates 0,0/home"
+    "Never invent default coordinates 0,0/home",
+    "Phase C voice not automatic"
   ],
   "coherence_checklist": [
-    "Merge conflicts resolved",
-    "pyproject 0.6.42",
-    "T32 code present on tip",
-    "PRIORIDAD points to T33 ★ ACCEPT"
+    "Tags v0.6.41 and v0.6.42 pushed",
+    "PRIORIDAD points to horizon after T33 ★",
+    "pyproject 0.6.42 on tip of record"
   ],
-  "updated_at": "2026-10-03T08:55:00Z"
+  "updated_at": "2026-10-03T09:00:00Z"
 }

@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.42`**
 
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag `v0.6.42`.  
+**Status:** **★ ACCEPT CLOSED** @ tip **`v0.6.42`**.  
 **Parents:** [DC ★ CLOSED](design_contract_connect_plugs_real_data_map_b0.md) · PRIORIDAD parked · [SD-GO_TO note](engineer_note_t20_goto_chat_sim_destination_debt.md) · `docs/HARDWARE_DEBT.md`  
 **Type:** Docs-only index Buy — forensic map of real-data / connect-later debts.  
 **Opens:** **`0.6.42` / `v0.6.42`**. **Cola:** **T33**
@@ -109,8 +109,8 @@
 
 ## 3. Acceptance
 
-- [ ] Living map SoT verified against tip · PRIORIDAD wired · `0.6.42` · gaps called out  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.42`**
+- [x] Living map SoT verified against tip · PRIORIDAD wired · `0.6.42` · gaps called out  
+- [x] Cursor review (**PASS** @ `e39a4ce`) · Engineer ACCEPT · tag **`v0.6.42`**
 
 ---
 

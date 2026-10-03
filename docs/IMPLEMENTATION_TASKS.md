@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T33** connect-plugs real-data map — Cursor **PASS**; await Engineer ★ ACCEPT → tag **`v0.6.42`** (docs SoT index · tip stacked on T32 ★).  
-> **Just closed:** **T32** chat GO_TO destination ★ **ACCEPT CLOSED** @ **`v0.6.41`** (closes **SD-GO_TO** · resolver + metadata plug + prove-now parse).  
+> **PRIORIDAD AHORA:** after **T32 ★** + **T33 ★** — tip **`v0.6.42`**. Next pick: **phase C voz/world** (Engineer).  
+> **Just closed:** **T33** connect-plugs real-data map ★ **ACCEPT CLOSED** @ **`v0.6.42`** · **T32** GO_TO destination ★ **ACCEPT CLOSED** @ **`v0.6.41`** (closes **SD-GO_TO**).  
 > **Policy:** no tip/package version pins in tests.  
-> **Software debt:** **SD-GO_TO** ★ **CLOSED** ([note](../.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md) · [review ★](../.jes/artifacts/implementation_review_assistant_chat_go_to_destination_b1.md)). Connect-later index: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md).  
-> **Horizon after T33 ★:** voz/world · phased CLI migrate (phase C).  
-> SoT: [T33 review](../.jes/artifacts/implementation_review_connect_plugs_real_data_map_b1.md) · [connect plugs map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md) · [T32 review ★](../.jes/artifacts/implementation_review_assistant_chat_go_to_destination_b1.md).  
+> **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later index: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md) (T33 ★).  
+> **Horizon:** voz/world · phased CLI migrate (phase C).  
+> SoT: [T33 review ★](../.jes/artifacts/implementation_review_connect_plugs_real_data_map_b1.md) · [connect plugs map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md) · [T32 review ★](../.jes/artifacts/implementation_review_assistant_chat_go_to_destination_b1.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -19,7 +19,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.41`** · T0–T32 ★ CLOSED · SD-GO_TO ★ CLOSED · T33 Cursor PASS @ `0.6.42` · then voz/world)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.42`** · T0–T33 ★ CLOSED · SD-GO_TO ★ CLOSED · then voz/world)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -82,7 +82,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T30** | **`B1-assistant-chat-skill-first-policy-arm`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.39`** | ARM+DISARM Skill-first · software Safety + `_POLICY_GATE_SKILL_IDS` gate-only · **not** vehicle gate | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_policy_arm_b1.md) |
 | **T31** | **`B1-assistant-chat-skill-first-ops-charge`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.40`** | CHARGE Skill-first · device gate-only · closes last chat Skill stub · twelve Skills / DC phase B ★ | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_ops_charge_b1.md) |
 | **T32** | **`B1-assistant-chat-go-to-destination`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.41`** | Close SD-GO_TO · `_resolve_go_to_destination` (metadata plug + prove-now parse) · wire T20 tick · bare sin destino | [review ★](../.jes/artifacts/implementation_review_assistant_chat_go_to_destination_b1.md) |
-| **T33** | **`B1-connect-plugs-real-data-map`** | Cursor **PASS** · await ★ ACCEPT (tag `v0.6.42`) | Docs-only living SoT map of connect-later / real-data debts (A/B/C/D) | [review](../.jes/artifacts/implementation_review_connect_plugs_real_data_map_b1.md) · [map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md) |
+| **T33** | **`B1-connect-plugs-real-data-map`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.42`** | Docs-only living SoT map of connect-later / real-data debts (A/B/C/D) | [review ★](../.jes/artifacts/implementation_review_connect_plugs_real_data_map_b1.md) · [map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md) |
 | **after T33** | Voz / world (A4) → same Skills · CLI by phases | **Horizon** | Engineer 2026-10-01: migrate CLI by phases, clean | DC placement §4 |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Parked** | after Skill-first · phased CLI migrate | DC placement §4 |

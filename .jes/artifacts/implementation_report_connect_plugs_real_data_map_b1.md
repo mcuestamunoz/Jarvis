@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_connect_plugs_real_data_map_b1.md`](implementation_contract_connect_plugs_real_data_map_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_connect_plugs_real_data_map_b0.md) · PRIORIDAD parked · [SD-GO_TO note](engineer_note_t20_goto_chat_sim_destination_debt.md) · `docs/HARDWARE_DEBT.md` · T31 ★ ACCEPT CLOSED @ `v0.6.40` (this Buy's own tip; T32 @ `0.6.41` branches separately and may still be in flight)  
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT.  
-**Package / tag:** `0.6.42` / pending **`v0.6.42`**.
+**Status:** **★ ACCEPT CLOSED** @ tip **`v0.6.42`** (stacked on T32 ★ `v0.6.41`).  
+**Package / tag:** `0.6.42` / **`v0.6.42`**.
 
 ---
 

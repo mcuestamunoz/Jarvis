@@ -4,7 +4,7 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T33 implementado…”)  
 **Against:** [IC](implementation_contract_connect_plugs_real_data_map_b1.md) · [report](implementation_report_connect_plugs_real_data_map_b1.md) · [DC ★](design_contract_connect_plugs_real_data_map_b0.md) · [map](engineer_note_connect_plugs_real_data_map.md)  
 **Tip reviewed:** `e39a4ce` on `cursor/connect-plugs-real-data-map-impl-8ac5` (parent authorize `6656ac1` / T31 ★ `v0.6.40`; parallel to T32 tip)  
-**Verdict:** **PASS** — await Engineer ★ ACCEPT → tag **`v0.6.42`**. **No ACCEPT claim in this pass.**
+**Verdict:** **PASS** → Engineer ★ **ACCEPT CLOSED** @ tip **`v0.6.42`** (stacked on T32 ★ `v0.6.41`).
 
 **Process note:** Claude Code implemented under ★ AUTHORIZED IC. This is the independent Cursor review of record.
 
@@ -57,13 +57,14 @@ Report full-suite claim (3957 / +4) not re-run here.
 
 ## 3. Notes
 
-**N1 — Process / tip stack.** T33 tip correctly documents T32 as sibling-not-landed. On Engineer ★ ACCEPT of both pending Buys, stack T32 tip under this map tip and update `sd-go-to` / `go-to-metadata-plug-for-world` rows to reflect T32 ★ CLOSED. **Not blocking review.**
+**N1 — Process / tip stack.** Resolved on ★ ACCEPT: T32 tip merged; `sd-go-to` → ★ CLOSED @ `v0.6.41`; `go-to-metadata-plug-for-world` → OPEN shaped (plug ready, world/voice still horizon).
 
 ---
 
-## 4. Next
+## 4. Closed
 
 ```text
-Cursor: PASS @ e39a4ce (+ review commit)
-Await: Engineer ★ ACCEPT T32 → v0.6.41 · T33 → v0.6.42 (stack tips)
+★ ACCEPT CLOSED @ v0.6.42
+Tip stack: T32 ★ v0.6.41 → T33 ★ v0.6.42
+Living map SoT maintained going forward per DC lock 5
 ```
