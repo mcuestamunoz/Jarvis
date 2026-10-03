@@ -4,7 +4,7 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T34-inv entregado…”)  
 **Against:** [INV](investigation_contract_assistant_voice_e2e_b0.md) · [report](investigation_report_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md)  
 **Tip reviewed:** `9ce9c6e` on `cursor/voice-e2e-investigation-impl-8ac5` (parent authorize `69273c5` / T33 ★ `v0.6.42`)  
-**Verdict:** **PASS WITH NOTES** — await Engineer ★ on findings → authorize **T34-DC** then **T35** Intent-ingress IC. **No ACCEPT claim in this pass.**
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-03) — findings → T34-DC ★ + cola T35…T40.
 
 **Process note:** Claude Code investigated under ★ AUTHORIZED INV. This is the independent Cursor review of record.
 
@@ -63,14 +63,14 @@ T32 resolver symbols present                                         ✓
 
 **N1 — “Thirteen” vs twelve.** Report prose says thirteen `TerminalIntentAdapter.parse` sites; the cited line list and a tip count are **12** (no thirteenth). Non-blocking; DC/IC should say **twelve**.
 
-**N2 — Process.** Await Engineer ★ on findings → write/authorize **T34-DC** (voice/channels block) → then **T35** Intent-ingress IC (= V1). Tip package stays `0.6.42` until first voice code Buy.
+**N2 — Process.** Engineer ★ ACCEPT findings (2026-10-03) → T34-DC ★ CLOSED · cola T35…T40 queued. Tip stays `0.6.42` until T35 opens `0.6.43`.
 
 ---
 
-## 4. Next
+## 4. Closed
 
 ```text
-Cursor: PASS WITH NOTES @ 9ce9c6e (+ review commit)
-Await: Engineer ★ on INV findings
-Then: T34-DC B1-assistant-chat-voice-channels → T35 Intent-ingress IC
+★ ACCEPT CLOSED on findings
+T34-DC ★ CLOSED · cola note engineer_note_voice_phase_c_cola.md
+Next authorize when Engineer says proceed: T35 Intent-ingress IC @ 0.6.43
 ```

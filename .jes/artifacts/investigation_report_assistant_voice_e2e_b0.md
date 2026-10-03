@@ -4,7 +4,7 @@
 **Date:** 2026-10-03
 **Investigator:** Claude Code (read-only forensic pass)
 **Contract:** [`investigation_contract_assistant_voice_e2e_b0.md`](investigation_contract_assistant_voice_e2e_b0.md)
-**Status:** Cursor **PASS WITH NOTES** — await Engineer ★ on findings. No `src/` mutation. No ACCEPT claim.
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-10-03 — findings accepted → T34-DC ★ + cola T35…T40). No `src/` mutation.
 **Package:** tip stays `0.6.42` (docs/report only).
 
 ---

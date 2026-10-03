@@ -16,7 +16,7 @@ Today chat still fulfills explain/status (and vehicle/ops) via the **Task** seam
 |---|---|---|
 | **A — software** | `B1-assistant-chat-skill-first-software` @ `0.6.31` | explain + project_status via `run_skill` |
 | **B — vehicle/ops** | HOLD ★ @ `0.6.32` · … · PATROL ★ @ `0.6.38`; policy ARM/DISARM ★ @ `0.6.39`; CHARGE ★ @ `0.6.40` — **twelve Skills complete** | Skill-first only where Skill is `available` and fulfill truth exists; stubs stay honest rejects; **never** SoftwareCapabilitySafetyGate-only for vehicle; policy Skills use software Safety + policy gate-only; CHARGE uses device gate-only |
-| **C — channels** | voz / world / CLI migrate | same Skills; new ingress only |
+| **C — channels** | voz (T34-DC ★ → T35…T39) / world later (T40) / CLI migrate | same Skills; new ingress only — SoT [voice DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [cola note](engineer_note_voice_phase_c_cola.md) |
 
 ## Locks (block-level)
 
@@ -28,4 +28,4 @@ Today chat still fulfills explain/status (and vehicle/ops) via the **Task** seam
 
 ## Opens
 
-Phase A ★ CLOSED @ **`v0.6.31`**. Phase B ★ CLOSED @ **`v0.6.40`** (software + seven AutonomyVerbs + policy ARM/DISARM + ops CHARGE — twelve declared Skills Skill-first). Next horizon: phase C voz/world (Engineer pick) and/or **SD-GO_TO** (chat↔sim destination — not board assembly). SD-GO_TO stays OPEN until its own Buy.
+Phase A ★ CLOSED @ **`v0.6.31`**. Phase B ★ CLOSED @ **`v0.6.40`** (twelve Skills Skill-first). **SD-GO_TO ★ CLOSED** @ **`v0.6.41`**. Phase C design ★ CLOSED ([voice DC](design_contract_assistant_chat_voice_channels_b0.md) / T34-DC) — next code Buy **T35** Intent-ingress @ `0.6.43`. World/craft voice = T40 later.
