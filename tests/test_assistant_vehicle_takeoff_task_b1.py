@@ -177,7 +177,10 @@ def test_t5_seed_flight_takeoff_not_implemented_vehicle_provider_skill_stub_prio
     assert "skill.request_takeoff" in skill_ids
     takeoff_skill = next(s for s in registry.skills() if s.id == "skill.request_takeoff")
     assert takeoff_skill.required_capability_ids == ["flight.takeoff"]
-    assert takeoff_skill.availability == CapabilityAvailability.STUB
+    # T9 seeded stub; T26 Skill-first flips Skill to available while
+    # flight.takeoff stays not_implemented — see
+    # tests/test_assistant_chat_skill_first_vehicle_takeoff_b1.py.
+    assert takeoff_skill.availability == CapabilityAvailability.AVAILABLE
 
     # HOLD (T6), LAND (T7), GO_TO (T8), and software (T2/T5) rows are still present.
     for capability_id in ("flight.hold", "flight.land", "flight.go_to"):
@@ -240,13 +243,12 @@ def test_t7_default_safety_gate_reject_all_disarmed_armed_allowlist_empty_params
     assert "disarmed" in result["message"]
     assert result["status"] == "ok"
 
-    # DC §0 row 7: TAKEOFF is still not on ArmedAllowlistSafetyGate's own
-    # allow-list this Buy (unwidened) — irrelevant on the always-disarmed
-    # product path, but documented here as the honest current shape.
-    assert "TAKEOFF" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
-    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset({"HOLD", "LAND", "GO_TO"})
+    # T14 (B1-assistant-vehicle-allowlist-widen): TAKEOFF now joins the
+    # allow-list too — irrelevant on this always-disarmed product path
+    # (membership doesn't matter while disarmed), but documented here as
+    # the honest current shape.
+    assert "TAKEOFF" in ArmedAllowlistSafetyGate._ALLOWED_VERBS
+    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset(
+        {"HOLD", "LAND", "GO_TO", "TAKEOFF", "RETURN_HOME", "FOLLOW", "PATROL"}
+    )
 
-
-def test_t8_pyproject_version_is_0_6_17():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.20"' in text

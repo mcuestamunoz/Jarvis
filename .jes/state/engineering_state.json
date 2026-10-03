@@ -1,43 +1,52 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "T37 voice STT-external IC ready for Claude @ 0.6.45; Engineer paste = Buy (no AUTHORIZED stamp); vendor pick remains separate ★",
+  "scope": "IC-only. Claude implements external STT process seam in adapters/voice (env cmd → transcript → run_voice_turn). No speech SDK in pyproject. No TTS.",
+  "execution_status": "ic_ready_for_claude",
+  "current_mode": "ic",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: genera"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
-  "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
+  "relevant_workflow_phases": [
+    "IC"
+  ],
+  "applicable_rules": [
+    "R-GOV-1",
+    "R-ENG-1",
+    "R-TST-1",
+    "R-KNW-1"
+  ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_voice_stt_external_b1.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Claude implements T37 @ 0.6.45?",
+    "Later: Engineer ★ for real STT vendor binary?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_voice_stt_external_b1.md",
+    "ids": [
+      "T37",
+      "B1-assistant-voice-stt-external"
+    ],
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "T37 IC written for Claude paste"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "No AUTHORIZED stamp — Engineer paste is the Buy",
+    "No vendor SDK / tip-pinned speech deps",
+    "No TTS this Buy",
+    "Do not open 0.7.0 (T39 only)",
+    "No ACCEPT claim"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "IC ready @ 0.6.45",
+    "Paste for Claude ready (no AUTHORIZED)",
+    "PRIORIDAD points to T37 IC ready"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-03T16:05:00Z"
 }
