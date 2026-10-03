@@ -6,7 +6,7 @@
 **Investigator:** **Claude Code** — ★ AUTHORIZED with this delivery (read-only forensic map + phased design recommendation)  
 **Reviewer:** Cursor on request · Engineer ★ on findings → then DC / phased ICs
 
-**Status:** **Implemented** (Claude Code) — report delivered, await Cursor review → Engineer ★ on findings (no `src/` mutation).  
+**Status:** Cursor **PASS WITH NOTES** — await Engineer ★ on findings → DC / phased ICs (no `src/` mutation).  
 **Type:** **Investigation** — map seams and recommend a clean **phased** path to full voice Jarvis using **what exists today**. **Not** an Implementation Contract. **Not** permission to implement STT/TTS/voice.  
 **Cola:** **T34-inv**  
 **Tip parent:** T33 ★ ACCEPT CLOSED @ **`v0.6.42`** · T32 ★ @ **`v0.6.41`** (SD-GO_TO CLOSED) · Skill-first phase B ★ @ **`v0.6.40`**

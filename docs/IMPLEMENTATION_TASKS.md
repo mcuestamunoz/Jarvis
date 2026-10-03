@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T34-inv** voice end-to-end investigation — **Implemented** (Claude Code), await Cursor review → Engineer ★ on findings (read-only map + 7-phase design delivered; tip stays **`0.6.42`**; **not** STT/TTS impl).  
-> **Just closed:** **T33** connect-plugs map ★ **ACCEPT CLOSED** @ **`v0.6.42`** · **T32** GO_TO destination ★ **ACCEPT CLOSED** @ **`v0.6.41`** (SD-GO_TO ★ CLOSED).  
+> **PRIORIDAD AHORA:** **T34-inv** voice end-to-end — Cursor **PASS WITH NOTES**; await Engineer ★ on findings → authorize **T34-DC** then **T35** Intent-ingress (tip stays **`0.6.42`** until first voice code Buy).  
+> **Just closed:** **T33** connect-plugs map ★ **ACCEPT CLOSED** @ **`v0.6.42`** · **T32** GO_TO destination ★ **ACCEPT CLOSED** @ **`v0.6.41`**.  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later index: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md).  
-> **Horizon after INV ★:** DC voice/channels block → phased ICs (Skill-first phase C).  
-> SoT: [T34-inv IC](../.jes/artifacts/investigation_contract_assistant_voice_e2e_b0.md) · [T34-inv report](../.jes/artifacts/investigation_report_assistant_voice_e2e_b0.md) · [Skill-first DC ★](../.jes/artifacts/design_contract_assistant_chat_skill_first_b0.md) · [connect plugs map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md).  
+> **Horizon after INV ★:** DC voice/channels → V1 Intent ingress → fixture loop → STT/TTS (Skill-first phase C).  
+> SoT: [T34-inv review](../.jes/artifacts/investigation_review_assistant_voice_e2e_b0.md) · [report](../.jes/artifacts/investigation_report_assistant_voice_e2e_b0.md) · [INV](../.jes/artifacts/investigation_contract_assistant_voice_e2e_b0.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -19,7 +19,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.42`** · T0–T33 ★ CLOSED · SD-GO_TO ★ CLOSED · T34-inv voice Implemented, pending Cursor review/Engineer ★ · then phase C ICs)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.42`** · T0–T33 ★ CLOSED · SD-GO_TO ★ CLOSED · T34-inv Cursor PASS WITH NOTES · then T34-DC / T35)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -83,7 +83,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T31** | **`B1-assistant-chat-skill-first-ops-charge`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.40`** | CHARGE Skill-first · device gate-only · closes last chat Skill stub · twelve Skills / DC phase B ★ | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_ops_charge_b1.md) |
 | **T32** | **`B1-assistant-chat-go-to-destination`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.41`** | Close SD-GO_TO · `_resolve_go_to_destination` (metadata plug + prove-now parse) · wire T20 tick · bare sin destino | [review ★](../.jes/artifacts/implementation_review_assistant_chat_go_to_destination_b1.md) |
 | **T33** | **`B1-connect-plugs-real-data-map`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.42`** | Docs-only living SoT map of connect-later / real-data debts (A/B/C/D) | [review ★](../.jes/artifacts/implementation_review_connect_plugs_real_data_map_b1.md) · [map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md) |
-| **T34-inv** | **`INV-assistant-voice-e2e`** | **Implemented** (Claude Code, read-only) · await Cursor review → Engineer ★ on findings | Forensic map + 7-phase design (V0 DC → V1 Intent ingress → V2 fixture loop → V3 STT → V4 TTS → V5 voice v1 complete) for full voice Jarvis on today's brain (Skill-first · Intent · egress); craft/`world/` explicitly deferred past v1 | [INV](../.jes/artifacts/investigation_contract_assistant_voice_e2e_b0.md) · [report](../.jes/artifacts/investigation_report_assistant_voice_e2e_b0.md) |
+| **T34-inv** | **`INV-assistant-voice-e2e`** | Cursor **PASS WITH NOTES** · await Engineer ★ on findings | Forensic map + 7-phase design (V0–V5 voice v1; V6 craft/world optional); craft/`world/` deferred past v1 | [review](../.jes/artifacts/investigation_review_assistant_voice_e2e_b0.md) · [report](../.jes/artifacts/investigation_report_assistant_voice_e2e_b0.md) · [INV](../.jes/artifacts/investigation_contract_assistant_voice_e2e_b0.md) |
 | **T34-DC** | `DC-assistant-chat-voice-channels` (recommended by T34-inv Q11) | **Candidate** | Locks V0: adapter shape, `source`-threading, v1 = Skill-first only, STT/TTS external | ★ pick, pending Engineer review of T34-inv |
 | **T35** | `B1-assistant-voice-intent-ingress` (recommended by T34-inv Q11, = phase V1) | **Parked — blocked on T34-DC ★** | Fill `VoiceIntentAdapter.parse`; thread `source` through `handle_user_text`/`_handle_global_commands` | ★ pick after T34-DC |
 | **after T34-inv ★** | DC voice/channels → phased ICs (Skill-first phase C) | **Horizon** | same Skills; new ingress only · world later | Skill-first DC § phase C · placement A4 |
