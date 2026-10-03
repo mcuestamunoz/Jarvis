@@ -5,7 +5,7 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_assistant_chat_skill_first_ops_charge_b1.md`](implementation_contract_assistant_chat_skill_first_ops_charge_b1.md)  
 **Parents:** [DC ★ CLOSED — phase B](design_contract_assistant_chat_skill_first_b0.md) · T30 ★ ACCEPT CLOSED @ **`v0.6.39`** · T19 CHARGE Task ★ @ `v0.6.28`  
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT.  
+**Status:** Cursor **PASS WITH NOTES** — await Engineer ★ ACCEPT.  
 **Package / tag:** `0.6.40` / pending **`v0.6.40`**.
 
 ---

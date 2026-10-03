@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T31 ops CHARGE Skill-first IC AUTHORIZED for Claude @ 0.6.40; device gate-only; closes last chat Skill stub; SD-GO_TO stays OPEN",
-  "scope": "IC-only authorize. Flip skill.request_charge available; _DEVICE_GATE_SKILL_IDS + _device_skill_gate before SoftwareCapabilitySafetyGate; chat gates then existing _handle_ops_charge. Do not put CHARGE in vehicle/policy gates. ops.charge stays not_implemented+device.",
-  "execution_status": "authorized_awaiting_impl",
-  "current_mode": "authorize",
+  "cycle_intent": "T31 ops CHARGE Skill-first Cursor PASS WITH NOTES @ 0.6.40; await Engineer ★ ACCEPT → tag v0.6.40; DC phase B twelve Skills closed on ★",
+  "scope": "Independent Cursor forensic review of Claude T31 impl + Skill-first block closure assessment. No ACCEPT claim. SD-GO_TO stays OPEN. Phase C not started.",
+  "execution_status": "review_pass_awaiting_accept",
+  "current_mode": "review",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: procede con ic"
+    "reason": "Engineer: revisa fondo esta ic y todo el bloque despues"
   },
   "relevant_workflow_phases": [
-    "Authorize"
+    "Review"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,37 +18,37 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_ops_charge_b1.md"
+    ".jes/artifacts/implementation_review_assistant_chat_skill_first_ops_charge_b1.md"
   ],
   "open_questions": [
-    "Claude implements T31 @ 0.6.40?",
-    "After T31 ★: phase C voz/world?",
+    "Engineer ★ ACCEPT T31 → tag v0.6.40?",
+    "After T31 ★: phase C voz/world or SD-GO_TO?",
     "SD-GO_TO remains OPEN until separate destination Buy"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
+    "type": "review_complete_awaiting_accept",
     "contract": "implementation_contract_assistant_chat_skill_first_ops_charge_b1.md",
     "ids": [
       "T31",
       "B1-assistant-chat-skill-first-ops-charge"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "T30 ★ ACCEPT CLOSED @ v0.6.39",
-    "T31 IC written and AUTHORIZED"
+    "T31 Cursor PASS WITH NOTES @ a35e955"
   ],
   "authority_gates": [
     "No tip/package version pin tests",
     "SD-GO_TO remains OPEN — do not invent x_m/y_m",
-    "CHARGE must use _DEVICE_GATE_SKILL_IDS before SoftwareCapabilitySafetyGate — not vehicle/policy gates",
-    "ops.charge stays not_implemented+device this Buy",
-    "No real battery charging / AutonomyVerb CHARGE",
-    "Voice still after T31 ★"
+    "CHARGE must use device gate before SoftwareCapabilitySafetyGate",
+    "ops.charge stays not_implemented+device",
+    "No ACCEPT claim without Engineer ★",
+    "Phase C voice not automatic after T31 ★"
   ],
   "coherence_checklist": [
-    "IC AUTHORIZED @ 0.6.40",
-    "Paste for Claude ready"
+    "Review artifact written (T31 + block)",
+    "Targeted suite 101 passed",
+    "PRIORIDAD points to await ★ ACCEPT"
   ],
-  "updated_at": "2026-10-03T08:00:00Z"
+  "updated_at": "2026-10-03T08:12:00Z"
 }
