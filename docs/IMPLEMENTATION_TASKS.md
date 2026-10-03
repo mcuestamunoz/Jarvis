@@ -6,11 +6,11 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T36** voice fixture-loop — IC ready @ **`0.6.44`** · Claude (V2: fixture `run_voice` · **not** STT/TTS).  
+> **PRIORIDAD AHORA:** **T36** voice fixture-loop — **Implemented** (Claude Code) @ **`0.6.44`**, await Cursor review → Engineer ★ ACCEPT (V2: fixture `run_voice` · **not** STT/TTS).  
 > **Just closed:** **T35** voice Intent-ingress ★ **ACCEPT CLOSED** @ tip **`v0.6.43`**.  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice cola: [phase C note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
-> **Cola voz:** T35 ★ @ `v0.6.43` → T36 IC @ `0.6.44` → T37…T38 → **T39 = `v0.7.0`** · T40 Parked.  
+> **Cola voz:** T35 ★ @ `v0.6.43` → T36 Implemented, pending review @ `0.6.44` → T37…T38 → **T39 = `v0.7.0`** · T40 Parked.  
 > SoT: [T36 IC](../.jes/artifacts/implementation_contract_assistant_voice_fixture_loop_b1.md) · [voice DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
 
 
@@ -19,7 +19,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.43`** · T0–T35 ★ CLOSED · SD-GO_TO ★ CLOSED · **T36** voice fixture-loop IC @ `0.6.44`)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.43`** · T0–T35 ★ CLOSED · SD-GO_TO ★ CLOSED · **T36** voice fixture-loop Implemented, pending review @ `0.6.44`)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -86,7 +86,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T34-inv** | **`INV-assistant-voice-e2e`** | **✅ ★ ACCEPT CLOSED** | Forensic map + 7-phase design; craft/`world/` deferred past v1 | [review ★](../.jes/artifacts/investigation_review_assistant_voice_e2e_b0.md) |
 | **T34-DC** | **`DC-assistant-chat-voice-channels`** | **✅ ★ CLOSED** | V0 locks: same brain · text ingress · source threading · v1 = twelve Skills · STT/TTS external · no world/Authority | [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
 | **T35** | **`B1-assistant-voice-intent-ingress`** (V1) | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.43`** | Fill `VoiceIntentAdapter.parse(raw_text)`; thread `source` through 12 orch parse sites via shared `_parse_intent` helper; default `TERMINAL` | [review ★](../.jes/artifacts/implementation_review_assistant_voice_intent_ingress_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
-| **T36** | **`B1-assistant-voice-fixture-loop`** (V2) | **IC ready** · Claude · `0.6.44` | Fixture-driven voice loop (`run_voice`); prove ingress→Skill→egress without mic | [IC](../.jes/artifacts/implementation_contract_assistant_voice_fixture_loop_b1.md) |
+| **T36** | **`B1-assistant-voice-fixture-loop`** (V2) | **Implemented** (Claude Code) · `0.6.44` · await Cursor review → Engineer ★ ACCEPT | New `adapters/voice/` package (`FixtureSttSource`, `run_voice_turn`, `run_voice`); optional `--voice-fixture PATH` CLI flag, `--chat` unchanged; prove ingress→Skill→egress without mic | [IC](../.jes/artifacts/implementation_contract_assistant_voice_fixture_loop_b1.md) |
 | **T37** | **`B1-assistant-voice-stt-external`** (V3) | **Parked** — after T36 ★ @ `0.6.45` | External STT → same `parse(raw_text)` seam; vendor choice = separate ★ | blocked on T36 ★ |
 | **T38** | **`B1-assistant-voice-tts-external`** (V4) | **Parked** — after T36 ★ @ `0.6.46` | External TTS on `render_response` output; may run before/after T37 | blocked on T36 ★ |
 | **T39** | **`B1-assistant-voice-v1-checkpoint`** (V5) | **Parked** — after T37+T38 ★ · opens **`0.7.0` / `v0.7.0`** | **Product milestone** — speak → twelve Skills → spoken reply | hito voz v1 (not `0.6.47`) |
