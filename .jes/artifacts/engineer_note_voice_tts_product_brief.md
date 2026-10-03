@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-03  
 **Status:** **OPEN living product brief** — not an IC; not permission to pick a vendor SDK in core  
-**Tip parent:** voice cola @ **`v0.6.44`** (T36 ★); T37 STT seam IC in flight @ `0.6.45`  
+**Tip parent:** voice cola @ **`v0.6.45`** (T37 ★); T38 TTS IC opens **`0.6.46`**  
 **Parents:** [voice DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [cola note](engineer_note_voice_phase_c_cola.md)
 
 **Purpose:** Lock the *desired voice character* and the **cheapest / free-first** path to get there, without blocking T37–T38 technical seams. Marvel “JARVIS exact voice” is **out** (license). Target = **JARVIS-like**, not a film clone.
