@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.44`**
 
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag `v0.6.44`.  
+**Status:** **Implemented** (Claude Code) — Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag `v0.6.44`.  
 **Parents:** [DC voice/channels ★ CLOSED](design_contract_assistant_chat_voice_channels_b0.md) · [T35 ★](implementation_review_assistant_voice_intent_ingress_b1.md) · [cola note](engineer_note_voice_phase_c_cola.md) · tip **`v0.6.43`**  
 **Type:** Phase **V2** — fixture-driven voice turn loop over today’s Skill-first brain.  
 **Opens:** **`0.6.44` / `v0.6.44`**. **Cola:** **T36**
