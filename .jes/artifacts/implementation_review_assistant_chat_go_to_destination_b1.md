@@ -63,7 +63,7 @@ Report full-suite claim (3958 / +5) not re-run here.
 
 ## 3. Notes
 
-**N1 — Sin-destino wording slightly stale.** Message still says “este chat no las parsea aún” even though prove-now parse exists. Honesty for bare path is correct; optional polish on ★ or later. **Not blocking.**
+**N1 — Sin-destino wording (polished).** Was stale (“este chat no las parsea aún”). Engineer asked polish: now `falta x_m/y_m; prueba go to 1.0 2.0 o conecta coords`. Bare path still honest sin destino.
 
 **N2 — Process.** Await Engineer ★ ACCEPT → tag `v0.6.41` → mark SD-GO_TO note **CLOSED** + PRIORIDAD debt row. T33 connect-plugs map remains AUTHORIZED @ `0.6.42` on the authorize tip (not in this impl branch).
 

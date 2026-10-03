@@ -28,7 +28,7 @@
 ## 2. Behavior
 
 - Disarmed + any GO_TO-shaped line (bare or destination-bearing) → unchanged `disarmed`/`reject`, no tick, same as before.
-- Armed + bare `go to` → `allow` + byte-identical sin-destino note (`"Simulación no disponible sin destino…"`).
+- Armed + bare `go to` → `allow` + honest sin-destino note (`"Simulación no disponible sin destino (falta x_m/y_m;…)"` — N1 polish).
 - Armed + `go to 1.0 2.0` / `goto -3.5 4` / `ir a 10 -2.25` / `ve a 0.5 0.5` → `allow` + a real sim tick note (`"Simulación (no vuelo real, sin ESC/motores): tick en t=…, colectivo=…."`), same shape HOLD/LAND already produce.
 - Metadata connect plug: a manually constructed `Intent` with `metadata={"go_to_x_m": "5.5", "go_to_y_m": "-1.25"}` resolves to `(5.5, -1.25)` via `_resolve_go_to_destination` directly — the chat path itself never populates this today (`TerminalIntentAdapter.parse` always starts with empty metadata), so this is exercised as a direct unit test of the seam, per the IC's own suggestion. A non-finite metadata value (e.g. `"inf"`) is rejected, never silently used.
 - A destination-bearing GO_TO line (`"go to 1.0 2.0"`) is refused by every later sibling classify function (TAKEOFF/RETURN_HOME/FOLLOW/PATROL/CHARGE, and defensively ARM/DISARM) — verified directly.

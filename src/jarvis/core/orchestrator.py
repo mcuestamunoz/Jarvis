@@ -870,7 +870,10 @@ class JarvisOrchestrator:
         try:
             tick_result = executor.tick(verb, SimAutonomyParams(x_m=x_m, y_m=y_m), dt_s=0.01)
         except ValueError:
-            return "Simulación no disponible sin destino (GO_TO requiere coordenadas; este chat no las parsea aún)."
+            return (
+                "Simulación no disponible sin destino "
+                "(falta x_m/y_m; prueba go to 1.0 2.0 o conecta coords)."
+            )
         return (
             f"Simulación (no vuelo real, sin ESC/motores): tick en t={tick_result.t_s:.2f}s, "
             f"colectivo={tick_result.collective:.3f}."
