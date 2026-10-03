@@ -143,6 +143,7 @@ from jarvis.capabilities.schemas import (
     ProviderRecord,
     SkillRecord,
 )
+from jarvis.capabilities.skills_runtime import SkillRunResult, run_skill
 
 __all__ = [
     "ApiIntentAdapter",
@@ -166,6 +167,7 @@ __all__ = [
     "SafetyRequest",
     "SimulatedRadioIngress",
     "SkillRecord",
+    "SkillRunResult",
     "SoftwareCapabilitySafetyGate",
     "Task",
     "TerminalIntentAdapter",
@@ -173,4 +175,5 @@ __all__ = [
     "default_safety_gate",
     "describe_dual_role",
     "run_intent_through_safety",
+    "run_skill",
 ]
