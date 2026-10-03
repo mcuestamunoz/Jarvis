@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Voice phase C versioning lock: T35–T38 stay 0.6.43–0.6.46; T39 ★ opens product milestone v0.7.0; tip still v0.6.42; next authorize T35 when Engineer says proceed",
-  "scope": "Docs-only. Engineer decided voice v1 checkpoint (T39) is a product milestone at 0.7.0. Update DC, cola note, PRIORIDAD, PLATFORM, CONNECTIONS, ARCHITECTURE. No src/ change.",
-  "execution_status": "cola_synced_awaiting_authorize",
-  "current_mode": "authorize_ready",
+  "cycle_intent": "T35 voice Intent-ingress IC AUTHORIZED for Claude @ 0.6.43; V1 only — VoiceIntentAdapter + source threading; no STT/TTS/loop; v0.7.0 remains T39",
+  "scope": "IC-only authorize. Claude implements VoiceIntentAdapter.parse and threads optional source through handle_user_text and twelve classify sites. Default TERMINAL keeps CLI/MCP byte-identical.",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: voz v1 = hito de producto → T39 = v0.7.0"
+    "reason": "Engineer: manda ic que se lo mando a claude"
   },
   "relevant_workflow_phases": [
     "Authorize"
@@ -18,34 +18,36 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md",
-    ".jes/artifacts/engineer_note_voice_phase_c_cola.md"
+    ".jes/artifacts/implementation_contract_assistant_voice_intent_ingress_b1.md"
   ],
   "open_questions": [
-    "Engineer authorize T35 Intent-ingress IC @ 0.6.43?"
+    "Claude implements T35 @ 0.6.43?",
+    "After T35 ★: authorize T36 fixture loop?"
   ],
   "active_operation": {
-    "type": "awaiting_ic_authorize",
+    "type": "authorized_implementation",
     "contract": "implementation_contract_assistant_voice_intent_ingress_b1.md",
     "ids": [
       "T35",
       "B1-assistant-voice-intent-ingress"
     ],
-    "blocked_on": "engineer_authorize_t35_ic",
-    "note": "IC file not written yet — write+authorize when Engineer says proceed"
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "Versioning lock: T39 = v0.7.0 product milestone"
+    "T35 IC written and AUTHORIZED"
   ],
   "authority_gates": [
-    "T35–T38 remain 0.6.43–0.6.46",
-    "Do not open 0.7.0 before T39 ★",
+    "No STT/TTS/loop this Buy",
+    "Do not open 0.7.0 (T39 only)",
+    "Default source TERMINAL — CLI/MCP unchanged",
+    "Do not mark voice-intent-ingress CLOSED until ★ ACCEPT",
     "No tip/package version pin tests",
-    "No src/ change this turn"
+    "No ACCEPT claim"
   ],
   "coherence_checklist": [
-    "DC + cola note say T39 = 0.7.0",
-    "PRIORIDAD / PLATFORM / CONNECTIONS / ARCHITECTURE synced"
+    "IC AUTHORIZED @ 0.6.43",
+    "Paste for Claude ready",
+    "PRIORIDAD points to T35 AUTHORIZED"
   ],
-  "updated_at": "2026-10-03T15:26:00Z"
+  "updated_at": "2026-10-03T15:28:00Z"
 }
