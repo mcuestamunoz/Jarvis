@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T31 implementado…”; Engineer: “revisa fondo esta ic y todo el bloque despues”)  
 **Against:** [IC](implementation_contract_assistant_chat_skill_first_ops_charge_b1.md) · [report](implementation_report_assistant_chat_skill_first_ops_charge_b1.md) · [DC ★](design_contract_assistant_chat_skill_first_b0.md) · [T19 CHARGE ★](implementation_review_assistant_ops_charge_task_b1.md) · [SD-GO_TO OPEN](engineer_note_t20_goto_chat_sim_destination_debt.md)  
 **Tip reviewed:** `a35e955` on `cursor/skill-first-ops-charge-impl-8ac5` (parent tip T30 ★ `v0.6.39` @ `b45669e` / authorize `0f62ab5`)  
-**Verdict:** **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.6.40`**. **No ACCEPT claim in this pass.**
+**Verdict:** **★ ACCEPT CLOSED** (Engineer 2026-10-03) — Cursor review **PASS WITH NOTES**. Package/tag **`0.6.40` / `v0.6.40`**. Last chat Skill stub closed — twelve Skills Skill-first; DC phase B complete.
 
-**Process note:** Claude Code implemented under ★ AUTHORIZED IC. This is the independent Cursor review of record. Same-session self-PASS is not review of record.
+**Process note:** Claude Code implemented under ★ AUTHORIZED IC. Cursor forensic PASS WITH NOTES; Engineer ★ ACCEPT this turn (“darlo por aceptado”).
 
 ---
 
@@ -73,7 +73,7 @@ DC `DC-assistant-chat-skill-first` phase map vs tip:
 | **A — software** | explain + project_status via `run_skill` | ★ CLOSED @ `v0.6.31` |
 | **B — vehicle** | HOLD…PATROL (7 AutonomyVerbs) | ★ CLOSED @ `v0.6.38` |
 | **B — policy** | ARM/DISARM | ★ CLOSED @ `v0.6.39` |
-| **B — ops** | CHARGE (device gate) | **Implemented** @ `0.6.40` — Cursor PASS WITH NOTES; await ★ ACCEPT |
+| **B — ops** | CHARGE (device gate) | ★ CLOSED @ `v0.6.40` — twelve Skills Skill-first complete |
 | **C — channels** | voz / world / CLI migrate | **Not started** — horizon only |
 
 **What the block earned (product shape):** chat is now a Skill client for all twelve declared Skills. Classify (`try_*`) still chooses the id; fulfill goes through `run_skill` first. Three gate shapes stay honest to capability kind:
@@ -93,16 +93,15 @@ DC `DC-assistant-chat-skill-first` phase map vs tip:
 
 **N2 — Cosmetic docstring drift.** `tests/test_assistant_chat_skill_first_policy_arm_b1.py` module docstring still says “CHARGE stays stub.” Asserts already retargeted. Optional cleanup later. **Not blocking.**
 
-**N3 — Process.** Await Engineer ★ ACCEPT → tag `v0.6.40`. On ★, DC phase B (vehicle/ops Skill-first for the twelve declared Skills) is closed; next horizon phase C — Engineer pick, not automatic.
+**N3 — Process.** Engineer ★ ACCEPT applied → tag `v0.6.40`. DC phase B closed (twelve Skills). Next horizon: phase C or SD-GO_TO — Engineer pick.
 
 ---
 
 ## 4. Next
 
 ```text
-Cursor: PASS WITH NOTES @ a35e955 (+ review commit)
-Await: Engineer ★ ACCEPT → tag v0.6.40
-Block: Chat Skill-first twelve Skills — closed on ★ (phase B)
-SD-GO_TO: still OPEN
-Next after ★: phase C voz/world (or SD-GO_TO) — Engineer pick; not voice-by-default
+★ ACCEPT CLOSED @ v0.6.40 (Engineer 2026-10-03)
+Block: Chat Skill-first twelve Skills — phase B ★ CLOSED
+SD-GO_TO: still OPEN (software chat↔sim destination — not board assembly)
+Next: phase C voz/world or SD-GO_TO — Engineer pick
 ```
