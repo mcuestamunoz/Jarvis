@@ -5,7 +5,7 @@
 **Authority:** Engineer — update documentary system + queue ICs before first voice code Buy  
 **Tip parent:** **`v0.6.43`** (T35 ★)
 
-**Purpose:** One place to see the **ordered voice Buys** that take Jarvis from “chat-only Skill-first” to “voice end-to-end on today’s brain.” Not a vendor roadmap. Not permission to implement until each IC is ★ AUTHORIZED.
+**Purpose:** One place to see the **ordered voice Buys** that take Jarvis from “chat-only Skill-first” to “voice end-to-end on today’s brain.” Not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp required).
 
 **Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = product milestone **`0.7.0` / `v0.7.0`** (Engineer 2026-10-03).
 
@@ -33,7 +33,7 @@
 | **T34-inv** | — | `INV-assistant-voice-e2e` | — | ✅ ★ CLOSED | Forensic map + phase plan | [review ★](investigation_review_assistant_voice_e2e_b0.md) |
 | **T34-DC** | V0 | `DC-assistant-chat-voice-channels` | — | ✅ ★ CLOSED | Block locks | [DC ★](design_contract_assistant_chat_voice_channels_b0.md) |
 | **T35** | V1 | `B1-assistant-voice-intent-ingress` | `0.6.43` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.43`** | `VoiceIntentAdapter` + `source` threading (12 sites) | [review ★](implementation_review_assistant_voice_intent_ingress_b1.md) |
-| **T36** | V2 | `B1-assistant-voice-fixture-loop` | `0.6.44` | Parked — after T35 ★ | Fixture-driven `run_voice` loop | blocked on T35 ★ |
+| **T36** | V2 | `B1-assistant-voice-fixture-loop` | `0.6.44` | IC ready · Claude | Fixture-driven `run_voice` loop | [IC](implementation_contract_assistant_voice_fixture_loop_b1.md) |
 | **T37** | V3 | `B1-assistant-voice-stt-external` | `0.6.45` | Parked — after T36 ★ | External STT → same parse seam | blocked on T36 ★ · vendor ★ separate |
 | **T38** | V4 | `B1-assistant-voice-tts-external` | `0.6.46` | Parked — after T36 ★ | External TTS on render output | may run before/after T37 · vendor ★ separate |
 | **T39** | V5 | `B1-assistant-voice-v1-checkpoint` | **`0.7.0` / `v0.7.0`** | Parked — after T37+T38 ★ | **Product milestone** — voice v1 complete | opens minor `0.7` |

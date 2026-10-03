@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T35 voice Intent-ingress ★ ACCEPT CLOSED @ v0.6.43; next candidate T36 fixture-loop Parked @ 0.6.44 awaiting Engineer authorize",
-  "scope": "Engineer ACCEPT of T35 after Cursor PASS WITH NOTES. Tag v0.6.43. Close connect-plugs voice-intent-ingress. No T36 authorize until Engineer says proceed.",
-  "execution_status": "accept_closed",
-  "current_mode": "accept",
+  "cycle_intent": "T36 voice fixture-loop IC ready for Claude @ 0.6.44; Engineer paste = Buy (no AUTHORIZED stamp)",
+  "scope": "IC-only. Claude implements adapters/voice fixture STT + run_voice_turn/run_voice over handle_user_text(source=VOICE) + render_response. No real STT/TTS.",
+  "execution_status": "ic_ready_for_claude",
+  "current_mode": "ic",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: accept"
+    "reason": "Engineer: generate IC and send paste; paste to Claude = authorize by default"
   },
   "relevant_workflow_phases": [
-    "Accept"
+    "IC"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,34 +18,34 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_voice_intent_ingress_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_voice_fixture_loop_b1.md"
   ],
   "open_questions": [
-    "Engineer authorize T36 B1-assistant-voice-fixture-loop @ 0.6.44?"
+    "Claude implements T36 @ 0.6.44?"
   ],
   "active_operation": {
-    "type": "accept_closed",
-    "contract": "implementation_contract_assistant_voice_intent_ingress_b1.md",
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_voice_fixture_loop_b1.md",
     "ids": [
-      "T35",
-      "B1-assistant-voice-intent-ingress",
-      "v0.6.43"
+      "T36",
+      "B1-assistant-voice-fixture-loop"
     ],
-    "blocked_on": "engineer_authorize_t36"
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "T35 ★ ACCEPT CLOSED @ v0.6.43",
-    "connect-plugs voice-intent-ingress ★ CLOSED"
+    "T36 IC written for Claude paste"
   ],
   "authority_gates": [
-    "Do not authorize T36 until Engineer says proceed",
+    "No AUTHORIZED stamp — Engineer paste is the Buy",
+    "No real STT/TTS this Buy",
     "Do not open 0.7.0 (T39 only)",
-    "No tip/package version pin tests"
+    "No tip/package version pin tests",
+    "No ACCEPT claim"
   ],
   "coherence_checklist": [
-    "Tag v0.6.43 on ACCEPT tip",
-    "PRIORIDAD points to T36 Parked",
-    "voice-intent-ingress map row ★ CLOSED"
+    "IC ready @ 0.6.44",
+    "Paste for Claude ready (no AUTHORIZED)",
+    "PRIORIDAD points to T36 IC ready"
   ],
-  "updated_at": "2026-10-03T15:45:00Z"
+  "updated_at": "2026-10-03T15:50:00Z"
 }
