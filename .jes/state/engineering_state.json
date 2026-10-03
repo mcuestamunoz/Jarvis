@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T32 chat GO_TO destination IC AUTHORIZED for Claude @ 0.6.41; closes SD-GO_TO; metadata connect plug + prove-now parse; bare sin destino; not copper",
-  "scope": "IC+DC authorize only. Resolver seam so later real coords only fill intent.metadata go_to_x_m/go_to_y_m. Wire existing T20 tick. No invent defaults. No board/ESC.",
+  "cycle_intent": "T33 connect-plugs real-data map IC AUTHORIZED for Claude @ 0.6.42; forensic SoT index of all connect-later debts; T32 remains AUTHORIZED @ 0.6.41",
+  "scope": "IC+DC authorize docs-only map Buy. Claude forensically verifies tip and writes engineer_note_connect_plugs_real_data_map.md. Does not implement GPS/ESC/battery/voice or close T32.",
   "execution_status": "authorized_awaiting_impl",
   "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: abrimos buy SD-GO_TO — listo para conectar coords reales despues"
+    "reason": "Engineer: IC para Claude — revisar a fondo y mapear todas las deudas de datos reales"
   },
   "relevant_workflow_phases": [
     "Authorize"
@@ -18,37 +18,41 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/design_contract_assistant_chat_go_to_destination_b0.md",
-    ".jes/artifacts/implementation_contract_assistant_chat_go_to_destination_b1.md"
+    ".jes/artifacts/design_contract_connect_plugs_real_data_map_b0.md",
+    ".jes/artifacts/implementation_contract_connect_plugs_real_data_map_b1.md"
   ],
   "open_questions": [
-    "Claude implements T32 @ 0.6.41?",
-    "After T32 ★: phase C voz/world?"
+    "Claude implements T33 map @ 0.6.42?",
+    "Claude implements T32 SD-GO_TO @ 0.6.41?",
+    "After both ★: phase C voz/world?"
   ],
   "active_operation": {
     "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_chat_go_to_destination_b1.md",
+    "contract": "implementation_contract_connect_plugs_real_data_map_b1.md",
     "ids": [
-      "T32",
-      "B1-assistant-chat-go-to-destination",
-      "SD-GO_TO"
+      "T33",
+      "B1-connect-plugs-real-data-map"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "claude_impl",
+    "parallel_authorized": [
+      "T32 B1-assistant-chat-go-to-destination @ 0.6.41"
+    ]
   },
   "closed_this_turn": [
-    "T32 DC ★ CLOSED",
-    "T32 IC written and AUTHORIZED"
+    "T33 DC ★ CLOSED",
+    "T33 IC written and AUTHORIZED"
   ],
   "authority_gates": [
+    "Docs-only — no src/ behavior change",
+    "Do not invent plugs that do not exist",
+    "Do not claim debts CLOSED by writing the map",
     "No tip/package version pin tests",
-    "Never invent default coordinates 0,0/home",
-    "Connect plug is intent.metadata go_to_x_m/go_to_y_m — not a second sim stack",
-    "No live ESC / copper / GPS hardware this Buy",
-    "SD-GO_TO note CLOSED only on Engineer ★ ACCEPT"
+    "T32 remains separate Buy @ 0.6.41"
   ],
   "coherence_checklist": [
-    "IC AUTHORIZED @ 0.6.41",
-    "Paste for Claude ready"
+    "IC AUTHORIZED @ 0.6.42",
+    "Paste for Claude ready",
+    "Seed inventory in IC §0b"
   ],
-  "updated_at": "2026-10-03T08:20:00Z"
+  "updated_at": "2026-10-03T08:25:00Z"
 }
