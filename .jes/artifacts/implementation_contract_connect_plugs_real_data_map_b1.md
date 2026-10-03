@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.42`**
 
-**Status:** ★ **AUTHORIZED — Claude implement now** (docs SoT map; tip T31 ★ @ `v0.6.40`; T32 @ `0.6.41` may be in flight — this Buy owns **`0.6.42`**).  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag `v0.6.42`.  
 **Parents:** [DC ★ CLOSED](design_contract_connect_plugs_real_data_map_b0.md) · PRIORIDAD parked · [SD-GO_TO note](engineer_note_t20_goto_chat_sim_destination_debt.md) · `docs/HARDWARE_DEBT.md`  
 **Type:** Docs-only index Buy — forensic map of real-data / connect-later debts.  
 **Opens:** **`0.6.42` / `v0.6.42`**. **Cola:** **T33**
