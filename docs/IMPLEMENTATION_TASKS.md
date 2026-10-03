@@ -6,7 +6,7 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T35** voice Intent-ingress — **Implemented** (Claude Code) @ **`0.6.43`**, await Cursor review → Engineer ★ ACCEPT (V1: `VoiceIntentAdapter` + source threading · **not** STT/TTS/loop).  
+> **PRIORIDAD AHORA:** **T35** voice Intent-ingress — **Implemented** @ **`0.6.43`**, Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT (V1: `VoiceIntentAdapter` + source threading · **not** STT/TTS/loop).  
 > **Just closed:** **T34-DC** voice/channels ★ **CLOSED** · **T34-inv** ★ **ACCEPT CLOSED**.  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice cola: [phase C note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
@@ -85,7 +85,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T33** | **`B1-connect-plugs-real-data-map`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.42`** | Docs-only living SoT map of connect-later / real-data debts (A/B/C/D) | [review ★](../.jes/artifacts/implementation_review_connect_plugs_real_data_map_b1.md) · [map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md) |
 | **T34-inv** | **`INV-assistant-voice-e2e`** | **✅ ★ ACCEPT CLOSED** | Forensic map + 7-phase design; craft/`world/` deferred past v1 | [review ★](../.jes/artifacts/investigation_review_assistant_voice_e2e_b0.md) |
 | **T34-DC** | **`DC-assistant-chat-voice-channels`** | **✅ ★ CLOSED** | V0 locks: same brain · text ingress · source threading · v1 = twelve Skills · STT/TTS external · no world/Authority | [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
-| **T35** | **`B1-assistant-voice-intent-ingress`** (V1) | **Implemented** (Claude Code) · `0.6.43` · await Cursor review → Engineer ★ ACCEPT | Fill `VoiceIntentAdapter.parse(raw_text)`; thread `source` through 12 orch parse sites via shared `_parse_intent` helper; default `TERMINAL` | [IC](../.jes/artifacts/implementation_contract_assistant_voice_intent_ingress_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
+| **T35** | **`B1-assistant-voice-intent-ingress`** (V1) | **Implemented** · `0.6.43` · Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT | Fill `VoiceIntentAdapter.parse(raw_text)`; thread `source` through 12 orch parse sites via shared `_parse_intent` helper; default `TERMINAL` | [IC](../.jes/artifacts/implementation_contract_assistant_voice_intent_ingress_b1.md) · [review](../.jes/artifacts/implementation_review_assistant_voice_intent_ingress_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
 | **T36** | **`B1-assistant-voice-fixture-loop`** (V2) | **Parked** — after T35 ★ @ `0.6.44` | Fixture-driven voice loop (`run_voice`); prove ingress→Skill→egress without mic | blocked on T35 ★ |
 | **T37** | **`B1-assistant-voice-stt-external`** (V3) | **Parked** — after T36 ★ @ `0.6.45` | External STT → same `parse(raw_text)` seam; vendor choice = separate ★ | blocked on T36 ★ |
 | **T38** | **`B1-assistant-voice-tts-external`** (V4) | **Parked** — after T36 ★ @ `0.6.46` | External TTS on `render_response` output; may run before/after T37 | blocked on T36 ★ |

@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.43`**
 
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag `v0.6.43`.  
+**Status:** **Implemented** (Claude Code) — Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag `v0.6.43`.  
 **Parents:** [DC voice/channels ★ CLOSED](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv ★](investigation_review_assistant_voice_e2e_b0.md) · [cola note](engineer_note_voice_phase_c_cola.md) · tip **`v0.6.42`**  
 **Type:** Phase **V1** — fill `VoiceIntentAdapter` + thread honest `IntentSource` through orch classify sites.  
 **Opens:** **`0.6.43` / `v0.6.43`**. **Cola:** **T35**
