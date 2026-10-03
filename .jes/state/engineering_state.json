@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T35 voice Intent-ingress IC AUTHORIZED for Claude @ 0.6.43; V1 only — VoiceIntentAdapter + source threading; no STT/TTS/loop; v0.7.0 remains T39",
-  "scope": "IC-only authorize. Claude implements VoiceIntentAdapter.parse and threads optional source through handle_user_text and twelve classify sites. Default TERMINAL keeps CLI/MCP byte-identical.",
-  "execution_status": "authorized_awaiting_impl",
-  "current_mode": "authorize",
+  "cycle_intent": "T35 voice Intent-ingress ★ ACCEPT CLOSED @ v0.6.43; next candidate T36 fixture-loop Parked @ 0.6.44 awaiting Engineer authorize",
+  "scope": "Engineer ACCEPT of T35 after Cursor PASS WITH NOTES. Tag v0.6.43. Close connect-plugs voice-intent-ingress. No T36 authorize until Engineer says proceed.",
+  "execution_status": "accept_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: manda ic que se lo mando a claude"
+    "reason": "Engineer: accept"
   },
   "relevant_workflow_phases": [
-    "Authorize"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,36 +18,34 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_intent_ingress_b1.md"
+    ".jes/artifacts/implementation_review_assistant_voice_intent_ingress_b1.md"
   ],
   "open_questions": [
-    "Claude implements T35 @ 0.6.43?",
-    "After T35 ★: authorize T36 fixture loop?"
+    "Engineer authorize T36 B1-assistant-voice-fixture-loop @ 0.6.44?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
+    "type": "accept_closed",
     "contract": "implementation_contract_assistant_voice_intent_ingress_b1.md",
     "ids": [
       "T35",
-      "B1-assistant-voice-intent-ingress"
+      "B1-assistant-voice-intent-ingress",
+      "v0.6.43"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "engineer_authorize_t36"
   },
   "closed_this_turn": [
-    "T35 IC written and AUTHORIZED"
+    "T35 ★ ACCEPT CLOSED @ v0.6.43",
+    "connect-plugs voice-intent-ingress ★ CLOSED"
   ],
   "authority_gates": [
-    "No STT/TTS/loop this Buy",
+    "Do not authorize T36 until Engineer says proceed",
     "Do not open 0.7.0 (T39 only)",
-    "Default source TERMINAL — CLI/MCP unchanged",
-    "Do not mark voice-intent-ingress CLOSED until ★ ACCEPT",
-    "No tip/package version pin tests",
-    "No ACCEPT claim"
+    "No tip/package version pin tests"
   ],
   "coherence_checklist": [
-    "IC AUTHORIZED @ 0.6.43",
-    "Paste for Claude ready",
-    "PRIORIDAD points to T35 AUTHORIZED"
+    "Tag v0.6.43 on ACCEPT tip",
+    "PRIORIDAD points to T36 Parked",
+    "voice-intent-ingress map row ★ CLOSED"
   ],
-  "updated_at": "2026-10-03T15:28:00Z"
+  "updated_at": "2026-10-03T15:45:00Z"
 }

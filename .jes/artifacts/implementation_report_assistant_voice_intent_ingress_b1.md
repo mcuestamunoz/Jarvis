@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_assistant_voice_intent_ingress_b1.md`](implementation_contract_assistant_voice_intent_ingress_b1.md)  
 **Parents:** [DC voice/channels ★ CLOSED](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv ★](investigation_review_assistant_voice_e2e_b0.md) · [cola note](engineer_note_voice_phase_c_cola.md) · tip `v0.6.42`  
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT.  
-**Package / tag:** `0.6.43` / pending **`v0.6.43`**.
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-03) — Cursor **PASS WITH NOTES**.  
+**Package / tag:** `0.6.43` / **`v0.6.43`**.
 
 ---
 

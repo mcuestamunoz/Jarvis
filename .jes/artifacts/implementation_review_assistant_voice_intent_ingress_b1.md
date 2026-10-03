@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T35 implementado…”)  
 **Against:** [IC](implementation_contract_assistant_voice_intent_ingress_b1.md) · [report](implementation_report_assistant_voice_intent_ingress_b1.md) · [DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [cola note](engineer_note_voice_phase_c_cola.md)  
 **Tip reviewed:** `b207786` on `cursor/voice-intent-ingress-impl-8ac5` (parent authorize `d1e7def` / tip `v0.6.42`)  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ **ACCEPT** → tag **`v0.6.43`**.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-03) @ tip **`v0.6.43`**.
 
-**Process note:** Claude Code implemented under ★ AUTHORIZED IC. This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under ★ AUTHORIZED IC. This is the independent Cursor review of record. Same-session self-PASS is not review of record.
 
 ---
 
@@ -20,7 +20,7 @@
 | Parallel brain / new Skill runtime | **Clear** — same `try_*` / `run_skill` / `_handle_*` path; only Intent tag differs |
 | Authority `"voice"` surface | **Clear** — `AuthoritySource = Literal["radio", "api", "operator"]` untouched |
 | Radio/Api silently filled | **Clear** — both still `NotImplementedError` (T4 + C2 retarget) |
-| Connect-plugs row CLOSED early | **Clear** — `voice-intent-ingress` stays Parked / Implemented await ★ |
+| Connect-plugs row CLOSED early | **Clear at impl** — row stayed Parked until this ★ ACCEPT |
 | STT/TTS/loop/`world`/`v0.7.0` creep | **Clear** — out of Buy; package `0.6.43` only |
 | Tip pins / ESC fence | **Clear** — T17 + T16 green on this pass |
 
@@ -70,15 +70,14 @@ Report full-suite claim (3968 / +6 net) not re-run here.
 
 **N2 — `_parse_intent` fallthrough honesty (V1 OK).** Helper dispatches VOICE → `VoiceIntentAdapter`, else → `TerminalIntentAdapter` (which always tags TERMINAL). Chat path only passes `VOICE` or default `TERMINAL`, so T35 locks hold. A future caller passing `RADIO`/`API`/`UI` would mislabel as TERMINAL — out of this Buy; keep in mind for later channel Buys.
 
-**N3 — Process.** Engineer ★ ACCEPT → tag **`v0.6.43`** · connect-plugs `voice-intent-ingress` advances/closes per cola · then authorize **T36** fixture loop @ `0.6.44`. T39 product milestone **`v0.7.0`** stays locked after T37+T38.
+**N3 — Process.** Engineer ★ ACCEPT (2026-10-03) → tag **`v0.6.43`** · connect-plugs `voice-intent-ingress` **★ CLOSED**. Next authorize when Engineer says proceed: **T36** fixture loop @ `0.6.44`. T39 product milestone **`v0.7.0`** stays locked after T37+T38.
 
 ---
 
-## 4. Awaiting
+## 4. Closed
 
 ```text
-Cursor verdict: PASS WITH NOTES
-Await Engineer ★ ACCEPT → tag v0.6.43
-Connect-plugs voice-intent-ingress closes only on that ACCEPT
+★ ACCEPT CLOSED @ v0.6.43
+Connect-plugs voice-intent-ingress ★ CLOSED
 Next authorize when Engineer says proceed: T36 B1-assistant-voice-fixture-loop @ 0.6.44
 ```
