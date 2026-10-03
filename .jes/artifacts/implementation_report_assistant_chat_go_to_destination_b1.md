@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer authorization paste)  
 **Contract:** [`implementation_contract_assistant_chat_go_to_destination_b1.md`](implementation_contract_assistant_chat_go_to_destination_b1.md)  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_go_to_destination_b0.md) · [SD-GO_TO note](engineer_note_t20_goto_chat_sim_destination_debt.md) · T31 ★ ACCEPT CLOSED @ **`v0.6.40`** · T20 ★ @ `v0.6.29` · T25 Skill-first GO_TO ★ @ `v0.6.34`  
-**Status:** Cursor **PASS WITH NOTES** — await Engineer ★ ACCEPT.  
-**Package / tag:** `0.6.41` / pending **`v0.6.41`**.
+**Status:** **★ ACCEPT CLOSED** @ tip **`v0.6.41`**.  
+**Package / tag:** `0.6.41` / **`v0.6.41`**.
 
 ---
 

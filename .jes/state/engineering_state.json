@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T32 chat GO_TO destination Cursor PASS WITH NOTES @ 0.6.41; await Engineer ★ ACCEPT → tag v0.6.41 · close SD-GO_TO note",
-  "scope": "Independent Cursor forensic review of Claude T32 impl. Resolver order metadata→prove-now→None; siblings refuse destination pattern; T20 tick wired with real coords when present. No ACCEPT claim. Note stays Buy AUTHORIZED until ★.",
-  "execution_status": "review_pass_awaiting_accept",
-  "current_mode": "review",
+  "cycle_intent": "T32 ★ ACCEPT CLOSED @ v0.6.41; SD-GO_TO CLOSED; next stack T33 Cursor PASS → ★ ACCEPT @ v0.6.42",
+  "scope": "Engineer ★ ACCEPT batch: close T32 GO_TO destination and SD-GO_TO note. T33 connect-plugs map review PASS; stack tip and ACCEPT next.",
+  "execution_status": "accept_closed_awaiting_stack",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: Claude paste Hecho — T32 implementado y pusheado"
+    "reason": "Engineer: si es ok, damos por accept todo lo que hay pendiente (T32+T33)"
   },
   "relevant_workflow_phases": [
-    "Review"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,39 +18,36 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_chat_go_to_destination_b1.md"
+    ".jes/artifacts/implementation_review_assistant_chat_go_to_destination_b1.md",
+    ".jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT T32 → tag v0.6.41 · close SD-GO_TO?",
-    "After T32 ★: phase C voz/world?",
-    "T33 connect-plugs map still AUTHORIZED @ 0.6.42 on authorize tip"
+    "Stack T33 tip under T32 ★ and ★ ACCEPT T33 → tag v0.6.42?",
+    "After T33 ★: phase C voz/world?"
   ],
   "active_operation": {
-    "type": "review_complete_awaiting_accept",
-    "contract": "implementation_contract_assistant_chat_go_to_destination_b1.md",
+    "type": "accept_closed_stack_next",
+    "contract": "implementation_contract_connect_plugs_real_data_map_b1.md",
     "ids": [
-      "T32",
-      "B1-assistant-chat-go-to-destination",
-      "SD-GO_TO"
+      "T33",
+      "B1-connect-plugs-real-data-map"
     ],
-    "blocked_on": "engineer_accept"
+    "blocked_on": "stack_and_accept_t33"
   },
   "closed_this_turn": [
-    "T32 Cursor PASS WITH NOTES @ 1d7414f"
+    "T32 ★ ACCEPT CLOSED @ v0.6.41",
+    "SD-GO_TO note CLOSED"
   ],
   "authority_gates": [
     "No tip/package version pin tests",
     "Never invent default coordinates 0,0/home",
-    "Connect plug is intent.metadata go_to_x_m/go_to_y_m — not a second sim stack",
-    "No live ESC / copper / GPS hardware this Buy",
-    "SD-GO_TO note CLOSED only on Engineer ★ ACCEPT",
-    "No ACCEPT claim without Engineer ★"
+    "Connect plug is intent.metadata go_to_x_m/go_to_y_m",
+    "T33 docs-only — no src/ connect implementations in that Buy"
   ],
   "coherence_checklist": [
-    "Review artifact written",
-    "Targeted suite 53 passed",
-    "PRIORIDAD points to await ★ ACCEPT",
-    "SD-GO_TO note still Buy AUTHORIZED"
+    "T32 tagged v0.6.41",
+    "SD-GO_TO note Status CLOSED",
+    "PRIORIDAD points to T33 stack ACCEPT"
   ],
-  "updated_at": "2026-10-03T08:40:00Z"
+  "updated_at": "2026-10-03T08:50:00Z"
 }
