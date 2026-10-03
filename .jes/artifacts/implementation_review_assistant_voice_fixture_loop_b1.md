@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T36 implementado…”)  
 **Against:** [IC](implementation_contract_assistant_voice_fixture_loop_b1.md) · [report](implementation_report_assistant_voice_fixture_loop_b1.md) · [DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [cola note](engineer_note_voice_phase_c_cola.md)  
 **Tip reviewed:** `4bb1f19` on `cursor/voice-fixture-loop-impl-8ac5` (parent IC `8763887` / tip `v0.6.43`)  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ **ACCEPT** → tag **`v0.6.44`**.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-03) @ tip **`v0.6.44`**.
 
-**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record.
 
 ---
 
@@ -66,14 +66,13 @@ Report full-suite claim (3974 / +6) not re-run here.
 
 **N1 — ARCHITECTURE tip line (synced on this review tip).** Still said “T36 fixture-loop IC”; PRIORIDAD/PLATFORM/CONNECTIONS already Implemented. Review tip aligns ARCHITECTURE wording. Not behavior.
 
-**N2 — Process.** Engineer ★ ACCEPT → tag **`v0.6.44`**. Next IC when Engineer says proceed: **T37** external STT @ `0.6.45` (vendor ★ separate). T39 product milestone **`v0.7.0`** stays after T37+T38.
+**N2 — Process.** Engineer ★ ACCEPT (2026-10-03) → tag **`v0.6.44`**. Next IC when Engineer says proceed: **T37** external STT @ `0.6.45` (vendor ★ separate). T39 product milestone **`v0.7.0`** stays after T37+T38.
 
 ---
 
-## 4. Awaiting
+## 4. Closed
 
 ```text
-Cursor verdict: PASS WITH NOTES
-Await Engineer ★ ACCEPT → tag v0.6.44
-Next authorize/paste when Engineer says proceed: T37 B1-assistant-voice-stt-external @ 0.6.45
+★ ACCEPT CLOSED @ v0.6.44
+Next paste when Engineer says proceed: T37 B1-assistant-voice-stt-external @ 0.6.45
 ```

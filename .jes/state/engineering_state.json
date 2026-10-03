@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T36 voice fixture-loop IC ready for Claude @ 0.6.44; Engineer paste = Buy (no AUTHORIZED stamp)",
-  "scope": "IC-only. Claude implements adapters/voice fixture STT + run_voice_turn/run_voice over handle_user_text(source=VOICE) + render_response. No real STT/TTS.",
-  "execution_status": "ic_ready_for_claude",
-  "current_mode": "ic",
+  "cycle_intent": "T36 voice fixture-loop ★ ACCEPT CLOSED @ v0.6.44; next candidate T37 STT-external Parked @ 0.6.45 awaiting Engineer paste",
+  "scope": "Engineer ACCEPT of T36 after Cursor PASS WITH NOTES. Tag v0.6.44. Advance a4-voice-world pointer. No T37 IC until Engineer asks.",
+  "execution_status": "accept_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: generate IC and send paste; paste to Claude = authorize by default"
+    "reason": "Engineer: accept"
   },
   "relevant_workflow_phases": [
-    "IC"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,34 +18,34 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_fixture_loop_b1.md"
+    ".jes/artifacts/implementation_review_assistant_voice_fixture_loop_b1.md"
   ],
   "open_questions": [
-    "Claude implements T36 @ 0.6.44?"
+    "Engineer paste T37 B1-assistant-voice-stt-external @ 0.6.45? (vendor ★ separate)"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "accept_closed",
     "contract": "implementation_contract_assistant_voice_fixture_loop_b1.md",
     "ids": [
       "T36",
-      "B1-assistant-voice-fixture-loop"
+      "B1-assistant-voice-fixture-loop",
+      "v0.6.44"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "engineer_paste_t37"
   },
   "closed_this_turn": [
-    "T36 IC written for Claude paste"
+    "T36 ★ ACCEPT CLOSED @ v0.6.44"
   ],
   "authority_gates": [
-    "No AUTHORIZED stamp — Engineer paste is the Buy",
-    "No real STT/TTS this Buy",
+    "Do not write T37 IC until Engineer asks",
+    "Vendor STT choice is a separate ★",
     "Do not open 0.7.0 (T39 only)",
-    "No tip/package version pin tests",
-    "No ACCEPT claim"
+    "No tip/package version pin tests"
   ],
   "coherence_checklist": [
-    "IC ready @ 0.6.44",
-    "Paste for Claude ready (no AUTHORIZED)",
-    "PRIORIDAD points to T36 IC ready"
+    "Tag v0.6.44 on ACCEPT tip",
+    "PRIORIDAD points to T37 Parked",
+    "a4-voice-world advanced to T36 ★"
   ],
-  "updated_at": "2026-10-03T15:50:00Z"
+  "updated_at": "2026-10-03T16:03:00Z"
 }
