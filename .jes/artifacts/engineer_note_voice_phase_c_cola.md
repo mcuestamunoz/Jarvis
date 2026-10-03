@@ -52,6 +52,12 @@
 
 ---
 
+## Product brief (TTS character)
+
+Desired egress voice (not a vendor lock): **British, grave, short, no theater** — free-first via **Piper `en_GB`** external. See [`engineer_note_voice_tts_product_brief.md`](engineer_note_voice_tts_product_brief.md). Marvel exact-clone **out**.
+
+---
+
 ## Maintenance
 
 When a voice Buy ★ closes, that Buy’s docs pass updates this note’s Estado column and the connect-plugs map row. Do not mark rows CLOSED from prose alone.
