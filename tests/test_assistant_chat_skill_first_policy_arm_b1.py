@@ -60,7 +60,11 @@ def test_t2_chat_disarm_skill_gate_and_latch_disarmed(tmp_path: Path):
     assert "DESARMADA" in result["message"]
 
 
-def test_t3_policy_skills_ok_not_vehicle_gated_charge_still_stub():
+def test_t3_policy_skills_ok_not_vehicle_gated_charge_now_ok_too():
+    """T31 (`B1-assistant-chat-skill-first-ops-charge`) later flips
+    `skill.request_charge` too (device gate) — see
+    `tests/test_assistant_chat_skill_first_ops_charge_b1.py` for
+    CHARGE's own coverage."""
     arm = run_skill("skill.request_arm_policy")
     assert arm.outcome == "ok"
     disarm = run_skill("skill.request_disarm_policy")
@@ -75,8 +79,7 @@ def test_t3_policy_skills_ok_not_vehicle_gated_charge_still_stub():
         assert skill.availability == CapabilityAvailability.AVAILABLE
 
     charge = run_skill("skill.request_charge")
-    assert charge.outcome == "reject"
-    assert charge.reason == "skill_stub"
+    assert charge.outcome == "ok"
 
 
 def test_t4_chat_seven_vehicle_verbs_still_skill_first(tmp_path: Path):

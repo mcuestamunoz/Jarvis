@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.40`**
 
-**Status:** ★ **AUTHORIZED — Claude implement now** (T30 ★ @ `v0.6.39`).  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag `v0.6.40`.  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_skill_first_b0.md) · T30 ★ @ **`v0.6.39`** · T19 CHARGE Task ★ @ `v0.6.28`  
 **Type:** First **ops/device** Skill-first slice — **CHARGE**; closes the last chat Skill stub.  
 **Opens:** **`0.6.40` / `v0.6.40`**. **Cola:** **T31**

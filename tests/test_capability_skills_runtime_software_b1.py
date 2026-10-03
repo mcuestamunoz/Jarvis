@@ -78,15 +78,14 @@ def test_t2b_project_status_via_real_orchestrator_build_startup_context(tmp_path
     assert result.reason == "no_project"
 
 
-def test_t3_vehicle_and_ops_skills_stay_stub():
+def test_t3_charge_now_ok_no_stubs_remain():
     """T21: vehicle/ops Skills were stub. T23-T29 flip
     HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME/FOLLOW/PATROL to available
-    (shared vehicle gate) — closing the full seven-verb AutonomyVerb
-    set. T30 flips ARM/DISARM too (policy gate, not vehicle gate). Only
-    CHARGE stays stub now."""
+    (shared vehicle gate); T30 flips ARM/DISARM (policy gate); T31
+    flips CHARGE (device gate) — no stub Skill remains among the
+    twelve declared rows."""
     result = run_skill("skill.request_charge")
-    assert result.outcome == "reject"
-    assert result.reason == "skill_stub"
+    assert result.outcome == "ok"
 
 
 def test_t3b_unknown_skill_id_honest_reject():
@@ -98,8 +97,9 @@ def test_t3b_unknown_skill_id_honest_reject():
 def test_t4_seed_exactly_two_available_rest_stub():
     """T21 shipped two available software Skills. T23-T29 add
     HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME/FOLLOW/PATROL (shared vehicle
-    gate); T30 adds ARM/DISARM (policy gate) — membership widened, not
-    a reopen of T21."""
+    gate); T30 adds ARM/DISARM (policy gate); T31 adds CHARGE (device
+    gate) — membership widened, not a reopen of T21. After T31, the
+    stub set among the twelve declared Skills is empty."""
     registry = CapabilityRegistry.load_default()
     available_ids = {s.id for s in registry.skills() if s.availability == CapabilityAvailability.AVAILABLE}
     assert available_ids == {
@@ -114,12 +114,11 @@ def test_t4_seed_exactly_two_available_rest_stub():
         "skill.request_patrol",
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
+        "skill.request_charge",
     }
 
     stub_ids = {s.id for s in registry.skills() if s.availability == CapabilityAvailability.STUB}
-    assert "skill.request_hold" not in stub_ids
-    assert "skill.request_land" not in stub_ids
-    assert "skill.request_charge" in stub_ids
+    assert stub_ids == set()
     assert available_ids.isdisjoint(stub_ids)
     assert len(registry.skills()) == 12
 

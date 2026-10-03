@@ -57,15 +57,13 @@ def test_t2_direct_run_skill_hold_ok_gate_not_software_safety():
     assert flight_hold.availability == CapabilityAvailability.NOT_IMPLEMENTED
 
 
-def test_t3_other_vehicle_skill_still_stub():
+def test_t3_charge_now_ok_no_stub_sibling_remains():
     """T23: LAND/GO_TO/TAKEOFF/RETURN_HOME/FOLLOW/PATROL were stub. T24-T29
     flip each of those (see their own
-    `test_assistant_chat_skill_first_vehicle_*_b1` files). T29 PATROL
-    closes the seven-verb AutonomyVerb Skill-first set — only
-    ARM/DISARM/CHARGE stay stub now."""
+    `test_assistant_chat_skill_first_vehicle_*_b1` files). T30 flips
+    ARM/DISARM; T31 flips CHARGE — no stub Skill remains."""
     charge = run_skill("skill.request_charge")
-    assert charge.outcome == "reject"
-    assert charge.reason == "skill_stub"
+    assert charge.outcome == "ok"
 
 
 def test_t4_software_skill_first_still_green(tmp_path: Path):

@@ -52,17 +52,15 @@ def test_t2_direct_run_skill_land_ok_flight_land_not_implemented():
     assert flight_land.availability == CapabilityAvailability.NOT_IMPLEMENTED
 
 
-def test_t3_hold_still_ok_takeoff_still_stub():
-    """T25/T26/T27 later flip GO_TO/TAKEOFF/RETURN_HOME too — this
-    test's own "still stub" sibling probe moves to FOLLOW, which stays
-    stub. See `tests/test_assistant_chat_skill_first_vehicle_go_to_b1.py`
-    / `..._takeoff_b1.py` / `..._return_home_b1.py` for their own
-    coverage."""
+def test_t3_hold_still_ok_charge_now_ok_too():
+    """T25/T26/T27 later flip GO_TO/TAKEOFF/RETURN_HOME too — see
+    `tests/test_assistant_chat_skill_first_vehicle_go_to_b1.py` /
+    `..._takeoff_b1.py` / `..._return_home_b1.py` for their own
+    coverage. T31 flips CHARGE — no stub Skill remains to probe here."""
     hold = run_skill("skill.request_hold")
     assert hold.outcome == "ok"
     charge = run_skill("skill.request_charge")
-    assert charge.outcome == "reject"
-    assert charge.reason == "skill_stub"
+    assert charge.outcome == "ok"
 
 
 def test_t4_chat_hold_still_skill_first_vehicle(tmp_path: Path):

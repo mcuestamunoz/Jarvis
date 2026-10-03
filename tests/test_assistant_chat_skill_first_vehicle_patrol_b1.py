@@ -71,7 +71,7 @@ def test_t2_direct_run_skill_patrol_ok_flight_patrol_not_implemented():
     assert flight_patrol.availability == CapabilityAvailability.NOT_IMPLEMENTED
 
 
-def test_t3_six_prior_vehicle_skills_still_ok_charge_still_stub():
+def test_t3_six_prior_vehicle_skills_still_ok_charge_now_ok_too():
     for skill_id in (
         "skill.request_hold",
         "skill.request_land",
@@ -83,8 +83,7 @@ def test_t3_six_prior_vehicle_skills_still_ok_charge_still_stub():
         result = run_skill(skill_id)
         assert result.outcome == "ok", f"{skill_id} should still be ok"
     charge = run_skill("skill.request_charge")
-    assert charge.outcome == "reject"
-    assert charge.reason == "skill_stub"
+    assert charge.outcome == "ok"
 
 
 def test_t4_chat_hold_land_go_to_takeoff_return_home_follow_still_skill_first_vehicle(

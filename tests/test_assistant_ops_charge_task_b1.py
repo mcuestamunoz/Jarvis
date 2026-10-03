@@ -156,7 +156,11 @@ def test_t5_seed_honesty_device_not_implemented_cascade_11_12():
     assert "skill.request_charge" in skill_ids
     skill = next(s for s in registry.skills() if s.id == "skill.request_charge")
     assert skill.required_capability_ids == ["ops.charge"]
-    assert skill.availability == CapabilityAvailability.STUB
+    # T31 (B1-assistant-chat-skill-first-ops-charge) flips this Skill row to
+    # available (device gate) — see
+    # tests/test_assistant_chat_skill_first_ops_charge_b1.py. The
+    # `ops.charge` capability itself (checked above) stays not_implemented.
+    assert skill.availability == CapabilityAvailability.AVAILABLE
     assert len(skill_ids) == 12
 
     cap_ids = {c.id for c in registry.capabilities()}

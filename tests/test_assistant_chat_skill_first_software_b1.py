@@ -52,10 +52,14 @@ def test_t2_status_phrase_skill_gate_and_project_status_shape(tmp_path: Path):
     assert "startup_context" in result
 
 
-def test_t3_hold_and_charge_still_task_direct(tmp_path: Path):
-    """T22: charge stays Task-direct (no ops Skill-first). T23 later
-    gates HOLD via `skill.request_hold` — see
-    `test_assistant_chat_skill_first_vehicle_hold_b1`."""
+def test_t3_hold_and_charge_now_both_skill_first(tmp_path: Path):
+    """T22: both HOLD and charge were Task-direct at the time. T23
+    later gates HOLD via `skill.request_hold` — see
+    `test_assistant_chat_skill_first_vehicle_hold_b1`. T31
+    (`B1-assistant-chat-skill-first-ops-charge`) later gates CHARGE
+    via `skill.request_charge` too — see
+    `test_assistant_chat_skill_first_ops_charge_b1`. After T31, no
+    chat vehicle/ops Task remains Task-direct."""
     orch = JarvisOrchestrator(workspace_root=tmp_path)
     exploding = _ExplodingLLMInterface()
     with patch(
@@ -66,8 +70,9 @@ def test_t3_hold_and_charge_still_task_direct(tmp_path: Path):
         charge = orch.handle_user_text("charge", exploding)
     assert hold["action"] == "vehicle_hold"
     assert charge["action"] == "ops_charge"
-    for call in skill_spy.call_args_list:
-        assert call.args[0] != "skill.request_charge"
+    called_ids = {call.args[0] for call in skill_spy.call_args_list}
+    assert "skill.request_hold" in called_ids
+    assert "skill.request_charge" in called_ids
 
 
 def test_t4_handle_explain_intent_does_not_bypass_run_skill():

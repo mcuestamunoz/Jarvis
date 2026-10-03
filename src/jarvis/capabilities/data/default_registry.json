@@ -226,9 +226,9 @@
         },
         {
             "id": "skill.request_charge",
-            "version": "0.6.28",
+            "version": "0.6.40",
             "required_capability_ids": ["ops.charge"],
-            "availability": "stub"
+            "availability": "available"
         }
     ]
 }

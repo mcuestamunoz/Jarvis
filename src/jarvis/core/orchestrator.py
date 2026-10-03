@@ -793,10 +793,23 @@ class JarvisOrchestrator:
         # (charge/cargar must not steal payload/mission lines like "carga
         # util"). Fulfilled here without propose_command/AutonomyVerb/sim
         # executor — honest Spanish that charge ops are not implemented.
+        # T31 Skill-first: gate through run_skill("skill.request_charge")
+        # first (device gate — not vehicle, not policy, not
+        # SoftwareCapabilitySafetyGate); on ok keep _handle_ops_charge
+        # unchanged. This closes chat Skill-first for all twelve declared
+        # Skills. `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_charge_task
 
         charge_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_charge_task(charge_intent) is not None:
+            charge_skill = run_skill("skill.request_charge")
+            if charge_skill.outcome != "ok":
+                reason = charge_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_charge no disponible ({reason}).",
+                }
             return self._handle_ops_charge(charge_intent)
 
         return None

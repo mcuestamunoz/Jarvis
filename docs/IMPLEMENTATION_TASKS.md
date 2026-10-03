@@ -6,7 +6,7 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T31** Skill-first ops CHARGE — ★ **AUTHORIZED** for Claude @ package **`0.6.40`** (device gate-only · **not** vehicle/policy/software-Safety · `ops.charge` stays `not_implemented` · closes last chat Skill stub · **SD-GO_TO** stays OPEN).  
+> **PRIORIDAD AHORA:** **T31** Skill-first ops CHARGE — **Implemented** (Claude Code) @ **`0.6.40`**, await Cursor review → Engineer ★ ACCEPT (device gate-only · **not** vehicle/policy/software-Safety · `ops.charge` stays `not_implemented` · closes last chat Skill stub · **SD-GO_TO** stays OPEN).  
 > **Just closed:** **T30** Skill-first policy ARM/DISARM ★ **ACCEPT CLOSED** @ **`v0.6.39`**.  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt (listed):** **SD-GO_TO** ([note](../.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md)).  
@@ -80,7 +80,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T28** | **`B1-assistant-chat-skill-first-vehicle-follow`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.37`** | FOLLOW Skill-first · grow vehicle gate · no track invent · no sim FOLLOW tick | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_follow_b1.md) |
 | **T29** | **`B1-assistant-chat-skill-first-vehicle-patrol`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.38`** | PATROL Skill-first · closes 7 AutonomyVerb Skill-first set · no route invent · no sim PATROL tick | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_patrol_b1.md) |
 | **T30** | **`B1-assistant-chat-skill-first-policy-arm`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.39`** | ARM+DISARM Skill-first · software Safety + `_POLICY_GATE_SKILL_IDS` gate-only · **not** vehicle gate | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_policy_arm_b1.md) |
-| **T31** | **`B1-assistant-chat-skill-first-ops-charge`** | ★ **AUTHORIZED** · Claude @ `0.6.40` | CHARGE Skill-first · `_DEVICE_GATE_SKILL_IDS` gate-only · **not** vehicle/policy/software-Safety · closes last chat Skill stub | [IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_ops_charge_b1.md) |
+| **T31** | **`B1-assistant-chat-skill-first-ops-charge`** | **Implemented** (Claude Code) · `0.6.40` · await Cursor review → Engineer ★ ACCEPT | CHARGE Skill-first · `_DEVICE_GATE_SKILL_IDS` gate-only · **not** vehicle/policy/software-Safety · closes last chat Skill stub | [IC](../.jes/artifacts/implementation_contract_assistant_chat_skill_first_ops_charge_b1.md) |
 | **after T31 / Skill-first** | Voz / world (A4) → same Skills · CLI by phases | **Horizon** | Engineer 2026-10-01: migrate CLI by phases, clean | DC placement §4 |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Parked** | after Skill-first · phased CLI migrate | DC placement §4 |
