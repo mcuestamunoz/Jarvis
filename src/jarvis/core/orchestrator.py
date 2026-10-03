@@ -319,8 +319,13 @@ class JarvisOrchestrator:
         # T11: process-scoped ArmedAllowlist for the vehicle chat path —
         # lazy-created by `_vehicle_chat_safety_gate()`. Starts disarmed;
         # ARM/DISARM Tasks toggle it. Not on InteractiveSessionState
-        # (clears would wipe the latch). Not SimulatedEscSink.arm().
+        # (clears would wipe the latch). Distinct from the simulated ESC
+        # sink's own arm sequence in flight_control — never imported here.
         self._vehicle_chat_safety_gate_instance = None
+        # T20: lazy process-scoped SimAutonomyExecutor (C40) for the chat
+        # vehicle path — separate from submit_command, never wired into the
+        # C4 surface. See `_sim_autonomy_executor()`.
+        self._sim_autonomy_executor_instance = None
         # U4: restaurar snapshot del proyecto más reciente si existe.
         # No-op si no hay proyectos en el workspace o el snapshot está ausente/corrupto.
         try:
@@ -495,27 +500,89 @@ class JarvisOrchestrator:
         # down the normal handle_user_text chain — this is only an earlier,
         # zero-LLM fast path for a strict subset.
         from jarvis.capabilities.intent import TerminalIntentAdapter
+        from jarvis.capabilities.skills_runtime import run_skill
         from jarvis.intelligence.assistant_task import try_defer_to_continuity_task
 
         continuity_intent = TerminalIntentAdapter.parse(stripped)
         if try_defer_to_continuity_task(continuity_intent) is not None:
+            # T22 Skill-first: gate Continuity defer through run_skill, then
+            # keep the existing project_status / startup_context product shape
+            # (+ proactive_question side effects) via _handle_project_status.
+            skill_result = run_skill(
+                "skill.project_status",
+                project_status_provider=self.build_startup_context,
+            )
+            if skill_result.reason in ("skill_stub", "safety_reject", "unknown_skill"):
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": (
+                        "Skill project_status no disponible "
+                        f"({skill_result.reason})."
+                    ),
+                }
             return self._handle_project_status()
+
+        # ── FN-016 wizard-cancel precedence (T15) ──────────────────────────────
+        # B1-fn016-rtl-wizard-precedence: "volver"/"vuelve"/"atras" are exact
+        # members of both NAVIGATION_BACK_WORDS (acquisition-wizard back-
+        # navigation) and VEHICLE_RETURN_HOME_PHRASES (T10 RTL). A
+        # DEFINE_MISSING_PARAMETERS wizard's own cancel must win over any
+        # vehicle Task intercept below — same result shape as the existing
+        # DEFINE_MISSING-mode FN-016 cancel further down this dispatch chain
+        # (kept there too, as defense in depth for direct callers). IDLE (no
+        # active wizard): this check is skipped, so "volver" still reaches
+        # RETURN_HOME via the existing T10 path below.
+        if (
+            self.state_manager.runtime_state.session.mode
+            == OrchestratorMode.DEFINE_MISSING_PARAMETERS
+            and is_navigation_back_phrase(stripped)
+        ):
+            self.state_manager.clear_runtime_session()
+            return {
+                "status": "cancelled",
+                "action": "define_missing_params",
+                "message": "Definición cancelada. Puedes retomar cuando quieras.",
+            }
 
         # ── Safety policy ARM intercept (T11) ─────────────────────────────────
         # T11 (B1-assistant-vehicle-arm-ux): arm/disarm the process-scoped
         # chat ArmedAllowlist latch — not an AutonomyVerb. Precedence:
         # explain → Continuity defer → ARM → DISARM → HOLD → … .
+        # T30 Skill-first: gate through run_skill("skill.request_arm_policy")
+        # first (software Safety + policy gate-only — not the vehicle gate);
+        # on ok keep _handle_arm_policy unchanged (same latch mutate +
+        # honesty). `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_arm_policy_task
 
         arm_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_arm_policy_task(arm_intent) is not None:
+            arm_skill = run_skill("skill.request_arm_policy")
+            if arm_skill.outcome != "ok":
+                reason = arm_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_arm_policy no disponible ({reason}).",
+                }
             return self._handle_arm_policy(arm_intent)
 
         # ── Safety policy DISARM intercept (T11) ──────────────────────────────
+        # T30 Skill-first: gate through run_skill("skill.request_disarm_policy")
+        # first (same software Safety + policy gate-only shape as ARM); on ok
+        # keep _handle_disarm_policy unchanged.
         from jarvis.intelligence.assistant_task import try_request_disarm_policy_task
 
         disarm_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_disarm_policy_task(disarm_intent) is not None:
+            disarm_skill = run_skill("skill.request_disarm_policy")
+            if disarm_skill.outcome != "ok":
+                reason = disarm_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_disarm_policy no disponible ({reason}).",
+                }
             return self._handle_disarm_policy(disarm_intent)
 
         # ── Vehicle HOLD intercept, via Assistant Task seam (T6) ──────────────
@@ -525,10 +592,22 @@ class JarvisOrchestrator:
         # Task kind. Precedence: explain → Continuity defer → ARM → DISARM →
         # HOLD → fallthrough. Fulfilled here via the shared chat
         # ArmedAllowlist (T11) — never a claim of executed flight.
+        # T23 Skill-first: gate through run_skill("skill.request_hold") first
+        # (vehicle membership/provider path — not SoftwareCapabilitySafetyGate);
+        # on ok keep _handle_vehicle_hold (ArmedAllowlist + T20 sim copper).
+        # `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_hold_task
 
         hold_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_hold_task(hold_intent) is not None:
+            hold_skill = run_skill("skill.request_hold")
+            if hold_skill.outcome != "ok":
+                reason = hold_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_hold no disponible ({reason}).",
+                }
             return self._handle_vehicle_hold(hold_intent)
 
         # ── Vehicle LAND intercept, via Assistant Task seam (T7) ──────────────
@@ -541,10 +620,21 @@ class JarvisOrchestrator:
         # guards refuse them too). Fulfilled here via the shared chat
         # ArmedAllowlist (T11) — honest reject/allow only, never a claim
         # of executed/landed flight.
+        # T24 Skill-first: gate through run_skill("skill.request_land") first
+        # (shared vehicle gate with HOLD — not SoftwareCapabilitySafetyGate);
+        # on ok keep _handle_vehicle_land (ArmedAllowlist + T20 sim copper).
         from jarvis.intelligence.assistant_task import try_request_land_task
 
         land_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_land_task(land_intent) is not None:
+            land_skill = run_skill("skill.request_land")
+            if land_skill.outcome != "ok":
+                reason = land_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_land no disponible ({reason}).",
+                }
             return self._handle_vehicle_land(land_intent)
 
         # ── Vehicle GO_TO intercept, via Assistant Task seam (T8) ─────────────
@@ -556,10 +646,24 @@ class JarvisOrchestrator:
         # fallthrough. Fulfilled here via the shared chat ArmedAllowlist
         # (T11); empty params (no coordinate/waypoint parsing). Honest
         # reject/allow only — never a claim of navigated/arrived flight.
+        # T25 Skill-first: gate through run_skill("skill.request_go_to")
+        # first (shared vehicle gate with HOLD/LAND — not
+        # SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_go_to
+        # (ArmedAllowlist + T20 sim copper + SD-GO_TO "sin destino" honesty
+        # — SD-GO_TO stays OPEN, no coordinate parse/invent here either).
+        # `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_go_to_task
 
         go_to_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_go_to_task(go_to_intent) is not None:
+            go_to_skill = run_skill("skill.request_go_to")
+            if go_to_skill.outcome != "ok":
+                reason = go_to_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_go_to no disponible ({reason}).",
+                }
             return self._handle_vehicle_go_to(go_to_intent)
 
         # ── Vehicle TAKEOFF intercept, via Assistant Task seam (T9) ───────────
@@ -569,12 +673,27 @@ class JarvisOrchestrator:
         # vehicle Task kind, same seam as T6/T7/T8. Precedence: explain →
         # Continuity defer → ARM → DISARM → HOLD → LAND → GO_TO → TAKEOFF
         # → fallthrough. Fulfilled here via the shared chat ArmedAllowlist
-        # (T11); empty params (no altitude parsing). Allow-list still
-        # excludes TAKEOFF → verb_not_allowed when armed. Honest UX only.
+        # (T11); empty params (no altitude parsing). Allow-list widened
+        # in T14 — after `armar`, TAKEOFF → `allow`/`not_implemented`
+        # (never executed). Honest UX only.
+        # T26 Skill-first: gate through run_skill("skill.request_takeoff")
+        # first (shared vehicle gate with HOLD/LAND/GO_TO — not
+        # SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_takeoff
+        # unchanged. TAKEOFF is NOT in the T20 sim-copper tick set (only
+        # HOLD/LAND/GO_TO) — no tick added here either. `run_skill` already
+        # imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_takeoff_task
 
         takeoff_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_takeoff_task(takeoff_intent) is not None:
+            takeoff_skill = run_skill("skill.request_takeoff")
+            if takeoff_skill.outcome != "ok":
+                reason = takeoff_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_takeoff no disponible ({reason}).",
+                }
             return self._handle_vehicle_takeoff(takeoff_intent)
 
         # ── Vehicle RETURN_HOME intercept, via Assistant Task seam (T10) ──────
@@ -584,11 +703,28 @@ class JarvisOrchestrator:
         # kind, closes basic mando set. Precedence: … → TAKEOFF → RETURN_HOME
         # → fallthrough. Exact match only (short words like casa/home/volver
         # must not steal "volver al board"). Fulfilled here with empty params
-        # via the shared chat ArmedAllowlist (T11); allow-list not widened.
+        # via the shared chat ArmedAllowlist (T11); allow-list widened in
+        # T14 — after `armar`, RETURN_HOME → `allow`/`not_implemented`
+        # (never executed).
+        # T27 Skill-first: gate through run_skill("skill.request_return_home")
+        # first (shared vehicle gate with HOLD/LAND/GO_TO/TAKEOFF — not
+        # SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_return_home
+        # unchanged. RETURN_HOME is NOT in the T20 sim-copper tick set — no
+        # tick added here either. The FN-016 wizard nav-back cancel above
+        # (T15) still runs before this branch is ever reached — unreordered.
+        # `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_return_home_task
 
         return_home_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_return_home_task(return_home_intent) is not None:
+            return_home_skill = run_skill("skill.request_return_home")
+            if return_home_skill.outcome != "ok":
+                reason = return_home_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_return_home no disponible ({reason}).",
+                }
             return self._handle_vehicle_return_home(return_home_intent)
 
         # ── Vehicle FOLLOW intercept, via Assistant Task seam (T12) ───────────
@@ -596,36 +732,140 @@ class JarvisOrchestrator:
         # (request_follow) requiring flight.follow — sixth vehicle kind.
         # Precedence: … → RETURN_HOME → FOLLOW → fallthrough. Exact match only
         # (sigue/follow must not steal craft lines). Fulfilled here with empty
-        # params via the shared chat ArmedAllowlist (T11); allow-list not
-        # widened (FOLLOW → verb_not_allowed when armed).
+        # params via the shared chat ArmedAllowlist (T11); allow-list widened
+        # in T14 — after `armar`, FOLLOW → `allow`/`not_implemented`
+        # (never executed).
+        # T28 Skill-first: gate through run_skill("skill.request_follow") first
+        # (shared vehicle gate with HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME — not
+        # SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_follow
+        # unchanged. FOLLOW is NOT in the T20 sim-copper tick set (only
+        # HOLD/LAND/GO_TO) — no tick added here either. `run_skill` already
+        # imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_follow_task
 
         follow_intent = TerminalIntentAdapter.parse(stripped)
         if try_request_follow_task(follow_intent) is not None:
+            follow_skill = run_skill("skill.request_follow")
+            if follow_skill.outcome != "ok":
+                reason = follow_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_follow no disponible ({reason}).",
+                }
             return self._handle_vehicle_follow(follow_intent)
+
+        # ── Vehicle PATROL intercept, via Assistant Task seam (T13) ──────────
+        # T13 (B1-assistant-vehicle-patrol-task): finite PATROL phrases → Task
+        # (request_patrol) requiring flight.patrol — seventh and last vehicle
+        # kind (last C4 AutonomyVerb without a chat Task). Precedence: … →
+        # FOLLOW → PATROL → fallthrough. Exact match only (patrol/patrulla
+        # must not steal craft lines). Fulfilled here with empty params via
+        # the shared chat ArmedAllowlist (T11); allow-list widened in T14 —
+        # after `armar`, PATROL → `allow`/`not_implemented` (never executed).
+        # T29 Skill-first: gate through run_skill("skill.request_patrol") first
+        # (shared vehicle gate with HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME/FOLLOW —
+        # not SoftwareCapabilitySafetyGate); on ok keep _handle_vehicle_patrol
+        # unchanged. PATROL is NOT in the T20 sim-copper tick set (only
+        # HOLD/LAND/GO_TO) — no tick added here either. This closes the full
+        # seven-verb chat AutonomyVerb Skill-first set. `run_skill` already
+        # imported above (Continuity defer T22).
+        from jarvis.intelligence.assistant_task import try_request_patrol_task
+
+        patrol_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_patrol_task(patrol_intent) is not None:
+            patrol_skill = run_skill("skill.request_patrol")
+            if patrol_skill.outcome != "ok":
+                reason = patrol_skill.reason or "reject"
+                return {
+                    "status": "ok",
+                    "action": "global_command",
+                    "message": f"Skill request_patrol no disponible ({reason}).",
+                }
+            return self._handle_vehicle_patrol(patrol_intent)
+
+        # ── Ops CHARGE intercept, via Assistant Task seam (T19) ───────────────
+        # T19 (B1-assistant-ops-charge-task): finite CHARGE phrases → Task
+        # (request_charge) requiring ops.charge — first **ops** Task kind.
+        # CHARGE is deliberately NOT an AutonomyVerb — never goes through
+        # ArmedAllowlistSafetyGate, armed or disarmed makes no difference.
+        # Precedence: … → PATROL → CHARGE → fallthrough. Exact match only
+        # (charge/cargar must not steal payload/mission lines like "carga
+        # util"). Fulfilled here without propose_command/AutonomyVerb/sim
+        # executor — honest Spanish that charge ops are not implemented.
+        from jarvis.intelligence.assistant_task import try_request_charge_task
+
+        charge_intent = TerminalIntentAdapter.parse(stripped)
+        if try_request_charge_task(charge_intent) is not None:
+            return self._handle_ops_charge(charge_intent)
 
         return None
 
     def _vehicle_chat_safety_gate(self):
         """T11 — lazy process-scoped `ArmedAllowlistSafetyGate` for the
         vehicle chat path. Starts disarmed. ARM/DISARM toggle it; the
-        five vehicle fulfills submit through this same instance."""
+        vehicle fulfills (HOLD…PATROL) submit through this same instance."""
         from jarvis.capabilities.safety import ArmedAllowlistSafetyGate
 
         if self._vehicle_chat_safety_gate_instance is None:
             self._vehicle_chat_safety_gate_instance = ArmedAllowlistSafetyGate()
         return self._vehicle_chat_safety_gate_instance
 
+    def _sim_autonomy_executor(self):
+        """T20 — lazy process-scoped `SimAutonomyExecutor` (C40) for the
+        chat vehicle path. Separate from, and never wired into,
+        `submit_command`/`AutonomySubmissionResult` (C4 surface honesty
+        unchanged — `submit_command` still always returns execution
+        `"not_implemented"`). Only called after Safety `allow`, for
+        HOLD/LAND/GO_TO. Owns its own `ToyQuad6DofPlant` — never
+        `SimulatedEscSink`/ESC HAL, never imported here."""
+        from jarvis.flight_software.autonomy.sim_executor import SimAutonomyExecutor
+        from jarvis.flight_software.flight_control.plant import ToyQuad6DofPlant
+
+        if self._sim_autonomy_executor_instance is None:
+            self._sim_autonomy_executor_instance = SimAutonomyExecutor(ToyQuad6DofPlant())
+        return self._sim_autonomy_executor_instance
+
+    def _sim_autonomy_tick_note(self, verb: Any) -> str:
+        """T20 — after Safety `allow` for HOLD/LAND/GO_TO, run one
+        `SimAutonomyExecutor.tick` and return a short, honest Spanish
+        note for the chat message. Never claims copper flight/motors/
+        ESC. `GO_TO` from chat always carries empty params (T8 — no
+        coordinate parsing), which the sim executor's own contract
+        rejects (`GO_TO` requires `x_m`/`y_m`) — caught here and
+        reported as sim-unavailable-without-a-target, never a crash,
+        never an invented destination.
+
+        Later wire (debt **SD-GO_TO**): pass real destination into
+        `SimAutonomyParams` on this same path when chat/voice can name
+        a target honestly. SoT:
+        `.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md`.
+        """
+        from jarvis.flight_software.autonomy.sim_executor import SimAutonomyParams
+
+        executor = self._sim_autonomy_executor()
+        try:
+            # Seam for SD-GO_TO: today empty params; later supply x_m/y_m here.
+            tick_result = executor.tick(verb, SimAutonomyParams(), dt_s=0.01)
+        except ValueError:
+            return "Simulación no disponible sin destino (GO_TO requiere coordenadas; este chat no las parsea aún)."
+        return (
+            f"Simulación (no vuelo real, sin ESC/motores): tick en t={tick_result.t_s:.2f}s, "
+            f"colectivo={tick_result.collective:.3f}."
+        )
+
     def _handle_arm_policy(self, intent: Any) -> dict:
         """T11 fulfill: arm the shared chat ArmedAllowlist latch.
-        Software Safety policy only — never ESC/motors/drone/flight."""
+        Software Safety policy only — never ESC/motors/drone/flight.
+        T14 (B1-assistant-vehicle-allowlist-widen): the latch now allows
+        all seven chat verbs once armed — message updated to match."""
         gate = self._vehicle_chat_safety_gate()
         gate.arm()
         message = (
             "Política Safety del chat ARMADA (latch de software ArmedAllowlist). "
-            "No es armado de ESC, motores ni del dron. HOLD/LAND/GO_TO pueden "
-            "pasar a allow/not_implemented; TAKEOFF/RETURN_HOME siguen "
-            "verb_not_allowed hasta un Buy que ensanche la allow-list. "
+            "No es armado de ESC, motores ni del dron. HOLD/LAND/GO_TO/TAKEOFF/"
+            "RETURN_HOME/FOLLOW/PATROL pueden pasar a allow/not_implemented "
+            "(nunca ejecutado de verdad). "
             f"Latch armed={gate.armed}."
         )
         return {"status": "ok", "action": "vehicle_arm_policy", "message": message}
@@ -646,7 +886,10 @@ class JarvisOrchestrator:
         `AutonomyVerb.HOLD` and submits through the **shared** chat
         ArmedAllowlist (T11). Never calls `gate.arm()` here.
         `default_safety_gate()` untouched. Honest UX — never claims hold
-        executed."""
+        executed. T20: after Safety `allow`, also runs one
+        `SimAutonomyExecutor.tick` (sim only, never copper) and reports
+        it in the message; `submit_command`'s own `execution` field
+        stays byte-unchanged at `"not_implemented"`."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -657,11 +900,15 @@ class JarvisOrchestrator:
             f"todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
             f"Ejecución: {result.execution}."
         )
+        if result.safety.outcome == "allow":
+            message += " " + self._sim_autonomy_tick_note(AutonomyVerb.HOLD)
         return {"status": "ok", "action": "vehicle_hold", "message": message}
 
     def _handle_vehicle_land(self, intent: Any) -> dict:
         """T7 fulfill — thin sibling of HOLD; shared chat ArmedAllowlist
-        (T11). Never arms the gate here. Honest UX only."""
+        (T11). Never arms the gate here. Honest UX only. T20: after
+        Safety `allow`, also runs one `SimAutonomyExecutor.tick` (sim
+        only, never copper)."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -672,11 +919,18 @@ class JarvisOrchestrator:
             f"todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
             f"Ejecución: {result.execution}."
         )
+        if result.safety.outcome == "allow":
+            message += " " + self._sim_autonomy_tick_note(AutonomyVerb.LAND)
         return {"status": "ok", "action": "vehicle_land", "message": message}
 
     def _handle_vehicle_go_to(self, intent: Any) -> dict:
         """T8 fulfill — empty params; shared chat ArmedAllowlist (T11).
-        Never arms the gate here. Honest UX only."""
+        Never arms the gate here. Honest UX only. T20: after Safety
+        `allow`, also attempts one `SimAutonomyExecutor.tick` (sim only,
+        never copper) — the sim executor requires a target for GO_TO,
+        which this chat path never parses, so the note honestly says
+        simulation is unavailable without one rather than inventing a
+        destination."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -687,12 +941,15 @@ class JarvisOrchestrator:
             f"chat todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
             f"Ejecución: {result.execution}."
         )
+        if result.safety.outcome == "allow":
+            message += " " + self._sim_autonomy_tick_note(AutonomyVerb.GO_TO)
         return {"status": "ok", "action": "vehicle_go_to", "message": message}
 
     def _handle_vehicle_takeoff(self, intent: Any) -> dict:
         """T9 fulfill — empty params; shared chat ArmedAllowlist (T11).
-        Allow-list still excludes TAKEOFF → verb_not_allowed when armed.
-        Never arms the gate here. Honest UX only."""
+        Allow-list widened in T14 — after `armar`, TAKEOFF →
+        `allow`/`not_implemented` (never executed). Never arms the gate
+        here. Honest UX only."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -707,7 +964,8 @@ class JarvisOrchestrator:
 
     def _handle_vehicle_return_home(self, intent: Any) -> dict:
         """T10 fulfill — empty params; shared chat ArmedAllowlist (T11).
-        Allow-list still excludes RETURN_HOME. Honest UX only."""
+        Allow-list widened in T14 — after `armar`, RETURN_HOME →
+        `allow`/`not_implemented` (never executed). Honest UX only."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -722,8 +980,9 @@ class JarvisOrchestrator:
 
     def _handle_vehicle_follow(self, intent: Any) -> dict:
         """T12 fulfill — empty params; shared chat ArmedAllowlist (T11).
-        Allow-list still excludes FOLLOW → verb_not_allowed when armed.
-        Never arms the gate here. Honest UX only — never claim following."""
+        Allow-list widened in T14 — after `armar`, FOLLOW →
+        `allow`/`not_implemented` (never executed). Never arms the gate
+        here. Honest UX only — never claim following."""
         from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
 
         gate = self._vehicle_chat_safety_gate()
@@ -735,6 +994,37 @@ class JarvisOrchestrator:
             f"Ejecución: {result.execution}."
         )
         return {"status": "ok", "action": "vehicle_follow", "message": message}
+
+    def _handle_vehicle_patrol(self, intent: Any) -> dict:
+        """T13 fulfill — empty params; shared chat ArmedAllowlist (T11).
+        Allow-list widened in T14 — after `armar`, PATROL →
+        `allow`/`not_implemented` (never executed). Never arms the gate
+        here. Honest UX only — never claim patrol/circuit/route executed."""
+        from jarvis.flight_software.autonomy import AutonomyVerb, propose_command, submit_command
+
+        gate = self._vehicle_chat_safety_gate()
+        command = propose_command(AutonomyVerb.PATROL, intent_id=intent.id, params={})
+        result = submit_command(command, gate)
+        message = (
+            "PATROL solicitado, pero no se ejecuta ningún circuito real desde este "
+            f"chat todavía. Safety: {result.safety.outcome} (motivo: {result.safety.reason}). "
+            f"Ejecución: {result.execution}."
+        )
+        return {"status": "ok", "action": "vehicle_patrol", "message": message}
+
+    def _handle_ops_charge(self, intent: Any) -> dict:
+        """T19 fulfill — first **ops** Task, not an AutonomyVerb. Never
+        calls `propose_command`/`AutonomyVerb`/the sim executor, and
+        never touches `ArmedAllowlistSafetyGate` (armed or disarmed makes
+        no difference to a non-flight-verb ops concept). Honest Spanish
+        — charge ops are not implemented; never a claim of real battery
+        charging."""
+        message = (
+            "Carga de batería solicitada, pero esta operación aún no está "
+            "implementada — no se inicia ninguna carga real. No es un "
+            "AutonomyVerb de vuelo."
+        )
+        return {"status": "ok", "action": "ops_charge", "message": message}
 
     _AFFIRMATIVE_WORDS: frozenset[str] = frozenset({
         "si", "sí", "s", "ok", "dale", "claro", "venga", "va", "adelante", "perfecto",
