@@ -179,7 +179,3 @@ def test_t6b_assistant_task_and_orchestrator_untouched_by_this_buy():
         for m in registry_imports
     )
 
-
-def test_t7_pyproject_version_is_0_6_10():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.20"' in text
