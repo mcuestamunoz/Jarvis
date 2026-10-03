@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.45`**
 
-**Status:** IC ready for Claude (Engineer paste = Buy).  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag `v0.6.45`.  
 **Parents:** [DC voice/channels ★ CLOSED](design_contract_assistant_chat_voice_channels_b0.md) · [T36 ★](implementation_review_assistant_voice_fixture_loop_b1.md) · [cola note](engineer_note_voice_phase_c_cola.md) · tip **`v0.6.44`**  
 **Type:** Phase **V3** — external STT process seam → same text ingress as T35/T36.  
 **Opens:** **`0.6.45` / `v0.6.45`**. **Cola:** **T37**
