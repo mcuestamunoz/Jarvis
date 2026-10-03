@@ -35,7 +35,7 @@
 | **T35** | V1 | `B1-assistant-voice-intent-ingress` | `0.6.43` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.43`** | `VoiceIntentAdapter` + `source` threading (12 sites) | [review ★](implementation_review_assistant_voice_intent_ingress_b1.md) |
 | **T36** | V2 | `B1-assistant-voice-fixture-loop` | `0.6.44` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.44`** | New `adapters/voice/` package; fixture-driven `run_voice` loop | [review ★](implementation_review_assistant_voice_fixture_loop_b1.md) |
 | **T37** | V3 | `B1-assistant-voice-stt-external` | `0.6.45` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.45`** | External STT process seam → same parse | [review ★](implementation_review_assistant_voice_stt_external_b1.md) · vendor ★ separate |
-| **T38** | V4 | `B1-assistant-voice-tts-external` | `0.6.46` | Implemented (Claude Code) · await Cursor review → Engineer ★ ACCEPT | External TTS process seam on `render_response` | [IC](implementation_contract_assistant_voice_tts_external_b1.md) · [report](implementation_report_assistant_voice_tts_external_b1.md) · [brief](engineer_note_voice_tts_product_brief.md) |
+| **T38** | V4 | `B1-assistant-voice-tts-external` | `0.6.46` | **Implemented** · await Cursor review → Engineer ★ ACCEPT | External TTS process seam on `render_response` | [IC](implementation_contract_assistant_voice_tts_external_b1.md) · [review](implementation_review_assistant_voice_tts_external_b1.md) · [brief](engineer_note_voice_tts_product_brief.md) |
 | **T39** | V5 | `B1-assistant-voice-v1-checkpoint` | **`0.7.0` / `v0.7.0`** | Parked — after T37+T38 ★ | **Product milestone** — voice v1 complete | opens minor `0.7` |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 | [placement A4](design_contract_assistant_placement_b0.md) |
 
