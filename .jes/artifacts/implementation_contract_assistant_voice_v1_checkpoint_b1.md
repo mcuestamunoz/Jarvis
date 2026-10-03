@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.7.0`**
 
-**Status:** **IC ready for Claude** (Engineer paste = Buy).  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag `v0.7.0`.  
 **Parents:** [DC voice/channels ★ CLOSED](design_contract_assistant_chat_voice_channels_b0.md) · [T38 ★](implementation_review_assistant_voice_tts_external_b1.md) · [T37 ★](implementation_review_assistant_voice_stt_external_b1.md) · [T36 ★](implementation_review_assistant_voice_fixture_loop_b1.md) · [T35 ★](implementation_review_assistant_voice_intent_ingress_b1.md) · [TTS product brief](engineer_note_voice_tts_product_brief.md) · [cola note](engineer_note_voice_phase_c_cola.md) · tip **`v0.6.46`**  
 **Type:** Phase **V5** — **product milestone** “Jarvis voz v1” (integration checkpoint).  
 **Opens:** **`0.7.0` / `v0.7.0`**. **Cola:** **T39**
