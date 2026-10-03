@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.41`**
 
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag `v0.6.41` (closes SD-GO_TO note on ACCEPT).  
+**Status:** Cursor **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag `v0.6.41` (closes SD-GO_TO note on ACCEPT).  
 **Parents:** [DC ★ CLOSED](design_contract_assistant_chat_go_to_destination_b0.md) · [SD-GO_TO note](engineer_note_t20_goto_chat_sim_destination_debt.md) · T20 ★ @ `v0.6.29` · T25 Skill-first GO_TO ★ @ `v0.6.34`  
 **Type:** Close SD-GO_TO — resolver seam + wire into existing T20 tick; bare GO_TO stays honest without inventing coords.  
 **Opens:** **`0.6.41` / `v0.6.41`**. **Cola:** **T32**
@@ -58,8 +58,9 @@
 
 ## 3. Acceptance
 
-- [ ] Resolver seam + tick wire · bare honesty · prove-now tick · connect plug · `0.6.41` · SD-GO_TO closable on ★  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.41`** · note Status **CLOSED**
+- [x] Resolver seam + tick wire · bare honesty · prove-now tick · connect plug · `0.6.41` · SD-GO_TO closable on ★  
+- [x] Cursor review (**PASS WITH NOTES** @ `1d7414f`)  
+- [ ] Engineer ACCEPT · tag **`v0.6.41`** · note Status **CLOSED**
 
 ---
 
