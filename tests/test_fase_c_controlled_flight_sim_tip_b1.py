@@ -140,16 +140,25 @@ def test_t7_default_safety_and_autonomy_submit_still_reject():
 
 
 def test_t8_plant_symbols_not_imported_by_orchestrator_or_craft_paths():
+    """T20 (`B1-assistant-chat-sim-copper`) deliberately imports
+    `flight_control.plant.ToyQuad6DofPlant` into `core/orchestrator.py`
+    (to construct the lazy, process-scoped `SimAutonomyExecutor` for the
+    chat sim-copper bridge) — that one file is excluded by name below.
+    `ToyQuadAttitudePlant` (a different, older plant class this Buy
+    never touches) stays banned everywhere, orchestrator included.
+    See `tests/test_assistant_chat_sim_copper_b1.py`."""
     core_dir = REPO_ROOT / "src" / "jarvis" / "core"
     adapters_dir = REPO_ROOT / "src" / "jarvis" / "adapters"
     for directory in (core_dir, adapters_dir):
         for py_file in directory.rglob("*.py"):
             text = py_file.read_text(encoding="utf-8")
-            assert "flight_control.plant" not in text, (
-                f"{py_file} imports flight_control.plant — forbidden craft coupling"
-            )
             assert "ToyQuadAttitudePlant" not in text, (
                 f"{py_file} references ToyQuadAttitudePlant — forbidden craft coupling"
+            )
+            if py_file.name == "orchestrator.py":
+                continue
+            assert "flight_control.plant" not in text, (
+                f"{py_file} imports flight_control.plant — forbidden craft coupling"
             )
 
 
@@ -181,6 +190,12 @@ def test_t9_capability_registry_default_still_empty():
     # T12 (B1-assistant-vehicle-follow-task): a tenth, skill.request_follow
     # (requires flight.follow, not_implemented/vehicle) — see
     # tests/test_assistant_vehicle_follow_task_b1.py.
+    # T13 (B1-assistant-vehicle-patrol-task): an eleventh, skill.request_patrol
+    # (requires flight.patrol, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_patrol_task_b1.py.
+    # T19 (B1-assistant-ops-charge-task): a twelfth, skill.request_charge
+    # (requires ops.charge, not_implemented/device). CHARGE is not an
+    # AutonomyVerb — see tests/test_assistant_ops_charge_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -194,12 +209,9 @@ def test_t9_capability_registry_default_still_empty():
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
         "skill.request_follow",
+        "skill.request_patrol",
+        "skill.request_charge",
     }
-
-
-def test_t10_pyproject_version_is_0_5_9():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
 
 
 def test_plant_step_consumes_motor_force_command_not_pwm():

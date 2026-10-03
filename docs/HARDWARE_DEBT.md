@@ -2,6 +2,8 @@
 
 Registro vivo de **física que Jarvis no inventa**. Cada ítem necesita **T1** (curva del fabricante para ese SKU) o **T2** (banco instrumentado sobre el SKU o un sustituto **declarado**). No son bugs de software y **no bloquean** el resto de Jarvis.
 
+> Este registro es solo hardware/lab (HD-*). Para el mapa completo de *todas* las conexiones diferidas — plugs de software, honesty stubs, y este mismo hardware parqueado, visto desde un solo índice — ver [`engineer_note_connect_plugs_real_data_map.md`](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md) (T33).
+
 **Cola:** HD-* **nunca** es 🔴 PRIORIDAD ACTUAL en `IMPLEMENTATION_TASKS.md`. Engineer (2026-09-03): no hay equipo, banco ni herramientas de laboratorio; no hay campaña T1/T2. Aparcar OPEN está bien. Los agentes **no** proponen HD-* como “siguiente” al cerrar un IC de producto.
 
 **Engineer lock (2026-09-05):** autonomía / Prop-Energy **experimental** = **pared física** (HD-004). No abrir “Prop/Energy Evidence implementation” para fingir madurez de autonomía. Ver [`.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md`](../.jes/artifacts/engineer_lock_prop_energy_evidence_wall.md).
