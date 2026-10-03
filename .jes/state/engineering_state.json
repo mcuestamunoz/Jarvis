@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T34-inv voice end-to-end investigation AUTHORIZED for Claude @ tip v0.6.42; read-only map + phased design; not STT/TTS impl",
-  "scope": "INV-only authorize. Claude forensically maps chat→Skill-first seams, VoiceIntentAdapter stub, absent audio I/O, craft vs Skills surfaces; delivers investigation report with 3–7 independently ★-able phases and first-Buy recommendation (expect DC then Intent-ingress IC).",
-  "execution_status": "authorized_awaiting_impl",
-  "current_mode": "authorize",
+  "cycle_intent": "T34-inv voice end-to-end investigation Implemented by Claude @ tip v0.6.42; read-only map + phased design delivered; not STT/TTS impl",
+  "scope": "INV delivered. Claude forensically mapped chat→Skill-first seams, VoiceIntentAdapter stub, absent audio I/O, craft vs Skills surfaces; investigation_report_assistant_voice_e2e_b0.md answers Q1-Q12 with a 7-phase plan (V0-V6) and first-Buy recommendation (DC B1-assistant-chat-voice-channels then IC B1-assistant-voice-intent-ingress).",
+  "execution_status": "implemented_awaiting_review",
+  "current_mode": "await_review",
   "movement_trigger": {
     "type": "engineer",
     "reason": "Engineer: IC investigacion voz principio a fin — disenar por fases armonizado con el codigo"
@@ -18,26 +18,28 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/investigation_contract_assistant_voice_e2e_b0.md"
+    ".jes/artifacts/investigation_contract_assistant_voice_e2e_b0.md",
+    ".jes/artifacts/investigation_report_assistant_voice_e2e_b0.md"
   ],
   "open_questions": [
-    "Claude delivers investigation_report_assistant_voice_e2e_b0.md?",
-    "After INV ★: DC voice/channels then first IC?",
-    "Is world/ deferred past voice v1?"
+    "Engineer ★ on the investigation findings?",
+    "DC voice/channels (B1-assistant-chat-voice-channels) authorized next?",
+    "Confirm world/ deferred past voice v1 (Q7 recommendation)?"
   ],
   "active_operation": {
-    "type": "authorized_investigation",
+    "type": "implemented_investigation",
     "contract": "investigation_contract_assistant_voice_e2e_b0.md",
+    "report": "investigation_report_assistant_voice_e2e_b0.md",
     "ids": [
       "T34-inv",
       "INV-assistant-voice-e2e"
     ],
-    "blocked_on": "claude_investigation"
+    "blocked_on": "cursor_review_then_engineer_star"
   },
   "closed_this_turn": [
     "T32 ★ ACCEPT CLOSED @ v0.6.41",
     "T33 ★ ACCEPT CLOSED @ v0.6.42",
-    "T34-inv written and AUTHORIZED"
+    "T34-inv report delivered — Implemented, awaiting Cursor review → Engineer ★"
   ],
   "authority_gates": [
     "No src/ behavior change this Buy",
@@ -48,9 +50,10 @@
     "Package stays 0.6.42 until first voice code Buy"
   ],
   "coherence_checklist": [
-    "INV AUTHORIZED with paste for Claude",
-    "PRIORIDAD points to T34-inv",
-    "Skill-first phase C is the parent block language"
+    "INV report delivered answering Q1-Q12 with citations",
+    "PRIORIDAD updated to Implemented, await Cursor review",
+    "Skill-first phase C is the parent block language",
+    "Connect-plugs map voice rows pointer-updated, status left OPEN/Parked"
   ],
-  "updated_at": "2026-10-03T09:05:00Z"
+  "updated_at": "2026-10-03T09:30:00Z"
 }
