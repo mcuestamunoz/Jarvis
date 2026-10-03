@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T37 implementado…”)  
 **Against:** [IC](implementation_contract_assistant_voice_stt_external_b1.md) · [report](implementation_report_assistant_voice_stt_external_b1.md) · [DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [cola note](engineer_note_voice_phase_c_cola.md)  
 **Tip reviewed:** `955bb18` on `cursor/voice-stt-external-impl-8ac5` (parent IC `421a327` / tip `v0.6.44`)  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ **ACCEPT** → tag **`v0.6.45`**.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-03) @ tip **`v0.6.45`**.
 
-**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record.
 
 ---
 
@@ -65,15 +65,14 @@ Report full-suite claim (3980 / +6) not re-run here.
 
 **N2 — TTS product brief tip sibling.** Engineer brief (British / grave / free-first Piper) lives on `cursor/voice-tts-product-brief-8ac5` (PR #35), not stacked into this impl tip. **Rescue at T38** — do not lose. Engineer already parked that path.
 
-**N3 — Process.** Engineer ★ ACCEPT → tag **`v0.6.45`**. Next IC when Engineer says proceed: **T38** TTS-external @ `0.6.46` (independent of T37; both need T36 ★). T39 product milestone **`v0.7.0`** after T37+T38.
+**N3 — Process.** Engineer ★ ACCEPT (2026-10-03) → tag **`v0.6.45`**. Next IC when Engineer says proceed: **T38** TTS-external @ `0.6.46` — rescue TTS product brief / Piper `en_GB` (PR #35). T39 product milestone **`v0.7.0`** after T37+T38 ★.
 
 ---
 
-## 4. Awaiting
+## 4. Closed
 
 ```text
-Cursor verdict: PASS WITH NOTES
-Await Engineer ★ ACCEPT → tag v0.6.45
+★ ACCEPT CLOSED @ v0.6.45
 Next paste when Engineer says proceed: T38 B1-assistant-voice-tts-external @ 0.6.46
-(Rescue TTS product brief / Piper en_GB at that IC)
+(Rescue TTS product brief / Piper en_GB)
 ```

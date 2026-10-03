@@ -3,7 +3,7 @@
 **Date:** 2026-10-03  
 **Status:** **OPEN living cola index** — seeded after T34-inv ★ + T34-DC ★  
 **Authority:** Engineer — update documentary system + queue ICs before first voice code Buy  
-**Tip parent:** **`v0.6.44`** (T36 ★)
+**Tip parent:** **`v0.6.45`** (T37 ★)
 
 **Purpose:** One place to see the **ordered voice Buys** that take Jarvis from “chat-only Skill-first” to “voice end-to-end on today’s brain.” Not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp required).
 
@@ -34,7 +34,7 @@
 | **T34-DC** | V0 | `DC-assistant-chat-voice-channels` | — | ✅ ★ CLOSED | Block locks | [DC ★](design_contract_assistant_chat_voice_channels_b0.md) |
 | **T35** | V1 | `B1-assistant-voice-intent-ingress` | `0.6.43` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.43`** | `VoiceIntentAdapter` + `source` threading (12 sites) | [review ★](implementation_review_assistant_voice_intent_ingress_b1.md) |
 | **T36** | V2 | `B1-assistant-voice-fixture-loop` | `0.6.44` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.44`** | New `adapters/voice/` package; fixture-driven `run_voice` loop | [review ★](implementation_review_assistant_voice_fixture_loop_b1.md) |
-| **T37** | V3 | `B1-assistant-voice-stt-external` | `0.6.45` | **Implemented** · await Cursor review → Engineer ★ ACCEPT | External STT process seam → same parse | [IC](implementation_contract_assistant_voice_stt_external_b1.md) · [review](implementation_review_assistant_voice_stt_external_b1.md) · vendor ★ separate |
+| **T37** | V3 | `B1-assistant-voice-stt-external` | `0.6.45` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.45`** | External STT process seam → same parse | [review ★](implementation_review_assistant_voice_stt_external_b1.md) · vendor ★ separate |
 | **T38** | V4 | `B1-assistant-voice-tts-external` | `0.6.46` | Parked — after T36 ★ | External TTS on render output | may run before/after T37 · vendor ★ separate |
 | **T39** | V5 | `B1-assistant-voice-v1-checkpoint` | **`0.7.0` / `v0.7.0`** | Parked — after T37+T38 ★ | **Product milestone** — voice v1 complete | opens minor `0.7` |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 | [placement A4](design_contract_assistant_placement_b0.md) |

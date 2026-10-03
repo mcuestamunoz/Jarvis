@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T37 voice STT-external IC ready for Claude @ 0.6.45; Engineer paste = Buy (no AUTHORIZED stamp); vendor pick remains separate ★",
-  "scope": "IC-only. Claude implements external STT process seam in adapters/voice (env cmd → transcript → run_voice_turn). No speech SDK in pyproject. No TTS.",
-  "execution_status": "ic_ready_for_claude",
-  "current_mode": "ic",
+  "cycle_intent": "T37 voice STT-external ★ ACCEPT CLOSED @ v0.6.45; next candidate T38 TTS-external Parked @ 0.6.46 awaiting Engineer paste (rescue Piper brief)",
+  "scope": "Engineer ACCEPT of T37 after Cursor PASS WITH NOTES. Tag v0.6.45. Advance a4-voice-world. No T38 IC until Engineer asks.",
+  "execution_status": "accept_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: genera"
+    "reason": "Engineer: accept"
   },
   "relevant_workflow_phases": [
-    "IC"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,35 +18,34 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_stt_external_b1.md"
+    ".jes/artifacts/implementation_review_assistant_voice_stt_external_b1.md"
   ],
   "open_questions": [
-    "Claude implements T37 @ 0.6.45?",
-    "Later: Engineer ★ for real STT vendor binary?"
+    "Engineer paste T38 B1-assistant-voice-tts-external @ 0.6.46? (rescue Piper en_GB brief from PR #35)"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "accept_closed",
     "contract": "implementation_contract_assistant_voice_stt_external_b1.md",
     "ids": [
       "T37",
-      "B1-assistant-voice-stt-external"
+      "B1-assistant-voice-stt-external",
+      "v0.6.45"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "engineer_paste_t38"
   },
   "closed_this_turn": [
-    "T37 IC written for Claude paste"
+    "T37 ★ ACCEPT CLOSED @ v0.6.45"
   ],
   "authority_gates": [
-    "No AUTHORIZED stamp — Engineer paste is the Buy",
-    "No vendor SDK / tip-pinned speech deps",
-    "No TTS this Buy",
+    "Do not write T38 IC until Engineer asks",
+    "Rescue TTS product brief / Piper at T38 IC",
     "Do not open 0.7.0 (T39 only)",
-    "No ACCEPT claim"
+    "No tip/package version pin tests"
   ],
   "coherence_checklist": [
-    "IC ready @ 0.6.45",
-    "Paste for Claude ready (no AUTHORIZED)",
-    "PRIORIDAD points to T37 IC ready"
+    "Tag v0.6.45 on ACCEPT tip",
+    "PRIORIDAD points to T38 Parked",
+    "a4-voice-world advanced to T37 ★"
   ],
-  "updated_at": "2026-10-03T16:05:00Z"
+  "updated_at": "2026-10-03T16:20:00Z"
 }

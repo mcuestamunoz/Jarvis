@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.45`**
 
-**Status:** **Implemented** (Claude Code) — Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag `v0.6.45`.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-03) — Cursor **PASS WITH NOTES** · tip **`v0.6.45`**.  
 **Parents:** [DC voice/channels ★ CLOSED](design_contract_assistant_chat_voice_channels_b0.md) · [T36 ★](implementation_review_assistant_voice_fixture_loop_b1.md) · [cola note](engineer_note_voice_phase_c_cola.md) · tip **`v0.6.44`**  
 **Type:** Phase **V3** — external STT process seam → same text ingress as T35/T36.  
 **Opens:** **`0.6.45` / `v0.6.45`**. **Cola:** **T37**
@@ -60,8 +60,8 @@ Prefer **not** touching `orchestrator.py` / Skill classify/fulfill.
 
 ## 3. Acceptance
 
-- [ ] External STT process seam feeds same VOICE ingress · `0.6.45` · no vendor SDK in deps  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.45`**
+- [x] External STT process seam feeds same VOICE ingress · `0.6.45` · no vendor SDK in deps  
+- [x] Cursor review (**PASS WITH NOTES**) · Engineer ACCEPT · tag **`v0.6.45`**
 
 ---
 
