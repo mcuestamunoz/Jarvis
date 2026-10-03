@@ -6,7 +6,7 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T32** chat GO_TO destination — ★ **AUTHORIZED** for Claude @ package **`0.6.41`** (closes **SD-GO_TO** · resolver seam + metadata connect plug · prove-now `go to <x> <y>` · bare stays sin destino · **not** copper/board).  
+> **PRIORIDAD AHORA:** **T32** chat GO_TO destination — **Implemented** (Claude Code) @ **`0.6.41`**, await Cursor review → Engineer ★ ACCEPT (closes **SD-GO_TO** on ACCEPT · resolver seam + metadata connect plug · prove-now `go to <x> <y>` · bare stays sin destino · **not** copper/board).  
 > **Just closed:** **T31** Skill-first ops CHARGE ★ **ACCEPT CLOSED** @ **`v0.6.40`** (Skill-first phase B complete).  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt:** **SD-GO_TO** → Buy AUTHORIZED ([note](../.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md) · [IC](../.jes/artifacts/implementation_contract_assistant_chat_go_to_destination_b1.md)).  
@@ -81,7 +81,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T29** | **`B1-assistant-chat-skill-first-vehicle-patrol`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.38`** | PATROL Skill-first · closes 7 AutonomyVerb Skill-first set · no route invent · no sim PATROL tick | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_patrol_b1.md) |
 | **T30** | **`B1-assistant-chat-skill-first-policy-arm`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.39`** | ARM+DISARM Skill-first · software Safety + `_POLICY_GATE_SKILL_IDS` gate-only · **not** vehicle gate | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_policy_arm_b1.md) |
 | **T31** | **`B1-assistant-chat-skill-first-ops-charge`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.40`** | CHARGE Skill-first · device gate-only · closes last chat Skill stub · twelve Skills / DC phase B ★ | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_ops_charge_b1.md) |
-| **T32** | **`B1-assistant-chat-go-to-destination`** | ★ **AUTHORIZED** · Claude @ `0.6.41` | Close SD-GO_TO · `_resolve_go_to_destination` (metadata plug + prove-now parse) · wire T20 tick · bare sin destino | [IC](../.jes/artifacts/implementation_contract_assistant_chat_go_to_destination_b1.md) · [DC](../.jes/artifacts/design_contract_assistant_chat_go_to_destination_b0.md) |
+| **T32** | **`B1-assistant-chat-go-to-destination`** | **Implemented** (Claude Code) · `0.6.41` · await Cursor review → Engineer ★ ACCEPT (closes SD-GO_TO on ACCEPT) | Close SD-GO_TO · `_resolve_go_to_destination` (metadata plug + prove-now parse) · wire T20 tick · bare sin destino | [IC](../.jes/artifacts/implementation_contract_assistant_chat_go_to_destination_b1.md) · [DC](../.jes/artifacts/design_contract_assistant_chat_go_to_destination_b0.md) |
 | **after T32** | Voz / world (A4) → same Skills · CLI by phases | **Horizon** | Engineer 2026-10-01: migrate CLI by phases, clean | DC placement §4 |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Parked** | after Skill-first · phased CLI migrate | DC placement §4 |

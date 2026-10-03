@@ -156,6 +156,8 @@ AST-enforced fence (also: no `jarvis.flight_software` /
 
 from __future__ import annotations
 
+import math
+import re
 import unicodedata
 from pathlib import Path
 
@@ -355,6 +357,40 @@ def _normalize_for_continuity_match(text: str) -> str:
     return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
 
 
+_GO_TO_DESTINATION_PATTERN = re.compile(
+    r"^(?:go to|goto|ir a|ve a)\s+([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)$"
+)
+
+
+def parse_go_to_destination(raw_text: str) -> tuple[float, float] | None:
+    """T32 (`B1-assistant-chat-go-to-destination`) prove-now GO_TO
+    destination parse — closes SD-GO_TO's chat-side half (DC §0 lock 1
+    source 2). Exact, finite-only match on the same minimal normalize
+    as every other kind here against `go to|goto|ir a|ve a <x> <y>`
+    (two floats) → `(x_m, y_m)` on a match, else `None`.
+
+    Used both to **accept** a destination-bearing GO_TO line in
+    `try_request_go_to_task` and to **refuse** one in every later
+    sibling `try_request_*_task` (TAKEOFF/RETURN_HOME/FOLLOW/PATROL/
+    CHARGE) — same discipline as the existing bare-phrase guards, so a
+    destination-bearing GO_TO line can never be stolen by a later kind.
+
+    Never invents a default when there is no match (DC §0 lock 1
+    source 3 / "never invent 0,0/home") — a bare phrase or any other
+    line simply returns `None` here; the metadata connect plug (source
+    1) is a separate, orchestrator-only concern (`Intent.metadata` is
+    `dict[str, str]`, not something this classify-only module reads).
+    """
+    normalized = _normalize_for_continuity_match(raw_text)
+    match = _GO_TO_DESTINATION_PATTERN.match(normalized)
+    if match is None:
+        return None
+    x_m, y_m = float(match.group(1)), float(match.group(2))
+    if not (math.isfinite(x_m) and math.isfinite(y_m)):
+        return None
+    return (x_m, y_m)
+
+
 def try_defer_to_continuity_task(intent: Intent) -> Task | None:
     """Classify `intent` as a `defer_to_continuity` Task, or refuse
     (`None`) when `intent.raw_text` — after a minimal normalize — isn't
@@ -424,7 +460,7 @@ def try_request_arm_policy_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_LAND_PHRASES:
         return None
-    if normalized in VEHICLE_GO_TO_PHRASES:
+    if normalized in VEHICLE_GO_TO_PHRASES or parse_go_to_destination(intent.raw_text) is not None:
         return None
     if normalized in VEHICLE_TAKEOFF_PHRASES:
         return None
@@ -463,7 +499,7 @@ def try_request_disarm_policy_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_LAND_PHRASES:
         return None
-    if normalized in VEHICLE_GO_TO_PHRASES:
+    if normalized in VEHICLE_GO_TO_PHRASES or parse_go_to_destination(intent.raw_text) is not None:
         return None
     if normalized in VEHICLE_TAKEOFF_PHRASES:
         return None
@@ -613,25 +649,31 @@ def try_request_go_to_task(intent: Intent) -> Task | None:
     vehicle Task kind (`DC-assistant-vehicle-go-to-task`, ★ CLOSED,
     same seam as T6's HOLD/T7's LAND) — or refuse (`None`) when
     `intent.raw_text` — after the same minimal normalize — isn't an
-    exact member of `jarvis.config.VEHICLE_GO_TO_PHRASES`, **or** when
-    it's explain-shaped, Continuity-defer-shaped, HOLD-shaped, **or**
-    LAND-shaped (precedence: explain → Continuity defer → HOLD → LAND →
-    GO_TO → fallthrough; DC §0 row 4). This function re-checks all four
-    ahead-of-it kinds itself — mirroring `try_request_land_task`'s own
-    internal guards — so a direct/test caller (not just the
+    exact member of `jarvis.config.VEHICLE_GO_TO_PHRASES` **and** does
+    not match T32's `parse_go_to_destination` prove-now pattern, **or**
+    when it's explain-shaped, Continuity-defer-shaped, HOLD-shaped,
+    **or** LAND-shaped (precedence: explain → Continuity defer → HOLD →
+    LAND → GO_TO → fallthrough; DC §0 row 4). This function re-checks
+    all four ahead-of-it kinds itself — mirroring `try_request_land_task`'s
+    own internal guards — so a direct/test caller (not just the
     orchestrator's own call order) cannot have a HOLD or LAND phrase
     stolen by GO_TO or vice versa.
 
     Exact-phrase match only, same finite-table discipline as every other
     kind here — no fuzzy match, no stealing arbitrary craft design chat.
+    T32 (`B1-assistant-chat-go-to-destination`) widens acceptance to also
+    include a destination-bearing prove-now line (`go to <x> <y>` etc.,
+    via `parse_go_to_destination`) — still exact-pattern, not fuzzy.
 
     Never calls an LLM, never imports `jarvis.flight_software` or
     `jarvis.vehicle_profiles`, never proposes or submits an autonomy
     command itself — fulfilling a matched Task (via `propose_command`/
     `submit_command` + a disarmed `ArmedAllowlistSafetyGate`) is
     entirely the orchestrator's job (DC §0 row 8), same separation T6/T7
-    already established. No coordinate/waypoint parsing happens here or
-    in the orchestrator this Buy — `params` is always empty (DC §0 row 9).
+    already established. Coordinate parsing (T32) happens only in
+    `parse_go_to_destination`/the orchestrator's `_resolve_go_to_destination`
+    — this function only decides whether to classify, never builds
+    `params` itself.
 
     Side effect: on a match, records `task_kind` onto `intent.metadata`
     in place — the only state this function touches.
@@ -664,7 +706,7 @@ def try_request_go_to_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_PATROL_PHRASES:
         return None
-    if normalized not in VEHICLE_GO_TO_PHRASES:
+    if normalized not in VEHICLE_GO_TO_PHRASES and parse_go_to_destination(intent.raw_text) is None:
         return None
     required_capability_ids = [CAPABILITY_FLIGHT_GO_TO]
     task = Task(intent_id=intent.id, required_capability_ids=required_capability_ids)
@@ -729,7 +771,7 @@ def try_request_takeoff_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_LAND_PHRASES:
         return None
-    if normalized in VEHICLE_GO_TO_PHRASES:
+    if normalized in VEHICLE_GO_TO_PHRASES or parse_go_to_destination(intent.raw_text) is not None:
         return None
     if normalized in VEHICLE_FOLLOW_PHRASES:
         return None
@@ -809,7 +851,7 @@ def try_request_return_home_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_LAND_PHRASES:
         return None
-    if normalized in VEHICLE_GO_TO_PHRASES:
+    if normalized in VEHICLE_GO_TO_PHRASES or parse_go_to_destination(intent.raw_text) is not None:
         return None
     if normalized in VEHICLE_TAKEOFF_PHRASES:
         return None
@@ -850,7 +892,7 @@ def try_request_follow_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_LAND_PHRASES:
         return None
-    if normalized in VEHICLE_GO_TO_PHRASES:
+    if normalized in VEHICLE_GO_TO_PHRASES or parse_go_to_destination(intent.raw_text) is not None:
         return None
     if normalized in VEHICLE_TAKEOFF_PHRASES:
         return None
@@ -891,7 +933,7 @@ def try_request_patrol_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_LAND_PHRASES:
         return None
-    if normalized in VEHICLE_GO_TO_PHRASES:
+    if normalized in VEHICLE_GO_TO_PHRASES or parse_go_to_destination(intent.raw_text) is not None:
         return None
     if normalized in VEHICLE_TAKEOFF_PHRASES:
         return None
@@ -940,7 +982,7 @@ def try_request_charge_task(intent: Intent) -> Task | None:
         return None
     if normalized in VEHICLE_LAND_PHRASES:
         return None
-    if normalized in VEHICLE_GO_TO_PHRASES:
+    if normalized in VEHICLE_GO_TO_PHRASES or parse_go_to_destination(intent.raw_text) is not None:
         return None
     if normalized in VEHICLE_TAKEOFF_PHRASES:
         return None
