@@ -984,31 +984,55 @@ def run_chat() -> None:
             print(f"Jarvis > {render_response(result)}")
 
 
-def run_voice_fixture(fixture_path: str) -> None:
+def _voice_speak_fn(speak_tts: bool):
+    """T38 (`B1-assistant-voice-tts-external`) — Skill-first phase C
+    V4. When `speak_tts` is set, each turn's egress is both printed
+    *and* fed to the external TTS command configured by
+    `JARVIS_TTS_CMD` (env-configured, no vendor hardcoded here — see
+    `.jes/artifacts/engineer_note_voice_tts_product_brief.md`); a
+    missing/failed TTS config is an honest printed `TtsError`, never a
+    silent no-op. Default (`speak_tts=False`, every existing caller)
+    only prints, byte-identical to before T38."""
+    from jarvis.adapters.voice import TtsError, speak_egress
+
+    def speak(egress: str) -> None:
+        print(f"Jarvis > {egress}")
+        if speak_tts:
+            try:
+                speak_egress(egress)
+            except TtsError as error:
+                print(f"Jarvis > TTS no disponible: {error}")
+
+    return speak
+
+
+def run_voice_fixture(fixture_path: str, *, speak_tts: bool = False) -> None:
     """T36 (`B1-assistant-voice-fixture-loop`) — Skill-first phase C
     V2. Fixture-driven voice loop: reads `fixture_path`'s non-blank
     lines as "what STT produced" (no mic, no real STT) and runs each
     through the same Skill-first brain as `--chat`, tagged
     `source=IntentSource.VOICE`, printing each turn's `render_response`
-    egress — what a later real-TTS Buy (T38) would speak instead of
-    print. `--chat`'s own behavior is untouched by this flag."""
+    egress. `speak_tts=True` (T38's `--voice-speak`) additionally
+    speaks that same egress via the external TTS seam. `--chat`'s own
+    behavior is untouched by this flag."""
     from jarvis.adapters.voice import FixtureSttSource, run_voice
 
     orchestrator = JarvisOrchestrator()
     llm_interface = JarvisLLMInterface(client=OllamaClient())
     fixture = FixtureSttSource.from_path(Path(fixture_path))
-    run_voice(orchestrator, llm_interface, fixture, speak=lambda egress: print(f"Jarvis > {egress}"))
+    run_voice(orchestrator, llm_interface, fixture, speak=_voice_speak_fn(speak_tts))
 
 
-def run_voice_audio(audio_path: str) -> None:
+def run_voice_audio(audio_path: str, *, speak_tts: bool = False) -> None:
     """T37 (`B1-assistant-voice-stt-external`) — Skill-first phase C
     V3. Single voice turn from an audio file: invokes the external STT
     command configured by `JARVIS_STT_CMD` (`{audio}` placeholder) on
     `audio_path`, feeds the resulting transcript through the same
-    `run_voice_turn` seam T36 already proved, and prints the egress.
-    No vendor SDK, no live mic stream — a missing/failed STT config is
-    an honest typed `SttError`, printed and not silently swallowed.
-    `--chat`/`--voice-fixture` are untouched by this flag."""
+    `run_voice_turn` seam T36 already proved, and prints the egress
+    (and, with `speak_tts=True`, speaks it via T38's external TTS
+    seam). No vendor SDK, no live mic stream — a missing/failed STT
+    config is an honest typed `SttError`, printed and not silently
+    swallowed. `--chat`/`--voice-fixture` are untouched by this flag."""
     from jarvis.adapters.voice import SttError, run_voice_turn_from_audio
 
     orchestrator = JarvisOrchestrator()
@@ -1018,7 +1042,7 @@ def run_voice_audio(audio_path: str) -> None:
     except SttError as error:
         print(f"Jarvis > STT no disponible: {error}")
         return
-    print(f"Jarvis > {egress}")
+    _voice_speak_fn(speak_tts)(egress)
 
 
 def main() -> None:
@@ -1040,6 +1064,15 @@ def main() -> None:
         help=(
             "Run one voice turn from PATH via the external STT command "
             "configured by JARVIS_STT_CMD (T37) — no vendor SDK, no mic."
+        ),
+    )
+    parser.add_argument(
+        "--voice-speak",
+        action="store_true",
+        help=(
+            "With --voice-fixture/--voice-audio, also speak each egress via "
+            "the external TTS command configured by JARVIS_TTS_CMD (T38) — "
+            "no vendor SDK; see engineer_note_voice_tts_product_brief.md."
         ),
     )
     subparsers = parser.add_subparsers(dest="command")
@@ -1089,11 +1122,11 @@ def main() -> None:
         raise SystemExit(run_explain_cli(args.query))
 
     if args.voice_audio:
-        run_voice_audio(args.voice_audio)
+        run_voice_audio(args.voice_audio, speak_tts=args.voice_speak)
         return
 
     if args.voice_fixture:
-        run_voice_fixture(args.voice_fixture)
+        run_voice_fixture(args.voice_fixture, speak_tts=args.voice_speak)
         return
 
     if args.chat:
