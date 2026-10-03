@@ -43,10 +43,22 @@ def test_t1_terminal_adapter_builds_intent():
     assert result.id
 
 
-def test_t2_voice_radio_api_adapters_refuse():
-    for adapter in (VoiceIntentAdapter, RadioIntentAdapter, ApiIntentAdapter):
+def test_t2_radio_api_adapters_refuse():
+    """T35 (`B1-assistant-voice-intent-ingress`) fills `VoiceIntentAdapter`
+    — it no longer refuses. See
+    `tests/test_assistant_voice_intent_ingress_b1.py` for its own
+    coverage. Radio and Api stay unimplemented, unchanged."""
+    for adapter in (RadioIntentAdapter, ApiIntentAdapter):
         with pytest.raises(NotImplementedError, match="not_implemented"):
             adapter.parse("anything")
+
+
+def test_t2b_voice_adapter_now_builds_intent():
+    result = VoiceIntentAdapter.parse("hola")
+    assert isinstance(result, Intent)
+    assert result.source == IntentSource.VOICE
+    assert result.raw_text == "hola"
+    assert result.id
 
 
 def test_t3_default_gate_always_rejects_not_implemented():

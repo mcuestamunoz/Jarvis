@@ -405,7 +405,24 @@ class JarvisOrchestrator:
         handler = self.router.resolve(normalized_request.action)
         return handler.run(normalized_request.parameters)
 
-    def _handle_global_commands(self, user_input: str) -> dict | None:
+    def _parse_intent(self, raw_text: str, source: Any) -> Any:
+        """T35 (`B1-assistant-voice-intent-ingress`) — construct the
+        `Intent` for `raw_text` using the real adapter for `source`,
+        instead of hardcoding `TerminalIntentAdapter` at every call
+        site. `source` is always resolved by the caller (never `None`
+        here) — see `_handle_global_commands`'s own default-to-TERMINAL
+        resolution. Dispatches to the only two adapters that actually
+        build an `Intent` today; Radio/Api stay `NotImplementedError`
+        and are never reached from this chat path."""
+        from jarvis.capabilities.intent import IntentSource, TerminalIntentAdapter, VoiceIntentAdapter
+
+        if source == IntentSource.VOICE:
+            return VoiceIntentAdapter.parse(raw_text)
+        return TerminalIntentAdapter.parse(raw_text)
+
+    def _handle_global_commands(
+        self, user_input: str, *, source: Any | None = None
+    ) -> dict | None:
         """Single intercept point for universal commands — runs before ANY session or intent logic.
 
         Must be called as the very first check in handle_user_text.
@@ -428,9 +445,24 @@ class JarvisOrchestrator:
               the existing `_handle_project_status()` — zero LLM, and
               intelligence never decides or formats the Continuity body.
               Explain always wins over Continuity-defer for the same line.
+
+        T35 (`B1-assistant-voice-intent-ingress`, Skill-first phase C —
+        V1): `source` is the channel the turn arrived on. `None`
+        (every existing CLI/MCP caller, byte-identical) resolves to
+        `IntentSource.TERMINAL` here — never a silent default deeper
+        in the call chain. Every one of the twelve classify sites below
+        builds its `Intent` via `self._parse_intent(stripped, effective_source)`
+        instead of hardcoding `TerminalIntentAdapter.parse` — so a
+        voice-tagged turn reaches `try_request_*_task` with
+        `Intent.source == VOICE`, honestly, not mislabeled `TERMINAL`.
+        Classify/`run_skill`/fulfill behavior is unchanged either way —
+        only the `Intent.source` tag differs.
         Sessions (ITERATE_INTERACTIVE, DEFINE_MISSING_PARAMETERS) keep their own internal
         escape as a safety fallback for direct callers — this layer coordinates, not replaces.
         """
+        from jarvis.capabilities.intent import IntentSource
+
+        effective_source = source or IntentSource.TERMINAL
         stripped = user_input.strip()
         normalized = stripped.lower()
 
@@ -475,10 +507,9 @@ class JarvisOrchestrator:
         # the actual classify/refuse decision still lives entirely in
         # assistant_task.handle_explain_intent, not duplicated here.
         if normalized.startswith(CHAT_EXPLAIN_PREFIXES):
-            from jarvis.capabilities.intent import TerminalIntentAdapter
             from jarvis.intelligence.assistant_task import handle_explain_intent
 
-            explain_message = handle_explain_intent(TerminalIntentAdapter.parse(stripped))
+            explain_message = handle_explain_intent(self._parse_intent(stripped, effective_source))
             if explain_message is not None:
                 return {
                     "status": "ok",
@@ -500,11 +531,10 @@ class JarvisOrchestrator:
         # reaches the existing Continuity/status path unaffected, further
         # down the normal handle_user_text chain — this is only an earlier,
         # zero-LLM fast path for a strict subset.
-        from jarvis.capabilities.intent import TerminalIntentAdapter
         from jarvis.capabilities.skills_runtime import run_skill
         from jarvis.intelligence.assistant_task import try_defer_to_continuity_task
 
-        continuity_intent = TerminalIntentAdapter.parse(stripped)
+        continuity_intent = self._parse_intent(stripped, effective_source)
         if try_defer_to_continuity_task(continuity_intent) is not None:
             # T22 Skill-first: gate Continuity defer through run_skill, then
             # keep the existing project_status / startup_context product shape
@@ -556,7 +586,7 @@ class JarvisOrchestrator:
         # honesty). `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_arm_policy_task
 
-        arm_intent = TerminalIntentAdapter.parse(stripped)
+        arm_intent = self._parse_intent(stripped, effective_source)
         if try_request_arm_policy_task(arm_intent) is not None:
             arm_skill = run_skill("skill.request_arm_policy")
             if arm_skill.outcome != "ok":
@@ -574,7 +604,7 @@ class JarvisOrchestrator:
         # keep _handle_disarm_policy unchanged.
         from jarvis.intelligence.assistant_task import try_request_disarm_policy_task
 
-        disarm_intent = TerminalIntentAdapter.parse(stripped)
+        disarm_intent = self._parse_intent(stripped, effective_source)
         if try_request_disarm_policy_task(disarm_intent) is not None:
             disarm_skill = run_skill("skill.request_disarm_policy")
             if disarm_skill.outcome != "ok":
@@ -599,7 +629,7 @@ class JarvisOrchestrator:
         # `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_hold_task
 
-        hold_intent = TerminalIntentAdapter.parse(stripped)
+        hold_intent = self._parse_intent(stripped, effective_source)
         if try_request_hold_task(hold_intent) is not None:
             hold_skill = run_skill("skill.request_hold")
             if hold_skill.outcome != "ok":
@@ -626,7 +656,7 @@ class JarvisOrchestrator:
         # on ok keep _handle_vehicle_land (ArmedAllowlist + T20 sim copper).
         from jarvis.intelligence.assistant_task import try_request_land_task
 
-        land_intent = TerminalIntentAdapter.parse(stripped)
+        land_intent = self._parse_intent(stripped, effective_source)
         if try_request_land_task(land_intent) is not None:
             land_skill = run_skill("skill.request_land")
             if land_skill.outcome != "ok":
@@ -659,7 +689,7 @@ class JarvisOrchestrator:
         # (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_go_to_task
 
-        go_to_intent = TerminalIntentAdapter.parse(stripped)
+        go_to_intent = self._parse_intent(stripped, effective_source)
         if try_request_go_to_task(go_to_intent) is not None:
             go_to_skill = run_skill("skill.request_go_to")
             if go_to_skill.outcome != "ok":
@@ -689,7 +719,7 @@ class JarvisOrchestrator:
         # imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_takeoff_task
 
-        takeoff_intent = TerminalIntentAdapter.parse(stripped)
+        takeoff_intent = self._parse_intent(stripped, effective_source)
         if try_request_takeoff_task(takeoff_intent) is not None:
             takeoff_skill = run_skill("skill.request_takeoff")
             if takeoff_skill.outcome != "ok":
@@ -720,7 +750,7 @@ class JarvisOrchestrator:
         # `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_return_home_task
 
-        return_home_intent = TerminalIntentAdapter.parse(stripped)
+        return_home_intent = self._parse_intent(stripped, effective_source)
         if try_request_return_home_task(return_home_intent) is not None:
             return_home_skill = run_skill("skill.request_return_home")
             if return_home_skill.outcome != "ok":
@@ -748,7 +778,7 @@ class JarvisOrchestrator:
         # imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_follow_task
 
-        follow_intent = TerminalIntentAdapter.parse(stripped)
+        follow_intent = self._parse_intent(stripped, effective_source)
         if try_request_follow_task(follow_intent) is not None:
             follow_skill = run_skill("skill.request_follow")
             if follow_skill.outcome != "ok":
@@ -777,7 +807,7 @@ class JarvisOrchestrator:
         # imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_patrol_task
 
-        patrol_intent = TerminalIntentAdapter.parse(stripped)
+        patrol_intent = self._parse_intent(stripped, effective_source)
         if try_request_patrol_task(patrol_intent) is not None:
             patrol_skill = run_skill("skill.request_patrol")
             if patrol_skill.outcome != "ok":
@@ -805,7 +835,7 @@ class JarvisOrchestrator:
         # Skills. `run_skill` already imported above (Continuity defer T22).
         from jarvis.intelligence.assistant_task import try_request_charge_task
 
-        charge_intent = TerminalIntentAdapter.parse(stripped)
+        charge_intent = self._parse_intent(stripped, effective_source)
         if try_request_charge_task(charge_intent) is not None:
             charge_skill = run_skill("skill.request_charge")
             if charge_skill.outcome != "ok":
@@ -1545,9 +1575,18 @@ class JarvisOrchestrator:
             "coherence_footer": cont,
         }
 
-    def handle_user_text(self, user_input: str, llm_interface) -> dict:
-        """U4: wrapper público — delega al procesador interno y persiste el snapshot."""
-        result = self._handle_user_text_inner(user_input, llm_interface)
+    def handle_user_text(
+        self, user_input: str, llm_interface, *, source: Any | None = None
+    ) -> dict:
+        """U4: wrapper público — delega al procesador interno y persiste el snapshot.
+
+        T35 (`B1-assistant-voice-intent-ingress`): optional keyword-only
+        `source` (an `IntentSource`, e.g. `IntentSource.VOICE`) names the
+        channel this turn arrived on. Omitted (every existing CLI/MCP
+        caller) → `None` → resolved to `TERMINAL` inside
+        `_handle_global_commands` — byte-identical behavior, no new
+        required argument."""
+        result = self._handle_user_text_inner(user_input, llm_interface, source=source)
         self._persist_runtime_snapshot()
         return result
 
@@ -1563,9 +1602,16 @@ class JarvisOrchestrator:
         except FileNotFoundError:
             pass
 
-    def _handle_user_text_inner(self, user_input: str, llm_interface) -> dict:
+    def _handle_user_text_inner(
+        self, user_input: str, llm_interface, *, source: Any | None = None
+    ) -> dict:
         # ── Global command router — must be first ─────────────────────────────
-        global_result = self._handle_global_commands(user_input)
+        # T35: `source` only matters for this one call — the twelve classify
+        # sites inside it. Every internal re-dispatch of this same method
+        # below (wizard preempt/resume) stays source-less (→ TERMINAL
+        # default): those paths are craft-session continuation, never a new
+        # Skill-first classify, so the tag cannot change their outcome.
+        global_result = self._handle_global_commands(user_input, source=source)
         if global_result is not None:
             return global_result
 
