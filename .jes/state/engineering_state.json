@@ -1,43 +1,51 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "Voice phase C versioning lock: T35–T38 stay 0.6.43–0.6.46; T39 ★ opens product milestone v0.7.0; tip still v0.6.42; next authorize T35 when Engineer says proceed",
+  "scope": "Docs-only. Engineer decided voice v1 checkpoint (T39) is a product milestone at 0.7.0. Update DC, cola note, PRIORIDAD, PLATFORM, CONNECTIONS, ARCHITECTURE. No src/ change.",
+  "execution_status": "cola_synced_awaiting_authorize",
+  "current_mode": "authorize_ready",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: voz v1 = hito de producto → T39 = v0.7.0"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
-  "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
+  "relevant_workflow_phases": [
+    "Authorize"
+  ],
+  "applicable_rules": [
+    "R-GOV-1",
+    "R-ENG-1",
+    "R-TST-1",
+    "R-KNW-1"
+  ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md",
+    ".jes/artifacts/engineer_note_voice_phase_c_cola.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Engineer authorize T35 Intent-ingress IC @ 0.6.43?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "type": "awaiting_ic_authorize",
+    "contract": "implementation_contract_assistant_voice_intent_ingress_b1.md",
+    "ids": [
+      "T35",
+      "B1-assistant-voice-intent-ingress"
+    ],
+    "blocked_on": "engineer_authorize_t35_ic",
+    "note": "IC file not written yet — write+authorize when Engineer says proceed"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "Versioning lock: T39 = v0.7.0 product milestone"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "T35–T38 remain 0.6.43–0.6.46",
+    "Do not open 0.7.0 before T39 ★",
+    "No tip/package version pin tests",
+    "No src/ change this turn"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "DC + cola note say T39 = 0.7.0",
+    "PRIORIDAD / PLATFORM / CONNECTIONS / ARCHITECTURE synced"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-03T15:26:00Z"
 }
