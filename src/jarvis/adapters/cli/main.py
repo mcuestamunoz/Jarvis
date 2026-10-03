@@ -984,9 +984,64 @@ def run_chat() -> None:
             print(f"Jarvis > {render_response(result)}")
 
 
+def run_voice_fixture(fixture_path: str) -> None:
+    """T36 (`B1-assistant-voice-fixture-loop`) — Skill-first phase C
+    V2. Fixture-driven voice loop: reads `fixture_path`'s non-blank
+    lines as "what STT produced" (no mic, no real STT) and runs each
+    through the same Skill-first brain as `--chat`, tagged
+    `source=IntentSource.VOICE`, printing each turn's `render_response`
+    egress — what a later real-TTS Buy (T38) would speak instead of
+    print. `--chat`'s own behavior is untouched by this flag."""
+    from jarvis.adapters.voice import FixtureSttSource, run_voice
+
+    orchestrator = JarvisOrchestrator()
+    llm_interface = JarvisLLMInterface(client=OllamaClient())
+    fixture = FixtureSttSource.from_path(Path(fixture_path))
+    run_voice(orchestrator, llm_interface, fixture, speak=lambda egress: print(f"Jarvis > {egress}"))
+
+
+def run_voice_audio(audio_path: str) -> None:
+    """T37 (`B1-assistant-voice-stt-external`) — Skill-first phase C
+    V3. Single voice turn from an audio file: invokes the external STT
+    command configured by `JARVIS_STT_CMD` (`{audio}` placeholder) on
+    `audio_path`, feeds the resulting transcript through the same
+    `run_voice_turn` seam T36 already proved, and prints the egress.
+    No vendor SDK, no live mic stream — a missing/failed STT config is
+    an honest typed `SttError`, printed and not silently swallowed.
+    `--chat`/`--voice-fixture` are untouched by this flag."""
+    from jarvis.adapters.voice import SttError, run_voice_turn_from_audio
+
+    orchestrator = JarvisOrchestrator()
+    llm_interface = JarvisLLMInterface(client=OllamaClient())
+    try:
+        _, egress = run_voice_turn_from_audio(orchestrator, llm_interface, audio_path)
+    except SttError as error:
+        print(f"Jarvis > STT no disponible: {error}")
+        return
+    print(f"Jarvis > {egress}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Jarvis engineering assistant")
     parser.add_argument("--chat", action="store_true", help="Run minimal interactive CLI chat")
+    parser.add_argument(
+        "--voice-fixture",
+        metavar="PATH",
+        default=None,
+        help=(
+            "Run a fixture-driven voice loop over PATH's text lines "
+            "('what STT produced', T36) — no real STT/TTS/mic."
+        ),
+    )
+    parser.add_argument(
+        "--voice-audio",
+        metavar="PATH",
+        default=None,
+        help=(
+            "Run one voice turn from PATH via the external STT command "
+            "configured by JARVIS_STT_CMD (T37) — no vendor SDK, no mic."
+        ),
+    )
     subparsers = parser.add_subparsers(dest="command")
     subparsers.add_parser("board", help="Open the spatial board visor")
     explain_parser = subparsers.add_parser(
@@ -1032,6 +1087,14 @@ def main() -> None:
         if not args.query:
             explain_parser.error("one of query, --list, or --rung is required")
         raise SystemExit(run_explain_cli(args.query))
+
+    if args.voice_audio:
+        run_voice_audio(args.voice_audio)
+        return
+
+    if args.voice_fixture:
+        run_voice_fixture(args.voice_fixture)
+        return
 
     if args.chat:
         run_chat()

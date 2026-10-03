@@ -1,43 +1,51 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "T37 voice STT-external ★ ACCEPT CLOSED @ v0.6.45; next candidate T38 TTS-external Parked @ 0.6.46 awaiting Engineer paste (rescue Piper brief)",
+  "scope": "Engineer ACCEPT of T37 after Cursor PASS WITH NOTES. Tag v0.6.45. Advance a4-voice-world. No T38 IC until Engineer asks.",
+  "execution_status": "accept_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: accept"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
-  "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
+  "relevant_workflow_phases": [
+    "Accept"
+  ],
+  "applicable_rules": [
+    "R-GOV-1",
+    "R-ENG-1",
+    "R-TST-1",
+    "R-KNW-1"
+  ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/implementation_review_assistant_voice_stt_external_b1.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Engineer paste T38 B1-assistant-voice-tts-external @ 0.6.46? (rescue Piper en_GB brief from PR #35)"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "type": "accept_closed",
+    "contract": "implementation_contract_assistant_voice_stt_external_b1.md",
+    "ids": [
+      "T37",
+      "B1-assistant-voice-stt-external",
+      "v0.6.45"
+    ],
+    "blocked_on": "engineer_paste_t38"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "T37 ★ ACCEPT CLOSED @ v0.6.45"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "Do not write T38 IC until Engineer asks",
+    "Rescue TTS product brief / Piper at T38 IC",
+    "Do not open 0.7.0 (T39 only)",
+    "No tip/package version pin tests"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "Tag v0.6.45 on ACCEPT tip",
+    "PRIORIDAD points to T38 Parked",
+    "a4-voice-world advanced to T37 ★"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-03T16:20:00Z"
 }
