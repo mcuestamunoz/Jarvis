@@ -6,7 +6,7 @@
 **Implementer:** none for this DC — disk scaffold is **A1 IC** (`B1-intelligence-scaffold`)  
 **Reviewer:** Engineer ★ (ratify / amend)
 
-**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-28) — placement lock ratified. A1–A6 ★ CLOSED through **`v0.6.5`**. A4 voz/world **Parked**. R4 later.  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-09-28) — placement lock ratified. A1–A6 ★ CLOSED through **`v0.6.5`**. A4 voz **in cola** (Skill-first phase C · T34-DC ★ → T35…T39); `world/` still **Parked** sibling (T40). R4 later.  
 **Type:** Design / Architecture Lock — **where Assistant will live**, not voice, not house map, not lavadora.  
 **Not** an Implementation Contract. **Not** a version bump. **Not** permission to create `intelligence/` or `world/` on disk.
 

@@ -6,17 +6,20 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T13** vehicle **PATROL** Task — DC ★ CLOSED · IC ★ **AUTHORIZED** for Claude @ package **`0.6.21`**. Parent tip **`v0.6.20`** (T12 FOLLOW ★). Last C4 AutonomyVerb in chat Tasker.  
-> **Cola after T13 ★:** allow-list widen · CHARGE · copper.  
-> **Background:** Silicon parked. Continuity stays in `core/`.  
-> SoT: [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_vehicle_patrol_task_b0.md).  
+> **PRIORIDAD AHORA:** **T35** voice Intent-ingress — ★ **AUTHORIZED** for Claude @ **`0.6.43`** (V1: `VoiceIntentAdapter` + source threading · **not** STT/TTS/loop). Tip hoy **`v0.6.42`**.  
+> **Just closed:** **T34-DC** voice/channels ★ **CLOSED** · **T34-inv** ★ **ACCEPT CLOSED**.  
+> **Policy:** no tip/package version pins in tests.  
+> **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice cola: [phase C note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
+> **Cola voz:** T35 ★ AUTHORIZED → T36…T38 @ `0.6.44`–`0.6.46` → **T39 = `v0.7.0`** · T40 Parked.  
+> SoT: [T35 IC](../.jes/artifacts/implementation_contract_assistant_voice_intent_ingress_b1.md) · [voice DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
+> **Parked (hasta componentes / ensamblar):** vuelo cobre ESC live · sim TAKEOFF/RH/FOLLOW/PATROL · CHARGE que cargue batería de verdad.  
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · package **`0.6.21`** · A0–A8 + T0–T12 ★ CLOSED · T13 AUTHORIZED)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.6.42`** · T0–T34 ★ CLOSED · SD-GO_TO ★ CLOSED · **T35** voice Intent ★ AUTHORIZED @ `0.6.43`)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -49,10 +52,47 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T12** | **`DC-assistant-vehicle-follow-task`** | **✅ ★ CLOSED** | sixth vehicle Task kind FOLLOW | [DC](../.jes/artifacts/design_contract_assistant_vehicle_follow_task_b0.md) |
 | **T12** | **`B1-assistant-vehicle-follow-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.20`** | Task FOLLOW → shared ArmedAllowlist · empty params · allow-list unwidened | [review](../.jes/artifacts/implementation_review_assistant_vehicle_follow_task_b1.md) |
 | **T13** | **`DC-assistant-vehicle-patrol-task`** | **✅ ★ CLOSED** | seventh vehicle Task kind PATROL · last C4 verb in chat | [DC](../.jes/artifacts/design_contract_assistant_vehicle_patrol_task_b0.md) |
-| **T13** | **`B1-assistant-vehicle-patrol-task`** | **★ AUTHORIZED** · package **`0.6.21`** | Task PATROL → shared ArmedAllowlist · empty params · allow-list unwidened | [IC](../.jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md) |
-| **vehicle later** | allow-list widen · CHARGE (ops) · copper | **Candidate** | política Safety · CHARGE ≠ `AutonomyVerb` | pick after T13 ★ |
+| **T13** | **`B1-assistant-vehicle-patrol-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.21`** | Task PATROL → shared ArmedAllowlist · empty params · allow-list unwidened · closes vehicle-verb cola | [review](../.jes/artifacts/implementation_review_assistant_vehicle_patrol_task_b1.md) |
+| **T14** | **`DC-assistant-vehicle-allowlist-widen`** | **✅ ★ CLOSED** | Safety policy: widen chat ArmedAllowlist to all 7 chat verbs | [DC](../.jes/artifacts/design_contract_assistant_vehicle_allowlist_widen_b0.md) |
+| **T14** | **`B1-assistant-vehicle-allowlist-widen`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.25`** | `_ALLOWED_VERBS` → HOLD…PATROL · allow ≠ execute · no sim tick | [review](../.jes/artifacts/implementation_review_assistant_vehicle_allowlist_widen_b1.md) |
+| **T15** | **`DC-fn016-rtl-wizard-precedence`** | **✅ ★ CLOSED** | FN-016 cancel beats RETURN_HOME for `volver`/`vuelve` mid-wizard | [DC](../.jes/artifacts/design_contract_fn016_rtl_wizard_precedence_b0.md) |
+| **T15** | **`B1-fn016-rtl-wizard-precedence`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.23`** | `_handle_global_commands` DEFINE_MISSING nav-back before vehicle intercepts | [review](../.jes/artifacts/implementation_review_fn016_rtl_wizard_precedence_b1.md) |
+| **T16** | **`DC-esc-fence-import-only`** | **✅ ★ CLOSED** | ESC isolation fence = imports/use only, not prose | [DC](../.jes/artifacts/design_contract_esc_fence_import_only_b0.md) |
+| **T16** | **`B1-esc-fence-import-only`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.24`** | AST fence for `SimulatedEscSink` / `flight_control.esc` in core/adapters | [review](../.jes/artifacts/implementation_review_esc_fence_import_only_b1.md) |
+| **T17** | **`DC-suite-tip-pin-cleanup`** | **✅ ★ CLOSED** | Retire tip/package version pins · policy: no tip pins in tests | [DC](../.jes/artifacts/design_contract_suite_tip_pin_cleanup_b0.md) |
+| **T17** | **`B1-suite-tip-pin-cleanup`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.26`** | Delete ~72 tip-pin tests · guardrail · no tip pins going forward | [review](../.jes/artifacts/implementation_review_suite_tip_pin_cleanup_b1.md) |
+| **T18** | **`DC-orchestrator-fulfill-docstring-honesty`** | **✅ ★ CLOSED** | T14 N1 — fulfill comments match seven-verb allow-list | [DC](../.jes/artifacts/design_contract_orchestrator_fulfill_docstring_honesty_b0.md) |
+| **T18** | **`B1-orchestrator-fulfill-docstring-honesty`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.27`** | comment/docstring only · no behavior change | [review](../.jes/artifacts/implementation_review_orchestrator_fulfill_docstring_honesty_b1.md) |
+| **T19** | **`DC-assistant-ops-charge-task`** | **✅ ★ CLOSED** | CHARGE ops Task ≠ AutonomyVerb · **not** real battery | [DC](../.jes/artifacts/design_contract_assistant_ops_charge_task_b0.md) |
+| **T19** | **`B1-assistant-ops-charge-task`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.28`** | `ops.charge` device · no propose_command · honest not_implemented | [review](../.jes/artifacts/implementation_review_assistant_ops_charge_task_b1.md) |
+| **T20** | **`DC-assistant-chat-sim-copper`** | **✅ ★ CLOSED** | chat allow → sim tick HOLD/LAND/GO_TO only | [DC](../.jes/artifacts/design_contract_assistant_chat_sim_copper_b0.md) |
+| **T20** | **`B1-assistant-chat-sim-copper`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.29`** | SimAutonomyExecutor from chat after allow · GO_TO honest sin destino · **not** ESC live | [review](../.jes/artifacts/implementation_review_assistant_chat_sim_copper_b1.md) |
+| **SD-GO_TO** | chat GO_TO destination → C40 sim tick | **✅ ★ CLOSED** · T32 @ **`v0.6.41`** | resolver seam + metadata connect plug + prove-now parse | [note ★](../.jes/artifacts/engineer_note_t20_goto_chat_sim_destination_debt.md) · [review ★](../.jes/artifacts/implementation_review_assistant_chat_go_to_destination_b1.md) |
+| **T21** | **`DC-capability-skills-runtime-software`** | **✅ ★ CLOSED** | first Skill runner · software Skills only | [DC](../.jes/artifacts/design_contract_capability_skills_runtime_software_b0.md) |
+| **T21** | **`B1-capability-skills-runtime-software`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.30`** | explain/status Skills `available` + `run_skill` · **not** vehicle Skill-first | [review](../.jes/artifacts/implementation_review_capability_skills_runtime_software_b1.md) |
+| **T22** | **`DC-assistant-chat-skill-first`** | **✅ ★ CLOSED** | Skill-first block lock · phased | [DC](../.jes/artifacts/design_contract_assistant_chat_skill_first_b0.md) |
+| **T22** | **`B1-assistant-chat-skill-first-software`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.31`** | chat explain/status via `run_skill` · vehicle still Task-direct | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_software_b1.md) |
+| **T23** | **`B1-assistant-chat-skill-first-vehicle-hold`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.32`** | HOLD Skill-first · no SoftwareCapabilitySafetyGate-only · `flight.hold` stays `not_implemented` | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_hold_b1.md) |
+| **T24** | **`B1-assistant-chat-skill-first-vehicle-land`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.33`** | LAND Skill-first · shared vehicle gate (T23 N2) · `flight.land` stays `not_implemented` | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_land_b1.md) |
+| **T25** | **`B1-assistant-chat-skill-first-vehicle-go-to`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.34`** | GO_TO Skill-first · grow vehicle gate · **SD-GO_TO stays OPEN** · empty params honesty | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_go_to_b1.md) |
+| **T26** | **`B1-assistant-chat-skill-first-vehicle-takeoff`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.35`** | TAKEOFF Skill-first · grow vehicle gate · no altitude invent · no sim TAKEOFF tick | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_takeoff_b1.md) |
+| **T27** | **`B1-assistant-chat-skill-first-vehicle-return-home`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.36`** | RETURN_HOME Skill-first · grow vehicle gate · FN-016 precedence untouched · no sim RTL tick | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_return_home_b1.md) |
+| **T28** | **`B1-assistant-chat-skill-first-vehicle-follow`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.37`** | FOLLOW Skill-first · grow vehicle gate · no track invent · no sim FOLLOW tick | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_follow_b1.md) |
+| **T29** | **`B1-assistant-chat-skill-first-vehicle-patrol`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.38`** | PATROL Skill-first · closes 7 AutonomyVerb Skill-first set · no route invent · no sim PATROL tick | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_vehicle_patrol_b1.md) |
+| **T30** | **`B1-assistant-chat-skill-first-policy-arm`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.39`** | ARM+DISARM Skill-first · software Safety + `_POLICY_GATE_SKILL_IDS` gate-only · **not** vehicle gate | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_policy_arm_b1.md) |
+| **T31** | **`B1-assistant-chat-skill-first-ops-charge`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.40`** | CHARGE Skill-first · device gate-only · closes last chat Skill stub · twelve Skills / DC phase B ★ | [review](../.jes/artifacts/implementation_review_assistant_chat_skill_first_ops_charge_b1.md) |
+| **T32** | **`B1-assistant-chat-go-to-destination`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.41`** | Close SD-GO_TO · `_resolve_go_to_destination` (metadata plug + prove-now parse) · wire T20 tick · bare sin destino | [review ★](../.jes/artifacts/implementation_review_assistant_chat_go_to_destination_b1.md) |
+| **T33** | **`B1-connect-plugs-real-data-map`** | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.42`** | Docs-only living SoT map of connect-later / real-data debts (A/B/C/D) | [review ★](../.jes/artifacts/implementation_review_connect_plugs_real_data_map_b1.md) · [map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md) |
+| **T34-inv** | **`INV-assistant-voice-e2e`** | **✅ ★ ACCEPT CLOSED** | Forensic map + 7-phase design; craft/`world/` deferred past v1 | [review ★](../.jes/artifacts/investigation_review_assistant_voice_e2e_b0.md) |
+| **T34-DC** | **`DC-assistant-chat-voice-channels`** | **✅ ★ CLOSED** | V0 locks: same brain · text ingress · source threading · v1 = twelve Skills · STT/TTS external · no world/Authority | [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
+| **T35** | **`B1-assistant-voice-intent-ingress`** (V1) | ★ **AUTHORIZED** · Claude @ `0.6.43` | Fill `VoiceIntentAdapter.parse(raw_text)`; thread `source` through 12 orch parse sites; default `TERMINAL` | [IC](../.jes/artifacts/implementation_contract_assistant_voice_intent_ingress_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
+| **T36** | **`B1-assistant-voice-fixture-loop`** (V2) | **Parked** — after T35 ★ @ `0.6.44` | Fixture-driven voice loop (`run_voice`); prove ingress→Skill→egress without mic | blocked on T35 ★ |
+| **T37** | **`B1-assistant-voice-stt-external`** (V3) | **Parked** — after T36 ★ @ `0.6.45` | External STT → same `parse(raw_text)` seam; vendor choice = separate ★ | blocked on T36 ★ |
+| **T38** | **`B1-assistant-voice-tts-external`** (V4) | **Parked** — after T36 ★ @ `0.6.46` | External TTS on `render_response` output; may run before/after T37 | blocked on T36 ★ |
+| **T39** | **`B1-assistant-voice-v1-checkpoint`** (V5) | **Parked** — after T37+T38 ★ · opens **`0.7.0` / `v0.7.0`** | **Product milestone** — speak → twelve Skills → spoken reply | hito voz v1 (not `0.6.47`) |
+| **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
-| **A4** | Voz / world | **Parked** | Horizon | DC placement §4 |
+| **A4** | Voz / world | **Voz en cola (T35…T39)** · `world/` Parked (T40) | Skill-first phase C; same Skills; new ingress only | [voice DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |
 | **N1** | `--list`/`--rung` casefold in chat | **Optional polish** | A7 residual | ★ pick later |
 | **R4** | LLM cite | **Later** | Intérprete semántico only | vision §7 (b) |
