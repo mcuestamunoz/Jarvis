@@ -27,10 +27,12 @@ Jarvis today has a complete **Skill-first chat brain** (twelve Skills) and a cha
 | **V2** | **T36** | `B1-assistant-voice-fixture-loop` | `0.6.44` | `run_voice()`-style loop + text fixture STT; prove e2e turn |
 | **V3** | **T37** | `B1-assistant-voice-stt-external` | `0.6.45` | Wire real external STT → same `parse(raw_text)` (vendor ★ later) |
 | **V4** | **T38** | `B1-assistant-voice-tts-external` | `0.6.46` | Wire real external TTS on `render_response` output (vendor ★ later) |
-| **V5** | **T39** | `B1-assistant-voice-v1-checkpoint` | `0.6.47` | Docs/ACCEPT checkpoint: speak → Skills → spoken reply |
+| **V5** | **T39** | `B1-assistant-voice-v1-checkpoint` | **`0.7.0` / `v0.7.0`** | **Product milestone** — speak → twelve Skills → spoken reply |
 | **V6** | **T40** | craft / `world/` (own DC later) | TBD | Explicitly **out** of voice v1 |
 
 Each phase is independently ★-able. V3 and V4 may swap order after V2 ★.
+
+**Versioning lock (Engineer 2026-10-03):** T35–T38 stay on **`0.6.43`…`0.6.46`** (construction). **T39 ★** opens and tags **`0.7.0` / `v0.7.0`** — hito de producto “Jarvis voz v1”, not a scheme change for intermediate Buys.
 
 ---
 
@@ -53,6 +55,6 @@ Each phase is independently ★-able. V3 and V4 may swap order after V2 ★.
 
 ## Opens
 
-T34-inv ★ ACCEPT CLOSED (findings). This DC ★ CLOSED. Next: authorize **T35** IC when Engineer says proceed. Tip package stays **`0.6.42`** until T35 opens **`0.6.43`**.
+T34-inv ★ ACCEPT CLOSED (findings). This DC ★ CLOSED. Next: authorize **T35** IC when Engineer says proceed. Tip package stays **`0.6.42`** until T35 opens **`0.6.43`**. Voice v1 product milestone = **T39 → `v0.7.0`**.
 
 SoT cola: [`docs/IMPLEMENTATION_TASKS.md`](../../docs/IMPLEMENTATION_TASKS.md) PRIORIDAD · [phase note](engineer_note_voice_phase_c_cola.md)

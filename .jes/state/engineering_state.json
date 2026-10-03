@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T34-inv ★ ACCEPT CLOSED + T34-DC ★ CLOSED; voice phase C cola T35…T40 queued; documentary system synced; tip v0.6.42; next authorize T35 @ 0.6.43 when Engineer says proceed",
-  "scope": "Docs-only. Accept INV findings, close voice/channels DC, queue T35 Intent-ingress through T39 v1 checkpoint and T40 craft/world Parked. Update PRIORIDAD, PLATFORM, CONNECTIONS, Skill-first DC, placement A4, connect-plugs voice rows, cola note. No src/ change. No Claude authorize yet.",
+  "cycle_intent": "Voice phase C versioning lock: T35–T38 stay 0.6.43–0.6.46; T39 ★ opens product milestone v0.7.0; tip still v0.6.42; next authorize T35 when Engineer says proceed",
+  "scope": "Docs-only. Engineer decided voice v1 checkpoint (T39) is a product milestone at 0.7.0. Update DC, cola note, PRIORIDAD, PLATFORM, CONNECTIONS, ARCHITECTURE. No src/ change.",
   "execution_status": "cola_synced_awaiting_authorize",
   "current_mode": "authorize_ready",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: pon en cola los diferentes IC y actualiza todo el sistema documental antes de empezar"
+    "reason": "Engineer: voz v1 = hito de producto → T39 = v0.7.0"
   },
   "relevant_workflow_phases": [
     "Authorize"
@@ -19,12 +19,10 @@
   ],
   "required_artifacts": [
     ".jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md",
-    ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
-    "docs/IMPLEMENTATION_TASKS.md"
+    ".jes/artifacts/engineer_note_voice_phase_c_cola.md"
   ],
   "open_questions": [
-    "Engineer authorize T35 Intent-ingress IC @ 0.6.43?",
-    "STT/TTS vendor picks deferred until T37/T38?"
+    "Engineer authorize T35 Intent-ingress IC @ 0.6.43?"
   ],
   "active_operation": {
     "type": "awaiting_ic_authorize",
@@ -37,23 +35,17 @@
     "note": "IC file not written yet — write+authorize when Engineer says proceed"
   },
   "closed_this_turn": [
-    "T34-inv ★ ACCEPT CLOSED on findings",
-    "T34-DC voice/channels ★ CLOSED",
-    "Voice phase C cola T35–T40 queued",
-    "Documentary system synced"
+    "Versioning lock: T39 = v0.7.0 product milestone"
   ],
   "authority_gates": [
-    "No src/ behavior change this turn",
-    "Do not authorize Claude T35 until Engineer says proceed",
-    "Package stays 0.6.42 until T35 opens 0.6.43",
+    "T35–T38 remain 0.6.43–0.6.46",
+    "Do not open 0.7.0 before T39 ★",
     "No tip/package version pin tests",
-    "world/ stays Parked until T40"
+    "No src/ change this turn"
   ],
   "coherence_checklist": [
-    "PRIORIDAD points to T35 next",
-    "Voice DC ★ and cola note exist",
-    "Skill-first DC Opens updated for phase C",
-    "PLATFORM + CONNECTIONS + connect-plugs synced"
+    "DC + cola note say T39 = 0.7.0",
+    "PRIORIDAD / PLATFORM / CONNECTIONS / ARCHITECTURE synced"
   ],
-  "updated_at": "2026-10-03T15:10:00Z"
+  "updated_at": "2026-10-03T15:26:00Z"
 }

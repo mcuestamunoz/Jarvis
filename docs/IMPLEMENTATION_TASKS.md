@@ -10,7 +10,8 @@
 > **Just closed:** **T34-DC** voice/channels ★ **CLOSED** · **T34-inv** ★ **ACCEPT CLOSED** (findings) · **T33** ★ @ **`v0.6.42`** · **T32** ★ @ **`v0.6.41`**.  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice cola: [phase C note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
-> **Cola voz (fase C):** T35 Intent → T36 fixture loop → T37 STT → T38 TTS → T39 v1 checkpoint · T40 craft/world **Parked**.  
+> **Cola voz (fase C):** T35 Intent → T36 fixture loop → T37 STT → T38 TTS → **T39 voz v1 = `v0.7.0`** · T40 craft/world **Parked**.  
+> **Versioning:** construcción `0.6.43`…`0.6.46` · hito producto **T39 → `0.7.0`**.  
 > SoT: [voice DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) · [T34-inv review ★](../.jes/artifacts/investigation_review_assistant_voice_e2e_b0.md).  
 
 
@@ -89,7 +90,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T36** | **`B1-assistant-voice-fixture-loop`** (V2) | **Parked** — after T35 ★ @ `0.6.44` | Fixture-driven voice loop (`run_voice`); prove ingress→Skill→egress without mic | blocked on T35 ★ |
 | **T37** | **`B1-assistant-voice-stt-external`** (V3) | **Parked** — after T36 ★ @ `0.6.45` | External STT → same `parse(raw_text)` seam; vendor choice = separate ★ | blocked on T36 ★ |
 | **T38** | **`B1-assistant-voice-tts-external`** (V4) | **Parked** — after T36 ★ @ `0.6.46` | External TTS on `render_response` output; may run before/after T37 | blocked on T36 ★ |
-| **T39** | **`B1-assistant-voice-v1-checkpoint`** (V5) | **Parked** — after T37+T38 ★ @ `0.6.47` | Docs/ACCEPT checkpoint: speak → twelve Skills → spoken reply | integration milestone |
+| **T39** | **`B1-assistant-voice-v1-checkpoint`** (V5) | **Parked** — after T37+T38 ★ · opens **`0.7.0` / `v0.7.0`** | **Product milestone** — speak → twelve Skills → spoken reply | hito voz v1 (not `0.6.47`) |
 | **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Voz en cola (T35…T39)** · `world/` Parked (T40) | Skill-first phase C; same Skills; new ingress only | [voice DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
