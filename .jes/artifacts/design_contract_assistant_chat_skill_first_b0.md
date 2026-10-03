@@ -15,7 +15,7 @@ Today chat still fulfills explain/status (and vehicle/ops) via the **Task** seam
 | Phase | Buy (indicative) | Scope |
 |---|---|---|
 | **A — software** | `B1-assistant-chat-skill-first-software` @ `0.6.31` | explain + project_status via `run_skill` |
-| **B — vehicle/ops** | HOLD ★ @ `0.6.32` · … · PATROL ★ @ `0.6.38`; policy ARM/DISARM ★ @ `0.6.39`; CHARGE next | Skill-first only where Skill is `available` and fulfill truth exists; stubs stay honest rejects; **never** SoftwareCapabilitySafetyGate-only for vehicle; policy Skills use software Safety + policy gate-only; CHARGE (device) needs its own device gate |
+| **B — vehicle/ops** | HOLD ★ @ `0.6.32` · … · PATROL ★ @ `0.6.38`; policy ARM/DISARM ★ @ `0.6.39`; CHARGE ★ AUTHORIZED @ `0.6.40` | Skill-first only where Skill is `available` and fulfill truth exists; stubs stay honest rejects; **never** SoftwareCapabilitySafetyGate-only for vehicle; policy Skills use software Safety + policy gate-only; CHARGE uses device gate-only |
 | **C — channels** | voz / world / CLI migrate | same Skills; new ingress only |
 
 ## Locks (block-level)
@@ -28,4 +28,4 @@ Today chat still fulfills explain/status (and vehicle/ops) via the **Task** seam
 
 ## Opens
 
-Phase A ★ CLOSED @ **`v0.6.31`**. Phase B AutonomyVerb Skill-first ★ CLOSED @ **`v0.6.38`** (HOLD…PATROL). Next IC: **`B1-assistant-chat-skill-first-policy-arm`** → package **`0.6.39`** (cola **T30** · ARM+DISARM). Then CHARGE before phase C voz/world. SD-GO_TO stays OPEN.
+Phase A ★ CLOSED @ **`v0.6.31`**. Phase B AutonomyVerb Skill-first ★ CLOSED @ **`v0.6.38`** (HOLD…PATROL). Policy ARM/DISARM ★ CLOSED @ **`v0.6.39`**. Next IC: **`B1-assistant-chat-skill-first-ops-charge`** → package **`0.6.40`** (cola **T31** · last chat Skill stub). Then phase C voz/world. SD-GO_TO stays OPEN.

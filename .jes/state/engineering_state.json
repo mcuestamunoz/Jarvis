@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T30 policy ARM/DISARM Skill-first ★ ACCEPT CLOSED @ v0.6.39; next pick ops CHARGE Skill-first",
-  "scope": "Engineer ★ ACCEPT closes T30 first policy Skill-first. Next IC: Skill-first ops CHARGE (device gate; not vehicle/policy; not voice).",
-  "execution_status": "accepted_closed",
-  "current_mode": "accept",
+  "cycle_intent": "T31 ops CHARGE Skill-first IC AUTHORIZED for Claude @ 0.6.40; device gate-only; closes last chat Skill stub; SD-GO_TO stays OPEN",
+  "scope": "IC-only authorize. Flip skill.request_charge available; _DEVICE_GATE_SKILL_IDS + _device_skill_gate before SoftwareCapabilitySafetyGate; chat gates then existing _handle_ops_charge. Do not put CHARGE in vehicle/policy gates. ops.charge stays not_implemented+device.",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
     "reason": "Engineer: procede con ic"
   },
   "relevant_workflow_phases": [
-    "Accept"
+    "Authorize"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,33 +18,37 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_chat_skill_first_policy_arm_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_chat_skill_first_ops_charge_b1.md"
   ],
   "open_questions": [
-    "Next IC: ops CHARGE Skill-first @ 0.6.40?",
+    "Claude implements T31 @ 0.6.40?",
+    "After T31 ★: phase C voz/world?",
     "SD-GO_TO remains OPEN until separate destination Buy"
   ],
   "active_operation": {
-    "type": "accept_closed",
-    "contract": "implementation_contract_assistant_chat_skill_first_policy_arm_b1.md",
+    "type": "authorized_implementation",
+    "contract": "implementation_contract_assistant_chat_skill_first_ops_charge_b1.md",
     "ids": [
-      "T30",
-      "B1-assistant-chat-skill-first-policy-arm"
+      "T31",
+      "B1-assistant-chat-skill-first-ops-charge"
     ],
-    "blocked_on": null
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "T30 ★ ACCEPT CLOSED @ v0.6.39"
+    "T30 ★ ACCEPT CLOSED @ v0.6.39",
+    "T31 IC written and AUTHORIZED"
   ],
   "authority_gates": [
     "No tip/package version pin tests",
     "SD-GO_TO remains OPEN — do not invent x_m/y_m",
-    "Policy Skills must not join _VEHICLE_GATE_SKILL_IDS",
-    "Voice still after remaining Skill-first siblings"
+    "CHARGE must use _DEVICE_GATE_SKILL_IDS before SoftwareCapabilitySafetyGate — not vehicle/policy gates",
+    "ops.charge stays not_implemented+device this Buy",
+    "No real battery charging / AutonomyVerb CHARGE",
+    "Voice still after T31 ★"
   ],
   "coherence_checklist": [
-    "Tag v0.6.39 on ACCEPT commit",
-    "PRIORIDAD points to CHARGE Skill-first"
+    "IC AUTHORIZED @ 0.6.40",
+    "Paste for Claude ready"
   ],
-  "updated_at": "2026-10-03T07:58:00Z"
+  "updated_at": "2026-10-03T08:00:00Z"
 }
