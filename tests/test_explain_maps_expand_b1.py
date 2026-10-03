@@ -166,7 +166,3 @@ def test_cli_argv_list_and_rung_smoke():
     )
     assert mutually_exclusive.returncode != 0
 
-
-def test_pyproject_version_is_0_6_4():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.4"' in text

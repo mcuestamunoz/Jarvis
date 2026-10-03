@@ -100,9 +100,3 @@ def test_t5_fc_and_sensors_resolve_when_live():
         {"family": "motor", "sku": "iflight_xing_e_pro_2207_2450"}
     ) is True
 
-
-def test_t5_package_checkpoint():
-    from pathlib import Path
-
-    text = Path("pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text

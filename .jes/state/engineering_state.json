@@ -1,43 +1,56 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "T34-inv voice end-to-end investigation AUTHORIZED for Claude @ tip v0.6.42; read-only map + phased design; not STT/TTS impl",
+  "scope": "INV-only authorize. Claude forensically maps chat→Skill-first seams, VoiceIntentAdapter stub, absent audio I/O, craft vs Skills surfaces; delivers investigation report with 3–7 independently ★-able phases and first-Buy recommendation (expect DC then Intent-ingress IC).",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: IC investigacion voz principio a fin — disenar por fases armonizado con el codigo"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
-  "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
+  "relevant_workflow_phases": [
+    "Authorize"
+  ],
+  "applicable_rules": [
+    "R-GOV-1",
+    "R-ENG-1",
+    "R-TST-1",
+    "R-KNW-1"
+  ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/investigation_contract_assistant_voice_e2e_b0.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Claude delivers investigation_report_assistant_voice_e2e_b0.md?",
+    "After INV ★: DC voice/channels then first IC?",
+    "Is world/ deferred past voice v1?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "type": "authorized_investigation",
+    "contract": "investigation_contract_assistant_voice_e2e_b0.md",
+    "ids": [
+      "T34-inv",
+      "INV-assistant-voice-e2e"
+    ],
+    "blocked_on": "claude_investigation"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "T32 ★ ACCEPT CLOSED @ v0.6.41",
+    "T33 ★ ACCEPT CLOSED @ v0.6.42",
+    "T34-inv written and AUTHORIZED"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "No src/ behavior change this Buy",
+    "No STT/TTS/vendor lock in the INV",
+    "No inventing Conversation Engine or parallel Skill runtime",
+    "Do not mark connect-plugs voice rows CLOSED",
+    "No tip/package version pin tests",
+    "Package stays 0.6.42 until first voice code Buy"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "INV AUTHORIZED with paste for Claude",
+    "PRIORIDAD points to T34-inv",
+    "Skill-first phase C is the parent block language"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-03T09:05:00Z"
 }
