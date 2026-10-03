@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T32 ★ ACCEPT CLOSED @ v0.6.41 + T33 ★ ACCEPT CLOSED @ v0.6.42; SD-GO_TO CLOSED; living connect-plugs map SoT; horizon phase C voz/world",
-  "scope": "Engineer ★ ACCEPT batch closed both pending Buys. Tip of record is connect-plugs branch stacked on T32. Map sd-go-to row CLOSED; other rows remain living.",
-  "execution_status": "accept_closed",
-  "current_mode": "idle",
+  "cycle_intent": "T34-inv voice end-to-end investigation AUTHORIZED for Claude @ tip v0.6.42; read-only map + phased design; not STT/TTS impl",
+  "scope": "INV-only authorize. Claude forensically maps chat→Skill-first seams, VoiceIntentAdapter stub, absent audio I/O, craft vs Skills surfaces; delivers investigation report with 3–7 independently ★-able phases and first-Buy recommendation (expect DC then Intent-ingress IC).",
+  "execution_status": "authorized_awaiting_impl",
+  "current_mode": "authorize",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: si es ok, damos por accept todo lo que hay pendiente (T32+T33)"
+    "reason": "Engineer: IC investigacion voz principio a fin — disenar por fases armonizado con el codigo"
   },
   "relevant_workflow_phases": [
-    "Accept"
+    "Authorize"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,35 +18,39 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_connect_plugs_real_data_map_b1.md",
-    ".jes/artifacts/engineer_note_connect_plugs_real_data_map.md",
-    ".jes/artifacts/implementation_review_assistant_chat_go_to_destination_b1.md"
+    ".jes/artifacts/investigation_contract_assistant_voice_e2e_b0.md"
   ],
   "open_questions": [
-    "Next pick: phase C voz/world?"
+    "Claude delivers investigation_report_assistant_voice_e2e_b0.md?",
+    "After INV ★: DC voice/channels then first IC?",
+    "Is world/ deferred past voice v1?"
   ],
   "active_operation": {
-    "type": "none",
-    "contract": "",
-    "ids": [],
-    "blocked_on": "engineer_next_pick"
+    "type": "authorized_investigation",
+    "contract": "investigation_contract_assistant_voice_e2e_b0.md",
+    "ids": [
+      "T34-inv",
+      "INV-assistant-voice-e2e"
+    ],
+    "blocked_on": "claude_investigation"
   },
   "closed_this_turn": [
     "T32 ★ ACCEPT CLOSED @ v0.6.41",
-    "SD-GO_TO note CLOSED",
     "T33 ★ ACCEPT CLOSED @ v0.6.42",
-    "Map sd-go-to row CLOSED on stacked tip"
+    "T34-inv written and AUTHORIZED"
   ],
   "authority_gates": [
-    "Living map updates only when a row's own Buy closes",
+    "No src/ behavior change this Buy",
+    "No STT/TTS/vendor lock in the INV",
+    "No inventing Conversation Engine or parallel Skill runtime",
+    "Do not mark connect-plugs voice rows CLOSED",
     "No tip/package version pin tests",
-    "Never invent default coordinates 0,0/home",
-    "Phase C voice not automatic"
+    "Package stays 0.6.42 until first voice code Buy"
   ],
   "coherence_checklist": [
-    "Tags v0.6.41 and v0.6.42 pushed",
-    "PRIORIDAD points to horizon after T33 ★",
-    "pyproject 0.6.42 on tip of record"
+    "INV AUTHORIZED with paste for Claude",
+    "PRIORIDAD points to T34-inv",
+    "Skill-first phase C is the parent block language"
   ],
-  "updated_at": "2026-10-03T09:00:00Z"
+  "updated_at": "2026-10-03T09:05:00Z"
 }
