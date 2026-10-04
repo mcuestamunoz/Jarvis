@@ -3,7 +3,7 @@
 **Date:** 2026-10-03  
 **Status:** **OPEN living cola index** — seeded after T34-inv ★ + T34-DC ★  
 **Authority:** Engineer — update documentary system + queue ICs before first voice code Buy  
-**Tip parent:** **`v0.7.0`** (T39 ★)
+**Tip parent:** **`v0.7.0`** (T39 ★) · T41 demo-ready IC opens **`0.7.1`** (operator path; not T40)
 
 **Purpose:** One place to see the **ordered voice Buys** that take Jarvis from “chat-only Skill-first” to “voice end-to-end on today’s brain.” Not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp required).
 
@@ -37,6 +37,7 @@
 | **T37** | V3 | `B1-assistant-voice-stt-external` | `0.6.45` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.45`** | External STT process seam → same parse | [review ★](implementation_review_assistant_voice_stt_external_b1.md) · vendor ★ separate |
 | **T38** | V4 | `B1-assistant-voice-tts-external` | `0.6.46` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.46`** | External TTS process seam on `render_response` | [review ★](implementation_review_assistant_voice_tts_external_b1.md) · [brief](engineer_note_voice_tts_product_brief.md) · vendor ★ separate |
 | **T39** | V5 | `B1-assistant-voice-v1-checkpoint` | **`0.7.0` / `v0.7.0`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.0`** | **Product milestone** — speak → twelve Skills → spoken reply | [review ★](implementation_review_assistant_voice_v1_checkpoint_b1.md) · opens minor `0.7` |
+| **T41** | — | `B1-assistant-voice-demo-ready` | `0.7.1` | **IC ready** · Claude | Operator path — Piper wrappers + `USER_GUIDE_VOICE` (use voz v1) | [IC](implementation_contract_assistant_voice_demo_ready_b1.md) · [brief](engineer_note_voice_tts_product_brief.md) |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 | [placement A4](design_contract_assistant_placement_b0.md) |
 
 ---

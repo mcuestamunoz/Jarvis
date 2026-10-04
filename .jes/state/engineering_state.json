@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T39 voice v1 checkpoint ★ ACCEPT CLOSED @ v0.7.0; Jarvis voz v1 product milestone complete; next candidate T40 craft/world Parked (own DC)",
-  "scope": "Engineer ACCEPT of T39 after Cursor PASS WITH NOTES. Tag v0.7.0. Voice half of a4-voice-world complete. No T40 DC until Engineer asks.",
-  "execution_status": "accept_closed",
-  "current_mode": "accept",
+  "cycle_intent": "T41 voice demo-ready IC ready for Claude @ 0.7.1; Engineer paste = Buy; operator path to USE Jarvis with voice (Piper wrappers + USER_GUIDE_VOICE)",
+  "scope": "IC-only. Claude ships docs/USER_GUIDE_VOICE.md + scripts/voice wrappers + sample fixture. Prefer zero src/ change. No Piper/whisper in pyproject. Not T40.",
+  "execution_status": "ic_ready_for_claude",
+  "current_mode": "ic",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: accept"
+    "reason": "Engineer: Vamos a dejar preparado el sistema para usarlo"
   },
   "relevant_workflow_phases": [
-    "Accept"
+    "IC"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,34 +18,34 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_voice_v1_checkpoint_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_voice_demo_ready_b1.md"
   ],
   "open_questions": [
-    "Engineer pick T40 craft/world own DC when ready?",
-    "Optional later: STT/TTS vendor ★ (Piper demo external remains free-first)"
+    "Claude implements T41 @ 0.7.1?"
   ],
   "active_operation": {
-    "type": "accept_closed",
-    "contract": "implementation_contract_assistant_voice_v1_checkpoint_b1.md",
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_voice_demo_ready_b1.md",
     "ids": [
-      "T39",
-      "B1-assistant-voice-v1-checkpoint",
-      "v0.7.0"
+      "T41",
+      "B1-assistant-voice-demo-ready"
     ],
-    "blocked_on": "engineer_pick_t40_or_next"
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "T39 ★ ACCEPT CLOSED @ v0.7.0 — Jarvis voz v1"
+    "T41 IC written for Claude paste"
   ],
   "authority_gates": [
-    "Do not write T40 DC until Engineer asks",
-    "No tip/package version pin tests",
-    "Vendor STT/TTS ★ remains separate"
+    "No AUTHORIZED stamp — Engineer paste is the Buy",
+    "No speech SDK in pyproject",
+    "Prefer zero src/ change",
+    "Not T40 craft/world",
+    "No ACCEPT claim"
   ],
   "coherence_checklist": [
-    "Tag v0.7.0 on ACCEPT tip",
-    "PRIORIDAD points to T40 Parked",
-    "a4-voice-world voice half ★ complete"
+    "IC ready @ 0.7.1",
+    "Paste for Claude ready (no AUTHORIZED)",
+    "PRIORIDAD points to T41 IC ready"
   ],
-  "updated_at": "2026-10-04T10:47:00Z"
+  "updated_at": "2026-10-04T10:51:00Z"
 }
