@@ -3,7 +3,7 @@
 **Date:** 2026-10-03  
 **Status:** **OPEN living cola index** — seeded after T34-inv ★ + T34-DC ★  
 **Authority:** Engineer — update documentary system + queue ICs before first voice code Buy  
-**Tip parent:** **`v0.7.0`** (T39 ★) · T41 demo-ready Implemented @ **`0.7.1`**, Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT (operator path; not T40)
+**Tip parent:** **`v0.7.1`** (T41 tip) · T42 interactive CLI IC opens **`0.7.2`** (USE path; not demos; not T40)
 
 **Purpose:** One place to see the **ordered voice Buys** that take Jarvis from “chat-only Skill-first” to “voice end-to-end on today’s brain.” Not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp required).
 
@@ -37,7 +37,8 @@
 | **T37** | V3 | `B1-assistant-voice-stt-external` | `0.6.45` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.45`** | External STT process seam → same parse | [review ★](implementation_review_assistant_voice_stt_external_b1.md) · vendor ★ separate |
 | **T38** | V4 | `B1-assistant-voice-tts-external` | `0.6.46` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.46`** | External TTS process seam on `render_response` | [review ★](implementation_review_assistant_voice_tts_external_b1.md) · [brief](engineer_note_voice_tts_product_brief.md) · vendor ★ separate |
 | **T39** | V5 | `B1-assistant-voice-v1-checkpoint` | **`0.7.0` / `v0.7.0`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.0`** | **Product milestone** — speak → twelve Skills → spoken reply | [review ★](implementation_review_assistant_voice_v1_checkpoint_b1.md) · opens minor `0.7` |
-| **T41** | — | `B1-assistant-voice-demo-ready` | `0.7.1` | Implemented · Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT | Operator path — Piper/whisper wrappers + `USER_GUIDE_VOICE` + demo fixture (use voz v1); zero `src/` change | [IC](implementation_contract_assistant_voice_demo_ready_b1.md) · [review](implementation_review_assistant_voice_demo_ready_b1.md) · [guía](../../docs/USER_GUIDE_VOICE.md) · [brief](engineer_note_voice_tts_product_brief.md) |
+| **T41** | — | `B1-assistant-voice-demo-ready` | `0.7.1` | Implemented · Cursor **PASS WITH NOTES** (ACCEPT deferred) | Operator wrappers + guide + fixture (batch) | [review](implementation_review_assistant_voice_demo_ready_b1.md) · [guía](../../docs/USER_GUIDE_VOICE.md) |
+| **T42** | — | `B1-assistant-voice-interactive-cli` | `0.7.2` | **IC ready** · Claude | **Interactive USE** — `--voice` REPL + speak | [IC](implementation_contract_assistant_voice_interactive_cli_b1.md) |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 | [placement A4](design_contract_assistant_placement_b0.md) |
 
 ---

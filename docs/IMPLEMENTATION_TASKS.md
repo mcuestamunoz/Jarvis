@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T41** voice demo-ready — **Implemented** @ **`0.7.1`**, Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT (operator path: Piper wrappers + `USER_GUIDE_VOICE` · **use** voz v1 · **zero** `src/` change · **not** T40).  
-> **Just closed:** **T39** voice v1 checkpoint ★ **ACCEPT CLOSED** @ tip **`v0.7.0`** — hito producto “Jarvis voz v1”.  
+> **PRIORIDAD AHORA:** **T42** voice interactive CLI — IC ready @ **`0.7.2`** · Claude (**usar** Jarvis en REPL con voz · no demos · flag `--voice`).  
+> **In flight:** **T41** demo-ready @ `0.7.1` (PASS WITH NOTES + live Piper; ACCEPT deferred until interactive use lands if Engineer prefers).  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice cola: [phase C note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
-> **Cola voz:** T35–T39 ★ @ `v0.6.43`–`v0.7.0` (voz v1 ★) → T41 Implemented, pending review @ `0.7.1` · **T40** Parked.  
-> SoT: [T41 IC](../.jes/artifacts/implementation_contract_assistant_voice_demo_ready_b1.md) · [review](../.jes/artifacts/implementation_review_assistant_voice_demo_ready_b1.md) · [guía de voz](USER_GUIDE_VOICE.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
+> **Cola voz:** T35–T39 ★ · T41 demo wrappers · **T42** interactive USE IC @ `0.7.2` · **T40** Parked.  
+> SoT: [T42 IC](../.jes/artifacts/implementation_contract_assistant_voice_interactive_cli_b1.md) · [guía](USER_GUIDE_VOICE.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -90,7 +90,8 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T37** | **`B1-assistant-voice-stt-external`** (V3) | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.45`** | External STT process seam (`JARVIS_STT_CMD` env + `{audio}` → transcript → `run_voice_turn`); typed `SttError` family; optional `--voice-audio PATH`; no speech deps added; vendor choice = separate ★ | [review ★](../.jes/artifacts/implementation_review_assistant_voice_stt_external_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
 | **T38** | **`B1-assistant-voice-tts-external`** (V4) | **✅ ★ ACCEPT CLOSED** · tip **`v0.6.46`** | External TTS process seam (`JARVIS_TTS_CMD`, stdin egress); typed `TtsError` family; wire `run_voice`/`speak=`; optional `--voice-speak` CLI flag; no speech deps; Piper free-first = external demo only | [review ★](../.jes/artifacts/implementation_review_assistant_voice_tts_external_b1.md) · [brief](../.jes/artifacts/engineer_note_voice_tts_product_brief.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
 | **T39** | **`B1-assistant-voice-v1-checkpoint`** (V5) | **✅ ★ ACCEPT CLOSED** · tip **`v0.7.0`** | **Product milestone** — fixture → twelve Skills → fake TTS · STT→Skill→TTS · no new seam · hito voz v1 | [review ★](../.jes/artifacts/implementation_review_assistant_voice_v1_checkpoint_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
-| **T41** | **`B1-assistant-voice-demo-ready`** | **Implemented** · **`0.7.1`** · Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT | Operator path — [`docs/USER_GUIDE_VOICE.md`](USER_GUIDE_VOICE.md) + `scripts/voice/` Piper TTS wrapper (`--check` probe) + sample fixture + optional whisper STT helper · **zero** `src/` change | [IC](../.jes/artifacts/implementation_contract_assistant_voice_demo_ready_b1.md) · [review](../.jes/artifacts/implementation_review_assistant_voice_demo_ready_b1.md) · [guía](USER_GUIDE_VOICE.md) |
+| **T41** | **`B1-assistant-voice-demo-ready`** | **Implemented** · **`0.7.1`** · Cursor **PASS WITH NOTES** (ACCEPT deferred) | Operator wrappers — guide + Piper/whisper scripts + fixture (batch) · **zero** `src/` | [review](../.jes/artifacts/implementation_review_assistant_voice_demo_ready_b1.md) · [guía](USER_GUIDE_VOICE.md) |
+| **T42** | **`B1-assistant-voice-interactive-cli`** | **IC ready** · Claude · **`0.7.2`** | **Interactive USE** — `--voice` REPL: type Skill phrases → hear replies via `JARVIS_TTS_CMD` · not fixture demos | [IC](../.jes/artifacts/implementation_contract_assistant_voice_interactive_cli_b1.md) |
 | **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Voz half ★** @ **`v0.7.0`** · ruta de operador T41 @ `0.7.1` (pending review) · `world/` Parked (T40) | Skill-first phase C; same Skills; new ingress only | [guía de voz](USER_GUIDE_VOICE.md) · [voice DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
