@@ -53,7 +53,7 @@ Each step independently ★-able. T45 must not wait on T41/T42/T43 ACCEPT tags.
 | 7 | **Bare `--chat`** stays text-only. `--voice` (T42) unchanged (Skills-only; no Continuity wall there) |
 | 8 | **Where the extractor lives** — pure function in `adapters/voice/` (e.g. `spoken_continuity.py`). Called from the **speak** path in `run_chat` / `_chat_speak_fn` companion — **not** from `render_startup_context` / `render_response` (those stay Layer 1). No orchestrator Continuity ranking change |
 | 9 | **Living map** — T45 updates [engineer_note_chat_spoken_continuity_map.md](engineer_note_chat_spoken_continuity_map.md) classifications to match shipped behavior. Future chat/Continuity/`render_*` Buys update the map in the same Buy (`CLAUDE.md` clause) |
-| 10 | **Out unless a later IC ★** — LLM summary · wake-word/mic · T40 world · changing default `--chat` to speak · speaking banner/welcome · Conversation Engine · recorting screen Continuity |
+| 10 | **Out unless a later IC ★** — LLM summary · wake-word/always-on mic · T40 world · changing default `--chat` to speak · speaking banner/welcome · Conversation Engine · recorting screen Continuity |
 
 ---
 
@@ -69,5 +69,7 @@ Each step independently ★-able. T45 must not wait on T41/T42/T43 ACCEPT tags.
 ## Opens
 
 T45 IC: [`implementation_contract_assistant_chat_spoken_continuity_b1.md`](implementation_contract_assistant_chat_spoken_continuity_b1.md). Tip stays **`0.7.3`** until T45 opens **`0.7.4`**.
+
+**Later (2026-10-04, does not reopen this DC):** **V8 PTT** is a sibling ingress Buy on the same `--chat --voice-speak` session — [T46-DC](design_contract_assistant_chat_voice_ptt_b0.md). V7 stays egress-only.
 
 SoT: [phase cola](engineer_note_voice_phase_c_cola.md) · [`docs/IMPLEMENTATION_TASKS.md`](../../docs/IMPLEMENTATION_TASKS.md) PRIORIDAD

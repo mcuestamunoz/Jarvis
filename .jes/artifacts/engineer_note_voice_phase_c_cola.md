@@ -1,9 +1,9 @@
 # Engineer note — Voice phase C cola (Skill-first channels)
 
-**Date:** 2026-10-03 · **updated:** 2026-10-04 (spoken-continuity plan after T43 live use + T44-inv)  
-**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; operator/use path T41–T43; spoken-continuity V7 in design  
+**Date:** 2026-10-03 · **updated:** 2026-10-04 (V8 PTT DC+IC after T45 live use)  
+**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; operator/use path T41–T43; spoken-continuity V7 in design; **V8 PTT IC ready**  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`0.7.4`** (T45 tip) · T44-inv PASS WITH NOTES · **T44-DC** plan lock · **T45** Cursor **PASS WITH NOTES** (await Engineer ★ ACCEPT)
+**Tip parent:** **`0.7.4`** (T45 tip) · **T46-DC** PTT lock · **T47 IC** ready for Claude paste @ **`0.7.5`** · T45 Cursor **PASS WITH NOTES** (await Engineer ★ ACCEPT)
 
 **Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md)
 
@@ -41,9 +41,10 @@ INV (map seams) → DC (lock product) → IC (small Buy) → Cursor review → E
 |---|---|---|
 | `--voice` | Skills only (`source=VOICE`) | always (via `_voice_speak_fn`) |
 | `--chat` | full Continuity / craft / LLM (`TERMINAL`) | never |
-| `--chat --voice-speak` | **same full chat** | T43: **verbatim printed string** (the wall) |
+| `--chat --voice-speak` | **same full chat** | T43: **verbatim printed string** (the wall) · T45: brief on walls |
+| `--chat --voice-speak` + typed `hablar`/`habla` | **same full chat** (`TERMINAL`) | **T47:** timed record → existing STT → same loop (keyboard stays) |
 
-T43 proved the seam and the failure mode: loading a project / typing `estado` **prints** Continuity (correct truth) and **speaks the entire wall** (unusable).
+T43 proved the seam and the failure mode: loading a project / typing `estado` **prints** Continuity (correct truth) and **speaks the entire wall** (unusable). T45 fixed the ear. Engineer then locked **V8**: speak into the air **inside that session** as push-to-talk — not `--voice`, not `--voice-audio` one-shot, not always-on.
 
 ### Spoken continuity (V7 — T44-inv → T44-DC → T45)
 
@@ -82,9 +83,11 @@ run_chat print  → Layer 1 (unchanged)
 | **T44-inv** | V7 | `INV-assistant-chat-spoken-continuity` | `0.7.3` (docs) | Implemented · Cursor **PASS WITH NOTES** | Inventory of every `--chat` egress + Continuity fields | [review](investigation_review_assistant_chat_spoken_continuity_b0.md) · [map](engineer_note_chat_spoken_continuity_map.md) |
 | **T44-DC** | V7 | `DC-assistant-chat-spoken-continuity` | — (no bump) | **DC ready** | Two-layer lock · brief fields · phrase split · first-slice = walls only | [DC](design_contract_assistant_chat_spoken_continuity_b0.md) |
 | **T45** | V7 | `B1-assistant-chat-spoken-continuity` | **`0.7.4`** | Implemented · Cursor **PASS WITH NOTES** | Extractor on speak path; screen truth untouched | [review](implementation_review_assistant_chat_spoken_continuity_b1.md) |
-| **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7 | [placement A4](design_contract_assistant_placement_b0.md) |
+| **T46-DC** | V8 | `DC-assistant-chat-voice-ptt` | — (no bump) | **DC ready** | PTT lock · timed record · `hablar`/`habla` · same `run_chat` · no wake-word | [DC](design_contract_assistant_chat_voice_ptt_b0.md) |
+| **T47** | V8 | `B1-assistant-chat-voice-ptt` | **`0.7.5`** | **IC ready** — paste to Claude | Record seam + intercept on `--chat --voice-speak`; reuse T37 STT | [IC](implementation_contract_assistant_chat_voice_ptt_b1.md) |
+| **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7 · not V8 | [placement A4](design_contract_assistant_placement_b0.md) |
 
-**Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**.
+**Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**.
 
 ---
 
@@ -115,6 +118,24 @@ Ordered, independently ★-able:
 
 ---
 
+## V8 plan (push-to-talk) — how we implement it
+
+Engineer (2026-10-04): after T45, `--chat --voice-speak` already talks until session end. Gap = speak into the air **in that session**.
+
+```text
+User types hablar/habla
+  → print Grabando Ns… (no TTS)
+  → JARVIS_RECORD_CMD → wav
+  → JARVIS_STT_CMD → transcript
+  → print User > [voz] transcript
+  → same run_chat loop (TERMINAL + T45 speak)
+```
+
+**In V8:** timed PTT (~7 s), keyboard stays, `--chat --voice-speak` only.  
+**Out of V8:** wake-word, always-on, barge-in, dual-Enter stop, PTT on `--voice`, `source=VOICE`.
+
+---
+
 ## Connect-plugs rows this cola touches
 
 | id | When it moves |
@@ -124,7 +145,7 @@ Ordered, independently ★-able:
 | `go-to-metadata-plug-for-world` | stays OPEN shaped through v1; world fill = T40+ |
 | `world-package` | unchanged until T40 DC |
 
-Spoken-continuity is **inside** the already-★ voice-half surface (egress classification). No new connect-plugs debt.
+Spoken-continuity is **inside** the already-★ voice-half surface (egress classification). V8 PTT is **ingress** on the same `--chat` session (external record + existing STT). No new connect-plugs debt.
 
 ---
 
@@ -133,6 +154,8 @@ Spoken-continuity is **inside** the already-★ voice-half surface (egress class
 Desired egress voice (not a vendor lock): **British, grave, short, no theater** — free-first via **Piper `en_GB`** external. See [`engineer_note_voice_tts_product_brief.md`](engineer_note_voice_tts_product_brief.md). Marvel exact-clone **out**.
 
 V7/T45 makes "short" true for Continuity walls — the screen still shows the full wall; the ear gets the brief extract by default, full only on a locked FULL phrase for that one turn.
+
+V8 does not change TTS character. A PTT `estado` still speaks T45 brief; a PTT FULL phrase still speaks the wall that turn.
 
 ---
 

@@ -60,3 +60,5 @@ T34-inv ★ ACCEPT CLOSED (findings). This DC ★ CLOSED. Next: authorize **T35*
 SoT cola: [`docs/IMPLEMENTATION_TASKS.md`](../../docs/IMPLEMENTATION_TASKS.md) PRIORIDAD · [phase note](engineer_note_voice_phase_c_cola.md)
 
 **Later (2026-10-04, does not reopen this DC):** after T43 live use, Engineer locked **V7 spoken-continuity** (two-layer extract over Continuity walls) as an additive egress concern — [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md). Voice v1 Skill-first locks above stay ★. T40 world stays Parked.
+
+**Later (2026-10-04, does not reopen this DC):** Engineer locked **V8 push-to-talk** on `--chat --voice-speak` (timed record → existing STT → same `run_chat` `TERMINAL` loop). Not always-on. Not a second brain. [T46-DC](design_contract_assistant_chat_voice_ptt_b0.md).

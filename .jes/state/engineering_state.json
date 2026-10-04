@@ -1,15 +1,16 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T45 spoken-continuity Cursor PASS WITH NOTES @ 0.7.4; await Engineer ★ ACCEPT",
-  "scope": "Independent Cursor review of Claude T45 impl. No src/ edits in review pass.",
-  "execution_status": "pass_with_notes_awaiting_accept",
-  "current_mode": "review",
+  "cycle_intent": "T46-DC + T47 IC chat voice PTT ready for Claude paste @ 0.7.5; T45 still await Engineer ★ ACCEPT",
+  "scope": "Cursor IC-only. No src/ for this Buy. Push-to-talk locks on --chat --voice-speak.",
+  "execution_status": "ic_ready_awaiting_claude",
+  "current_mode": "contract",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Claude paste: T45 implemented — request Cursor review"
+    "reason": "dale — write INV/DC+IC for PTT on --chat --voice-speak, not always-on"
   },
   "relevant_workflow_phases": [
-    "Review"
+    "Design",
+    "ImplementationContract"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,35 +19,39 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_chat_spoken_continuity_b1.md",
-    ".jes/artifacts/implementation_report_assistant_chat_spoken_continuity_b1.md",
-    ".jes/artifacts/implementation_review_assistant_chat_spoken_continuity_b1.md"
+    ".jes/artifacts/design_contract_assistant_chat_voice_ptt_b0.md",
+    ".jes/artifacts/implementation_contract_assistant_chat_voice_ptt_b1.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT T45 → tag v0.7.4?"
+    "Paste T47 IC to Claude = Buy?",
+    "Engineer ★ ACCEPT T45 → tag v0.7.4? (does not block T47)"
   ],
   "active_operation": {
-    "type": "pass_with_notes",
-    "contract": "implementation_contract_assistant_chat_spoken_continuity_b1.md",
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_chat_voice_ptt_b1.md",
     "ids": [
-      "T45",
-      "B1-assistant-chat-spoken-continuity"
+      "T46-DC",
+      "T47",
+      "B1-assistant-chat-voice-ptt"
     ],
-    "blocked_on": "engineer_accept"
+    "blocked_on": "engineer_paste_to_claude"
   },
   "closed_this_turn": [
-    "T45 Cursor PASS WITH NOTES recorded"
+    "T46-DC PTT locks written",
+    "T47 IC ready"
   ],
   "authority_gates": [
     "No ACCEPT claimed by Cursor",
-    "Same-session self-PASS is not review of record",
-    "Screen truth remains full Continuity"
+    "Cursor does not implement src/ for this IC",
+    "No wake-word / always-on",
+    "T41–T45 ACCEPT still Engineer-only"
   ],
   "coherence_checklist": [
-    "50 targeted tests green this pass",
-    "Print wall vs speak brief proven",
-    "N1: three new CONTINUITY_DEFER_PHRASES aliases",
-    "PRIORIDAD points to PASS WITH NOTES await ACCEPT"
+    "Same run_chat TERMINAL loop",
+    "Reuse T37 STT",
+    "hablar/habla exact, once",
+    "Timed record default 7s",
+    "Package 0.7.5"
   ],
-  "updated_at": "2026-10-04T13:25:00Z"
+  "updated_at": "2026-10-04T13:40:00Z"
 }
