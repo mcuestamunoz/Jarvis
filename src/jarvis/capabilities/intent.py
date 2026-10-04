@@ -1,10 +1,17 @@
-"""Fase C · C2 — Intent ingress (`B1-fase-c-intent-safety-stub`).
+"""Fase C · C2 — Intent ingress (`B1-fase-c-intent-safety-stub`), extended
+by `B1-assistant-voice-intent-ingress` (T35, Skill-first phase C — V1).
 
-Typed records describing WHAT was asked, never HOW to fly it. Only the
-`terminal` channel adapter actually constructs an `Intent` in C2 — voice,
-radio, and api adapters exist as typed callables that always refuse with
-`NotImplementedError`, so nothing can silently produce a "successful
-flight intent" from an unimplemented channel. See
+Typed records describing WHAT was asked, never HOW to fly it. In C2,
+only the `terminal` channel adapter actually constructed an `Intent` —
+voice, radio, and api adapters existed as typed callables that always
+refused with `NotImplementedError`, so nothing could silently produce
+a "successful flight intent" from an unimplemented channel.
+
+T35 fills **only** the voice adapter: `VoiceIntentAdapter.parse(raw_text:
+str) -> Intent` now mirrors `TerminalIntentAdapter.parse` exactly,
+tagged `source=IntentSource.VOICE` — text in, text out, no audio bytes,
+no STT/TTS inside this module. Radio and Api adapters are deliberately
+**unchanged**: both still always raise `NotImplementedError`. See
 `jarvis.capabilities.safety` for the mandatory gate every proposed
 resolution must pass through, and the Implementation Contract for the
 full honesty lock (H-rules).
@@ -60,9 +67,14 @@ class TerminalIntentAdapter:
 
 
 class VoiceIntentAdapter:
+    """T35 — second channel to actually construct an `Intent`. Text-only
+    seam: `raw_text` is post-STT text (STT itself happens outside this
+    module, in a later phase) — same shape as `TerminalIntentAdapter`,
+    tagged `VOICE` instead of `TERMINAL`."""
+
     @staticmethod
-    def parse(raw_payload: object) -> Intent:
-        raise NotImplementedError("voice intent ingress is not_implemented in C2")
+    def parse(raw_text: str) -> Intent:
+        return Intent(source=IntentSource.VOICE, raw_text=raw_text)
 
 
 class RadioIntentAdapter:
