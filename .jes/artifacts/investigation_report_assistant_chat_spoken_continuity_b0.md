@@ -5,7 +5,7 @@
 **Investigator:** Claude Code (Engineer paste)
 **Contract:** [`investigation_contract_assistant_chat_spoken_continuity_b0.md`](investigation_contract_assistant_chat_spoken_continuity_b0.md)
 **Parents:** [T43 review](implementation_review_assistant_chat_voice_speak_b1.md) @ `0.7.3` (PASS WITH NOTES) · [T34-inv ★](investigation_review_assistant_voice_e2e_b0.md) · [voice channels DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md)
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ on findings → authorize DC/IC.
+**Status:** **Implemented** — Cursor **PASS WITH NOTES** → await Engineer ★ on findings → authorize DC/IC.
 **Package:** tip stays **`0.7.3`** — docs/report only, **no `src/` change**.
 
 **Scope discipline:** this report answers Q1–Q12 from the INV. It does **not** implement a spoken layer, does not touch `run_chat`/`_chat_speak_fn`/any `render_*` function, and proposes (never applies) a `CLAUDE.md` norm clause.
