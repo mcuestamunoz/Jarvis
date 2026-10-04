@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T43 chat+speak implemented by Claude @ 0.7.3; full --chat CLI now speaks replies via --voice-speak, not Skills-only --voice",
-  "scope": "Implemented. run_chat(speak_tts=False) gained opt-in; --chat --voice-speak speaks via new _chat_speak_fn + speak_egress after existing prints; bare --chat byte-identical; Continuity/craft/TERMINAL unchanged.",
-  "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "implementation",
+  "cycle_intent": "T43 chat+speak Cursor PASS WITH NOTES @ 0.7.3; await Engineer ★ ACCEPT",
+  "scope": "Independent Cursor review of Claude T43 impl. No src/ edits in review pass.",
+  "execution_status": "pass_with_notes_awaiting_accept",
+  "current_mode": "review",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: eso es lo que quiero (chat CLI + voice)"
+    "reason": "Claude paste: T43 implemented — request Cursor review"
   },
   "relevant_workflow_phases": [
-    "Implementation"
+    "Review"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -19,38 +19,34 @@
   ],
   "required_artifacts": [
     ".jes/artifacts/implementation_contract_assistant_chat_voice_speak_b1.md",
-    ".jes/artifacts/implementation_report_assistant_chat_voice_speak_b1.md"
+    ".jes/artifacts/implementation_report_assistant_chat_voice_speak_b1.md",
+    ".jes/artifacts/implementation_review_assistant_chat_voice_speak_b1.md"
   ],
   "open_questions": [
-    "Cursor review of T43 @ 0.7.3 → Engineer ACCEPT?"
+    "Engineer ★ ACCEPT T43 → tag v0.7.3? Also T41/T42 deferred ACCEPTs?"
   ],
   "active_operation": {
-    "type": "implemented",
+    "type": "pass_with_notes",
     "contract": "implementation_contract_assistant_chat_voice_speak_b1.md",
     "ids": [
       "T43",
       "B1-assistant-chat-voice-speak"
     ],
-    "blocked_on": "cursor_review"
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "T43 implemented by Claude @ 0.7.3"
+    "T43 Cursor PASS WITH NOTES recorded"
   ],
   "authority_gates": [
-    "No AUTHORIZED stamp — Engineer paste is the Buy",
-    "Bare --chat never speaks — confirmed by test + run_chat source inspection",
-    "No double-print — _chat_speak_fn is a separate thin helper, never _voice_speak_fn",
-    "Kept TERMINAL/chat brain — handle_user_text called with no source kwarg",
-    "No ACCEPT claim"
+    "No ACCEPT claimed by Cursor",
+    "Same-session self-PASS is not review of record",
+    "Bare --chat remains silent"
   ],
   "coherence_checklist": [
-    "run_chat(speak_tts=False) default byte-identical to pre-T43",
-    "--chat --voice-speak wired in main()",
-    "T1-T5 tests added and green; T41 (8) + T42 (5) siblings re-run green",
-    "Full suite 4009 passed / 9 skipped vs 4004/9 baseline — zero regressions",
-    "pyproject 0.7.3; no speech deps; no tip pins; ESC fence green",
-    "Guide §4 split into co-primary 4.1/4.2; §1/6/7/8 headers unchanged",
-    "PRIORIDAD/PLATFORM/CONNECTIONS/cola note updated to Implemented status"
+    "Review artifact written against IC locks",
+    "37 targeted tests green this pass",
+    "PRIORIDAD points to PASS WITH NOTES await ACCEPT",
+    "N1: T42 structural T4 is token fence; bare silence = T43 T2"
   ],
-  "updated_at": "2026-10-04T12:05:00Z"
+  "updated_at": "2026-10-04T12:10:00Z"
 }
