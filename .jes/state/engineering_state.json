@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T41 voice demo-ready IC ready for Claude @ 0.7.1; Engineer paste = Buy; operator path to USE Jarvis with voice (Piper wrappers + USER_GUIDE_VOICE)",
-  "scope": "IC-only. Claude ships docs/USER_GUIDE_VOICE.md + scripts/voice wrappers + sample fixture. Prefer zero src/ change. No Piper/whisper in pyproject. Not T40.",
-  "execution_status": "ic_ready_for_claude",
-  "current_mode": "ic",
+  "cycle_intent": "T41 voice demo-ready Implemented by Claude @ 0.7.1; operator path to USE Jarvis with voice delivered (USER_GUIDE_VOICE + scripts/voice wrappers), zero src/ change",
+  "scope": "Implemented. docs/USER_GUIDE_VOICE.md (install Piper outside package, env, fixture+speak, optional mic/STT, honesty, cheatsheet, limits) + scripts/voice/piper_tts.sh (stdin -> Piper -> play/wav, --check probe, non-zero on every missing piece) + scripts/voice/whisper_stt.sh (audio -> bare transcript on stdout) + fixtures/demo_skills.txt. pyproject 0.7.1, no speech deps.",
+  "execution_status": "implemented_awaiting_review",
+  "current_mode": "await_review",
   "movement_trigger": {
     "type": "engineer",
     "reason": "Engineer: Vamos a dejar preparado el sistema para usarlo"
@@ -18,22 +18,26 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_demo_ready_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_voice_demo_ready_b1.md",
+    ".jes/artifacts/implementation_report_assistant_voice_demo_ready_b1.md"
   ],
   "open_questions": [
-    "Claude implements T41 @ 0.7.1?"
+    "Engineer star ACCEPT on T41 -> tag v0.7.1?",
+    "Engineer listening call: does Piper en_GB-alan-medium meet grave/corto/sin teatro? (needs real install + ears)",
+    "After T41 ACCEPT: pick T40 craft/world own DC?"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_voice_demo_ready_b1.md",
+    "report": "implementation_report_assistant_voice_demo_ready_b1.md",
     "ids": [
       "T41",
       "B1-assistant-voice-demo-ready"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "cursor_review_then_engineer_accept"
   },
   "closed_this_turn": [
-    "T41 IC written for Claude paste"
+    "T41 Implemented by Claude @ 0.7.1 — operator voice path (guide + Piper/whisper wrappers + demo fixture)"
   ],
   "authority_gates": [
     "No AUTHORIZED stamp — Engineer paste is the Buy",
@@ -43,9 +47,10 @@
     "No ACCEPT claim"
   ],
   "coherence_checklist": [
-    "IC ready @ 0.7.1",
-    "Paste for Claude ready (no AUTHORIZED)",
-    "PRIORIDAD points to T41 IC ready"
+    "Implemented @ 0.7.1 — zero src/ change (pyproject + docs + scripts/voice + one test file)",
+    "Wrapper honesty verified: every missing piece exits non-zero with stderr; stub-Piper plumbing proven",
+    "Real Piper/whisper happy path stays operator-verified (not installable in this environment)",
+    "PRIORIDAD/PLATFORM/CONNECTIONS/ARCHITECTURE/cola/brief updated to Implemented, pending review"
   ],
-  "updated_at": "2026-10-04T10:51:00Z"
+  "updated_at": "2026-10-04T13:10:00Z"
 }

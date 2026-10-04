@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.7.1`**
 
-**Status:** **IC ready for Claude** (Engineer paste = Buy).  
+**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT → tag `v0.7.1`.  
 **Parents:** [T39 ★](implementation_review_assistant_voice_v1_checkpoint_b1.md) @ `v0.7.0` · [TTS product brief](engineer_note_voice_tts_product_brief.md) · [cola note](engineer_note_voice_phase_c_cola.md) · [DC voice/channels ★](design_contract_assistant_chat_voice_channels_b0.md)  
 **Type:** Operator demo path — **use Jarvis with voice** on the seams already ★ (T35–T39).  
 **Opens:** **`0.7.1` / `v0.7.1`**. **Cola:** **T41** (not T40)
