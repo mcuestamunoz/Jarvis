@@ -1,43 +1,60 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "Voice phase V7 documented; T44-DC plan locked; T45 spoken-continuity IC ready for Claude @ 0.7.4",
+  "scope": "Docs + DC + IC only. No src/. Two-layer truth vs spoken extract; walls-first slice.",
+  "execution_status": "ic_ready_for_claude",
+  "current_mode": "ic",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Document voice phase + define plan then IC for spoken continuity"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
-  "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
+  "relevant_workflow_phases": [
+    "DC",
+    "IC"
+  ],
+  "applicable_rules": [
+    "R-GOV-1",
+    "R-ENG-1",
+    "R-TST-1",
+    "R-KNW-1"
+  ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
+    ".jes/artifacts/design_contract_assistant_chat_spoken_continuity_b0.md",
+    ".jes/artifacts/implementation_contract_assistant_chat_spoken_continuity_b1.md",
+    ".jes/artifacts/engineer_note_chat_spoken_continuity_map.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Claude implements T45 @ 0.7.4?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_chat_spoken_continuity_b1.md",
+    "ids": [
+      "T44-DC",
+      "T45",
+      "B1-assistant-chat-spoken-continuity"
+    ],
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "Voice phase cola documented for V7",
+    "T44-DC written",
+    "T45 IC written for Claude paste",
+    "CLAUDE.md spoken-continuity map norm landed"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "No AUTHORIZED stamp — Engineer paste is the Buy",
+    "No src/ in this delivery",
+    "No LLM in Layer 2",
+    "No ACCEPT claim",
+    "Screen truth must stay full"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "PRIORIDAD points to T45 IC ready @ 0.7.4",
+    "Cola note has V7 plan + two-layer picture",
+    "DC locks phrase split and brief fields",
+    "IC paste ready"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-04T13:00:00Z"
 }
