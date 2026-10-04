@@ -3,7 +3,7 @@
 **Date:** 2026-10-03  
 **Status:** **OPEN living cola index** — seeded after T34-inv ★ + T34-DC ★  
 **Authority:** Engineer — update documentary system + queue ICs before first voice code Buy  
-**Tip parent:** **`v0.7.0`** (T39 ★) · T41 demo-ready Implemented @ **`0.7.1`**, await Cursor review → Engineer ★ ACCEPT (operator path; not T40)
+**Tip parent:** **`v0.7.0`** (T39 ★) · T41 demo-ready Implemented @ **`0.7.1`**, Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT (operator path; not T40)
 
 **Purpose:** One place to see the **ordered voice Buys** that take Jarvis from “chat-only Skill-first” to “voice end-to-end on today’s brain.” Not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp required).
 
