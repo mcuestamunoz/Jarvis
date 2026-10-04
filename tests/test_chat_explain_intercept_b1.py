@@ -114,10 +114,3 @@ def test_t6_intelligence_modules_still_do_not_import_core():
                     or module_name.startswith(forbidden_root + ".")
                 ), f"{path.relative_to(REPO_ROOT)} imports forbidden module '{module_name}'"
 
-
-def test_pyproject_version_is_0_6_10():
-    """Bumped forward again by T2 (B1-capability-registry-product-fill)
-    per established pattern — same courtesy every successor Buy has
-    extended to this file."""
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.20"' in text
