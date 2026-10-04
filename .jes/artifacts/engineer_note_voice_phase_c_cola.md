@@ -3,7 +3,7 @@
 **Date:** 2026-10-03 · **updated:** 2026-10-04 (spoken-continuity plan after T43 live use + T44-inv)  
 **Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; operator/use path T41–T43; spoken-continuity V7 in design  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`0.7.3`** (T43) · T44-inv PASS WITH NOTES · **T44-DC** plan lock · **T45** Implemented @ **`0.7.4`** (await Cursor review)
+**Tip parent:** **`0.7.4`** (T45 tip) · T44-inv PASS WITH NOTES · **T44-DC** plan lock · **T45** Cursor **PASS WITH NOTES** (await Engineer ★ ACCEPT)
 
 **Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md)
 
@@ -81,7 +81,7 @@ run_chat print  → Layer 1 (unchanged)
 | **T43** | — | `B1-assistant-chat-voice-speak` | `0.7.3` | Implemented · Cursor **PASS WITH NOTES** | Full `--chat` + speak (verbatim) | [review](implementation_review_assistant_chat_voice_speak_b1.md) |
 | **T44-inv** | V7 | `INV-assistant-chat-spoken-continuity` | `0.7.3` (docs) | Implemented · Cursor **PASS WITH NOTES** | Inventory of every `--chat` egress + Continuity fields | [review](investigation_review_assistant_chat_spoken_continuity_b0.md) · [map](engineer_note_chat_spoken_continuity_map.md) |
 | **T44-DC** | V7 | `DC-assistant-chat-spoken-continuity` | — (no bump) | **DC ready** | Two-layer lock · brief fields · phrase split · first-slice = walls only | [DC](design_contract_assistant_chat_spoken_continuity_b0.md) |
-| **T45** | V7 | `B1-assistant-chat-spoken-continuity` | **`0.7.4`** | Implemented (Claude Code) · await Cursor review | Extractor on speak path; screen truth untouched | [report](implementation_report_assistant_chat_spoken_continuity_b1.md) |
+| **T45** | V7 | `B1-assistant-chat-spoken-continuity` | **`0.7.4`** | Implemented · Cursor **PASS WITH NOTES** | Extractor on speak path; screen truth untouched | [review](implementation_review_assistant_chat_spoken_continuity_b1.md) |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7 | [placement A4](design_contract_assistant_placement_b0.md) |
 
 **Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**.
