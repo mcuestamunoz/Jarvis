@@ -3,13 +3,13 @@
 **Date:** 2026-10-03  
 **Status:** **OPEN living cola index** — seeded after T34-inv ★ + T34-DC ★  
 **Authority:** Engineer — update documentary system + queue ICs before first voice code Buy  
-**Tip parent:** **`v0.7.3`** (T43 tip) · **T44-inv** spoken-continuity map INV ready (egress inventory → brief layer; not T40)
+**Tip parent:** **`v0.7.3`** (T43 tip) · **T44-inv** spoken-continuity map Implemented, await Cursor review (egress inventory → brief layer; not T40)
 
 **Purpose:** One place to see the **ordered voice Buys** that take Jarvis from “chat-only Skill-first” to “voice end-to-end on today’s brain.” Not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp required).
 
 **Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = product milestone **`0.7.0` / `v0.7.0`** (Engineer 2026-10-03).
 
-**Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md)
+**Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [chat spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) (T44-inv)
 
 ---
 
@@ -40,7 +40,7 @@
 | **T41** | — | `B1-assistant-voice-demo-ready` | `0.7.1` | Implemented · Cursor **PASS WITH NOTES** (ACCEPT deferred) | Operator wrappers + guide + fixture (batch) | [review](implementation_review_assistant_voice_demo_ready_b1.md) · [guía](../../docs/USER_GUIDE_VOICE.md) |
 | **T42** | — | `B1-assistant-voice-interactive-cli` | `0.7.2` | Implemented · Cursor **PASS WITH NOTES** | Skills-only `--voice` REPL | [review](implementation_review_assistant_voice_interactive_cli_b1.md) |
 | **T43** | — | `B1-assistant-chat-voice-speak` | `0.7.3` | Implemented · Cursor **PASS WITH NOTES** | **Full `--chat` + speak** (`--chat --voice-speak`) | [review](implementation_review_assistant_chat_voice_speak_b1.md) |
-| **T44-inv** | — | `INV-assistant-chat-spoken-continuity` | `0.7.3` (docs) | **INV ready** · Claude | Map chat egress + Continuity → spoken-continuity classes · living map · process norm | [INV](investigation_contract_assistant_chat_spoken_continuity_b0.md) |
+| **T44-inv** | — | `INV-assistant-chat-spoken-continuity` | `0.7.3` (docs) | Implemented (Claude Code) · await Cursor review | Map chat egress + Continuity → spoken-continuity classes · living map · process norm | [report](investigation_report_assistant_chat_spoken_continuity_b0.md) · [living map](engineer_note_chat_spoken_continuity_map.md) |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 | [placement A4](design_contract_assistant_placement_b0.md) |
 
 ---

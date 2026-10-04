@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T44-inv spoken-continuity map INV ready for Claude @ tip 0.7.3; inventory chat egress before brief speak layer",
-  "scope": "INV-only. Claude maps every --chat egress + Continuity fields, ranks for deterministic spoken continuity, drafts living map + process norm. No src/, no LLM, no speak-behavior change.",
-  "execution_status": "inv_ready_for_claude",
+  "cycle_intent": "T44-inv spoken-continuity map implemented by Claude @ tip 0.7.3; delivered report + living map + process norm draft ahead of a future brief speak layer",
+  "scope": "INV-only, completed. Mapped every --chat egress + Continuity field, ranked for deterministic spoken continuity, delivered living map + process norm draft. No src/, no LLM, no speak-behavior change.",
+  "execution_status": "implemented_awaiting_cursor_review",
   "current_mode": "investigation",
   "movement_trigger": {
     "type": "engineer",
@@ -18,36 +18,43 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/investigation_contract_assistant_chat_spoken_continuity_b0.md"
+    ".jes/artifacts/investigation_contract_assistant_chat_spoken_continuity_b0.md",
+    ".jes/artifacts/investigation_report_assistant_chat_spoken_continuity_b0.md",
+    ".jes/artifacts/engineer_note_chat_spoken_continuity_map.md"
   ],
   "open_questions": [
-    "Claude delivers report + living map + norm draft?",
-    "After ★: DC then IC for brief speak layer?"
+    "Cursor review of T44-inv findings → Engineer ★?",
+    "After ★: small DC then IC for brief speak layer only (truth print unchanged)?",
+    "CLAUDE.md norm clause — land after ★, not in this INV"
   ],
   "active_operation": {
-    "type": "inv_ready",
+    "type": "implemented",
     "contract": "investigation_contract_assistant_chat_spoken_continuity_b0.md",
     "ids": [
       "T44-inv",
       "INV-assistant-chat-spoken-continuity"
     ],
-    "blocked_on": "claude_investigation"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "T44-inv contract written for Claude paste"
+    "T44-inv implemented by Claude @ tip 0.7.3 (docs/report only)"
   ],
   "authority_gates": [
     "No AUTHORIZED stamp — Engineer paste is the Buy",
-    "No src/ behavior change",
-    "No LLM summarizer",
+    "No src/ behavior change — confirmed via git status (zero src/ or test files touched)",
+    "No LLM summarizer — every recommendation extracts from existing computed fields only",
     "No ACCEPT claim",
-    "Tip package stays 0.7.3"
+    "Tip package stays 0.7.3 — confirmed unchanged",
+    "CLAUDE.md not edited — norm proposed in report + living map only, pending Engineer ★"
   ],
   "coherence_checklist": [
-    "INV ready @ tip 0.7.3",
-    "PRIORIDAD points to T44-inv",
-    "Paste for Claude ready",
-    "Living map + process norm are required deliverables"
+    "Report answers Q1-Q12 with file:symbol citations",
+    "Living map lists every chat egress surface + Continuity field, classified",
+    "Brief spoken shape = 5 ordered existing fields, no LLM",
+    "Process norm drafted (not applied to CLAUDE.md)",
+    "Next-Buy recommendation: small DC then IC, speak path only",
+    "Full suite re-run: 4009 passed / 9 skipped, unchanged (zero src/test files modified)",
+    "PRIORIDAD/cola note/IC status line updated to Implemented, await Cursor review"
   ],
-  "updated_at": "2026-10-04T12:35:00Z"
+  "updated_at": "2026-10-04T13:10:00Z"
 }
