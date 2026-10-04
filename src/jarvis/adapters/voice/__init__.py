@@ -26,8 +26,15 @@ from jarvis.adapters.voice.external_tts import (
     speak_egress,
 )
 from jarvis.adapters.voice.fixture_loop import FixtureSttSource, run_voice, run_voice_turn
+from jarvis.adapters.voice.spoken_continuity import (
+    FULL_CONTINUITY_PHRASES,
+    brief_spoken_continuity,
+    is_full_continuity_request,
+    spoken_text_for_wall,
+)
 
 __all__ = [
+    "FULL_CONTINUITY_PHRASES",
     "FixtureSttSource",
     "JARVIS_STT_CMD_ENV",
     "JARVIS_TTS_CMD_ENV",
@@ -38,10 +45,13 @@ __all__ = [
     "TtsConfigError",
     "TtsError",
     "TtsProcessError",
+    "brief_spoken_continuity",
+    "is_full_continuity_request",
     "make_speak_callable",
     "run_voice",
     "run_voice_turn",
     "run_voice_turn_from_audio",
     "speak_egress",
+    "spoken_text_for_wall",
     "transcribe_audio_file",
 ]

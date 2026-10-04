@@ -1,9 +1,9 @@
 # Engineer note — Chat spoken-continuity map (living SoT)
 
 **Date:** 2026-10-04  
-**Status:** **OPEN living map** — SoT inventory for V7 spoken-continuity ([T44-inv](investigation_report_assistant_chat_spoken_continuity_b0.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · T45 IC)  
-**Authority:** Engineer — this is the single inventory the spoken-continuity DC/IC implement against  
-**Tip parent:** `0.7.3` (T43 verbatim speak) · T45 will ship Layer 2 @ `0.7.4` without changing these field names
+**Status:** **OPEN living map** — Layer 2 **shipped** by [T45](implementation_report_assistant_chat_spoken_continuity_b1.md) @ `0.7.4` ([T44-inv](investigation_report_assistant_chat_spoken_continuity_b0.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [T45 IC](implementation_contract_assistant_chat_spoken_continuity_b1.md))  
+**Authority:** Engineer — this is the single inventory future chat/Continuity egress Buys update in the same Buy  
+**Tip:** `0.7.4` — Layer 2 live on the two Continuity walls (project load + `action == "project_status"`); every other surface unchanged since T43
 
 **Purpose:** Every `--chat` print surface and every `build_startup_context`/`build_project_continuity` field, classified for the two-layer spoken-continuity model:
 
@@ -12,8 +12,10 @@
 
 **Classification legend:**
 - **must-speak-brief** — spoken every time under `--chat --voice-speak`, kept short (already short, or a single extracted fact).
-- **speak-on-request** — spoken only when the user asks for full (`dame detalles` / `completo` / DC FULL set).
+- **speak-on-request** — spoken only when the user asks for full (`dame detalles` / `completo` / the locked FULL set).
 - **screen-only** — never spoken by default, even on request (operator diagnostics / visual-only content).
+
+**Shipped extractor (T45):** `src/jarvis/adapters/voice/spoken_continuity.py` — `brief_spoken_continuity(ctx)` (the brief extract), `is_full_continuity_request(raw_text)` (locked FULL-phrase match), `spoken_text_for_wall(raw_text, printed_wall, ctx)` (the combinator `run_chat` calls on both wall sites). Three of the ten locked FULL phrases (`completo`, `estado completo`, `cuentame todo`) were also newly added to `CONTINUITY_DEFER_PHRASES` (`jarvis/config.py:108-110`) so they resolve to `action == "project_status"` at all — the other seven were already members.
 
 Phase cola: [`engineer_note_voice_phase_c_cola.md`](engineer_note_voice_phase_c_cola.md).
 
@@ -27,7 +29,7 @@ Whenever a Buy adds or changes a `--chat` print surface, a `build_startup_contex
 
 ## Table 1 — Chat egress surfaces (`run_chat`, `src/jarvis/adapters/cli/main.py`)
 
-| Surface | Symbol | Trigger | Length | Speaks today (`0.7.3`)? | Class |
+| Surface | Symbol | Trigger | Length | Speaks (`0.7.4`)? | Class |
 |---|---|---|---|---|---|
 | Startup banner | `main.py:966-968` | every `run_chat()` | 3 lines | No | **screen-only** |
 | Welcome / project picker | `_print_welcome`, `main.py:810-827` / `971` | every `run_chat()` | banner + N rows | No | **screen-only** |
@@ -35,15 +37,15 @@ Whenever a Buy adds or changes a `--chat` print surface, a `build_startup_contex
 | `exit`/`quit` | `main.py:986` | typed exit | 1 sentence | Yes | **must-speak-brief** |
 | `help` | `main.py:989` | typed help | 1 sentence | Yes | **must-speak-brief** |
 | Startup-selection error | `main.py:998` | bad project pick | 1 sentence | Yes | **must-speak-brief** |
-| **Startup Continuity wall** | `main.py:1003-1005` | load/select existing project | long (Table 2, all sections) | Yes — full wall today | **brief-extract default / speak-on-request for the rest** (see Table 2) |
-| Define-wizard proactive opener | `main.py:1015` | auto-define fires after load | short/medium | Yes | **must-speak-brief** |
+| **Startup Continuity wall** | `main.py:1003-1005`, speak via `spoken_text_for_wall` (`spoken_continuity.py`) | load/select existing project | print: long (Table 2, all sections) · speak: brief (5 fields) or full on a locked FULL phrase | Yes — print always full; speak **brief by default**, full only on a FULL phrase this turn | print: **screen-truth** · speak: **brief-extract default / speak-on-request for the rest** (see Table 2) |
+| Define-wizard proactive opener | `main.py:1015` | auto-define fires after load | short/medium | Yes | **must-speak-brief** (speak-as-printed — not a wall) |
 | No-project / `load_project` confirmation | `main.py:1017` | fresh/no-project path | short (4 lines) | Yes | **must-speak-brief** |
 | Turn exception handler | `main.py:1026` | uncaught exception | 1 sentence | Yes | **must-speak-brief** |
 | Main-turn error | `main.py:1030` | `status == "error"` | short–medium | Yes | **must-speak-brief** |
-| Main-turn success (Skill-shaped) | `main.py:1032` → `render_response` plain `ok` branch (`main.py:590-598`) | e.g. `armar`/`hold`/`land` | short (1-2 sentences) | Yes | **must-speak-brief** (speak-as-printed) |
-| Main-turn success (coherence-footer-shaped) | `main.py:1032` → `render_response` coherence block (`main.py:674-694`) | calculate/iterate/simulate/etc. once Continuity exists | short–medium | Yes | **must-speak-brief** (already = Table 2's brief fields) |
-| Main-turn success (reasoning-shaped, no coherence) | `main.py:1032` → `render_response` reasoning block (`main.py:696-734`) | rare — e.g. `create_project` before Continuity exists | long, multi-part | Yes | **speak-on-request** (future IC: speak only top `PRIORIDAD CRÍTICA` label by default) |
-| Main-turn success (`estado`/`project_status`) | `main.py:1032` → `render_response` project_status branch (`main.py:560-574`) → same wall as startup | typed `estado`/`CONTINUITY_DEFER_PHRASES` (`jarvis/config.py:51-61`) | long (Table 2) | Yes — full wall today | **brief-extract default / speak-on-request for the rest** (same as startup wall) |
+| Main-turn success (Skill-shaped) | `main.py:1032` → `render_response` plain `ok` branch (`main.py:590-598`) | e.g. `armar`/`hold`/`land` | short (1-2 sentences) | Yes | **must-speak-brief** (speak-as-printed, unchanged by T45) |
+| Main-turn success (coherence-footer-shaped) | `main.py:1032` → `render_response` coherence block (`main.py:674-694`) | calculate/iterate/simulate/etc. once Continuity exists | short–medium | Yes | **must-speak-brief** (speak-as-printed, unchanged by T45 — already = Table 2's brief fields, not routed through the T45 extractor since `action != "project_status"`) |
+| Main-turn success (reasoning-shaped, no coherence) | `main.py:1032` → `render_response` reasoning block (`main.py:696-734`) | rare — e.g. `create_project` before Continuity exists | long, multi-part | Yes | **speak-on-request** (unchanged by T45 — future IC: speak only top `PRIORIDAD CRÍTICA` label by default) |
+| Main-turn success (`estado`/`project_status`) | `main.py:1029-1035`, speak via `spoken_text_for_wall` when `result["action"] == "project_status"` | typed `estado`/`CONTINUITY_DEFER_PHRASES` (`jarvis/config.py:51-110`, now includes `completo`/`estado completo`/`cuentame todo`) | print: long (Table 2) · speak: brief or full (same rule as the startup wall) | Yes | print: **screen-truth** · speak: **brief-extract default / speak-on-request for the rest** (same as startup wall) |
 | TTS honesty failure | `main.py:943-944` | `speak_tts=True` + `TtsError` | 1 sentence | n/a (failure notice, not re-spoken) | **must-speak-brief** (it's already the only thing spoken for that failed attempt) |
 | JSON fallback | `render_response`, `main.py:743` | any unhandled result shape | raw dict dump | No path pairs this with `speak` today | **screen-only** |
 
@@ -78,24 +80,28 @@ Whenever a Buy adds or changes a `--chat` print surface, a `build_startup_contex
 | `motor_operating_point_electrical` | `main.py:446-456` | **speak-on-request** |
 | `hover_energy` | `main.py:464-480` | **speak-on-request** |
 | `battery_endurance.envelope` | `main.py:483-485` via `_render_estimative_endurance_lines` (`main.py:253-287`) | **speak-on-request** |
-| `readiness.overall` | inside readiness block, `main.py:230` (`PROJECT STATUS:` line) | **must-speak-brief** — extracted alone, without the subsystem table (Q5 item 4) |
+| `readiness.overall` | inside readiness block, `main.py:230` (`PROJECT STATUS:` line) | **must-speak-brief** — extracted alone by `brief_spoken_continuity` (`spoken_continuity.py`), without the subsystem table |
 | `readiness.subsystems` (9-row table + footnotes) | `main.py:216-227` | **speak-on-request** |
-| `readiness.prioritized_gaps[0].title` | inside TOP GAPS, `main.py:242` | **must-speak-brief** — extracted alone, title only (Q5 item 5) |
+| `readiness.prioritized_gaps[0].title` | inside TOP GAPS, `main.py:242` | **must-speak-brief** — extracted alone by `brief_spoken_continuity`, title only |
 | `readiness.prioritized_gaps[1:]` (full detail: blocks/depends_on/next) | `main.py:236-249` | **speak-on-request** |
 | `prop_energy_block_closure` | `main.py:500-537` | **speak-on-request** |
 | `margin_claim_weak` | bool gate only, `main.py:233-234` | **screen-only** |
 
 ---
 
-## Brief spoken shape (default, when it ships) — ordered
+## Brief spoken shape (default, shipped T45 @ `0.7.4`) — ordered
+
+Implemented in `brief_spoken_continuity` (`src/jarvis/adapters/voice/spoken_continuity.py`):
 
 1. `continuity["situation"]`
 2. `continuity["next_useful_step"]`
-3. `continuity["next_useful_why"]` (omit if `None`)
-4. One phrase derived from `readiness["overall"]` (not the subsystem table)
+3. humanized `continuity["next_useful_why"]` (via `main.py::_humanize_next_useful_why`, same mapping the wall itself uses — omitted if `next_useful_step` or `next_useful_why` is absent)
+4. `"PROJECT STATUS: ASSEMBLY READY"` / `"PROJECT STATUS: NOT ASSEMBLY READY"` derived from `readiness["overall"]` (not the subsystem table)
 5. `readiness["prioritized_gaps"][0]["title"]` if the list is non-empty (title only)
 
-Everything else in Table 2 stays **speak-on-request**; nothing is ever removed from the screen — Layer 1 (truth, on screen) is untouched by any of this.
+Each piece is omitted when its source field is absent; joined with newlines. Everything else in Table 2 stays **speak-on-request**; nothing is ever removed from the screen — Layer 1 (truth, on screen) is untouched by any of this, proven by `tests/test_assistant_chat_spoken_continuity_b1.py::test_t2_chat_wall_prints_full_but_speaks_brief`.
+
+**FULL override:** `is_full_continuity_request`/`spoken_text_for_wall` (same module) speak the exact printed wall instead, for one turn only, when the typed line matches the locked FULL set — see the header above.
 
 ---
 

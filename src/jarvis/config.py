@@ -98,6 +98,16 @@ CONTINUITY_DEFER_PHRASES: frozenset[str] = frozenset({
     "continua",
     "continuamos",
     "siguiente bloque",
+    # T45 (`B1-assistant-chat-spoken-continuity`): three new entries, not
+    # previously recognized — added so these locked FULL-speak phrases
+    # (jarvis.adapters.voice.spoken_continuity.FULL_CONTINUITY_PHRASES)
+    # also resolve to the same project_status handler every other
+    # Continuity-defer phrase already uses, instead of falling through
+    # to classify/LLM. The other seven FULL phrases were already members
+    # above before T45 — only these three are additions.
+    "completo",
+    "estado completo",
+    "cuentame todo",
 })
 # B1-assistant-vehicle-hold-task (T6): finite, explicit HOLD phrases —
 # same grain as CONTINUITY_DEFER_PHRASES above: exact match on the

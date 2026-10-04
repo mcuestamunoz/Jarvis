@@ -954,7 +954,19 @@ def run_chat(*, speak_tts: bool = False) -> None:
     forcing `source=VOICE` or changing which brain answers: every
     `handle_user_text` call below stays source-default (`TERMINAL`).
     Default `speak_tts=False` is byte-identical to pre-T43 behavior —
-    `_chat_speak_fn(False)` never imports or calls the TTS seam."""
+    `_chat_speak_fn(False)` never imports or calls the TTS seam.
+
+    T45 (`B1-assistant-chat-spoken-continuity`): on the two Continuity
+    **wall** turns — project-load `startup_block` and any turn whose
+    result is `action == "project_status"` (`estado` and siblings) —
+    what gets *printed* is still the exact same full wall as before
+    (Layer 1, untouched); what gets *spoken* is `spoken_text_for_wall`'s
+    brief extract, unless this turn's typed line is one of the locked
+    FULL phrases, in which case the full wall is spoken this turn only
+    (no session latch). Every other wall-less turn still speaks exactly
+    what it prints, same as T43."""
+    from jarvis.adapters.voice import spoken_text_for_wall
+
     orchestrator = JarvisOrchestrator()
     llm_interface = JarvisLLMInterface(client=OllamaClient())
     speak = _chat_speak_fn(speak_tts)
@@ -1002,7 +1014,7 @@ def run_chat(*, speak_tts: bool = False) -> None:
                     if startup_ctx.get("has_project"):
                         startup_block = render_startup_context(startup_ctx)
                         print(f"Jarvis >\n{startup_block}\n")
-                        speak(startup_block)
+                        speak(spoken_text_for_wall(user_input, startup_block, startup_ctx))
                         # FN-001: only open define wizard when there are real pending params
                         if should_auto_start_define_on_load(startup_ctx):
                             missing = startup_ctx.get("missing_params") or []
@@ -1029,7 +1041,12 @@ def run_chat(*, speak_tts: bool = False) -> None:
         if result.get("status") == "error":
             _say(result.get("message") or "No he entendido la instrucción.")
         else:
-            _say(render_response(result))
+            rendered = render_response(result)
+            print(f"Jarvis > {rendered}")
+            if result.get("action") == "project_status":
+                speak(spoken_text_for_wall(user_input, rendered, result.get("startup_context") or {}))
+            else:
+                speak(rendered)
 
 
 def _voice_speak_fn(speak_tts: bool):

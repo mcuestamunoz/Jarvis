@@ -1,16 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Voice phase V7 documented; T44-DC plan locked; T45 spoken-continuity IC ready for Claude @ 0.7.4",
-  "scope": "Docs + DC + IC only. No src/. Two-layer truth vs spoken extract; walls-first slice.",
-  "execution_status": "ic_ready_for_claude",
-  "current_mode": "ic",
+  "cycle_intent": "T45 spoken-continuity extractor implemented by Claude @ 0.7.4; Layer 2 (speak brief on Continuity walls) ships, Layer 1 (print) stays byte-identical",
+  "scope": "Implemented. New adapters/voice/spoken_continuity.py (brief_spoken_continuity/is_full_continuity_request/spoken_text_for_wall); run_chat's two wall sites (project load + project_status) now speak brief by default, full wall on a locked FULL phrase this turn only; print unchanged. Three new CONTINUITY_DEFER_PHRASES entries so completo/estado completo/cuentame todo resolve to project_status at all.",
+  "execution_status": "implemented_awaiting_cursor_review",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "engineer",
     "reason": "Document voice phase + define plan then IC for spoken continuity"
   },
   "relevant_workflow_phases": [
-    "DC",
-    "IC"
+    "Implementation"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -19,42 +18,42 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
     ".jes/artifacts/design_contract_assistant_chat_spoken_continuity_b0.md",
     ".jes/artifacts/implementation_contract_assistant_chat_spoken_continuity_b1.md",
+    ".jes/artifacts/implementation_report_assistant_chat_spoken_continuity_b1.md",
     ".jes/artifacts/engineer_note_chat_spoken_continuity_map.md"
   ],
   "open_questions": [
-    "Claude implements T45 @ 0.7.4?"
+    "Cursor review of T45 @ 0.7.4 → Engineer ACCEPT → tag v0.7.4?",
+    "Craft coherence_footer / reasoning-without-footer brief extraction — own future IC, not T45"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_chat_spoken_continuity_b1.md",
     "ids": [
-      "T44-DC",
       "T45",
       "B1-assistant-chat-spoken-continuity"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "Voice phase cola documented for V7",
-    "T44-DC written",
-    "T45 IC written for Claude paste",
-    "CLAUDE.md spoken-continuity map norm landed"
+    "T45 implemented by Claude @ 0.7.4"
   ],
   "authority_gates": [
     "No AUTHORIZED stamp — Engineer paste is the Buy",
-    "No src/ in this delivery",
-    "No LLM in Layer 2",
+    "Print side byte-identical to T43 — proven by test_t2/t3 (full wall still on screen)",
+    "No LLM in Layer 2 — brief_spoken_continuity extracts only already-computed fields",
     "No ACCEPT claim",
-    "Screen truth must stay full"
+    "Screen truth stayed full — render_startup_context/render_response untouched",
+    "Bare --chat still silent; run_chat source still has zero reference to the TTS seam (T42 guard green, unmodified)"
   ],
   "coherence_checklist": [
-    "PRIORIDAD points to T45 IC ready @ 0.7.4",
-    "Cola note has V7 plan + two-layer picture",
-    "DC locks phrase split and brief fields",
-    "IC paste ready"
+    "T1-T6 tests added and green (7 tests); T41/T42/T43/continuity-defer/coherence siblings re-run green (52 total)",
+    "Full suite 4016 passed / 9 skipped vs 4009/9 baseline — zero regressions",
+    "pyproject 0.7.4; no speech deps; no tip pins; ESC fence green",
+    "Living map updated: shipped classifications + N1 citation fix (676-682)",
+    "Guide updated: brief vs completo/dame detalles documented in §4.1 and §8",
+    "PRIORIDAD/cola/PLATFORM/CONNECTIONS/IC status line updated to Implemented, await Cursor review"
   ],
-  "updated_at": "2026-10-04T13:00:00Z"
+  "updated_at": "2026-10-04T14:00:00Z"
 }
