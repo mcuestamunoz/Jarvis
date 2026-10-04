@@ -6,12 +6,13 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T44-inv** spoken-continuity map — **Implemented** · Cursor **PASS WITH NOTES** → await Engineer ★ on findings → small DC then IC (speak path only) · tip stays **`0.7.3`**.  
-> **In flight:** **T43** chat+speak @ `0.7.3` (PASS WITH NOTES; ACCEPT deferred) · **T42** / **T41** PASS WITH NOTES (ACCEPT deferred).  
-> **Policy:** no tip/package version pins in tests.  
-> **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice cola: [phase C note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md). Chat spoken-continuity: [living map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md).  
-> **Cola voz:** T35–T39 ★ · T41–T43 PASS WITH NOTES · **T44-inv** PASS WITH NOTES · **T40** Parked.  
-> SoT: [T44-inv review](../.jes/artifacts/investigation_review_assistant_chat_spoken_continuity_b0.md) · [report](../.jes/artifacts/investigation_report_assistant_chat_spoken_continuity_b0.md) · [T43 review](../.jes/artifacts/implementation_review_assistant_chat_voice_speak_b1.md) · [guía](USER_GUIDE_VOICE.md).  
+> **PRIORIDAD AHORA:** **T45** spoken-continuity extractor — **IC ready** · Claude · package **`0.7.4`** (print full Continuity · speak brief on walls · `completo`/`dame detalles` = wall this turn · **no LLM**).  
+> **Plan lock:** **T44-DC** two-layer model. Map: **T44-inv** PASS WITH NOTES.  
+> **In flight:** **T43** chat+speak verbatim @ `0.7.3` (PASS WITH NOTES; ACCEPT deferred) · **T42** / **T41** PASS WITH NOTES (ACCEPT deferred).  
+> **Policy:** no tip/package version pins in tests. Chat/Continuity egress Buys update the [spoken-continuity map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) in the same Buy.  
+> **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice phase: [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
+> **Cola voz:** T35–T39 ★ · T41–T43 PASS WITH NOTES · T44-inv map · **T44-DC** plan · **T45** IC ready @ `0.7.4` · **T40** Parked.  
+> SoT: [T45 IC](../.jes/artifacts/implementation_contract_assistant_chat_spoken_continuity_b1.md) · [T44-DC](../.jes/artifacts/design_contract_assistant_chat_spoken_continuity_b0.md) · [map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) · [guía](USER_GUIDE_VOICE.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -19,7 +20,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.0`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · T41–T43 PASS WITH NOTES · **T44-inv** spoken-continuity PASS WITH NOTES · **T40** Parked)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.0`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · T41–T43 PASS WITH NOTES · T44-inv/DC spoken-continuity · **T45** IC ready @ `0.7.4` · **T40** Parked)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -93,10 +94,12 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T41** | **`B1-assistant-voice-demo-ready`** | **Implemented** · **`0.7.1`** · Cursor **PASS WITH NOTES** (ACCEPT deferred) | Operator wrappers — guide + Piper/whisper scripts + fixture (batch) · **zero** `src/` | [review](../.jes/artifacts/implementation_review_assistant_voice_demo_ready_b1.md) · [guía](USER_GUIDE_VOICE.md) |
 | **T42** | **`B1-assistant-voice-interactive-cli`** | **Implemented** · **`0.7.2`** · Cursor **PASS WITH NOTES** | Skills-only `--voice` REPL | [review](../.jes/artifacts/implementation_review_assistant_voice_interactive_cli_b1.md) |
 | **T43** | **`B1-assistant-chat-voice-speak`** | **Implemented** · **`0.7.3`** · Cursor **PASS WITH NOTES** | **Full `--chat` + speak** — `--chat --voice-speak`; bare `--chat` silent; Continuity/craft unchanged | [review](../.jes/artifacts/implementation_review_assistant_chat_voice_speak_b1.md) · [guía](USER_GUIDE_VOICE.md) |
-| **T44-inv** | **`INV-assistant-chat-spoken-continuity`** | **Implemented** · Cursor **PASS WITH NOTES** · tip **`0.7.3`** | Map all `--chat` egress + Continuity fields → spoken-continuity classes · living map · process norm (parallel on future Buys) · **no LLM** · no `src/` | [review](../.jes/artifacts/investigation_review_assistant_chat_spoken_continuity_b0.md) · [living map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) |
-| **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
+| **T44-inv** | **`INV-assistant-chat-spoken-continuity`** | **Implemented** · Cursor **PASS WITH NOTES** · tip **`0.7.3`** | Map all `--chat` egress + Continuity fields → spoken-continuity classes · living map · process norm | [review](../.jes/artifacts/investigation_review_assistant_chat_spoken_continuity_b0.md) · [map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) |
+| **T44-DC** | **`DC-assistant-chat-spoken-continuity`** | **DC ready** | V7 plan lock: two layers · brief fields · phrase split · T45 = walls only | [DC](../.jes/artifacts/design_contract_assistant_chat_spoken_continuity_b0.md) · [cola](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
+| **T45** | **`B1-assistant-chat-spoken-continuity`** | **IC ready** · Claude · **`0.7.4`** | Print full Continuity · speak brief on load/`estado` · FULL phrases speak the wall this turn · **no LLM** | [IC](../.jes/artifacts/implementation_contract_assistant_chat_spoken_continuity_b1.md) · [guía](USER_GUIDE_VOICE.md) |
+| **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 · **not** V7 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
-| **A4** | Voz / world | **Voz half ★** @ **`v0.7.0`** · T41–T43 PASS WITH NOTES · **T44-inv** spoken-continuity PASS WITH NOTES · `world/` Parked (T40) | Skill-first phase C; same Skills; new ingress only | [guía de voz](USER_GUIDE_VOICE.md) · [voice DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
+| **A4** | Voz / world | **Voz half ★** @ **`v0.7.0`** · T41–T43 PASS WITH NOTES · V7 spoken-continuity T44-inv/DC + **T45** IC ready · `world/` Parked (T40) | Skill-first phase C; same Skills; new ingress only; V7 = spoken extract over Continuity | [guía de voz](USER_GUIDE_VOICE.md) · [voice DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [V7 DC](../.jes/artifacts/design_contract_assistant_chat_spoken_continuity_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |
 | **N1** | `--list`/`--rung` casefold in chat | **Optional polish** | A7 residual | ★ pick later |
 | **R4** | LLM cite | **Later** | Intérprete semántico only | vision §7 (b) |

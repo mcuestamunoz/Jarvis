@@ -58,3 +58,5 @@ Each phase is independently ★-able. V3 and V4 may swap order after V2 ★.
 T34-inv ★ ACCEPT CLOSED (findings). This DC ★ CLOSED. Next: authorize **T35** IC when Engineer says proceed. Tip package stays **`0.6.42`** until T35 opens **`0.6.43`**. Voice v1 product milestone = **T39 → `v0.7.0`**.
 
 SoT cola: [`docs/IMPLEMENTATION_TASKS.md`](../../docs/IMPLEMENTATION_TASKS.md) PRIORIDAD · [phase note](engineer_note_voice_phase_c_cola.md)
+
+**Later (2026-10-04, does not reopen this DC):** after T43 live use, Engineer locked **V7 spoken-continuity** (two-layer extract over Continuity walls) as an additive egress concern — [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md). Voice v1 Skill-first locks above stay ★. T40 world stays Parked.

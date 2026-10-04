@@ -1,29 +1,27 @@
 # Engineer note — Chat spoken-continuity map (living SoT)
 
-**Date:** 2026-10-04
-**Status:** **OPEN living map** — seeded by [T44-inv](investigation_report_assistant_chat_spoken_continuity_b0.md)
-**Authority:** Engineer — this is the single inventory a future spoken-continuity DC/IC implements against
-**Tip parent:** `0.7.3` (T43) · this note is docs-only, no `src/` change
+**Date:** 2026-10-04  
+**Status:** **OPEN living map** — SoT inventory for V7 spoken-continuity ([T44-inv](investigation_report_assistant_chat_spoken_continuity_b0.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · T45 IC)  
+**Authority:** Engineer — this is the single inventory the spoken-continuity DC/IC implement against  
+**Tip parent:** `0.7.3` (T43 verbatim speak) · T45 will ship Layer 2 @ `0.7.4` without changing these field names
 
 **Purpose:** Every `--chat` print surface and every `build_startup_context`/`build_project_continuity` field, classified for the two-layer spoken-continuity model:
 
-> **Layer 1 — TRUTH:** full `--chat` / Continuity on screen. Unchanged, always complete.
-> **Layer 2 — SPOKEN CONTINUITY:** a deterministic extract of what matters for continuity. Brief by default. Full only on request. **No LLM** in this layer — a later Buy may add an LLM *semantic interpreter* on top, but never inside the extraction itself.
+> **Layer 1 — TRUTH:** full `--chat` / Continuity on screen. Unchanged, always complete.  
+> **Layer 2 — SPOKEN CONTINUITY:** a deterministic extract of what matters for continuity. Brief by default on Continuity **walls**. Full only on request. **No LLM** in this layer.
 
 **Classification legend:**
 - **must-speak-brief** — spoken every time under `--chat --voice-speak`, kept short (already short, or a single extracted fact).
-- **speak-on-request** — spoken only when the user asks for "completo"/full (trigger shape: see Q6 of the INV report — not yet implemented).
+- **speak-on-request** — spoken only when the user asks for full (`dame detalles` / `completo` / DC FULL set).
 - **screen-only** — never spoken by default, even on request (operator diagnostics / visual-only content).
+
+Phase cola: [`engineer_note_voice_phase_c_cola.md`](engineer_note_voice_phase_c_cola.md).
 
 ---
 
-## ⚠ Standing norm (proposed — not yet in `CLAUDE.md`)
+## ⚠ Standing norm (in `CLAUDE.md`)
 
-> ### Chat / spoken-continuity egress map
->
-> Whenever a Buy adds or changes a `--chat` print surface, a `build_startup_context`/`build_project_continuity` field, or any `render_*` function that produces chat egress, update this map **in the same Buy** — add the new surface/field row and classify it (`must-speak-brief` / `speak-on-request` / `screen-only`). Do not leave this map stale; the spoken-continuity layer treats it as its single source of truth for what exists to classify.
-
-Landing: Engineer ★ on [T44-inv](investigation_report_assistant_chat_spoken_continuity_b0.md) → land the clause above in `CLAUDE.md` (new short section) → add a pointer line here from [`engineer_note_voice_phase_c_cola.md`](engineer_note_voice_phase_c_cola.md), mirroring its existing pointer to `USER_GUIDE_VOICE.md`.
+Whenever a Buy adds or changes a `--chat` print surface, a `build_startup_context`/`build_project_continuity` field, or any `render_*` function that produces chat egress, update this map **in the same Buy**. Clause: [`CLAUDE.md`](../../CLAUDE.md) § Chat / spoken-continuity egress map.
 
 ---
 
@@ -53,7 +51,7 @@ Landing: Engineer ★ on [T44-inv](investigation_report_assistant_chat_spoken_co
 
 ## Table 2 — Continuity / startup-context fields
 
-### `build_project_continuity` return (`src/jarvis/core/project_continuity.py:389-395`)
+### `build_project_continuity` return (`src/jarvis/core/project_continuity.py:676-682`)
 
 | Field | Printed in | Class |
 |---|---|---|
