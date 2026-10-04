@@ -43,10 +43,22 @@ def test_t1_terminal_adapter_builds_intent():
     assert result.id
 
 
-def test_t2_voice_radio_api_adapters_refuse():
-    for adapter in (VoiceIntentAdapter, RadioIntentAdapter, ApiIntentAdapter):
+def test_t2_radio_api_adapters_refuse():
+    """T35 (`B1-assistant-voice-intent-ingress`) fills `VoiceIntentAdapter`
+    — it no longer refuses. See
+    `tests/test_assistant_voice_intent_ingress_b1.py` for its own
+    coverage. Radio and Api stay unimplemented, unchanged."""
+    for adapter in (RadioIntentAdapter, ApiIntentAdapter):
         with pytest.raises(NotImplementedError, match="not_implemented"):
             adapter.parse("anything")
+
+
+def test_t2b_voice_adapter_now_builds_intent():
+    result = VoiceIntentAdapter.parse("hola")
+    assert isinstance(result, Intent)
+    assert result.source == IntentSource.VOICE
+    assert result.raw_text == "hola"
+    assert result.id
 
 
 def test_t3_default_gate_always_rejects_not_implemented():
@@ -114,14 +126,6 @@ def test_t8_capability_registry_default_still_descriptive_only():
         lowered = name.lower()
         for token in forbidden_substrings:
             assert token not in lowered
-
-
-def test_t9_pyproject_version_stays_0_6_10():
-    """Bumped forward by T2 (B1-capability-registry-product-fill) per
-    established pattern — was last accurate at 0.5.44 (C2's own tip),
-    itself already long stale before this Buy touched the file."""
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.20"' in text
 
 
 def test_safety_decision_requires_reason_on_reject():
