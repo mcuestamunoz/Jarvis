@@ -95,7 +95,12 @@ if [ -n "${JARVIS_VOICE_WAV_OUT:-}" ]; then
     WAV="$JARVIS_VOICE_WAV_OUT"
     CLEANUP=""
 else
-    WAV="$(mktemp -t jarvis_voice).wav"
+    # GNU mktemp requires ≥3 trailing X's at the end of the template.
+    # Create the empty tempfile, then use a sibling `.wav` path (and remove
+    # the empty placeholder) so Piper writes a real RIFF file.
+    _tmp="$(mktemp "${TMPDIR:-/tmp}/jarvis_voice.XXXXXX")"
+    WAV="${_tmp}.wav"
+    rm -f "$_tmp"
     CLEANUP="$WAV"
 fi
 
