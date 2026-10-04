@@ -58,9 +58,9 @@ Wrappers present + executable (`100755`). Report full-suite claim (3999 / +8) no
 
 ## 3. Notes
 
-**N1 — Real Piper / whisper / speaker / timbre not verified on this tip.** Honest and correct: stubs prove plumbing; Engineer listening call (`en_GB-alan-medium` grave/corto/sin teatro) remains open per brief. Not a code defect.
+**N1 — Live Piper demo exercised on this tip after review.** Cursor installed Piper + `en_GB-alan-medium` outside the package and ran the guide’s fixture+speak path. Found and fixed a Linux `mktemp` bug in `piper_tts.sh` (`a190fb9` + regression in T5b). Eight Skill turns synthesized to wav; timbre judgment still Engineer’s ear.
 
-**N2 — Process.** Engineer ★ ACCEPT → tag **`v0.7.1`**. After that: follow `docs/USER_GUIDE_VOICE.md` §2–§4 to hear the first real demo. T40 craft/`world` stays Parked.
+**N2 — Process.** Await Engineer ★ ACCEPT → tag **`v0.7.1`** after you confirm the spoken demo. T40 craft/`world` stays Parked.
 
 ---
 

@@ -308,6 +308,31 @@ def test_t5b_tts_wrapper_plumbing_against_a_stub_piper(tmp_path: Path):
     assert done.returncode != 0
     assert "no audio" in done.stderr
 
+    # Play path (no JARVIS_VOICE_WAV_OUT) must create a temp wav via mktemp.
+    # Regression: GNU mktemp rejects templates without trailing XXXXXX
+    # (`mktemp -t jarvis_voice` failed on Linux and blocked real demos).
+    # Copy the wav out before the wrapper's EXIT trap deletes the temp file.
+    kept = tmp_path / "kept.wav"
+    player = tmp_path / "player.sh"
+    player.write_text(
+        "#!/bin/sh\n"
+        f'cp "$1" "{kept}"\n',
+        encoding="utf-8",
+    )
+    player.chmod(player.stat().st_mode | stat.S_IEXEC)
+    done = _run_wrapper(
+        TTS_WRAPPER,
+        env={
+            "JARVIS_PIPER_MODEL": str(model),
+            "JARVIS_PIPER_BIN": str(stub),
+            "JARVIS_VOICE_PLAYER": str(player),
+            "TMPDIR": str(tmp_path),
+        },
+        stdin="hola play path",
+    )
+    assert done.returncode == 0, f"play-path wrapper failed: {done.stderr}"
+    assert kept.exists() and kept.stat().st_size > 0
+
 
 def test_t5c_stt_wrapper_prints_bare_transcript_on_stdout(tmp_path: Path):
     """T37's seam reads stdout as the transcript — so the wrapper must put
