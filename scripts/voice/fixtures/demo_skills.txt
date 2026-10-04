@@ -1,0 +1,8 @@
+estado
+explain c-rate-de-bateria
+armar
+hold
+go to 1.0 2.0
+land
+desarmar
+charge

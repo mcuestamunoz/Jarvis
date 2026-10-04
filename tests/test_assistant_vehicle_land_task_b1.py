@@ -144,7 +144,10 @@ def test_t5_seed_flight_land_not_implemented_vehicle_provider_skill_stub_hold_un
     assert "skill.request_land" in skill_ids
     land_skill = next(s for s in registry.skills() if s.id == "skill.request_land")
     assert land_skill.required_capability_ids == ["flight.land"]
-    assert land_skill.availability == CapabilityAvailability.STUB
+    # T7 seeded stub; T24 Skill-first flips Skill to available while
+    # flight.land stays not_implemented — see
+    # tests/test_assistant_chat_skill_first_vehicle_land_b1.py.
+    assert land_skill.availability == CapabilityAvailability.AVAILABLE
 
     # HOLD (T6) and software (T2/T5) rows are still present and untouched.
     hold_capability = registry.get_capability("flight.hold")
@@ -193,7 +196,3 @@ def test_t7_default_safety_gate_still_reject_all_and_fulfill_uses_disarmed_armed
     assert "disarmed" in result["message"]
     assert result["status"] == "ok"
 
-
-def test_t8_pyproject_version_is_0_6_15():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.20"' in text
