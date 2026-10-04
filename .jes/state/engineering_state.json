@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T43 chat+speak Cursor PASS WITH NOTES @ 0.7.3; await Engineer ★ ACCEPT",
-  "scope": "Independent Cursor review of Claude T43 impl. No src/ edits in review pass.",
-  "execution_status": "pass_with_notes_awaiting_accept",
-  "current_mode": "review",
+  "cycle_intent": "T44-inv spoken-continuity map INV ready for Claude @ tip 0.7.3; inventory chat egress before brief speak layer",
+  "scope": "INV-only. Claude maps every --chat egress + Continuity fields, ranks for deterministic spoken continuity, drafts living map + process norm. No src/, no LLM, no speak-behavior change.",
+  "execution_status": "inv_ready_for_claude",
+  "current_mode": "investigation",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Claude paste: T43 implemented — request Cursor review"
+    "reason": "Engineer: two-layer truth vs spoken continuity; investigate/map before IC; norm for future Buys"
   },
   "relevant_workflow_phases": [
-    "Review"
+    "Investigation"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,35 +18,36 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_chat_voice_speak_b1.md",
-    ".jes/artifacts/implementation_report_assistant_chat_voice_speak_b1.md",
-    ".jes/artifacts/implementation_review_assistant_chat_voice_speak_b1.md"
+    ".jes/artifacts/investigation_contract_assistant_chat_spoken_continuity_b0.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT T43 → tag v0.7.3? Also T41/T42 deferred ACCEPTs?"
+    "Claude delivers report + living map + norm draft?",
+    "After ★: DC then IC for brief speak layer?"
   ],
   "active_operation": {
-    "type": "pass_with_notes",
-    "contract": "implementation_contract_assistant_chat_voice_speak_b1.md",
+    "type": "inv_ready",
+    "contract": "investigation_contract_assistant_chat_spoken_continuity_b0.md",
     "ids": [
-      "T43",
-      "B1-assistant-chat-voice-speak"
+      "T44-inv",
+      "INV-assistant-chat-spoken-continuity"
     ],
-    "blocked_on": "engineer_accept"
+    "blocked_on": "claude_investigation"
   },
   "closed_this_turn": [
-    "T43 Cursor PASS WITH NOTES recorded"
+    "T44-inv contract written for Claude paste"
   ],
   "authority_gates": [
-    "No ACCEPT claimed by Cursor",
-    "Same-session self-PASS is not review of record",
-    "Bare --chat remains silent"
+    "No AUTHORIZED stamp — Engineer paste is the Buy",
+    "No src/ behavior change",
+    "No LLM summarizer",
+    "No ACCEPT claim",
+    "Tip package stays 0.7.3"
   ],
   "coherence_checklist": [
-    "Review artifact written against IC locks",
-    "37 targeted tests green this pass",
-    "PRIORIDAD points to PASS WITH NOTES await ACCEPT",
-    "N1: T42 structural T4 is token fence; bare silence = T43 T2"
+    "INV ready @ tip 0.7.3",
+    "PRIORIDAD points to T44-inv",
+    "Paste for Claude ready",
+    "Living map + process norm are required deliverables"
   ],
-  "updated_at": "2026-10-04T12:10:00Z"
+  "updated_at": "2026-10-04T12:35:00Z"
 }
