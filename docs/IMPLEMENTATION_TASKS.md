@@ -6,11 +6,11 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T43** chat + spoken replies — **IC ready** · Claude · package **`0.7.3`** (**full `--chat` + ears** · `--chat --voice-speak`; bare `--chat` silent).  
+> **PRIORIDAD AHORA:** **T43** chat + spoken replies — **Implemented (Claude Code)** · await Cursor review → Engineer ★ ACCEPT · package **`0.7.3`** (**full `--chat` + ears** · `--chat --voice-speak`; bare `--chat` silent).  
 > **In flight:** **T42** Skills-only `--voice` @ `0.7.2` (PASS WITH NOTES; ACCEPT deferred) · **T41** demo-ready @ `0.7.1` (PASS WITH NOTES; ACCEPT deferred).  
 > **Policy:** no tip/package version pins in tests.  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice cola: [phase C note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
-> **Cola voz:** T35–T39 ★ · T41 demo wrappers · T42 `--voice` Skills REPL · **T43** full `--chat --voice-speak` IC ready @ `0.7.3` · **T40** Parked.  
+> **Cola voz:** T35–T39 ★ · T41 demo wrappers · T42 `--voice` Skills REPL · **T43** full `--chat --voice-speak` Implemented @ `0.7.3` (await Cursor review) · **T40** Parked.  
 > SoT: [T43 IC](../.jes/artifacts/implementation_contract_assistant_chat_voice_speak_b1.md) · [guía](USER_GUIDE_VOICE.md).  
 
 
@@ -19,7 +19,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.0`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · T41/T42 PASS WITH NOTES · **T43** chat+speak IC ready @ `0.7.3` · **T40** Parked)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.0`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · T41/T42 PASS WITH NOTES · **T43** chat+speak Implemented @ `0.7.3` (await Cursor review) · **T40** Parked)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -92,10 +92,10 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T39** | **`B1-assistant-voice-v1-checkpoint`** (V5) | **✅ ★ ACCEPT CLOSED** · tip **`v0.7.0`** | **Product milestone** — fixture → twelve Skills → fake TTS · STT→Skill→TTS · no new seam · hito voz v1 | [review ★](../.jes/artifacts/implementation_review_assistant_voice_v1_checkpoint_b1.md) · [DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) |
 | **T41** | **`B1-assistant-voice-demo-ready`** | **Implemented** · **`0.7.1`** · Cursor **PASS WITH NOTES** (ACCEPT deferred) | Operator wrappers — guide + Piper/whisper scripts + fixture (batch) · **zero** `src/` | [review](../.jes/artifacts/implementation_review_assistant_voice_demo_ready_b1.md) · [guía](USER_GUIDE_VOICE.md) |
 | **T42** | **`B1-assistant-voice-interactive-cli`** | **Implemented** · **`0.7.2`** · Cursor **PASS WITH NOTES** | Skills-only `--voice` REPL | [review](../.jes/artifacts/implementation_review_assistant_voice_interactive_cli_b1.md) |
-| **T43** | **`B1-assistant-chat-voice-speak`** | **IC ready** · Claude · **`0.7.3`** | **Full `--chat` + speak** — `--chat --voice-speak`; bare `--chat` silent; Continuity/craft unchanged | [IC](../.jes/artifacts/implementation_contract_assistant_chat_voice_speak_b1.md) · [guía](USER_GUIDE_VOICE.md) |
+| **T43** | **`B1-assistant-chat-voice-speak`** | **Implemented** · **`0.7.3`** · await Cursor review (no ACCEPT claim) | **Full `--chat` + speak** — `--chat --voice-speak`; bare `--chat` silent; Continuity/craft unchanged | [IC](../.jes/artifacts/implementation_contract_assistant_chat_voice_speak_b1.md) · [guía](USER_GUIDE_VOICE.md) |
 | **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
-| **A4** | Voz / world | **Voz half ★** @ **`v0.7.0`** · T41/T42 PASS WITH NOTES · **T43** full `--chat --voice-speak` IC ready @ `0.7.3` · `world/` Parked (T40) | Skill-first phase C; same Skills; new ingress only | [guía de voz](USER_GUIDE_VOICE.md) · [voice DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
+| **A4** | Voz / world | **Voz half ★** @ **`v0.7.0`** · T41/T42 PASS WITH NOTES · **T43** full `--chat --voice-speak` Implemented @ `0.7.3` (await Cursor review) · `world/` Parked (T40) | Skill-first phase C; same Skills; new ingress only | [guía de voz](USER_GUIDE_VOICE.md) · [voice DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |
 | **N1** | `--list`/`--rung` casefold in chat | **Optional polish** | A7 residual | ★ pick later |
 | **R4** | LLM cite | **Later** | Intérprete semántico only | vision §7 (b) |

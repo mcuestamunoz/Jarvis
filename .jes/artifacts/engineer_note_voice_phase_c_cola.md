@@ -39,7 +39,7 @@
 | **T39** | V5 | `B1-assistant-voice-v1-checkpoint` | **`0.7.0` / `v0.7.0`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.0`** | **Product milestone** — speak → twelve Skills → spoken reply | [review ★](implementation_review_assistant_voice_v1_checkpoint_b1.md) · opens minor `0.7` |
 | **T41** | — | `B1-assistant-voice-demo-ready` | `0.7.1` | Implemented · Cursor **PASS WITH NOTES** (ACCEPT deferred) | Operator wrappers + guide + fixture (batch) | [review](implementation_review_assistant_voice_demo_ready_b1.md) · [guía](../../docs/USER_GUIDE_VOICE.md) |
 | **T42** | — | `B1-assistant-voice-interactive-cli` | `0.7.2` | Implemented · Cursor **PASS WITH NOTES** | Skills-only `--voice` REPL | [review](implementation_review_assistant_voice_interactive_cli_b1.md) |
-| **T43** | — | `B1-assistant-chat-voice-speak` | `0.7.3` | **IC ready** · Claude | **Full `--chat` + speak** (`--chat --voice-speak`) | [IC](implementation_contract_assistant_chat_voice_speak_b1.md) |
+| **T43** | — | `B1-assistant-chat-voice-speak` | `0.7.3` | Implemented (Claude Code) · await Cursor review | **Full `--chat` + speak** (`--chat --voice-speak`) | [IC](implementation_contract_assistant_chat_voice_speak_b1.md) |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 | [placement A4](design_contract_assistant_placement_b0.md) |
 
 ---

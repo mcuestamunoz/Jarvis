@@ -14,9 +14,9 @@ Los doce Skills alcanzables por voz son exactamente los del chat: `explain <conc
 
 **Qué no es:**
 
-- **No es un asistente de voz always-on.** No hay captura continua de micrófono, ni wake word, ni hilo de escucha de fondo. El REPL interactivo (§4) sigue siendo **texto escrito por teclado** — lo que es nuevo es que, además de leer la respuesta, también la *oyes*; hablarle de verdad al micrófono es el camino opcional de un solo turno en §5.3.
+- **No es un asistente de voz always-on.** No hay captura continua de micrófono, ni wake word, ni hilo de escucha de fondo. Los dos REPLs interactivos (§4) siguen siendo **texto escrito por teclado** — lo que es nuevo es que, además de leer la respuesta, también la *oyes*; hablarle de verdad al micrófono es el camino opcional de un solo turno en §5.3.
 - **No es un motor de voz.** Jarvis no sintetiza ni transcribe audio. Llama a un **proceso externo** que tú instalas (Piper para hablar, whisper.cpp para transcribir). Ninguno de los dos es dependencia del paquete — `pyproject.toml` no tiene `piper` ni `whisper`, y nunca los tendrá por este camino.
-- **No es el camino craft.** Los asistentes de diseño (wizards de frame/motor/batería, Continuity completa, fallthrough al LLM) **no** están en voz v1. Si una frase no es uno de los doce Skills, este canal no la cubre todavía — eso es T40, con su propio contrato.
+- **El camino craft solo está en `--chat --voice-speak` (§4.1), no en `--voice` (§4.2).** `--voice` es Skill-first puro: si una frase no es uno de los doce Skills, ese canal no la cubre (eso es T40, con su propio contrato). `--chat --voice-speak` es el `--chat` completo de siempre — Continuity, wizards, fallthrough al LLM — con voz añadida encima, sin recortar nada.
 - **No ejecuta vuelo.** `hold`, `takeoff`, `go to`… siguen respondiendo con la misma honestidad Safety que en el chat: `reject`/`disarmed` desarmado, `allow`/`not_implemented` armado. **Ningún dron real se mueve**, por voz igual que por texto. `armar` arma un latch de software, no un ESC.
 - **No es un clon de la voz de la película.** El objetivo es *JARVIS-like* (británico, grave, corto, sin teatro) con voces libres — no clonar a nadie. Ver [brief de producto](../.jes/artifacts/engineer_note_voice_tts_product_brief.md).
 
@@ -94,15 +94,33 @@ Variables que entiende el wrapper:
 
 ---
 
-## 4. Usar Jarvis por voz (interactivo) — la ruta principal
+## 4. Usar Jarvis por voz (interactivo)
 
-Con el entorno de §3 ya configurado, siéntate a hablar con Jarvis de verdad — no una demo, una sesión:
+Con el entorno de §3 ya configurado, dos rutas para *usar* Jarvis con voz — elige según lo que quieras hacer. Ninguna de las dos es una demo: ambas son sesiones reales, y en ninguna Jarvis llama a `JARVIS_TTS_CMD` salvo que tú lo pidas explícitamente con la flag correspondiente.
+
+### 4.1 Chat completo + voz (`--chat --voice-speak`) — para trabajar de verdad
+
+Esto es **el `--chat` de siempre** — proyectos, Continuity, craft, fallthrough al LLM, exactamente el mismo cerebro — con cada respuesta de Jarvis también **hablada**, no solo impresa. A diferencia de `--voice` (§4.2), aquí no hay límite a los doce Skills: cualquier cosa que hoy funciona en `--chat` sigue funcionando igual, y además se oye.
+
+```text
+python -m jarvis.main --chat --voice-speak
+```
+
+Cada vez que verías `Jarvis > …`, también lo oyes — el mismo texto, sin un segundo renderizador "para voz". Bloques largos (Continuity completa, `estado`) se leen en voz alta **tal cual, completos** — no hay un resumen más corto para hablar.
+
+**`--chat` a solas (sin `--voice-speak`) sigue siendo exactamente como siempre: solo texto.** Jarvis nunca llama a `JARVIS_TTS_CMD` en ese caso, aunque esté configurado — hace falta pedir `--voice-speak` explícitamente.
+
+**Si `JARVIS_TTS_CMD` falta o falla**, Jarvis lo dice e imprime `Jarvis > TTS no disponible: …`, y la conversación sigue — nunca se cae ni finge que habló.
+
+### 4.2 Solo Skills (`--voice`) — REPL ligero, sin craft/Continuity/LLM
+
+Un canal más estrecho: el mismo cerebro Skill-first, pero **sin** proyectos/Continuity/craft — solo los doce Skills (§1). Útil para probar el canal de voz en aislamiento, sin arrastrar una sesión de proyecto completa.
 
 ```text
 python -m jarvis.main --voice
 ```
 
-Verás un prompt igual que en `--chat`, pero cada turno **además de imprimirse, se oye**:
+Verás un prompt distinto al de `--chat`, y cada turno **además de imprimirse, se oye** (aquí no hace falta `--voice-speak`: `--voice` siempre habla):
 
 ```text
 Jarvis (voz) > Escribe una frase (p. ej. 'armar', 'hold', 'estado') — verás y oirás la respuesta. 'salir' o Ctrl-D para terminar.
@@ -127,7 +145,7 @@ HOLD solicitado, pero no se ejecuta ningún vuelo real desde este chat todavía.
 Jarvis > TTS no disponible: no external TTS command configured (set JARVIS_TTS_CMD or pass command_template)
 ```
 
-**`--chat` sigue siendo solo texto, sin cambios.** `--voice` es un punto de entrada aparte — si no lo pides explícitamente, Jarvis nunca llama a `JARVIS_TTS_CMD`, aunque esté configurado.
+**`--chat` a solas sigue siendo solo texto, sin cambios.** `--voice` es un punto de entrada aparte — si no lo pides explícitamente, Jarvis nunca llama a `JARVIS_TTS_CMD`, aunque esté configurado.
 
 ---
 
@@ -242,7 +260,10 @@ export JARVIS_TTS_CMD="$PWD/scripts/voice/piper_tts.sh"
 # ── Comprobar antes de hablar ────────────────────────────────────────
 ./scripts/voice/piper_tts.sh --check
 
-# ── Usar Jarvis por voz (interactivo — la ruta principal) ────────────
+# ── Chat completo + voz (proyectos, Continuity, craft, LLM) ──────────
+python -m jarvis.main --chat --voice-speak
+
+# ── Solo Skills por voz (REPL ligero, sin craft/Continuity/LLM) ──────
 python -m jarvis.main --voice
 
 # ── Batch / fixture (CI, pruebas, grabar sin estar delante) ──────────
@@ -270,7 +291,7 @@ python -m jarvis.main --chat
 - **Las flags de Piper cambian entre builds.** El wrapper llama `piper --model M --output_file W` (forma de Piper 1.x). Si tu build usa otras, pásalas con `JARVIS_PIPER_ARGS` o ajusta el wrapper — el error de Piper se propaga tal cual a stderr, no se enmascara.
 - **Falta el `.onnx.json`.** Es el fallo nº 1 al instalar una voz. Piper no lo pide por flag: lo busca al lado del `.onnx`.
 - **Los Skills responden en español, la voz por defecto es `en_GB`.** El brief acepta esto para las primeras demos (acento británico leyendo español). Si molesta, el camino es una voz `es_ES` de Piper — mismo wrapper, solo cambia `JARVIS_PIPER_MODEL`; no hace falta tocar código.
-- **`estado` es largo para hablarlo.** La Continuity completa son varias líneas con separadores y viñetas; suena denso leída en voz alta. Los otros once Skills son de una o dos frases y suenan bien. No hay renderer “para voz” todavía: la voz lee exactamente el mismo texto que ves, en `--voice` igual que en los modos batch.
-- **`--voice` sigue siendo texto escrito, no micrófono.** Es un REPL de teclado que además habla la respuesta — hablarle de verdad al micrófono es §5.3 (`--voice-audio`, un turno por invocación). Un modo always-on con wake word no está en voz v1 y necesitaría su propio contrato.
-- **Craft/wizards fuera.** Si dices una frase que no es uno de los doce Skills, este canal no la atiende (es T40). En el chat de texto esa misma frase sí llega al camino craft/LLM.
+- **`estado` y la Continuity completa son largos para hablarlos.** Varias líneas con separadores y viñetas; suena denso leído en voz alta — más aún en `--chat --voice-speak`, donde Continuity puede ser el bloque más largo de toda la sesión. No hay renderer "para voz" todavía: la voz lee exactamente el mismo texto que ves, en `--chat --voice-speak`, en `--voice`, e igual en los modos batch.
+- **Ni `--voice` ni `--chat --voice-speak` son micrófono.** Ambos son REPLs de teclado que además hablan la respuesta — hablarle de verdad al micrófono es §5.3 (`--voice-audio`, un turno por invocación). Un modo always-on con wake word no está en voz v1 y necesitaría su propio contrato.
+- **Craft/wizards solo en `--chat --voice-speak`.** `--voice` (§4.2) es Skill-first puro: si dices una frase que no es uno de los doce Skills, ese canal no la atiende (es T40). `--chat --voice-speak` (§4.1) es el chat completo — esa misma frase sí llega al camino craft/LLM, igual que en `--chat` sin voz.
 - **El contexto no persiste entre invocaciones de `--voice-audio`.** Cada llamada a `--voice-audio` crea su propio orquestador y termina — el latch `armar` no sobrevive a la siguiente invocación. Dentro de una misma sesión `--voice` (§4) o de un `--voice-fixture` sí persiste turno a turno.

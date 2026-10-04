@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T43 chat+speak IC ready for Claude @ 0.7.3; Engineer wants full --chat CLI with spoken replies, not Skills-only --voice",
-  "scope": "IC-only. Claude wires --chat --voice-speak to speak_egress after existing prints; bare --chat stays silent; Continuity/craft unchanged.",
-  "execution_status": "ic_ready_for_claude",
-  "current_mode": "ic",
+  "cycle_intent": "T43 chat+speak implemented by Claude @ 0.7.3; full --chat CLI now speaks replies via --voice-speak, not Skills-only --voice",
+  "scope": "Implemented. run_chat(speak_tts=False) gained opt-in; --chat --voice-speak speaks via new _chat_speak_fn + speak_egress after existing prints; bare --chat byte-identical; Continuity/craft/TERMINAL unchanged.",
+  "execution_status": "implemented_awaiting_cursor_review",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "engineer",
     "reason": "Engineer: eso es lo que quiero (chat CLI + voice)"
   },
   "relevant_workflow_phases": [
-    "IC"
+    "Implementation"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,34 +18,39 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_chat_voice_speak_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_chat_voice_speak_b1.md",
+    ".jes/artifacts/implementation_report_assistant_chat_voice_speak_b1.md"
   ],
   "open_questions": [
-    "Claude implements T43 @ 0.7.3?"
+    "Cursor review of T43 @ 0.7.3 → Engineer ACCEPT?"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_chat_voice_speak_b1.md",
     "ids": [
       "T43",
       "B1-assistant-chat-voice-speak"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "T43 IC written for Claude paste"
+    "T43 implemented by Claude @ 0.7.3"
   ],
   "authority_gates": [
     "No AUTHORIZED stamp — Engineer paste is the Buy",
-    "Do not make bare --chat speak",
-    "No double-print",
-    "Keep TERMINAL/chat brain",
+    "Bare --chat never speaks — confirmed by test + run_chat source inspection",
+    "No double-print — _chat_speak_fn is a separate thin helper, never _voice_speak_fn",
+    "Kept TERMINAL/chat brain — handle_user_text called with no source kwarg",
     "No ACCEPT claim"
   ],
   "coherence_checklist": [
-    "IC ready @ 0.7.3",
-    "Paste for Claude ready (no AUTHORIZED)",
-    "PRIORIDAD points to T43 IC ready"
+    "run_chat(speak_tts=False) default byte-identical to pre-T43",
+    "--chat --voice-speak wired in main()",
+    "T1-T5 tests added and green; T41 (8) + T42 (5) siblings re-run green",
+    "Full suite 4009 passed / 9 skipped vs 4004/9 baseline — zero regressions",
+    "pyproject 0.7.3; no speech deps; no tip pins; ESC fence green",
+    "Guide §4 split into co-primary 4.1/4.2; §1/6/7/8 headers unchanged",
+    "PRIORIDAD/PLATFORM/CONNECTIONS/cola note updated to Implemented status"
   ],
-  "updated_at": "2026-10-04T11:40:00Z"
+  "updated_at": "2026-10-04T12:05:00Z"
 }

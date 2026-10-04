@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.7.3`**
 
-**Status:** **IC ready for Claude** (Engineer paste = Buy).  
+**Status:** **Implemented (Claude Code)** — await Cursor review → Engineer ★ ACCEPT.  
 **Parents:** [T42](implementation_review_assistant_voice_interactive_cli_b1.md) @ `0.7.2` (PASS WITH NOTES) · [T41](implementation_review_assistant_voice_demo_ready_b1.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) · tip **`0.7.2`**  
 **Type:** Wire **spoken replies into the real `--chat` CLI** (Continuity / craft / full session) — what the Engineer asked for after trying `--voice`.  
 **Opens:** **`0.7.3` / `v0.7.3`**. **Cola:** **T43**
