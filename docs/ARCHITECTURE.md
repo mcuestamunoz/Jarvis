@@ -179,9 +179,9 @@ Visión / briefing: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION
 | `library/` + `src/jarvis/knowledge/` | Declara hechos de catálogo (SKU citados) | `ComponentLibrary` |
 | `ontology/` | Explica conceptos (math/physics/eng/robotics) | Humanos / Obsidian; **ningún** `src/jarvis/` import |
 | Continuity / FS | Decide craft · computa vehículo | Sus propios módulos |
-| `src/jarvis/intelligence/` | Assistant platform home — A1–A6 ★ @ `v0.6.1`–`v0.6.5`; A4 voz/world parked | `retrieve_by_id` · `jarvis explain` · Continuity Conceptos (C-115) |
+| `src/jarvis/intelligence/` | Assistant platform home — A1–A6 ★ @ `v0.6.1`–`v0.6.5`; A4 voz half ★ @ **`v0.7.0`**; `world/` Parked (T40) | `retrieve_by_id` · `jarvis explain` · Continuity Conceptos (C-115) |
 
-Bloque **`0.5` CLOSED** @ historical **`v0.5.44`**. Ontology **CLOSED @ `v0.6.0`**. Assistant path A0–A3 **★ CLOSED @ `v0.6.3`** (`jarvis explain` live). A4 voz/world **Parked**. To-be: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md). Vault: [`ontology/README.md`](../ontology/README.md). Crosswalks: [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md). **No** fusionar con `knowledge/`.
+Bloque **`0.5` CLOSED** @ historical **`v0.5.44`**. Ontology **CLOSED @ `v0.6.0`**. Assistant path A0–A3 **★ CLOSED @ `v0.6.3`** (`jarvis explain` live). Skill-first phase B ★ @ **`v0.6.40`**. Voice phase C: T34-DC ★ · **T35–T39** ★ @ **`v0.6.43`–`v0.7.0`** (V1–V5; hito “Jarvis voz v1”); **T41** demo-ready Implemented @ `0.7.1`, await Cursor review → Engineer ★ ACCEPT (operator path: [`USER_GUIDE_VOICE.md`](USER_GUIDE_VOICE.md) + `scripts/voice/` wrappers, zero `src/` change); **T40** craft/`world/` Parked. SoT voz: [`engineer_note_voice_phase_c_cola.md`](../.jes/artifacts/engineer_note_voice_phase_c_cola.md). To-be: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md). Vault: [`ontology/README.md`](../ontology/README.md). Crosswalks: [`ONTOLOGY_CROSSWALKS.md`](ONTOLOGY_CROSSWALKS.md). **No** fusionar con `knowledge/`.
 
 ### 1b. `capabilities/` — Fase C · C1+C2+C5 scaffold (registry + Intent/Safety/Radio stubs, no runtime)
 
