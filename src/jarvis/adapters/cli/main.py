@@ -984,9 +984,158 @@ def run_chat() -> None:
             print(f"Jarvis > {render_response(result)}")
 
 
+def _voice_speak_fn(speak_tts: bool):
+    """T38 (`B1-assistant-voice-tts-external`) — Skill-first phase C
+    V4. When `speak_tts` is set, each turn's egress is both printed
+    *and* fed to the external TTS command configured by
+    `JARVIS_TTS_CMD` (env-configured, no vendor hardcoded here — see
+    `.jes/artifacts/engineer_note_voice_tts_product_brief.md`); a
+    missing/failed TTS config is an honest printed `TtsError`, never a
+    silent no-op. Default (`speak_tts=False`, every existing caller)
+    only prints, byte-identical to before T38."""
+    from jarvis.adapters.voice import TtsError, speak_egress
+
+    def speak(egress: str) -> None:
+        print(f"Jarvis > {egress}")
+        if speak_tts:
+            try:
+                speak_egress(egress)
+            except TtsError as error:
+                print(f"Jarvis > TTS no disponible: {error}")
+
+    return speak
+
+
+def run_voice_fixture(fixture_path: str, *, speak_tts: bool = False) -> None:
+    """T36 (`B1-assistant-voice-fixture-loop`) — Skill-first phase C
+    V2. Fixture-driven voice loop: reads `fixture_path`'s non-blank
+    lines as "what STT produced" (no mic, no real STT) and runs each
+    through the same Skill-first brain as `--chat`, tagged
+    `source=IntentSource.VOICE`, printing each turn's `render_response`
+    egress. `speak_tts=True` (T38's `--voice-speak`) additionally
+    speaks that same egress via the external TTS seam. `--chat`'s own
+    behavior is untouched by this flag."""
+    from jarvis.adapters.voice import FixtureSttSource, run_voice
+
+    orchestrator = JarvisOrchestrator()
+    llm_interface = JarvisLLMInterface(client=OllamaClient())
+    fixture = FixtureSttSource.from_path(Path(fixture_path))
+    run_voice(orchestrator, llm_interface, fixture, speak=_voice_speak_fn(speak_tts))
+
+
+def run_voice_audio(audio_path: str, *, speak_tts: bool = False) -> None:
+    """T37 (`B1-assistant-voice-stt-external`) — Skill-first phase C
+    V3. Single voice turn from an audio file: invokes the external STT
+    command configured by `JARVIS_STT_CMD` (`{audio}` placeholder) on
+    `audio_path`, feeds the resulting transcript through the same
+    `run_voice_turn` seam T36 already proved, and prints the egress
+    (and, with `speak_tts=True`, speaks it via T38's external TTS
+    seam). No vendor SDK, no live mic stream — a missing/failed STT
+    config is an honest typed `SttError`, printed and not silently
+    swallowed. `--chat`/`--voice-fixture` are untouched by this flag."""
+    from jarvis.adapters.voice import SttError, run_voice_turn_from_audio
+
+    orchestrator = JarvisOrchestrator()
+    llm_interface = JarvisLLMInterface(client=OllamaClient())
+    try:
+        _, egress = run_voice_turn_from_audio(orchestrator, llm_interface, audio_path)
+    except SttError as error:
+        print(f"Jarvis > STT no disponible: {error}")
+        return
+    _voice_speak_fn(speak_tts)(egress)
+
+
+def run_voice_interactive(*, workspace_root: Path | None = None) -> None:
+    """T42 (`B1-assistant-voice-interactive-cli`) — Skill-first phase C
+    **interactive use**, not a fixture/batch demo: the Engineer sits in
+    a REPL, types a turn, sees the reply, and — unlike `--chat` — also
+    *hears* it. Reuses T35-T38's seams unchanged: each typed line is
+    tagged `source=IntentSource.VOICE` via the exact `run_voice_turn`
+    helper T36 shipped (`handle_user_text(..., source=VOICE)` →
+    existing `render_response`), then spoken via the same `speak_egress`
+    / `JARVIS_TTS_CMD` seam T38 shipped (`_voice_speak_fn`) — no new
+    STT/TTS vendor family, no fork of fulfill logic. A missing/failed
+    `JARVIS_TTS_CMD` prints an honest `TTS no disponible: …` and the
+    loop continues; it never crashes on a bad turn or a bad TTS config.
+    `quit`/`salir`/EOF/Ctrl-C exit cleanly with a goodbye. `--chat`'s
+    own loop (`run_chat`) is a deliberately separate entry point and
+    stays byte-unchanged — nothing here makes `--chat` speak.
+
+    `workspace_root` defaults to `None` (the real CLI's own workspace,
+    same as `run_chat`/`run_voice_fixture`/`run_voice_audio`); tests
+    pass `tmp_path` to stay isolated from any real on-disk project."""
+    from jarvis.adapters.voice import run_voice_turn
+
+    orchestrator = JarvisOrchestrator(workspace_root=workspace_root)
+    llm_interface = JarvisLLMInterface(client=OllamaClient())
+    speak = _voice_speak_fn(speak_tts=True)
+
+    print(
+        "Jarvis (voz) > Escribe una frase (p. ej. 'armar', 'hold', 'estado') — "
+        "verás y oirás la respuesta. 'salir' o Ctrl-D para terminar."
+    )
+
+    while True:
+        try:
+            user_input = " ".join(input("You > ").split())
+        except (EOFError, KeyboardInterrupt):
+            print("\nJarvis > Sesión de voz cerrada.")
+            break
+
+        if not user_input:
+            continue
+        if user_input.lower() in {"exit", "quit", "salir"}:
+            print("Jarvis > Sesión de voz cerrada.")
+            break
+
+        try:
+            _, egress = run_voice_turn(orchestrator, llm_interface, user_input)
+        except Exception as error:  # noqa: BLE001 — same safety net as run_chat
+            print(f"Jarvis > Error interno: {error}")
+            continue
+
+        speak(egress)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Jarvis engineering assistant")
     parser.add_argument("--chat", action="store_true", help="Run minimal interactive CLI chat")
+    parser.add_argument(
+        "--voice",
+        action="store_true",
+        help=(
+            "Run an interactive voice REPL — type a turn, see AND hear the "
+            "reply via JARVIS_TTS_CMD (T42). 'salir'/quit/Ctrl-D exits. "
+            "--chat stays text-only by default; this is the opt-in."
+        ),
+    )
+    parser.add_argument(
+        "--voice-fixture",
+        metavar="PATH",
+        default=None,
+        help=(
+            "Run a fixture-driven voice loop over PATH's text lines "
+            "('what STT produced', T36) — no real STT/TTS/mic."
+        ),
+    )
+    parser.add_argument(
+        "--voice-audio",
+        metavar="PATH",
+        default=None,
+        help=(
+            "Run one voice turn from PATH via the external STT command "
+            "configured by JARVIS_STT_CMD (T37) — no vendor SDK, no mic."
+        ),
+    )
+    parser.add_argument(
+        "--voice-speak",
+        action="store_true",
+        help=(
+            "With --voice-fixture/--voice-audio, also speak each egress via "
+            "the external TTS command configured by JARVIS_TTS_CMD (T38) — "
+            "no vendor SDK; see engineer_note_voice_tts_product_brief.md."
+        ),
+    )
     subparsers = parser.add_subparsers(dest="command")
     subparsers.add_parser("board", help="Open the spatial board visor")
     explain_parser = subparsers.add_parser(
@@ -1032,6 +1181,18 @@ def main() -> None:
         if not args.query:
             explain_parser.error("one of query, --list, or --rung is required")
         raise SystemExit(run_explain_cli(args.query))
+
+    if args.voice:
+        run_voice_interactive()
+        return
+
+    if args.voice_audio:
+        run_voice_audio(args.voice_audio, speak_tts=args.voice_speak)
+        return
+
+    if args.voice_fixture:
+        run_voice_fixture(args.voice_fixture, speak_tts=args.voice_speak)
+        return
 
     if args.chat:
         run_chat()

@@ -157,9 +157,13 @@ Si no ves el bloque "Conceptos", es porque no hay ningún concepto sembrado rela
 
 *Nota interna (T10, `B1-assistant-vehicle-return-home-task`, ★ ACCEPT CLOSED @ `v0.6.18`): séptimo `Task` — `request_return_home` — para `rtl`, `casa`, `volver a casa`, etc. Exact match only (no "volver al board"). Precedencia: `explain …` → `estado` → `armar`/`desarmar` → `hold` → `land` → `go to` → `takeoff` → `rtl`/`casa`. Cierra el set de mando básico.*
 
-*Nota interna (T11, `B1-assistant-vehicle-arm-ux`, package `0.6.19`): `armar` / `desarmar` armán o desarman el latch de Safety del chat (software ArmedAllowlist), no el ESC ni los motores. Tras `armar`, `hold`/`land`/`go to` pueden pasar a allow/not_implemented; `takeoff`/`rtl`/`follow` siguen verb_not_allowed. Exact match only (no "arma el frame").*
+*Nota interna (T11, `B1-assistant-vehicle-arm-ux`, package `0.6.19`): `armar` / `desarmar` armán o desarman el latch de Safety del chat (software ArmedAllowlist), no el ESC ni los motores. Tras `armar`, `hold`/`land`/`go to` pasan a allow/not_implemented; en esta versión original (antes de T14) `takeoff`/`rtl`/`follow`/`patrol` seguían verb_not_allowed. Exact match only (no "arma el frame").*
 
-*Nota interna (T12, `B1-assistant-vehicle-follow-task`, package `0.6.20`): `follow` / `sígueme` / `ven conmigo` → Task `request_follow` por el ArmedAllowlist compartido. Exact match only (no "sigue con el frame"). Sin parseo de persona/target. Tras `armar` → verb_not_allowed.*
+*Nota interna (T12, `B1-assistant-vehicle-follow-task`, package `0.6.20`): `follow` / `sígueme` / `ven conmigo` → Task `request_follow` por el ArmedAllowlist compartido. Exact match only (no "sigue con el frame"). Sin parseo de persona/target.*
+
+*Nota interna (T13, `B1-assistant-vehicle-patrol-task`, ★ ACCEPT CLOSED @ `v0.6.21`): `patrol` / `patrulla` / `iniciar patrulla` → Task `request_patrol` por el ArmedAllowlist compartido. Exact match only (no "patrulla del catalogo"). Sin parseo de waypoint/ruta. Último `AutonomyVerb` sin Task en el chat — cierra la cola vehicle.*
+
+*Nota interna (T14, `B1-assistant-vehicle-allowlist-widen`, package `0.6.25`): tras `armar`, los siete verbos de chat (`hold`/`land`/`go to`/`takeoff`/`rtl`/`follow`/`patrol`) pasan todos a allow/not_implemented — ninguno se ejecuta de verdad. Antes de este Buy, `takeoff`/`rtl`/`follow`/`patrol` quedaban en verb_not_allowed incluso armado; eso ya no es así. Desarmado sigue siendo reject/disarmed para los siete, igual que antes.*
 
 **Desde A8 (`B1-continuity-explain-topics-expand`): también verás `corriente-y-circuitos` cuando el proyecto ya tenga un punto de operación eléctrico (`motor_op_current_a`) resuelto** — el mismo dato que la línea "OP eléctrico" de `estado` ya muestra. Ejemplo real:
 

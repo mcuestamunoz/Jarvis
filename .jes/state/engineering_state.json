@@ -1,43 +1,56 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "T42 voice interactive CLI Implemented by Claude @ 0.7.2; Engineer can now USE Jarvis from CLI with voice (--voice REPL), not just fixture demos",
+  "scope": "Implemented. New --voice flag starts run_voice_interactive: typed turn -> source=VOICE (run_voice_turn, T36) -> print + speak via _voice_speak_fn/JARVIS_TTS_CMD (T38), honest TTS-failure message, loop survives. quit/salir/EOF/Ctrl-C exit. --chat stays byte-unchanged -- confirmed by source inspection, zero reference to the TTS seam. USER_GUIDE_VOICE.md rewritten: SS4 now leads with --voice, --voice-fixture/--voice-audio demoted to SS5 batch/CI.",
+  "execution_status": "implemented_awaiting_review",
+  "current_mode": "await_review",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer: Quiero usar YO jarvis desde cli con voz, no quiero demos"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
-  "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
+  "relevant_workflow_phases": [
+    "IC"
+  ],
+  "applicable_rules": [
+    "R-GOV-1",
+    "R-ENG-1",
+    "R-TST-1",
+    "R-KNW-1"
+  ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_voice_interactive_cli_b1.md",
+    ".jes/artifacts/implementation_report_assistant_voice_interactive_cli_b1.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Engineer star ACCEPT on T42 -> tag v0.7.2?",
+    "Does ACCEPT on T42 also resolve T41's deferred ACCEPT (same voice surface, no new vendor)?",
+    "After T42 ACCEPT: pick T40 craft/world own DC, or live mic/wake-word as a later phase?"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "type": "implemented",
+    "contract": "implementation_contract_assistant_voice_interactive_cli_b1.md",
+    "report": "implementation_report_assistant_voice_interactive_cli_b1.md",
+    "ids": [
+      "T42",
+      "B1-assistant-voice-interactive-cli"
+    ],
+    "blocked_on": "cursor_review_then_engineer_accept"
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "T42 Implemented by Claude @ 0.7.2 -- --voice interactive REPL, guide rewritten to lead with it"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "No AUTHORIZED stamp — Engineer paste is the Buy",
+    "No new STT/TTS vendor family / speech SDK in pyproject",
+    "--chat stays byte-unchanged by default (no silent speak)",
+    "No ACCEPT claim",
+    "Live mic/wake-word, T40 craft/world, and a GUI all stay out of this Buy"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "Implemented @ 0.7.2 — only adapters/cli/main.py + docs + one test file touched under src/",
+    "--chat source-inspected to confirm zero reference to speak_egress/JARVIS_TTS_CMD/_voice_speak_fn",
+    "Fake-stdin + fake-TTS tests prove >=2 turns speak, honest TTS-failure survives the loop",
+    "PRIORIDAD/PLATFORM/CONNECTIONS/cola updated to Implemented, pending review"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-04T14:05:00Z"
 }
