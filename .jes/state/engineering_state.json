@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T42 voice interactive CLI IC ready for Claude @ 0.7.2; Engineer wants to USE Jarvis from CLI with voice, not fixture demos",
-  "scope": "IC-only. Claude adds --voice REPL: typed turns → source=VOICE → speak via JARVIS_TTS_CMD. Rewrite USER_GUIDE_VOICE to lead with interactive use. --chat default unchanged.",
-  "execution_status": "ic_ready_for_claude",
-  "current_mode": "ic",
+  "cycle_intent": "T42 voice interactive CLI Implemented by Claude @ 0.7.2; Engineer can now USE Jarvis from CLI with voice (--voice REPL), not just fixture demos",
+  "scope": "Implemented. New --voice flag starts run_voice_interactive: typed turn -> source=VOICE (run_voice_turn, T36) -> print + speak via _voice_speak_fn/JARVIS_TTS_CMD (T38), honest TTS-failure message, loop survives. quit/salir/EOF/Ctrl-C exit. --chat stays byte-unchanged -- confirmed by source inspection, zero reference to the TTS seam. USER_GUIDE_VOICE.md rewritten: SS4 now leads with --voice, --voice-fixture/--voice-audio demoted to SS5 batch/CI.",
+  "execution_status": "implemented_awaiting_review",
+  "current_mode": "await_review",
   "movement_trigger": {
     "type": "engineer",
     "reason": "Engineer: Quiero usar YO jarvis desde cli con voz, no quiero demos"
@@ -18,34 +18,39 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_interactive_cli_b1.md"
+    ".jes/artifacts/implementation_contract_assistant_voice_interactive_cli_b1.md",
+    ".jes/artifacts/implementation_report_assistant_voice_interactive_cli_b1.md"
   ],
   "open_questions": [
-    "Claude implements T42 @ 0.7.2?"
+    "Engineer star ACCEPT on T42 -> tag v0.7.2?",
+    "Does ACCEPT on T42 also resolve T41's deferred ACCEPT (same voice surface, no new vendor)?",
+    "After T42 ACCEPT: pick T40 craft/world own DC, or live mic/wake-word as a later phase?"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_voice_interactive_cli_b1.md",
+    "report": "implementation_report_assistant_voice_interactive_cli_b1.md",
     "ids": [
       "T42",
       "B1-assistant-voice-interactive-cli"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "cursor_review_then_engineer_accept"
   },
   "closed_this_turn": [
-    "T42 IC written for Claude paste"
+    "T42 Implemented by Claude @ 0.7.2 -- --voice interactive REPL, guide rewritten to lead with it"
   ],
   "authority_gates": [
     "No AUTHORIZED stamp — Engineer paste is the Buy",
-    "Not fixture demos — interactive USE",
-    "No wake-word / live mic stream this Buy",
-    "Do not silently change --chat default",
-    "No ACCEPT claim"
+    "No new STT/TTS vendor family / speech SDK in pyproject",
+    "--chat stays byte-unchanged by default (no silent speak)",
+    "No ACCEPT claim",
+    "Live mic/wake-word, T40 craft/world, and a GUI all stay out of this Buy"
   ],
   "coherence_checklist": [
-    "IC ready @ 0.7.2",
-    "Paste for Claude ready (no AUTHORIZED)",
-    "PRIORIDAD points to T42 IC ready"
+    "Implemented @ 0.7.2 — only adapters/cli/main.py + docs + one test file touched under src/",
+    "--chat source-inspected to confirm zero reference to speak_egress/JARVIS_TTS_CMD/_voice_speak_fn",
+    "Fake-stdin + fake-TTS tests prove >=2 turns speak, honest TTS-failure survives the loop",
+    "PRIORIDAD/PLATFORM/CONNECTIONS/cola updated to Implemented, pending review"
   ],
-  "updated_at": "2026-10-04T11:17:00Z"
+  "updated_at": "2026-10-04T14:05:00Z"
 }

@@ -1045,9 +1045,70 @@ def run_voice_audio(audio_path: str, *, speak_tts: bool = False) -> None:
     _voice_speak_fn(speak_tts)(egress)
 
 
+def run_voice_interactive(*, workspace_root: Path | None = None) -> None:
+    """T42 (`B1-assistant-voice-interactive-cli`) — Skill-first phase C
+    **interactive use**, not a fixture/batch demo: the Engineer sits in
+    a REPL, types a turn, sees the reply, and — unlike `--chat` — also
+    *hears* it. Reuses T35-T38's seams unchanged: each typed line is
+    tagged `source=IntentSource.VOICE` via the exact `run_voice_turn`
+    helper T36 shipped (`handle_user_text(..., source=VOICE)` →
+    existing `render_response`), then spoken via the same `speak_egress`
+    / `JARVIS_TTS_CMD` seam T38 shipped (`_voice_speak_fn`) — no new
+    STT/TTS vendor family, no fork of fulfill logic. A missing/failed
+    `JARVIS_TTS_CMD` prints an honest `TTS no disponible: …` and the
+    loop continues; it never crashes on a bad turn or a bad TTS config.
+    `quit`/`salir`/EOF/Ctrl-C exit cleanly with a goodbye. `--chat`'s
+    own loop (`run_chat`) is a deliberately separate entry point and
+    stays byte-unchanged — nothing here makes `--chat` speak.
+
+    `workspace_root` defaults to `None` (the real CLI's own workspace,
+    same as `run_chat`/`run_voice_fixture`/`run_voice_audio`); tests
+    pass `tmp_path` to stay isolated from any real on-disk project."""
+    from jarvis.adapters.voice import run_voice_turn
+
+    orchestrator = JarvisOrchestrator(workspace_root=workspace_root)
+    llm_interface = JarvisLLMInterface(client=OllamaClient())
+    speak = _voice_speak_fn(speak_tts=True)
+
+    print(
+        "Jarvis (voz) > Escribe una frase (p. ej. 'armar', 'hold', 'estado') — "
+        "verás y oirás la respuesta. 'salir' o Ctrl-D para terminar."
+    )
+
+    while True:
+        try:
+            user_input = " ".join(input("You > ").split())
+        except (EOFError, KeyboardInterrupt):
+            print("\nJarvis > Sesión de voz cerrada.")
+            break
+
+        if not user_input:
+            continue
+        if user_input.lower() in {"exit", "quit", "salir"}:
+            print("Jarvis > Sesión de voz cerrada.")
+            break
+
+        try:
+            _, egress = run_voice_turn(orchestrator, llm_interface, user_input)
+        except Exception as error:  # noqa: BLE001 — same safety net as run_chat
+            print(f"Jarvis > Error interno: {error}")
+            continue
+
+        speak(egress)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Jarvis engineering assistant")
     parser.add_argument("--chat", action="store_true", help="Run minimal interactive CLI chat")
+    parser.add_argument(
+        "--voice",
+        action="store_true",
+        help=(
+            "Run an interactive voice REPL — type a turn, see AND hear the "
+            "reply via JARVIS_TTS_CMD (T42). 'salir'/quit/Ctrl-D exits. "
+            "--chat stays text-only by default; this is the opt-in."
+        ),
+    )
     parser.add_argument(
         "--voice-fixture",
         metavar="PATH",
@@ -1120,6 +1181,10 @@ def main() -> None:
         if not args.query:
             explain_parser.error("one of query, --list, or --rung is required")
         raise SystemExit(run_explain_cli(args.query))
+
+    if args.voice:
+        run_voice_interactive()
+        return
 
     if args.voice_audio:
         run_voice_audio(args.voice_audio, speak_tts=args.voice_speak)

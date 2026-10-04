@@ -1,6 +1,6 @@
 # Guía de usuario — Jarvis por voz
 
-> Esta guía es la ruta de operador para **usar** Jarvis con respuestas habladas: instalar un motor de voz **fuera** del paquete, apuntar dos variables de entorno, y lanzar un turno real. Es una lista de comandos reales, no un resumen de arquitectura.
+> Esta guía es la ruta de operador para **usar** Jarvis con respuestas habladas: instalar un motor de voz **fuera** del paquete, apuntar dos variables de entorno, y sentarte a hablar con Jarvis desde la terminal — no solo lanzar una demo de fixture. Es una lista de comandos reales, no un resumen de arquitectura.
 >
 > Cada comando de aquí funciona tal cual está escrito — salvo los que necesitan Piper o whisper instalados, que te lo dirán con un error claro si faltan. Si alguno deja de funcionar, es un bug de esta guía, repórtalo.
 
@@ -8,13 +8,13 @@
 
 ## 1. Qué es y qué no es
 
-**Qué es:** el mismo cerebro Skill-first que ya usas en `jarvis --chat`, alcanzado por un **canal** distinto. Un texto (de un fixture, o de un audio transcrito fuera) entra etiquetado como `IntentSource.VOICE`, pasa por los **doce Skills** declarados, y la respuesta que normalmente se imprime se puede además **hablar** con un motor de voz externo.
+**Qué es:** el mismo cerebro Skill-first que ya usas en `jarvis --chat`, alcanzado por un **canal** distinto. Un texto (el que tú escribes en el REPL de voz, o de un fixture, o de un audio transcrito fuera) entra etiquetado como `IntentSource.VOICE`, pasa por los **doce Skills** declarados, y la respuesta que normalmente se imprime se puede además **hablar** con un motor de voz externo.
 
 Los doce Skills alcanzables por voz son exactamente los del chat: `explain <concepto>`, `estado`, `armar`, `desarmar`, `hold`, `land`, `go to`, `takeoff`, `return home` (`rtl`), `follow`, `patrol`, `charge`.
 
 **Qué no es:**
 
-- **No es un asistente de voz always-on.** No hay captura continua de micrófono, ni wake word, ni hilo de escucha. Cada turno lo lanzas tú con un comando.
+- **No es un asistente de voz always-on.** No hay captura continua de micrófono, ni wake word, ni hilo de escucha de fondo. El REPL interactivo (§4) sigue siendo **texto escrito por teclado** — lo que es nuevo es que, además de leer la respuesta, también la *oyes*; hablarle de verdad al micrófono es el camino opcional de un solo turno en §5.3.
 - **No es un motor de voz.** Jarvis no sintetiza ni transcribe audio. Llama a un **proceso externo** que tú instalas (Piper para hablar, whisper.cpp para transcribir). Ninguno de los dos es dependencia del paquete — `pyproject.toml` no tiene `piper` ni `whisper`, y nunca los tendrá por este camino.
 - **No es el camino craft.** Los asistentes de diseño (wizards de frame/motor/batería, Continuity completa, fallthrough al LLM) **no** están en voz v1. Si una frase no es uno de los doce Skills, este canal no la cubre todavía — eso es T40, con su propio contrato.
 - **No ejecuta vuelo.** `hold`, `takeoff`, `go to`… siguen respondiendo con la misma honestidad Safety que en el chat: `reject`/`disarmed` desarmado, `allow`/`not_implemented` armado. **Ningún dron real se mueve**, por voz igual que por texto. `armar` arma un latch de software, no un ESC.
@@ -94,7 +94,48 @@ Variables que entiende el wrapper:
 
 ---
 
-## 4. Primera demo: fixture + voz
+## 4. Usar Jarvis por voz (interactivo) — la ruta principal
+
+Con el entorno de §3 ya configurado, siéntate a hablar con Jarvis de verdad — no una demo, una sesión:
+
+```text
+python -m jarvis.main --voice
+```
+
+Verás un prompt igual que en `--chat`, pero cada turno **además de imprimirse, se oye**:
+
+```text
+Jarvis (voz) > Escribe una frase (p. ej. 'armar', 'hold', 'estado') — verás y oirás la respuesta. 'salir' o Ctrl-D para terminar.
+You > armar
+Jarvis > Acción ejecutada: vehicle_arm_policy
+Política Safety del chat ARMADA (latch de software ArmedAllowlist). No es armado de ESC, motores ni del dron. HOLD/LAND/GO_TO/TAKEOFF/RETURN_HOME/FOLLOW/PATROL pueden pasar a allow/not_implemented (nunca ejecutado de verdad). Latch armed=True.
+You > hold
+Jarvis > Acción ejecutada: vehicle_hold
+HOLD solicitado, pero no se ejecuta ningún vuelo real desde este chat todavía. Safety: allow (motivo: ). Ejecución: not_implemented. Simulación (no vuelo real, sin ESC/motores): tick en t=0.01s, colectivo=0.123.
+You > salir
+Jarvis > Sesión de voz cerrada.
+```
+
+El latch de `armar` persiste turno a turno dentro de la misma sesión — por eso `hold` ya sale `allow` en el segundo turno. Sales con `salir`, `quit`, `exit`, Ctrl-D (EOF), o Ctrl-C.
+
+**Si `JARVIS_TTS_CMD` falta o falla**, Jarvis lo dice y sigue — nunca se cae ni finge que habló:
+
+```text
+You > hold
+Jarvis > Acción ejecutada: vehicle_hold
+HOLD solicitado, pero no se ejecuta ningún vuelo real desde este chat todavía. Safety: reject (motivo: disarmed). Ejecución: not_attempted.
+Jarvis > TTS no disponible: no external TTS command configured (set JARVIS_TTS_CMD or pass command_template)
+```
+
+**`--chat` sigue siendo solo texto, sin cambios.** `--voice` es un punto de entrada aparte — si no lo pides explícitamente, Jarvis nunca llama a `JARVIS_TTS_CMD`, aunque esté configurado.
+
+---
+
+## 5. Modo batch / fixture — para pruebas, CI, o grabar sin estar delante
+
+§4 es la forma de **usar** Jarvis. Esto es para **automatizar**: correr las mismas frases sin escribir nada a mano (pruebas, demos grabadas, CI), o procesar un turno de audio ya grabado. Son los mismos Skills, el mismo `JARVIS_TTS_CMD` — solo cambia de dónde viene el texto.
+
+### 5.1 Fixture de texto
 
 El repo trae un fixture de ejemplo con unas pocas frases Skill:
 
@@ -116,14 +157,7 @@ Lánzalo con voz:
 python -m jarvis.main --voice-fixture scripts/voice/fixtures/demo_skills.txt --voice-speak
 ```
 
-Cada línea del fixture es un turno: Jarvis la trata como “esto es lo que dijo el operador”, la pasa por el Skill correspondiente, imprime la respuesta **y la habla**. Verás en pantalla lo mismo que oyes:
-
-```text
-Jarvis > Acción ejecutada: vehicle_hold
-HOLD solicitado, pero no se ejecuta ningún vuelo real desde este chat todavía. Safety: allow (motivo: ). Ejecución: not_implemented. Simulación (no vuelo real, sin ESC/motores): tick en t=0.01s, colectivo=0.123.
-```
-
-Quita `--voice-speak` y es idéntico pero solo impreso — útil para comprobar las frases antes de encender el audio:
+Cada línea del fixture es un turno automático — sin teclear nada. Quita `--voice-speak` y es idéntico pero solo impreso:
 
 ```text
 python -m jarvis.main --voice-fixture scripts/voice/fixtures/demo_skills.txt
@@ -136,28 +170,18 @@ printf 'estado\narmar\ntakeoff\n' > /tmp/mi_demo.txt
 python -m jarvis.main --voice-fixture /tmp/mi_demo.txt --voice-speak
 ```
 
-### Grabar la demo en vez de reproducirla
-
-En una máquina sin audio (o para dejar un wav de muestra), `JARVIS_VOICE_WAV_OUT` escribe el archivo y no intenta reproducir nada. Ojo: con un fixture de varias líneas, **cada turno sobrescribe el anterior** — queda el último. Para un wav por turno, usa un fixture de una sola línea.
+**Grabar en vez de reproducir:** en una máquina sin audio, o para dejar un wav de muestra, `JARVIS_VOICE_WAV_OUT` escribe el archivo y no intenta reproducir nada. Con un fixture de varias líneas, cada turno sobrescribe el anterior — para un wav por turno, usa un fixture de una sola línea.
 
 ```text
 JARVIS_VOICE_WAV_OUT=/tmp/turno.wav \
 python -m jarvis.main --voice-fixture /tmp/una_linea.txt --voice-speak
 ```
 
----
+### 5.2 Un turno desde un audio ya grabado
 
-## 5. (Opcional) Hablarle: micrófono → STT externo
+Esto es la mitad de **entrada**: un archivo de audio se transcribe **fuera** de Jarvis, y el texto resultante entra por el mismo canal. Jarvis no captura ni decodifica audio — y esto procesa **un** archivo por invocación, no un bucle de escucha (para eso usa §4, con el teclado).
 
-Esto es la mitad de **entrada**: un archivo de audio se transcribe **fuera** de Jarvis, y el texto resultante entra por el mismo canal de voz. Jarvis no captura ni decodifica audio.
-
-### 5.1 Instalar whisper.cpp (fuera del paquete)
-
-whisper.cpp es local, gratuito y offline. Compílalo o instálalo fuera de este repo (su README oficial cubre tu plataforma) y descarga un modelo, por ejemplo `ggml-base.en.bin`. Igual que Piper: **nada de esto entra en `pyproject.toml`**.
-
-### 5.2 Configurar
-
-Este repo trae un wrapper que recibe la ruta del audio y escribe **solo la transcripción** en stdout — que es exactamente el contrato que espera `JARVIS_STT_CMD`:
+Instala whisper.cpp fuera del paquete (su README oficial cubre tu plataforma) y descarga un modelo, por ejemplo `ggml-base.en.bin`. Igual que Piper: **nada de esto entra en `pyproject.toml`**.
 
 ```text
 export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.en.bin"
@@ -189,7 +213,7 @@ Y pásalo por el canal completo — audio → transcripción → Skill → voz:
 python -m jarvis.main --voice-audio /tmp/turno.wav --voice-speak
 ```
 
-Di “hold” al micrófono y deberías oír el rechazo honesto de Safety. Un turno por comando: no hay bucle de escucha.
+Di “hold” al micrófono y deberías oír el rechazo honesto de Safety.
 
 ---
 
@@ -198,8 +222,8 @@ Di “hold” al micrófono y deberías oír el rechazo honesto de Safety. Un tu
 - **Nunca mueve un dron.** Por voz, los siete verbos de vuelo dan exactamente el mismo resultado que por texto: `reject`/`disarmed` o `allow`/`not_implemented`. No hay ESC, ni motores, ni cobre en este camino.
 - **`armar` por voz no arma hardware.** Arma el latch de software `ArmedAllowlist` del chat. El mensaje lo dice literalmente cada vez.
 - **La voz no es una vía de autoridad.** No existe kill-switch por voz, ni override. `AuthoritySignal` no acepta `"voice"` como origen — es imposible por tipo, no por convención.
-- **No finge que habló.** Si Piper falta, el modelo no está, o el reproductor falla, el wrapper termina con código distinto de cero y un mensaje en stderr. Jarvis lo recoge e imprime `TTS no disponible: …` — nunca un turno silencioso que parezca correcto.
-- **No finge que entendió.** Si whisper falla o devuelve una transcripción vacía, el turno termina con `STT no disponible: …`. Jarvis **no** inventa una frase Skill ni cae de vuelta al fixture.
+- **No finge que habló.** Si Piper falta, el modelo no está, o el reproductor falla, el wrapper termina con código distinto de cero y un mensaje en stderr. Jarvis lo recoge e imprime `TTS no disponible: …` — nunca un turno silencioso que parezca correcto, ni en `--voice` ni en `--voice-fixture`/`--voice-audio`.
+- **No finge que entendió.** Si whisper falla o devuelve una transcripción vacía, el turno termina con `STT no disponible: …`. Jarvis **no** inventa una frase Skill.
 - **No inventa datos de craft.** Es el mismo cerebro: `estado` sigue dando la Continuity real, y `explain` sigue citando la nota del vault sin rellenar masa/potencia/empuje por su cuenta.
 
 ---
@@ -218,17 +242,17 @@ export JARVIS_TTS_CMD="$PWD/scripts/voice/piper_tts.sh"
 # ── Comprobar antes de hablar ────────────────────────────────────────
 ./scripts/voice/piper_tts.sh --check
 
-# ── Demo hablada ─────────────────────────────────────────────────────
+# ── Usar Jarvis por voz (interactivo — la ruta principal) ────────────
+python -m jarvis.main --voice
+
+# ── Batch / fixture (CI, pruebas, grabar sin estar delante) ──────────
 python -m jarvis.main --voice-fixture scripts/voice/fixtures/demo_skills.txt --voice-speak
+python -m jarvis.main --voice-fixture scripts/voice/fixtures/demo_skills.txt   # solo texto
 
-# ── Solo texto (sin audio) ───────────────────────────────────────────
-python -m jarvis.main --voice-fixture scripts/voice/fixtures/demo_skills.txt
-
-# ── Grabar wav en vez de reproducir ──────────────────────────────────
 JARVIS_VOICE_WAV_OUT=/tmp/turno.wav \
   python -m jarvis.main --voice-fixture /tmp/una_linea.txt --voice-speak
 
-# ── (Opcional) entrada por micrófono ─────────────────────────────────
+# ── Un turno desde audio ya grabado ──────────────────────────────────
 export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.en.bin"
 export JARVIS_STT_CMD="$PWD/scripts/voice/whisper_stt.sh {audio}"
 ./scripts/voice/whisper_stt.sh --check
@@ -246,7 +270,7 @@ python -m jarvis.main --chat
 - **Las flags de Piper cambian entre builds.** El wrapper llama `piper --model M --output_file W` (forma de Piper 1.x). Si tu build usa otras, pásalas con `JARVIS_PIPER_ARGS` o ajusta el wrapper — el error de Piper se propaga tal cual a stderr, no se enmascara.
 - **Falta el `.onnx.json`.** Es el fallo nº 1 al instalar una voz. Piper no lo pide por flag: lo busca al lado del `.onnx`.
 - **Los Skills responden en español, la voz por defecto es `en_GB`.** El brief acepta esto para las primeras demos (acento británico leyendo español). Si molesta, el camino es una voz `es_ES` de Piper — mismo wrapper, solo cambia `JARVIS_PIPER_MODEL`; no hace falta tocar código.
-- **`estado` es largo para hablarlo.** La Continuity completa son varias líneas con separadores y viñetas; suena denso leída en voz alta. Los otros once Skills son de una o dos frases y suenan bien. No hay renderer “para voz” todavía: la voz lee exactamente el mismo texto que ves.
-- **Sin bucle de micrófono.** `--voice-audio` procesa **un** archivo por invocación. Un modo always-on con wake word no está en voz v1 y necesitaría su propio contrato.
+- **`estado` es largo para hablarlo.** La Continuity completa son varias líneas con separadores y viñetas; suena denso leída en voz alta. Los otros once Skills son de una o dos frases y suenan bien. No hay renderer “para voz” todavía: la voz lee exactamente el mismo texto que ves, en `--voice` igual que en los modos batch.
+- **`--voice` sigue siendo texto escrito, no micrófono.** Es un REPL de teclado que además habla la respuesta — hablarle de verdad al micrófono es §5.3 (`--voice-audio`, un turno por invocación). Un modo always-on con wake word no está en voz v1 y necesitaría su propio contrato.
 - **Craft/wizards fuera.** Si dices una frase que no es uno de los doce Skills, este canal no la atiende (es T40). En el chat de texto esa misma frase sí llega al camino craft/LLM.
-- **Un solo turno de contexto por invocación de audio.** `--voice-audio` crea su orquestador y termina; el latch `armar` no persiste entre invocaciones. Dentro de un `--voice-fixture` sí persiste entre líneas (por eso el fixture de ejemplo pone `armar` antes de `hold`).
+- **El contexto no persiste entre invocaciones de `--voice-audio`.** Cada llamada a `--voice-audio` crea su propio orquestador y termina — el latch `armar` no sobrevive a la siguiente invocación. Dentro de una misma sesión `--voice` (§4) o de un `--voice-fixture` sí persiste turno a turno.
