@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer paste)  
 **Contract:** [`implementation_contract_assistant_voice_v1_checkpoint_b1.md`](implementation_contract_assistant_voice_v1_checkpoint_b1.md)  
 **Parents:** [DC voice/channels ★ CLOSED](design_contract_assistant_chat_voice_channels_b0.md) · [T38 ★ ACCEPT CLOSED](implementation_review_assistant_voice_tts_external_b1.md) @ `v0.6.46` · T37/T36/T35 ★ · [TTS product brief](engineer_note_voice_tts_product_brief.md) · [cola note](engineer_note_voice_phase_c_cola.md)  
-**Status:** **Implemented** (Claude Code) — await Cursor review → Engineer ★ ACCEPT.  
-**Package / tag:** `0.7.0` / pending **`v0.7.0`**.
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-04) — Cursor **PASS WITH NOTES**.  
+**Package / tag:** `0.7.0` / **`v0.7.0`**.
 
 ---
 

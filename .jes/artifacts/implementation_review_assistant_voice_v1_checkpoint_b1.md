@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T39 implementado…”)  
 **Against:** [IC](implementation_contract_assistant_voice_v1_checkpoint_b1.md) · [report](implementation_report_assistant_voice_v1_checkpoint_b1.md) · [DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [TTS brief](engineer_note_voice_tts_product_brief.md) · [cola note](engineer_note_voice_phase_c_cola.md)  
 **Tip reviewed:** `7579655` on `cursor/voice-v1-checkpoint-impl-8ac5` (parent IC `77a68a5` / tip `v0.6.46`)  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ **ACCEPT** → tag **`v0.7.0`**.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-04) @ tip **`v0.7.0`**.
 
-**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record.
 
 ---
 
@@ -63,16 +63,16 @@ Report full-suite claim (3991 / +5) not re-run here.
 
 ## 3. Notes
 
-**N1 — Tip-parent lines still say `v0.6.46` while package on this tip is already `0.7.0`.** Expected until Engineer ★ ACCEPT tags **`v0.7.0`**. Cosmetic docs lag only.
+**N1 — Tip-parent lines previously said `v0.6.46` while package was already `0.7.0`.** Resolved on Engineer ★ ACCEPT → tag **`v0.7.0`**.
 
-**N2 — Process.** Engineer ★ ACCEPT → tag **`v0.7.0`** (“Jarvis voz v1”). Voice half of `a4-voice-world` closes on ACCEPT. Next Parked: **T40** craft/`world/` (own DC).
+**N2 — Process.** Engineer ★ ACCEPT (2026-10-04) → tag **`v0.7.0`** (“Jarvis voz v1”). Voice half of `a4-voice-world` complete. Next Parked: **T40** craft/`world/` (own DC).
 
 ---
 
-## 4. Awaiting
+## 4. Closed
 
 ```text
 Cursor verdict: PASS WITH NOTES
-Await Engineer ★ ACCEPT → tag v0.7.0
+Engineer ★ ACCEPT CLOSED → tag v0.7.0
 Next: T40 craft/world voice — Parked (own DC later)
 ```

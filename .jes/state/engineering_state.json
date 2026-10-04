@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T39 voice v1 checkpoint Implemented by Claude @ 0.7.0; product milestone delivered (docs + integration proof, no new seam, zero src/ change)",
-  "scope": "Implemented. test_assistant_voice_v1_checkpoint_b1.py proves fixture -> twelve Skills -> fake TTS and one combined STT->Skill->TTS turn, reusing T35-T38 surface as-is. pyproject bumped to 0.7.0.",
-  "execution_status": "implemented_awaiting_review",
-  "current_mode": "await_review",
+  "cycle_intent": "T39 voice v1 checkpoint ★ ACCEPT CLOSED @ v0.7.0; Jarvis voz v1 product milestone complete; next candidate T40 craft/world Parked (own DC)",
+  "scope": "Engineer ACCEPT of T39 after Cursor PASS WITH NOTES. Tag v0.7.0. Voice half of a4-voice-world complete. No T40 DC until Engineer asks.",
+  "execution_status": "accept_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: procede"
+    "reason": "Engineer: accept"
   },
   "relevant_workflow_phases": [
-    "IC"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,37 +18,34 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_v1_checkpoint_b1.md",
-    ".jes/artifacts/implementation_report_assistant_voice_v1_checkpoint_b1.md"
+    ".jes/artifacts/implementation_review_assistant_voice_v1_checkpoint_b1.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT on T39 -> tag v0.7.0?",
-    "After T39 ACCEPT: T40 craft/world own DC, when picked?"
+    "Engineer pick T40 craft/world own DC when ready?",
+    "Optional later: STT/TTS vendor ★ (Piper demo external remains free-first)"
   ],
   "active_operation": {
-    "type": "implemented",
+    "type": "accept_closed",
     "contract": "implementation_contract_assistant_voice_v1_checkpoint_b1.md",
-    "report": "implementation_report_assistant_voice_v1_checkpoint_b1.md",
     "ids": [
       "T39",
-      "B1-assistant-voice-v1-checkpoint"
+      "B1-assistant-voice-v1-checkpoint",
+      "v0.7.0"
     ],
-    "blocked_on": "cursor_review_then_engineer_accept"
+    "blocked_on": "engineer_pick_t40_or_next"
   },
   "closed_this_turn": [
-    "T39 Implemented by Claude @ 0.7.0 — twelve Skills proven on voice path + fake TTS + STT->Skill->TTS"
+    "T39 ★ ACCEPT CLOSED @ v0.7.0 — Jarvis voz v1"
   ],
   "authority_gates": [
-    "No AUTHORIZED stamp — Engineer paste is the Buy",
-    "No new voice seam / speech SDK in pyproject",
-    "Opens 0.7.0 (not 0.6.47)",
-    "No ACCEPT claim",
-    "world/craft stay T40"
+    "Do not write T40 DC until Engineer asks",
+    "No tip/package version pin tests",
+    "Vendor STT/TTS ★ remains separate"
   ],
   "coherence_checklist": [
-    "Implemented @ 0.7.0 — zero src/ behavior change (only pyproject.toml + new test file)",
-    "Twelve Skills + fake TTS + STT->Skill->TTS proven in test_assistant_voice_v1_checkpoint_b1.py",
-    "PRIORIDAD/PLATFORM/CONNECTIONS/ARCHITECTURE updated to Implemented, pending review"
+    "Tag v0.7.0 on ACCEPT tip",
+    "PRIORIDAD points to T40 Parked",
+    "a4-voice-world voice half ★ complete"
   ],
-  "updated_at": "2026-10-03T17:15:00Z"
+  "updated_at": "2026-10-04T10:47:00Z"
 }

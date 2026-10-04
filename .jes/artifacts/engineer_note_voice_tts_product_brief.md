@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-03  
 **Status:** **OPEN living product brief** — not an IC; not permission to pick a vendor SDK in core  
-**Tip parent:** voice cola @ **`v0.6.46`** (T38 ★); T39 checkpoint Implemented @ **`0.7.0`**, await Cursor review → Engineer ★ ACCEPT → tag `v0.7.0`  
+**Tip parent:** voice cola @ **`v0.7.0`** (T39 ★)  
 **Parents:** [voice DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [cola note](engineer_note_voice_phase_c_cola.md)
 
 **Purpose:** Lock the *desired voice character* and the **cheapest / free-first** path to get there, without blocking T37–T38 technical seams. Marvel “JARVIS exact voice” is **out** (license). Target = **JARVIS-like**, not a film clone.

@@ -3,7 +3,7 @@
 **Date:** 2026-10-03  
 **Status:** **OPEN living cola index** — seeded after T34-inv ★ + T34-DC ★  
 **Authority:** Engineer — update documentary system + queue ICs before first voice code Buy  
-**Tip parent:** **`v0.6.46`** (T38 ★) · T39 Implemented @ **`0.7.0`**, Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag `v0.7.0`
+**Tip parent:** **`v0.7.0`** (T39 ★)
 
 **Purpose:** One place to see the **ordered voice Buys** that take Jarvis from “chat-only Skill-first” to “voice end-to-end on today’s brain.” Not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp required).
 
@@ -36,7 +36,7 @@
 | **T36** | V2 | `B1-assistant-voice-fixture-loop` | `0.6.44` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.44`** | New `adapters/voice/` package; fixture-driven `run_voice` loop | [review ★](implementation_review_assistant_voice_fixture_loop_b1.md) |
 | **T37** | V3 | `B1-assistant-voice-stt-external` | `0.6.45` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.45`** | External STT process seam → same parse | [review ★](implementation_review_assistant_voice_stt_external_b1.md) · vendor ★ separate |
 | **T38** | V4 | `B1-assistant-voice-tts-external` | `0.6.46` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.46`** | External TTS process seam on `render_response` | [review ★](implementation_review_assistant_voice_tts_external_b1.md) · [brief](engineer_note_voice_tts_product_brief.md) · vendor ★ separate |
-| **T39** | V5 | `B1-assistant-voice-v1-checkpoint` | **`0.7.0` / `v0.7.0`** | Implemented · Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT | **Product milestone** — speak → twelve Skills → spoken reply (proven: fixture + fake TTS + combined STT→Skill→TTS) | [IC](implementation_contract_assistant_voice_v1_checkpoint_b1.md) · [review](implementation_review_assistant_voice_v1_checkpoint_b1.md) · opens minor `0.7` |
+| **T39** | V5 | `B1-assistant-voice-v1-checkpoint` | **`0.7.0` / `v0.7.0`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.0`** | **Product milestone** — speak → twelve Skills → spoken reply | [review ★](implementation_review_assistant_voice_v1_checkpoint_b1.md) · opens minor `0.7` |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 | [placement A4](design_contract_assistant_placement_b0.md) |
 
 ---
@@ -46,7 +46,7 @@
 | id | When it moves |
 |---|---|
 | `voice-intent-ingress` | **★ CLOSED** on T35 ★ @ `v0.6.43` |
-| `a4-voice-world` | advances across T35–T39; world half stays until T40 |
+| `a4-voice-world` | voice half ★ complete on T39 ★ @ `v0.7.0`; world half stays until T40 |
 | `go-to-metadata-plug-for-world` | stays OPEN shaped through v1; world fill = T40+ |
 | `world-package` | unchanged until T40 DC |
 
