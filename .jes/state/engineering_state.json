@@ -1,57 +1,57 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Queue T50–T52 spoken polish from FN-017 live smoke; tip stays v0.7.6 until T50 IC",
-  "scope": "Docs/cola only. Field Note FN-017 + PRIORIDAD/cola rows. No IC yet — wait Engineer dale for T50.",
-  "execution_status": "queued_awaiting_ic",
-  "current_mode": "planning",
+  "cycle_intent": "T50 speak-sanitize IC ready — paste to Claude @ 0.7.7",
+  "scope": "Cursor authored IC only. Claude implements sanitize_for_speech + speak_egress wire. No Cursor src/ unless Engineer says.",
+  "execution_status": "ic_ready_awaiting_claude",
+  "current_mode": "contract",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Live smoke: completo reads flat ASCII/English; queue spoken polish Buys"
+    "reason": "FN-017 smoke polish — send T50 IC to Claude"
   },
   "relevant_workflow_phases": [
-    "Field note",
-    "Contract"
+    "Contract",
+    "Implementation"
   ],
   "applicable_rules": [
     "R-GOV-1",
     "R-ENG-1",
+    "R-TST-1",
     "R-KNW-1"
   ],
   "required_artifacts": [
     ".jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md",
-    ".jes/artifacts/engineer_note_voice_phase_c_cola.md"
+    ".jes/artifacts/implementation_contract_assistant_voice_speak_sanitize_b1.md",
+    ".jes/artifacts/implementation_report_assistant_voice_speak_sanitize_b1.md"
   ],
   "open_questions": [
-    "Engineer dale → Cursor writes T50 IC?",
-    "Glossary size for T50 (minimal vs broader)?",
-    "T52 FULL narrated field list — confirm when DC starts"
+    "Claude lands T50 @ 0.7.7?",
+    "After T50: T51 brief Spanish IC?"
   ],
   "active_operation": {
-    "type": "queued",
-    "contract": "FN-017 → T50/T51/T52",
+    "type": "buy_ready",
+    "contract": "implementation_contract_assistant_voice_speak_sanitize_b1.md",
     "ids": [
       "T50",
-      "T51",
-      "T52-DC",
-      "T52",
+      "B1-assistant-voice-speak-sanitize",
       "FN-017"
     ],
-    "blocked_on": "engineer_authorize_t50_ic"
+    "blocked_on": "claude_implementation"
   },
   "closed_this_turn": [
-    "FN-017 recorded",
-    "T50–T52 queued in PRIORIDAD/cola"
+    "T50 IC ready"
   ],
   "authority_gates": [
-    "No IC paste until Engineer dale",
-    "No src/ yet",
+    "Cursor does not implement src/ for this Buy",
+    "No ACCEPT claimed",
+    "T51/T52 stay queued",
     "T40 stays Parked",
-    "No LLM in spoken polish path"
+    "No LLM"
   ],
   "coherence_checklist": [
-    "Tip remains v0.7.6 / T41–T49 ★",
-    "Order locked: sanitizer → brief ES → FULL narrated",
-    "Layer 1 print untouched in all three Buys"
+    "Sanitize wired inside speak_egress only",
+    "Glossary T50 = C-rate only",
+    "T42 run_chat TTS guard must stay green",
+    "Opens 0.7.7"
   ],
-  "updated_at": "2026-10-05T08:10:00Z"
+  "updated_at": "2026-10-05T08:40:00Z"
 }

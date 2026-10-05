@@ -3,7 +3,7 @@
 **Date:** 2026-10-05  
 **Source:** Engineer live smoke @ tip **`v0.7.6`** (`es_ES-davefx-medium` + `--chat --voice-speak`)  
 **Project:** `dron-de-vigilancia-doméstico`  
-**Status:** **OPEN** — queued as T50 → T51 → T52 (see voice cola)
+**Status:** **OPEN** — **T50 IC ready** (paste Claude) → T51 → T52 (see voice cola)
 
 ---
 

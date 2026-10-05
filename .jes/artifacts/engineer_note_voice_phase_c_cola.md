@@ -1,9 +1,9 @@
 # Engineer note — Voice phase C cola (Skill-first channels)
 
-**Date:** 2026-10-03 · **updated:** 2026-10-05 (FN-017 → T50–T52 spoken polish queued)  
-**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T49 ★** @ tip **`v0.7.6`**; **T50–T52 queued** (spoken polish after live smoke); **T40** Parked  
+**Date:** 2026-10-03 · **updated:** 2026-10-05 (T50 speak-sanitize IC ready)  
+**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T49 ★** @ tip **`v0.7.6`**; **T50 IC ready** @ `0.7.7`; T51/T52 queued; **T40** Parked  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`v0.7.6`** (T49 ★) · next Buy **T50** speak-sanitize · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md)
+**Tip parent:** **`v0.7.6`** (T49 ★) · **T50** IC ready → paste Claude · [IC](implementation_contract_assistant_voice_speak_sanitize_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md)
 
 **Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md)
 
