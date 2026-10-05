@@ -30,10 +30,10 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 
 | # | Buy | Intent |
 |---|---|---|
-| **T50** | `B1-assistant-voice-speak-sanitize` | Speak-path sanitizer: strip decoration; small TTS glossary (`C-rate` → “tasa C”, etc.). Applies before Piper. Print untouched. |
+| **T50** | `B1-assistant-voice-speak-sanitize` | **IC ready** @ `0.7.7` — [IC](implementation_contract_assistant_voice_speak_sanitize_b1.md). Speak-path sanitizer before Piper. Print untouched. |
 | **T51** | `B1-assistant-voice-brief-spanish` | Humanize brief Continuity phrases to Spanish (`PROJECT STATUS` / gap titles). Same five fields. |
 | **T52-DC** → **T52** | `DC` + `B1-assistant-voice-full-spoken` | Amend what FULL means: narrated detailed Continuity (prose from fields), **not** verbatim print. Screen still full. Reopens T44-DC FULL speak payload only. |
 
 **Out:** LLM summary · wake-word · T40 · changing screen Continuity · Conversation Engine.
 
-**Next process step:** Cursor writes T50 IC when Engineer says *dale* / paste.
+**Next process step:** paste T50 IC §4 to Claude = Buy.

@@ -6,14 +6,13 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T50** spoken polish — speak-path sanitizer (Field Note FN-017 tras smoke real). Cola: **T50** → **T51** brief español → **T52-DC/T52** FULL narrado (no verbatim). Tip **`v0.7.6`**.  
-> **Field Note:** [FN-017](../.jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md) — `completo` lee barras/`*`/`C-rate`/inglés; pantalla OK, oído plano.  
+> **PRIORIDAD AHORA:** **T50** speak-sanitize — **IC ready**, paste to Claude @ **`0.7.7`**. Then T51 brief ES → T52 FULL narrado. Tip parent **`v0.7.6`**.  
+> **IC:** [T50](../.jes/artifacts/implementation_contract_assistant_voice_speak_sanitize_b1.md) · [FN-017](../.jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md).  
 > **Stack cerrado:** T41–T49 ★ @ `v0.7.1`–`v0.7.6`. **T40** Parked.  
-> **Next IC:** T50 when Engineer says dale (Cursor escribe IC; Claude implementa).  
 > **Policy:** no tip/package version pins in tests. Chat/Continuity egress Buys update the [spoken-continuity map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) in the same Buy ([`CLAUDE.md`](../CLAUDE.md) § Chat / spoken-continuity egress map).  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice phase: [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
-> **Cola voz:** T35–T49 ★ · **T50–T52 queued** (spoken polish) · **T40** Parked.  
-> SoT: [FN-017](../.jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md) · [cola](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) · [guía](USER_GUIDE_VOICE.md).  
+> **Cola voz:** T35–T49 ★ · **T50 IC ready** · T51/T52 queued · **T40** Parked.  
+> SoT: [T50 IC](../.jes/artifacts/implementation_contract_assistant_voice_speak_sanitize_b1.md) · [FN-017](../.jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md) · [guía](USER_GUIDE_VOICE.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
