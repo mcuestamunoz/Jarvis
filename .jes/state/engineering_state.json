@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T50 wires a pure, no-LLM speak_sanitize.sanitize_for_speech into speak_egress (0.7.7), closing Field Note FN-017 (voice spoken polish from Engineer live smoke): decoration glyphs/rule lines/footnote asterisks no longer read aloud, C-rate speaks as tasa C. Print/Layer 1 byte-identical.",
-  "scope": "New src/jarvis/adapters/voice/speak_sanitize.py. external_tts.py::speak_egress sanitizes text first, returns silently when the result is empty. No adapters/cli/main.py change (speak_egress is the shared seam for --chat --voice-speak and --voice/--voice-fixture/--voice-audio). Also fixed a stale 'Piper en_GB' package docstring in __init__.py (T49 honesty). Two pre-existing tests touched, both documented in the report: one locked C-rate behavior-change assertion update (T39), one real tip-version-pin bug fix (T49).",
-  "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "implementation",
+  "cycle_intent": "T50 speak-sanitize Cursor PASS WITH NOTES @ 0.7.7; await Engineer ★ ACCEPT",
+  "scope": "Independent Cursor review of Claude T50 at 29abdbd. No src/ edits in review pass.",
+  "execution_status": "pass_with_notes_awaiting_accept",
+  "current_mode": "review",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Field Note FN-017 (live CLI smoke on dron-de-vigilancia-domestico): decoration/C-rate read badly with the new Spanish Piper voice"
+    "reason": "Claude pushed T50 to cursor/chat-voice-ptt-impl-8ac5 after tip reconciliation — request Cursor review"
   },
   "relevant_workflow_phases": [
-    "Implementation"
+    "Review"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,44 +18,41 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md",
     ".jes/artifacts/implementation_contract_assistant_voice_speak_sanitize_b1.md",
-    ".jes/artifacts/implementation_report_assistant_voice_speak_sanitize_b1.md"
+    ".jes/artifacts/implementation_report_assistant_voice_speak_sanitize_b1.md",
+    ".jes/artifacts/implementation_review_assistant_voice_speak_sanitize_b1.md"
   ],
   "open_questions": [
-    "Cursor review of T50 @ 0.7.7 -> Engineer ACCEPT -> tag v0.7.7?",
-    "After T50 ACCEPT: T51 brief-Spanish IC?"
+    "Engineer ★ ACCEPT T50 → tag v0.7.7?",
+    "After ACCEPT: T51 brief Spanish IC?",
+    "Live smoke completo after ACCEPT?"
   ],
   "active_operation": {
-    "type": "implemented",
+    "type": "pass_with_notes",
     "contract": "implementation_contract_assistant_voice_speak_sanitize_b1.md",
     "ids": [
       "T50",
       "B1-assistant-voice-speak-sanitize",
       "FN-017"
     ],
-    "blocked_on": "cursor_review"
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "T50 implemented -- speak-path sanitizer @ 0.7.7"
+    "T50 Cursor PASS WITH NOTES recorded"
   ],
   "authority_gates": [
-    "No ACCEPT claimed by Claude",
-    "Cursor does not implement src/ for this Buy -- unaffected, Claude implemented per the pasted IC",
-    "No src/jarvis change outside adapters/voice/ -- adapters/cli/main.py untouched",
-    "PROJECT STATUS / PASS / gap titles explicitly not rewritten (T3 asserts this)",
-    "Empty-after-sanitize never produces filler speech or a spurious config error",
-    "T42 run_chat TTS-seam structural guard re-verified green",
-    "render_startup_context/render_response/spoken_continuity.py never reference the sanitizer (T6)",
-    "T51/T52 stay queued, T40 stays Parked"
+    "No ACCEPT claimed by Cursor",
+    "Same-session self-PASS is not review of record",
+    "T51/T52 still queued",
+    "T40 stays Parked"
   ],
   "coherence_checklist": [
-    "Sanitize wired inside speak_egress only -- matches IC lock 3",
-    "Decoration set matches IC lock 4 exactly: rule-line set includes ASCII hyphen, leading-marker set does not (verified with a -5kg sign-preservation regression test)",
-    "Glossary T50 = C-rate/c-rate -> tasa C only (case-insensitive, word-bounded)",
-    "T1-T6 tests added and green (9 test functions)",
-    "Full suite 4039 passed / 9 skipped vs 4030/9 baseline (T41-T49 stack tip) -- net +9, zero regressions",
-    "Opens 0.7.7"
+    "44 targeted tests green this pass",
+    "T42 run_chat TTS source guard still empty",
+    "ASCII hyphen sign preserved; rule lines dropped",
+    "N1: El tasa C gender awkward (locked string)",
+    "N2: external_tts docstring still mentions en_GB historically",
+    "N3: sibling test updates intentional and documented"
   ],
-  "updated_at": "2026-10-05T16:00:00Z"
+  "updated_at": "2026-10-05T09:20:00Z"
 }
