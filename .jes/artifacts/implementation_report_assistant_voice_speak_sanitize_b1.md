@@ -5,7 +5,7 @@
 **Implementer:** Claude Code (Engineer paste)
 **Contract:** [`implementation_contract_assistant_voice_speak_sanitize_b1.md`](implementation_contract_assistant_voice_speak_sanitize_b1.md)
 **Parents:** [Field Note FN-017](engineer_note_voice_spoken_polish_field_fn017.md) (Engineer live smoke) · [T45 ★](implementation_review_assistant_chat_spoken_continuity_b1.md) · [T49 ★](implementation_review_assistant_voice_tts_spanish_b1.md) @ `v0.7.6`
-**Status:** **Implemented** — await Cursor review → Engineer ACCEPT → tag **`v0.7.7`**.
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-05) · tip **`v0.7.7`**.
 **Package / tag:** `0.7.7` / pending **`v0.7.7`**.
 
 ---

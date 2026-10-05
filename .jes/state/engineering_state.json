@@ -1,15 +1,16 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T50 speak-sanitize Cursor PASS WITH NOTES @ 0.7.7; await Engineer ★ ACCEPT",
-  "scope": "Independent Cursor review of Claude T50 at 29abdbd. No src/ edits in review pass.",
-  "execution_status": "pass_with_notes_awaiting_accept",
-  "current_mode": "review",
+  "cycle_intent": "T50 ★ ACCEPT CLOSED @ v0.7.7; T51 brief-Spanish IC ready — paste to Claude @ 0.7.8",
+  "scope": "Documentary ACCEPT for T50 + Cursor IC for T51 (includes T50-N1/N2). No Cursor src/ for T51.",
+  "execution_status": "ic_ready_awaiting_claude",
+  "current_mode": "contract",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Claude pushed T50 to cursor/chat-voice-ptt-impl-8ac5 after tip reconciliation — request Cursor review"
+    "reason": "ACCEPT T50 and next T51; fold N1 into T51"
   },
   "relevant_workflow_phases": [
-    "Review"
+    "Accept",
+    "Contract"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,41 +19,39 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_speak_sanitize_b1.md",
-    ".jes/artifacts/implementation_report_assistant_voice_speak_sanitize_b1.md",
-    ".jes/artifacts/implementation_review_assistant_voice_speak_sanitize_b1.md"
+    ".jes/artifacts/implementation_review_assistant_voice_speak_sanitize_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_voice_brief_spanish_b1.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT T50 → tag v0.7.7?",
-    "After ACCEPT: T51 brief Spanish IC?",
-    "Live smoke completo after ACCEPT?"
+    "Claude lands T51 @ 0.7.8?",
+    "After T51: T52-DC FULL narrated?"
   ],
   "active_operation": {
-    "type": "pass_with_notes",
-    "contract": "implementation_contract_assistant_voice_speak_sanitize_b1.md",
+    "type": "buy_ready",
+    "contract": "implementation_contract_assistant_voice_brief_spanish_b1.md",
     "ids": [
-      "T50",
-      "B1-assistant-voice-speak-sanitize",
-      "FN-017"
+      "T51",
+      "B1-assistant-voice-brief-spanish",
+      "T50-N1",
+      "T50-N2"
     ],
-    "blocked_on": "engineer_accept"
+    "blocked_on": "claude_implementation"
   },
   "closed_this_turn": [
-    "T50 Cursor PASS WITH NOTES recorded"
+    "T50 ★ ACCEPT CLOSED @ v0.7.7",
+    "T51 IC ready with N1/N2 absorbed"
   ],
   "authority_gates": [
-    "No ACCEPT claimed by Cursor",
-    "Same-session self-PASS is not review of record",
-    "T51/T52 still queued",
+    "Cursor does not implement src/ for T51",
+    "No ACCEPT claimed on T51",
+    "T52 stays queued",
     "T40 stays Parked"
   ],
   "coherence_checklist": [
-    "44 targeted tests green this pass",
-    "T42 run_chat TTS source guard still empty",
-    "ASCII hyphen sign preserved; rule lines dropped",
-    "N1: El tasa C gender awkward (locked string)",
-    "N2: external_tts docstring still mentions en_GB historically",
-    "N3: sibling test updates intentional and documented"
+    "Tag v0.7.7 cut on ACCEPT tip",
+    "T51 glossary la tasa C absorbs El/La",
+    "Brief status Spanish; print English PROJECT STATUS unchanged",
+    "Finite gap-title speak map; unknown passthrough"
   ],
-  "updated_at": "2026-10-05T09:20:00Z"
+  "updated_at": "2026-10-05T09:25:00Z"
 }
