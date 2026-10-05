@@ -6,13 +6,13 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T47** chat push-to-talk — **Implemented** @ **`0.7.5`**, Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT (`hablar`/`habla` → timed record → existing STT → same `run_chat` `TERMINAL` + T45 speak · **not** always-on · **not** `--voice`).  
-> **Plan lock:** **T46-DC** PTT (consumed by T47). [DC](../.jes/artifacts/design_contract_assistant_chat_voice_ptt_b0.md) · [review](../.jes/artifacts/implementation_review_assistant_chat_voice_ptt_b1.md).  
-> **In flight (await ★ ACCEPT):** **T47** @ `0.7.5` · **T45** spoken-continuity @ `0.7.4` · **T43** chat+speak @ `0.7.3` · **T42** / **T41** (PASS WITH NOTES).  
+> **PRIORIDAD AHORA:** **T48-inv** voice phase T forensic review — **Implemented**, await Cursor review (cola truth table · DC lock audit · ACCEPT backlog · honesty-fence re-check · TTS-language note for T49). **T49** Spanish TTS default lands next in the same session. **No ACCEPT claim** for either.  
+> **Plan lock:** T48-inv is docs/report only — tip stays **`0.7.5`**. [INV](../.jes/artifacts/investigation_contract_assistant_voice_phase_t_review_b0.md) · [report](../.jes/artifacts/investigation_report_assistant_voice_phase_t_review_b0.md).  
+> **In flight (await ★ ACCEPT — unchanged by T48-inv, nine Buys deep since `v0.7.0`):** **T47** @ `0.7.5` · **T45** spoken-continuity @ `0.7.4` · **T43** chat+speak @ `0.7.3` · **T42** / **T41** (PASS WITH NOTES).  
 > **Policy:** no tip/package version pins in tests. Chat/Continuity egress Buys update the [spoken-continuity map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) in the same Buy ([`CLAUDE.md`](../CLAUDE.md) § Chat / spoken-continuity egress map).  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice phase: [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
-> **Cola voz:** T35–T39 ★ · T41–T43 PASS WITH NOTES · T44-inv/DC · **T45** PASS WITH NOTES @ `0.7.4` · **T46-DC / T47** PASS WITH NOTES @ `0.7.5` · **T40** Parked.  
-> SoT: [T47 review](../.jes/artifacts/implementation_review_assistant_chat_voice_ptt_b1.md) · [T46-DC](../.jes/artifacts/design_contract_assistant_chat_voice_ptt_b0.md) · [T45 review](../.jes/artifacts/implementation_review_assistant_chat_spoken_continuity_b1.md) · [guía](USER_GUIDE_VOICE.md).  
+> **Cola voz:** T35–T39 ★ · T41–T43 PASS WITH NOTES · T44-inv/DC · **T45** PASS WITH NOTES @ `0.7.4` · **T46-DC / T47** PASS WITH NOTES @ `0.7.5` · **T48-inv** Implemented, await review · **T40** Parked.  
+> SoT: [T48-inv report](../.jes/artifacts/investigation_report_assistant_voice_phase_t_review_b0.md) · [T47 review](../.jes/artifacts/implementation_review_assistant_chat_voice_ptt_b1.md) · [T45 review](../.jes/artifacts/implementation_review_assistant_chat_spoken_continuity_b1.md) · [guía](USER_GUIDE_VOICE.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -20,7 +20,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.0`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · T41–T43 PASS WITH NOTES · T44-inv/DC spoken-continuity · **T45** PASS WITH NOTES @ `0.7.4` · **T46-DC / T47** PASS WITH NOTES @ `0.7.5` · **T40** Parked)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.0`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · T41–T43 PASS WITH NOTES · T44-inv/DC spoken-continuity · **T45** PASS WITH NOTES @ `0.7.4` · **T46-DC / T47** PASS WITH NOTES @ `0.7.5` · **T48-inv** Implemented, await review · **T40** Parked)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -99,6 +99,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T45** | **`B1-assistant-chat-spoken-continuity`** | **Implemented** · **`0.7.4`** · Cursor **PASS WITH NOTES** | Print full Continuity · speak brief on load/`estado` · FULL phrases speak the wall this turn · **no LLM** | [review](../.jes/artifacts/implementation_review_assistant_chat_spoken_continuity_b1.md) · [guía](USER_GUIDE_VOICE.md) |
 | **T46-DC** | **`DC-assistant-chat-voice-ptt`** | **DC ready** — locked, consumed by T47 | V8 PTT: timed record · `hablar`/`habla` · same `--chat` loop · no wake-word | [DC](../.jes/artifacts/design_contract_assistant_chat_voice_ptt_b0.md) · [cola](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
 | **T47** | **`B1-assistant-chat-voice-ptt`** | **Implemented** · **`0.7.5`** · Cursor **PASS WITH NOTES** | `--chat --voice-speak` + `hablar` → record → existing STT → same chat brain (`TERMINAL`) | [review](../.jes/artifacts/implementation_review_assistant_chat_voice_ptt_b1.md) · [guía](USER_GUIDE_VOICE.md) |
+| **T48-inv** | **`INV-assistant-voice-phase-t-review`** | **Implemented** · await Cursor review | Forensic review T34–T47: cola truth table, DC lock audit (33 locks, zero drift), ACCEPT backlog (9 Buys open), honesty-fence re-check, TTS-language note for T49 | [report](../.jes/artifacts/investigation_report_assistant_voice_phase_t_review_b0.md) |
 | **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 · **not** V7 · **not** V8 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Voz half ★** @ **`v0.7.0`** · T41–T43 PASS WITH NOTES · V7 **T45** PASS WITH NOTES @ `0.7.4` · V8 **T47** PASS WITH NOTES @ `0.7.5` · `world/` Parked (T40) | Skill-first phase C; same Skills; new ingress only; V7 = spoken extract; V8 = PTT on full chat | [guía de voz](USER_GUIDE_VOICE.md) · [voice DC ★](../.jes/artifacts/design_contract_assistant_chat_voice_channels_b0.md) · [V7 DC](../.jes/artifacts/design_contract_assistant_chat_spoken_continuity_b0.md) · [V8 DC](../.jes/artifacts/design_contract_assistant_chat_voice_ptt_b0.md) · [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |

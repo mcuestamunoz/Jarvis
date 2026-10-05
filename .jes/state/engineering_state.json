@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T47 chat voice PTT Cursor PASS WITH NOTES @ 0.7.5; await Engineer ★ ACCEPT",
-  "scope": "Independent Cursor review of Claude T47 impl at ba89d3e. No src/ edits in review pass.",
-  "execution_status": "pass_with_notes_awaiting_accept",
-  "current_mode": "review",
+  "cycle_intent": "T48-inv forensic review of voice phase T (T34-T47) complete: cola truth table, 33-lock DC audit (zero drift), 9-Buy ACCEPT backlog, honesty-fence re-check, TTS-language note for T49. T49 Spanish TTS default lands next in the same session.",
+  "scope": "T48-inv: docs/report only, no src/ change. Full suite (4026 passed/9 skipped) + ESC-fence/tip-pin (19 passed) + whole voice test cluster (63 passed) re-run live, not cited from memory.",
+  "execution_status": "implemented_awaiting_cursor_review",
+  "current_mode": "investigation",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "T47 tip pushed to cursor/chat-voice-ptt-impl-8ac5 — request Cursor review"
+    "reason": "Review voice phase T before opening T49 Spanish TTS default; two Buys, one session"
   },
   "relevant_workflow_phases": [
-    "Review"
+    "Investigation"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,38 +18,40 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_chat_voice_ptt_b1.md",
-    ".jes/artifacts/implementation_report_assistant_chat_voice_ptt_b1.md",
-    ".jes/artifacts/implementation_review_assistant_chat_voice_ptt_b1.md"
+    ".jes/artifacts/investigation_contract_assistant_voice_phase_t_review_b0.md",
+    ".jes/artifacts/investigation_report_assistant_voice_phase_t_review_b0.md",
+    ".jes/artifacts/engineer_note_voice_phase_c_cola.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT T47 → tag v0.7.5?",
-    "Engineer ★ ACCEPT T45 → tag v0.7.4? (independent)"
+    "Engineer ★ on T48-inv findings?",
+    "ACCEPT order for the 9-Buy backlog (T41/T42/T43/T45/T47, plus T44-inv findings-level) — sequential or bundled?",
+    "T49 Spanish TTS default — land next in this session"
   ],
   "active_operation": {
-    "type": "pass_with_notes",
-    "contract": "implementation_contract_assistant_chat_voice_ptt_b1.md",
+    "type": "implemented",
+    "contract": "investigation_contract_assistant_voice_phase_t_review_b0.md",
     "ids": [
-      "T47",
-      "B1-assistant-chat-voice-ptt"
+      "T48-inv",
+      "INV-assistant-voice-phase-t-review"
     ],
-    "blocked_on": "engineer_accept"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "T47 Cursor PASS WITH NOTES recorded"
+    "T48-inv forensic review complete — Q1-Q12 answered with live citations"
   ],
   "authority_gates": [
-    "No ACCEPT claimed by Cursor",
-    "Same-session self-PASS is not review of record",
-    "No wake-word / always-on",
-    "T41–T45 ACCEPT still Engineer-only"
+    "No ACCEPT claimed for T48-inv or for any backlogged Buy",
+    "No src/ change",
+    "T40 confirmed stays Parked — zero live evidence otherwise",
+    "Zero DC lock drift found across T34/T44/T46 (33 locks total)"
   ],
   "coherence_checklist": [
-    "46 targeted tests green this pass",
-    "hablar/habla not in CONTINUITY_DEFER_PHRASES",
-    "T42 run_chat TTS source guard still green",
-    "N1: mkstemp fd leak (path cleanup OK)",
-    "PRIORIDAD points to PASS WITH NOTES await ACCEPT"
+    "Full suite 4026 passed / 9 skipped (identical to pre-INV tip)",
+    "ESC fence + tip-pin suites 19 passed",
+    "Whole voice test cluster (10 files) run together: 63 passed",
+    "git tag -l verified: v0.6.43-46 and v0.7.0 are real tags; v0.7.1-v0.7.5 are not (matches the 9-Buy ACCEPT backlog exactly)",
+    "Living map content-complete for 0.7.5; pre-T47 line citations have cosmetic drift (not a missing-row gap)",
+    "PRIORIDAD/cola/COLA header updated to T48-inv Implemented, await Cursor review"
   ],
-  "updated_at": "2026-10-05T05:55:00Z"
+  "updated_at": "2026-10-05T12:00:00Z"
 }
