@@ -64,7 +64,7 @@ Also verified: `hablar`/`habla` ∉ `CONTINUITY_DEFER_PHRASES`; `run_chat` sourc
 ## 3. Notes
 
 **N1 — `tempfile.mkstemp` leaves the file descriptor open.**  
-`tmp_path = Path(tempfile.mkstemp(suffix=".wav")[1])` drops the returned fd without `os.close`. Path + `finally: unlink` still work; long sessions with many `hablar` turns leak fds. Prefer `fd, name = mkstemp(...); os.close(fd)` (or `NamedTemporaryFile(delete=False)`). Does not block ★ — honesty/cleanup of the path is correct.
+**Remediated (Engineer “hazlo”, Cursor):** `run_chat` now does `fd, tmp_name = tempfile.mkstemp(...); os.close(fd)` before handing the path to the recorder. Path + `finally: unlink` unchanged.
 
 **N2 — T7 does not assert package `0.7.5` as a string.** Version is correct in `pyproject.toml`; same optional gap as T45 N2.
 

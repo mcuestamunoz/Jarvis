@@ -976,6 +976,7 @@ def run_chat(*, speak_tts: bool = False) -> None:
     `source=VOICE`, no separate orchestrator, no `run_voice_turn`).
     Bare `--chat` never records: the check below is gated on
     `speak_tts`, so `hablar` is ordinary chat text there."""
+    import os
     import tempfile
 
     from jarvis.adapters.voice import (
@@ -1019,7 +1020,11 @@ def run_chat(*, speak_tts: bool = False) -> None:
         if speak_tts and is_ptt_trigger(user_input):
             seconds = resolve_record_seconds()
             print(f"Jarvis > Grabando {seconds} s…")
-            tmp_path = Path(tempfile.mkstemp(suffix=".wav")[1])
+            # mkstemp returns an open fd — close it before handing the
+            # path to the external recorder (T47 review N1).
+            fd, tmp_name = tempfile.mkstemp(suffix=".wav")
+            os.close(fd)
+            tmp_path = Path(tmp_name)
             try:
                 record_audio_file(tmp_path, seconds=seconds)
                 transcript = transcribe_audio_file(tmp_path)
