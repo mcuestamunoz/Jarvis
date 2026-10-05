@@ -3,10 +3,10 @@
 **Date:** 2026-10-05  
 **Reviewer:** Cursor (forensic pass — Engineer handoff: tip on `cursor/chat-voice-ptt-impl-8ac5`)  
 **Against:** [IC](implementation_contract_assistant_voice_brief_spanish_b1.md) · [report](implementation_report_assistant_voice_brief_spanish_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md)  
-**Tip reviewed:** `695577c` on `cursor/chat-voice-ptt-impl-8ac5` (parent T50 ★ `84dad39` / tag `v0.7.7`)  
-**Verdict:** **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.7.8`**.
+**Tip reviewed:** `695577c` on `cursor/chat-voice-ptt-impl-8ac5` (parent T50 ★ `84dad39` / tag `v0.7.7`); N1/N2 hygiene `d8b4c7b`  
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-05) @ tip **`v0.7.8`**.
 
-**Process note:** Claude Code implemented under Engineer paste (= Buy) on the shared tip. This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under Engineer paste (= Buy) on the shared tip. This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.** **Updated:** Engineer ★ ACCEPT CLOSED (2026-10-05) → tag **`v0.7.8`**. Review notes N1/N2 closed on tip before ACCEPT.
 
 ---
 
@@ -81,8 +81,9 @@ T50-N1 / T50-N2 from prior review: **closed in this Buy**.
 
 ```text
 Cursor verdict: PASS WITH NOTES (N1/N2 closed on tip)
-Engineer ★ ACCEPT CLOSED → tag v0.7.8
-Smoke after ACCEPT (optional):
+Engineer ★ ACCEPT CLOSED → tag v0.7.8   ✅ done
+Next: T52-DC when Engineer says proceed
+Smoke (optional):
   # same Piper env as before
   python -m jarvis.main --chat --voice-speak
   User > 1

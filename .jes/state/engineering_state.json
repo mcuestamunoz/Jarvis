@@ -1,53 +1,50 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T51 PASS WITH NOTES; N1/N2 closed on tip — await Engineer ★ ACCEPT → tag v0.7.8",
-  "scope": "Hygiene: sync brief_spoken_continuity docstring (T51-N1). T51-N2 informational only — already clean.",
-  "execution_status": "cursor_pass_with_notes_awaiting_accept",
-  "current_mode": "review",
+  "cycle_intent": "T51 ★ ACCEPT CLOSED @ v0.7.8; next T52-DC FULL narrated when Engineer says proceed",
+  "scope": "Documentary ACCEPT for T51 brief Continuity Spanish. Tag v0.7.8. No new IC this turn.",
+  "execution_status": "accept_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Close T51 review notes N1/N2 before ACCEPT"
+    "reason": "ACCEPT T51"
   },
   "relevant_workflow_phases": [
-    "Review"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
     "R-ENG-1",
-    "R-TST-1",
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_brief_spanish_b1.md",
-    ".jes/artifacts/implementation_report_assistant_voice_brief_spanish_b1.md",
-    ".jes/artifacts/implementation_review_assistant_voice_brief_spanish_b1.md"
+    ".jes/artifacts/implementation_review_assistant_voice_brief_spanish_b1.md",
+    ".jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT T51 → tag v0.7.8?",
-    "After T51 ACCEPT: T52-DC FULL narrated?"
+    "Engineer: proceed on T52-DC FULL narrated?"
   ],
   "active_operation": {
-    "type": "review",
+    "type": "accept_closed",
     "contract": "implementation_contract_assistant_voice_brief_spanish_b1.md",
     "ids": [
       "T51",
       "B1-assistant-voice-brief-spanish"
     ],
-    "blocked_on": "engineer_accept"
+    "blocked_on": "engineer_t52_dc"
   },
   "closed_this_turn": [
-    "T51-N1 docstring honesty synced",
-    "T51-N2 confirmed no debt (sibling tests intentional)"
+    "T51 ★ ACCEPT CLOSED @ v0.7.8",
+    "Tag v0.7.8 cut"
   ],
   "authority_gates": [
-    "No ACCEPT claimed by Cursor",
-    "Docstring-only hygiene — no behavior change",
-    "T52 stays queued, T40 stays Parked"
+    "No T52-DC delivered without Engineer proceed",
+    "T40 stays Parked",
+    "Cursor does not invent next Buy scope"
   ],
   "coherence_checklist": [
-    "brief_spoken_continuity docstring no longer claims PROJECT STATUS speak",
-    "T51+T45 tests still green (13 passed)",
-    "Package 0.7.8 unchanged"
+    "IC/report/review/FN/cola/PRIORIDAD stamped ★",
+    "N1/N2 closed before ACCEPT",
+    "Package already 0.7.8"
   ],
-  "updated_at": "2026-10-05T18:15:00Z"
+  "updated_at": "2026-10-05T18:50:00Z"
 }
