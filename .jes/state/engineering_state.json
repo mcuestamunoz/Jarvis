@@ -1,16 +1,16 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "Stack T41–T49 ★ ACCEPT CLOSED @ v0.7.1–v0.7.6; PRIORIDAD = Engineer real CLI smoke with Spanish Piper",
-  "scope": "Engineer authorized bundled ACCEPT after Cursor PASS WITH NOTES + Claude T48-inv audit. Documentary close + annotated tags. No src/ behavior change.",
-  "execution_status": "accept_closed_awaiting_smoke",
-  "current_mode": "accept",
+  "cycle_intent": "Queue T50–T52 spoken polish from FN-017 live smoke; tip stays v0.7.6 until T50 IC",
+  "scope": "Docs/cola only. Field Note FN-017 + PRIORIDAD/cola rows. No IC yet — wait Engineer dale for T50.",
+  "execution_status": "queued_awaiting_ic",
+  "current_mode": "planning",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "ACCEPT the voice stack; next step is real CLI smoke by Engineer"
+    "reason": "Live smoke: completo reads flat ASCII/English; queue spoken polish Buys"
   },
   "relevant_workflow_phases": [
-    "Accept",
-    "Field validation"
+    "Field note",
+    "Contract"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,56 +18,40 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_voice_demo_ready_b1.md",
-    ".jes/artifacts/implementation_review_assistant_voice_interactive_cli_b1.md",
-    ".jes/artifacts/implementation_review_assistant_chat_voice_speak_b1.md",
-    ".jes/artifacts/investigation_review_assistant_chat_spoken_continuity_b0.md",
-    ".jes/artifacts/implementation_review_assistant_chat_spoken_continuity_b1.md",
-    ".jes/artifacts/implementation_review_assistant_chat_voice_ptt_b1.md",
-    ".jes/artifacts/investigation_review_assistant_voice_phase_t_review_b0.md",
-    ".jes/artifacts/implementation_review_assistant_voice_tts_spanish_b1.md"
+    ".jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md",
+    ".jes/artifacts/engineer_note_voice_phase_c_cola.md"
   ],
   "open_questions": [
-    "Engineer CLI smoke: hear es_ES-davefx-medium (grave/corto/sin teatro)?",
-    "PTT hablar with multilingual whisper usable?",
-    "T40 craft/world when?"
+    "Engineer dale → Cursor writes T50 IC?",
+    "Glossary size for T50 (minimal vs broader)?",
+    "T52 FULL narrated field list — confirm when DC starts"
   ],
   "active_operation": {
-    "type": "accept_closed",
-    "contract": "stack T41–T49",
+    "type": "queued",
+    "contract": "FN-017 → T50/T51/T52",
     "ids": [
-      "T41",
-      "T42",
-      "T43",
-      "T44-inv",
-      "T45",
-      "T47",
-      "T48-inv",
-      "T49"
+      "T50",
+      "T51",
+      "T52-DC",
+      "T52",
+      "FN-017"
     ],
-    "blocked_on": "engineer_cli_smoke"
+    "blocked_on": "engineer_authorize_t50_ic"
   },
   "closed_this_turn": [
-    "T41 ★ ACCEPT CLOSED @ v0.7.1",
-    "T42 ★ ACCEPT CLOSED @ v0.7.2",
-    "T43 ★ ACCEPT CLOSED @ v0.7.3",
-    "T44-inv ★ CLOSED findings",
-    "T45 ★ ACCEPT CLOSED @ v0.7.4",
-    "T47 ★ ACCEPT CLOSED @ v0.7.5",
-    "T48-inv ★ CLOSED findings",
-    "T49 ★ ACCEPT CLOSED @ v0.7.6"
+    "FN-017 recorded",
+    "T50–T52 queued in PRIORIDAD/cola"
   ],
   "authority_gates": [
-    "Engineer authorized stack ACCEPT 2026-10-05",
-    "Tags v0.7.1–v0.7.6 cut to match ACCEPT",
-    "T40 remains Parked",
-    "Live-ear judgment is smoke, not a new Buy"
+    "No IC paste until Engineer dale",
+    "No src/ yet",
+    "T40 stays Parked",
+    "No LLM in spoken polish path"
   ],
   "coherence_checklist": [
-    "Package tip 0.7.6",
-    "Default TTS Spanish es_ES-davefx-medium",
-    "No src/ change in ACCEPT commit",
-    "PRIORIDAD points to CLI smoke"
+    "Tip remains v0.7.6 / T41–T49 ★",
+    "Order locked: sanitizer → brief ES → FULL narrated",
+    "Layer 1 print untouched in all three Buys"
   ],
-  "updated_at": "2026-10-05T07:30:00Z"
+  "updated_at": "2026-10-05T08:10:00Z"
 }
