@@ -6,13 +6,14 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **Smoke real CLI** — tip **`v0.7.6`** (stack T41–T49 ★ ACCEPT CLOSED). Piper `es_ES-davefx-medium` + `--chat --voice-speak` (+ `hablar` si hay mic/STT). Ver [guía](USER_GUIDE_VOICE.md) §3/§4/§7.  
-> **Stack cerrado (2026-10-05):** T41★`v0.7.1` · T42★`v0.7.2` · T43★`v0.7.3` · T44-inv★ · T45★`v0.7.4` · T47★`v0.7.5` · T48-inv★ · T49★`v0.7.6`.  
-> **Parked next product gap:** **T40** craft/`world/` voice (own DC). No new voice code Buy until smoke.  
+> **PRIORIDAD AHORA:** **T50** spoken polish — speak-path sanitizer (Field Note FN-017 tras smoke real). Cola: **T50** → **T51** brief español → **T52-DC/T52** FULL narrado (no verbatim). Tip **`v0.7.6`**.  
+> **Field Note:** [FN-017](../.jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md) — `completo` lee barras/`*`/`C-rate`/inglés; pantalla OK, oído plano.  
+> **Stack cerrado:** T41–T49 ★ @ `v0.7.1`–`v0.7.6`. **T40** Parked.  
+> **Next IC:** T50 when Engineer says dale (Cursor escribe IC; Claude implementa).  
 > **Policy:** no tip/package version pins in tests. Chat/Continuity egress Buys update the [spoken-continuity map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) in the same Buy ([`CLAUDE.md`](../CLAUDE.md) § Chat / spoken-continuity egress map).  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice phase: [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
-> **Cola voz:** T35–T39 ★ · **T41–T49 ★** @ `v0.7.1`–`v0.7.6` · **T40** Parked.  
-> SoT: [T49 review ★](../.jes/artifacts/implementation_review_assistant_voice_tts_spanish_b1.md) · [T48-inv review ★](../.jes/artifacts/investigation_review_assistant_voice_phase_t_review_b0.md) · [guía](USER_GUIDE_VOICE.md).  
+> **Cola voz:** T35–T49 ★ · **T50–T52 queued** (spoken polish) · **T40** Parked.  
+> SoT: [FN-017](../.jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md) · [cola](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) · [guía](USER_GUIDE_VOICE.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -20,7 +21,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.6`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · **T41–T49 ★** @ `v0.7.1`–`v0.7.6` · **T40** Parked)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.6`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · **T41–T49 ★** · **T50–T52 queued** spoken polish · **T40** Parked)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
