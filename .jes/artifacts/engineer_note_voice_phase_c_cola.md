@@ -1,9 +1,9 @@
 # Engineer note — Voice phase C cola (Skill-first channels)
 
-**Date:** 2026-10-03 · **updated:** 2026-10-05 (T50 speak-sanitize IC ready)  
-**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T49 ★** @ tip **`v0.7.6`**; **T50 IC ready** @ `0.7.7`; T51/T52 queued; **T40** Parked  
+**Date:** 2026-10-03 · **updated:** 2026-10-05 (T50 speak-sanitize Implemented)  
+**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T49 ★** @ tip **`v0.7.6`**; **T50 Implemented** @ `0.7.7`, await Cursor review; T51/T52 queued; **T40** Parked  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`v0.7.6`** (T49 ★) · **T50** IC ready → paste Claude · [IC](implementation_contract_assistant_voice_speak_sanitize_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md)
+**Tip parent:** **`0.7.7`** (T50 tip) · **T50** Implemented, await Cursor review → Engineer ACCEPT → tag `v0.7.7` · [report](implementation_report_assistant_voice_speak_sanitize_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md)
 
 **Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md)
 
@@ -87,13 +87,13 @@ run_chat print  → Layer 1 (unchanged)
 | **T47** | V8 | `B1-assistant-chat-voice-ptt` | **`0.7.5`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.5`** | Record seam + intercept on `--chat --voice-speak`; reuse T37 STT | [review ★](implementation_review_assistant_chat_voice_ptt_b1.md) |
 | **T48-inv** | — | `INV-assistant-voice-phase-t-review` | `0.7.5` (docs) | ✅ ★ **CLOSED** (findings) | Forensic review T34–T47: cola truth, DC locks, ACCEPT backlog, honesty fences | [review ★](investigation_review_assistant_voice_phase_t_review_b0.md) |
 | **T49** | — | `B1-assistant-voice-tts-spanish` | **`0.7.6`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.6`** | Default demo TTS → `es_ES-davefx-medium`; docs/comment only, seam unchanged | [review ★](implementation_review_assistant_voice_tts_spanish_b1.md) |
-| **T50** | V7+ | `B1-assistant-voice-speak-sanitize` | **`0.7.7`** | **IC ready** — paste to Claude | Speak-path sanitizer (strip decoration + TTS glossary); print untouched | [IC](implementation_contract_assistant_voice_speak_sanitize_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
+| **T50** | V7+ | `B1-assistant-voice-speak-sanitize` | **`0.7.7`** | Implemented · await Cursor review | Speak-path sanitizer (strip decoration + TTS glossary); print untouched | [report](implementation_report_assistant_voice_speak_sanitize_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T51** | V7+ | `B1-assistant-voice-brief-spanish` | TBD | **Queued** — after T50 | Humanize Continuity brief phrases to Spanish | [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T52-DC** | V7+ | `DC-assistant-voice-full-spoken` | — (no bump) | **Queued** — after T51 | Amend T44-DC FULL: narrated detail, not verbatim print | [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T52** | V7+ | `B1-assistant-voice-full-spoken` | TBD | **Queued** — after T52-DC | Implement FULL narrated Layer 2 · no LLM · BOM screen-only | [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7 · not V8 | [placement A4](design_contract_assistant_placement_b0.md) |
 
-**Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**. **T48-inv** docs-only, stays `0.7.5`. **T49** opens **`0.7.6`**. **T50** expected to open **`0.7.7`**.
+**Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**. **T48-inv** docs-only, stays `0.7.5`. **T49** opens **`0.7.6`**. **T50** opens **`0.7.7`**.
 
 ---
 

@@ -73,9 +73,12 @@ def test_t3_piper_script_body_still_model_agnostic():
         assert hardcoded_voice not in body, f"piper_tts.sh body must never hardcode voice {hardcoded_voice!r}"
 
 
-def test_t4_package_version_and_no_speech_deps_or_tip_pinned_models():
+def test_t4_no_speech_deps_or_tip_pinned_models():
+    # No tip/package version pin here by policy (see
+    # test_suite_no_tip_version_pins_b1.py) — the version lives in
+    # pyproject.toml + git tags, not in an assertion that would need
+    # bumping every time a sibling Buy opens the next package version.
     pyproject_text = PYPROJECT.read_text(encoding="utf-8")
-    assert 'version = "0.7.6"' in pyproject_text
 
     lowered = pyproject_text.lower()
     for forbidden in (

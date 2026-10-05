@@ -3,7 +3,7 @@
 **Date:** 2026-10-05  
 **Source:** Engineer live smoke @ tip **`v0.7.6`** (`es_ES-davefx-medium` + `--chat --voice-speak`)  
 **Project:** `dron-de-vigilancia-doméstico`  
-**Status:** **OPEN** — **T50 IC ready** (paste Claude) → T51 → T52 (see voice cola)
+**Status:** **OPEN** — **T50 Implemented** (await Cursor review) → T51 → T52 (see voice cola)
 
 ---
 
@@ -30,10 +30,10 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 
 | # | Buy | Intent |
 |---|---|---|
-| **T50** | `B1-assistant-voice-speak-sanitize` | **IC ready** @ `0.7.7` — [IC](implementation_contract_assistant_voice_speak_sanitize_b1.md). Speak-path sanitizer before Piper. Print untouched. |
+| **T50** | `B1-assistant-voice-speak-sanitize` | **Implemented** @ `0.7.7`, await Cursor review — [report](implementation_report_assistant_voice_speak_sanitize_b1.md). Speak-path sanitizer before Piper. Print untouched. |
 | **T51** | `B1-assistant-voice-brief-spanish` | Humanize brief Continuity phrases to Spanish (`PROJECT STATUS` / gap titles). Same five fields. |
 | **T52-DC** → **T52** | `DC` + `B1-assistant-voice-full-spoken` | Amend what FULL means: narrated detailed Continuity (prose from fields), **not** verbatim print. Screen still full. Reopens T44-DC FULL speak payload only. |
 
 **Out:** LLM summary · wake-word · T40 · changing screen Continuity · Conversation Engine.
 
-**Next process step:** paste T50 IC §4 to Claude = Buy.
+**Next process step:** Cursor review of T50 → Engineer ACCEPT → tag `v0.7.7`. Then T51 IC when Engineer says proceed.

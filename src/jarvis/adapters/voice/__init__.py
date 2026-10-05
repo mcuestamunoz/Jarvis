@@ -5,7 +5,9 @@ seam (`B1-assistant-voice-tts-external`, T38). No mic/speaker driver
 in this package, no vendor SDK — see `fixture_loop.py`/
 `external_stt.py`/`external_tts.py`'s own docstrings for the honesty
 lock. T38's default demo setup (operator-installed, never hardcoded
-here) is a free, local Piper `en_GB` voice — see
+here) is a free, local Piper voice — Spanish `es_ES-davefx-medium` by
+default since T49 (the original `en_GB-alan-medium` stays supported as
+a documented legacy value) — see
 `.jes/artifacts/engineer_note_voice_tts_product_brief.md`."""
 
 from jarvis.adapters.voice.external_record import (
@@ -38,6 +40,7 @@ from jarvis.adapters.voice.external_tts import (
     speak_egress,
 )
 from jarvis.adapters.voice.fixture_loop import FixtureSttSource, run_voice, run_voice_turn
+from jarvis.adapters.voice.speak_sanitize import sanitize_for_speech
 from jarvis.adapters.voice.spoken_continuity import (
     FULL_CONTINUITY_PHRASES,
     brief_spoken_continuity,
@@ -73,6 +76,7 @@ __all__ = [
     "run_voice",
     "run_voice_turn",
     "run_voice_turn_from_audio",
+    "sanitize_for_speech",
     "speak_egress",
     "spoken_text_for_wall",
     "transcribe_audio_file",

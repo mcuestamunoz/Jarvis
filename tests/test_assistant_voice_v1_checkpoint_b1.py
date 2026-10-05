@@ -23,6 +23,7 @@ from jarvis.adapters.voice import (
     make_speak_callable,
     run_voice,
     run_voice_turn_from_audio,
+    sanitize_for_speech,
 )
 from jarvis.capabilities.intent import ApiIntentAdapter, RadioIntentAdapter, VoiceIntentAdapter
 from jarvis.capabilities.safety import AuthoritySource
@@ -129,8 +130,14 @@ def test_t2_twelve_skills_speak_wired_fake_tts_records_every_egress(tmp_path: Pa
     received = received_path.read_text(encoding="utf-8")
     captures = [chunk for chunk in received.split("---\n") if chunk.strip()]
     assert len(captures) == 12
+    # T50 (`B1-assistant-voice-speak-sanitize`): `speak_egress` now runs
+    # every egress through `sanitize_for_speech` before it reaches the
+    # TTS command — a no-op for eleven of these twelve Skills, but the
+    # `explain c-rate-de-bateria` turn's egress contains the locked
+    # `C-rate` -> `tasa C` glossary term, so what the fake TTS actually
+    # receives is the *sanitized* text, not the raw egress.
     for _text, _result, egress in turns:
-        assert egress in received
+        assert sanitize_for_speech(egress) in received
 
 
 def test_t3_stt_to_skill_to_tts_combined_seam(tmp_path: Path):

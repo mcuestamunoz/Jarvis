@@ -1,15 +1,14 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T50 speak-sanitize IC ready — paste to Claude @ 0.7.7",
-  "scope": "Cursor authored IC only. Claude implements sanitize_for_speech + speak_egress wire. No Cursor src/ unless Engineer says.",
-  "execution_status": "ic_ready_awaiting_claude",
-  "current_mode": "contract",
+  "cycle_intent": "T50 wires a pure, no-LLM speak_sanitize.sanitize_for_speech into speak_egress (0.7.7), closing Field Note FN-017 (voice spoken polish from Engineer live smoke): decoration glyphs/rule lines/footnote asterisks no longer read aloud, C-rate speaks as tasa C. Print/Layer 1 byte-identical.",
+  "scope": "New src/jarvis/adapters/voice/speak_sanitize.py. external_tts.py::speak_egress sanitizes text first, returns silently when the result is empty. No adapters/cli/main.py change (speak_egress is the shared seam for --chat --voice-speak and --voice/--voice-fixture/--voice-audio). Also fixed a stale 'Piper en_GB' package docstring in __init__.py (T49 honesty). Two pre-existing tests touched, both documented in the report: one locked C-rate behavior-change assertion update (T39), one real tip-version-pin bug fix (T49).",
+  "execution_status": "implemented_awaiting_cursor_review",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "FN-017 smoke polish — send T50 IC to Claude"
+    "reason": "Field Note FN-017 (live CLI smoke on dron-de-vigilancia-domestico): decoration/C-rate read badly with the new Spanish Piper voice"
   },
   "relevant_workflow_phases": [
-    "Contract",
     "Implementation"
   ],
   "applicable_rules": [
@@ -24,34 +23,39 @@
     ".jes/artifacts/implementation_report_assistant_voice_speak_sanitize_b1.md"
   ],
   "open_questions": [
-    "Claude lands T50 @ 0.7.7?",
-    "After T50: T51 brief Spanish IC?"
+    "Cursor review of T50 @ 0.7.7 -> Engineer ACCEPT -> tag v0.7.7?",
+    "After T50 ACCEPT: T51 brief-Spanish IC?"
   ],
   "active_operation": {
-    "type": "buy_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_voice_speak_sanitize_b1.md",
     "ids": [
       "T50",
       "B1-assistant-voice-speak-sanitize",
       "FN-017"
     ],
-    "blocked_on": "claude_implementation"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "T50 IC ready"
+    "T50 implemented -- speak-path sanitizer @ 0.7.7"
   ],
   "authority_gates": [
-    "Cursor does not implement src/ for this Buy",
-    "No ACCEPT claimed",
-    "T51/T52 stay queued",
-    "T40 stays Parked",
-    "No LLM"
+    "No ACCEPT claimed by Claude",
+    "Cursor does not implement src/ for this Buy -- unaffected, Claude implemented per the pasted IC",
+    "No src/jarvis change outside adapters/voice/ -- adapters/cli/main.py untouched",
+    "PROJECT STATUS / PASS / gap titles explicitly not rewritten (T3 asserts this)",
+    "Empty-after-sanitize never produces filler speech or a spurious config error",
+    "T42 run_chat TTS-seam structural guard re-verified green",
+    "render_startup_context/render_response/spoken_continuity.py never reference the sanitizer (T6)",
+    "T51/T52 stay queued, T40 stays Parked"
   ],
   "coherence_checklist": [
-    "Sanitize wired inside speak_egress only",
-    "Glossary T50 = C-rate only",
-    "T42 run_chat TTS guard must stay green",
+    "Sanitize wired inside speak_egress only -- matches IC lock 3",
+    "Decoration set matches IC lock 4 exactly: rule-line set includes ASCII hyphen, leading-marker set does not (verified with a -5kg sign-preservation regression test)",
+    "Glossary T50 = C-rate/c-rate -> tasa C only (case-insensitive, word-bounded)",
+    "T1-T6 tests added and green (9 test functions)",
+    "Full suite 4039 passed / 9 skipped vs 4030/9 baseline (T41-T49 stack tip) -- net +9, zero regressions",
     "Opens 0.7.7"
   ],
-  "updated_at": "2026-10-05T08:40:00Z"
+  "updated_at": "2026-10-05T16:00:00Z"
 }

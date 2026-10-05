@@ -22,6 +22,18 @@ Honesty lock: missing/empty config, a non-zero exit, or the command
 itself failing to run at all (missing binary) are each surfaced as the
 same typed `TtsProcessError`/`TtsConfigError` — never a silent no-op
 "success."
+
+T50 (`B1-assistant-voice-speak-sanitize`): every call runs `text`
+through `speak_sanitize.sanitize_for_speech` first — the single seam
+every spoken egress passes through (`--chat --voice-speak` via
+`_chat_speak_fn`, `--voice`/`--voice-fixture`/`--voice-audio` via
+`_voice_speak_fn`), so wiring it here covers both without touching
+`adapters/cli/main.py`. Layer 1 (everything `print`ed) is never
+touched — only what travels on to the external TTS command. When the
+sanitized text is empty, this function returns immediately without
+invoking any external command — no filler speech, and no config/process
+error either (there is nothing to speak, so a missing `JARVIS_TTS_CMD`
+is not this call's problem).
 """
 
 from __future__ import annotations
@@ -30,6 +42,8 @@ import os
 import shlex
 import subprocess
 from typing import Callable
+
+from jarvis.adapters.voice.speak_sanitize import sanitize_for_speech
 
 
 class TtsError(Exception):
@@ -64,7 +78,16 @@ def speak_egress(
     (missing binary). `command_template` is split via `shlex.split`
     directly — unlike T37's `{audio}` placeholder, there is nothing to
     substitute here: the egress text always travels on stdin, never
-    as an argv token."""
+    as an argv token.
+
+    `text` is first run through `sanitize_for_speech` (T50) — decoration
+    stripped, the locked glossary applied. If nothing is left to say,
+    this returns immediately: no external command is invoked, no error
+    is raised, no filler speech is produced."""
+    sanitized = sanitize_for_speech(text)
+    if not sanitized:
+        return
+
     template = command_template if command_template is not None else os.environ.get(env_var)
     if not template:
         raise TtsConfigError(
@@ -73,7 +96,7 @@ def speak_egress(
 
     argv = shlex.split(template)
     try:
-        completed = subprocess.run(argv, input=text, capture_output=True, text=True)
+        completed = subprocess.run(argv, input=sanitized, capture_output=True, text=True)
     except OSError as error:
         raise TtsProcessError(f"could not run external TTS command {argv!r}: {error}") from error
 

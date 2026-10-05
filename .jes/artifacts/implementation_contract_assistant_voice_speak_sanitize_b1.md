@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.7.7`**
 
-**Status:** **IC ready** — paste to Claude = Buy. Cursor does **not** implement unless Engineer says so.  
+**Status:** **Implemented** — await Cursor review → Engineer ACCEPT → tag **`v0.7.7`**.  
 **Parents:** [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) · [T45 ★](implementation_review_assistant_chat_spoken_continuity_b1.md) · [T49 ★](implementation_review_assistant_voice_tts_spanish_b1.md) · tip **`v0.7.6`** · [cola](engineer_note_voice_phase_c_cola.md)  
 **Type:** Deterministic **speak-path** text sanitizer before Piper — strip terminal decoration + small locked TTS glossary. **Print / Layer 1 untouched.**  
 **Opens:** **`0.7.7` / `v0.7.7`**. **Cola:** **T50**
