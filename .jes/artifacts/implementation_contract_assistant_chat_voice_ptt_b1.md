@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.7.5`**
 
-**Status:** **IC ready** — paste to Claude = Buy. Cursor does **not** implement `src/` for this IC.  
+**Status:** **Implemented (Claude Code)** — await Cursor review → Engineer ACCEPT → tag **`v0.7.5`**.  
 **Parents:** [T46-DC](design_contract_assistant_chat_voice_ptt_b0.md) · [T45](implementation_review_assistant_chat_spoken_continuity_b1.md) @ `0.7.4` · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) · tip **`0.7.4`**  
 **Type:** Timed **push-to-talk** inside `--chat --voice-speak` — type `hablar`/`habla`, record externally, reuse T37 STT, feed transcript into the same `run_chat` loop (`TERMINAL` + T45 speak).  
 **Opens:** **`0.7.5` / `v0.7.5`**. **Cola:** **T47**

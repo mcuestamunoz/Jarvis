@@ -8,6 +8,18 @@ lock. T38's default demo setup (operator-installed, never hardcoded
 here) is a free, local Piper `en_GB` voice — see
 `.jes/artifacts/engineer_note_voice_tts_product_brief.md`."""
 
+from jarvis.adapters.voice.external_record import (
+    DEFAULT_RECORD_SECONDS,
+    JARVIS_RECORD_CMD_ENV,
+    JARVIS_RECORD_SECONDS_ENV,
+    PTT_TRIGGER_PHRASES,
+    RecordConfigError,
+    RecordError,
+    RecordProcessError,
+    is_ptt_trigger,
+    record_audio_file,
+    resolve_record_seconds,
+)
 from jarvis.adapters.voice.external_stt import (
     JARVIS_STT_CMD_ENV,
     SttConfigError,
@@ -34,10 +46,17 @@ from jarvis.adapters.voice.spoken_continuity import (
 )
 
 __all__ = [
+    "DEFAULT_RECORD_SECONDS",
     "FULL_CONTINUITY_PHRASES",
     "FixtureSttSource",
+    "JARVIS_RECORD_CMD_ENV",
+    "JARVIS_RECORD_SECONDS_ENV",
     "JARVIS_STT_CMD_ENV",
     "JARVIS_TTS_CMD_ENV",
+    "PTT_TRIGGER_PHRASES",
+    "RecordConfigError",
+    "RecordError",
+    "RecordProcessError",
     "SttConfigError",
     "SttEmptyTranscriptError",
     "SttError",
@@ -47,7 +66,10 @@ __all__ = [
     "TtsProcessError",
     "brief_spoken_continuity",
     "is_full_continuity_request",
+    "is_ptt_trigger",
     "make_speak_callable",
+    "record_audio_file",
+    "resolve_record_seconds",
     "run_voice",
     "run_voice_turn",
     "run_voice_turn_from_audio",

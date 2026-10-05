@@ -964,8 +964,29 @@ def run_chat(*, speak_tts: bool = False) -> None:
     brief extract, unless this turn's typed line is one of the locked
     FULL phrases, in which case the full wall is spoken this turn only
     (no session latch). Every other wall-less turn still speaks exactly
-    what it prints, same as T43."""
-    from jarvis.adapters.voice import spoken_text_for_wall
+    what it prints, same as T43.
+
+    T47 (`B1-assistant-chat-voice-ptt`): when `speak_tts=True`, typing
+    the locked trigger `hablar`/`habla` at `User > ` (checked once,
+    here, never re-checked against a transcript) records a timed clip
+    via the external `JARVIS_RECORD_CMD` seam, transcribes it via the
+    existing `JARVIS_STT_CMD` seam (T37), prints `User > [voz]
+    {transcript}`, and substitutes `user_input` with that transcript —
+    which then falls through this exact loop unchanged (no
+    `source=VOICE`, no separate orchestrator, no `run_voice_turn`).
+    Bare `--chat` never records: the check below is gated on
+    `speak_tts`, so `hablar` is ordinary chat text there."""
+    import tempfile
+
+    from jarvis.adapters.voice import (
+        RecordError,
+        SttError,
+        is_ptt_trigger,
+        record_audio_file,
+        resolve_record_seconds,
+        spoken_text_for_wall,
+        transcribe_audio_file,
+    )
 
     orchestrator = JarvisOrchestrator()
     llm_interface = JarvisLLMInterface(client=OllamaClient())
@@ -994,6 +1015,29 @@ def run_chat(*, speak_tts: bool = False) -> None:
 
         if not user_input:
             continue
+
+        if speak_tts and is_ptt_trigger(user_input):
+            seconds = resolve_record_seconds()
+            print(f"Jarvis > Grabando {seconds} s…")
+            tmp_path = Path(tempfile.mkstemp(suffix=".wav")[1])
+            try:
+                record_audio_file(tmp_path, seconds=seconds)
+                transcript = transcribe_audio_file(tmp_path)
+            except KeyboardInterrupt:
+                print("Jarvis > Grabación cancelada.")
+                continue
+            except RecordError as error:
+                print(f"Jarvis > Grabación no disponible: {error}")
+                continue
+            except SttError as error:
+                print(f"Jarvis > STT no disponible: {error}")
+                continue
+            finally:
+                tmp_path.unlink(missing_ok=True)
+
+            print(f"User > [voz] {transcript}")
+            user_input = transcript
+
         if user_input.lower() in {"exit", "quit"}:
             _say("Sesión cerrada.")
             break

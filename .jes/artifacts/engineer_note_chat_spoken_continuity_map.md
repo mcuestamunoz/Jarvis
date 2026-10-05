@@ -1,9 +1,9 @@
 # Engineer note — Chat spoken-continuity map (living SoT)
 
 **Date:** 2026-10-04  
-**Status:** **OPEN living map** — Layer 2 **shipped** by [T45](implementation_report_assistant_chat_spoken_continuity_b1.md) @ `0.7.4` ([T44-inv](investigation_report_assistant_chat_spoken_continuity_b0.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [T45 IC](implementation_contract_assistant_chat_spoken_continuity_b1.md))  
+**Status:** **OPEN living map** — Layer 2 shipped by [T45](implementation_report_assistant_chat_spoken_continuity_b1.md) @ `0.7.4`; push-to-talk shipped by [T47](implementation_report_assistant_chat_voice_ptt_b1.md) @ `0.7.5` ([T44-inv](investigation_report_assistant_chat_spoken_continuity_b0.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [T45 IC](implementation_contract_assistant_chat_spoken_continuity_b1.md) · [T46-DC](design_contract_assistant_chat_voice_ptt_b0.md) · [T47 IC](implementation_contract_assistant_chat_voice_ptt_b1.md))  
 **Authority:** Engineer — this is the single inventory future chat/Continuity egress Buys update in the same Buy  
-**Tip:** `0.7.4` — Layer 2 live on the two Continuity walls (project load + `action == "project_status"`); every other surface unchanged since T43
+**Tip:** `0.7.5` — Layer 2 live on the two Continuity walls (project load + `action == "project_status"`); push-to-talk (`hablar`/`habla`) live on the same `--chat --voice-speak` session; every other surface unchanged since T43
 
 **Purpose:** Every `--chat` print surface and every `build_startup_context`/`build_project_continuity` field, classified for the two-layer spoken-continuity model:
 
@@ -16,6 +16,8 @@
 - **screen-only** — never spoken by default, even on request (operator diagnostics / visual-only content).
 
 **Shipped extractor (T45):** `src/jarvis/adapters/voice/spoken_continuity.py` — `brief_spoken_continuity(ctx)` (the brief extract), `is_full_continuity_request(raw_text)` (locked FULL-phrase match), `spoken_text_for_wall(raw_text, printed_wall, ctx)` (the combinator `run_chat` calls on both wall sites). Three of the ten locked FULL phrases (`completo`, `estado completo`, `cuentame todo`) were also newly added to `CONTINUITY_DEFER_PHRASES` (`jarvis/config.py:108-110`) so they resolve to `action == "project_status"` at all — the other seven were already members.
+
+**Shipped push-to-talk (T47):** `src/jarvis/adapters/voice/external_record.py` — `record_audio_file(output_path, ...)` (external `JARVIS_RECORD_CMD` process seam, typed `RecordError` family), `resolve_record_seconds()` (`JARVIS_RECORD_SECONDS`, default 7), `is_ptt_trigger(raw_text)` (locked exact-match `hablar`/`habla`, own local normalize — **not** added to `CONTINUITY_DEFER_PHRASES`). `run_chat` checks the trigger once per typed line (never re-checked against the transcript), records, reuses T37's existing `transcribe_audio_file`/`JARVIS_STT_CMD` unchanged, then substitutes `user_input` with the transcript and falls through the same loop — no `source=VOICE`, no `run_voice_turn`. Operator wrapper: `scripts/voice/record_turn.sh`.
 
 Phase cola: [`engineer_note_voice_phase_c_cola.md`](engineer_note_voice_phase_c_cola.md).
 
@@ -34,6 +36,11 @@ Whenever a Buy adds or changes a `--chat` print surface, a `build_startup_contex
 | Startup banner | `main.py:966-968` | every `run_chat()` | 3 lines | No | **screen-only** |
 | Welcome / project picker | `_print_welcome`, `main.py:810-827` / `971` | every `run_chat()` | banner + N rows | No | **screen-only** |
 | EOF/Ctrl-C exit | `main.py:979-980` | `EOFError`/`KeyboardInterrupt` | 1 sentence | Yes | **must-speak-brief** |
+| **PTT — Grabando cue (T47)** | `main.py:1021` | typed `hablar`/`habla`, `speak_tts=True` | 1 line | No (print-only, no TTS bleed per IC lock) | **screen-only** |
+| **PTT — `[voz]` transcript echo (T47)** | `main.py:1038` | record+STT succeeded | 1 line | No | **screen-only** |
+| **PTT — Grabación no disponible (T47)** | `main.py:1030` (`RecordError`) | record config/process failure | 1 sentence | No | **screen-only** |
+| **PTT — STT no disponible (T47)** | `main.py:1033` (`SttError`, incl. empty transcript) | STT config/process failure | 1 sentence | No | **screen-only** |
+| **PTT — Grabación cancelada (T47)** | `main.py:1027` (`KeyboardInterrupt` during record/STT) | Ctrl-C mid-capture | 1 sentence | No | **screen-only** |
 | `exit`/`quit` | `main.py:986` | typed exit | 1 sentence | Yes | **must-speak-brief** |
 | `help` | `main.py:989` | typed help | 1 sentence | Yes | **must-speak-brief** |
 | Startup-selection error | `main.py:998` | bad project pick | 1 sentence | Yes | **must-speak-brief** |
