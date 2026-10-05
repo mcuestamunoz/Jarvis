@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T51 Cursor PASS WITH NOTES @ 0.7.8 — await Engineer ★ ACCEPT → tag v0.7.8",
-  "scope": "Documentary Cursor review of T51 brief Continuity Spanish. No src/ edits this turn.",
+  "cycle_intent": "T51 PASS WITH NOTES; N1/N2 closed on tip — await Engineer ★ ACCEPT → tag v0.7.8",
+  "scope": "Hygiene: sync brief_spoken_continuity docstring (T51-N1). T51-N2 informational only — already clean.",
   "execution_status": "cursor_pass_with_notes_awaiting_accept",
   "current_mode": "review",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Claude T51 summary → Cursor independent review"
+    "reason": "Close T51 review notes N1/N2 before ACCEPT"
   },
   "relevant_workflow_phases": [
     "Review"

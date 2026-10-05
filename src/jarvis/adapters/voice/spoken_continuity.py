@@ -98,10 +98,12 @@ def brief_spoken_continuity(ctx: dict[str, Any] | None) -> str:
     """Deterministic brief extract of a `build_startup_context`-shaped
     `ctx` (the same shape for a project-load `startup_ctx` and a
     `project_status` turn's `result["startup_context"]`) — situation /
-    next step / humanized why / `PROJECT STATUS: …` / top gap title,
-    newline-joined, each piece omitted when absent. Returns `""` when
-    there is nothing to say (e.g. no active project); callers must treat
-    that as "speak nothing" and never fall back to the full wall.
+    next step / humanized why / Spanish project-status phrase (T51) /
+    top gap title (mapped when known, else raw), newline-joined, each
+    piece omitted when absent. Returns `""` when there is nothing to
+    say (e.g. no active project); callers must treat that as "speak
+    nothing" and never fall back to the full wall. Screen Layer 1 still
+    prints English `PROJECT STATUS:` — this helper is speak-path only.
     """
     if not ctx or not ctx.get("has_project"):
         return ""

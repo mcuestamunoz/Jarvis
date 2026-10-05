@@ -47,6 +47,8 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 | **T50-N1** | Glossary yields awkward “El tasa C” (locked string `"tasa C"`) | Spoken UX polish | **T51** | **Done** — glossary now resolves to `"la tasa C"` always, absorbing a preceding `El`/`La` |
 | **T50-N2** | `external_tts.py` module docstring still narrates pre-T49 `en_GB` demo setup (`__init__.py` already fixed) | Docs honesty | **T51** | **Done** — docstring now names the Spanish default |
 | **T50-N3** | Sibling tests updated for glossary + tip-pin policy | None — closed | — | Done |
+| **T51-N1** | `brief_spoken_continuity` docstring still narrated pre-T51 `PROJECT STATUS: …` | Docs honesty | same tip | **Done** — docstring synced to Spanish status + mapped/raw gap |
+| **T51-N2** | Sibling T45/T50 test assertion updates | None — informational | report §2 | **Closed** — intentional locked behavior; no further cleanup |
 
 Any new smoke finding after T50 ★ → new row here or new Field Note; do not reopen T50 scope silently.
 

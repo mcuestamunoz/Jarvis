@@ -67,11 +67,11 @@ Report full-suite claim (4045 / 9 skipped) not re-run here.
 
 ## 3. Notes
 
-**N1 — Stale `brief_spoken_continuity` docstring still narrates `PROJECT STATUS: …`.**  
-Module header and FN/guide are honest; the function docstring summary line still lists the pre-T51 English status phrase. Cosmetic only — does not affect speak/print. Optional one-line sync later (same class as closed T50-N2).
+**N1 — Stale `brief_spoken_continuity` docstring still narrated `PROJECT STATUS: …`.**  
+**Done** (post-review hygiene, same tip): function docstring now names the Spanish project-status phrase + mapped/raw gap title, and states Layer 1 English print stays speak-path-only.
 
 **N2 — Intentional sibling-test updates are correctly documented.**  
-T45 brief assertions and T50 glossary assertions updated for locks 3/5; report §2 enumerates them. Not regressions.
+**Closed — no debt.** T45 brief assertions and T50 glossary assertions updated for locks 3/5; report §2 enumerates them. Not regressions; nothing further to clean.
 
 T50-N1 / T50-N2 from prior review: **closed in this Buy**.
 
@@ -80,7 +80,7 @@ T50-N1 / T50-N2 from prior review: **closed in this Buy**.
 ## 4. Awaiting
 
 ```text
-Cursor verdict: PASS WITH NOTES
+Cursor verdict: PASS WITH NOTES (N1/N2 closed on tip)
 Engineer ★ ACCEPT CLOSED → tag v0.7.8
 Smoke after ACCEPT (optional):
   # same Piper env as before
