@@ -18,7 +18,7 @@ Los doce Skills alcanzables por voz son exactamente los del chat: `explain <conc
 - **No es un motor de voz.** Jarvis no sintetiza ni transcribe audio. Llama a un **proceso externo** que tú instalas (Piper para hablar, whisper.cpp para transcribir). Ninguno de los dos es dependencia del paquete — `pyproject.toml` no tiene `piper` ni `whisper`, y nunca los tendrá por este camino.
 - **El camino craft solo está en `--chat --voice-speak` (§4.1), no en `--voice` (§4.2).** `--voice` es Skill-first puro: si una frase no es uno de los doce Skills, ese canal no la cubre (eso es T40, con su propio contrato). `--chat --voice-speak` es el `--chat` completo de siempre — Continuity, wizards, fallthrough al LLM — con voz añadida encima, sin recortar la **pantalla**. La capa hablada (V7) extrae Continuity; no es un segundo cerebro.
 - **No ejecuta vuelo.** `hold`, `takeoff`, `go to`… siguen respondiendo con la misma honestidad Safety que en el chat: `reject`/`disarmed` desarmado, `allow`/`not_implemented` armado. **Ningún dron real se mueve**, por voz igual que por texto. `armar` arma un latch de software, no un ESC.
-- **No es un clon de la voz de la película.** El objetivo es *JARVIS-like* (británico, grave, corto, sin teatro) con voces libres — no clonar a nadie. Ver [brief de producto](../.jes/artifacts/engineer_note_voice_tts_product_brief.md).
+- **No es un clon de la voz de la película.** El objetivo es *JARVIS-like* (grave, corto, sin teatro; por defecto español `es_ES` desde T49) con voces libres — no clonar a nadie. Ver [brief de producto](../.jes/artifacts/engineer_note_voice_tts_product_brief.md).
 
 ---
 

@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.7.4`**
 
-**Status:** **Implemented** — Cursor **PASS WITH NOTES** → await Engineer ACCEPT → tag **`v0.7.4`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-05) — Cursor **PASS WITH NOTES** · tip **`v0.7.4`**.  
 **Parents:** [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [T44-inv review](investigation_review_assistant_chat_spoken_continuity_b0.md) · [living map](engineer_note_chat_spoken_continuity_map.md) · [T43](implementation_review_assistant_chat_voice_speak_b1.md) @ `0.7.3` · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md)  
 **Type:** Layer 2 extractor on `--chat --voice-speak` **Continuity walls** — print stays full truth; speak becomes brief unless a FULL phrase is used.  
 **Opens:** **`0.7.4` / `v0.7.4`**. **Cola:** **T45**

@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.7.6`**
 
-**Status:** **IC ready** — paste to Claude = Buy.
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-05) — Cursor **PASS WITH NOTES** · tip **`v0.7.6`**.
 **Parents:** [T48-inv](investigation_report_assistant_voice_phase_t_review_b0.md) Q8 @ `0.7.5` · [T41 guide](implementation_review_assistant_voice_demo_ready_b1.md) · [TTS product brief](engineer_note_voice_tts_product_brief.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md)
 **Type:** Flip the **default demo TTS voice** from `en_GB-alan-medium` to Spanish `es_ES-davefx-medium`, documentation/comment-level only — the Piper external seam is already model-agnostic.
 **Opens:** **`0.7.6` / `v0.7.6`**. **Cola:** **T49**

@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “T44-inv complete…”)  
 **Against:** [INV](investigation_contract_assistant_chat_spoken_continuity_b0.md) · [report](investigation_report_assistant_chat_spoken_continuity_b0.md) · [living map](engineer_note_chat_spoken_continuity_map.md) · T43 tip `0.7.3`  
 **Tip reviewed:** `3b20d20` on `cursor/chat-spoken-continuity-impl-8ac5` (parent INV `7cc6c19` / T43 review `bfcc964`)  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ on findings → small **DC** then IC (speak path only).
+**Verdict:** **PASS WITH NOTES** → Engineer ★ on findings **CLOSED** (2026-10-05) — DC/IC consumed (T44-DC/T45 ★).
 
-**Process note:** Claude Code investigated under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.** **`CLAUDE.md` not edited** (norm still pending ★).
+**Process note:** Claude Code investigated under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.** **Updated:** Engineer ★ on findings CLOSED (2026-10-05) (stack close). **`CLAUDE.md` not edited** (norm still pending ★).
 
 ---
 
@@ -82,7 +82,7 @@ DC should lock the default (report suggestion: top `PRIORIDAD CRÍTICA` label) o
 
 ```text
 Cursor verdict: PASS WITH NOTES
-Await Engineer ★ on findings
+Engineer ★ on findings CLOSED (2026-10-05)
 Next: small DC (two-layer + Q5 fields + phrase split for breve vs completo)
      then IC: brief extractor on speak path only; screen truth unchanged
 Land CLAUDE.md norm + cola pointer after ★ (not before)

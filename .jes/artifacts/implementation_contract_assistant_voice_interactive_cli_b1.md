@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.7.2`**
 
-**Status:** **Implemented** (Claude Code) — Cursor **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag `v0.7.2`.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-05) — Cursor **PASS WITH NOTES** · tip **`v0.7.2`**.  
 **Parents:** [T41](implementation_review_assistant_voice_demo_ready_b1.md) @ `0.7.1` (PASS WITH NOTES / live Piper) · [T39 ★](implementation_review_assistant_voice_v1_checkpoint_b1.md) @ `v0.7.0` · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) · [TTS brief](engineer_note_voice_tts_product_brief.md) · tip **`0.7.1`**  
 **Type:** Interactive **use** path — Engineer sits in CLI, types (or later speaks) turns, hears replies. **Not** a fixture demo.  
 **Opens:** **`0.7.2` / `v0.7.2`**. **Cola:** **T42**

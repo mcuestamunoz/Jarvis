@@ -5,7 +5,7 @@
 **Implementer:** Claude Code (Engineer paste)
 **Contract:** [`implementation_contract_assistant_voice_tts_spanish_b1.md`](implementation_contract_assistant_voice_tts_spanish_b1.md)
 **Parents:** [T48-inv Q8](investigation_report_assistant_voice_phase_t_review_b0.md) @ `0.7.5` · [TTS product brief](engineer_note_voice_tts_product_brief.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md)
-**Status:** **Implemented** — await Cursor review → Engineer ACCEPT → tag **`v0.7.6`**.
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-05) · tip **`v0.7.6`**.
 **Package / tag:** `0.7.6` / pending **`v0.7.6`**.
 
 ---

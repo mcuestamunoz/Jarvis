@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-03 · **updated:** 2026-10-05 (T49 — default voice flips to Spanish)  
 **Status:** **OPEN living product brief** — not an IC; not permission to pick a vendor SDK in core  
-**Tip parent:** voice cola @ **`v0.7.0`** (T39 ★) · T41 operator path Implemented @ **`0.7.1`** (pending review) — the wrapper this brief asked for now ships: [`docs/USER_GUIDE_VOICE.md`](../../docs/USER_GUIDE_VOICE.md) + `scripts/voice/` · T48-inv Q8 found the default voice (`en_GB`) and the Skill reply language (Spanish) mismatched — **T49** closes that at the documentation-default level  
+**Tip parent:** voice cola @ **`v0.7.6`** (T49 ★) · stack T41–T49 ★ ACCEPT CLOSED · default demo voice **Spanish `es_ES-davefx-medium`** · guide: [`docs/USER_GUIDE_VOICE.md`](../../docs/USER_GUIDE_VOICE.md)  
 **Parents:** [voice DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [cola note](engineer_note_voice_phase_c_cola.md) · [T48-inv Q8](investigation_report_assistant_voice_phase_t_review_b0.md)
 
 **Purpose:** Lock the *desired voice character* and the **cheapest / free-first** path to get there, without blocking T37–T38 technical seams. Marvel “JARVIS exact voice” is **out** (license). Target = **JARVIS-like**, not a film clone.
@@ -33,7 +33,7 @@
 | P2 | Cloud free tier (Azure/Google/ElevenLabs trial) | \$0 then pay-as-you-go | Often richer | HTTP wrapper behind same seam |
 | P3 | Paid neural / custom voice | \$\$ | Closest to “cinematic” without illegal clone | only if P0 fails the brief |
 
-**Recommendation:** ship T38 against **Piper P0**. A/B two `en_GB` male voices offline. Escalate to cloud only if Engineer rejects the local timbre.
+**Recommendation:** ship against **Piper P0**. Default demo voice is Spanish `es_ES-davefx-medium` (T49 ★); A/B `sharvard` before cloud. `en_GB-alan-medium` remains legacy optional.
 
 **Download note (Piper):** yes — one small voice model file (~tens of MB) **outside the Jarvis package**, not a tip-pinned dep in core. Engine + voice stay **external** (same discipline as T37 STT).
 

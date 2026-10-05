@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Engineer handoff: tip on `cursor/chat-voice-ptt-impl-8ac5`)  
 **Against:** [IC](implementation_contract_assistant_voice_tts_spanish_b1.md) · [report](implementation_report_assistant_voice_tts_spanish_b1.md) · [brief](engineer_note_voice_tts_product_brief.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) · [T48-inv Q8](investigation_report_assistant_voice_phase_t_review_b0.md)  
 **Tip reviewed:** `8419582` on `cursor/chat-voice-ptt-impl-8ac5` (parent T48-inv `6d419e0` / T47 tip `44cb5fe`)  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ **ACCEPT** → tag **`v0.7.6`**.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-05) @ tip **`v0.7.6`**.
 
-**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.** **Updated:** Engineer ★ ACCEPT CLOSED (2026-10-05) → tag **`v0.7.6`** (stack close).
 
 ---
 
@@ -69,7 +69,7 @@ Same class as T41 N1 / T48-inv Q9: no Cursor pass substitutes for hearing `es_ES
 
 ```text
 Cursor verdict: PASS WITH NOTES
-Await Engineer ★ ACCEPT → tag v0.7.6
+Engineer ★ ACCEPT CLOSED → tag v0.7.6
 Operator path after ACCEPT:
   # download es_ES-davefx-medium.onnx + .onnx.json
   export JARVIS_PIPER_MODEL="$HOME/piper/es_ES-davefx-medium.onnx"

@@ -1,65 +1,73 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T48-inv + T49 Cursor PASS WITH NOTES @ tip 0.7.6; await Engineer ★ ACCEPT / findings",
-  "scope": "Independent Cursor review of Claude T48-inv (6d419e0) and T49 (8419582). No src/ edits in review pass.",
-  "execution_status": "pass_with_notes_awaiting_accept",
-  "current_mode": "review",
+  "cycle_intent": "Stack T41–T49 ★ ACCEPT CLOSED @ v0.7.1–v0.7.6; PRIORIDAD = Engineer real CLI smoke with Spanish Piper",
+  "scope": "Engineer authorized bundled ACCEPT after Cursor PASS WITH NOTES + Claude T48-inv audit. Documentary close + annotated tags. No src/ behavior change.",
+  "execution_status": "accept_closed_awaiting_smoke",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Claude pushed T48-inv + T49 to cursor/chat-voice-ptt-impl-8ac5 — request Cursor review"
+    "reason": "ACCEPT the voice stack; next step is real CLI smoke by Engineer"
   },
   "relevant_workflow_phases": [
-    "Review"
+    "Accept",
+    "Field validation"
   ],
   "applicable_rules": [
     "R-GOV-1",
     "R-ENG-1",
-    "R-TST-1",
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/investigation_contract_assistant_voice_phase_t_review_b0.md",
-    ".jes/artifacts/investigation_report_assistant_voice_phase_t_review_b0.md",
+    ".jes/artifacts/implementation_review_assistant_voice_demo_ready_b1.md",
+    ".jes/artifacts/implementation_review_assistant_voice_interactive_cli_b1.md",
+    ".jes/artifacts/implementation_review_assistant_chat_voice_speak_b1.md",
+    ".jes/artifacts/investigation_review_assistant_chat_spoken_continuity_b0.md",
+    ".jes/artifacts/implementation_review_assistant_chat_spoken_continuity_b1.md",
+    ".jes/artifacts/implementation_review_assistant_chat_voice_ptt_b1.md",
     ".jes/artifacts/investigation_review_assistant_voice_phase_t_review_b0.md",
-    ".jes/artifacts/implementation_contract_assistant_voice_tts_spanish_b1.md",
-    ".jes/artifacts/implementation_report_assistant_voice_tts_spanish_b1.md",
     ".jes/artifacts/implementation_review_assistant_voice_tts_spanish_b1.md"
   ],
   "open_questions": [
-    "Engineer ★ on T48-inv findings?",
-    "Engineer ★ ACCEPT T49 → tag v0.7.6?",
-    "ACCEPT order for backlog T41/T42/T43/T44-inv/T45/T47 (+ T49) — sequential or bundled?",
-    "Live ear: es_ES-davefx-medium vs grave/corto/sin teatro?"
+    "Engineer CLI smoke: hear es_ES-davefx-medium (grave/corto/sin teatro)?",
+    "PTT hablar with multilingual whisper usable?",
+    "T40 craft/world when?"
   ],
   "active_operation": {
-    "type": "pass_with_notes",
-    "contract": "investigation_contract_assistant_voice_phase_t_review_b0.md + implementation_contract_assistant_voice_tts_spanish_b1.md",
+    "type": "accept_closed",
+    "contract": "stack T41–T49",
     "ids": [
+      "T41",
+      "T42",
+      "T43",
+      "T44-inv",
+      "T45",
+      "T47",
       "T48-inv",
-      "T49",
-      "INV-assistant-voice-phase-t-review",
-      "B1-assistant-voice-tts-spanish"
+      "T49"
     ],
-    "blocked_on": "engineer_accept"
+    "blocked_on": "engineer_cli_smoke"
   },
   "closed_this_turn": [
-    "T48-inv Cursor PASS WITH NOTES recorded",
-    "T49 Cursor PASS WITH NOTES recorded"
+    "T41 ★ ACCEPT CLOSED @ v0.7.1",
+    "T42 ★ ACCEPT CLOSED @ v0.7.2",
+    "T43 ★ ACCEPT CLOSED @ v0.7.3",
+    "T44-inv ★ CLOSED findings",
+    "T45 ★ ACCEPT CLOSED @ v0.7.4",
+    "T47 ★ ACCEPT CLOSED @ v0.7.5",
+    "T48-inv ★ CLOSED findings",
+    "T49 ★ ACCEPT CLOSED @ v0.7.6"
   ],
   "authority_gates": [
-    "No ACCEPT claimed by Cursor",
-    "Same-session self-PASS is not review of record",
-    "No wake-word / always-on",
-    "T40 stays Parked",
-    "T41–T47 ACCEPT still Engineer-only"
+    "Engineer authorized stack ACCEPT 2026-10-05",
+    "Tags v0.7.1–v0.7.6 cut to match ACCEPT",
+    "T40 remains Parked",
+    "Live-ear judgment is smoke, not a new Buy"
   ],
   "coherence_checklist": [
-    "T48 N1: T47 review was misquoted as ACCEPT CLOSED — live says await ACCEPT",
-    "T48 N2: ACCEPT backlog is six items, not nine",
-    "T48 N3: living-map line citations still drifted (incl. post-N1 PTT rows)",
-    "T49: zero src/jarvis; 0.7.6; davefx default; en_GB legacy; T1–T4 green",
-    "T49 N1: brief historical en_GB A/B recommendation sentence left stale",
-    "Targeted 33 tests green this pass; full-suite claim not re-run"
+    "Package tip 0.7.6",
+    "Default TTS Spanish es_ES-davefx-medium",
+    "No src/ change in ACCEPT commit",
+    "PRIORIDAD points to CLI smoke"
   ],
-  "updated_at": "2026-10-05T07:20:00Z"
+  "updated_at": "2026-10-05T07:30:00Z"
 }

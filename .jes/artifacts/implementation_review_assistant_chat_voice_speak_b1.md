@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “T43 is implemented and pushed…”)  
 **Against:** [IC](implementation_contract_assistant_chat_voice_speak_b1.md) · [report](implementation_report_assistant_chat_voice_speak_b1.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) · [cola note](engineer_note_voice_phase_c_cola.md)  
 **Tip reviewed:** `8719e56` on `cursor/chat-voice-speak-impl-8ac5` (parent IC `d73cf51` / tip T42 lineage)  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ **ACCEPT** → tag **`v0.7.3`**.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-05) @ tip **`v0.7.3`**.
 
-**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.** **Updated:** Engineer ★ ACCEPT CLOSED (2026-10-05) → tag **`v0.7.3`** (stack close).
 
 ---
 
@@ -70,7 +70,7 @@ PYTHONPATH=/workspace/src python3 -m pytest \
 
 ```text
 Cursor verdict: PASS WITH NOTES
-Await Engineer ★ ACCEPT → tag v0.7.3
+Engineer ★ ACCEPT CLOSED → tag v0.7.3
 Use path: export JARVIS_TTS_CMD → python -m jarvis.main --chat --voice-speak
 Bare --chat stays text-only
 ```

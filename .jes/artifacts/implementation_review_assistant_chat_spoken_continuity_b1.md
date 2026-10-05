@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “T45 complete…”)  
 **Against:** [IC](implementation_contract_assistant_chat_spoken_continuity_b1.md) · [DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [report](implementation_report_assistant_chat_spoken_continuity_b1.md) · [living map](engineer_note_chat_spoken_continuity_map.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md)  
 **Tip reviewed:** `c9a1d16` on `cursor/chat-spoken-continuity-impl-9ac5` (parent plan/IC `a617438` / T44-inv review `3db4c59`)  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ **ACCEPT** → tag **`v0.7.4`**.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-05) @ tip **`v0.7.4`**.
 
-**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.** **Updated:** Engineer ★ ACCEPT CLOSED (2026-10-05) → tag **`v0.7.4`** (stack close).
 
 ---
 
@@ -79,7 +79,7 @@ Required so those FULL lines reach `project_status` at all (otherwise they would
 
 ```text
 Cursor verdict: PASS WITH NOTES
-Await Engineer ★ ACCEPT → tag v0.7.4
+Engineer ★ ACCEPT CLOSED → tag v0.7.4
 Use: export JARVIS_TTS_CMD → python3 -m jarvis.main --chat --voice-speak
   load / estado → brief ears, full screen
   dame detalles / completo → wall that turn

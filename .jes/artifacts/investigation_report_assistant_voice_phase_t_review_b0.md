@@ -5,7 +5,7 @@
 **Investigator:** Claude Code (Engineer paste)
 **Contract:** [`investigation_contract_assistant_voice_phase_t_review_b0.md`](investigation_contract_assistant_voice_phase_t_review_b0.md)
 **Parents:** [cola note](engineer_note_voice_phase_c_cola.md) · [living map](engineer_note_chat_spoken_continuity_map.md) · [guide](../../docs/USER_GUIDE_VOICE.md) · [TTS brief](engineer_note_voice_tts_product_brief.md)
-**Status:** **Implemented** — await Cursor review → Engineer ★ on findings.
+**Status:** **★ CLOSED** (Engineer 2026-10-05) — Cursor **PASS WITH NOTES** · findings accepted with stack.
 **Package:** tip stays **`0.7.5`** — docs/report only, **no `src/` change**.
 
 **Scope discipline:** read-only forensic review. No `src/` file touched. No ACCEPT claimed for any Buy. Full suite re-run (`4026 passed, 9 skipped`) — identical to the count on tip before this INV; this report changes zero behavior.

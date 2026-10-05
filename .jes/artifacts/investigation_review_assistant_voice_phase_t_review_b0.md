@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Engineer handoff: tip on `cursor/chat-voice-ptt-impl-8ac5`)  
 **Against:** [INV](investigation_contract_assistant_voice_phase_t_review_b0.md) · [report](investigation_report_assistant_voice_phase_t_review_b0.md) · [cola](engineer_note_voice_phase_c_cola.md) · [living map](engineer_note_chat_spoken_continuity_map.md) · tip parent T47 `44cb5fe` / report commit `6d419e0`  
 **Tip reviewed:** `6d419e0` (T48-inv) on `cursor/chat-voice-ptt-impl-8ac5` — sibling T49 `8419582` already on tip; this review grades the INV against the INV tip (`0.7.5` docs-only).  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ on findings.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ on findings **CLOSED** (2026-10-05) — stack ACCEPT T41–T49.
 
-**Process note:** Claude Code investigated under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.** **No `src/` in this Buy** (confirmed).
+**Process note:** Claude Code investigated under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.** **Updated:** Engineer ★ on findings CLOSED (2026-10-05) (stack close). **No `src/` in this Buy** (confirmed).
 
 ---
 
@@ -76,7 +76,7 @@ T48 correctly flagged pre-T47 ~30–40 line drift. After `os.close(fd)` remediat
 
 ```text
 Cursor verdict: PASS WITH NOTES
-Await Engineer ★ on findings
+Engineer ★ on findings CLOSED (2026-10-05)
 Key takeaways for Engineer:
   - T41–T47 (plus T44-inv) still await ★ ACCEPT; tags v0.7.1–v0.7.5 absent
   - 33 DC locks re-checked by Claude; Cursor spot-check found no lock break

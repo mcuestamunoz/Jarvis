@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Claude paste “Hecho — T41 implementado…”)  
 **Against:** [IC](implementation_contract_assistant_voice_demo_ready_b1.md) · [report](implementation_report_assistant_voice_demo_ready_b1.md) · [TTS brief](engineer_note_voice_tts_product_brief.md) · [cola note](engineer_note_voice_phase_c_cola.md) · [T39 ★](implementation_review_assistant_voice_v1_checkpoint_b1.md)  
 **Tip reviewed:** `5c61566` on `cursor/voice-demo-ready-impl-8ac5` (parent IC `af891b5` / tip `v0.7.0`)  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ **ACCEPT** → tag **`v0.7.1`**.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-05) @ tip **`v0.7.1`**.
 
-**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.** **Updated:** Engineer ★ ACCEPT CLOSED (2026-10-05) → tag **`v0.7.1`** (stack close).
 
 ---
 
@@ -68,6 +68,6 @@ Wrappers present + executable (`100755`). Report full-suite claim (3999 / +8) no
 
 ```text
 Cursor verdict: PASS WITH NOTES
-Await Engineer ★ ACCEPT → tag v0.7.1
+Engineer ★ ACCEPT CLOSED → tag v0.7.1
 Operator next: install Piper + run guide §4
 ```

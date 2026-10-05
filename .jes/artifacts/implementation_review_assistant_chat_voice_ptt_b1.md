@@ -4,9 +4,9 @@
 **Reviewer:** Cursor (forensic pass — Engineer handoff: tip pushed to `cursor/chat-voice-ptt-impl-8ac5`)  
 **Against:** [IC](implementation_contract_assistant_chat_voice_ptt_b1.md) · [DC](design_contract_assistant_chat_voice_ptt_b0.md) · [report](implementation_report_assistant_chat_voice_ptt_b1.md) · [living map](engineer_note_chat_spoken_continuity_map.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md)  
 **Tip reviewed:** `ba89d3e` on `cursor/chat-voice-ptt-impl-8ac5` (parent IC `611cce4` / T45 tip `2f001de`)  
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ **ACCEPT** → tag **`v0.7.5`**.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-05) @ tip **`v0.7.5`**.
 
-**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under Engineer paste (= Buy). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.** **Updated:** Engineer ★ ACCEPT CLOSED (2026-10-05) → tag **`v0.7.5`** (stack close).
 
 ---
 
@@ -78,7 +78,7 @@ Also verified: `hablar`/`habla` ∉ `CONTINUITY_DEFER_PHRASES`; `run_chat` sourc
 
 ```text
 Cursor verdict: PASS WITH NOTES
-Await Engineer ★ ACCEPT → tag v0.7.5
+Engineer ★ ACCEPT CLOSED → tag v0.7.5
 Use:
   export JARVIS_TTS_CMD=… JARVIS_STT_CMD=… \
     JARVIS_RECORD_CMD="$PWD/scripts/voice/record_turn.sh {output} {seconds}"

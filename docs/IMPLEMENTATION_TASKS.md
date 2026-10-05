@@ -6,13 +6,13 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T49** Spanish default TTS — Cursor **PASS WITH NOTES** @ **`0.7.6`** → await Engineer ★ ACCEPT (`es_ES-davefx-medium` default; docs/comment only). **T48-inv** phase-T review — Cursor **PASS WITH NOTES** → await Engineer ★ on findings. **No ACCEPT claimed.**  
-> **Plan lock:** [T48-inv review](../.jes/artifacts/investigation_review_assistant_voice_phase_t_review_b0.md) · [T49 review](../.jes/artifacts/implementation_review_assistant_voice_tts_spanish_b1.md).  
-> **In flight (await ★ ACCEPT since `v0.7.0` — six items):** **T49** @ `0.7.6` · **T47** @ `0.7.5` · **T45** @ `0.7.4` · **T43**–**T41** · **T44-inv** findings.  
+> **PRIORIDAD AHORA:** **Smoke real CLI** — tip **`v0.7.6`** (stack T41–T49 ★ ACCEPT CLOSED). Piper `es_ES-davefx-medium` + `--chat --voice-speak` (+ `hablar` si hay mic/STT). Ver [guía](USER_GUIDE_VOICE.md) §3/§4/§7.  
+> **Stack cerrado (2026-10-05):** T41★`v0.7.1` · T42★`v0.7.2` · T43★`v0.7.3` · T44-inv★ · T45★`v0.7.4` · T47★`v0.7.5` · T48-inv★ · T49★`v0.7.6`.  
+> **Parked next product gap:** **T40** craft/`world/` voice (own DC). No new voice code Buy until smoke.  
 > **Policy:** no tip/package version pins in tests. Chat/Continuity egress Buys update the [spoken-continuity map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) in the same Buy ([`CLAUDE.md`](../CLAUDE.md) § Chat / spoken-continuity egress map).  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice phase: [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
-> **Cola voz:** T35–T39 ★ · T41–T47 PASS WITH NOTES · **T48-inv / T49** PASS WITH NOTES @ tip `0.7.6` · **T40** Parked.  
-> SoT: [T49 review](../.jes/artifacts/implementation_review_assistant_voice_tts_spanish_b1.md) · [T48-inv review](../.jes/artifacts/investigation_review_assistant_voice_phase_t_review_b0.md) · [guía](USER_GUIDE_VOICE.md).  
+> **Cola voz:** T35–T39 ★ · **T41–T49 ★** @ `v0.7.1`–`v0.7.6` · **T40** Parked.  
+> SoT: [T49 review ★](../.jes/artifacts/implementation_review_assistant_voice_tts_spanish_b1.md) · [T48-inv review ★](../.jes/artifacts/investigation_review_assistant_voice_phase_t_review_b0.md) · [guía](USER_GUIDE_VOICE.md).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -20,7 +20,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.0`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · T41–T47 PASS WITH NOTES · **T48-inv / T49** PASS WITH NOTES @ `0.7.6` · **T40** Parked)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.6`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · **T41–T49 ★** @ `v0.7.1`–`v0.7.6` · **T40** Parked)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 

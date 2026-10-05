@@ -1,9 +1,9 @@
 # Engineer note — Voice phase C cola (Skill-first channels)
 
-**Date:** 2026-10-03 · **updated:** 2026-10-05 (T48-inv + T49 Cursor PASS WITH NOTES)  
-**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; T41–T47 PASS WITH NOTES; **T48-inv / T49** Cursor **PASS WITH NOTES** @ tip `0.7.6`  
+**Date:** 2026-10-03 · **updated:** 2026-10-05 (stack T41–T49 ★ ACCEPT CLOSED @ `v0.7.1`–`v0.7.6`)  
+**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **operator/use + V7 + V8 + Spanish TTS ★** @ tip **`v0.7.6`**; **T40** Parked  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`0.7.6`** (T49 tip) · **T48-inv** Cursor **PASS WITH NOTES** · **T49** Cursor **PASS WITH NOTES** (await Engineer ★ ACCEPT → tag `v0.7.6`) · T41–T47 still await ★ ACCEPT
+**Tip parent:** **`v0.7.6`** (T49 ★) · stack T41–T49 ★ ACCEPT CLOSED (2026-10-05)
 
 **Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md)
 
@@ -77,16 +77,16 @@ run_chat print  → Layer 1 (unchanged)
 | **T37** | V3 | `B1-assistant-voice-stt-external` | `0.6.45` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.45`** | External STT process seam → same parse | [review ★](implementation_review_assistant_voice_stt_external_b1.md) |
 | **T38** | V4 | `B1-assistant-voice-tts-external` | `0.6.46` | ✅ ★ **ACCEPT CLOSED** @ **`v0.6.46`** | External TTS process seam on `render_response` | [review ★](implementation_review_assistant_voice_tts_external_b1.md) · [brief](engineer_note_voice_tts_product_brief.md) |
 | **T39** | V5 | `B1-assistant-voice-v1-checkpoint` | **`0.7.0` / `v0.7.0`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.0`** | **Product milestone** — speak → twelve Skills → spoken reply | [review ★](implementation_review_assistant_voice_v1_checkpoint_b1.md) |
-| **T41** | — | `B1-assistant-voice-demo-ready` | `0.7.1` | Implemented · Cursor **PASS WITH NOTES** (ACCEPT deferred) | Operator wrappers + guide + fixture (batch) | [review](implementation_review_assistant_voice_demo_ready_b1.md) · [guía](../../docs/USER_GUIDE_VOICE.md) |
-| **T42** | — | `B1-assistant-voice-interactive-cli` | `0.7.2` | Implemented · Cursor **PASS WITH NOTES** | Skills-only `--voice` REPL | [review](implementation_review_assistant_voice_interactive_cli_b1.md) |
-| **T43** | — | `B1-assistant-chat-voice-speak` | `0.7.3` | Implemented · Cursor **PASS WITH NOTES** | Full `--chat` + speak (verbatim) | [review](implementation_review_assistant_chat_voice_speak_b1.md) |
-| **T44-inv** | V7 | `INV-assistant-chat-spoken-continuity` | `0.7.3` (docs) | Implemented · Cursor **PASS WITH NOTES** | Inventory of every `--chat` egress + Continuity fields | [review](investigation_review_assistant_chat_spoken_continuity_b0.md) · [map](engineer_note_chat_spoken_continuity_map.md) |
+| **T41** | — | `B1-assistant-voice-demo-ready` | `0.7.1` | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.1`** | Operator wrappers + guide + fixture (batch) | [review ★](implementation_review_assistant_voice_demo_ready_b1.md) · [guía](../../docs/USER_GUIDE_VOICE.md) |
+| **T42** | — | `B1-assistant-voice-interactive-cli` | `0.7.2` | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.2`** | Skills-only `--voice` REPL | [review ★](implementation_review_assistant_voice_interactive_cli_b1.md) |
+| **T43** | — | `B1-assistant-chat-voice-speak` | `0.7.3` | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.3`** | Full `--chat` + speak (verbatim) | [review ★](implementation_review_assistant_chat_voice_speak_b1.md) |
+| **T44-inv** | V7 | `INV-assistant-chat-spoken-continuity` | `0.7.3` (docs) | ✅ ★ **CLOSED** (findings) | Inventory of every `--chat` egress + Continuity fields | [review ★](investigation_review_assistant_chat_spoken_continuity_b0.md) · [map](engineer_note_chat_spoken_continuity_map.md) |
 | **T44-DC** | V7 | `DC-assistant-chat-spoken-continuity` | — (no bump) | **DC ready** | Two-layer lock · brief fields · phrase split · first-slice = walls only | [DC](design_contract_assistant_chat_spoken_continuity_b0.md) |
-| **T45** | V7 | `B1-assistant-chat-spoken-continuity` | **`0.7.4`** | Implemented · Cursor **PASS WITH NOTES** | Extractor on speak path; screen truth untouched | [review](implementation_review_assistant_chat_spoken_continuity_b1.md) |
+| **T45** | V7 | `B1-assistant-chat-spoken-continuity` | **`0.7.4`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.4`** | Extractor on speak path; screen truth untouched | [review ★](implementation_review_assistant_chat_spoken_continuity_b1.md) |
 | **T46-DC** | V8 | `DC-assistant-chat-voice-ptt` | — (no bump) | **DC ready** — locked, consumed by T47 | PTT lock · timed record · `hablar`/`habla` · same `run_chat` · no wake-word | [DC](design_contract_assistant_chat_voice_ptt_b0.md) |
-| **T47** | V8 | `B1-assistant-chat-voice-ptt` | **`0.7.5`** | Implemented · Cursor **PASS WITH NOTES** | Record seam + intercept on `--chat --voice-speak`; reuse T37 STT | [review](implementation_review_assistant_chat_voice_ptt_b1.md) |
-| **T48-inv** | — | `INV-assistant-voice-phase-t-review` | `0.7.5` (docs) | Implemented · Cursor **PASS WITH NOTES** | Forensic review T34–T47: cola truth, DC locks, ACCEPT backlog, honesty fences | [review](investigation_review_assistant_voice_phase_t_review_b0.md) |
-| **T49** | — | `B1-assistant-voice-tts-spanish` | **`0.7.6`** | Implemented · Cursor **PASS WITH NOTES** | Default demo TTS → `es_ES-davefx-medium`; docs/comment only, seam unchanged | [review](implementation_review_assistant_voice_tts_spanish_b1.md) |
+| **T47** | V8 | `B1-assistant-chat-voice-ptt` | **`0.7.5`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.5`** | Record seam + intercept on `--chat --voice-speak`; reuse T37 STT | [review ★](implementation_review_assistant_chat_voice_ptt_b1.md) |
+| **T48-inv** | — | `INV-assistant-voice-phase-t-review` | `0.7.5` (docs) | ✅ ★ **CLOSED** (findings) | Forensic review T34–T47: cola truth, DC locks, ACCEPT backlog, honesty fences | [review ★](investigation_review_assistant_voice_phase_t_review_b0.md) |
+| **T49** | — | `B1-assistant-voice-tts-spanish` | **`0.7.6`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.6`** | Default demo TTS → `es_ES-davefx-medium`; docs/comment only, seam unchanged | [review ★](implementation_review_assistant_voice_tts_spanish_b1.md) |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7 · not V8 | [placement A4](design_contract_assistant_placement_b0.md) |
 
 **Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**. **T48-inv** docs-only, stays `0.7.5`. **T49** opens **`0.7.6`**.

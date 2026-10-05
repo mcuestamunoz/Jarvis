@@ -6,7 +6,7 @@
 **Investigator:** **Claude Code**
 **Reviewer:** Cursor on request · Engineer ★ on findings
 
-**Status:** **Implemented** — await Cursor review → Engineer ★ on findings.
+**Status:** **★ CLOSED** (Engineer 2026-10-05) — Cursor **PASS WITH NOTES** · findings accepted with stack.
 **Type:** **Investigation** — full forensic review of the voice phase T cola (T34–T47): cola truth vs artifacts, operator-path audit, DC lock audit, ACCEPT backlog, honesty-fence re-check, TTS-language coordination with T49. **Not** an Implementation Contract. **Not** permission to change `src/`. **No ACCEPT claim.**
 **Cola:** **T48-inv**
 **Tip parent:** T47 @ **`0.7.5`** (`44cb5fe` — Cursor PASS WITH NOTES + N1 remediation). Tip package **stays `0.7.5`** for this INV (docs/report only).

@@ -6,7 +6,7 @@
 **Investigator:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ★ on findings → then DC / IC for the spoken layer  
 
-**Status:** **Implemented** — Cursor **PASS WITH NOTES** → await Engineer ★ on findings.  
+**Status:** **★ CLOSED** (Engineer 2026-10-05) — Cursor **PASS WITH NOTES** · findings accepted; DC/IC consumed.  
 **Type:** **Investigation** — forensic inventory of every `--chat` egress surface + Continuity fields, ranked for a **deterministic spoken-continuity layer**. **Not** an Implementation Contract. **Not** permission to change speak behavior. **No LLM.**  
 **Cola:** **T44-inv**  
 **Tip parent:** T43 @ **`0.7.3`** (PASS WITH NOTES — `--chat --voice-speak` speaks printed strings verbatim) · tip package stays **`0.7.3`** (docs/report only)
