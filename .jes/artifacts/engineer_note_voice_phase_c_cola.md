@@ -1,9 +1,9 @@
 # Engineer note — Voice phase C cola (Skill-first channels)
 
-**Date:** 2026-10-03 · **updated:** 2026-10-05 (T47 implemented)  
-**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; operator/use path T41–T43; spoken-continuity V7 in design; **V8 PTT implemented**  
+**Date:** 2026-10-03 · **updated:** 2026-10-05 (T47 Cursor PASS WITH NOTES)  
+**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; operator/use path T41–T43; spoken-continuity V7 in design; **V8 PTT** Cursor **PASS WITH NOTES**  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`0.7.4`** (T45 tip) · **T46-DC** PTT lock · **T47** Implemented (Claude Code) @ **`0.7.5`** — await Cursor review · T45 Cursor **PASS WITH NOTES** (await Engineer ★ ACCEPT)
+**Tip parent:** **`0.7.5`** (T47 tip) · **T46-DC** PTT lock · **T47** Cursor **PASS WITH NOTES** @ **`0.7.5`** (await Engineer ★ ACCEPT) · T45 Cursor **PASS WITH NOTES** (await Engineer ★ ACCEPT)
 
 **Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md)
 
@@ -84,7 +84,7 @@ run_chat print  → Layer 1 (unchanged)
 | **T44-DC** | V7 | `DC-assistant-chat-spoken-continuity` | — (no bump) | **DC ready** | Two-layer lock · brief fields · phrase split · first-slice = walls only | [DC](design_contract_assistant_chat_spoken_continuity_b0.md) |
 | **T45** | V7 | `B1-assistant-chat-spoken-continuity` | **`0.7.4`** | Implemented · Cursor **PASS WITH NOTES** | Extractor on speak path; screen truth untouched | [review](implementation_review_assistant_chat_spoken_continuity_b1.md) |
 | **T46-DC** | V8 | `DC-assistant-chat-voice-ptt` | — (no bump) | **DC ready** — locked, consumed by T47 | PTT lock · timed record · `hablar`/`habla` · same `run_chat` · no wake-word | [DC](design_contract_assistant_chat_voice_ptt_b0.md) |
-| **T47** | V8 | `B1-assistant-chat-voice-ptt` | **`0.7.5`** | Implemented (Claude Code) · await Cursor review | Record seam + intercept on `--chat --voice-speak`; reuse T37 STT | [report](implementation_report_assistant_chat_voice_ptt_b1.md) |
+| **T47** | V8 | `B1-assistant-chat-voice-ptt` | **`0.7.5`** | Implemented · Cursor **PASS WITH NOTES** | Record seam + intercept on `--chat --voice-speak`; reuse T37 STT | [review](implementation_review_assistant_chat_voice_ptt_b1.md) |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7 · not V8 | [placement A4](design_contract_assistant_placement_b0.md) |
 
 **Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**.

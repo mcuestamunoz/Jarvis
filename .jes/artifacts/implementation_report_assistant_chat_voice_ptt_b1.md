@@ -5,7 +5,7 @@
 **Implementer:** Claude Code (Engineer paste)
 **Contract:** [`implementation_contract_assistant_chat_voice_ptt_b1.md`](implementation_contract_assistant_chat_voice_ptt_b1.md)
 **Parents:** [T46-DC](design_contract_assistant_chat_voice_ptt_b0.md) · [T45](implementation_report_assistant_chat_spoken_continuity_b1.md) @ `0.7.4` · [living map](engineer_note_chat_spoken_continuity_map.md) · [cola note](engineer_note_voice_phase_c_cola.md)
-**Status:** **Implemented** — await Cursor review → Engineer ACCEPT → tag **`v0.7.5`**.
+**Status:** **Implemented** — Cursor **PASS WITH NOTES** → await Engineer ACCEPT → tag **`v0.7.5`**.
 **Package / tag:** `0.7.5` / pending **`v0.7.5`**.
 
 ---

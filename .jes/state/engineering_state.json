@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T47 chat voice push-to-talk implemented by Claude @ 0.7.5; typed hablar/habla on --chat --voice-speak records+transcribes then falls through the same run_chat loop; T45 still await Engineer ★ ACCEPT",
-  "scope": "Implemented. New adapters/voice/external_record.py (record_audio_file/resolve_record_seconds/is_ptt_trigger, typed RecordError family) + scripts/voice/record_turn.sh operator wrapper. run_chat gains a once-per-line PTT intercept (speak_tts=True only) that records, reuses T37 transcribe_audio_file/JARVIS_STT_CMD, prints User > [voz] ..., and substitutes the transcript into the same loop (TERMINAL, T45 wall speak unchanged). Bare --chat never records.",
-  "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "implementation",
+  "cycle_intent": "T47 chat voice PTT Cursor PASS WITH NOTES @ 0.7.5; await Engineer ★ ACCEPT",
+  "scope": "Independent Cursor review of Claude T47 impl at ba89d3e. No src/ edits in review pass.",
+  "execution_status": "pass_with_notes_awaiting_accept",
+  "current_mode": "review",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "dale — write INV/DC+IC for PTT on --chat --voice-speak, not always-on"
+    "reason": "T47 tip pushed to cursor/chat-voice-ptt-impl-8ac5 — request Cursor review"
   },
   "relevant_workflow_phases": [
-    "Implementation"
+    "Review"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -18,41 +18,38 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/design_contract_assistant_chat_voice_ptt_b0.md",
     ".jes/artifacts/implementation_contract_assistant_chat_voice_ptt_b1.md",
     ".jes/artifacts/implementation_report_assistant_chat_voice_ptt_b1.md",
-    ".jes/artifacts/engineer_note_chat_spoken_continuity_map.md"
+    ".jes/artifacts/implementation_review_assistant_chat_voice_ptt_b1.md"
   ],
   "open_questions": [
-    "Cursor review of T47 @ 0.7.5 → Engineer ACCEPT → tag v0.7.5?",
-    "Engineer ★ ACCEPT T45 → tag v0.7.4? (does not block T47)"
+    "Engineer ★ ACCEPT T47 → tag v0.7.5?",
+    "Engineer ★ ACCEPT T45 → tag v0.7.4? (independent)"
   ],
   "active_operation": {
-    "type": "implemented",
+    "type": "pass_with_notes",
     "contract": "implementation_contract_assistant_chat_voice_ptt_b1.md",
     "ids": [
-      "T46-DC",
       "T47",
       "B1-assistant-chat-voice-ptt"
     ],
-    "blocked_on": "cursor_review"
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "T47 implemented by Claude @ 0.7.5"
+    "T47 Cursor PASS WITH NOTES recorded"
   ],
   "authority_gates": [
-    "No ACCEPT claim",
-    "No wake-word / always-on — PTT only, speak_tts=True gate",
-    "Keyboard path unchanged; bare --chat never records",
-    "T41–T45 ACCEPT still Engineer-only",
-    "run_chat source still has zero reference to the TTS seam (T42 guard green, unmodified)"
+    "No ACCEPT claimed by Cursor",
+    "Same-session self-PASS is not review of record",
+    "No wake-word / always-on",
+    "T41–T45 ACCEPT still Engineer-only"
   ],
   "coherence_checklist": [
-    "T1-T7 tests added and green (10 test functions); full suite 4026 passed / 9 skipped vs 4016/9 baseline — zero regressions",
-    "pyproject 0.7.5; no speech deps; no tip pins; ESC fence green",
-    "Living map updated: 5 new screen-only PTT print-surface rows in Table 1",
-    "Guide updated: hablar/habla PTT documented in §4.1.1 and §8, cheatsheet env block added",
-    "PRIORIDAD/cola/PLATFORM/CONNECTIONS/IC status line updated to Implemented, await Cursor review"
+    "46 targeted tests green this pass",
+    "hablar/habla not in CONTINUITY_DEFER_PHRASES",
+    "T42 run_chat TTS source guard still green",
+    "N1: mkstemp fd leak (path cleanup OK)",
+    "PRIORIDAD points to PASS WITH NOTES await ACCEPT"
   ],
-  "updated_at": "2026-10-05T00:00:00Z"
+  "updated_at": "2026-10-05T05:55:00Z"
 }
