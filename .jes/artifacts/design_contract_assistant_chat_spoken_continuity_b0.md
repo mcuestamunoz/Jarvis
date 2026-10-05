@@ -72,4 +72,6 @@ T45 IC: [`implementation_contract_assistant_chat_spoken_continuity_b1.md`](imple
 
 **Later (2026-10-04, does not reopen this DC):** **V8 PTT** is a sibling ingress Buy on the same `--chat --voice-speak` session — [T46-DC](design_contract_assistant_chat_voice_ptt_b0.md). V7 stays egress-only.
 
+**Later (2026-10-05, FULL payload amendment):** T45 practiced lock 6 as verbatim `printed_wall`. [T52-DC](design_contract_assistant_voice_full_spoken_b0.md) amends **FULL speak payload only** → narrated `full_spoken_continuity(ctx)` (FN-017). Triggers / brief / Layer 1 unchanged.
+
 SoT: [phase cola](engineer_note_voice_phase_c_cola.md) · [`docs/IMPLEMENTATION_TASKS.md`](../../docs/IMPLEMENTATION_TASKS.md) PRIORIDAD

@@ -1,15 +1,16 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T51 ★ ACCEPT CLOSED @ v0.7.8; next T52-DC FULL narrated when Engineer says proceed",
-  "scope": "Documentary ACCEPT for T51 brief Continuity Spanish. Tag v0.7.8. No new IC this turn.",
-  "execution_status": "accept_closed",
-  "current_mode": "accept",
+  "cycle_intent": "T52-DC + T52 IC ready — FULL Continuity narrated @ 0.7.9; paste to Claude",
+  "scope": "Documentary only: T52-DC amends T44-DC FULL speak payload; T52 IC implements full_spoken_continuity. No Cursor src/.",
+  "execution_status": "ic_ready",
+  "current_mode": "contract",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "ACCEPT T51"
+    "reason": "redacta IC after FULL narrado bases"
   },
   "relevant_workflow_phases": [
-    "Accept"
+    "Design",
+    "Implementation Contract"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,34 +18,39 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_voice_brief_spanish_b1.md",
+    ".jes/artifacts/design_contract_assistant_voice_full_spoken_b0.md",
+    ".jes/artifacts/implementation_contract_assistant_voice_full_spoken_b1.md",
     ".jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md"
   ],
   "open_questions": [
-    "Engineer: proceed on T52-DC FULL narrated?"
+    "Claude lands T52 @ 0.7.9?",
+    "After T52: prop/hover numbers / Conceptos aloud later IC?"
   ],
   "active_operation": {
-    "type": "accept_closed",
-    "contract": "implementation_contract_assistant_voice_brief_spanish_b1.md",
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_voice_full_spoken_b1.md",
     "ids": [
-      "T51",
-      "B1-assistant-voice-brief-spanish"
+      "T52-DC",
+      "T52",
+      "B1-assistant-voice-full-spoken"
     ],
-    "blocked_on": "engineer_t52_dc"
+    "blocked_on": "claude_impl"
   },
   "closed_this_turn": [
-    "T51 ★ ACCEPT CLOSED @ v0.7.8",
-    "Tag v0.7.8 cut"
+    "T52-DC ready — FULL payload locks",
+    "T52 IC ready with Claude paste"
   ],
   "authority_gates": [
-    "No T52-DC delivered without Engineer proceed",
-    "T40 stays Parked",
-    "Cursor does not invent next Buy scope"
+    "Cursor does not implement src/ for T52",
+    "No ACCEPT claimed on T52",
+    "FULL != printed_wall",
+    "BOM / subsystems table / Conceptos stay screen-only",
+    "Brief T51 unchanged"
   ],
   "coherence_checklist": [
-    "IC/report/review/FN/cola/PRIORIDAD stamped ★",
-    "N1/N2 closed before ACCEPT",
-    "Package already 0.7.8"
+    "Amends T44-DC lock 6 payload only",
+    "Opens 0.7.9",
+    "FN-017 / cola / PRIORIDAD pointed at paste"
   ],
-  "updated_at": "2026-10-05T18:50:00Z"
+  "updated_at": "2026-10-05T19:00:00Z"
 }

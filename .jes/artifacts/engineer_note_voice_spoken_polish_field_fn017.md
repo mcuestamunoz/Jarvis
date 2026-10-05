@@ -3,7 +3,7 @@
 **Date:** 2026-10-05  
 **Source:** Engineer live smoke @ tip **`v0.7.6`** (`es_ES-davefx-medium` + `--chat --voice-speak`)  
 **Project:** `dron-de-vigilancia-doméstico`  
-**Status:** **OPEN** — **T50 ★** @ `v0.7.7` · **T51 ★** @ `v0.7.8` → T52 (see voice cola)
+**Status:** **OPEN** — **T50 ★** @ `v0.7.7` · **T51 ★** @ `v0.7.8` · **T52-DC + T52 IC ready** @ `0.7.9`
 
 **Discipline:** anything spotted in smoke/review that can hurt spoken UX or docs honesty later gets **tracked here** (or in cola) with a home Buy — fix now if cheap, else schedule. Do not drop notes.
 
@@ -34,7 +34,8 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 |---|---|---|
 | **T50** | `B1-assistant-voice-speak-sanitize` | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.7`** — [review ★](implementation_review_assistant_voice_speak_sanitize_b1.md). |
 | **T51** | `B1-assistant-voice-brief-spanish` | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.8`** — [review ★](implementation_review_assistant_voice_brief_spanish_b1.md). |
-| **T52-DC** → **T52** | `DC` + `B1-assistant-voice-full-spoken` | Amend what FULL means: narrated detailed Continuity (prose from fields), **not** verbatim print. Screen still full. Reopens T44-DC FULL speak payload only. |
+| **T52-DC** | `DC-assistant-voice-full-spoken` | **DC ready** — [DC](design_contract_assistant_voice_full_spoken_b0.md). Amends T44-DC FULL **payload** only. |
+| **T52** | `B1-assistant-voice-full-spoken` | **IC ready** @ `0.7.9` — [IC](implementation_contract_assistant_voice_full_spoken_b1.md). Paste to Claude = Buy. |
 
 **Out:** LLM summary · wake-word · T40 · changing screen Continuity · Conversation Engine.
 
@@ -52,4 +53,4 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 
 Any new smoke finding after T50 ★ → new row here or new Field Note; do not reopen T50 scope silently.
 
-**Next process step:** T52-DC when Engineer says proceed (amend T44-DC FULL speak payload).
+**Next process step:** paste T52 IC §4 to Claude = Buy.
