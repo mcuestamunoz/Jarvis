@@ -39,18 +39,18 @@ El ejecutable queda en `~/piper-venv/bin/piper`. Comprueba que responde:
 ~/piper-venv/bin/piper --help
 ```
 
-Después necesitas **un modelo de voz**. El brief fija como voz por defecto de demo **`en_GB-alan-medium`** (inglés británico, masculino, grave). Los modelos viven en el repositorio de voces de Piper (`rhasspy/piper-voices` en Hugging Face), organizados por idioma: `en/en_GB/alan/medium/`.
+Después necesitas **un modelo de voz**. El brief fija como voz por defecto de demo **`es_ES-davefx-medium`** (español, masculino, grave — voz española leyendo español, T49). Los modelos viven en el repositorio de voces de Piper (`rhasspy/piper-voices` en Hugging Face), organizados por idioma: `es/es_ES/davefx/medium/`.
 
 Cada voz son **dos archivos** que deben quedar **juntos en la misma carpeta**:
 
 ```text
-en_GB-alan-medium.onnx          ← el modelo
-en_GB-alan-medium.onnx.json     ← su config (Piper la busca al lado del .onnx)
+es_ES-davefx-medium.onnx          ← el modelo
+es_ES-davefx-medium.onnx.json     ← su config (Piper la busca al lado del .onnx)
 ```
 
 Descárgalos a una carpeta tuya, por ejemplo `~/piper/`. Si bajas solo el `.onnx` y olvidas el `.json`, Piper falla — es el error más común de esta sección.
 
-> Si `alan` te suena demasiado fino, el brief propone `en_GB-northern_english_male-medium` como alternativa antes de considerar cualquier servicio de pago.
+> Si `davefx` te suena demasiado fino, el brief propone `es_ES-sharvard-medium` como alternativa antes de considerar cualquier servicio de pago. La voz original de demo, **`en_GB-alan-medium`** (inglés británico, grave), sigue totalmente soportada — es un cambio de variable, no de código — si prefieres oír un acento británico leyendo las respuestas en español; descárgala de `en/en_GB/alan/medium/` en el mismo repositorio de voces.
 
 ---
 
@@ -59,7 +59,7 @@ Descárgalos a una carpeta tuya, por ejemplo `~/piper/`. Si bajas solo el `.onnx
 Jarvis habla llamando al comando que le digas en `JARVIS_TTS_CMD`. Este repo trae un wrapper listo que recibe el texto por stdin y se encarga de Piper y del reproductor:
 
 ```text
-export JARVIS_PIPER_MODEL="$HOME/piper/en_GB-alan-medium.onnx"
+export JARVIS_PIPER_MODEL="$HOME/piper/es_ES-davefx-medium.onnx"
 export JARVIS_PIPER_BIN="$HOME/piper-venv/bin/piper"
 export JARVIS_TTS_CMD="$PWD/scripts/voice/piper_tts.sh"
 ```
@@ -73,13 +73,13 @@ Comprueba la configuración **antes** de lanzar Jarvis — el wrapper tiene un m
 Si todo está en su sitio:
 
 ```text
-piper_tts.sh: ready (model=/Users/tu/piper/en_GB-alan-medium.onnx, piper=/Users/tu/piper-venv/bin/piper)
+piper_tts.sh: ready (model=/Users/tu/piper/es_ES-davefx-medium.onnx, piper=/Users/tu/piper-venv/bin/piper)
 ```
 
 Si falta algo, te dice exactamente qué y termina con código 1 — nunca silencia el fallo:
 
 ```text
-piper_tts.sh: Piper voice model not found: /Users/tu/piper/en_GB-alan-medium.onnx (download it outside this repo — see docs/USER_GUIDE_VOICE.md §2)
+piper_tts.sh: Piper voice model not found: /Users/tu/piper/es_ES-davefx-medium.onnx (download it outside this repo — see docs/USER_GUIDE_VOICE.md §2)
 ```
 
 Variables que entiende el wrapper:
@@ -110,7 +110,7 @@ Cada vez que verías `Jarvis > …`, también lo oyes — **salvo en el muro de 
 
 - **Pantalla = verdad completa, siempre.** Al cargar un proyecto, o al escribir `estado` (o cualquier otra frase que ya disparaba el muro), lo que *ves* es exactamente el mismo muro de siempre — Situación, Evidencia, ENGINEERING READINESS, TOP GAPS, todo. Esto no ha cambiado ni se recorta nunca.
 - **Voz = extracto breve, por defecto.** Lo que *oyes* en ese mismo turno es un extracto determinista y corto: situación, siguiente paso (con el porqué humanizado), `PROJECT STATUS: ASSEMBLY READY` / `NOT ASSEMBLY READY`, y el título del gap principal — nada de Evidencia completa, tabla de Readiness, BOM, ni cierre de bloque. Sin LLM: son los mismos campos que ya existían, solo que no se leen todos en voz alta por defecto.
-- **"Completo" es opt-in, por turno.** Si tu frase es una de estas (exacto, sin tilde, minúscula o mayúscula da igual): `completo`, `estado completo`, `dame detalles`, `dame detalles del proyecto`, `detalles del proyecto`, `cuentame todo`, `cuentame el proyecto`, `cuenta el proyecto`, `describe el proyecto`, `explica el proyecto` — Jarvis **oye** el muro entero ese turno, igual que ves en pantalla. No se queda "en modo completo": el siguiente `estado` vuelve a ser breve, a menos que also pidas `completo` otra vez.
+- **"Completo" es opt-in, por turno.** Si tu frase es una de estas (exacto, sin tilde, minúscula o mayúscula da igual): `completo`, `estado completo`, `dame detalles`, `dame detalles del proyecto`, `detalles del proyecto`, `cuentame todo`, `cuentame el proyecto`, `cuenta el proyecto`, `describe el proyecto`, `explica el proyecto` — Jarvis **oye** el muro entero ese turno, igual que ves en pantalla. No se queda "en modo completo": el siguiente `estado` vuelve a ser breve, a menos que también pidas `completo` otra vez.
 
 Cualquier otro turno (Skills, errores, wizards, `Acción ejecutada: …`) sigue hablando **exactamente lo que se imprime**, como en T43 — esta distinción breve/completo solo aplica al muro de Continuity.
 
@@ -240,10 +240,12 @@ python -m jarvis.main --voice-fixture /tmp/una_linea.txt --voice-speak
 
 Esto es la mitad de **entrada**: un archivo de audio se transcribe **fuera** de Jarvis, y el texto resultante entra por el mismo canal. Jarvis no captura ni decodifica audio — y esto procesa **un** archivo por invocación, no un bucle de escucha (para eso usa §4, con el teclado).
 
-Instala whisper.cpp fuera del paquete (su README oficial cubre tu plataforma) y descarga un modelo, por ejemplo `ggml-base.en.bin`. Igual que Piper: **nada de esto entra en `pyproject.toml`**.
+Instala whisper.cpp fuera del paquete (su README oficial cubre tu plataforma) y descarga un modelo. Igual que Piper: **nada de esto entra en `pyproject.toml`**.
+
+**Para `hablar`/PTT o cualquier audio en español, usa un modelo multilingüe** (p. ej. `ggml-base.bin`), no uno con sufijo `.en.bin` — esos son solo-inglés y transcriben mal el español (lo oyen como ruido o lo "traducen" a palabras inglesas parecidas). `ggml-base.en.bin` sigue siendo correcto si vas a hablarle en inglés.
 
 ```text
-export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.en.bin"
+export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.bin"
 export JARVIS_WHISPER_BIN="$HOME/whisper.cpp/build/bin/whisper-cli"
 export JARVIS_STT_CMD="$PWD/scripts/voice/whisper_stt.sh {audio}"
 ```
@@ -293,9 +295,10 @@ Di “hold” al micrófono y deberías oír el rechazo honesto de Safety.
 ```text
 # ── Preparar (una vez) ───────────────────────────────────────────────
 python3 -m venv ~/piper-venv && ~/piper-venv/bin/pip install piper-tts
-# descargar en_GB-alan-medium.onnx + .onnx.json a ~/piper/
+# descargar es_ES-davefx-medium.onnx + .onnx.json a ~/piper/
+# (alt: es_ES-sharvard-medium · legacy: en_GB-alan-medium)
 
-export JARVIS_PIPER_MODEL="$HOME/piper/en_GB-alan-medium.onnx"
+export JARVIS_PIPER_MODEL="$HOME/piper/es_ES-davefx-medium.onnx"
 export JARVIS_PIPER_BIN="$HOME/piper-venv/bin/piper"
 export JARVIS_TTS_CMD="$PWD/scripts/voice/piper_tts.sh"
 
@@ -322,7 +325,7 @@ JARVIS_VOICE_WAV_OUT=/tmp/turno.wav \
   python -m jarvis.main --voice-fixture /tmp/una_linea.txt --voice-speak
 
 # ── Un turno desde audio ya grabado ──────────────────────────────────
-export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.en.bin"
+export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.bin"   # multilingüe, no .en.bin
 export JARVIS_STT_CMD="$PWD/scripts/voice/whisper_stt.sh {audio}"
 ./scripts/voice/whisper_stt.sh --check
 arecord -d 5 -r 16000 -c 1 -f S16_LE /tmp/turno.wav
@@ -338,7 +341,7 @@ python -m jarvis.main --chat
 
 - **Las flags de Piper cambian entre builds.** El wrapper llama `piper --model M --output_file W` (forma de Piper 1.x). Si tu build usa otras, pásalas con `JARVIS_PIPER_ARGS` o ajusta el wrapper — el error de Piper se propaga tal cual a stderr, no se enmascara.
 - **Falta el `.onnx.json`.** Es el fallo nº 1 al instalar una voz. Piper no lo pide por flag: lo busca al lado del `.onnx`.
-- **Los Skills responden en español, la voz por defecto es `en_GB`.** El brief acepta esto para las primeras demos (acento británico leyendo español). Si molesta, el camino es una voz `es_ES` de Piper — mismo wrapper, solo cambia `JARVIS_PIPER_MODEL`; no hace falta tocar código.
+- **La voz por defecto ya es `es_ES` (T49, `0.7.6`).** Los Skills responden en español y, desde T49, la voz de demo por defecto (`es_ES-davefx-medium`) también es española — cierra el desajuste que el brief aceptaba como compromiso de las primeras demos (acento británico leyendo español). Si prefieres ese acento británico, sigue disponible: `en_GB-alan-medium` vía el mismo `JARVIS_PIPER_MODEL`, sin tocar código.
 - **`estado` y la Continuity completa son largos para hablarlos — por eso `--chat --voice-speak` ya no los lee enteros por defecto (T45, `0.7.4`).** Al cargar un proyecto o escribir `estado`, la pantalla sigue mostrando el muro completo; el oído recibe el extracto breve de §4.1 salvo que pidas `completo`/`dame detalles` ese turno. Fuera del muro de Continuity (Skills, errores, wizards) no hay renderer "para voz" todavía: se oye exactamente lo que se imprime, igual que en T43.
 - **`--voice` sigue siendo solo teclado.** Es un REPL que además habla la respuesta, pero no escucha — hablarle de verdad al micrófono ahí no existe (sin `hablar`/T47 en este canal). En `--chat --voice-speak` sí puedes hablarle de verdad con `hablar`/`habla` (§4.1.1, push-to-talk de un turno fijo, no always-on) o, para un archivo ya grabado, con `--voice-audio` (§5.3). Un modo always-on con wake word no está en voz v1 y necesitaría su propio contrato.
 - **El PTT de `hablar` es de duración fija, no "pulsa para terminar".** Graba exactamente `JARVIS_RECORD_SECONDS` segundos (7 por defecto) y para sola — no hay doble Enter ni detección de silencio. Si hablas más corto o más largo, igual se transcribe lo que haya en esa ventana.

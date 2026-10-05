@@ -5,9 +5,14 @@
 # a wav) via a **Piper installed outside this repo**. Point `JARVIS_TTS_CMD`
 # at this script:
 #
-#   export JARVIS_PIPER_MODEL="$HOME/piper/en_GB-alan-medium.onnx"
+#   export JARVIS_PIPER_MODEL="$HOME/piper/es_ES-davefx-medium.onnx"
 #   export JARVIS_TTS_CMD="$PWD/scripts/voice/piper_tts.sh"
 #   python -m jarvis.main --voice-fixture scripts/voice/fixtures/demo_skills.txt --voice-speak
+#
+# Default demo voice (T49, `0.7.6`) is Spanish `es_ES-davefx-medium` — the
+# Skills already reply in Spanish. Alt: `es_ES-sharvard-medium`. The original
+# demo voice, `en_GB-alan-medium` (British English), stays fully supported —
+# this is just a JARVIS_PIPER_MODEL value, never a hardcoded path below.
 #
 # Nothing here is a speech dependency of the Jarvis package: Piper is a
 # separate binary + voice model the operator installs (see

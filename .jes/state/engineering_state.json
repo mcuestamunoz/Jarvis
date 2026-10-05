@@ -1,15 +1,16 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T48-inv forensic review of voice phase T (T34-T47) complete: cola truth table, 33-lock DC audit (zero drift), 9-Buy ACCEPT backlog, honesty-fence re-check, TTS-language note for T49. T49 Spanish TTS default lands next in the same session.",
-  "scope": "T48-inv: docs/report only, no src/ change. Full suite (4026 passed/9 skipped) + ESC-fence/tip-pin (19 passed) + whole voice test cluster (63 passed) re-run live, not cited from memory.",
+  "cycle_intent": "T49 flips the default demo TTS voice from en_GB-alan-medium to Spanish es_ES-davefx-medium (0.7.6), closing the T48-inv Q8 language mismatch (Spanish Skill replies, English default voice). Documentation/comment-only; Piper seam already model-agnostic.",
+  "scope": "T49: no src/jarvis change. Brief + guide + piper_tts.sh comment flipped to es_ES-davefx-medium default (alt es_ES-sharvard-medium; en_GB-alan-medium kept as documented legacy). Whisper guide example flipped to multilingual ggml-base.bin. pyproject 0.7.6, no new speech dep.",
   "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "investigation",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "engineer",
     "reason": "Review voice phase T before opening T49 Spanish TTS default; two Buys, one session"
   },
   "relevant_workflow_phases": [
-    "Investigation"
+    "Investigation",
+    "Implementation"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -20,38 +21,41 @@
   "required_artifacts": [
     ".jes/artifacts/investigation_contract_assistant_voice_phase_t_review_b0.md",
     ".jes/artifacts/investigation_report_assistant_voice_phase_t_review_b0.md",
-    ".jes/artifacts/engineer_note_voice_phase_c_cola.md"
+    ".jes/artifacts/implementation_contract_assistant_voice_tts_spanish_b1.md",
+    ".jes/artifacts/implementation_report_assistant_voice_tts_spanish_b1.md"
   ],
   "open_questions": [
     "Engineer ★ on T48-inv findings?",
-    "ACCEPT order for the 9-Buy backlog (T41/T42/T43/T45/T47, plus T44-inv findings-level) — sequential or bundled?",
-    "T49 Spanish TTS default — land next in this session"
+    "Cursor review of T49 @ 0.7.6 → Engineer ACCEPT → tag v0.7.6?",
+    "ACCEPT order for the 9-Buy backlog (T41/T42/T43/T45/T47, plus T44-inv findings-level) — sequential or bundled?"
   ],
   "active_operation": {
     "type": "implemented",
-    "contract": "investigation_contract_assistant_voice_phase_t_review_b0.md",
+    "contract": "implementation_contract_assistant_voice_tts_spanish_b1.md",
     "ids": [
-      "T48-inv",
-      "INV-assistant-voice-phase-t-review"
+      "T49",
+      "B1-assistant-voice-tts-spanish"
     ],
     "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "T48-inv forensic review complete — Q1-Q12 answered with live citations"
+    "T48-inv forensic review complete",
+    "T49 implemented — Spanish default TTS voice @ 0.7.6"
   ],
   "authority_gates": [
-    "No ACCEPT claimed for T48-inv or for any backlogged Buy",
-    "No src/ change",
-    "T40 confirmed stays Parked — zero live evidence otherwise",
-    "Zero DC lock drift found across T34/T44/T46 (33 locks total)"
+    "No ACCEPT claimed for T48-inv or T49",
+    "No src/jarvis change in T49 — seam already model-agnostic",
+    "No speech dependency added; no tip-pinned .onnx file anywhere in the repo",
+    "en_GB-alan-medium kept as documented legacy, not deleted",
+    "T40 confirmed stays Parked"
   ],
   "coherence_checklist": [
-    "Full suite 4026 passed / 9 skipped (identical to pre-INV tip)",
-    "ESC fence + tip-pin suites 19 passed",
-    "Whole voice test cluster (10 files) run together: 63 passed",
-    "git tag -l verified: v0.6.43-46 and v0.7.0 are real tags; v0.7.1-v0.7.5 are not (matches the 9-Buy ACCEPT backlog exactly)",
-    "Living map content-complete for 0.7.5; pre-T47 line citations have cosmetic drift (not a missing-row gap)",
-    "PRIORIDAD/cola/COLA header updated to T48-inv Implemented, await Cursor review"
+    "T48-inv: full suite 4026 passed / 9 skipped; 33 DC locks re-checked, zero drift",
+    "T49: 4 new tests (T1-T4) added and green; full suite 4030 passed / 9 skipped vs 4026/9 baseline — zero regressions",
+    "piper_tts.sh body still reads JARVIS_PIPER_MODEL from env, no hardcoded voice filename (verified live)",
+    "Brief + guide + cheatsheet + script comment all default to es_ES-davefx-medium; en_GB-alan-medium still documented",
+    "Opportunistic fix: T45 N5 English-leak typo in guide §4.1 corrected while editing the same file",
+    "PRIORIDAD/cola/COLA header updated to T49 Implemented, await Cursor review"
   ],
-  "updated_at": "2026-10-05T12:00:00Z"
+  "updated_at": "2026-10-05T13:30:00Z"
 }
