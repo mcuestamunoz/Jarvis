@@ -3,7 +3,7 @@
 **Date:** 2026-10-05  
 **Source:** Engineer live smoke @ tip **`v0.7.6`** (`es_ES-davefx-medium` + `--chat --voice-speak`)  
 **Project:** `dron-de-vigilancia-doméstico`  
-**Status:** **OPEN** — **T50 ★** @ `v0.7.7` · **T51 IC ready** → T52 (see voice cola)
+**Status:** **OPEN** — **T50 ★** @ `v0.7.7` · **T51 Implemented** (await Cursor review) → T52 (see voice cola)
 
 **Discipline:** anything spotted in smoke/review that can hurt spoken UX or docs honesty later gets **tracked here** (or in cola) with a home Buy — fix now if cheap, else schedule. Do not drop notes.
 
@@ -33,7 +33,7 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 | # | Buy | Intent |
 |---|---|---|
 | **T50** | `B1-assistant-voice-speak-sanitize` | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.7`** — [review ★](implementation_review_assistant_voice_speak_sanitize_b1.md). |
-| **T51** | `B1-assistant-voice-brief-spanish` | **IC ready** @ `0.7.8` — [IC](implementation_contract_assistant_voice_brief_spanish_b1.md). Brief ES + T50-N1/N2. |
+| **T51** | `B1-assistant-voice-brief-spanish` | **Implemented** @ `0.7.8`, await Cursor review — [report](implementation_report_assistant_voice_brief_spanish_b1.md). Brief ES + T50-N1/N2. |
 | **T52-DC** → **T52** | `DC` + `B1-assistant-voice-full-spoken` | Amend what FULL means: narrated detailed Continuity (prose from fields), **not** verbatim print. Screen still full. Reopens T44-DC FULL speak payload only. |
 
 **Out:** LLM summary · wake-word · T40 · changing screen Continuity · Conversation Engine.
@@ -44,10 +44,10 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 
 | ID | Finding | Severity | Home | When |
 |---|---|---|---|---|
-| **T50-N1** | Glossary yields awkward “El tasa C” (locked string `"tasa C"`) | Spoken UX polish | **T51 IC** (locked) | With T51 |
-| **T50-N2** | `external_tts.py` module docstring still narrates pre-T49 `en_GB` demo setup (`__init__.py` already fixed) | Docs honesty | **T51 IC** (docs in same Buy) | With T51 |
+| **T50-N1** | Glossary yields awkward “El tasa C” (locked string `"tasa C"`) | Spoken UX polish | **T51** | **Done** — glossary now resolves to `"la tasa C"` always, absorbing a preceding `El`/`La` |
+| **T50-N2** | `external_tts.py` module docstring still narrates pre-T49 `en_GB` demo setup (`__init__.py` already fixed) | Docs honesty | **T51** | **Done** — docstring now names the Spanish default |
 | **T50-N3** | Sibling tests updated for glossary + tip-pin policy | None — closed | — | Done |
 
 Any new smoke finding after T50 ★ → new row here or new Field Note; do not reopen T50 scope silently.
 
-**Next process step:** paste T51 IC §4 to Claude = Buy.
+**Next process step:** Cursor review of T51 → Engineer ACCEPT → tag `v0.7.8`. Then T52-DC when Engineer says proceed.

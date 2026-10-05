@@ -17,9 +17,16 @@ never imported from `adapters/cli/main.py` or any `render_*` function.
 Locked, narrow scope (T50 IC) — what this module does **not** do:
 - no rewrite of `PROJECT STATUS`/`PASS`/gap-title wording (that is a
   later Buy's job, not this one's);
-- no glossary beyond the single locked `C-rate`/`c-rate` → `"tasa C"`
-  substitution;
+- no glossary beyond the single locked `C-rate`/`c-rate` glossary term;
 - no LLM paraphrase or summarization of any kind.
+
+T51 (`B1-assistant-voice-brief-spanish`) lock 5 / review note T50-N1:
+the original `"tasa C"` substitution produced an awkward `"El tasa C"`/
+`"la tasa C"` mismatch whenever the source text already carried a
+Spanish article immediately before `c-rate` (`El C-rate` / `la c-rate`).
+The glossary now resolves to `"la tasa C"` in every case and absorbs a
+preceding `El`/`La` article into that same replacement first, so the
+article is never duplicated.
 """
 
 from __future__ import annotations
@@ -49,9 +56,14 @@ _LEADING_DECORATION_RE = re.compile(r"^[ \t]*(?:[•*✓◇└├│─━][ \t]
 # trailing token, so it never eats a "*" glued onto the end of a word.
 _TRAILING_FOOTNOTE_RE = re.compile(r"(?:^|[ \t])\*+[ \t]*$")
 
-# Locked glossary (T50 lock) — exactly one term, case-insensitive,
-# word-bounded so it never matches inside a longer token (e.g. it must
-# not touch "accelerate" or a hyphenated word that merely contains "c").
+# Locked glossary (T50 lock, article-absorption added T51 lock 5) —
+# exactly one term, case-insensitive, word-bounded so it never matches
+# inside a longer token (e.g. it must not touch "accelerate" or a
+# hyphenated word that merely contains "c"). Matched in two passes:
+# first a preceding Spanish article + the term together (so "El C-rate"
+# becomes "la tasa C", not "El la tasa C"), then any remaining bare
+# occurrence — both resolve to the same "la tasa C" string.
+_C_RATE_WITH_ARTICLE_RE = re.compile(r"\b(?:el|la)\s+c-rate\b", re.IGNORECASE)
 _C_RATE_RE = re.compile(r"\bc-rate\b", re.IGNORECASE)
 
 
@@ -60,7 +72,9 @@ def sanitize_for_speech(text: str) -> str:
     handed to an external TTS command. Drops rule-only lines, strips
     leading bullet/checkmark/diamond/tree glyphs and trailing footnote
     asterisks, collapses runs of blank lines to one, and applies the
-    single locked `C-rate`/`c-rate` → `"tasa C"` glossary substitution.
+    single locked `C-rate`/`c-rate` → `"la tasa C"` glossary
+    substitution (absorbing a preceding `El`/`La` article first, so the
+    result is never `"El tasa C"`/`"el tasa C"`).
 
     Returns `""` when there is nothing left to say after cleanup (e.g.
     the input was empty, whitespace-only, or entirely decoration) —
@@ -88,6 +102,7 @@ def sanitize_for_speech(text: str) -> str:
         previous_was_blank = is_blank
 
     result = "\n".join(collapsed_lines).strip("\n")
-    result = _C_RATE_RE.sub("tasa C", result)
+    result = _C_RATE_WITH_ARTICLE_RE.sub("la tasa C", result)
+    result = _C_RATE_RE.sub("la tasa C", result)
 
     return result if result.strip() else ""

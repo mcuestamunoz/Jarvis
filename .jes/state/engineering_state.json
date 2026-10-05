@@ -1,16 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T50 ★ ACCEPT CLOSED @ v0.7.7; T51 brief-Spanish IC ready — paste to Claude @ 0.7.8",
-  "scope": "Documentary ACCEPT for T50 + Cursor IC for T51 (includes T50-N1/N2). No Cursor src/ for T51.",
-  "execution_status": "ic_ready_awaiting_claude",
-  "current_mode": "contract",
+  "cycle_intent": "T51 humanizes the Continuity brief's project-status phrase and top gap title to Spanish (0.7.8), closing Field Note FN-017's remaining brief-English gap and T50's own N1 (El tasa C) / N2 (stale en_GB docstring) review notes. Print/Layer 1 byte-identical.",
+  "scope": "spoken_continuity.py::brief_spoken_continuity speaks 'Estado del proyecto: listo/no listo para ensamblar' instead of the English PROJECT STATUS line, and maps the top gap title through a finite 5-entry speak-only dict (unknown titles pass through unchanged). speak_sanitize.py's C-rate glossary now resolves to 'la tasa C' always, absorbing a preceding El/La article. external_tts.py's module docstring fixed to name the Spanish default. Two pre-existing test files touched (T45's own brief assertions, T50's own glossary assertions) -- both intentional, locked behavior changes, documented in the report.",
+  "execution_status": "implemented_awaiting_cursor_review",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "ACCEPT T50 and next T51; fold N1 into T51"
+    "reason": "T50 review notes N1/N2 folded into T51; FN-017's brief-English gap closes next after T50's decoration/C-rate fix"
   },
   "relevant_workflow_phases": [
-    "Accept",
-    "Contract"
+    "Implementation"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -19,15 +18,16 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_voice_speak_sanitize_b1.md",
-    ".jes/artifacts/implementation_contract_assistant_voice_brief_spanish_b1.md"
+    ".jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md",
+    ".jes/artifacts/implementation_contract_assistant_voice_brief_spanish_b1.md",
+    ".jes/artifacts/implementation_report_assistant_voice_brief_spanish_b1.md"
   ],
   "open_questions": [
-    "Claude lands T51 @ 0.7.8?",
-    "After T51: T52-DC FULL narrated?"
+    "Cursor review of T51 @ 0.7.8 -> Engineer ACCEPT -> tag v0.7.8?",
+    "After T51 ACCEPT: T52-DC FULL narrated?"
   ],
   "active_operation": {
-    "type": "buy_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_voice_brief_spanish_b1.md",
     "ids": [
       "T51",
@@ -35,23 +35,28 @@
       "T50-N1",
       "T50-N2"
     ],
-    "blocked_on": "claude_implementation"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "T50 ★ ACCEPT CLOSED @ v0.7.7",
-    "T51 IC ready with N1/N2 absorbed"
+    "T51 implemented -- Continuity brief Spanish @ 0.7.8",
+    "T50-N1 (El tasa C) and T50-N2 (stale en_GB docstring) absorbed and closed"
   ],
   "authority_gates": [
-    "Cursor does not implement src/ for T51",
-    "No ACCEPT claimed on T51",
-    "T52 stays queued",
-    "T40 stays Parked"
+    "No ACCEPT claimed by Claude",
+    "Same five brief fields/order as T45 -- no new field, no ranking change",
+    "Never speak English PROJECT STATUS / ASSEMBLY READY on the brief path (T1/T2 assert this)",
+    "Unknown gap titles speak raw -- no invented translation (T3 asserts this)",
+    "Print (Layer 1) byte-identical -- proven against the real _render_readiness_block, not just source inspection (T5)",
+    "No 'El tasa C' / 'el tasa C' anywhere (T4)",
+    "T42 run_chat TTS-seam structural guard re-verified green",
+    "T52 stays queued, T40 stays Parked"
   ],
   "coherence_checklist": [
-    "Tag v0.7.7 cut on ACCEPT tip",
-    "T51 glossary la tasa C absorbs El/La",
-    "Brief status Spanish; print English PROJECT STATUS unchanged",
-    "Finite gap-title speak map; unknown passthrough"
+    "T1-T6 tests added and green (6 test functions)",
+    "Two pre-existing test files fixed for the locked behavior change: test_assistant_chat_spoken_continuity_b1.py (T45) and test_assistant_voice_speak_sanitize_b1.py (T50)",
+    "Full suite 4045 passed / 9 skipped vs 4039/9 baseline (T50 ACCEPT-closed tip) -- net +6, zero unintended regressions",
+    "engineering_readiness gap-title strings themselves unchanged -- only what the brief speaks for an already-selected title changes",
+    "Opens 0.7.8"
   ],
-  "updated_at": "2026-10-05T09:25:00Z"
+  "updated_at": "2026-10-05T17:30:00Z"
 }

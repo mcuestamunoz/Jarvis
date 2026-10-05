@@ -84,9 +84,15 @@ def test_t1b_trailing_footnote_asterisk_stripped_without_eating_glued_asterisks(
 
 
 def test_t2_c_rate_glossary_case_insensitive_word_bounded():
-    assert sanitize_for_speech("El C-rate de la batería es 10") == "El tasa C de la batería es 10"
-    assert sanitize_for_speech("el c-rate importa") == "el tasa C importa"
-    assert sanitize_for_speech("C-RATE alto") == "tasa C alto"
+    # T51 (B1-assistant-voice-brief-spanish) lock 5 / T50-N1: the
+    # glossary resolves to "la tasa C" in every case and absorbs a
+    # preceding El/La article so the result is never "El tasa C".
+    assert sanitize_for_speech("El C-rate de la batería es 10") == "la tasa C de la batería es 10"
+    assert sanitize_for_speech("el c-rate importa") == "la tasa C importa"
+    assert sanitize_for_speech("La c-rate es alta") == "la tasa C es alta"
+    assert sanitize_for_speech("C-RATE alto") == "la tasa C alto"
+    assert "El tasa C" not in sanitize_for_speech("El C-rate de la batería")
+    assert "el tasa C" not in sanitize_for_speech("el c-rate importa")
     # Word-bounded — never matches inside a longer token.
     assert "tasa C" not in sanitize_for_speech("recalcular")
 

@@ -118,8 +118,12 @@ def test_t1_brief_spoken_continuity_excludes_wall_detail():
 
     assert "Diseño bloqueado" in brief
     assert "¿Definimos motor_count" in brief
-    assert "PROJECT STATUS: NOT ASSEMBLY READY" in brief
-    assert "Simulation not PASS" in brief
+    # T51 (`B1-assistant-voice-brief-spanish`): the brief speaks Spanish
+    # status/gap-title phrases; the English readiness strings stay
+    # screen-only (print side, unchanged, tested separately).
+    assert "Estado del proyecto: no listo para ensamblar" in brief
+    assert "PROJECT STATUS" not in brief
+    assert "Simulación no en PASS" in brief
     for marker in _WALL_MARKERS:
         assert marker not in brief, f"brief leaked wall-only content: {marker!r}"
     assert "BLOQUE PROPULSIÓN" not in brief
@@ -151,10 +155,12 @@ def test_t2_chat_wall_prints_full_but_speaks_brief(tmp_path, monkeypatch, capsys
     for capture in captures:
         for marker in _WALL_MARKERS:
             assert marker not in capture, f"TTS received wall-only content: {marker!r}"
-    assert any("PROJECT STATUS: NOT ASSEMBLY READY" in c for c in captures), (
+    # T51: the brief now speaks Spanish ("Estado del proyecto: ...")
+    # instead of the English "PROJECT STATUS: ..." line.
+    assert any("Estado del proyecto: no listo para ensamblar" in c for c in captures), (
         "at least one wall turn (project-load or estado) must have spoken the brief"
     )
-    assert sum("PROJECT STATUS: NOT ASSEMBLY READY" in c for c in captures) >= 2, (
+    assert sum("Estado del proyecto: no listo para ensamblar" in c for c in captures) >= 2, (
         "both wall turns (project-load and estado) must have spoken the brief"
     )
 

@@ -16,6 +16,17 @@ new computation, no ranking change (`T44-DC` lock 4/5). Everything else
 propulsion/hover/endurance blocks, `explain_topics`, the block-closure
 paragraph) stays out of the brief by design.
 
+T51 (`B1-assistant-voice-brief-spanish`): the project-status phrase and
+the top gap title are humanized to Spanish **on this brief path only**.
+`readiness.overall`/`prioritized_gaps[0].title` are read exactly as
+before — no new field, no ranking change — only the *words spoken* for
+those two already-selected pieces change. Screen (`render_startup_context`/
+the readiness block) still prints the English `PROJECT STATUS:`/gap
+titles verbatim; this module is never imported from any `render_*`
+function, so Layer 1 cannot drift from this Buy. An unknown gap title
+(not in `_GAP_TITLE_SPEAK_MAP`) is spoken exactly as given — honesty
+over invented translation.
+
 `is_full_continuity_request` matches the same locked, finite FULL-phrase
 set the Engineer gave (`completo`, `dame detalles`, …) against the same
 minimal normalize `jarvis.intelligence.assistant_task.
@@ -50,6 +61,20 @@ FULL_CONTINUITY_PHRASES: frozenset[str] = frozenset({
     "describe el proyecto",
     "explica el proyecto",
 })
+
+# T51 (`B1-assistant-voice-brief-spanish`) lock 4 — finite, speak-only
+# gap-title map. Keys are the exact English strings `engineering_readiness`
+# produces (screen truth, never changed); values are what the brief
+# speaks instead. A title not in this map is spoken unchanged (lock 4
+# honesty: never invent a translation). Minimum locked set — expanding
+# this map is its own future IC, not a silent edit here.
+_GAP_TITLE_SPEAK_MAP: dict[str, str] = {
+    "Autonomy target not met": "Objetivo de autonomía no alcanzado",
+    "Mass limit exceeded": "Límite de masa superado",
+    "Parameters blocking simulation": "Parámetros bloquean la simulación",
+    "Simulation not PASS": "Simulación no en PASS",
+    "Architecture block incomplete": "Bloque de arquitectura incompleto",
+}
 
 
 def _normalize(text: str) -> str:
@@ -99,14 +124,16 @@ def brief_spoken_continuity(ctx: dict[str, Any] | None) -> str:
     readiness = ctx.get("readiness") or {}
     overall = readiness.get("overall")
     if overall:
-        status_text = "ASSEMBLY READY" if overall == "ASSEMBLY_READY" else "NOT ASSEMBLY READY"
-        lines.append(f"PROJECT STATUS: {status_text}")
+        if overall == "ASSEMBLY_READY":
+            lines.append("Estado del proyecto: listo para ensamblar")
+        else:
+            lines.append("Estado del proyecto: no listo para ensamblar")
 
     top_gaps = readiness.get("prioritized_gaps") or []
     if top_gaps:
         title = top_gaps[0].get("title")
         if title:
-            lines.append(title)
+            lines.append(_GAP_TITLE_SPEAK_MAP.get(title, title))
 
     return "\n".join(lines)
 

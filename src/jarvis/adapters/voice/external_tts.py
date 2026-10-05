@@ -12,11 +12,12 @@ argument), and treat exit `0` as success.
 
 **Vendor choice is explicitly out of this Buy.** The product brief
 (`.jes/artifacts/engineer_note_voice_tts_product_brief.md`) recommends
-a free, local Piper `en_GB` voice as the default demo setup — British,
-grave, short, no theater, **not** a Marvel clone — but installing
-Piper and pointing `JARVIS_TTS_CMD` at a real binary is operator/demo
-setup, never hardcoded here; this module never names Piper (or any
-other vendor) in code.
+a free, local Piper voice as the default demo setup — grave, short, no
+theater, **not** a Marvel clone — Spanish `es_ES-davefx-medium` by
+default since T49 (`en_GB-alan-medium` stays supported as a documented
+legacy value) — but installing Piper and pointing `JARVIS_TTS_CMD` at
+a real binary is operator/demo setup, never hardcoded here; this
+module never names Piper (or any other vendor) in code.
 
 Honesty lock: missing/empty config, a non-zero exit, or the command
 itself failing to run at all (missing binary) are each surfaced as the

@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.7.8`**
 
-**Status:** **IC ready** — paste to Claude = Buy. Cursor does **not** implement unless Engineer says so.  
+**Status:** **Implemented** — await Cursor review → Engineer ACCEPT → tag **`v0.7.8`**.  
 **Parents:** [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) · [T50 ★](implementation_review_assistant_voice_speak_sanitize_b1.md) @ **`v0.7.7`** · [T45 ★](implementation_review_assistant_chat_spoken_continuity_b1.md) · tip **`v0.7.7`**  
 **Type:** Speak-path only — Spanish humanization of Continuity **brief** lines + absorb T50-N1/N2. **Print / Layer 1 untouched.** Same five brief fields.  
 **Opens:** **`0.7.8` / `v0.7.8`**. **Cola:** **T51**
