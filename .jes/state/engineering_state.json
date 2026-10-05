@@ -36,20 +36,18 @@
     "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "Cursor PASS WITH NOTES for T51 @ 0.7.8",
-    "T50-N1/N2 verified closed in Buy"
+    "T51-N1 docstring honesty synced",
+    "T51-N2 confirmed no debt (sibling tests intentional)"
   ],
   "authority_gates": [
     "No ACCEPT claimed by Cursor",
-    "Same-session self-PASS is not review of record",
-    "N1 docstring residue is cosmetic only",
+    "Docstring-only hygiene — no behavior change",
     "T52 stays queued, T40 stays Parked"
   ],
   "coherence_checklist": [
-    "IC locks 2-11 PASS",
-    "Targeted pytest 41 passed (T51+T45+T50+tip-pin+ESC)",
-    "Layer1 English / brief Spanish / FULL verbatim split verified",
-    "Package 0.7.8"
+    "brief_spoken_continuity docstring no longer claims PROJECT STATUS speak",
+    "T51+T45 tests still green (13 passed)",
+    "Package 0.7.8 unchanged"
   ],
-  "updated_at": "2026-10-05T18:00:00Z"
+  "updated_at": "2026-10-05T18:15:00Z"
 }
