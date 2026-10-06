@@ -81,6 +81,18 @@ WARNING_SHORT: dict[str, str] = {
     "low_force_to_weight_ratio": "relación empuje/peso baja",
     "autonomy_below_restriction": "autonomía por debajo de restricción",
 }
+# T52-N2 hygiene — Continuity `next_useful_why` also stores parameter-reason
+# tokens and a gap-id fallback that are not warning codes. Same display
+# function as WARNING_SHORT so print "Por qué:" and the brief stay aligned.
+# Unknown / free-prose values still pass through verbatim.
+_CONTINUITY_WHY_SHORT: dict[str, str] = {
+    "missing_propulsion_parameters": "faltan parámetros de propulsión",
+    "missing_energy_parameters": "faltan parámetros de energía",
+    "missing_propeller_parameters": "faltan parámetros de hélice",
+    "missing_transmission_parameters": "faltan parámetros de transmisión",
+    "missing_component_definition": "falta definir el componente",
+    "GAP-SIM-NOT-PASS": "la simulación no está en PASS",
+}
 
 
 # B1-chat-explain-intercept (A7): "jarvis explain <id>" — the exact command
@@ -126,9 +138,14 @@ def _humanize_next_useful_why(code: str) -> str:
     """Claim hygiene under ASSEMBLY READY IC §2.3/N1: Continuity keeps the
     raw warning code in ``next_useful_why`` (core stays free of adapters'
     display maps); the CLI maps known codes through ``WARNING_SHORT``
-    (falling back to ``WARNING_MESSAGES``) when printing 'Por qué:'. Unknown
+    (falling back to ``WARNING_MESSAGES``, then T52-N2
+    ``_CONTINUITY_WHY_SHORT``) when printing 'Por qué:'. Unknown
     codes (e.g. gap-evidence strings) render verbatim, unchanged."""
-    return WARNING_SHORT.get(code) or WARNING_MESSAGES.get(code, code)
+    return (
+        WARNING_SHORT.get(code)
+        or WARNING_MESSAGES.get(code)
+        or _CONTINUITY_WHY_SHORT.get(code, code)
+    )
 
 _STATUS_ICON = {
     "blocking": "⚠ ",

@@ -48,6 +48,20 @@ def test_t2_not_ready_speaks_spanish_status_never_english():
     assert "ASSEMBLY READY" not in brief
 
 
+def test_t2b_known_why_code_speaks_spanish_unknown_passthrough():
+    """T52-N2 — parameter-reason tokens in `next_useful_why` must not be
+    spoken as snake_case; free prose still passes through."""
+    ctx = _ctx(overall="NOT_ASSEMBLY_READY")
+    ctx["continuity"]["next_useful_step"] = "Definir motor_count."
+    ctx["continuity"]["next_useful_why"] = "missing_propulsion_parameters"
+    brief = brief_spoken_continuity(ctx)
+    assert "faltan parámetros de propulsión" in brief
+    assert "missing_propulsion_parameters" not in brief
+
+    ctx["continuity"]["next_useful_why"] = "un texto libre no catalogado"
+    assert "un texto libre no catalogado" in brief_spoken_continuity(ctx)
+
+
 def test_t3_locked_gap_titles_map_to_spanish_unknown_passes_through():
     locked_map = {
         "Autonomy target not met": "Objetivo de autonomía no alcanzado",

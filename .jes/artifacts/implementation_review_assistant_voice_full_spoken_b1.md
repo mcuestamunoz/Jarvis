@@ -64,17 +64,17 @@ Spot-check: FULL ≠ wall; Spanish status; mapped gap; no `GAP-` / BOM / `PROJEC
 
 ## 3. Notes
 
-**N1 — Section B speaks raw `recommended_next_step.action` codes.**  
-Per IC “action only” (e.g. `fix_simulation_blocker`). Sounds unnatural. Optional Spanish action map = later IC — not a T52 miss.
+**N1 — Section B spoke raw `recommended_next_step.action` codes.**  
+**Done** (hygiene on tip): finite `_ACTION_SPEAK_MAP` in `spoken_continuity.py`. Unknown actions still pass through raw.
 
-**N2 — Brief (T51, untouched) may speak unmapped `next_useful_why` codes.**  
-Pre-existing; out of T52. Track if Engineer wants a why-phrase map later.
+**N2 — Brief spoke unmapped `next_useful_why` codes (`missing_propulsion_parameters`).**  
+**Done** (hygiene on tip): `_CONTINUITY_WHY_SHORT` folded into `_humanize_next_useful_why` so print “Por qué:” and the brief stay aligned. Unknown / free prose still verbatim.
 
 **N3 — IC T7 “`0.7.9`” not asserted as a tip-pin in the new test file.**  
 Intentional suite policy (`test_no_pyproject_tip_version_pins_b1`); `pyproject` is `0.7.9`. Same pattern as T51 T6.
 
 **N4 — Top gap title can appear twice** (brief head + Huecos prioritarios).  
-By design of T52-DC (reuse brief head + B expands top-3). Informational only.
+By design of T52-DC (reuse brief head + B expands top-3). Not a miss — do not skip the first gap.
 
 ---
 

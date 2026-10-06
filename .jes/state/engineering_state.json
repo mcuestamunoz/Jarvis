@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T52 Cursor PASS WITH NOTES @ 0.7.9 — await Engineer ★ ACCEPT → tag v0.7.9",
-  "scope": "Documentary Cursor review of T52 FULL Continuity narrated. No src/ edits this turn.",
+  "cycle_intent": "T52 PASS WITH NOTES; N1/N2 closed on tip — await Engineer ★ ACCEPT → tag v0.7.9",
+  "scope": "Hygiene: T52-N1 action speak map + T52-N2 why humanize. N3 policy / N4 by design left closed.",
   "execution_status": "cursor_pass_with_notes_awaiting_accept",
   "current_mode": "review",
   "movement_trigger": {

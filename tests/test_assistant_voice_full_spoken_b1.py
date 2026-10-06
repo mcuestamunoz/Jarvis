@@ -147,8 +147,10 @@ def test_t3_gaps_top3_spanish_titles_action_only_never_ids():
     assert "Objetivo de autonomía no alcanzado" in body
     assert "Bloque de arquitectura incompleto" in body
     assert "Brand-new unmapped gap" in body  # unknown title: honest passthrough
-    assert "Siguiente: fix_simulation_blocker" in body
-    assert "Siguiente: continue_architecture_block" in body
+    assert "Siguiente: resolver el bloqueo de simulación" in body
+    assert "Siguiente: continuar el bloque de arquitectura" in body
+    assert "fix_simulation_blocker" not in full
+    assert "continue_architecture_block" not in full
     # Fourth gap is beyond the top-3 cap.
     assert "Límite de masa superado" not in full
     assert "fourth_action" not in full
@@ -238,6 +240,13 @@ def test_t6_architecture_and_block_closure_templates():
 
     ctx["prop_energy_block_closure"] = None
     assert "Bloque propulsión" not in full_spoken_continuity(ctx)
+
+    # T52-N1: unknown action codes pass through raw (honesty).
+    ctx["readiness"]["prioritized_gaps"] = [{
+        "title": "Brand-new unmapped gap",
+        "recommended_next_step": {"action": "some_unknown_action"},
+    }]
+    assert "Siguiente: some_unknown_action" in full_spoken_continuity(ctx)
 
 
 def _write_fake_tts_script(tmp_path: Path, received_path: Path) -> Path:

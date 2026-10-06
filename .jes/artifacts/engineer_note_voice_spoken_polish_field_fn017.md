@@ -50,10 +50,10 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 | **T50-N3** | Sibling tests updated for glossary + tip-pin policy | None — closed | — | Done |
 | **T51-N1** | `brief_spoken_continuity` docstring still narrated pre-T51 `PROJECT STATUS: …` | Docs honesty | same tip | **Done** — docstring synced to Spanish status + mapped/raw gap |
 | **T51-N2** | Sibling T45/T50 test assertion updates | None — informational | report §2 | **Closed** — intentional locked behavior; no further cleanup |
-| **T52-N1** | Section B speaks raw `recommended_next_step.action` codes | Spoken UX polish | later IC | After T52 ★ |
-| **T52-N2** | Brief may speak unmapped `next_useful_why` codes | Spoken UX polish | later IC (brief) | After T52 ★ |
+| **T52-N1** | Section B speaks raw `recommended_next_step.action` codes | Spoken UX polish | same tip | **Done** — finite `_ACTION_SPEAK_MAP`; unknown actions still raw |
+| **T52-N2** | Brief may speak unmapped `next_useful_why` codes | Spoken UX polish | same tip | **Done** — `_CONTINUITY_WHY_SHORT` in `_humanize_next_useful_why` (print + brief) |
 | **T52-N3** | IC T7 `0.7.9` not tip-pinned in-test | None — policy | tip-pin suite | Closed (same as T51 T6) |
-| **T52-N4** | Top gap title can appear in brief head and Huecos | None — by design | T52-DC | Closed |
+| **T52-N4** | Top gap title can appear in brief head and Huecos | None — by design | T52-DC | Closed — keep (FULL = brief head + top-3 gaps) |
 
 Any new smoke finding after T50 ★ → new row here or new Field Note; do not reopen T50 scope silently.
 

@@ -45,6 +45,5 @@ pytest -q
 
 ## 4. Remaining risks
 
-- Section B speaks `recommended_next_step.action` raw (snake_case code, e.g. `fix_simulation_blocker`) — per the "action only" lock; humanizing it would be its own IC.
-- The brief (T51, untouched) still speaks `next_useful_why` codes that `_humanize_next_useful_why` does not map (seen on the fat fixture: `missing_propulsion_parameters`). Pre-existing; out of T52 scope.
+- Section B action map and Continuity why-code humanize landed as post-review hygiene (T52-N1/N2) on the same tip before ACCEPT.
 - IC T7 says "`0.7.9`": `pyproject` is `0.7.9`, but T7 does not pin the version in-test — suite tip-pin policy (`test_no_pyproject_tip_version_pins_in_suite`) is run instead, same as T51's T6.

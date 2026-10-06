@@ -83,6 +83,23 @@ _GAP_TITLE_SPEAK_MAP: dict[str, str] = {
     "Architecture block incomplete": "Bloque de arquitectura incompleto",
 }
 
+# T52-N1 hygiene — finite speak-only map of `recommended_next_step.action`
+# codes `engineering_readiness` actually emits. Unknown actions pass through
+# raw (honesty: never invent). Layer 1 still prints the code.
+_ACTION_SPEAK_MAP: dict[str, str] = {
+    "list_motors": "listar motores",
+    "explore_design_space": "explorar el espacio de diseño",
+    "continue_architecture_block": "continuar el bloque de arquitectura",
+    "define_component": "definir el componente",
+    "complete_component": "completar el componente",
+    "fix_simulation_blocker": "resolver el bloqueo de simulación",
+    "resolve_requirement": "resolver el requisito",
+    "revise_esc_rating": "revisar la calificación del ESC",
+    "revise_battery_or_load": "revisar la batería o la carga",
+    "revise_propeller_or_motor": "revisar la hélice o el motor",
+    "declare_frame_size_class": "declarar la clase de tamaño del chasis",
+}
+
 
 def _normalize(text: str) -> str:
     """Same minimal normalize as `assistant_task._normalize_for_
@@ -191,7 +208,7 @@ def full_spoken_continuity(ctx: dict[str, Any] | None) -> str:
             gap_lines.append(_GAP_TITLE_SPEAK_MAP.get(title, title))
         action = (gap.get("recommended_next_step") or {}).get("action")
         if action:
-            gap_lines.append(f"Siguiente: {action}")
+            gap_lines.append(f"Siguiente: {_ACTION_SPEAK_MAP.get(action, action)}")
     if gap_lines:
         lines.append("Huecos prioritarios:")
         lines.extend(gap_lines)

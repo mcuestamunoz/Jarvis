@@ -220,6 +220,23 @@ def test_cli_humanizes_next_useful_why_for_known_warning_code():
     assert "Por qué: low_margin" not in text
 
 
+def test_cli_humanizes_next_useful_why_for_known_continuity_reason_code():
+    """T52-N2: missing_* / GAP-SIM-NOT-PASS why tokens are display-mapped
+    the same way warning codes already were — screen and brief stay aligned."""
+    text = render_startup_context({
+        "has_project": True,
+        "project_slug": "demo",
+        "continuity": {
+            "situation": "Diseño bloqueado: faltan parámetros físicos.",
+            "evidence": [],
+            "next_useful_step": "¿Definimos motor_count ahora?",
+            "next_useful_why": "missing_propulsion_parameters",
+        },
+    })
+    assert "Por qué: faltan parámetros de propulsión" in text
+    assert "Por qué: missing_propulsion_parameters" not in text
+
+
 def test_cli_leaves_unknown_next_useful_why_verbatim():
     text = render_startup_context({
         "has_project": True,
