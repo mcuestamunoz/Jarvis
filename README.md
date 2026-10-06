@@ -1,6 +1,6 @@
 # Jarvis
 
-**v0.6.20 tagged tip** · T12 FOLLOW ★ · T11 arm UX ★ · basic mando + Safety latch + FOLLOW CLOSED · ontology explain @ `v0.6.0` · bloque 0.5 historical @ `v0.5.44`
+**v0.6.20 tagged tip** · package **`0.6.21`** (T13 PATROL implemented, await ★) · T12 FOLLOW ★ · T11 arm UX ★ · basic mando + Safety latch + FOLLOW CLOSED · ontology explain @ `v0.6.0` · bloque 0.5 historical @ `v0.5.44`
 
 Deterministic engineering engine for designing physical systems with AI-assisted natural language.
 

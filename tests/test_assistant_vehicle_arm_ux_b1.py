@@ -137,15 +137,20 @@ def test_t5_armar_then_hold_allow_not_implemented():
 
 
 def test_t6_armar_then_rtl_and_takeoff_verb_not_allowed():
+    """T14 (`B1-assistant-vehicle-allowlist-widen`) widened the allow-list
+    to the full seven-verb chat set — RTL/TAKEOFF now join HOLD at
+    `allow`/`not_implemented` once armed, instead of `verb_not_allowed`."""
     orch = JarvisOrchestrator()
     exploding = _ExplodingLLMInterface()
     orch.handle_user_text("armar", exploding)
     rtl = orch.handle_user_text("rtl", exploding)
     assert rtl["action"] == "vehicle_return_home"
-    assert "verb_not_allowed" in rtl["message"]
+    assert "allow" in rtl["message"]
+    assert "not_implemented" in rtl["message"]
     takeoff = orch.handle_user_text("takeoff", exploding)
     assert takeoff["action"] == "vehicle_takeoff"
-    assert "verb_not_allowed" in takeoff["message"]
+    assert "allow" in takeoff["message"]
+    assert "not_implemented" in takeoff["message"]
 
 
 def test_t7_armar_desarmar_hold_back_to_disarmed():
@@ -194,9 +199,11 @@ def test_t8_seed_honesty_prior_rows_allowlist_unwidened():
         "safety.chat_armed_allowlist",
     } <= {c.id for c in registry.capabilities()}
 
-    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset({"HOLD", "LAND", "GO_TO"})
-    assert "TAKEOFF" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
-    assert "RETURN_HOME" not in ArmedAllowlistSafetyGate._ALLOWED_VERBS
+    # T14 (B1-assistant-vehicle-allowlist-widen): widened to the full
+    # seven-verb chat set.
+    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset(
+        {"HOLD", "LAND", "GO_TO", "TAKEOFF", "RETURN_HOME", "FOLLOW", "PATROL"}
+    )
 
 
 def test_t9_ast_fence_and_default_safety_gate():
@@ -209,7 +216,3 @@ def test_t9_ast_fence_and_default_safety_gate():
             ), f"assistant_task.py imports forbidden module '{module_name}'"
     assert isinstance(default_safety_gate(), RejectAllSafetyGate)
 
-
-def test_t10_pyproject_version_is_0_6_19():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.20"' in text
