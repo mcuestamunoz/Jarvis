@@ -37,7 +37,8 @@
     "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "Cursor PASS WITH NOTES for T52 @ 0.7.9"
+    "T52-N1 action speak map",
+    "T52-N2 why humanize (print + brief)"
   ],
   "authority_gates": [
     "No ACCEPT claimed by Cursor",
