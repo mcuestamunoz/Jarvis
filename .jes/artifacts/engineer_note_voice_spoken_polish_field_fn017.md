@@ -3,7 +3,7 @@
 **Date:** 2026-10-05  
 **Source:** Engineer live smoke @ tip **`v0.7.6`** (`es_ES-davefx-medium` + `--chat --voice-speak`)  
 **Project:** `dron-de-vigilancia-doméstico`  
-**Status:** **OPEN** — **T50 ★** @ `v0.7.7` · **T51 ★** @ `v0.7.8` · **T52 Implemented** @ `0.7.9` (await Cursor review)
+**Status:** **OPEN** — **T50 ★** @ `v0.7.7` · **T51 ★** @ `v0.7.8` · **T52** Cursor **PASS WITH NOTES** @ `0.7.9` (await Engineer ACCEPT → `v0.7.9`)
 
 **Discipline:** anything spotted in smoke/review that can hurt spoken UX or docs honesty later gets **tracked here** (or in cola) with a home Buy — fix now if cheap, else schedule. Do not drop notes.
 
@@ -35,7 +35,7 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 | **T50** | `B1-assistant-voice-speak-sanitize` | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.7`** — [review ★](implementation_review_assistant_voice_speak_sanitize_b1.md). |
 | **T51** | `B1-assistant-voice-brief-spanish` | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.8`** — [review ★](implementation_review_assistant_voice_brief_spanish_b1.md). |
 | **T52-DC** | `DC-assistant-voice-full-spoken` | **DC ready** — [DC](design_contract_assistant_voice_full_spoken_b0.md). Amends T44-DC FULL **payload** only. |
-| **T52** | `B1-assistant-voice-full-spoken` | **Implemented** @ `0.7.9` — await Cursor review — [IC](implementation_contract_assistant_voice_full_spoken_b1.md) · [report](implementation_report_assistant_voice_full_spoken_b1.md). |
+| **T52** | `B1-assistant-voice-full-spoken` | Cursor **PASS WITH NOTES** @ `0.7.9` — [review](implementation_review_assistant_voice_full_spoken_b1.md) · [report](implementation_report_assistant_voice_full_spoken_b1.md). Await Engineer ★ ACCEPT → tag `v0.7.9`. |
 
 **Out:** LLM summary · wake-word · T40 · changing screen Continuity · Conversation Engine.
 
@@ -50,7 +50,11 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 | **T50-N3** | Sibling tests updated for glossary + tip-pin policy | None — closed | — | Done |
 | **T51-N1** | `brief_spoken_continuity` docstring still narrated pre-T51 `PROJECT STATUS: …` | Docs honesty | same tip | **Done** — docstring synced to Spanish status + mapped/raw gap |
 | **T51-N2** | Sibling T45/T50 test assertion updates | None — informational | report §2 | **Closed** — intentional locked behavior; no further cleanup |
+| **T52-N1** | Section B speaks raw `recommended_next_step.action` codes | Spoken UX polish | later IC | After T52 ★ |
+| **T52-N2** | Brief may speak unmapped `next_useful_why` codes | Spoken UX polish | later IC (brief) | After T52 ★ |
+| **T52-N3** | IC T7 `0.7.9` not tip-pinned in-test | None — policy | tip-pin suite | Closed (same as T51 T6) |
+| **T52-N4** | Top gap title can appear in brief head and Huecos | None — by design | T52-DC | Closed |
 
 Any new smoke finding after T50 ★ → new row here or new Field Note; do not reopen T50 scope silently.
 
-**Next process step:** Cursor review of T52 → Engineer ACCEPT → tag `v0.7.9`.
+**Next process step:** Engineer ★ ACCEPT T52 → tag `v0.7.9`.

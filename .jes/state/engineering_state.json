@@ -1,53 +1,55 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T52 narrates FULL Continuity on the speak path (0.7.9): a locked FULL phrase speaks full_spoken_continuity(ctx) — T51 brief head + Evidencia / Huecos prioritarios / Arquitectura / Requisitos físicos / Bloque propulsión y energía — never the printed wall. Print/Layer 1 byte-identical.",
-  "scope": "spoken_continuity.py: new full_spoken_continuity; spoken_text_for_wall FULL branch returns it. BOM, subsystem table, Conceptos, prop/hover/endurance detail and English PROJECT STATUS stay screen-only even on FULL. No run_chat/render_*/engineering_readiness/speak_sanitize edit. T45 T3/T3b updated (asserted FULL == printed wall).",
-  "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "implementation",
+  "cycle_intent": "T52 Cursor PASS WITH NOTES @ 0.7.9 — await Engineer ★ ACCEPT → tag v0.7.9",
+  "scope": "Documentary Cursor review of T52 FULL Continuity narrated. No src/ edits this turn.",
+  "execution_status": "cursor_pass_with_notes_awaiting_accept",
+  "current_mode": "review",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "T52 IC pasted to Claude"
+    "reason": "Claude T52 summary on tip 39e996c → Cursor independent review"
   },
   "relevant_workflow_phases": [
-    "Implementation"
+    "Review"
   ],
   "applicable_rules": [
     "R-GOV-1",
     "R-ENG-1",
+    "R-TST-1",
     "R-KNW-1"
   ],
   "required_artifacts": [
     ".jes/artifacts/design_contract_assistant_voice_full_spoken_b0.md",
     ".jes/artifacts/implementation_contract_assistant_voice_full_spoken_b1.md",
-    ".jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md"
+    ".jes/artifacts/implementation_report_assistant_voice_full_spoken_b1.md",
+    ".jes/artifacts/implementation_review_assistant_voice_full_spoken_b1.md"
   ],
   "open_questions": [
-    "Cursor review of T52 @ 0.7.9",
-    "After T52: humanize gap actions / prop-hover numbers / Conceptos aloud — later IC?"
+    "Engineer ★ ACCEPT T52 → tag v0.7.9?",
+    "Later IC for T52-N1 action phrases / T52-N2 why map?"
   ],
   "active_operation": {
-    "type": "implemented",
+    "type": "review",
     "contract": "implementation_contract_assistant_voice_full_spoken_b1.md",
     "ids": [
       "T52",
       "B1-assistant-voice-full-spoken"
     ],
-    "blocked_on": "cursor_review"
+    "blocked_on": "engineer_accept"
   },
   "closed_this_turn": [
-    "T52 implemented @ 0.7.9 — report implementation_report_assistant_voice_full_spoken_b1.md"
+    "Cursor PASS WITH NOTES for T52 @ 0.7.9"
   ],
   "authority_gates": [
-    "Cursor does not implement src/ for T52",
-    "No ACCEPT claimed on T52",
-    "FULL != printed_wall",
-    "BOM / subsystems table / Conceptos stay screen-only",
-    "Brief T51 unchanged"
+    "No ACCEPT claimed by Cursor",
+    "Same-session self-PASS is not review of record",
+    "N1/N2 are polish for later ICs, not T52 misses",
+    "T40 stays Parked"
   ],
   "coherence_checklist": [
-    "Amends T44-DC lock 6 payload only",
-    "Opens 0.7.9",
-    "FN-017 / cola / PRIORIDAD point at Cursor review"
+    "IC locks 2-11 PASS",
+    "Targeted pytest 48 passed",
+    "FULL != printed_wall; Layer1 English/BOM still printed",
+    "Package 0.7.9"
   ],
-  "updated_at": "2026-10-06T12:00:00Z"
+  "updated_at": "2026-10-06T07:00:00Z"
 }
