@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer paste)
 **Contract:** [IC](implementation_contract_assistant_voice_full_spoken_b1.md) · [T52-DC](design_contract_assistant_voice_full_spoken_b0.md)
 **Parents:** [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) · [T51 ★](implementation_review_assistant_voice_brief_spanish_b1.md) @ `v0.7.8` · [T45 ★](implementation_review_assistant_chat_spoken_continuity_b1.md)
-**Status:** **Cursor PASS WITH NOTES** — [review](implementation_review_assistant_voice_full_spoken_b1.md) · await Engineer ACCEPT → tag **`v0.7.9`**.
-**Package:** `0.7.8` → **`0.7.9`**.
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-06) · tip **`v0.7.9`**.
+**Package:** `0.7.8` → **`0.7.9` / `v0.7.9`**.
 
 ---
 

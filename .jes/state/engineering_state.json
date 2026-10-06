@@ -1,56 +1,50 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T52 PASS WITH NOTES; N1/N2 closed on tip — await Engineer ★ ACCEPT → tag v0.7.9",
-  "scope": "Hygiene: T52-N1 action speak map + T52-N2 why humanize. N3 policy / N4 by design left closed.",
-  "execution_status": "cursor_pass_with_notes_awaiting_accept",
-  "current_mode": "review",
+  "cycle_intent": "T52 ★ ACCEPT CLOSED @ v0.7.9; FN-017 polish ladder T50–T52 ★; next Engineer pick",
+  "scope": "Documentary ACCEPT for T52 FULL Continuity narrated. Tag v0.7.9. No new IC this turn.",
+  "execution_status": "accept_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Claude T52 summary on tip 39e996c → Cursor independent review"
+    "reason": "ACCEPT T52"
   },
   "relevant_workflow_phases": [
-    "Review"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
     "R-ENG-1",
-    "R-TST-1",
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/design_contract_assistant_voice_full_spoken_b0.md",
-    ".jes/artifacts/implementation_contract_assistant_voice_full_spoken_b1.md",
-    ".jes/artifacts/implementation_report_assistant_voice_full_spoken_b1.md",
-    ".jes/artifacts/implementation_review_assistant_voice_full_spoken_b1.md"
+    ".jes/artifacts/implementation_review_assistant_voice_full_spoken_b1.md",
+    ".jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md"
   ],
   "open_questions": [
-    "Engineer ★ ACCEPT T52 → tag v0.7.9?",
-    "Later IC for T52-N1 action phrases / T52-N2 why map?"
+    "Engineer pick next? T40 stays Parked."
   ],
   "active_operation": {
-    "type": "review",
+    "type": "accept_closed",
     "contract": "implementation_contract_assistant_voice_full_spoken_b1.md",
     "ids": [
       "T52",
       "B1-assistant-voice-full-spoken"
     ],
-    "blocked_on": "engineer_accept"
+    "blocked_on": "engineer_pick"
   },
   "closed_this_turn": [
-    "T52-N1 action speak map",
-    "T52-N2 why humanize (print + brief)"
+    "T52 ★ ACCEPT CLOSED @ v0.7.9",
+    "Tag v0.7.9 cut",
+    "FN-017 T50–T52 ★"
   ],
   "authority_gates": [
-    "No ACCEPT claimed by Cursor",
-    "Same-session self-PASS is not review of record",
-    "N1/N2 are polish for later ICs, not T52 misses",
-    "T40 stays Parked"
+    "No next Buy invented",
+    "T40 stays Parked",
+    "N1/N2 closed before ACCEPT"
   ],
   "coherence_checklist": [
-    "IC locks 2-11 PASS",
-    "Targeted pytest 48 passed",
-    "FULL != printed_wall; Layer1 English/BOM still printed",
-    "Package 0.7.9"
+    "IC/report/review/FN/cola/PRIORIDAD stamped ★",
+    "Package already 0.7.9"
   ],
-  "updated_at": "2026-10-06T07:00:00Z"
+  "updated_at": "2026-10-06T07:10:00Z"
 }

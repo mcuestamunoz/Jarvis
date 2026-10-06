@@ -3,10 +3,10 @@
 **Date:** 2026-10-06  
 **Reviewer:** Cursor (forensic pass — Engineer handoff: tip on `cursor/chat-voice-ptt-impl-8ac5`)  
 **Against:** [IC](implementation_contract_assistant_voice_full_spoken_b1.md) · [T52-DC](design_contract_assistant_voice_full_spoken_b0.md) · [report](implementation_report_assistant_voice_full_spoken_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md)  
-**Tip reviewed:** `39e996c` on `cursor/chat-voice-ptt-impl-8ac5` (parent IC/DC tip `f7017c4` / T51 ★ `v0.7.8`)  
-**Verdict:** **PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.7.9`**.
+**Tip reviewed:** `39e996c` on `cursor/chat-voice-ptt-impl-8ac5` (parent IC/DC tip `f7017c4` / T51 ★ `v0.7.8`); N1/N2 hygiene `c6384e2`  
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-06) @ tip **`v0.7.9`**.
 
-**Process note:** Claude Code implemented under Engineer paste (= Buy), after rebasing from a stale `work-t51` tip onto the authoritative tip (T51 ★ + T52-DC/IC). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.**
+**Process note:** Claude Code implemented under Engineer paste (= Buy), after rebasing from a stale `work-t51` tip onto the authoritative tip (T51 ★ + T52-DC/IC). This is the independent Cursor review of record. Same-session self-PASS is not review of record. **No ACCEPT claimed here.** **Updated:** Engineer ★ ACCEPT CLOSED (2026-10-06) → tag **`v0.7.9`**. Review notes N1/N2 closed on tip before ACCEPT; N3/N4 remain closed as policy/by-design.
 
 ---
 
@@ -81,9 +81,10 @@ By design of T52-DC (reuse brief head + B expands top-3). Not a miss — do not 
 ## 4. Awaiting
 
 ```text
-Cursor verdict: PASS WITH NOTES
-Engineer ★ ACCEPT CLOSED → tag v0.7.9
-Smoke after ACCEPT (optional):
+Cursor verdict: PASS WITH NOTES (N1/N2 closed on tip; N3/N4 closed)
+Engineer ★ ACCEPT CLOSED → tag v0.7.9   ✅ done
+Next: Engineer pick (T40 Parked; FN-017 polish ladder T50–T52 ★)
+Smoke (optional):
   python -m jarvis.main --chat --voice-speak
   User > 1
   User > estado     # brief T51

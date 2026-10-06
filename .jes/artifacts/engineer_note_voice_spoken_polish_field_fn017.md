@@ -3,7 +3,7 @@
 **Date:** 2026-10-05  
 **Source:** Engineer live smoke @ tip **`v0.7.6`** (`es_ES-davefx-medium` + `--chat --voice-speak`)  
 **Project:** `dron-de-vigilancia-doméstico`  
-**Status:** **OPEN** — **T50 ★** @ `v0.7.7` · **T51 ★** @ `v0.7.8` · **T52** Cursor **PASS WITH NOTES** @ `0.7.9` (await Engineer ACCEPT → `v0.7.9`)
+**Status:** **OPEN** (living note) — polish ladder **T50–T52 ★** @ `v0.7.7`–`v0.7.9`
 
 **Discipline:** anything spotted in smoke/review that can hurt spoken UX or docs honesty later gets **tracked here** (or in cola) with a home Buy — fix now if cheap, else schedule. Do not drop notes.
 
@@ -34,8 +34,8 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 |---|---|---|
 | **T50** | `B1-assistant-voice-speak-sanitize` | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.7`** — [review ★](implementation_review_assistant_voice_speak_sanitize_b1.md). |
 | **T51** | `B1-assistant-voice-brief-spanish` | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.8`** — [review ★](implementation_review_assistant_voice_brief_spanish_b1.md). |
-| **T52-DC** | `DC-assistant-voice-full-spoken` | **DC ready** — [DC](design_contract_assistant_voice_full_spoken_b0.md). Amends T44-DC FULL **payload** only. |
-| **T52** | `B1-assistant-voice-full-spoken` | Cursor **PASS WITH NOTES** @ `0.7.9` — [review](implementation_review_assistant_voice_full_spoken_b1.md) · [report](implementation_report_assistant_voice_full_spoken_b1.md). Await Engineer ★ ACCEPT → tag `v0.7.9`. |
+| **T52-DC** | `DC-assistant-voice-full-spoken` | ✅ ★ **CLOSED** (consumed by T52) — [DC](design_contract_assistant_voice_full_spoken_b0.md). |
+| **T52** | `B1-assistant-voice-full-spoken` | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.9`** — [review ★](implementation_review_assistant_voice_full_spoken_b1.md). |
 
 **Out:** LLM summary · wake-word · T40 · changing screen Continuity · Conversation Engine.
 
@@ -57,4 +57,4 @@ Layer 2 ear must sound like a short engineering briefing in Spanish — not a re
 
 Any new smoke finding after T50 ★ → new row here or new Field Note; do not reopen T50 scope silently.
 
-**Next process step:** Engineer ★ ACCEPT T52 → tag `v0.7.9`.
+**Next process step:** Engineer pick. FN-017 T50–T52 ★ closed. **T40** stays Parked.

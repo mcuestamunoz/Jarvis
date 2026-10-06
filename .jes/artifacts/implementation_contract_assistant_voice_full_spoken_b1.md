@@ -6,8 +6,8 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.7.9`**
 
-**Status:** **Cursor PASS WITH NOTES** — await Engineer ★ ACCEPT → tag **`v0.7.9`**.  
-**Parents:** [T52-DC](design_contract_assistant_voice_full_spoken_b0.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) · [T51 ★](implementation_review_assistant_voice_brief_spanish_b1.md) @ **`v0.7.8`** · tip **`39e996c`** / package **`0.7.9`** · [review](implementation_review_assistant_voice_full_spoken_b1.md)  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-06) — Cursor **PASS WITH NOTES** · tip **`v0.7.9`**.  
+**Parents:** [T52-DC](design_contract_assistant_voice_full_spoken_b0.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) · [T51 ★](implementation_review_assistant_voice_brief_spanish_b1.md) @ **`v0.7.8`** · tip **`v0.7.9`** · [review ★](implementation_review_assistant_voice_full_spoken_b1.md)  
 **Type:** Speak-path only — replace FULL Continuity speak payload with narrated field extract. **Print / Layer 1 untouched.** Brief path untouched.  
 **Opens:** **`0.7.9` / `v0.7.9`**. **Cola:** **T52**
 

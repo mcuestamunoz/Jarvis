@@ -3,7 +3,7 @@
 **Project:** Jarvis  
 **Date:** 2026-10-05  
 **Author:** JES / Cursor  
-**Status:** **DC ready** — Engineer asked for IC after locking FULL-narrado bases; this DC amends T44-DC FULL **payload** only.  
+**Status:** **Consumed by T52 ★** — Engineer asked for IC after locking FULL-narrado bases; this DC amends T44-DC FULL **payload** only.  
 **Type:** Block lock — amend Layer 2 **FULL this turn** speak payload (FN-017)  
 **Cola:** **T52-DC**  
 **Parents:** [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [T51 ★](implementation_review_assistant_voice_brief_spanish_b1.md) @ **`v0.7.8`** · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · tip **`v0.7.8`**
