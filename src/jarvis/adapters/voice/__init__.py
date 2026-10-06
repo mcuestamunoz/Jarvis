@@ -44,6 +44,7 @@ from jarvis.adapters.voice.speak_sanitize import sanitize_for_speech
 from jarvis.adapters.voice.spoken_continuity import (
     FULL_CONTINUITY_PHRASES,
     brief_spoken_continuity,
+    full_spoken_continuity,
     is_full_continuity_request,
     spoken_text_for_wall,
 )
@@ -68,6 +69,7 @@ __all__ = [
     "TtsError",
     "TtsProcessError",
     "brief_spoken_continuity",
+    "full_spoken_continuity",
     "is_full_continuity_request",
     "is_ptt_trigger",
     "make_speak_callable",

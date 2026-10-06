@@ -1,16 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T52-DC + T52 IC ready — FULL Continuity narrated @ 0.7.9; paste to Claude",
-  "scope": "Documentary only: T52-DC amends T44-DC FULL speak payload; T52 IC implements full_spoken_continuity. No Cursor src/.",
-  "execution_status": "ic_ready",
-  "current_mode": "contract",
+  "cycle_intent": "T52 narrates FULL Continuity on the speak path (0.7.9): a locked FULL phrase speaks full_spoken_continuity(ctx) — T51 brief head + Evidencia / Huecos prioritarios / Arquitectura / Requisitos físicos / Bloque propulsión y energía — never the printed wall. Print/Layer 1 byte-identical.",
+  "scope": "spoken_continuity.py: new full_spoken_continuity; spoken_text_for_wall FULL branch returns it. BOM, subsystem table, Conceptos, prop/hover/endurance detail and English PROJECT STATUS stay screen-only even on FULL. No run_chat/render_*/engineering_readiness/speak_sanitize edit. T45 T3/T3b updated (asserted FULL == printed wall).",
+  "execution_status": "implemented_awaiting_cursor_review",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "redacta IC after FULL narrado bases"
+    "reason": "T52 IC pasted to Claude"
   },
   "relevant_workflow_phases": [
-    "Design",
-    "Implementation Contract"
+    "Implementation"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -23,22 +22,20 @@
     ".jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md"
   ],
   "open_questions": [
-    "Claude lands T52 @ 0.7.9?",
-    "After T52: prop/hover numbers / Conceptos aloud later IC?"
+    "Cursor review of T52 @ 0.7.9",
+    "After T52: humanize gap actions / prop-hover numbers / Conceptos aloud — later IC?"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_voice_full_spoken_b1.md",
     "ids": [
-      "T52-DC",
       "T52",
       "B1-assistant-voice-full-spoken"
     ],
-    "blocked_on": "claude_impl"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "T52-DC ready — FULL payload locks",
-    "T52 IC ready with Claude paste"
+    "T52 implemented @ 0.7.9 — report implementation_report_assistant_voice_full_spoken_b1.md"
   ],
   "authority_gates": [
     "Cursor does not implement src/ for T52",
@@ -50,7 +47,7 @@
   "coherence_checklist": [
     "Amends T44-DC lock 6 payload only",
     "Opens 0.7.9",
-    "FN-017 / cola / PRIORIDAD pointed at paste"
+    "FN-017 / cola / PRIORIDAD point at Cursor review"
   ],
-  "updated_at": "2026-10-05T19:00:00Z"
+  "updated_at": "2026-10-06T12:00:00Z"
 }

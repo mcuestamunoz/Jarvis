@@ -3,7 +3,7 @@
 **Date:** 2026-10-04  
 **Status:** **OPEN living map** — Layer 2 shipped by [T45](implementation_report_assistant_chat_spoken_continuity_b1.md) @ `0.7.4`; push-to-talk shipped by [T47](implementation_report_assistant_chat_voice_ptt_b1.md) @ `0.7.5` ([T44-inv](investigation_report_assistant_chat_spoken_continuity_b0.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [T45 IC](implementation_contract_assistant_chat_spoken_continuity_b1.md) · [T46-DC](design_contract_assistant_chat_voice_ptt_b0.md) · [T47 IC](implementation_contract_assistant_chat_voice_ptt_b1.md))  
 **Authority:** Engineer — this is the single inventory future chat/Continuity egress Buys update in the same Buy  
-**Tip:** `0.7.5` — Layer 2 live on the two Continuity walls (project load + `action == "project_status"`); push-to-talk (`hablar`/`habla`) live on the same `--chat --voice-speak` session; every other surface unchanged since T43
+**Tip:** `0.7.9` — Layer 2 live on the two Continuity walls (project load + `action == "project_status"`); brief in Spanish (T51 @ `0.7.8`); FULL is a narrated extract, never the printed wall (T52 @ `0.7.9`); push-to-talk (`hablar`/`habla`) live on the same `--chat --voice-speak` session; every other surface unchanged since T43
 
 **Purpose:** Every `--chat` print surface and every `build_startup_context`/`build_project_continuity` field, classified for the two-layer spoken-continuity model:
 
@@ -13,9 +13,9 @@
 **Classification legend:**
 - **must-speak-brief** — spoken every time under `--chat --voice-speak`, kept short (already short, or a single extracted fact).
 - **speak-on-request** — spoken only when the user asks for full (`dame detalles` / `completo` / the locked FULL set).
-- **screen-only** — never spoken by default, even on request (operator diagnostics / visual-only content).
+- **screen-only** — never spoken by default, even on request (operator diagnostics / visual-only content). Since T52 this includes the BOM, the readiness subsystem table, Conceptos, and the propulsion/hover/endurance detail blocks — screen-truth, not ear-truth (FN-017).
 
-**Shipped extractor (T45):** `src/jarvis/adapters/voice/spoken_continuity.py` — `brief_spoken_continuity(ctx)` (the brief extract), `is_full_continuity_request(raw_text)` (locked FULL-phrase match), `spoken_text_for_wall(raw_text, printed_wall, ctx)` (the combinator `run_chat` calls on both wall sites). Three of the ten locked FULL phrases (`completo`, `estado completo`, `cuentame todo`) were also newly added to `CONTINUITY_DEFER_PHRASES` (`jarvis/config.py:108-110`) so they resolve to `action == "project_status"` at all — the other seven were already members.
+**Shipped extractor (T45):** `src/jarvis/adapters/voice/spoken_continuity.py` — `brief_spoken_continuity(ctx)` (the brief extract), `is_full_continuity_request(raw_text)` (locked FULL-phrase match), `spoken_text_for_wall(raw_text, printed_wall, ctx)` (the combinator `run_chat` calls on both wall sites). **T52:** `full_spoken_continuity(ctx)` (the FULL narrated extract — see "FULL spoken shape" below); `spoken_text_for_wall` returns it on a FULL phrase and never speaks `printed_wall` (kept in the signature so `run_chat` stays untouched). Three of the ten locked FULL phrases (`completo`, `estado completo`, `cuentame todo`) were also newly added to `CONTINUITY_DEFER_PHRASES` (`jarvis/config.py:108-110`) so they resolve to `action == "project_status"` at all — the other seven were already members.
 
 **Shipped push-to-talk (T47):** `src/jarvis/adapters/voice/external_record.py` — `record_audio_file(output_path, ...)` (external `JARVIS_RECORD_CMD` process seam, typed `RecordError` family), `resolve_record_seconds()` (`JARVIS_RECORD_SECONDS`, default 7), `is_ptt_trigger(raw_text)` (locked exact-match `hablar`/`habla`, own local normalize — **not** added to `CONTINUITY_DEFER_PHRASES`). `run_chat` checks the trigger once per typed line (never re-checked against the transcript), records, reuses T37's existing `transcribe_audio_file`/`JARVIS_STT_CMD` unchanged, then substitutes `user_input` with the transcript and falls through the same loop — no `source=VOICE`, no `run_voice_turn`. Operator wrapper: `scripts/voice/record_turn.sh`.
 
@@ -65,10 +65,10 @@ Whenever a Buy adds or changes a `--chat` print surface, a `build_startup_contex
 | Field | Printed in | Class |
 |---|---|---|
 | `situation` | wall `main.py:305`, coherence footer `main.py:685` | **must-speak-brief** |
-| `evidence` (`list[str]`, capped 6) | wall only `main.py:306-310` | **speak-on-request** |
+| `evidence` (`list[str]`, capped 6) | wall only `main.py:306-310` | **speak-on-request** — FULL section A (`full_spoken_continuity`, `[:6]`) |
 | `next_useful_step` | wall `main.py:311`, coherence footer `main.py:686-687` | **must-speak-brief** |
 | `next_useful_why` | wall `main.py:313-314`, coherence footer `main.py:688-689` | **must-speak-brief** |
-| `explain_topics` → Conceptos lines | wall `main.py:315-318`, coherence footer `main.py:690-693` | **speak-on-request** |
+| `explain_topics` → Conceptos lines | wall `main.py:315-318`, coherence footer `main.py:690-693` | **screen-only** (T52 — not spoken even on FULL) |
 
 ### `build_startup_context` return (`src/jarvis/core/orchestrator.py:7862-7938`)
 
@@ -80,18 +80,18 @@ Whenever a Buy adds or changes a `--chat` print surface, a `build_startup_contex
 | `status_type`/`status_reason`/`missing_params` | `main.py:326-350` | **screen-only** (prose already folded into `continuity.situation`) |
 | `active_variables` | `main.py:352-355` | **screen-only** |
 | `suggested_action` | `main.py:358-368` | **screen-only** (superseded by `continuity.next_useful_step` whenever present) |
-| `architecture_progress`/`next_architecture_label`/`next_block_status` | `main.py:370-384` | **speak-on-request** |
-| `physical_requirements_lines` | `main.py:386-391` | **speak-on-request** |
-| `component_bom_lines` | `main.py:402-407` | **speak-on-request** |
-| `propulsion_resolution` | `main.py:412-438` | **speak-on-request** |
-| `motor_operating_point_electrical` | `main.py:446-456` | **speak-on-request** |
-| `hover_energy` | `main.py:464-480` | **speak-on-request** |
-| `battery_endurance.envelope` | `main.py:483-485` via `_render_estimative_endurance_lines` (`main.py:253-287`) | **speak-on-request** |
+| `architecture_progress`/`next_architecture_label`/`next_block_status` | `main.py:370-384` | **speak-on-request** — FULL section C |
+| `physical_requirements_lines` | `main.py:386-391` | **speak-on-request** — FULL section D |
+| `component_bom_lines` | `main.py:402-407` | **screen-only** (T52 — not spoken even on FULL) |
+| `propulsion_resolution` | `main.py:412-438` | **screen-only** (T52 — not spoken even on FULL) |
+| `motor_operating_point_electrical` | `main.py:446-456` | **screen-only** (T52 — not spoken even on FULL) |
+| `hover_energy` | `main.py:464-480` | **screen-only** (T52 — not spoken even on FULL) |
+| `battery_endurance.envelope` | `main.py:483-485` via `_render_estimative_endurance_lines` (`main.py:253-287`) | **screen-only** (T52 — not spoken even on FULL) |
 | `readiness.overall` | inside readiness block, `main.py:230` (`PROJECT STATUS:` line) | **must-speak-brief** — extracted alone by `brief_spoken_continuity` (`spoken_continuity.py`), without the subsystem table |
-| `readiness.subsystems` (9-row table + footnotes) | `main.py:216-227` | **speak-on-request** |
+| `readiness.subsystems` (9-row table + footnotes) | `main.py:216-227` | **screen-only** (T52 — not spoken even on FULL) |
 | `readiness.prioritized_gaps[0].title` | inside TOP GAPS, `main.py:242` | **must-speak-brief** — extracted alone by `brief_spoken_continuity`, title only |
-| `readiness.prioritized_gaps[1:]` (full detail: blocks/depends_on/next) | `main.py:236-249` | **speak-on-request** |
-| `prop_energy_block_closure` | `main.py:500-537` | **speak-on-request** |
+| `readiness.prioritized_gaps[1:]` (full detail: blocks/depends_on/next) | `main.py:236-249` | **speak-on-request** — FULL section B: `[:3]`, T51 title map + `Siguiente: <action>` only; `gap_id`/`depends_on`/`severity`/`blocks` stay **screen-only** |
+| `prop_energy_block_closure` | `main.py:500-537` | **speak-on-request** — FULL section E (`cerrado.`/`no cerrado.` only; evidence-tier wording stays screen-only) |
 | `margin_claim_weak` | bool gate only, `main.py:233-234` | **screen-only** |
 
 ---
@@ -103,12 +103,24 @@ Implemented in `brief_spoken_continuity` (`src/jarvis/adapters/voice/spoken_cont
 1. `continuity["situation"]`
 2. `continuity["next_useful_step"]`
 3. humanized `continuity["next_useful_why"]` (via `main.py::_humanize_next_useful_why`, same mapping the wall itself uses — omitted if `next_useful_step` or `next_useful_why` is absent)
-4. `"PROJECT STATUS: ASSEMBLY READY"` / `"PROJECT STATUS: NOT ASSEMBLY READY"` derived from `readiness["overall"]` (not the subsystem table)
-5. `readiness["prioritized_gaps"][0]["title"]` if the list is non-empty (title only)
+4. `"Estado del proyecto: listo para ensamblar"` / `"Estado del proyecto: no listo para ensamblar"` derived from `readiness["overall"]` (not the subsystem table; Spanish since T51)
+5. `readiness["prioritized_gaps"][0]["title"]` if the list is non-empty (title only; T51 `_GAP_TITLE_SPEAK_MAP`, unknown titles pass through)
 
 Each piece is omitted when its source field is absent; joined with newlines. Everything else in Table 2 stays **speak-on-request**; nothing is ever removed from the screen — Layer 1 (truth, on screen) is untouched by any of this, proven by `tests/test_assistant_chat_spoken_continuity_b1.py::test_t2_chat_wall_prints_full_but_speaks_brief`.
 
-**FULL override:** `is_full_continuity_request`/`spoken_text_for_wall` (same module) speak the exact printed wall instead, for one turn only, when the typed line matches the locked FULL set — see the header above.
+**FULL override:** `is_full_continuity_request`/`spoken_text_for_wall` (same module) speak `full_spoken_continuity(ctx)` instead, for one turn only, when the typed line matches the locked FULL set — see below. (T45–T51 spoke the exact printed wall here; T52 replaced that — FN-017.)
+
+## FULL spoken shape (on request, shipped T52 @ `0.7.9`) — ordered
+
+Implemented in `full_spoken_continuity` (`src/jarvis/adapters/voice/spoken_continuity.py`): the brief above, unchanged, followed by — each section omitted when empty, newline-joined:
+
+- **A.** `Evidencia:` + `continuity["evidence"][:6]`
+- **B.** `Huecos prioritarios:` + for each of `readiness["prioritized_gaps"][:3]`: title (T51 map) and `Siguiente: <recommended_next_step.action>` — never `gap_id`/`depends_on`/`severity`/`blocks`
+- **C.** `Arquitectura <architecture_progress>. Siguiente bloque: <next_architecture_label>[ en progreso]` or `Arquitectura <progress>. Completa.`
+- **D.** `Requisitos físicos:` + `physical_requirements_lines`
+- **E.** `Bloque propulsión y energía: cerrado.` / `no cerrado.` from `prop_energy_block_closure.status`
+
+Screen-only even on FULL: BOM, the readiness subsystem table, Conceptos, propulsion/hover/endurance detail blocks, the English `PROJECT STATUS` line. Proven by `tests/test_assistant_voice_full_spoken_b1.py`.
 
 ---
 

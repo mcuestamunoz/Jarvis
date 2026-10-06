@@ -27,6 +27,13 @@ function, so Layer 1 cannot drift from this Buy. An unknown gap title
 (not in `_GAP_TITLE_SPEAK_MAP`) is spoken exactly as given — honesty
 over invented translation.
 
+T52 (`B1-assistant-voice-full-spoken`): a locked FULL phrase now speaks
+`full_spoken_continuity` — the brief plus a narrated body (evidence,
+top-3 gaps with Spanish titles and next action, architecture progress,
+physical requirements, propulsion/energy block state) — never the
+printed wall verbatim. BOM, the readiness table, Conceptos and the
+propulsion/hover/endurance detail blocks stay screen-only even on FULL.
+
 `is_full_continuity_request` matches the same locked, finite FULL-phrase
 set the Engineer gave (`completo`, `dame detalles`, …) against the same
 minimal normalize `jarvis.intelligence.assistant_task.
@@ -140,12 +147,89 @@ def brief_spoken_continuity(ctx: dict[str, Any] | None) -> str:
     return "\n".join(lines)
 
 
+def full_spoken_continuity(ctx: dict[str, Any] | None) -> str:
+    """T52 (`B1-assistant-voice-full-spoken`): what a locked FULL phrase
+    speaks — the brief (`brief_spoken_continuity`, unchanged) followed by
+    a narrated body built from already-computed `ctx` fields, each section
+    omitted when empty:
+
+    A. ``Evidencia:`` — ``continuity.evidence[:6]`` (same cap as print)
+    B. ``Huecos prioritarios:`` — ``readiness.prioritized_gaps[:3]``: the
+       T51 title map plus ``Siguiente: <action>`` only; never ``gap_id`` /
+       ``depends_on`` / ``severity`` / ``blocks``
+    C. ``Arquitectura <progress>. Siguiente bloque: <label>`` (+ `` en
+       progreso`` when ``next_block_status == "in_progress"``) or
+       ``Arquitectura <progress>. Completa.``
+    D. ``Requisitos físicos:`` — ``physical_requirements_lines``
+    E. ``Bloque propulsión y energía: cerrado.`` / ``no cerrado.``
+
+    Screen-only even on FULL (never spoken here): BOM lines, the readiness
+    subsystem table, Conceptos, propulsion/hover/endurance detail blocks,
+    the English ``PROJECT STATUS`` line. No LLM, no new computation — a
+    deterministic extract; Layer 1 (print) is never touched. Returns
+    ``""`` when there is no active project, same as the brief.
+    """
+    if not ctx or not ctx.get("has_project"):
+        return ""
+
+    lines: list[str] = []
+    brief = brief_spoken_continuity(ctx)
+    if brief:
+        lines.append(brief)
+
+    continuity = ctx.get("continuity") or {}
+    evidence = [item for item in (continuity.get("evidence") or [])[:6] if item]
+    if evidence:
+        lines.append("Evidencia:")
+        lines.extend(evidence)
+
+    readiness = ctx.get("readiness") or {}
+    gap_lines: list[str] = []
+    for gap in (readiness.get("prioritized_gaps") or [])[:3]:
+        title = gap.get("title")
+        if title:
+            gap_lines.append(_GAP_TITLE_SPEAK_MAP.get(title, title))
+        action = (gap.get("recommended_next_step") or {}).get("action")
+        if action:
+            gap_lines.append(f"Siguiente: {action}")
+    if gap_lines:
+        lines.append("Huecos prioritarios:")
+        lines.extend(gap_lines)
+
+    arch_progress = ctx.get("architecture_progress")
+    if arch_progress:
+        arch_label = ctx.get("next_architecture_label")
+        if arch_label:
+            status_tag = " en progreso" if ctx.get("next_block_status") == "in_progress" else ""
+            lines.append(f"Arquitectura {arch_progress}. Siguiente bloque: {arch_label}{status_tag}")
+        else:
+            lines.append(f"Arquitectura {arch_progress}. Completa.")
+
+    req_lines = [line for line in (ctx.get("physical_requirements_lines") or []) if line]
+    if req_lines:
+        lines.append("Requisitos físicos:")
+        lines.extend(req_lines)
+
+    block_closure = ctx.get("prop_energy_block_closure")
+    if block_closure:
+        if block_closure.get("status") == "closed":
+            lines.append("Bloque propulsión y energía: cerrado.")
+        else:
+            lines.append("Bloque propulsión y energía: no cerrado.")
+
+    return "\n".join(lines)
+
+
 def spoken_text_for_wall(raw_text: str, printed_wall: str, ctx: dict[str, Any] | None) -> str:
     """What `run_chat` should hand to `speak(...)` for a Continuity-wall
-    turn: the exact `printed_wall` string when `raw_text` is a locked
-    FULL request (per-turn only), else `brief_spoken_continuity(ctx)`.
-    The print side is never touched either way — Layer 1 stays whatever
+    turn: `full_spoken_continuity(ctx)` when `raw_text` is a locked FULL
+    request (per-turn only), else `brief_spoken_continuity(ctx)`.
+
+    T52: FULL no longer speaks `printed_wall` verbatim — that read the
+    screen like OCR (FN-017). `printed_wall` is kept in the signature so
+    the `run_chat` call sites stay untouched, but it is never spoken. The
+    print side is never touched either way — Layer 1 stays whatever
     `render_startup_context`/`render_response` already produced."""
     if is_full_continuity_request(raw_text):
-        return printed_wall
+        return full_spoken_continuity(ctx)
     return brief_spoken_continuity(ctx)

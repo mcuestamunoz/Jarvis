@@ -5,8 +5,10 @@ verbatim — including the full Continuity wall on project load and on
 `estado`. T44-inv mapped the wall's fields; T44-DC locked a two-layer
 plan: Layer 1 (print) stays the full wall, untouched; Layer 2 (speak)
 becomes a deterministic brief extract on wall turns only, unless the
-user's line is one of the locked FULL phrases, in which case the wall
-itself is spoken that turn only (no session latch). No LLM anywhere in
+user's line is one of the locked FULL phrases, in which case a fuller
+extract is spoken that turn only (no session latch). T52 changed that
+FULL payload from the printed wall verbatim to the narrated
+`full_spoken_continuity`. No LLM anywhere in
 this layer.
 
 Isolation note: same pattern as `test_assistant_chat_voice_speak_b1.py`
@@ -165,7 +167,7 @@ def test_t2_chat_wall_prints_full_but_speaks_brief(tmp_path, monkeypatch, capsys
     )
 
 
-def test_t3_full_phrase_speaks_the_wall_verbatim(tmp_path, monkeypatch, capsys):
+def test_t3_full_phrase_speaks_narrated_full_not_the_wall(tmp_path, monkeypatch, capsys):
     workspace_root = _isolate_workspace(monkeypatch, tmp_path)
     _seed_fat_project(workspace_root)
     from jarvis.adapters.cli.main import run_chat
@@ -181,14 +183,18 @@ def test_t3_full_phrase_speaks_the_wall_verbatim(tmp_path, monkeypatch, capsys):
     assert "ENGINEERING READINESS" in out  # print side unaffected either way
 
     captures = [c for c in received.read_text(encoding="utf-8").split("---\n") if c.strip()]
-    # Exactly one capture (the "completo" turn) carries the full wall;
-    # the project-load turn and any wizard-opener stay brief/short.
-    full_captures = [c for c in captures if "ENGINEERING READINESS" in c]
-    assert len(full_captures) == 1, f"expected exactly one full-wall capture, got {len(full_captures)}"
-    assert "TOP GAPS" in full_captures[0]
+    # T52 (`B1-assistant-voice-full-spoken`): FULL now speaks the narrated
+    # `full_spoken_continuity`, never the printed wall verbatim. Exactly
+    # one capture (the "completo" turn) carries the narrated body; the
+    # project-load turn and any wizard-opener stay brief/short.
+    full_captures = [c for c in captures if "Huecos prioritarios" in c]
+    assert len(full_captures) == 1, f"expected exactly one FULL capture, got {len(full_captures)}"
+    for capture in captures:
+        assert "ENGINEERING READINESS" not in capture
+        assert "TOP GAPS" not in capture
 
 
-def test_t3b_full_phrase_dame_detalles_also_speaks_the_wall(tmp_path, monkeypatch):
+def test_t3b_full_phrase_dame_detalles_also_speaks_narrated_full(tmp_path, monkeypatch):
     workspace_root = _isolate_workspace(monkeypatch, tmp_path)
     _seed_fat_project(workspace_root)
     from jarvis.adapters.cli.main import run_chat
@@ -201,8 +207,9 @@ def test_t3b_full_phrase_dame_detalles_also_speaks_the_wall(tmp_path, monkeypatc
     run_chat(speak_tts=True)
 
     captures = [c for c in received.read_text(encoding="utf-8").split("---\n") if c.strip()]
-    full_captures = [c for c in captures if "ENGINEERING READINESS" in c]
-    assert len(full_captures) == 1, f"expected exactly one full-wall capture, got {len(full_captures)}"
+    full_captures = [c for c in captures if "Huecos prioritarios" in c]
+    assert len(full_captures) == 1, f"expected exactly one FULL capture, got {len(full_captures)}"
+    assert not any("ENGINEERING READINESS" in c for c in captures)
 
 
 def test_t4_short_skill_turn_still_speaks_as_printed_and_bare_chat_is_silent(

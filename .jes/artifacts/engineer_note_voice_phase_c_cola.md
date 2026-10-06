@@ -1,9 +1,9 @@
 # Engineer note — Voice phase C cola (Skill-first channels)
 
-**Date:** 2026-10-03 · **updated:** 2026-10-05 (T52-DC + T52 IC ready)  
-**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T51 ★** @ tip **`v0.7.8`**; **T52-DC ready** · **T52 IC ready** @ `0.7.9`; **T40** Parked  
+**Date:** 2026-10-03 · **updated:** 2026-10-05 (T52 Implemented)  
+**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T51 ★** @ tip **`v0.7.8`**; **T52-DC ready** · **T52 Implemented** @ `0.7.9`, await Cursor review; **T40** Parked  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`v0.7.8`** (T51 ★) · **T52** IC ready → paste Claude · [DC](design_contract_assistant_voice_full_spoken_b0.md) · [IC](implementation_contract_assistant_voice_full_spoken_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md)
+**Tip parent:** **`v0.7.8`** (T51 ★) · **T52** Implemented → Cursor review · [DC](design_contract_assistant_voice_full_spoken_b0.md) · [IC](implementation_contract_assistant_voice_full_spoken_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md)
 
 **Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md)
 
@@ -90,10 +90,10 @@ run_chat print  → Layer 1 (unchanged)
 | **T50** | V7+ | `B1-assistant-voice-speak-sanitize` | **`0.7.7`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.7`** | Speak-path sanitizer (strip decoration + TTS glossary); print untouched | [review ★](implementation_review_assistant_voice_speak_sanitize_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T51** | V7+ | `B1-assistant-voice-brief-spanish` | **`0.7.8`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.8`** | Brief Continuity Spanish + T50-N1/N2 | [review ★](implementation_review_assistant_voice_brief_spanish_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T52-DC** | V7+ | `DC-assistant-voice-full-spoken` | — (no bump) | **DC ready** | Amend T44-DC FULL payload: narrated detail, not verbatim print | [DC](design_contract_assistant_voice_full_spoken_b0.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
-| **T52** | V7+ | `B1-assistant-voice-full-spoken` | **`0.7.9`** | **IC ready** — paste to Claude | Implement FULL narrated Layer 2 · no LLM · BOM/table screen-only | [IC](implementation_contract_assistant_voice_full_spoken_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
+| **T52** | V7+ | `B1-assistant-voice-full-spoken` | **`0.7.9`** | **Implemented** — await Cursor review | Implement FULL narrated Layer 2 (`full_spoken_continuity`) · no LLM · BOM/table screen-only | [IC](implementation_contract_assistant_voice_full_spoken_b1.md) · [report](implementation_report_assistant_voice_full_spoken_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7 · not V8 | [placement A4](design_contract_assistant_placement_b0.md) |
 
-**Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**. **T48-inv** docs-only, stays `0.7.5`. **T49** opens **`0.7.6`**. **T50 ★** opens **`0.7.7`**. **T51 ★** opens **`0.7.8` / `v0.7.8`**. **T52** opens **`0.7.9`**.
+**Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**. **T48-inv** docs-only, stays `0.7.5`. **T49** opens **`0.7.6`**. **T50 ★** opens **`0.7.7`**. **T51 ★** opens **`0.7.8` / `v0.7.8`**. **T52** opens **`0.7.9`**, Implemented.
 
 ---
 
@@ -159,7 +159,7 @@ Spoken-continuity is **inside** the already-★ voice-half surface (egress class
 
 Desired egress voice (not a vendor lock): **Spanish (`es_ES`), grave, short, no theater** — free-first via **Piper `es_ES-davefx-medium`** (T49 ★). Alt `es_ES-sharvard-medium`. `en_GB` legacy optional. See [`engineer_note_voice_tts_product_brief.md`](engineer_note_voice_tts_product_brief.md). Marvel exact-clone **out**.
 
-V7/T45 makes "short" true for Continuity walls — the screen still shows the full wall; the ear gets the brief extract by default; FULL phrases currently speak the printed wall verbatim (FN-017: too flat — queued T50–T52 polish).
+V7/T45 makes "short" true for Continuity walls — the screen still shows the full wall; the ear gets the brief extract by default; FULL phrases speak the narrated `full_spoken_continuity` extract since T52 (`0.7.9`), never the printed wall verbatim (FN-017).
 
 V8 does not change TTS character. A PTT `estado` still speaks T45 brief; a PTT FULL phrase still uses the same Layer 2 rule that turn.
 
@@ -167,7 +167,7 @@ V8 does not change TTS character. A PTT `estado` still speaks T45 brief; a PTT F
 
 Engineer smoke (2026-10-05): Spanish Piper works; `completo` reads ASCII bars / asterisks / `C-rate` / English labels. Field Note: [FN-017](engineer_note_voice_spoken_polish_field_fn017.md).
 
-Ordered: **T50** sanitizer → **T51** brief Spanish → **T52-DC/T52** FULL narrated (amend T44-DC FULL payload only) — **DC+IC ready**. No LLM. Print Layer 1 untouched.
+Ordered: **T50** sanitizer → **T51** brief Spanish → **T52-DC/T52** FULL narrated (amend T44-DC FULL payload only) — **T52 Implemented**, await review. No LLM. Print Layer 1 untouched.
 
 ---
 
