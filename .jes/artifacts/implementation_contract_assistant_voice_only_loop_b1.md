@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.8.0`**
 
-**Status:** **IC ready** — Engineer “procede” 2026-10-13. Paste to Claude. Tip parent **`v0.7.9`**.  
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-10-13) — Cursor **PASS WITH NOTES** · tip **`v0.8.0`**.  
 **Parents:** [V9-DC / T53-DC](design_contract_assistant_voice_two_mode_product_b0.md) · [INV ★](investigation_report_assistant_voice_two_mode_product_b0.md) · [T52 ★](implementation_review_assistant_voice_full_spoken_b1.md) · [T47 PTT](implementation_review_assistant_chat_voice_ptt_b1.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) · tip **`v0.7.9`**  
 **Type:** Product-surface collapse — **Chat** (`--chat`) + **Voice-only** (`--voice-only`); kill hybrid `--chat --voice-speak` / typed `hablar` as product UX; reuse voice seams.  
 **Opens:** **`0.8.0` / `v0.8.0`**. **Cola:** **T53** / **V9**

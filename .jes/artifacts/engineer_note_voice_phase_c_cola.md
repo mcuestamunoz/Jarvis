@@ -1,9 +1,9 @@
 # Engineer note — Voice phase C cola (Skill-first channels)
 
-**Date:** 2026-10-03 · **updated:** 2026-10-13 (T53 Implemented)  
-**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T52 ★** @ tip **`v0.7.9`**; **T53 Implemented** @ `0.8.0`, await Cursor review; **T40** Parked  
+**Date:** 2026-10-03 · **updated:** 2026-10-13 (T53 ★ ACCEPT CLOSED @ `v0.8.0`)  
+**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T53 ★** @ tip **`v0.8.0`**; next Engineer pick · V10 silence later · **T40** Parked  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`v0.7.9`** · next = Cursor review of **T53** · [T53 IC](implementation_contract_assistant_voice_only_loop_b1.md) · [V9-DC](design_contract_assistant_voice_two_mode_product_b0.md) · [INV ★](investigation_report_assistant_voice_two_mode_product_b0.md)
+**Tip parent:** **`v0.8.0`** (T53 ★) · [T53 review ★](implementation_review_assistant_voice_only_loop_b1.md) · [V9-DC](design_contract_assistant_voice_two_mode_product_b0.md) · [INV ★](investigation_report_assistant_voice_two_mode_product_b0.md)
 
 **Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [V9-DC](design_contract_assistant_voice_two_mode_product_b0.md)
 
@@ -93,7 +93,7 @@ run_chat print  → Layer 1 (unchanged)
 | **T52** | V7+ | `B1-assistant-voice-full-spoken` | **`0.7.9`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.9`** | Implement FULL narrated Layer 2 (`full_spoken_continuity`) · no LLM · BOM/table screen-only | [review ★](implementation_review_assistant_voice_full_spoken_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T53-inv** | V9 | `INV-assistant-voice-two-mode-product` | docs | ✅ ★ **FINDINGS ACCEPTED** | Keep/kill/reuse · two-mode collapse | [INV ★](investigation_report_assistant_voice_two_mode_product_b0.md) |
 | **T53-DC** | V9 | `DC-assistant-voice-two-mode-product` | — (no bump) | **DC ready** (consumed by IC) | Chat \| Voice-only · kill hybrid · reuse seams · mic default · fixed cut | [DC](design_contract_assistant_voice_two_mode_product_b0.md) |
-| **T53** | V9 | `B1-assistant-voice-only-loop` | **`0.8.0`** | **Implemented** — await Cursor review | Voice-only loop + retire hybrid product + guide | [IC](implementation_contract_assistant_voice_only_loop_b1.md) · [report](implementation_report_assistant_voice_only_loop_b1.md) |
+| **T53** | V9 | `B1-assistant-voice-only-loop` | **`0.8.0` / `v0.8.0`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.0`** | Voice-only loop + retire hybrid + guide · two product modes | [review ★](implementation_review_assistant_voice_only_loop_b1.md) · [report](implementation_report_assistant_voice_only_loop_b1.md) |
 | **T54** | V10 | silence end-of-utterance | later | **Later** | VAD/silence cut — out of V9 | DC lock 14 |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7–V9 | [placement A4](design_contract_assistant_placement_b0.md) |
 

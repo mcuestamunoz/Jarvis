@@ -5,8 +5,8 @@
 **Implementer:** Claude Code (Engineer paste)
 **Contract:** [IC](implementation_contract_assistant_voice_only_loop_b1.md) · [V9-DC](design_contract_assistant_voice_two_mode_product_b0.md) · [INV ★](investigation_report_assistant_voice_two_mode_product_b0.md)
 **Parent:** tip `v0.7.9` (T52 ★)
-**Status:** **Implemented** — await Cursor review → Engineer ACCEPT → tag `v0.8.0`. No ACCEPT claimed.
-**Package:** `0.7.9` → **`0.8.0`**.
+**Status:** ★ **ACCEPT CLOSED** (Engineer 2026-10-13) — Cursor **PASS WITH NOTES** · tip **`v0.8.0`**.
+**Package:** `0.7.9` → **`0.8.0`** / tag **`v0.8.0`**.
 
 ---
 

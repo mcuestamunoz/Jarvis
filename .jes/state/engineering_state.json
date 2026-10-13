@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T53 / V9 collapses the product to two modes (0.8.0): --chat (silent) and --voice-only (same full chat brain, mic by default, every reply spoken). Hybrid --chat --voice-speak + typed hablar PTT and interactive --voice retired with honest pointers.",
-  "scope": "main.py: shared _run_chat_session (run_chat silent keyboard / run_voice_only mic reader), PTT intercept removed, run_voice_interactive deleted, --voice / --voice-speak-without-batch / --chat+--voice-only exit 2 with pointer. Voice seams (external_record/stt/tts, spoken_continuity, speak_sanitize) reused unchanged. Guide rewritten around two modes; living map updated; hybrid/PTT/interactive tests retired or re-homed onto run_voice_only.",
-  "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "implementation",
+  "cycle_intent": "T53 ★ ACCEPT CLOSED @ v0.8.0; V9 two-mode voice product landed; next Engineer pick",
+  "scope": "Documentary ACCEPT for T53 voice-only loop. Tag v0.8.0. No new IC this turn.",
+  "execution_status": "accept_closed",
+  "current_mode": "accept",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "T53 IC pasted to Claude"
+    "reason": "ACCEPT T53"
   },
   "relevant_workflow_phases": [
-    "Implementation"
+    "Accept"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,38 +17,36 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_only_loop_b1.md",
-    ".jes/artifacts/design_contract_assistant_voice_two_mode_product_b0.md",
-    ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
-    "docs/IMPLEMENTATION_TASKS.md"
+    ".jes/artifacts/implementation_review_assistant_voice_only_loop_b1.md",
+    ".jes/artifacts/implementation_report_assistant_voice_only_loop_b1.md",
+    ".jes/artifacts/design_contract_assistant_voice_two_mode_product_b0.md"
   ],
   "open_questions": [
-    "Cursor review of T53 @ 0.8.0",
-    "V10 silence/VAD end-of-utterance — own DC/IC (T54)"
+    "Engineer pick next? V10 silence later · T40 stays Parked."
   ],
   "active_operation": {
-    "type": "implemented",
+    "type": "accept_closed",
     "contract": "implementation_contract_assistant_voice_only_loop_b1.md",
     "ids": [
       "T53",
       "V9",
       "B1-assistant-voice-only-loop"
     ],
-    "blocked_on": "cursor_review"
+    "blocked_on": "engineer_pick"
   },
   "closed_this_turn": [
-    "T53 implemented @ 0.8.0 — report implementation_report_assistant_voice_only_loop_b1.md"
+    "T53 ★ ACCEPT CLOSED @ v0.8.0",
+    "Tag v0.8.0 cut",
+    "V9 two-mode product ★"
   ],
   "authority_gates": [
-    "Cursor does not implement src/ unless Engineer says",
+    "No next Buy invented",
     "T40 stays Parked",
-    "V10 silence out of this Buy",
-    "Reuse seams — no greenfield voice rewrite"
+    "V10 silence not opened by ACCEPT"
   ],
   "coherence_checklist": [
-    "IC §0 locks 1–15 implemented",
-    "No ACCEPT claimed",
-    "PRIORIDAD + cola point at Cursor review"
+    "IC/report/review/cola/PRIORIDAD stamped ★",
+    "Package 0.8.0 tagged v0.8.0"
   ],
-  "updated_at": "2026-10-13T12:00:00Z"
+  "updated_at": "2026-10-13T10:00:00Z"
 }
