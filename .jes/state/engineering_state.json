@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T52 ★ ACCEPT CLOSED @ v0.7.9; FN-017 polish ladder T50–T52 ★; next Engineer pick",
-  "scope": "Documentary ACCEPT for T52 FULL Continuity narrated. Tag v0.7.9. No new IC this turn.",
-  "execution_status": "accept_closed",
-  "current_mode": "accept",
+  "cycle_intent": "T53 IC ready — B1-assistant-voice-only-loop; paste to Claude → 0.8.0",
+  "scope": "Documentary IC for voice-only product loop + hybrid surface kill. No src/ this turn. Tip remains v0.7.9 until Claude implements.",
+  "execution_status": "ic_ready",
+  "current_mode": "implementation_contract",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "ACCEPT T52"
+    "reason": "procede — write T53 IC"
   },
   "relevant_workflow_phases": [
-    "Accept"
+    "Implementation Contract"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,34 +17,39 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_voice_full_spoken_b1.md",
-    ".jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md"
+    ".jes/artifacts/implementation_contract_assistant_voice_only_loop_b1.md",
+    ".jes/artifacts/design_contract_assistant_voice_two_mode_product_b0.md",
+    ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
+    "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Engineer pick next? T40 stays Parked."
+    "Paste T53 IC to Claude for implementation?"
   ],
   "active_operation": {
-    "type": "accept_closed",
-    "contract": "implementation_contract_assistant_voice_full_spoken_b1.md",
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_voice_only_loop_b1.md",
     "ids": [
-      "T52",
-      "B1-assistant-voice-full-spoken"
+      "T53",
+      "V9",
+      "B1-assistant-voice-only-loop"
     ],
-    "blocked_on": "engineer_pick"
+    "blocked_on": "claude_implement"
   },
   "closed_this_turn": [
-    "T52 ★ ACCEPT CLOSED @ v0.7.9",
-    "Tag v0.7.9 cut",
-    "FN-017 T50–T52 ★"
+    "T53 IC written",
+    "V9-DC marked consumed by IC",
+    "PRIORIDAD + cola + state synced"
   ],
   "authority_gates": [
-    "No next Buy invented",
+    "Cursor does not implement src/ unless Engineer says",
     "T40 stays Parked",
-    "N1/N2 closed before ACCEPT"
+    "V10 silence out of this Buy",
+    "Reuse seams — no greenfield voice rewrite"
   ],
   "coherence_checklist": [
-    "IC/report/review/FN/cola/PRIORIDAD stamped ★",
-    "Package already 0.7.9"
+    "IC §0 locks match V9-DC",
+    "Paste block present for Claude",
+    "PRIORIDAD points at T53 IC"
   ],
-  "updated_at": "2026-10-06T07:10:00Z"
+  "updated_at": "2026-10-13T09:25:00Z"
 }

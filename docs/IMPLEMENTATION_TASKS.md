@@ -6,13 +6,13 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** Engineer pick. **FN-017** spoken polish **T50–T52 ★** @ **`v0.7.7`–`v0.7.9`**. Tip **`v0.7.9`** (T52 ★). **T40** Parked.  
-> **Closed:** T41–T52 ★ @ `v0.7.1`–`v0.7.9`.  
-> **SoT:** [T52 review ★](../.jes/artifacts/implementation_review_assistant_voice_full_spoken_b1.md) · [FN-017](../.jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md).  
+> **PRIORIDAD AHORA:** **T53 IC ready** — paste to Claude · **`B1-assistant-voice-only-loop`** → **`0.8.0`**. Tip **`v0.7.9`**. **T40** Parked.  
+> **Closed:** T41–T52 ★ @ `v0.7.1`–`v0.7.9` · FN-017 ★ · T53-inv ★ · T53-DC ready.  
+> **SoT:** [T53 IC](../.jes/artifacts/implementation_contract_assistant_voice_only_loop_b1.md) · [V9-DC](../.jes/artifacts/design_contract_assistant_voice_two_mode_product_b0.md) · [cola voz](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
 > **Policy:** no tip/package version pins in tests. Chat/Continuity egress Buys update the [spoken-continuity map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) in the same Buy ([`CLAUDE.md`](../CLAUDE.md) § Chat / spoken-continuity egress map).  
-> **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md). Voice phase: [cola note](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
-> **Cola voz:** T35–T52 ★ · **T40** Parked.  
-> SoT: [T52 review ★](../.jes/artifacts/implementation_review_assistant_voice_full_spoken_b1.md) · [guía](USER_GUIDE_VOICE.md).  
+> **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md).  
+> **Cola voz:** T35–T52 ★ · **T53 IC ready** · V10 silence later · **T40** Parked.  
+> SoT: [T53 IC](../.jes/artifacts/implementation_contract_assistant_voice_only_loop_b1.md) · [guía](USER_GUIDE_VOICE.md) (rewrite in T53).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -20,7 +20,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.9`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · **T41–T52 ★** · **T40** Parked)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.7.9`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · **T41–T52 ★** · **V9-DC ready** · **T40** Parked)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -105,9 +105,13 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T51** | **`B1-assistant-voice-brief-spanish`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.8`** | Brief Continuity Spanish + T50-N1/N2 | [review ★](../.jes/artifacts/implementation_review_assistant_voice_brief_spanish_b1.md) · [FN-017](../.jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T52-DC** | **`DC-assistant-voice-full-spoken`** | ✅ ★ **CLOSED** (consumed by T52) | Amend T44-DC FULL **payload**: narrated detail, not verbatim print; screen still full | [DC](../.jes/artifacts/design_contract_assistant_voice_full_spoken_b0.md) · [FN-017](../.jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T52** | **`B1-assistant-voice-full-spoken`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.9`** | Implement FULL narrated Layer 2 · **no LLM** · BOM/tables stay screen-only | [review ★](../.jes/artifacts/implementation_review_assistant_voice_full_spoken_b1.md) · [FN-017](../.jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md) |
-| **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 · **not** V7 · **not** V8 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
+| **T53-inv** | **`INV-assistant-voice-two-mode-product`** | ✅ ★ **FINDINGS ACCEPTED** | Keep/kill/reuse · collapse to Chat \| Voice-only | [INV ★](../.jes/artifacts/investigation_report_assistant_voice_two_mode_product_b0.md) |
+| **T53-DC** | **`DC-assistant-voice-two-mode-product`** | **DC ready** (consumed by T53 IC) | V9: mic-default voice-only · kill hybrid · reuse seams · **`0.8.0`** | [DC](../.jes/artifacts/design_contract_assistant_voice_two_mode_product_b0.md) · [cola](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) |
+| **T53** | **`B1-assistant-voice-only-loop`** | **IC ready** — paste to Claude | Voice-only loop + retire hybrid + guide → **`0.8.0`** | [IC](../.jes/artifacts/implementation_contract_assistant_voice_only_loop_b1.md) · [DC](../.jes/artifacts/design_contract_assistant_voice_two_mode_product_b0.md) |
+| **T54** | silence end-of-utterance (V10) | **Later** | VAD/silence cut — out of V9 | DC lock 14 |
+| **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 · **not** V7–V9 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
-| **A4** | Voz / world | **Voz half ★** · **T41–T52 ★** · `world/` Parked (T40) | FN-017 polish ★ | [guía](USER_GUIDE_VOICE.md) · [FN-017](../.jes/artifacts/engineer_note_voice_spoken_polish_field_fn017.md) · [T52 review ★](../.jes/artifacts/implementation_review_assistant_voice_full_spoken_b1.md) |
+| **A4** | Voz / world | **Voz half ★** · **T41–T52 ★** · **V9-DC ready** · `world/` Parked (T40) | two-mode product next | [V9-DC](../.jes/artifacts/design_contract_assistant_voice_two_mode_product_b0.md) · [guía](USER_GUIDE_VOICE.md) |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |
 | **N1** | `--list`/`--rung` casefold in chat | **Optional polish** | A7 residual | ★ pick later |
 | **R4** | LLM cite | **Later** | Intérprete semántico only | vision §7 (b) |

@@ -1,11 +1,11 @@
 # Engineer note — Voice phase C cola (Skill-first channels)
 
-**Date:** 2026-10-03 · **updated:** 2026-10-06 (T52 ★ ACCEPT CLOSED)  
-**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T52 ★** @ tip **`v0.7.9`**; **T40** Parked  
+**Date:** 2026-10-03 · **updated:** 2026-10-13 (V9-DC two-mode product ready)  
+**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T52 ★** @ tip **`v0.7.9`**; **T53 IC ready** (paste to Claude → `0.8.0`); **T40** Parked  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`v0.7.9`** (T52 ★) · next Engineer pick · [review ★](implementation_review_assistant_voice_full_spoken_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md)
+**Tip parent:** **`v0.7.9`** · next = Claude implements **T53** · [T53 IC](implementation_contract_assistant_voice_only_loop_b1.md) · [V9-DC](design_contract_assistant_voice_two_mode_product_b0.md) · [INV ★](investigation_report_assistant_voice_two_mode_product_b0.md)
 
-**Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md)
+**Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [V9-DC](design_contract_assistant_voice_two_mode_product_b0.md)
 
 ---
 
@@ -35,16 +35,16 @@ INV (map seams) → DC (lock product) → IC (small Buy) → Cursor review → E
 **In v1:** twelve Skill-first Skills.  
 **Out of v1:** craft wizards/LLM, `world/`, board, Authority/kill, copper.
 
-### Operator / use path (T41–T43)
+### Operator / use path — **target after V9 ★** (two modes only)
 
-| Path | Brain | Speaks |
-|---|---|---|
-| `--voice` | Skills only (`source=VOICE`) | always (via `_voice_speak_fn`) |
-| `--chat` | full Continuity / craft / LLM (`TERMINAL`) | never |
-| `--chat --voice-speak` | **same full chat** | T43: **verbatim printed string** (the wall) · T45: brief on walls |
-| `--chat --voice-speak` + typed `hablar`/`habla` | **same full chat** (`TERMINAL`) | **T47:** timed record → existing STT → same loop (keyboard stays) |
+| Path | Brain | Speaks | Status |
+|---|---|---|---|
+| `--chat` | full Continuity / craft / LLM | never | **Keep** — mode Chat |
+| `--voice-only` | **same full chat** | yes (Layer 2) + mic default in | **V9** — mode Voice-only |
+| `--chat --voice-speak` (+ `hablar`) | full chat | hybrid | **Kill as product** in V9 (scaffolding V8) |
+| `--voice` interactive Skills-only | Skills only | always | **Retire from product** in V9 (fixtures/CI may remain) |
 
-T43 proved the seam and the failure mode: loading a project / typing `estado` **prints** Continuity (correct truth) and **speaks the entire wall** (unusable). T45 fixed the ear. Engineer then locked **V8**: speak into the air **inside that session** as push-to-talk — not `--voice`, not `--voice-audio` one-shot, not always-on.
+**Historical (T41–T47, still on tip until V9 lands):** T43 proved speak-on-chat; T45 fixed Continuity ears; T47 added typed PTT. Engineer 2026-10-13: those hybrid surfaces must not remain as daily product once voice-only exists.
 
 ### Spoken continuity (V7 — T44-inv → T44-DC → T45)
 
@@ -91,9 +91,13 @@ run_chat print  → Layer 1 (unchanged)
 | **T51** | V7+ | `B1-assistant-voice-brief-spanish` | **`0.7.8`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.8`** | Brief Continuity Spanish + T50-N1/N2 | [review ★](implementation_review_assistant_voice_brief_spanish_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T52-DC** | V7+ | `DC-assistant-voice-full-spoken` | — (no bump) | ✅ ★ **CLOSED** (consumed by T52) | Amend T44-DC FULL payload: narrated detail, not verbatim print | [DC](design_contract_assistant_voice_full_spoken_b0.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
 | **T52** | V7+ | `B1-assistant-voice-full-spoken` | **`0.7.9`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.7.9`** | Implement FULL narrated Layer 2 (`full_spoken_continuity`) · no LLM · BOM/table screen-only | [review ★](implementation_review_assistant_voice_full_spoken_b1.md) · [FN-017](engineer_note_voice_spoken_polish_field_fn017.md) |
-| **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7 · not V8 | [placement A4](design_contract_assistant_placement_b0.md) |
+| **T53-inv** | V9 | `INV-assistant-voice-two-mode-product` | docs | ✅ ★ **FINDINGS ACCEPTED** | Keep/kill/reuse · two-mode collapse | [INV ★](investigation_report_assistant_voice_two_mode_product_b0.md) |
+| **T53-DC** | V9 | `DC-assistant-voice-two-mode-product` | — (no bump) | **DC ready** (consumed by IC) | Chat \| Voice-only · kill hybrid · reuse seams · mic default · fixed cut | [DC](design_contract_assistant_voice_two_mode_product_b0.md) |
+| **T53** | V9 | `B1-assistant-voice-only-loop` | **`0.8.0`** | **IC ready** — paste to Claude | Voice-only loop + retire hybrid product + guide | [IC](implementation_contract_assistant_voice_only_loop_b1.md) |
+| **T54** | V10 | silence end-of-utterance | later | **Later** | VAD/silence cut — out of V9 | DC lock 14 |
+| **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7–V9 | [placement A4](design_contract_assistant_placement_b0.md) |
 
-**Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**. **T48-inv** docs-only, stays `0.7.5`. **T49** opens **`0.7.6`**. **T50 ★** opens **`0.7.7`**. **T51 ★** opens **`0.7.8` / `v0.7.8`**. **T52 ★** opens **`0.7.9` / `v0.7.9`**.
+**Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**. **T48-inv** docs-only, stays `0.7.5`. **T49** opens **`0.7.6`**. **T50 ★** opens **`0.7.7`**. **T51 ★** opens **`0.7.8` / `v0.7.8`**. **T52 ★** opens **`0.7.9` / `v0.7.9`**. **T53 ★** opens product-surface milestone **`0.8.0` / `v0.8.0`**.
 
 ---
 
