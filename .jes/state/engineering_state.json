@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T53 ★ ACCEPT CLOSED @ v0.8.0; V9 two-mode voice product landed; next Engineer pick",
-  "scope": "Documentary ACCEPT for T53 voice-only loop. Tag v0.8.0. No new IC this turn.",
-  "execution_status": "accept_closed",
-  "current_mode": "accept",
+  "cycle_intent": "T54 IC ready — B1-assistant-voice-silence-cut (V10); paste to Claude → 0.8.1",
+  "scope": "Documentary V10-DC + T54 IC for silence end-of-utterance on --voice-only. No src/ this turn. Tip remains v0.8.0.",
+  "execution_status": "ic_ready",
+  "current_mode": "implementation_contract",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "ACCEPT T53"
+    "reason": "siguiente ic — V10 silence after T53 ★"
   },
   "relevant_workflow_phases": [
-    "Accept"
+    "Implementation Contract"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,36 +17,39 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_voice_only_loop_b1.md",
-    ".jes/artifacts/implementation_report_assistant_voice_only_loop_b1.md",
-    ".jes/artifacts/design_contract_assistant_voice_two_mode_product_b0.md"
+    ".jes/artifacts/design_contract_assistant_voice_silence_cut_b0.md",
+    ".jes/artifacts/implementation_contract_assistant_voice_silence_cut_b1.md",
+    ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
+    "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Engineer pick next? V10 silence later · T40 stays Parked."
+    "Paste T54 IC to Claude for implementation?"
   ],
   "active_operation": {
-    "type": "accept_closed",
-    "contract": "implementation_contract_assistant_voice_only_loop_b1.md",
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_voice_silence_cut_b1.md",
     "ids": [
-      "T53",
-      "V9",
-      "B1-assistant-voice-only-loop"
+      "T54",
+      "V10",
+      "B1-assistant-voice-silence-cut"
     ],
-    "blocked_on": "engineer_pick"
+    "blocked_on": "claude_implement"
   },
   "closed_this_turn": [
-    "T53 ★ ACCEPT CLOSED @ v0.8.0",
-    "Tag v0.8.0 cut",
-    "V9 two-mode product ★"
+    "V10-DC written",
+    "T54 IC written",
+    "PRIORIDAD + cola + state synced"
   ],
   "authority_gates": [
-    "No next Buy invented",
+    "Cursor does not implement src/ unless Engineer says",
+    "Silence stays external (no pyproject audio DSP)",
     "T40 stays Parked",
-    "V10 silence not opened by ACCEPT"
+    "Max duration remains"
   ],
   "coherence_checklist": [
-    "IC/report/review/cola/PRIORIDAD stamped ★",
-    "Package 0.8.0 tagged v0.8.0"
+    "IC matches V10-DC locks",
+    "Paste block present",
+    "Package target 0.8.1"
   ],
-  "updated_at": "2026-10-13T10:00:00Z"
+  "updated_at": "2026-10-13T10:05:00Z"
 }
