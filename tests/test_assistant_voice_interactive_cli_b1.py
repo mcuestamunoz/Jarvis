@@ -1,98 +1,56 @@
-"""Tests T1-T5 for `B1-assistant-voice-interactive-cli` (T42).
+"""T42 (`B1-assistant-voice-interactive-cli`) tests, re-homed by T53 (V9).
 
-Skill-first phase C — interactive **use**, not a fixture/batch demo:
-`run_voice_interactive()` is a REPL the Engineer sits in — type a turn,
-see AND hear the reply. Reuses T35-T38's seams unchanged (`run_voice_turn`
-tags `source=VOICE`; `_voice_speak_fn` speaks via `JARVIS_TTS_CMD`, same
-honest-failure shape T38/T41 already proved). `--chat` stays text-only
-by default — nothing here touches it.
-
-Fake stdin is driven by monkeypatching `builtins.input`; the fake TTS
-is a tiny shell script that records what it received, mirroring
-`test_assistant_voice_demo_ready_b1.py`'s own pattern. No Piper/whisper/
-speaker/mic is ever required.
+T42 shipped `--voice`, a keyboard REPL over the Skills-only voice brain
+(`run_voice_turn`, `source=VOICE`) that also spoke each reply. T53
+(`B1-assistant-voice-only-loop`) retired it from the product: personal
+Jarvis has one voice entry, `--voice-only` (full chat brain). `--voice`
+now prints a one-line pointer to `--voice-only` and exits 2, and
+`run_voice_interactive` is gone. The `run_voice_turn` seam itself stays
+for batch/CI (`--voice-fixture`/`--voice-audio`) — T3 keeps proving it
+tags every turn `source=VOICE`. REPL tests T1/T2 are retired.
 """
 
 from __future__ import annotations
 
-import stat
+import sys
 import typing
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 from jarvis.capabilities.intent import VoiceIntentAdapter
 from jarvis.capabilities.safety import AuthoritySource
 
 
-def _write_fake_tts_script(tmp_path: Path, received_path: Path) -> Path:
-    script = tmp_path / "fake_tts.sh"
-    script.write_text(
-        f"#!/bin/sh\ncat >> {received_path}\nprintf '\\n---\\n' >> {received_path}\n",
-        encoding="utf-8",
-    )
-    script.chmod(script.stat().st_mode | stat.S_IEXEC)
-    return script
+def test_t1_voice_flag_redirects_to_voice_only_and_opens_nothing(monkeypatch, capsys):
+    from jarvis.adapters.cli import main as main_module
+
+    def no_session(*_args, **_kwargs):
+        raise AssertionError("--voice must not open any session")
+
+    for name in ("run_chat", "run_voice_only", "run_demo"):
+        monkeypatch.setattr(main_module, name, no_session)
+    monkeypatch.setattr(sys, "argv", ["jarvis", "--voice"])
+    with pytest.raises(SystemExit) as exit_info:
+        main_module.main()
+
+    assert exit_info.value.code == 2
+    assert "--voice-only" in capsys.readouterr().err
+    assert not hasattr(main_module, "run_voice_interactive")
 
 
-def _feed_lines(monkeypatch, lines: list[str]):
-    """Monkeypatch `input()` to pop from `lines`, raising `EOFError`
-    once exhausted — the same shape a real piped stdin produces when
-    it runs out, which is exactly what a REPL must survive."""
-    queue = list(lines)
+def test_t3_run_voice_turn_seam_still_tags_voice_source(tmp_path):
+    from jarvis.adapters.voice import run_voice_turn
+    from jarvis.core.orchestrator import JarvisOrchestrator
+    from jarvis.llm.llm_client import JarvisLLMInterface
+    from jarvis.llm.ollama_client import OllamaClient
 
-    def fake_input(prompt: str = "") -> str:
-        if not queue:
-            raise EOFError
-        return queue.pop(0)
-
-    monkeypatch.setattr("builtins.input", fake_input)
-
-
-def test_t1_two_typed_turns_then_quit_speaks_both_egresses(tmp_path, monkeypatch, capsys):
-    from jarvis.adapters.cli.main import run_voice_interactive
-
-    received = tmp_path / "received.log"
-    script = _write_fake_tts_script(tmp_path, received)
-    monkeypatch.setenv("JARVIS_TTS_CMD", str(script))
-    _feed_lines(monkeypatch, ["armar", "hold", "salir"])
-
-    run_voice_interactive(workspace_root=tmp_path)
-
-    out = capsys.readouterr().out
-    assert "vehicle_arm_policy" in out
-    assert "vehicle_hold" in out
-    assert "Sesión de voz cerrada" in out
-
-    captures = [chunk for chunk in received.read_text(encoding="utf-8").split("---\n") if chunk.strip()]
-    assert len(captures) == 2
-    assert "vehicle_arm_policy" in captures[0] or "ARMADA" in captures[0]
-    assert "vehicle_hold" in captures[1] or "HOLD solicitado" in captures[1]
-
-
-def test_t2_missing_tts_config_is_honest_and_loop_survives(tmp_path, monkeypatch, capsys):
-    from jarvis.adapters.cli.main import run_voice_interactive
-
-    monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
-    _feed_lines(monkeypatch, ["hold", "estado", "salir"])
-
-    run_voice_interactive(workspace_root=tmp_path)
-
-    out = capsys.readouterr().out
-    assert out.count("TTS no disponible") == 2
-    # The loop kept going past the first TTS failure to the second turn.
-    assert "vehicle_hold" in out
-    assert "project_status" in out or "Proyecto" in out or "No hay proyecto" in out
-    assert "Sesión de voz cerrada" in out
-
-
-def test_t3_voice_source_used_for_every_typed_turn(tmp_path, monkeypatch):
-    from jarvis.adapters.cli.main import run_voice_interactive
-
-    monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
-    _feed_lines(monkeypatch, ["armar", "hold", "salir"])
-
+    orchestrator = JarvisOrchestrator(workspace_root=tmp_path)
+    llm_interface = JarvisLLMInterface(client=OllamaClient())
     with patch.object(VoiceIntentAdapter, "parse", wraps=VoiceIntentAdapter.parse) as voice_spy:
-        run_voice_interactive(workspace_root=tmp_path)
+        for line in ("armar", "hold"):
+            run_voice_turn(orchestrator, llm_interface, line)
 
     assert voice_spy.call_count >= 2
     for call in voice_spy.call_args_list:
@@ -100,10 +58,9 @@ def test_t3_voice_source_used_for_every_typed_turn(tmp_path, monkeypatch):
 
 
 def test_t4_chat_flag_alone_never_invokes_tts(tmp_path, monkeypatch):
-    """`--chat` is a separate, deliberately untouched entry point —
-    confirm it has no code path to `speak_egress`/`JARVIS_TTS_CMD` even
-    when that env var is set, by checking `run_chat`'s own source for
-    any reference to the TTS seam."""
+    """`--chat` is the silent product mode — confirm it has no code path
+    to `speak_egress`/`JARVIS_TTS_CMD` even when that env var is set, by
+    checking `run_chat`'s own source for any reference to the TTS seam."""
     import inspect
 
     from jarvis.adapters.cli.main import run_chat
@@ -113,7 +70,7 @@ def test_t4_chat_flag_alone_never_invokes_tts(tmp_path, monkeypatch):
         assert forbidden not in source, f"run_chat must never reference {forbidden!r}"
 
 
-def test_t5_no_tip_pins_no_speech_deps_esc_fence_green_guide_leads_with_voice():
+def test_t5_no_tip_pins_no_speech_deps_esc_fence_green_guide_drops_interactive_voice():
     from tests.test_fase_c_esc_pwm_stub_rung_b1 import _esc_fence_violations
     from tests.test_suite_no_tip_version_pins_b1 import (
         test_no_pyproject_tip_version_pins_in_suite,
@@ -142,13 +99,8 @@ def test_t5_no_tip_pins_no_speech_deps_esc_fence_green_guide_leads_with_voice():
     import re
 
     guide = (repo_root / "docs" / "USER_GUIDE_VOICE.md").read_text(encoding="utf-8")
-    # Bare "--voice" (the interactive flag) must appear, and strictly
-    # before the first "--voice-fixture" mention — "--voice" is itself a
-    # substring of "--voice-fixture", so this needs a boundary match
-    # rather than a plain .find().
-    bare_voice_match = re.search(r"--voice(?![-\w])", guide)
-    assert bare_voice_match is not None, "guide never mentions the bare --voice flag"
-    fixture_pos = guide.find("--voice-fixture")
-    assert fixture_pos == -1 or bare_voice_match.start() < fixture_pos, (
-        "guide must lead with interactive --voice before --voice-fixture"
-    )
+    # Bare "--voice" (the retired interactive flag) must no longer be
+    # taught — "--voice" is a substring of "--voice-only"/"--voice-fixture",
+    # so this needs a boundary match rather than a plain `in`.
+    assert re.search(r"--voice(?![-\w])", guide) is None, "guide still teaches interactive --voice"
+    assert "--voice-only" in guide

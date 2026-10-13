@@ -8,7 +8,8 @@
 #
 #   export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.en.bin"
 #   export JARVIS_STT_CMD="$PWD/scripts/voice/whisper_stt.sh {audio}"
-#   python -m jarvis.main --voice-audio /tmp/turn.wav --voice-speak
+#   python -m jarvis.main --voice-only                                 # daily voice mode
+#   python -m jarvis.main --voice-audio /tmp/turn.wav --voice-speak    # batch/CI
 #
 # Nothing here is a speech dependency of the Jarvis package: whisper.cpp is a
 # separate binary + model the operator installs (see docs/USER_GUIDE_VOICE.md

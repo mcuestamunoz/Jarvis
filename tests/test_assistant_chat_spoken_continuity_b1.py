@@ -1,7 +1,7 @@
 """Tests T1-T6 for `B1-assistant-chat-spoken-continuity` (T45).
 
-T43 made `--chat --voice-speak` speak every printed `Jarvis > …` string
-verbatim — including the full Continuity wall on project load and on
+T43 made the then-hybrid `--chat --voice-speak` speak every printed
+`Jarvis > …` string verbatim — including the full Continuity wall on project load and on
 `estado`. T44-inv mapped the wall's fields; T44-DC locked a two-layer
 plan: Layer 1 (print) stays the full wall, untouched; Layer 2 (speak)
 becomes a deterministic brief extract on wall turns only, unless the
@@ -11,8 +11,13 @@ FULL payload from the printed wall verbatim to the narrated
 `full_spoken_continuity`. No LLM anywhere in
 this layer.
 
-Isolation note: same pattern as `test_assistant_chat_voice_speak_b1.py`
-— `run_chat()` takes no `workspace_root`, so these tests monkeypatch the
+T53 (V9) retired the hybrid: the spoken full chat is now `--voice-only`
+(`run_voice_only`, same session body as `run_chat`). The wall-speak
+tests below drive it with the project picker on the keyboard and every
+later turn from a fake mic/STT (`_FakeVoice` from the T53 test file);
+the Layer 1/Layer 2 guarantees they assert are unchanged.
+
+Isolation note: `run_chat()`/`run_voice_only()` take no `workspace_root`, so these tests monkeypatch the
 module-level `DEFAULT_WORKSPACE_ROOT` that `WorkspaceManager.__init__`
 reads. A "fat" project (one with a blocking/incomplete Continuity state)
 is seeded directly via `JarvisOrchestrator.handle({"action":
@@ -26,7 +31,6 @@ speaker/mic is ever required.
 
 from __future__ import annotations
 
-import stat
 import typing
 from pathlib import Path
 
@@ -61,16 +65,6 @@ def _seed_fat_project(workspace_root: Path) -> None:
     })
 
 
-def _write_fake_tts_script(tmp_path: Path, received_path: Path) -> Path:
-    script = tmp_path / "fake_tts.sh"
-    script.write_text(
-        f"#!/bin/sh\ncat >> {received_path}\nprintf '\\n---\\n' >> {received_path}\n",
-        encoding="utf-8",
-    )
-    script.chmod(script.stat().st_mode | stat.S_IEXEC)
-    return script
-
-
 def _feed_lines(monkeypatch, lines: list[str]):
     queue = list(lines)
 
@@ -80,6 +74,19 @@ def _feed_lines(monkeypatch, lines: list[str]):
         return queue.pop(0)
 
     monkeypatch.setattr("builtins.input", fake_input)
+
+
+def _voice_only_session(tmp_path: Path, monkeypatch, transcripts: list[str], *, picker: str | None = "1", tts: bool = True):
+    """Run `run_voice_only` with `picker` typed once (project picker) and
+    `transcripts` coming from the fake mic/STT. Returns the fake, whose
+    `.captures()` are the TTS inputs."""
+    from jarvis.adapters.cli.main import run_voice_only
+    from tests.test_assistant_voice_only_loop_b1 import _FakeVoice
+
+    fake = _FakeVoice(tmp_path, monkeypatch, transcripts, tts=tts)
+    _feed_lines(monkeypatch, [picker] if picker else [])
+    run_voice_only()
+    return fake
 
 
 _WALL_MARKERS = ("ENGINEERING READINESS", "Componentes / gaps", "Evidencia:")
@@ -134,14 +141,8 @@ def test_t1_brief_spoken_continuity_excludes_wall_detail():
 def test_t2_chat_wall_prints_full_but_speaks_brief(tmp_path, monkeypatch, capsys):
     workspace_root = _isolate_workspace(monkeypatch, tmp_path)
     _seed_fat_project(workspace_root)
-    from jarvis.adapters.cli.main import run_chat
 
-    received = tmp_path / "received.log"
-    script = _write_fake_tts_script(tmp_path, received)
-    monkeypatch.setenv("JARVIS_TTS_CMD", str(script))
-    _feed_lines(monkeypatch, ["1", "estado", "exit"])
-
-    run_chat(speak_tts=True)
+    fake = _voice_only_session(tmp_path, monkeypatch, ["estado", "salir"])
 
     out = capsys.readouterr().out
     for marker in _WALL_MARKERS[:1]:  # ENGINEERING READINESS must be on screen
@@ -152,7 +153,7 @@ def test_t2_chat_wall_prints_full_but_speaks_brief(tmp_path, monkeypatch, capsys
     # speak-as-printed turn) between the two wall turns — assert on
     # content, not a fixed capture index, so this test doesn't depend on
     # exactly how many non-wall turns happen to land in between.
-    captures = [c for c in received.read_text(encoding="utf-8").split("---\n") if c.strip()]
+    captures = fake.captures()
     assert len(captures) >= 2
     for capture in captures:
         for marker in _WALL_MARKERS:
@@ -170,19 +171,13 @@ def test_t2_chat_wall_prints_full_but_speaks_brief(tmp_path, monkeypatch, capsys
 def test_t3_full_phrase_speaks_narrated_full_not_the_wall(tmp_path, monkeypatch, capsys):
     workspace_root = _isolate_workspace(monkeypatch, tmp_path)
     _seed_fat_project(workspace_root)
-    from jarvis.adapters.cli.main import run_chat
 
-    received = tmp_path / "received.log"
-    script = _write_fake_tts_script(tmp_path, received)
-    monkeypatch.setenv("JARVIS_TTS_CMD", str(script))
-    _feed_lines(monkeypatch, ["1", "completo", "exit"])
-
-    run_chat(speak_tts=True)
+    fake = _voice_only_session(tmp_path, monkeypatch, ["completo", "salir"])
 
     out = capsys.readouterr().out
     assert "ENGINEERING READINESS" in out  # print side unaffected either way
 
-    captures = [c for c in received.read_text(encoding="utf-8").split("---\n") if c.strip()]
+    captures = fake.captures()
     # T52 (`B1-assistant-voice-full-spoken`): FULL now speaks the narrated
     # `full_spoken_continuity`, never the printed wall verbatim. Exactly
     # one capture (the "completo" turn) carries the narrated body; the
@@ -197,16 +192,10 @@ def test_t3_full_phrase_speaks_narrated_full_not_the_wall(tmp_path, monkeypatch,
 def test_t3b_full_phrase_dame_detalles_also_speaks_narrated_full(tmp_path, monkeypatch):
     workspace_root = _isolate_workspace(monkeypatch, tmp_path)
     _seed_fat_project(workspace_root)
-    from jarvis.adapters.cli.main import run_chat
 
-    received = tmp_path / "received.log"
-    script = _write_fake_tts_script(tmp_path, received)
-    monkeypatch.setenv("JARVIS_TTS_CMD", str(script))
-    _feed_lines(monkeypatch, ["1", "dame detalles", "exit"])
+    fake = _voice_only_session(tmp_path, monkeypatch, ["dame detalles", "salir"])
 
-    run_chat(speak_tts=True)
-
-    captures = [c for c in received.read_text(encoding="utf-8").split("---\n") if c.strip()]
+    captures = fake.captures()
     full_captures = [c for c in captures if "Huecos prioritarios" in c]
     assert len(full_captures) == 1, f"expected exactly one FULL capture, got {len(full_captures)}"
     assert not any("ENGINEERING READINESS" in c for c in captures)
@@ -218,36 +207,27 @@ def test_t4_short_skill_turn_still_speaks_as_printed_and_bare_chat_is_silent(
     workspace_root = _isolate_workspace(monkeypatch, tmp_path)
     from jarvis.adapters.cli.main import run_chat
 
-    received = tmp_path / "received.log"
-    script = _write_fake_tts_script(tmp_path, received)
-    monkeypatch.setenv("JARVIS_TTS_CMD", str(script))
-    _feed_lines(monkeypatch, ["armar", "exit"])
-
-    run_chat(speak_tts=True)
+    fake = _voice_only_session(tmp_path, monkeypatch, ["armar", "salir"], picker=None)
 
     out = capsys.readouterr().out
     assert "vehicle_arm_policy" in out
-    captures = [c for c in received.read_text(encoding="utf-8").split("---\n") if c.strip()]
+    captures = fake.captures()
     assert len(captures) >= 1
     assert any("vehicle_arm_policy" in c or "ARMADA" in c for c in captures)
 
-    # Bare --chat (default speak_tts=False): same two turns, no TTS call at all.
-    received.unlink()
+    # Bare --chat: same turn typed, no TTS call at all.
+    fake.spoken.unlink()
     monkeypatch.setattr(workspace_manager_module, "DEFAULT_WORKSPACE_ROOT", workspace_root.parent / "ws2")
     _feed_lines(monkeypatch, ["armar", "exit"])
     run_chat()
-    assert not received.exists(), "bare --chat must never invoke JARVIS_TTS_CMD"
+    assert not fake.spoken.exists(), "bare --chat must never invoke JARVIS_TTS_CMD"
 
 
 def test_t5_missing_tts_config_is_honest_and_wall_turn_survives(tmp_path, monkeypatch, capsys):
     workspace_root = _isolate_workspace(monkeypatch, tmp_path)
     _seed_fat_project(workspace_root)
-    from jarvis.adapters.cli.main import run_chat
 
-    monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
-    _feed_lines(monkeypatch, ["1", "estado", "completo", "exit"])
-
-    run_chat(speak_tts=True)
+    _voice_only_session(tmp_path, monkeypatch, ["estado", "completo", "salir"], tts=False)
 
     out = capsys.readouterr().out
     assert out.count("TTS no disponible") >= 3

@@ -3,7 +3,7 @@
 **Date:** 2026-10-04  
 **Status:** **OPEN living map** — Layer 2 shipped by [T45](implementation_report_assistant_chat_spoken_continuity_b1.md) @ `0.7.4`; push-to-talk shipped by [T47](implementation_report_assistant_chat_voice_ptt_b1.md) @ `0.7.5` ([T44-inv](investigation_report_assistant_chat_spoken_continuity_b0.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [T45 IC](implementation_contract_assistant_chat_spoken_continuity_b1.md) · [T46-DC](design_contract_assistant_chat_voice_ptt_b0.md) · [T47 IC](implementation_contract_assistant_chat_voice_ptt_b1.md))  
 **Authority:** Engineer — this is the single inventory future chat/Continuity egress Buys update in the same Buy  
-**Tip:** `0.7.9` — Layer 2 live on the two Continuity walls (project load + `action == "project_status"`); brief in Spanish (T51 @ `0.7.8`); FULL is a narrated extract, never the printed wall (T52 @ `0.7.9`); push-to-talk (`hablar`/`habla`) live on the same `--chat --voice-speak` session; every other surface unchanged since T43
+**Tip:** `0.7.9` — Layer 2 live on the two Continuity walls (project load + `action == "project_status"`); brief in Spanish (T51 @ `0.7.8`); FULL is a narrated extract, never the printed wall (T52 @ `0.7.9`); **T53 (`0.8.0`, V9):** two product modes — `--chat` (silent) and `--voice-only` (same brain, mic default, every reply spoken); hybrid `--chat --voice-speak` + typed `hablar` PTT retired; every other surface unchanged since T43
 
 **Purpose:** Every `--chat` print surface and every `build_startup_context`/`build_project_continuity` field, classified for the two-layer spoken-continuity model:
 
@@ -11,13 +11,13 @@
 > **Layer 2 — SPOKEN CONTINUITY:** a deterministic extract of what matters for continuity. Brief by default on Continuity **walls**. Full only on request. **No LLM** in this layer.
 
 **Classification legend:**
-- **must-speak-brief** — spoken every time under `--chat --voice-speak`, kept short (already short, or a single extracted fact).
+- **must-speak-brief** — spoken every time under `--voice-only` (T53; was `--chat --voice-speak` before), kept short (already short, or a single extracted fact).
 - **speak-on-request** — spoken only when the user asks for full (`dame detalles` / `completo` / the locked FULL set).
 - **screen-only** — never spoken by default, even on request (operator diagnostics / visual-only content). Since T52 this includes the BOM, the readiness subsystem table, Conceptos, and the propulsion/hover/endurance detail blocks — screen-truth, not ear-truth (FN-017).
 
-**Shipped extractor (T45):** `src/jarvis/adapters/voice/spoken_continuity.py` — `brief_spoken_continuity(ctx)` (the brief extract), `is_full_continuity_request(raw_text)` (locked FULL-phrase match), `spoken_text_for_wall(raw_text, printed_wall, ctx)` (the combinator `run_chat` calls on both wall sites). **T52:** `full_spoken_continuity(ctx)` (the FULL narrated extract — see "FULL spoken shape" below); `spoken_text_for_wall` returns it on a FULL phrase and never speaks `printed_wall` (kept in the signature so `run_chat` stays untouched). Three of the ten locked FULL phrases (`completo`, `estado completo`, `cuentame todo`) were also newly added to `CONTINUITY_DEFER_PHRASES` (`jarvis/config.py:108-110`) so they resolve to `action == "project_status"` at all — the other seven were already members.
+**Shipped extractor (T45):** `src/jarvis/adapters/voice/spoken_continuity.py` — `brief_spoken_continuity(ctx)` (the brief extract), `is_full_continuity_request(raw_text)` (locked FULL-phrase match), `spoken_text_for_wall(raw_text, printed_wall, ctx)` (the combinator `_run_chat_session` calls on both wall sites — shared by `run_chat` and `run_voice_only` since T53). **T52:** `full_spoken_continuity(ctx)` (the FULL narrated extract — see "FULL spoken shape" below); `spoken_text_for_wall` returns it on a FULL phrase and never speaks `printed_wall` (kept in the signature so `run_chat` stays untouched). Three of the ten locked FULL phrases (`completo`, `estado completo`, `cuentame todo`) were also newly added to `CONTINUITY_DEFER_PHRASES` (`jarvis/config.py:108-110`) so they resolve to `action == "project_status"` at all — the other seven were already members.
 
-**Shipped push-to-talk (T47):** `src/jarvis/adapters/voice/external_record.py` — `record_audio_file(output_path, ...)` (external `JARVIS_RECORD_CMD` process seam, typed `RecordError` family), `resolve_record_seconds()` (`JARVIS_RECORD_SECONDS`, default 7), `is_ptt_trigger(raw_text)` (locked exact-match `hablar`/`habla`, own local normalize — **not** added to `CONTINUITY_DEFER_PHRASES`). `run_chat` checks the trigger once per typed line (never re-checked against the transcript), records, reuses T37's existing `transcribe_audio_file`/`JARVIS_STT_CMD` unchanged, then substitutes `user_input` with the transcript and falls through the same loop — no `source=VOICE`, no `run_voice_turn`. Operator wrapper: `scripts/voice/record_turn.sh`.
+**Shipped voice-only loop (T53, `0.8.0`):** `src/jarvis/adapters/cli/main.py` — `run_voice_only()` runs `_run_chat_session(speak_tts=True, read_line=_make_mic_line_reader(), is_exit=_is_voice_only_exit)`, the same session body `run_chat()` runs silently with the keyboard. The mic reader reuses T47's seams unchanged — `record_audio_file` (`JARVIS_RECORD_CMD`, `RecordError` family), `resolve_record_seconds()` (`JARVIS_RECORD_SECONDS`, default 7), T37's `transcribe_audio_file` (`JARVIS_STT_CMD`) — into an ephemeral `mkstemp` wav unlinked in `finally`. Keyboard only for the initial project picker (when projects exist). The record cue only runs after the previous synchronous `speak(...)` returned (anti-echo). Missing record/STT **config** ends the session once (it can never succeed); process failures/empty transcripts reopen the mic; Ctrl-C mid-record cancels that turn, a second consecutive Ctrl-C ends the session. T47's `is_ptt_trigger` intercept is **removed** from chat (helper kept in `external_record.py`, unused by the product). Operator wrapper unchanged: `scripts/voice/record_turn.sh`.
 
 Phase cola: [`engineer_note_voice_phase_c_cola.md`](engineer_note_voice_phase_c_cola.md).
 
@@ -29,19 +29,23 @@ Whenever a Buy adds or changes a `--chat` print surface, a `build_startup_contex
 
 ---
 
-## Table 1 — Chat egress surfaces (`run_chat`, `src/jarvis/adapters/cli/main.py`)
+## Table 1 — Chat egress surfaces (`_run_chat_session` — shared by `run_chat` / `run_voice_only`, `src/jarvis/adapters/cli/main.py`)
+
+"Speaks?" means: under `--voice-only`. Bare `--chat` speaks nothing, ever.
 
 | Surface | Symbol | Trigger | Length | Speaks (`0.7.4`)? | Class |
 |---|---|---|---|---|---|
 | Startup banner | `main.py:966-968` | every `run_chat()` | 3 lines | No | **screen-only** |
 | Welcome / project picker | `_print_welcome`, `main.py:810-827` / `971` | every `run_chat()` | banner + N rows | No | **screen-only** |
 | EOF/Ctrl-C exit | `main.py:979-980` | `EOFError`/`KeyboardInterrupt` | 1 sentence | Yes | **must-speak-brief** |
-| **PTT — Grabando cue (T47)** | `main.py:1021` | typed `hablar`/`habla`, `speak_tts=True` | 1 line | No (print-only, no TTS bleed per IC lock) | **screen-only** |
-| **PTT — `[voz]` transcript echo (T47)** | `main.py:1038` | record+STT succeeded | 1 line | No | **screen-only** |
-| **PTT — Grabación no disponible (T47)** | `main.py:1030` (`RecordError`) | record config/process failure | 1 sentence | No | **screen-only** |
-| **PTT — STT no disponible (T47)** | `main.py:1033` (`SttError`, incl. empty transcript) | STT config/process failure | 1 sentence | No | **screen-only** |
-| **PTT — Grabación cancelada (T47)** | `main.py:1027` (`KeyboardInterrupt` during record/STT) | Ctrl-C mid-capture | 1 sentence | No | **screen-only** |
-| `exit`/`quit` | `main.py:986` | typed exit | 1 sentence | Yes | **must-speak-brief** |
+| **Voice-only banner (T53)** | `_print_voice_only_banner` | every `run_voice_only()`, after welcome | 1–2 lines (`Modo voz: …` + picker hint `Elige proyecto con el teclado; …` when projects exist) | No | **screen-only** |
+| **Voice-only — Grabando cue** | `_make_mic_line_reader` (`Jarvis > Grabando {n} s…`) | every user turn after startup | 1 line | No (print-only — never TTS, anti-echo) | **screen-only** |
+| **Voice-only — `[voz]` transcript echo** | `_make_mic_line_reader` (`User > [voz] {transcript}`) | record+STT succeeded | 1 line | No | **screen-only** |
+| **Voice-only — Grabación no disponible** | `_make_mic_line_reader` (`RecordError`; `RecordConfigError` also ends the session) | record config/process failure | 1 sentence | No | **screen-only** |
+| **Voice-only — STT no disponible** | `_make_mic_line_reader` (`SttError` incl. empty; `SttConfigError` also ends the session) | STT config/process failure | 1 sentence | No | **screen-only** |
+| **Voice-only — Grabación cancelada** | `_make_mic_line_reader` (`Grabación cancelada. (Ctrl-C otra vez para cerrar la sesión)`) | Ctrl-C mid-capture (second consecutive → session end) | 1 sentence | No | **screen-only** |
+| **Retired-mode pointers (T53)** | `main()` → stderr, exit 2 | `--voice`, `--voice-speak` without `--voice-fixture`/`--voice-audio` (incl. `--chat --voice-speak`), `--chat --voice-only` | 1 line | No (no session opens) | **screen-only** |
+| `exit`/`quit` (+ `salir` in voice-only, trailing punctuation ignored) | `_run_chat_session` `is_exit` | typed/spoken exit | 1 sentence | Yes | **must-speak-brief** |
 | `help` | `main.py:989` | typed help | 1 sentence | Yes | **must-speak-brief** |
 | Startup-selection error | `main.py:998` | bad project pick | 1 sentence | Yes | **must-speak-brief** |
 | **Startup Continuity wall** | `main.py:1003-1005`, speak via `spoken_text_for_wall` (`spoken_continuity.py`) | load/select existing project | print: long (Table 2, all sections) · speak: brief (5 fields) or full on a locked FULL phrase | Yes — print always full; speak **brief by default**, full only on a FULL phrase this turn | print: **screen-truth** · speak: **brief-extract default / speak-on-request for the rest** (see Table 2) |
@@ -53,7 +57,7 @@ Whenever a Buy adds or changes a `--chat` print surface, a `build_startup_contex
 | Main-turn success (coherence-footer-shaped) | `main.py:1032` → `render_response` coherence block (`main.py:674-694`) | calculate/iterate/simulate/etc. once Continuity exists | short–medium | Yes | **must-speak-brief** (speak-as-printed, unchanged by T45 — already = Table 2's brief fields, not routed through the T45 extractor since `action != "project_status"`) |
 | Main-turn success (reasoning-shaped, no coherence) | `main.py:1032` → `render_response` reasoning block (`main.py:696-734`) | rare — e.g. `create_project` before Continuity exists | long, multi-part | Yes | **speak-on-request** (unchanged by T45 — future IC: speak only top `PRIORIDAD CRÍTICA` label by default) |
 | Main-turn success (`estado`/`project_status`) | `main.py:1029-1035`, speak via `spoken_text_for_wall` when `result["action"] == "project_status"` | typed `estado`/`CONTINUITY_DEFER_PHRASES` (`jarvis/config.py:51-110`, now includes `completo`/`estado completo`/`cuentame todo`) | print: long (Table 2) · speak: brief or full (same rule as the startup wall) | Yes | print: **screen-truth** · speak: **brief-extract default / speak-on-request for the rest** (same as startup wall) |
-| TTS honesty failure | `main.py:943-944` | `speak_tts=True` + `TtsError` | 1 sentence | n/a (failure notice, not re-spoken) | **must-speak-brief** (it's already the only thing spoken for that failed attempt) |
+| TTS honesty failure | `_chat_speak_fn` | `--voice-only` + `TtsError` | 1 sentence | n/a (failure notice, not re-spoken) | **must-speak-brief** (it's already the only thing spoken for that failed attempt) |
 | JSON fallback | `render_response`, `main.py:743` | any unhandled result shape | raw dict dump | No path pairs this with `speak` today | **screen-only** |
 
 ---

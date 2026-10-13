@@ -1,23 +1,17 @@
-"""Tests T1-T5 for `B1-assistant-chat-voice-speak` (T43).
+"""T43 (`B1-assistant-chat-voice-speak`) tests, re-homed by T53 (V9).
 
-The Engineer tried T42's `--voice` (Skill-first only) and wanted the real
-`jarvis --chat` instead — projects, Continuity, craft, LLM fallthrough —
-with each reply also *spoken*. `run_chat(speak_tts=True)` wires that in
-without a second renderer and without forcing `source=VOICE`: the chat
-brain stays exactly `--chat` as before, only now every `Jarvis > …` print
-also reaches `speak_egress`/`JARVIS_TTS_CMD` (T38's seam), never through
-`_voice_speak_fn` (which would double-print).
+T43 made `--chat --voice-speak` speak every full-chat reply. T53
+(`B1-assistant-voice-only-loop`) retired that hybrid: `--chat` is the
+silent product mode, and the spoken full chat is `--voice-only`, which
+reuses T43's thin `_chat_speak_fn` helper unchanged. The tests that
+asserted hybrid speak-on-chat (T1, T3) and the interactive `--voice`
+import smoke (T4) are retired; T2 (bare chat never speaks) and T5
+(deps/ESC/guide guards) remain. Spoken full-chat behavior is covered by
+`test_assistant_voice_only_loop_b1.py`.
 
-Isolation note: `run_chat()` takes no `workspace_root` — unlike T42's
-`run_voice_interactive` — so these tests isolate the same way any other
-caller of the real CLI entry point would have to: monkeypatching the
-module-level `DEFAULT_WORKSPACE_ROOT` that `WorkspaceManager.__init__`
-reads, pointing it at `tmp_path`. No real on-disk workspace is ever
-touched. Fake stdin is driven by monkeypatching `builtins.input`; the
-fake TTS is a tiny shell script that records what it received —
-mirroring `test_assistant_voice_demo_ready_b1.py`'s and
-`test_assistant_voice_interactive_cli_b1.py`'s own pattern. No Piper/
-whisper/speaker/mic is ever required.
+Isolation: `run_chat()` takes no `workspace_root`, so these tests
+monkeypatch the module-level `DEFAULT_WORKSPACE_ROOT`. Fake TTS is a
+tiny shell script; no Piper/whisper/speaker/mic is ever required.
 """
 
 from __future__ import annotations
@@ -58,26 +52,6 @@ def _feed_lines(monkeypatch, lines: list[str]):
     monkeypatch.setattr("builtins.input", fake_input)
 
 
-def test_t1_chat_with_voice_speak_reaches_fake_tts(tmp_path, monkeypatch, capsys):
-    _isolate_workspace(monkeypatch, tmp_path)
-    from jarvis.adapters.cli.main import run_chat
-
-    received = tmp_path / "received.log"
-    script = _write_fake_tts_script(tmp_path, received)
-    monkeypatch.setenv("JARVIS_TTS_CMD", str(script))
-    _feed_lines(monkeypatch, ["armar", "exit"])
-
-    run_chat(speak_tts=True)
-
-    out = capsys.readouterr().out
-    assert "vehicle_arm_policy" in out
-
-    assert received.exists(), "speak_tts=True must reach the external TTS command"
-    captures = [chunk for chunk in received.read_text(encoding="utf-8").split("---\n") if chunk.strip()]
-    assert len(captures) >= 1
-    assert any("vehicle_arm_policy" in c or "ARMADA" in c for c in captures)
-
-
 def test_t2_bare_chat_default_never_invokes_tts(tmp_path, monkeypatch, capsys):
     _isolate_workspace(monkeypatch, tmp_path)
     from jarvis.adapters.cli.main import run_chat
@@ -85,46 +59,18 @@ def test_t2_bare_chat_default_never_invokes_tts(tmp_path, monkeypatch, capsys):
     received = tmp_path / "received.log"
     script = _write_fake_tts_script(tmp_path, received)
     # Even with a working TTS command configured, bare run_chat() must
-    # never call it — speak is opt-in only via speak_tts=True.
+    # never call it — only --voice-only speaks.
     monkeypatch.setenv("JARVIS_TTS_CMD", str(script))
     _feed_lines(monkeypatch, ["armar", "exit"])
 
-    run_chat()  # bare default — byte-identical to pre-T43 behavior
+    run_chat()  # the silent product mode
 
     out = capsys.readouterr().out
     assert "vehicle_arm_policy" in out
     assert not received.exists(), "bare --chat must never invoke JARVIS_TTS_CMD"
 
 
-def test_t3_missing_tts_config_is_honest_and_loop_survives(tmp_path, monkeypatch, capsys):
-    _isolate_workspace(monkeypatch, tmp_path)
-    monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
-    from jarvis.adapters.cli.main import run_chat
-
-    _feed_lines(monkeypatch, ["armar", "hold", "exit"])
-
-    run_chat(speak_tts=True)
-
-    out = capsys.readouterr().out
-    assert out.count("TTS no disponible") >= 2
-    # The loop kept going past each TTS failure to the next turn and exit.
-    assert "vehicle_arm_policy" in out
-    assert "vehicle_hold" in out
-    assert "Sesión cerrada" in out
-
-
-def test_t4_voice_interactive_path_unaffected():
-    """`--voice` (T42) must stay importable/runnable — this Buy touches
-    `run_chat`/`main()` only, never `run_voice_interactive` itself. The
-    full T42 suite (`test_assistant_voice_interactive_cli_b1.py`) is
-    re-run alongside this file in CI/the implementation report as the
-    authoritative regression check; this is a lightweight import smoke."""
-    from jarvis.adapters.cli.main import run_voice_interactive
-
-    assert callable(run_voice_interactive)
-
-
-def test_t5_no_tip_pins_no_speech_deps_esc_fence_green_guide_mentions_chat_voice_speak():
+def test_t5_no_tip_pins_no_speech_deps_esc_fence_green_guide_drops_hybrid():
     from tests.test_fase_c_esc_pwm_stub_rung_b1 import _esc_fence_violations
     from tests.test_suite_no_tip_version_pins_b1 import (
         test_no_pyproject_tip_version_pins_in_suite,
@@ -151,4 +97,5 @@ def test_t5_no_tip_pins_no_speech_deps_esc_fence_green_guide_mentions_chat_voice
     assert "voice" not in typing.get_args(AuthoritySource)
 
     guide = (repo_root / "docs" / "USER_GUIDE_VOICE.md").read_text(encoding="utf-8")
-    assert "--chat --voice-speak" in guide, "guide never documents --chat --voice-speak"
+    assert "--chat --voice-speak" not in guide, "T53: hybrid chat+speak is no longer product UX"
+    assert "--voice-only" in guide

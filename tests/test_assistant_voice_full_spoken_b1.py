@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import inspect
 import re
-import stat
 import typing
 from pathlib import Path
 
@@ -249,16 +248,6 @@ def test_t6_architecture_and_block_closure_templates():
     assert "Siguiente: some_unknown_action" in full_spoken_continuity(ctx)
 
 
-def _write_fake_tts_script(tmp_path: Path, received_path: Path) -> Path:
-    script = tmp_path / "fake_tts.sh"
-    script.write_text(
-        f"#!/bin/sh\ncat >> {received_path}\nprintf '\\n---\\n' >> {received_path}\n",
-        encoding="utf-8",
-    )
-    script.chmod(script.stat().st_mode | stat.S_IEXEC)
-    return script
-
-
 def test_t7_run_chat_completo_prints_wall_speaks_narrated_full_and_guards(
     tmp_path, monkeypatch, capsys
 ):
@@ -276,20 +265,22 @@ def test_t7_run_chat_completo_prints_wall_speaks_narrated_full_and_guards(
             "safety_factor": 1.2,
         },
     })
-    from jarvis.adapters.cli.main import run_chat
+    # T53 (V9): the spoken full chat is `--voice-only`; picker typed once,
+    # then "completo" arrives from the fake mic/STT.
+    from jarvis.adapters.cli.main import _run_chat_session, run_chat, run_voice_only
+    from tests.test_assistant_voice_only_loop_b1 import _FakeVoice
 
-    received = tmp_path / "received.log"
-    monkeypatch.setenv("JARVIS_TTS_CMD", str(_write_fake_tts_script(tmp_path, received)))
-    queue = ["1", "completo", "exit"]
+    fake = _FakeVoice(tmp_path, monkeypatch, ["completo", "salir"])
+    queue = ["1"]
     monkeypatch.setattr("builtins.input", lambda prompt="": queue.pop(0) if queue else (_ for _ in ()).throw(EOFError))
 
-    run_chat(speak_tts=True)
+    run_voice_only()
 
     out = capsys.readouterr().out
     assert "ENGINEERING READINESS" in out
     assert "TOP GAPS" in out
 
-    captures = [c for c in received.read_text(encoding="utf-8").split("---\n") if c.strip()]
+    captures = fake.captures()
     full_captures = [c for c in captures if "Huecos prioritarios" in c]
     assert len(full_captures) == 1
     assert "Estado del proyecto: no listo para ensamblar" in full_captures[0]
@@ -338,7 +329,9 @@ def test_t7_run_chat_completo_prints_wall_speaks_narrated_full_and_guards(
     for forbidden_symbol in ("speak_egress", "JARVIS_TTS_CMD", "_voice_speak_fn", "TtsError"):
         assert forbidden_symbol not in run_chat_source, f"run_chat must never reference {forbidden_symbol!r}"
     assert "full_spoken_continuity" not in run_chat_source
-    assert "spoken_text_for_wall(user_input, startup_block, startup_ctx)" in run_chat_source
+    session_source = inspect.getsource(_run_chat_session)
+    assert "full_spoken_continuity" not in session_source
+    assert "spoken_text_for_wall(user_input, startup_block, startup_ctx)" in session_source
 
     guide = (repo_root / "docs" / "USER_GUIDE_VOICE.md").read_text(encoding="utf-8")
     assert "full_spoken_continuity" in guide

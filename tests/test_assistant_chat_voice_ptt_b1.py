@@ -1,27 +1,24 @@
-"""Tests T1-T7 for `B1-assistant-chat-voice-ptt` (T47).
+"""T47 (`B1-assistant-chat-voice-ptt`) seam tests, re-homed by T53 (V9).
 
-T43 gave `--chat --voice-speak` spoken replies; T45 kept Continuity
-walls honest (brief by default). The remaining gap the Engineer named:
-*speaking into the air* inside that same session, not the Skills-only
-`--voice` REPL and not the one-shot `--voice-audio` path. T46-DC locked
-push-to-talk (not always-on): typing the finite trigger `hablar`/
-`habla` at `User > ` records a timed clip via a new external
-`JARVIS_RECORD_CMD` seam, transcribes it via the existing T37
-`JARVIS_STT_CMD` seam, echoes `User > [voz] {transcript}`, and lets
-that transcript fall through the exact same `run_chat` loop — same
-`TERMINAL` brain, same Continuity, same T45 wall rules. No
-`source=VOICE`, no `run_voice_turn`, no new orchestrator.
+T47 added the external `JARVIS_RECORD_CMD` record seam
+(`record_audio_file`, `scripts/voice/record_turn.sh`) and wired it into
+`--chat --voice-speak` behind a typed `hablar`/`habla` trigger. T53
+(`B1-assistant-voice-only-loop`) retired that hybrid product surface:
+the record seam is now the default input of `--voice-only`
+(`run_voice_only`), with no typed trigger, and bare `--chat` never
+records. The tests that asserted the `hablar` intercept itself (T1, T2,
+T4, T5c) are retired with it; the honesty guarantees of the seam
+(missing STT config, record process failure, empty transcript) are kept
+and now exercised through `run_voice_only`. The full voice-only loop
+contract lives in `test_assistant_voice_only_loop_b1.py`.
 
-Isolation note: same pattern as `test_assistant_chat_voice_speak_b1.py`
-/ `test_assistant_chat_spoken_continuity_b1.py` — `run_chat()` takes no
-`workspace_root`, so these tests monkeypatch the module-level
-`DEFAULT_WORKSPACE_ROOT`. Fake RECORD/STT/TTS are tiny shell scripts —
-no real mic, no Piper/whisper binary required anywhere in this file.
+Isolation: `run_chat`/`run_voice_only` take no `workspace_root`, so
+these tests monkeypatch the module-level `DEFAULT_WORKSPACE_ROOT`. Fake
+RECORD/STT are tiny shell scripts — no real mic, no whisper binary.
 """
 
 from __future__ import annotations
 
-import os
 import stat
 import subprocess
 from pathlib import Path
@@ -74,45 +71,6 @@ def _feed_lines(monkeypatch, lines: list[str]):
     monkeypatch.setattr("builtins.input", fake_input)
 
 
-def test_t1_hablar_records_transcribes_and_falls_through_same_chat(tmp_path, monkeypatch, capsys):
-    _isolate_workspace(monkeypatch, tmp_path)
-    record_script = _write_fake_record_script(tmp_path)
-    stt_script = _write_fake_stt_script(tmp_path, "armar")
-    monkeypatch.setenv("JARVIS_RECORD_CMD", f"{record_script} {{output}}")
-    monkeypatch.setenv("JARVIS_STT_CMD", f"{stt_script} {{audio}}")
-    monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
-    from jarvis.adapters.cli.main import run_chat
-
-    _feed_lines(monkeypatch, ["hablar", "exit"])
-    run_chat(speak_tts=True)
-
-    out = capsys.readouterr().out
-    assert out.count("Grabando") == 1
-    assert "Grabando 7 s" in out
-    assert "User > [voz] armar" in out
-    assert "vehicle_arm_policy" in out or "ARMADA" in out
-    # "hablar" itself never reached the chat brain as a phrase to interpret.
-    assert "No he entendido" not in out
-
-
-def test_t2_typed_skill_never_triggers_record(tmp_path, monkeypatch, capsys):
-    _isolate_workspace(monkeypatch, tmp_path)
-    marker = tmp_path / "record_was_called.marker"
-    record_script = _write_fake_record_script(tmp_path, marker=marker)
-    monkeypatch.setenv("JARVIS_RECORD_CMD", f"{record_script} {{output}}")
-    monkeypatch.delenv("JARVIS_STT_CMD", raising=False)
-    monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
-    from jarvis.adapters.cli.main import run_chat
-
-    _feed_lines(monkeypatch, ["armar", "exit"])
-    run_chat(speak_tts=True)
-
-    out = capsys.readouterr().out
-    assert "vehicle_arm_policy" in out
-    assert "Grabando" not in out
-    assert not marker.exists(), "typing a Skill phrase must never invoke the record seam"
-
-
 def test_t3_bare_chat_hablar_never_records(tmp_path, monkeypatch, capsys):
     _isolate_workspace(monkeypatch, tmp_path)
     marker = tmp_path / "record_was_called2.marker"
@@ -128,20 +86,28 @@ def test_t3_bare_chat_hablar_never_records(tmp_path, monkeypatch, capsys):
     assert not marker.exists(), "bare --chat must never invoke the record seam on 'hablar'"
 
 
-def test_t4_missing_record_config_is_honest_and_loop_survives(tmp_path, monkeypatch, capsys):
-    _isolate_workspace(monkeypatch, tmp_path)
-    monkeypatch.delenv("JARVIS_RECORD_CMD", raising=False)
-    monkeypatch.delenv("JARVIS_STT_CMD", raising=False)
-    monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
-    from jarvis.adapters.cli.main import run_chat
+def _no_keyboard(monkeypatch):
+    def fail(prompt: str = "") -> str:
+        raise AssertionError("voice-only must not read the keyboard without projects")
 
-    _feed_lines(monkeypatch, ["hablar", "armar", "exit"])
-    run_chat(speak_tts=True)
+    monkeypatch.setattr("builtins.input", fail)
 
-    out = capsys.readouterr().out
-    assert "Grabación no disponible" in out
-    assert "vehicle_arm_policy" in out  # loop survived to the next typed turn
-    assert "Sesión cerrada" in out
+
+def _write_queue_stt_script(tmp_path: Path, transcripts: list[str]) -> Path:
+    """Pops one queued transcript per call (a blank queued line is an
+    empty transcript); falls back to `salir` once the queue is empty."""
+    queue = tmp_path / "stt_queue.txt"
+    queue.write_text("".join(f"{line}\n" for line in transcripts), encoding="utf-8")
+    return _write_script(
+        tmp_path,
+        "queue_stt.sh",
+        "#!/bin/sh\n"
+        f'Q="{queue}"\n'
+        'if [ ! -s "$Q" ]; then echo salir; exit 0; fi\n'
+        'LINE=$(head -n 1 "$Q")\n'
+        'tail -n +2 "$Q" > "$Q.tmp"; mv "$Q.tmp" "$Q"\n'
+        'printf "%s" "$LINE"\n',
+    )
 
 
 def test_t4b_record_ok_but_missing_stt_config_is_honest(tmp_path, monkeypatch, capsys):
@@ -150,81 +116,72 @@ def test_t4b_record_ok_but_missing_stt_config_is_honest(tmp_path, monkeypatch, c
     monkeypatch.setenv("JARVIS_RECORD_CMD", f"{record_script} {{output}}")
     monkeypatch.delenv("JARVIS_STT_CMD", raising=False)
     monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
-    from jarvis.adapters.cli.main import run_chat
+    _no_keyboard(monkeypatch)
+    from jarvis.adapters.cli.main import run_voice_only
 
-    _feed_lines(monkeypatch, ["hablar", "exit"])
-    run_chat(speak_tts=True)
+    run_voice_only()
 
     out = capsys.readouterr().out
     assert "STT no disponible" in out
+    assert "[voz]" not in out
     assert "Sesión cerrada" in out
 
 
-def test_t5_record_process_failure_is_honest_and_loop_survives(tmp_path, monkeypatch, capsys):
+def test_t5_record_process_failure_is_honest_and_mic_reopens(tmp_path, monkeypatch, capsys):
     _isolate_workspace(monkeypatch, tmp_path)
-    failing_record = _write_failing_script(tmp_path, "failing_record.sh")
-    monkeypatch.setenv("JARVIS_RECORD_CMD", f"{failing_record} {{output}}")
-    monkeypatch.delenv("JARVIS_STT_CMD", raising=False)
-    monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
-    from jarvis.adapters.cli.main import run_chat
-
-    _feed_lines(monkeypatch, ["hablar", "armar", "exit"])
-    run_chat(speak_tts=True)
-
-    out = capsys.readouterr().out
-    assert "Grabación no disponible" in out
-    assert "vehicle_arm_policy" in out
-
-
-def test_t5b_empty_transcript_is_honest_and_loop_survives(tmp_path, monkeypatch, capsys):
-    _isolate_workspace(monkeypatch, tmp_path)
-    record_script = _write_fake_record_script(tmp_path)
-    empty_stt = _write_script(tmp_path, "empty_stt.sh", "#!/bin/sh\nprintf ''\n")
-    monkeypatch.setenv("JARVIS_RECORD_CMD", f"{record_script} {{output}}")
-    monkeypatch.setenv("JARVIS_STT_CMD", f"{empty_stt} {{audio}}")
-    monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
-    from jarvis.adapters.cli.main import run_chat
-
-    _feed_lines(monkeypatch, ["hablar", "armar", "exit"])
-    run_chat(speak_tts=True)
-
-    out = capsys.readouterr().out
-    assert "STT no disponible" in out
-    assert "vehicle_arm_policy" in out
-
-
-def test_t5c_transcript_literally_hablar_does_not_re_record(tmp_path, monkeypatch, capsys):
-    _isolate_workspace(monkeypatch, tmp_path)
-    marker = tmp_path / "record_call_count"
+    failed_once = tmp_path / "failed_once"
     record_script = _write_script(
         tmp_path,
-        "counting_record.sh",
-        f'#!/bin/sh\nprintf "x" >> "{marker}"\nprintf \'RIFF....WAVEfake\' > "$1"\n',
+        "fail_once_record.sh",
+        "#!/bin/sh\n"
+        f'if [ ! -e "{failed_once}" ]; then touch "{failed_once}"; echo boom >&2; exit 1; fi\n'
+        "printf 'RIFF....WAVEfake' > \"$1\"\n",
     )
-    stt_script = _write_fake_stt_script(tmp_path, "hablar")
+    stt_script = _write_queue_stt_script(tmp_path, ["armar", "salir"])
     monkeypatch.setenv("JARVIS_RECORD_CMD", f"{record_script} {{output}}")
     monkeypatch.setenv("JARVIS_STT_CMD", f"{stt_script} {{audio}}")
     monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
-    from jarvis.adapters.cli.main import run_chat
+    _no_keyboard(monkeypatch)
+    from jarvis.adapters.cli.main import run_voice_only
 
-    _feed_lines(monkeypatch, ["hablar", "exit"])
-    run_chat(speak_tts=True)
+    run_voice_only()
 
     out = capsys.readouterr().out
-    assert out.count("Grabando") == 1, "a transcript that says 'hablar' must not trigger a second recording"
-    assert "User > [voz] hablar" in out
-    assert marker.read_text(encoding="utf-8") == "x"
+    assert "Grabación no disponible" in out and "boom" in out
+    assert "User > [voz] armar" in out
+    assert "vehicle_arm_policy" in out  # mic reopened and the next turn ran
+    assert "Sesión cerrada" in out
 
 
-def test_t6_run_chat_source_guard_and_voice_interactive_unaffected():
+def test_t5b_empty_transcript_is_honest_and_mic_reopens(tmp_path, monkeypatch, capsys):
+    _isolate_workspace(monkeypatch, tmp_path)
+    record_script = _write_fake_record_script(tmp_path)
+    stt_script = _write_queue_stt_script(tmp_path, ["", "armar", "salir"])
+    monkeypatch.setenv("JARVIS_RECORD_CMD", f"{record_script} {{output}}")
+    monkeypatch.setenv("JARVIS_STT_CMD", f"{stt_script} {{audio}}")
+    monkeypatch.delenv("JARVIS_TTS_CMD", raising=False)
+    _no_keyboard(monkeypatch)
+    from jarvis.adapters.cli.main import run_voice_only
+
+    run_voice_only()
+
+    out = capsys.readouterr().out
+    assert "STT no disponible" in out
+    assert "User > [voz] armar" in out
+    assert "vehicle_arm_policy" in out
+
+
+def test_t6_chat_has_no_ptt_intercept_and_interactive_voice_is_gone():
     import inspect
 
-    from jarvis.adapters.cli.main import run_chat, run_voice_interactive
+    import jarvis.adapters.cli.main as main_module
 
-    source = inspect.getsource(run_chat)
-    for forbidden in ("speak_egress", "JARVIS_TTS_CMD", "_voice_speak_fn", "TtsError"):
-        assert forbidden not in source, f"run_chat must never reference {forbidden!r}"
-    assert callable(run_voice_interactive)
+    for fn in (main_module.run_chat, main_module._run_chat_session):
+        source = inspect.getsource(fn)
+        assert "is_ptt_trigger" not in source
+        for forbidden in ("speak_egress", "JARVIS_TTS_CMD", "_voice_speak_fn", "TtsError"):
+            assert forbidden not in source, f"chat session must never reference {forbidden!r}"
+    assert not hasattr(main_module, "run_voice_interactive")
 
 
 def test_t7_no_tip_pins_no_speech_deps_esc_fence_green_guide_map_and_wrapper():
@@ -256,8 +213,9 @@ def test_t7_no_tip_pins_no_speech_deps_esc_fence_green_guide_map_and_wrapper():
         assert not violations, f"{rel_path} forbidden ESC coupling: {violations}"
 
     guide = (REPO_ROOT / "docs" / "USER_GUIDE_VOICE.md").read_text(encoding="utf-8")
-    assert "hablar" in guide
-    assert "habla" in guide
+    assert "JARVIS_RECORD_CMD" in guide
+    assert "record_turn.sh" in guide
+    assert "`hablar`" not in guide, "T53: the typed PTT trigger is no longer product UX"
 
     living_map = (REPO_ROOT / ".jes" / "artifacts" / "engineer_note_chat_spoken_continuity_map.md").read_text(
         encoding="utf-8"

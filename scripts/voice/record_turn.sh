@@ -1,5 +1,5 @@
 #!/bin/sh
-# Jarvis voice PTT — external record wrapper (T47, `B1-assistant-chat-voice-ptt`).
+# Jarvis voice — external record wrapper (T47; default mic input of --voice-only since T53).
 #
 # Records a fixed-duration, 16 kHz mono wav to the path given as the first
 # argument, using ffmpeg (macOS avfoundation, or Linux pulse/alsa) or,
@@ -7,8 +7,7 @@
 # required {output} placeholder (and the optional {seconds} one):
 #
 #   export JARVIS_RECORD_CMD="$PWD/scripts/voice/record_turn.sh {output} {seconds}"
-#   python -m jarvis.main --chat --voice-speak
-#   User > hablar
+#   python -m jarvis.main --voice-only
 #
 # Nothing here is a speech/audio dependency of the Jarvis package — ffmpeg
 # or arecord are separate binaries the operator installs. This script never
