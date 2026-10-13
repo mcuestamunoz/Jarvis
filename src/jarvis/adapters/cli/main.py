@@ -1099,10 +1099,19 @@ def run_chat() -> None:
 
 def _print_voice_only_banner(projects: list[dict]) -> None:
     """Print-only (never spoken) operator cue for `--voice-only`."""
-    from jarvis.adapters.voice import resolve_record_seconds
+    from jarvis.adapters.voice import resolve_record_seconds, resolve_record_silence_seconds
 
+    max_seconds = resolve_record_seconds()
+    silence_seconds = resolve_record_silence_seconds()
+    if silence_seconds > 0:
+        listening = (
+            f"el micrófono escucha hasta {max_seconds} s y corta "
+            f"tras ~{silence_seconds:g} s de silencio"
+        )
+    else:
+        listening = f"el micrófono graba {max_seconds} s"
     print(
-        f"Modo voz: tras cada respuesta el micrófono graba {resolve_record_seconds()} s. "
+        f"Modo voz: tras cada respuesta {listening}. "
         "Di 'salir' para terminar (o Ctrl-C dos veces seguidas)."
     )
     if projects:
@@ -1114,11 +1123,20 @@ def _is_voice_only_exit(line: str) -> bool:
     return line.strip().strip(".,;:!?¡¿").lower() in _VOICE_ONLY_EXIT_WORDS
 
 
+def _record_cue(max_seconds: int, silence_seconds: float) -> str:
+    """T54: the print-only (never spoken) record cue. With a silence cut
+    (`silence_seconds > 0`, applied by the external recorder) the max is
+    a cap, not the length; with `0` the capture is fixed (T53)."""
+    if silence_seconds > 0:
+        return f"Grabando (máx {max_seconds} s; corta con ~{silence_seconds:g} s de silencio)…"
+    return f"Grabando {max_seconds} s…"
+
+
 def _make_mic_line_reader():
     """`--voice-only` turn source (T53 locks 8–11, 13). Before the
     project picker is done (and only when projects exist), reads the
     keyboard once — lock 9. Afterwards every user turn comes from the
-    mic: print `Grabando {n} s…` (never spoken), record via
+    mic: print the record cue (`_record_cue`, never spoken), record via
     `JARVIS_RECORD_CMD` into an ephemeral temp wav, transcribe via
     `JARVIS_STT_CMD`, unlink the wav in `finally`, echo `User > [voz]
     {transcript}`. The session loop only calls this after the previous
@@ -1142,6 +1160,7 @@ def _make_mic_line_reader():
         SttError,
         record_audio_file,
         resolve_record_seconds,
+        resolve_record_silence_seconds,
         transcribe_audio_file,
     )
 
@@ -1153,7 +1172,7 @@ def _make_mic_line_reader():
             return _read_keyboard_line(startup_done)
 
         seconds = resolve_record_seconds()
-        print(f"Jarvis > Grabando {seconds} s…")
+        print(f"Jarvis > {_record_cue(seconds, resolve_record_silence_seconds())}")
         # mkstemp returns an open fd — close it before handing the path
         # to the external recorder (T47 review N1).
         fd, tmp_name = tempfile.mkstemp(suffix=".wav")
@@ -1197,9 +1216,12 @@ def run_voice_only() -> None:
     as the default input and every reply spoken via `JARVIS_TTS_CMD`
     (`_chat_speak_fn(True)` → `speak_egress` → `sanitize_for_speech`).
     No typed trigger: the mic opens when the session is ready for a
-    user turn and again after each spoken reply returns. Fixed-duration
-    capture (`JARVIS_RECORD_SECONDS`, default 7) — no VAD, no wake-word,
-    no background thread. Not `run_voice_turn`: no Skills-only brain."""
+    user turn and again after each spoken reply returns. Capture is
+    capped at `JARVIS_RECORD_SECONDS` (default 7); since T54 the
+    external recorder also cuts after `JARVIS_RECORD_SILENCE_SECONDS`
+    (default 1.0) of silence once speech was heard — no in-process VAD,
+    no wake-word, no background thread. Not `run_voice_turn`: no
+    Skills-only brain."""
     _run_chat_session(
         speak_tts=True,
         read_line=_make_mic_line_reader(),

@@ -21,7 +21,7 @@ Los doce Skills son los mismos en los dos modos: `explain <concepto>`, `estado`,
 
 **Qué no es:**
 
-- **No es always-on.** No hay wake word, ni detección de silencio, ni hilo de escucha de fondo. En `--voice-only` el micrófono graba una ventana fija (`JARVIS_RECORD_SECONDS`, 7 s por defecto) cuando Jarvis espera tu turno — y nunca mientras Jarvis está hablando. En `--chat` el micrófono no se toca jamás.
+- **No es always-on.** No hay wake word ni hilo de escucha de fondo. En `--voice-only` el micrófono se abre solo cuando Jarvis espera tu turno — nunca mientras Jarvis está hablando — y se cierra cuando dejas de hablar (~1 s de silencio) o, como máximo, a los `JARVIS_RECORD_SECONDS` (7 s por defecto). En `--chat` el micrófono no se toca jamás.
 - **No es un motor de voz.** Jarvis no graba, sintetiza ni transcribe audio por sí mismo: llama a **procesos externos** que tú instalas (un grabador como ffmpeg/arecord, whisper.cpp para transcribir, Piper para hablar). Ninguno es dependencia del paquete — `pyproject.toml` no tiene `piper` ni `whisper`, y nunca los tendrá por este camino.
 - **No ejecuta vuelo.** `hold`, `takeoff`, `go to`… responden con la misma honestidad Safety por voz que por texto: `reject`/`disarmed` desarmado, `allow`/`not_implemented` armado. **Ningún dron real se mueve.** `armar` arma un latch de software, no un ESC.
 - **No es un clon de la voz de la película.** El objetivo es *JARVIS-like* (grave, corto, sin teatro; por defecto español `es_ES` desde T49) con voces libres — no clonar a nadie. Ver [brief de producto](../.jes/artifacts/engineer_note_voice_tts_product_brief.md).
@@ -111,7 +111,8 @@ export JARVIS_STT_CMD="$PWD/scripts/voice/whisper_stt.sh {audio}"
 ./scripts/voice/whisper_stt.sh --check
 
 export JARVIS_RECORD_CMD="$PWD/scripts/voice/record_turn.sh {output} {seconds}"
-export JARVIS_RECORD_SECONDS=7          # opcional, por defecto 7
+export JARVIS_RECORD_SECONDS=7          # opcional: máximo por turno, por defecto 7
+export JARVIS_RECORD_SILENCE_SECONDS=1  # opcional: silencio que cierra el turno, por defecto 1 (0 = duración fija)
 ./scripts/voice/record_turn.sh --check
 
 python -m jarvis.main --voice-only
@@ -120,23 +121,24 @@ python -m jarvis.main --voice-only
 Una sesión típica:
 
 ```text
-Modo voz: tras cada respuesta el micrófono graba 7 s. Di 'salir' para terminar (o Ctrl-C dos veces seguidas).
+Modo voz: tras cada respuesta el micrófono escucha hasta 7 s y corta tras ~1 s de silencio. Di 'salir' para terminar (o Ctrl-C dos veces seguidas).
 Elige proyecto con el teclado; después, todo es por voz.
 User > 1                                   ← único turno de teclado: el selector de proyecto
 Jarvis >
   (el muro de Continuity completo en pantalla)   # el oído: extracto breve (§4.1)
-Jarvis > Grabando 7 s…                     ← se imprime, nunca se dice
+Jarvis > Grabando (máx 7 s; corta con ~1 s de silencio)…   ← se imprime, nunca se dice
 User > [voz] estado
 Jarvis >
   (el muro completo otra vez)              # el oído: extracto breve
-Jarvis > Grabando 7 s…
+Jarvis > Grabando (máx 7 s; corta con ~1 s de silencio)…
 User > [voz] completo                      # el oído: Continuity completa narrada
-Jarvis > Grabando 7 s…
+Jarvis > Grabando (máx 7 s; corta con ~1 s de silencio)…
 User > [voz] salir
 Jarvis > Sesión cerrada.
 ```
 
 - **El micrófono se abre solo.** Sin disparador escrito: graba cuando la sesión espera tu turno y otra vez **después** de que Jarvis termina de hablar — nunca encima de su propia voz.
+- **Se cierra cuando dejas de hablar (T54, `0.8.1`).** Una vez que el grabador te ha oído, ~1 s seguido de silencio (`JARVIS_RECORD_SILENCE_SECONDS`) termina el turno; `JARVIS_RECORD_SECONDS` sigue siendo el máximo. Si no dices nada, espera hasta ese máximo (nunca corta una sala vacía antes de tiempo). Con `JARVIS_RECORD_SILENCE_SECONDS=0` vuelve la ventana fija (`Grabando 7 s…`). La detección la hace el grabador externo (`record_turn.sh`, con el filtro `silencedetect` que ya trae ffmpeg) — nada nuevo que instalar en Jarvis. En una sala ruidosa, sube el umbral: `JARVIS_RECORD_SILENCE_NOISE=-30dB` (por defecto `-35dB`). Con solo `arecord` (Linux sin ffmpeg) no hay corte por silencio: graba la ventana fija y lo avisa.
 - **Teclado solo para elegir proyecto.** Si ya tienes proyectos, el primer turno (`n`, `1`, `2`…) se escribe; a partir de ahí todo entra por el micrófono. Sin proyectos, el micrófono se abre directamente.
 - **Lo que se transcribe se ve** como `User > [voz] {transcripción}` y entra al mismo chat que si lo hubieras tecleado. El audio es efímero: un wav temporal que se borra al terminar el turno (nunca se guarda en `workspace/`).
 - **Para terminar:** di `salir` (o `exit`/`quit`). Ctrl-C mientras graba cancela **ese** turno (`Grabación cancelada.`) y el micrófono vuelve a abrirse; un segundo Ctrl-C seguido cierra la sesión.
@@ -279,7 +281,8 @@ export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.bin"   # multilingüe, no .
 export JARVIS_STT_CMD="$PWD/scripts/voice/whisper_stt.sh {audio}"
 
 export JARVIS_RECORD_CMD="$PWD/scripts/voice/record_turn.sh {output} {seconds}"
-export JARVIS_RECORD_SECONDS=7          # opcional, por defecto 7
+export JARVIS_RECORD_SECONDS=7          # opcional: máximo por turno, por defecto 7
+export JARVIS_RECORD_SILENCE_SECONDS=1  # opcional: corta tras ~1 s de silencio (0 = fijo)
 
 # ── Comprobar antes de usar la voz ───────────────────────────────────
 ./scripts/voice/piper_tts.sh --check
@@ -309,7 +312,7 @@ python -m jarvis.main --voice-audio /tmp/turno.wav --voice-speak
 - **Falta el `.onnx.json`.** Es el fallo nº 1 al instalar una voz. Piper no lo pide por flag: lo busca al lado del `.onnx`.
 - **La voz por defecto ya es `es_ES` (T49, `0.7.6`).** Los Skills responden en español y, desde T49, la voz de demo por defecto (`es_ES-davefx-medium`) también es española — cierra el desajuste que el brief aceptaba como compromiso de las primeras demos (acento británico leyendo español). Si prefieres ese acento británico, sigue disponible: `en_GB-alan-medium` vía el mismo `JARVIS_PIPER_MODEL`, sin tocar código.
 - **`estado` y la Continuity completa son largos para hablarlos — por eso el oído recibe el extracto breve por defecto (T45, `0.7.4`).** La pantalla sigue mostrando el muro completo; pide `completo`/`dame detalles` ese turno para oír la versión completa narrada, nunca el muro leído tal cual (T52). Fuera del muro de Continuity (Skills, errores, wizards) se oye exactamente lo que se imprime.
-- **La grabación es de duración fija, no "hasta que calles".** Cada turno graba exactamente `JARVIS_RECORD_SECONDS` segundos (7 por defecto) y para sola — sin detección de silencio ni doble Enter (V10, con su propio contrato). Si hablas más corto, hay unos segundos de espera; si hablas más largo, se corta.
+- **El corte por silencio es por nivel, no por voz.** El grabador corta tras ~1 s por debajo de `JARVIS_RECORD_SILENCE_NOISE` (`-35dB`) después de haber oído algo: un ruido fuerte cuenta como "hablar", y una pausa larga a mitad de frase cierra el turno. Ajusta `JARVIS_RECORD_SILENCE_SECONDS` (p. ej. `1.5`) o el umbral; con `0` vuelves a la ventana fija. Si hablas más que `JARVIS_RECORD_SECONDS`, se corta en el máximo. Sin doble Enter.
 - **La transcripción decide.** Si whisper oye mal (p. ej. "completo" con otra palabra delante), ese turno no es FULL — la regla de §4.1 compara la frase exacta. El eco `User > [voz] …` te deja ver qué entendió.
 - **El contexto no persiste entre invocaciones de `--voice-audio`.** Cada llamada crea su propio orquestador y termina — el latch `armar` no sobrevive a la siguiente invocación. Dentro de una sesión `--voice-only` o de un `--voice-fixture` sí persiste turno a turno.
 - **Lo que se oye limpia la decoración visual antes de hablar (T50, `0.7.7`).** Líneas de regla (`────`, `━━━━`, `----`, `====`, `____`), viñetas/checks/árbol al inicio de línea (`•`, `*`, `✓`, `◇`, `└`, `├`, `│`, `─`, `━`) y el asterisco de nota al pie (`PASS *`) se quitan solo en el camino hablado — la **pantalla** sigue mostrando exactamente lo mismo que siempre, sin recortes. También se aplica un único término de glosario: `C-rate`/`c-rate` se dice como "la tasa C" (el artículo `El`/`La` que lo precede se absorbe en la misma sustitución — nunca sale "El tasa C", T51 `0.7.8`). En la pantalla, `PROJECT STATUS`/`PASS`/los títulos de gap siguen en inglés tal cual; lo que se oye (breve y, desde T52 `0.7.9`, también FULL narrado) los dice en español (§4.1). Si tras limpiar no queda nada que decir, Jarvis no dice nada ese turno — nunca rellena con voz inventada.

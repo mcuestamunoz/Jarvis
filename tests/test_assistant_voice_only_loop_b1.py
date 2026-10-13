@@ -174,7 +174,8 @@ def test_t2_mic_reopens_after_each_spoken_reply_never_during_tts(tmp_path, monke
 
     out = capsys.readouterr().out
     assert fake.record_count() >= 2
-    assert out.count("Jarvis > Grabando 7 s…") == fake.record_count()
+    # Cue text depends on the silence cut (T54); one cue per recording either way.
+    assert out.count("Jarvis > Grabando") == fake.record_count()
     events = [line.split()[0] for line in fake.event_lines()]
     first_rec, second_rec = [i for i, e in enumerate(events) if e == "REC"][:2]
     assert "TTS" in events[first_rec + 1 : second_rec], "second record must follow the spoken reply"

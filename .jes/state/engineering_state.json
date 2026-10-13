@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T54 IC ready — B1-assistant-voice-silence-cut (V10); paste to Claude → 0.8.1",
-  "scope": "Documentary V10-DC + T54 IC for silence end-of-utterance on --voice-only. No src/ this turn. Tip remains v0.8.0.",
-  "execution_status": "ic_ready",
-  "current_mode": "implementation_contract",
+  "cycle_intent": "T54 / V10 silence cut (0.8.1): --voice-only ends a turn ~JARVIS_RECORD_SILENCE_SECONDS (default 1.0) after the user stops speaking; JARVIS_RECORD_SECONDS (7) stays the cap; 0 = fixed window.",
+  "scope": "scripts/voice/record_turn.sh: ffmpeg silencedetect watched from the script, SIGTERM stop after speech+silence, -t cap kept, arecord fixed fallback. Python: resolve_record_silence_seconds (cue/banner honesty only); record_audio_file unchanged. Guide, map, version.",
+  "execution_status": "implemented_awaiting_cursor_review",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "siguiente ic — V10 silence after T53 ★"
+    "reason": "T54 IC pasted to Claude"
   },
   "relevant_workflow_phases": [
-    "Implementation Contract"
+    "Implementation"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -23,22 +23,21 @@
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Paste T54 IC to Claude for implementation?"
+    "Cursor review of T54 @ 0.8.1",
+    "Live smoke: short phrase cuts before 7 s; long phrase capped"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_voice_silence_cut_b1.md",
     "ids": [
       "T54",
       "V10",
       "B1-assistant-voice-silence-cut"
     ],
-    "blocked_on": "claude_implement"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "V10-DC written",
-    "T54 IC written",
-    "PRIORIDAD + cola + state synced"
+    "T54 implemented @ 0.8.1 — report implementation_report_assistant_voice_silence_cut_b1.md"
   ],
   "authority_gates": [
     "Cursor does not implement src/ unless Engineer says",
@@ -47,9 +46,9 @@
     "Max duration remains"
   ],
   "coherence_checklist": [
-    "IC matches V10-DC locks",
-    "Paste block present",
-    "Package target 0.8.1"
+    "IC §0 locks 1–12 implemented",
+    "No ACCEPT claimed",
+    "PRIORIDAD + cola point at Cursor review"
   ],
-  "updated_at": "2026-10-13T10:05:00Z"
+  "updated_at": "2026-10-13T15:00:00Z"
 }

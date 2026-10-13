@@ -12,8 +12,10 @@ a documented legacy value) — see
 
 from jarvis.adapters.voice.external_record import (
     DEFAULT_RECORD_SECONDS,
+    DEFAULT_RECORD_SILENCE_SECONDS,
     JARVIS_RECORD_CMD_ENV,
     JARVIS_RECORD_SECONDS_ENV,
+    JARVIS_RECORD_SILENCE_SECONDS_ENV,
     PTT_TRIGGER_PHRASES,
     RecordConfigError,
     RecordError,
@@ -21,6 +23,7 @@ from jarvis.adapters.voice.external_record import (
     is_ptt_trigger,
     record_audio_file,
     resolve_record_seconds,
+    resolve_record_silence_seconds,
 )
 from jarvis.adapters.voice.external_stt import (
     JARVIS_STT_CMD_ENV,
@@ -51,10 +54,12 @@ from jarvis.adapters.voice.spoken_continuity import (
 
 __all__ = [
     "DEFAULT_RECORD_SECONDS",
+    "DEFAULT_RECORD_SILENCE_SECONDS",
     "FULL_CONTINUITY_PHRASES",
     "FixtureSttSource",
     "JARVIS_RECORD_CMD_ENV",
     "JARVIS_RECORD_SECONDS_ENV",
+    "JARVIS_RECORD_SILENCE_SECONDS_ENV",
     "JARVIS_STT_CMD_ENV",
     "JARVIS_TTS_CMD_ENV",
     "PTT_TRIGGER_PHRASES",
@@ -75,6 +80,7 @@ __all__ = [
     "make_speak_callable",
     "record_audio_file",
     "resolve_record_seconds",
+    "resolve_record_silence_seconds",
     "run_voice",
     "run_voice_turn",
     "run_voice_turn_from_audio",

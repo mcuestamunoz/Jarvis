@@ -39,6 +39,11 @@ from pathlib import Path
 JARVIS_RECORD_CMD_ENV = "JARVIS_RECORD_CMD"
 JARVIS_RECORD_SECONDS_ENV = "JARVIS_RECORD_SECONDS"
 DEFAULT_RECORD_SECONDS = 7
+# T54 (`B1-assistant-voice-silence-cut`, V10): the silence cut itself
+# lives in the external recorder (`scripts/voice/record_turn.sh` reads
+# this same env var); Python only resolves it to print an honest cue.
+JARVIS_RECORD_SILENCE_SECONDS_ENV = "JARVIS_RECORD_SILENCE_SECONDS"
+DEFAULT_RECORD_SILENCE_SECONDS = 1.0
 
 # Locked PTT trigger set (T46-DC lock 3 / T47 IC lock 3) — finite,
 # zero-LLM, exact match only after the normalize below. Deliberately
@@ -95,6 +100,24 @@ def resolve_record_seconds(env_var: str = JARVIS_RECORD_SECONDS_ENV) -> int:
     except ValueError:
         return DEFAULT_RECORD_SECONDS
     return seconds if seconds > 0 else DEFAULT_RECORD_SECONDS
+
+
+def resolve_record_silence_seconds(env_var: str = JARVIS_RECORD_SILENCE_SECONDS_ENV) -> float:
+    """Silence-cut window the external recorder applies (T54): unset →
+    `DEFAULT_RECORD_SILENCE_SECONDS` (1.0); set but empty, or `0` →
+    `0.0` (fixed-duration capture, T53 behavior); a negative or
+    unparseable value → the default. Must stay in step with
+    `scripts/voice/record_turn.sh`, which applies the same rules."""
+    raw = os.environ.get(env_var)
+    if raw is None:
+        return DEFAULT_RECORD_SILENCE_SECONDS
+    if not raw.strip():
+        return 0.0
+    try:
+        seconds = float(raw)
+    except ValueError:
+        return DEFAULT_RECORD_SILENCE_SECONDS
+    return seconds if seconds >= 0 else DEFAULT_RECORD_SILENCE_SECONDS
 
 
 def record_audio_file(
