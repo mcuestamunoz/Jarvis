@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T57 ★ ACCEPT CLOSED @ v0.8.4 — anti-echo settle. V12 cancel+settle closed. Next: T58 in-session key when Engineer opens, or T40 Parked.",
-  "scope": "Board ACCEPT + tag only. No src/ change this turn.",
-  "execution_status": "accept_closed_idle",
-  "current_mode": "idle",
+  "cycle_intent": "T58 / V12 session key (0.8.5): Esc/Space while TTS speaking cancels like Ctrl-C (Habla cancelada.); Esc during settle/record cancels take. No global hotkey.",
+  "scope": "T58 IC only this turn. No src/ until Claude paste.",
+  "execution_status": "ic_ready_awaiting_paste",
+  "current_mode": "implementation_contract",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "ACCEPT T57"
+    "reason": "procede con redactar ic — T58"
   },
   "relevant_workflow_phases": [
-    "ACCEPT"
+    "Implementation"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,33 +17,37 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_voice_anti_echo_settle_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_voice_session_key_b1.md",
+    ".jes/artifacts/design_contract_assistant_voice_cancel_mid_tts_b0.md",
     ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Optional live settle smoke (N1)",
-    "When to open T58 IC"
+    "Engineer paste T58 IC to Claude"
   ],
   "active_operation": {
-    "type": "idle",
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_voice_session_key_b1.md",
     "ids": [
-      "T57"
+      "T58",
+      "V12",
+      "B1-assistant-voice-session-key"
     ],
-    "closed": [
-      "v0.8.4"
-    ]
+    "blocked_on": "engineer_paste_to_claude"
   },
   "closed_this_turn": [
-    "T57 ★ ACCEPT CLOSED @ v0.8.4"
+    "T58 IC written — session key @ 0.8.5"
   ],
   "authority_gates": [
-    "T58 needs Engineer open",
-    "T40 stays Parked"
+    "Cursor does not implement src/ unless Engineer says",
+    "No global OS hotkey",
+    "Brain-gap cancel out unless free",
+    "T40 stays Parked",
+    "No ACCEPT claimed"
   ],
   "coherence_checklist": [
-    "PRIORIDAD points at closed T57 + T58 candidate",
-    "Tag annotated on ACCEPT commit"
+    "PRIORIDAD points at T58 paste",
+    "Reuses T56 TtsCancelled / Habla cancelada."
   ],
-  "updated_at": "2026-10-14T08:00:00Z"
+  "updated_at": "2026-10-14T08:05:00Z"
 }
