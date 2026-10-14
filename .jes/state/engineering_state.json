@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T56 / V12 cancel mid-TTS (0.8.3): Ctrl-C while --voice-only speaks stops the TTS process group, prints 'Habla cancelada.' (screen-only), session continues to the mic.",
-  "scope": "external_tts.speak_egress: Popen(start_new_session) + communicate; KeyboardInterrupt → SIGTERM group, SIGKILL after 2 s grace → TtsCancelled (KeyboardInterrupt subclass, not TtsError). main._chat_speak_fn catches it. Record cancel/double exit/silence cut unchanged.",
-  "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "implementation",
+  "cycle_intent": "T56 ★ ACCEPT CLOSED @ v0.8.3 — cancel mid-TTS. V12 first comfort Buy closed. Next: T57 settle / T58 key when Engineer opens, or T40 Parked.",
+  "scope": "Board ACCEPT + tag only. No src/ change this turn.",
+  "execution_status": "accept_closed_idle",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "T56 IC pasted to Claude"
+    "reason": "ACCEPT T56"
   },
   "relevant_workflow_phases": [
-    "Implementation"
+    "ACCEPT"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,37 +17,33 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/design_contract_assistant_voice_cancel_mid_tts_b0.md",
-    ".jes/artifacts/implementation_contract_assistant_voice_cancel_mid_tts_b1.md",
+    ".jes/artifacts/implementation_review_assistant_voice_cancel_mid_tts_b1.md",
     ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Cursor review of T56 @ 0.8.3",
-    "Live smoke: Ctrl-C while Piper speaks 'completo'"
+    "Optional live Piper smoke (N1)",
+    "When to open T57 or T58 IC"
   ],
   "active_operation": {
-    "type": "implemented",
-    "contract": "implementation_contract_assistant_voice_cancel_mid_tts_b1.md",
+    "type": "idle",
     "ids": [
-      "T56",
-      "V12",
-      "B1-assistant-voice-cancel-mid-tts"
+      "T56"
     ],
-    "blocked_on": "cursor_review"
+    "closed": [
+      "v0.8.3"
+    ]
   },
   "closed_this_turn": [
-    "T56 implemented @ 0.8.3 — report implementation_report_assistant_voice_cancel_mid_tts_b1.md"
+    "T56 ★ ACCEPT CLOSED @ v0.8.3"
   ],
   "authority_gates": [
-    "Cursor does not implement src/ unless Engineer says",
-    "T57/T58 out of T56",
-    "T40 stays Parked",
-    "No ACCEPT claimed"
+    "T57/T58 need Engineer open",
+    "T40 stays Parked"
   ],
   "coherence_checklist": [
-    "PRIORIDAD points at T56 paste",
-    "Map update required in same Buy when Habla cancelada. lands"
+    "PRIORIDAD points at closed T56 + next candidates",
+    "Tag annotated on ACCEPT commit"
   ],
-  "updated_at": "2026-10-14T16:00:00Z"
+  "updated_at": "2026-10-14T06:40:00Z"
 }

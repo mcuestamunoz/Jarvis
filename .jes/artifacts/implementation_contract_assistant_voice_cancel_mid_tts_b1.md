@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.8.3`**
 
-**Status:** **IC ready** — Engineer “me encaja” on V12 plan @ tip **`v0.8.2`**. Paste to Claude.  
+**Status:** ★ **ACCEPT CLOSED** @ **`v0.8.3`** (2026-10-14).  
 **Parents:** [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) · [T53 ★](implementation_review_assistant_voice_only_loop_b1.md) · [T55 ★](implementation_review_assistant_voice_stt_phrase_punctuation_b1.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) · tip **`v0.8.2`**  
 **Type:** Make `--voice-only` TTS **interruptible** with Ctrl-C → kill player → continue session → reopen mic.  
 **Opens:** **`0.8.3` / `v0.8.3`**. **Cola:** **T56** / **V12**
