@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.8.4`**
 
-**Status:** **IC ready** — Engineer “siguiente ic” after T56 ★ @ `v0.8.3`. Paste to Claude.  
+**Status:** ★ **ACCEPT CLOSED** @ **`v0.8.4`** (2026-10-14).  
 **Parents:** [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) · [T56 review ★](implementation_review_assistant_voice_cancel_mid_tts_b1.md) @ `v0.8.3` · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) · tip **`v0.8.3`**  
 **Type:** Short **fixed settle delay** after speech returns (or mid-TTS cancel) **before** `--voice-only` opens the mic — reduce speaker bleed into the next capture.  
 **Opens:** **`0.8.4` / `v0.8.4`**. **Cola:** **T57** / **V12**

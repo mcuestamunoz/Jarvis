@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T57 / V12 anti-echo settle (0.8.4): --voice-only pauses JARVIS_VOICE_SETTLE_SECONDS (default 0.35) after the Grabando cue and before each recording, including after a mid-TTS cancel.",
-  "scope": "external_record.resolve_voice_settle_seconds (+ env/default constants); main mic reader time.sleep before record_audio_file inside the record try (Ctrl-C = take cancel). No VAD/deps; record_turn.sh, speak_egress, Continuity untouched.",
-  "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "implementation",
+  "cycle_intent": "T57 ★ ACCEPT CLOSED @ v0.8.4 — anti-echo settle. V12 cancel+settle closed. Next: T58 in-session key when Engineer opens, or T40 Parked.",
+  "scope": "Board ACCEPT + tag only. No src/ change this turn.",
+  "execution_status": "accept_closed_idle",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "T57 IC pasted to Claude"
+    "reason": "ACCEPT T57"
   },
   "relevant_workflow_phases": [
-    "Implementation"
+    "ACCEPT"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,37 +17,33 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_anti_echo_settle_b1.md",
-    ".jes/artifacts/design_contract_assistant_voice_cancel_mid_tts_b0.md",
+    ".jes/artifacts/implementation_review_assistant_voice_anti_echo_settle_b1.md",
     ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Cursor review of T57 @ 0.8.4",
-    "Live smoke: less speaker bleed; JARVIS_VOICE_SETTLE_SECONDS=0 restores immediate record"
+    "Optional live settle smoke (N1)",
+    "When to open T58 IC"
   ],
   "active_operation": {
-    "type": "implemented",
-    "contract": "implementation_contract_assistant_voice_anti_echo_settle_b1.md",
+    "type": "idle",
     "ids": [
-      "T57",
-      "V12",
-      "B1-assistant-voice-anti-echo-settle"
+      "T57"
     ],
-    "blocked_on": "cursor_review"
+    "closed": [
+      "v0.8.4"
+    ]
   },
   "closed_this_turn": [
-    "T57 implemented @ 0.8.4 — report implementation_report_assistant_voice_anti_echo_settle_b1.md"
+    "T57 ★ ACCEPT CLOSED @ v0.8.4"
   ],
   "authority_gates": [
-    "Cursor does not implement src/ unless Engineer says",
-    "No VAD / always-on",
-    "T40 stays Parked",
-    "No ACCEPT claimed"
+    "T58 needs Engineer open",
+    "T40 stays Parked"
   ],
   "coherence_checklist": [
-    "PRIORIDAD points at T57 paste",
-    "Parent V12-DC plan row updated"
+    "PRIORIDAD points at closed T57 + T58 candidate",
+    "Tag annotated on ACCEPT commit"
   ],
-  "updated_at": "2026-10-14T19:00:00Z"
+  "updated_at": "2026-10-14T08:00:00Z"
 }
