@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.8.1`**
 
-**Status:** **IC ready** — Engineer “siguiente ic” after T53 ★ @ `v0.8.0`. Paste to Claude.  
+**Status:** ★ **ACCEPT CLOSED** @ **`v0.8.1`** (2026-10-14).  
 **Parents:** [V10-DC / T54-DC](design_contract_assistant_voice_silence_cut_b0.md) · [T53 review ★](implementation_review_assistant_voice_only_loop_b1.md) @ `v0.8.0` · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) · tip **`v0.8.0`**  
 **Type:** External **silence end-of-utterance** on `--voice-only` record — max duration still applies; STT/chat/TTS unchanged.  
 **Opens:** **`0.8.1` / `v0.8.1`**. **Cola:** **T54** / **V10**

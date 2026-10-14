@@ -4,12 +4,12 @@
 **Date:** 2026-10-13  
 **Reviewer:** Cursor (independent — not implementer)  
 **Contract:** [IC](implementation_contract_assistant_voice_silence_cut_b1.md) · [V10-DC](design_contract_assistant_voice_silence_cut_b0.md) · [report](implementation_report_assistant_voice_silence_cut_b1.md)  
-**Tip under review:** `9312fdd` on `cursor/chat-voice-ptt-impl-8ac5` · package **`0.8.1`** (untagged until Engineer ★)  
+**Tip under review:** `9312fdd` on `cursor/chat-voice-ptt-impl-8ac5` · package **`0.8.1`**  
 **Parent:** `v0.8.0` (T53 ★)
 
-**Verdict:** **PASS WITH NOTES** → await Engineer ★ ACCEPT → tag **`v0.8.1`**.
+**Verdict:** **PASS WITH NOTES** → Engineer ★ **ACCEPT CLOSED** (2026-10-14) @ tip **`v0.8.1`** (`9312fdd`).
 
-**Process note:** Independent Cursor review of record. Same-session self-PASS is not review of record. Checkout was `9312fdd` (= `origin/cursor/chat-voice-ptt-impl-8ac5`).
+**Process note:** Independent Cursor review of record. Same-session self-PASS is not review of record. Engineer ★ ACCEPT CLOSED → tag **`v0.8.1`**. N1–N4 remain non-blocking (live mic smoke optional).
 
 ---
 
@@ -78,4 +78,4 @@ Implementer reports full suite **4061 passed / 9 skipped / 0 failed** — not re
 
 ## 5. Recommendation
 
-**PASS WITH NOTES.** Engineer may ★ ACCEPT CLOSED and tag **`v0.8.1`** after optional live mic smoke (N1). No redo required unless Engineer wants a different silence tool or cue wording.
+**PASS WITH NOTES.** Engineer ★ ACCEPT CLOSED (2026-10-14) → tag **`v0.8.1`**. N1 live mic smoke remains optional operator validation.

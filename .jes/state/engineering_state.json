@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T55 / V11 (0.8.2): STT edge punctuation (.,;:!?¡¿) ignored by FULL-phrase and Skill-first phrase matching (Continuity defer + every Skill kind — Engineer-confirmed scope); dead PTT helpers removed. T54 remains reviewed awaiting Engineer ★ @ 0.8.1.",
-  "scope": "spoken_continuity._normalize + assistant_task._normalize_for_continuity_match strip edge punctuation; phrase tables unchanged; external_record PTT helpers + exports deleted; guide note; version.",
-  "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "implementation",
+  "cycle_intent": "T54 ★ ACCEPT CLOSED @ v0.8.1 + T55 ★ ACCEPT CLOSED @ v0.8.2. Voice cola V7–V11 CLOSED. Next candidate V12+ (anti-echo/cancel/hotkey) or T40 Parked.",
+  "scope": "Board ACCEPT + tags. No src/ change this turn.",
+  "execution_status": "accept_closed_idle",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "T55 IC pasted to Claude; Engineer chose all-matchers scope for lock 2b"
+    "reason": "ACCEPT T54 and T55 pending reviews"
   },
   "relevant_workflow_phases": [
-    "Implementation"
+    "ACCEPT"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,38 +17,38 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/design_contract_assistant_voice_stt_phrase_punctuation_b0.md",
-    ".jes/artifacts/implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md",
+    ".jes/artifacts/implementation_review_assistant_voice_silence_cut_b1.md",
+    ".jes/artifacts/implementation_review_assistant_voice_stt_phrase_punctuation_b1.md",
     ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Cursor review of T55 @ 0.8.2",
-    "Engineer ★ T54 @ 0.8.1 (live mic smoke)"
+    "Optional live smoke T54 mic / T55 whisper (N1s)",
+    "When to open V12+ DC (anti-echo / cancel / hotkey)",
+    "T40 remains Parked"
   ],
   "active_operation": {
-    "type": "implemented",
-    "contract": "implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md",
+    "type": "idle",
     "ids": [
-      "T55",
-      "V11",
-      "B1-assistant-voice-stt-phrase-punctuation"
+      "T54",
+      "T55"
     ],
-    "blocked_on": "cursor_review"
+    "closed": [
+      "v0.8.1",
+      "v0.8.2"
+    ]
   },
   "closed_this_turn": [
-    "T55 implemented @ 0.8.2 — report implementation_report_assistant_voice_stt_phrase_punctuation_b1.md"
+    "T54 ★ ACCEPT CLOSED @ v0.8.1 (9312fdd)",
+    "T55 ★ ACCEPT CLOSED @ v0.8.2"
   ],
   "authority_gates": [
-    "Cursor does not implement src/ unless Engineer says",
-    "T40 stays Parked",
-    "No anti-echo / barge-in in T55",
-    "No ACCEPT claimed"
+    "V12+ needs own DC before IC",
+    "T40 stays Parked until Engineer opens DC"
   ],
   "coherence_checklist": [
-    "Closes T53 N2 (and N1 if PTT cleanup lands)",
-    "PRIORIDAD points at T55 paste",
-    "T54 review still valid for ★"
+    "PRIORIDAD points at closed voice block + V12+ candidate",
+    "Tags annotated on correct commits"
   ],
-  "updated_at": "2026-10-14T12:00:00Z"
+  "updated_at": "2026-10-14T06:10:00Z"
 }

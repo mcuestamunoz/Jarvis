@@ -5,7 +5,7 @@
 **Implementer:** Claude Code (Engineer paste)
 **Contract:** [IC](implementation_contract_assistant_voice_silence_cut_b1.md) · [V10-DC](design_contract_assistant_voice_silence_cut_b0.md)
 **Parent:** tip `v0.8.0` (T53 ★)
-**Status:** **Implemented** — await Cursor review → Engineer ACCEPT → tag `v0.8.1`. No ACCEPT claimed.
+**Status:** ★ **ACCEPT CLOSED** (2026-10-14) @ tip **`v0.8.1`**.
 **Package:** `0.8.0` → **`0.8.1`**.
 
 ---

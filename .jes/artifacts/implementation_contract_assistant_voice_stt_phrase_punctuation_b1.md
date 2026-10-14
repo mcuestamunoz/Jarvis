@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.8.2`**
 
-**Status:** **IC ready (amended 2026-10-14)** — lock 2b scope explicit after Claude pause. Paste / resume.  
+**Status:** ★ **ACCEPT CLOSED** @ **`v0.8.2`** (2026-10-14).  
 **Parents:** [V11-DC / T55-DC](design_contract_assistant_voice_stt_phrase_punctuation_b0.md) · [T53 review ★](implementation_review_assistant_voice_only_loop_b1.md) N2 · [T54 review](implementation_review_assistant_voice_silence_cut_b1.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) · tip package **`0.8.1`**  
 **Type:** Trailing-punctuation honesty on FULL + shared Skill-first normalize (STT). Optional dead PTT export cleanup.  
 **Opens:** **`0.8.2` / `v0.8.2`**. **Cola:** **T55** / **V11**

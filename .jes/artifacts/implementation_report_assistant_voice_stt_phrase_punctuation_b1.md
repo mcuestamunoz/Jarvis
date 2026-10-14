@@ -5,7 +5,7 @@
 **Implementer:** Claude Code (Engineer paste)
 **Contract:** [IC](implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md) · [V11-DC](design_contract_assistant_voice_stt_phrase_punctuation_b0.md)
 **Parent:** package `0.8.1` (T54 reviewed PASS WITH NOTES, await ★)
-**Status:** **Implemented** — await Cursor review → Engineer ACCEPT → tag `v0.8.2`. No ACCEPT claimed.
+**Status:** ★ **ACCEPT CLOSED** (2026-10-14) @ tip **`v0.8.2`**.
 **Package:** `0.8.1` → **`0.8.2`**.
 
 ---
