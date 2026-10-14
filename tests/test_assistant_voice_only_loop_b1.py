@@ -94,6 +94,10 @@ class _FakeVoice:
         )
         monkeypatch.setenv("JARVIS_RECORD_CMD", f"{record} {{output}} {{seconds}}")
         monkeypatch.setenv("JARVIS_STT_CMD", f"{stt} {{audio}}")
+        # T57: shared fixture runs without the anti-echo settle so loop
+        # tests keep T53 timing; test_assistant_voice_anti_echo_settle_b1
+        # exercises the default explicitly.
+        monkeypatch.setenv("JARVIS_VOICE_SETTLE_SECONDS", "0")
         if tts:
             speak = _write_script(
                 tmp_path,

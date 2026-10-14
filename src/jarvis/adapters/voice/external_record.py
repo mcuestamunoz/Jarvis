@@ -38,6 +38,11 @@ DEFAULT_RECORD_SECONDS = 7
 # this same env var); Python only resolves it to print an honest cue.
 JARVIS_RECORD_SILENCE_SECONDS_ENV = "JARVIS_RECORD_SILENCE_SECONDS"
 DEFAULT_RECORD_SILENCE_SECONDS = 1.0
+# T57 (`B1-assistant-voice-anti-echo-settle`, V12): a short fixed pause
+# `--voice-only` takes before each recording, so the tail of Jarvis's own
+# voice (speaker bleed) is less likely to land in the next take.
+JARVIS_VOICE_SETTLE_SECONDS_ENV = "JARVIS_VOICE_SETTLE_SECONDS"
+DEFAULT_VOICE_SETTLE_SECONDS = 0.35
 
 
 class RecordError(Exception):
@@ -87,6 +92,23 @@ def resolve_record_silence_seconds(env_var: str = JARVIS_RECORD_SILENCE_SECONDS_
     except ValueError:
         return DEFAULT_RECORD_SILENCE_SECONDS
     return seconds if seconds >= 0 else DEFAULT_RECORD_SILENCE_SECONDS
+
+
+def resolve_voice_settle_seconds(env_var: str = JARVIS_VOICE_SETTLE_SECONDS_ENV) -> float:
+    """Anti-echo settle before each `--voice-only` recording (T57): unset
+    → `DEFAULT_VOICE_SETTLE_SECONDS` (0.35); set but empty, or `0` →
+    `0.0` (no settle, T53/T56 timing); a negative or unparseable value →
+    the default. Same honesty style as `resolve_record_silence_seconds`."""
+    raw = os.environ.get(env_var)
+    if raw is None:
+        return DEFAULT_VOICE_SETTLE_SECONDS
+    if not raw.strip():
+        return 0.0
+    try:
+        seconds = float(raw)
+    except ValueError:
+        return DEFAULT_VOICE_SETTLE_SECONDS
+    return seconds if seconds >= 0 else DEFAULT_VOICE_SETTLE_SECONDS
 
 
 def record_audio_file(

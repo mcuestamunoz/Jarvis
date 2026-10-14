@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
 
 from jarvis.config import DEFAULT_LLM_LOG_ROOT, OLLAMA_BASE_URL, OLLAMA_MODEL
@@ -1150,6 +1151,10 @@ def _make_mic_line_reader():
     reply's synchronous `speak(...)` returned, so recording never
     overlaps TTS.
 
+    Before each recording it pauses `JARVIS_VOICE_SETTLE_SECONDS`
+    (default 0.35, T57) so speaker bleed from the reply just spoken — or
+    just cancelled — is less likely to land in the take.
+
     Honesty: a missing record/STT config can never succeed, so it is
     printed once and ends the session (no endless retry loop); a failed
     recording/STT run or an empty transcript is printed and the mic
@@ -1168,6 +1173,7 @@ def _make_mic_line_reader():
         record_audio_file,
         resolve_record_seconds,
         resolve_record_silence_seconds,
+        resolve_voice_settle_seconds,
         transcribe_audio_file,
     )
 
@@ -1186,6 +1192,14 @@ def _make_mic_line_reader():
         os.close(fd)
         tmp_path = Path(tmp_name)
         try:
+            # T57 anti-echo settle: a short fixed pause after the cue and
+            # before the recorder starts, so the tail of Jarvis's own voice
+            # (or a just-cancelled one) is less likely to land in this take.
+            # Inside the try on purpose: Ctrl-C here is the same as Ctrl-C
+            # while recording (cancel this take; twice in a row ends).
+            settle = resolve_voice_settle_seconds()
+            if settle > 0:
+                time.sleep(settle)
             record_audio_file(tmp_path, seconds=seconds)
             transcript = transcribe_audio_file(tmp_path)
         except KeyboardInterrupt:

@@ -1,9 +1,9 @@
 # Engineer note — Voice phase C cola (Skill-first channels)
 
-**Date:** 2026-10-03 · **updated:** 2026-10-14 (T57 IC ready — anti-echo settle @ `0.8.4`)  
-**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T56 ★** @ tip **`v0.8.3`**; **T57 IC ready**; T58 later; **T40** Parked  
+**Date:** 2026-10-03 · **updated:** 2026-10-14 (T57 Implemented — anti-echo settle @ `0.8.4`)  
+**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T56 ★** @ tip **`v0.8.3`**; **T57 Implemented** @ `0.8.4`, await Cursor review; T58 later; **T40** Parked  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`v0.8.3`** · next = paste **T57** · [T57 IC](implementation_contract_assistant_voice_anti_echo_settle_b1.md) · [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) · [T56 review ★](implementation_review_assistant_voice_cancel_mid_tts_b1.md)
+**Tip parent:** **`v0.8.3`** · next = Cursor review of **T57** · [T57 IC](implementation_contract_assistant_voice_anti_echo_settle_b1.md) · [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) · [T56 review ★](implementation_review_assistant_voice_cancel_mid_tts_b1.md)
 
 **Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [V9-DC](design_contract_assistant_voice_two_mode_product_b0.md)
 
@@ -100,7 +100,7 @@ run_chat print  → Layer 1 (unchanged)
 | **T55** | V11 | `B1-assistant-voice-stt-phrase-punctuation` | **`0.8.2` / `v0.8.2`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.2`** | `Completo.`/`Estado.`/Skill edge punct; dead PTT gone | [review ★](implementation_review_assistant_voice_stt_phrase_punctuation_b1.md) · [IC](implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md) · [report](implementation_report_assistant_voice_stt_phrase_punctuation_b1.md) |
 | **T56-DC** | V12 | `DC-assistant-voice-v12-comfort` | — (no bump) | **DC ready** (consumed by T56) | Cancel mid-TTS · T57 settle · T58 key ordered | [DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) |
 | **T56** | V12 | `B1-assistant-voice-cancel-mid-tts` | **`0.8.3` / `v0.8.3`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.3`** | Ctrl-C while speaking → kill TTS → mic again | [review ★](implementation_review_assistant_voice_cancel_mid_tts_b1.md) · [IC](implementation_contract_assistant_voice_cancel_mid_tts_b1.md) · [report](implementation_report_assistant_voice_cancel_mid_tts_b1.md) |
-| **T57** | V12 | `B1-assistant-voice-anti-echo-settle` | **`0.8.4`** | **IC ready** — paste to Claude | Fixed settle after speak before mic | [IC](implementation_contract_assistant_voice_anti_echo_settle_b1.md) · [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) |
+| **T57** | V12 | `B1-assistant-voice-anti-echo-settle` | **`0.8.4`** | **Implemented** — await Cursor review | Fixed settle after speak before mic | [IC](implementation_contract_assistant_voice_anti_echo_settle_b1.md) · [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md)  · [report](implementation_report_assistant_voice_anti_echo_settle_b1.md) |
 | **T58** | V12 | in-session key | `0.8.5` (indicative) | **Later** | Space/Esc if Ctrl-C not enough | [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7–V12 | [placement A4](design_contract_assistant_placement_b0.md) |
 

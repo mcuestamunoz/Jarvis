@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T57 / V12 anti-echo settle (0.8.4): fixed JARVIS_VOICE_SETTLE_SECONDS (default 0.35) after speak/cancel before --voice-only record. No VAD.",
-  "scope": "T57 IC only this turn. No src/ until Claude paste.",
-  "execution_status": "ic_ready_awaiting_paste",
-  "current_mode": "implementation_contract",
+  "cycle_intent": "T57 / V12 anti-echo settle (0.8.4): --voice-only pauses JARVIS_VOICE_SETTLE_SECONDS (default 0.35) after the Grabando cue and before each recording, including after a mid-TTS cancel.",
+  "scope": "external_record.resolve_voice_settle_seconds (+ env/default constants); main mic reader time.sleep before record_audio_file inside the record try (Ctrl-C = take cancel). No VAD/deps; record_turn.sh, speak_egress, Continuity untouched.",
+  "execution_status": "implemented_awaiting_cursor_review",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "siguiente ic after T56 ★"
+    "reason": "T57 IC pasted to Claude"
   },
   "relevant_workflow_phases": [
     "Implementation"
@@ -23,21 +23,21 @@
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Engineer paste T57 IC to Claude",
-    "T58 after T57 ★ if needed"
+    "Cursor review of T57 @ 0.8.4",
+    "Live smoke: less speaker bleed; JARVIS_VOICE_SETTLE_SECONDS=0 restores immediate record"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_voice_anti_echo_settle_b1.md",
     "ids": [
       "T57",
       "V12",
       "B1-assistant-voice-anti-echo-settle"
     ],
-    "blocked_on": "engineer_paste_to_claude"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "T57 IC written — anti-echo settle @ 0.8.4"
+    "T57 implemented @ 0.8.4 — report implementation_report_assistant_voice_anti_echo_settle_b1.md"
   ],
   "authority_gates": [
     "Cursor does not implement src/ unless Engineer says",
@@ -49,5 +49,5 @@
     "PRIORIDAD points at T57 paste",
     "Parent V12-DC plan row updated"
   ],
-  "updated_at": "2026-10-14T06:50:00Z"
+  "updated_at": "2026-10-14T19:00:00Z"
 }
