@@ -6,22 +6,27 @@
 # `JARVIS_STT_CMD` seam expects, so point it here with an `{audio}`
 # placeholder:
 #
-#   export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.en.bin"
+#   export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.bin"   # multilingual
+#   export JARVIS_WHISPER_BIN="$HOME/whisper.cpp/build/bin/whisper-cli"
+#   export JARVIS_WHISPER_ARGS="-l es"                          # Spanish sessions
 #   export JARVIS_STT_CMD="$PWD/scripts/voice/whisper_stt.sh {audio}"
-#   python -m jarvis.main --voice-only                                 # daily voice mode
-#   python -m jarvis.main --voice-audio /tmp/turn.wav --voice-speak    # batch/CI
+#   PYTHONPATH=src python -m jarvis.main --voice-only              # daily voice mode
+#   PYTHONPATH=src python -m jarvis.main --voice-audio /tmp/turn.wav --voice-speak
 #
-# Nothing here is a speech dependency of the Jarvis package: whisper.cpp is a
-# separate binary + model the operator installs (see docs/USER_GUIDE_VOICE.md
-# §5). This script never decodes audio itself. Diagnostics go to stderr so
-# they can never be mistaken for a transcript; every missing piece exits
-# non-zero rather than printing an empty "success".
+# Install whisper.cpp + model once outside this repo — concrete macOS/Linux
+# steps in docs/USER_GUIDE_VOICE.md §5.2. For Spanish voice-only, pass
+# JARVIS_WHISPER_ARGS="-l es" or whisper may invent English / [BLANK_AUDIO]
+# on quiet takes (guide §8). Nothing here is a speech dependency of the
+# Jarvis package. This script never decodes audio itself. Diagnostics go to
+# stderr so they can never be mistaken for a transcript; every missing piece
+# exits non-zero rather than printing an empty "success".
 #
 # Env:
 #   JARVIS_WHISPER_MODEL (required) path to a whisper.cpp .bin model
 #   JARVIS_WHISPER_BIN   (optional) executable, default: whisper-cli
 #                                   (older builds call it `main`)
 #   JARVIS_WHISPER_ARGS  (optional) extra args appended to the call
+#                                   (recommend "-l es" for Spanish)
 #
 # Flags:
 #   --check   verify config + binaries and exit; transcribe nothing.

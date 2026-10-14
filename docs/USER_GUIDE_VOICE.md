@@ -102,22 +102,25 @@ Variables que entiende el wrapper:
 
 ## 4. Usar Jarvis por voz — `--voice-only`
 
-Con §3 configurado (para que Jarvis hable), añade la transcripción (whisper.cpp instalado fuera del paquete — ver §5.2) y la grabación:
+Con §3 configurado (para que Jarvis hable) y whisper instalado (§5.2), desde la **raíz del repo** (misma terminal donde hiciste los `export`):
 
-```text
-export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.bin"   # multilingüe, no .en.bin
+```bash
+export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.bin"
 export JARVIS_WHISPER_BIN="$HOME/whisper.cpp/build/bin/whisper-cli"
+export JARVIS_WHISPER_ARGS="-l es"
 export JARVIS_STT_CMD="$PWD/scripts/voice/whisper_stt.sh {audio}"
 ./scripts/voice/whisper_stt.sh --check
 
 export JARVIS_RECORD_CMD="$PWD/scripts/voice/record_turn.sh {output} {seconds}"
-export JARVIS_RECORD_SECONDS=7          # opcional: máximo por turno, por defecto 7
-export JARVIS_RECORD_SILENCE_SECONDS=1  # opcional: silencio que cierra el turno, por defecto 1 (0 = duración fija)
-export JARVIS_VOICE_SETTLE_SECONDS=0.35 # opcional: pausa anti-eco antes de grabar, por defecto 0.35 (0 = sin pausa)
+export JARVIS_RECORD_SECONDS=7
+export JARVIS_RECORD_SILENCE_SECONDS=1
+export JARVIS_VOICE_SETTLE_SECONDS=0.35
 ./scripts/voice/record_turn.sh --check
 
-python -m jarvis.main --voice-only
+PYTHONPATH=src python -m jarvis.main --voice-only
 ```
+
+`JARVIS_WHISPER_ARGS="-l es"` fija el idioma a español: sin eso, whisper.cpp a veces “traduce” o inventa inglés (`See you in the next step`) aunque hayas hablado en español. Si `whisper_stt.sh --check` falla (modelo o binario ausente), no lances la sesión: tras `Grabando…` no habrá `User > [voz] …` útil.
 
 Una sesión típica:
 
@@ -216,25 +219,42 @@ JARVIS_VOICE_WAV_OUT=/tmp/turno.wav \
 python -m jarvis.main --voice-fixture /tmp/una_linea.txt --voice-speak
 ```
 
-### 5.2 Un turno desde un audio ya grabado
+### 5.2 Instalar whisper.cpp (fuera del paquete) + un turno desde audio
 
-Esto es la mitad de **entrada**: un archivo de audio se transcribe **fuera** de Jarvis, y el texto resultante entra por el canal batch. Jarvis no captura ni decodifica audio — y esto procesa **un** archivo por invocación, no un bucle de escucha (para eso está `--voice-only`, §4). `JARVIS_STT_CMD` es el mismo que usa `--voice-only`.
+`--voice-only` (§4) y `--voice-audio` usan el mismo STT externo. Igual que Piper: **nada de esto entra en `pyproject.toml`**. Vive en tu home; no modifica el sistema de macOS más allá de lo que ya hace Homebrew (`cmake`) si lo usas para compilar.
 
-Instala whisper.cpp fuera del paquete (su README oficial cubre tu plataforma) y descarga un modelo. Igual que Piper: **nada de esto entra en `pyproject.toml`**.
+**Para español, modelo multilingüe** (`ggml-base.bin`). No uses `ggml-base.en.bin` — es solo-inglés y transcribe mal el español. `ggml-base.en.bin` solo si le hablas en inglés.
 
-**Para `--voice-only` o cualquier audio en español, usa un modelo multilingüe** (p. ej. `ggml-base.bin`), no uno con sufijo `.en.bin` — esos son solo-inglés y transcriben mal el español (lo oyen como ruido o lo "traducen" a palabras inglesas parecidas). `ggml-base.en.bin` sigue siendo correcto si vas a hablarle en inglés.
+Instalación **una vez** (macOS / Linux; pega **solo** estos comandos, sin líneas de comentario — en zsh un `#` suelto o un bloque con comentarios puede fallar):
 
-```text
+```bash
+mkdir -p ~/whisper
+curl -L -o ~/whisper/ggml-base.bin \
+  "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin"
+
+brew install cmake
+git clone https://github.com/ggerganov/whisper.cpp.git ~/whisper.cpp
+cmake -S ~/whisper.cpp -B ~/whisper.cpp/build -DWHISPER_BUILD_EXAMPLES=ON
+cmake --build ~/whisper.cpp/build -j
+ls ~/whisper.cpp/build/bin/whisper-cli
+```
+
+En Linux sin Homebrew: instala `cmake` y un compilador C++ con el gestor de tu distro, luego los mismos `git clone` / `cmake` / `cmake --build`. Alternativa: sigue el README de [whisper.cpp](https://github.com/ggerganov/whisper.cpp).
+
+Desde la **raíz del repo Jarvis**, apunta y comprueba:
+
+```bash
+cd /ruta/a/Jarvis
 export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.bin"
 export JARVIS_WHISPER_BIN="$HOME/whisper.cpp/build/bin/whisper-cli"
+export JARVIS_WHISPER_ARGS="-l es"
 export JARVIS_STT_CMD="$PWD/scripts/voice/whisper_stt.sh {audio}"
-```
-
-El `{audio}` es obligatorio: Jarvis lo sustituye por la ruta del archivo en cada turno. Verifica igual que con Piper:
-
-```text
 ./scripts/voice/whisper_stt.sh --check
 ```
+
+Debe imprimir `whisper_stt.sh: ready (model=…, whisper=…)`. El `{audio}` es obligatorio: Jarvis lo sustituye por la ruta del wav en cada turno. `-l es` evita transcripciones en inglés inventado (guía §8).
+
+**Qué es (y qué no es) esta instalación:** código + modelo en tu `$HOME`; el binario solo corre cuando Jarvis (o tú) llama a `whisper-cli`. No es un servicio de fondo ni un atajo global. Puedes borrar `~/whisper` y `~/whisper.cpp` cuando quieras.
 
 ### 5.3 Grabar un turno y lanzarlo
 
@@ -272,47 +292,38 @@ Di “hold” al micrófono y deberías oír el rechazo honesto de Safety.
 
 ## 7. Cheatsheet — una página
 
-```text
-# ── Preparar (una vez) ───────────────────────────────────────────────
-python3 -m venv ~/piper-venv && ~/piper-venv/bin/pip install piper-tts
-# descargar es_ES-davefx-medium.onnx + .onnx.json a ~/piper/
-# (alt: es_ES-sharvard-medium · legacy: en_GB-alan-medium)
+```bash
+# Preparar una vez: Piper §2 · whisper §5.2 (no pegues comentarios sueltos en zsh)
 
 export JARVIS_PIPER_MODEL="$HOME/piper/es_ES-davefx-medium.onnx"
 export JARVIS_PIPER_BIN="$HOME/piper-venv/bin/piper"
 export JARVIS_TTS_CMD="$PWD/scripts/voice/piper_tts.sh"
 
-export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.bin"   # multilingüe, no .en.bin
+export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.bin"
+export JARVIS_WHISPER_BIN="$HOME/whisper.cpp/build/bin/whisper-cli"
+export JARVIS_WHISPER_ARGS="-l es"
 export JARVIS_STT_CMD="$PWD/scripts/voice/whisper_stt.sh {audio}"
 
 export JARVIS_RECORD_CMD="$PWD/scripts/voice/record_turn.sh {output} {seconds}"
-export JARVIS_RECORD_SECONDS=7          # opcional: máximo por turno, por defecto 7
-export JARVIS_RECORD_SILENCE_SECONDS=1  # opcional: corta tras ~1 s de silencio (0 = fijo)
 
-# ── Comprobar antes de usar la voz ───────────────────────────────────
 ./scripts/voice/piper_tts.sh --check
 ./scripts/voice/whisper_stt.sh --check
 ./scripts/voice/record_turn.sh --check
 
-# ── Los dos modos ────────────────────────────────────────────────────
-python -m jarvis.main --chat            # teclado, en silencio
-python -m jarvis.main --voice-only      # micrófono + voz; di "salir" para terminar
+PYTHONPATH=src python -m jarvis.main --chat
+PYTHONPATH=src python -m jarvis.main --voice-only
 
-# ── Batch / CI (no son modos de uso diario) ──────────────────────────
-python -m jarvis.main --voice-fixture scripts/voice/fixtures/demo_skills.txt --voice-speak
-python -m jarvis.main --voice-fixture scripts/voice/fixtures/demo_skills.txt   # solo texto
-
-JARVIS_VOICE_WAV_OUT=/tmp/turno.wav \
-  python -m jarvis.main --voice-fixture /tmp/una_linea.txt --voice-speak
-
-arecord -d 5 -r 16000 -c 1 -f S16_LE /tmp/turno.wav
-python -m jarvis.main --voice-audio /tmp/turno.wav --voice-speak
+PYTHONPATH=src python -m jarvis.main --voice-fixture scripts/voice/fixtures/demo_skills.txt --voice-speak
 ```
 
 ---
 
 ## 8. Límites conocidos y problemas típicos
 
+- **No pegues bloques con `# …` como comandos en zsh.** Copia solo las líneas `export` / `curl` / `cmake` / `python`. Un `#` suelto o un comentario mal pegado produce errores raros (`unknown sort specifier`, `command not found: #`). Ejecuta los checks desde la **raíz del repo** (`cd …/Jarvis`), no desde `~`.
+- **`whisper_stt.sh --check` debe decir `ready` antes de `--voice-only`.** Si falta el modelo o `whisper-cli`, tras `Grabando…` no verás `User > [voz] …` útil (o verás `STT no disponible: …`).
+- **Fija idioma español en whisper.** Sin `JARVIS_WHISPER_ARGS="-l es"`, el modelo multilingüe a veces saca inglés inventado (`See you in the bottom`) o tokens basura aunque hayas hablado en español. Jarvis solo entiende frases claras del mismo cerebro que `--chat` (`estado`, `completo`, Skills, `salir`…). Si oye mal, imprime `User > [voz] …` con lo que creyó oír y responde `No se pudo interpretar la intención`.
+- **Silencio / toma vacía → bucle de “no se pudo interpretar”.** Si nadie habla (o el mic no te oye), el grabador espera el máximo (~7 s) y whisper suele devolver `[BLANK_AUDIO]` u otra marca. Eso **no** es una cadena vacía: entra al chat como texto, falla el parseo y vuelve a `Grabando…`. Habla claro hacia el mic tras el cue; di `salir` (o Esc dos veces / Ctrl-C dos veces mientras graba) para salir del bucle. Un Buy futuro puede tratar `[BLANK_AUDIO]` / silencio como toma vacía (reabrir mic sin mensaje de intención).
 - **Las flags de Piper cambian entre builds.** El wrapper llama `piper --model M --output_file W` (forma de Piper 1.x). Si tu build usa otras, pásalas con `JARVIS_PIPER_ARGS` o ajusta el wrapper — el error de Piper se propaga tal cual a stderr, no se enmascara.
 - **Falta el `.onnx.json`.** Es el fallo nº 1 al instalar una voz. Piper no lo pide por flag: lo busca al lado del `.onnx`.
 - **La voz por defecto ya es `es_ES` (T49, `0.7.6`).** Los Skills responden en español y, desde T49, la voz de demo por defecto (`es_ES-davefx-medium`) también es española — cierra el desajuste que el brief aceptaba como compromiso de las primeras demos (acento británico leyendo español). Si prefieres ese acento británico, sigue disponible: `en_GB-alan-medium` vía el mismo `JARVIS_PIPER_MODEL`, sin tocar código.

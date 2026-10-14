@@ -28,6 +28,21 @@ python -m jarvis.main --chat
 jarvis --chat
 ```
 
+**Voice** (`--voice-only` — same brain as `--chat`, mic in + spoken replies). Piper, whisper.cpp, and ffmpeg/arecord are **external** (not package deps). One-time install + daily commands: **[docs/USER_GUIDE_VOICE.md](docs/USER_GUIDE_VOICE.md)** (§2 Piper · §5.2 whisper.cpp · §4 / §7 launch). Sketch after tools are installed:
+
+```bash
+export JARVIS_PIPER_MODEL="$HOME/piper/es_ES-davefx-medium.onnx"
+export JARVIS_PIPER_BIN="$HOME/piper-venv/bin/piper"
+export JARVIS_TTS_CMD="$PWD/scripts/voice/piper_tts.sh"
+export JARVIS_WHISPER_MODEL="$HOME/whisper/ggml-base.bin"
+export JARVIS_WHISPER_BIN="$HOME/whisper.cpp/build/bin/whisper-cli"
+export JARVIS_WHISPER_ARGS="-l es"
+export JARVIS_STT_CMD="$PWD/scripts/voice/whisper_stt.sh {audio}"
+export JARVIS_RECORD_CMD="$PWD/scripts/voice/record_turn.sh {output} {seconds}"
+./scripts/voice/piper_tts.sh --check && ./scripts/voice/whisper_stt.sh --check && ./scripts/voice/record_turn.sh --check
+PYTHONPATH=src python -m jarvis.main --voice-only
+```
+
 **Pizarra** (visor 3D + Continuity spatial assembly; huecos de arquitectura = slots, no BOM; mutación = CLI / Continuity / Situar drag):
 
 ```bash
@@ -731,6 +746,7 @@ See `docs/IMPLEMENTATION_TASKS.md`.
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the system is built |
 | [docs/system_map/README.md](docs/system_map/README.md) | System Map — connections & authority |
 | [docs/USER_GUIDE_CRAFT_MONTAGE.md](docs/USER_GUIDE_CRAFT_MONTAGE.md) | Command-level walk: empty project → montaje honesto en Board |
+| [docs/USER_GUIDE_VOICE.md](docs/USER_GUIDE_VOICE.md) | Operator path: Piper + whisper.cpp + `--voice-only` / `--chat` |
 | [docs/IMPLEMENTATION_TASKS.md](docs/IMPLEMENTATION_TASKS.md) | Roadmap, gaps, software/product debt |  
 | [docs/HARDWARE_DEBT.md](docs/HARDWARE_DEBT.md) | Physics debt gated on T1/T2 lab (ESC η, battery C-rate, sag, OP→consumo) |
 | [.jes/artifacts/cli_findings_post_catalog_bind_v1.md](.jes/artifacts/cli_findings_post_catalog_bind_v1.md) | Living CLI findings register (G9–G20) |

@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T58 ★ ACCEPT CLOSED @ v0.8.5 — in-session cancel key. V12 comfort (T56–T58) ★ closed. Next: T40 Parked, or Engineer pick.",
-  "scope": "Board ACCEPT + tag only. No src/ change this turn.",
-  "execution_status": "accept_closed_idle",
-  "current_mode": "idle",
+  "cycle_intent": "T59 IC ready — B1-assistant-voice-blank-stt-take @ 0.8.6: [BLANK_AUDIO]/[Music]/silence markers → empty take, no intent-fail loop.",
+  "scope": "IC + board only. No src/ this turn. Paste IC §4 to Claude for implementation.",
+  "execution_status": "ic_ready_awaiting_paste",
+  "current_mode": "contract",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "ACCEPT T58"
+    "reason": "Live smoke: silence → blank STT loop; Engineer asked to fix"
   },
   "relevant_workflow_phases": [
-    "ACCEPT"
+    "Implementation Contract"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,33 +17,34 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_voice_session_key_b1.md",
+    ".jes/artifacts/implementation_contract_assistant_voice_blank_stt_take_b1.md",
     ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Optional live Esc/Space Piper/mic smoke (N1)",
-    "Engineer next Buy — T40 stays Parked until opened"
+    "Paste T59 to Claude",
+    "English hallucination filter remains out of T59"
   ],
   "active_operation": {
-    "type": "idle",
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_voice_blank_stt_take_b1.md",
     "ids": [
-      "T58"
+      "T59",
+      "B1-assistant-voice-blank-stt-take"
     ],
-    "closed": [
-      "v0.8.5"
-    ]
+    "blocked_on": "claude_implementation"
   },
   "closed_this_turn": [
-    "T58 ★ ACCEPT CLOSED @ v0.8.5"
+    "T59 IC ready @ 0.8.6"
   ],
   "authority_gates": [
-    "T40 stays Parked",
-    "No new Buy without Engineer open"
+    "Cursor does not implement src/ unless Engineer says",
+    "No English-prose NLU in T59",
+    "T40 stays Parked"
   ],
   "coherence_checklist": [
-    "PRIORIDAD points at closed T58 + V12 comfort",
-    "Tag v0.8.5 on ACCEPT commit"
+    "PRIORIDAD points at T59 paste",
+    "IC §4 paste block ready"
   ],
-  "updated_at": "2026-10-14T22:45:00Z"
+  "updated_at": "2026-10-14T23:35:00Z"
 }
