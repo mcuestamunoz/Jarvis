@@ -27,11 +27,13 @@ from jarvis.adapters.voice.external_record import (
     resolve_voice_settle_seconds,
 )
 from jarvis.adapters.voice.external_stt import (
+    BLANK_STT_MARKERS,
     JARVIS_STT_CMD_ENV,
     SttConfigError,
     SttEmptyTranscriptError,
     SttError,
     SttProcessError,
+    is_blank_stt_transcript,
     run_voice_turn_from_audio,
     transcribe_audio_file,
 )
@@ -55,6 +57,7 @@ from jarvis.adapters.voice.spoken_continuity import (
 )
 
 __all__ = [
+    "BLANK_STT_MARKERS",
     "DEFAULT_RECORD_SECONDS",
     "DEFAULT_RECORD_SILENCE_SECONDS",
     "DEFAULT_VOICE_SETTLE_SECONDS",
@@ -79,6 +82,7 @@ __all__ = [
     "TtsProcessError",
     "brief_spoken_continuity",
     "full_spoken_continuity",
+    "is_blank_stt_transcript",
     "is_full_continuity_request",
     "make_speak_callable",
     "record_audio_file",

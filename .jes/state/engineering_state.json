@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T59 IC ready — B1-assistant-voice-blank-stt-take @ 0.8.6: [BLANK_AUDIO]/[Music]/silence markers → empty take, no intent-fail loop.",
-  "scope": "IC + board only. No src/ this turn. Paste IC §4 to Claude for implementation.",
-  "execution_status": "ic_ready_awaiting_paste",
-  "current_mode": "contract",
+  "cycle_intent": "T59 blank STT take (0.8.6): in --voice-only, STT non-speech markers ([BLANK_AUDIO], [Music], [Silence], …) or whitespace-only are an empty take — no [voz] echo, nothing to the brain, mic reopens.",
+  "scope": "external_stt: BLANK_STT_MARKERS + is_blank_stt_transcript (exported); main._make_mic_line_reader checks after transcribe, before echo. whisper_stt.sh, orchestrator, Continuity, record/TTS paths unchanged.",
+  "execution_status": "implemented_awaiting_cursor_review",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Live smoke: silence → blank STT loop; Engineer asked to fix"
+    "reason": "T59 IC pasted to Claude (from T58 live smoke)"
   },
   "relevant_workflow_phases": [
-    "Implementation Contract"
+    "Implementation"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -22,20 +22,20 @@
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Paste T59 to Claude",
-    "English hallucination filter remains out of T59"
+    "Cursor review of T59 @ 0.8.6",
+    "Live smoke: silent take → Grabando again with no intent error"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_voice_blank_stt_take_b1.md",
     "ids": [
       "T59",
       "B1-assistant-voice-blank-stt-take"
     ],
-    "blocked_on": "claude_implementation"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "T59 IC ready @ 0.8.6"
+    "T59 implemented @ 0.8.6 — report implementation_report_assistant_voice_blank_stt_take_b1.md"
   ],
   "authority_gates": [
     "Cursor does not implement src/ unless Engineer says",
@@ -46,5 +46,5 @@
     "PRIORIDAD points at T59 paste",
     "IC §4 paste block ready"
   ],
-  "updated_at": "2026-10-14T23:35:00Z"
+  "updated_at": "2026-10-15T10:00:00Z"
 }

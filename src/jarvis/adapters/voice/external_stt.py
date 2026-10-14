@@ -23,6 +23,7 @@ silent fallback to an invented Skill phrase.
 from __future__ import annotations
 
 import os
+import re
 import shlex
 import subprocess
 from pathlib import Path
@@ -48,6 +49,35 @@ class SttEmptyTranscriptError(SttError):
 
 
 JARVIS_STT_CMD_ENV = "JARVIS_STT_CMD"
+
+# T59 (`B1-assistant-voice-blank-stt-take`): closed set of non-speech
+# markers STT engines (whisper.cpp in particular) print for a take with
+# no speech in it. Matched whole, case-insensitively; nothing else is
+# treated as blank — wrong-but-real words still reach the brain.
+BLANK_STT_MARKERS: frozenset[str] = frozenset({
+    "[blank_audio]",
+    "[silence]",
+    "(silence)",
+    "[music]",
+    "(music)",
+    "[no speech]",
+    "[no_speech]",
+})
+_BLANK_MARKER_RE = re.compile(
+    "|".join(re.escape(marker) for marker in sorted(BLANK_STT_MARKERS, key=len, reverse=True)),
+    re.IGNORECASE,
+)
+# Same finite edge set T55 ignores around phrases.
+_EDGE_PUNCTUATION = ".,;:!?¡¿"
+
+
+def is_blank_stt_transcript(text: str) -> bool:
+    """True when `text` carries no speech: empty/whitespace-only, or made
+    only of `BLANK_STT_MARKERS` (any case, any number of them, with
+    whitespace and edge punctuation around). `--voice-only` treats such
+    a take as empty and simply listens again (T59)."""
+    remainder = _BLANK_MARKER_RE.sub(" ", text)
+    return not remainder.strip(_EDGE_PUNCTUATION + " \t\r\n")
 
 
 def transcribe_audio_file(

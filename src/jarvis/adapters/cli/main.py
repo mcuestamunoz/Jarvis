@@ -1185,6 +1185,7 @@ def _make_mic_line_reader(keys=None):
         RecordError,
         SttConfigError,
         SttError,
+        is_blank_stt_transcript,
         record_audio_file,
         resolve_record_seconds,
         resolve_record_silence_seconds,
@@ -1244,6 +1245,11 @@ def _make_mic_line_reader(keys=None):
 
         cancelled_last_turn = False
         transcript = " ".join(transcript.split())
+        # T59: an STT non-speech marker ([BLANK_AUDIO], [Music], …) is an
+        # empty take, not a user line — no echo, nothing to the brain,
+        # just listen again (same as an empty Enter).
+        if is_blank_stt_transcript(transcript):
+            return ""
         print(f"User > [voz] {transcript}")
         return transcript
 
