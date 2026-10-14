@@ -1,15 +1,16 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T54 ★ ACCEPT CLOSED @ v0.8.1 + T55 ★ ACCEPT CLOSED @ v0.8.2. Voice cola V7–V11 CLOSED. Next candidate V12+ (anti-echo/cancel/hotkey) or T40 Parked.",
-  "scope": "Board ACCEPT + tags. No src/ change this turn.",
-  "execution_status": "accept_closed_idle",
-  "current_mode": "idle",
+  "cycle_intent": "T56 / V12 cancel mid-TTS (0.8.3): Ctrl-C while Jarvis speaks kills external TTS, prints Habla cancelada., keeps session, reopens mic. T57 settle / T58 key later.",
+  "scope": "V12-DC + T56 IC only this turn. No src/ until Claude paste.",
+  "execution_status": "ic_ready_awaiting_paste",
+  "current_mode": "implementation_contract",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "ACCEPT T54 and T55 pending reviews"
+    "reason": "me encaja — open V12-DC + T56 IC"
   },
   "relevant_workflow_phases": [
-    "ACCEPT"
+    "Design",
+    "Implementation"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,38 +18,38 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_voice_silence_cut_b1.md",
-    ".jes/artifacts/implementation_review_assistant_voice_stt_phrase_punctuation_b1.md",
+    ".jes/artifacts/design_contract_assistant_voice_cancel_mid_tts_b0.md",
+    ".jes/artifacts/implementation_contract_assistant_voice_cancel_mid_tts_b1.md",
     ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Optional live smoke T54 mic / T55 whisper (N1s)",
-    "When to open V12+ DC (anti-echo / cancel / hotkey)",
-    "T40 remains Parked"
+    "Engineer paste T56 IC to Claude",
+    "T57/T58 after T56 ★"
   ],
   "active_operation": {
-    "type": "idle",
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_voice_cancel_mid_tts_b1.md",
+    "design_contract": "design_contract_assistant_voice_cancel_mid_tts_b0.md",
     "ids": [
-      "T54",
-      "T55"
+      "T56",
+      "V12",
+      "B1-assistant-voice-cancel-mid-tts"
     ],
-    "closed": [
-      "v0.8.1",
-      "v0.8.2"
-    ]
+    "blocked_on": "engineer_paste_to_claude"
   },
   "closed_this_turn": [
-    "T54 ★ ACCEPT CLOSED @ v0.8.1 (9312fdd)",
-    "T55 ★ ACCEPT CLOSED @ v0.8.2"
+    "V12-DC + T56 IC written — cancel mid-TTS @ 0.8.3"
   ],
   "authority_gates": [
-    "V12+ needs own DC before IC",
-    "T40 stays Parked until Engineer opens DC"
+    "Cursor does not implement src/ unless Engineer says",
+    "T57/T58 out of T56",
+    "T40 stays Parked",
+    "No ACCEPT claimed"
   ],
   "coherence_checklist": [
-    "PRIORIDAD points at closed voice block + V12+ candidate",
-    "Tags annotated on correct commits"
+    "PRIORIDAD points at T56 paste",
+    "Map update required in same Buy when Habla cancelada. lands"
   ],
-  "updated_at": "2026-10-14T06:10:00Z"
+  "updated_at": "2026-10-14T06:20:00Z"
 }
