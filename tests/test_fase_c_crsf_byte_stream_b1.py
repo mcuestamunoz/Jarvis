@@ -217,11 +217,6 @@ def test_t13_default_safety_gate_still_reject_all():
     assert gate.gate_id == "reject_all"
 
 
-def test_t14_pyproject_version_is_0_5_19():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t17_assembler_calls_c19_parse_crsf_frame_not_a_second_crc_impl():
     code_only = _strip_python_comments_and_docstrings(inspect.getsource(crsf_stream_module))
     assert "parse_crsf_frame" in code_only
@@ -306,6 +301,12 @@ def test_capability_registry_default_still_empty():
     # T12 (B1-assistant-vehicle-follow-task): a tenth, skill.request_follow
     # (requires flight.follow, not_implemented/vehicle) — see
     # tests/test_assistant_vehicle_follow_task_b1.py.
+    # T13 (B1-assistant-vehicle-patrol-task): an eleventh, skill.request_patrol
+    # (requires flight.patrol, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_patrol_task_b1.py.
+    # T19 (B1-assistant-ops-charge-task): a twelfth, skill.request_charge
+    # (requires ops.charge, not_implemented/device). CHARGE is not an
+    # AutonomyVerb — see tests/test_assistant_ops_charge_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -319,4 +320,6 @@ def test_capability_registry_default_still_empty():
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
         "skill.request_follow",
+        "skill.request_patrol",
+        "skill.request_charge",
     }

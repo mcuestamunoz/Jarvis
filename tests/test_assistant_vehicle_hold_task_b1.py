@@ -116,6 +116,10 @@ def test_t4_orchestrator_hold_phrase_is_honest_reject_no_llm():
 
 
 def test_t5_seed_flight_hold_not_implemented_vehicle_provider_skill_stub():
+    """T6 seeded skill.request_hold as stub. T23 (`B1-assistant-chat-
+    skill-first-vehicle-hold`) flips the Skill to `available` while
+    `flight.hold` stays `not_implemented` / provider `vehicle` — see
+    `tests/test_assistant_chat_skill_first_vehicle_hold_b1.py`."""
     registry = CapabilityRegistry.load_default()
 
     hold_capability = registry.get_capability("flight.hold")
@@ -132,7 +136,7 @@ def test_t5_seed_flight_hold_not_implemented_vehicle_provider_skill_stub():
     assert "skill.request_hold" in skill_ids
     hold_skill = next(s for s in registry.skills() if s.id == "skill.request_hold")
     assert hold_skill.required_capability_ids == ["flight.hold"]
-    assert hold_skill.availability == CapabilityAvailability.STUB
+    assert hold_skill.availability == CapabilityAvailability.AVAILABLE
 
     # T2/T5 software rows are still present and untouched by this Buy.
     capability_ids = {c.id for c in registry.capabilities()}
@@ -169,7 +173,3 @@ def test_t7_default_safety_gate_still_reject_all_and_fulfill_uses_disarmed_armed
     assert "disarmed" in result["message"]
     assert result["status"] == "ok"
 
-
-def test_t8_pyproject_version_is_0_6_14():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.20"' in text

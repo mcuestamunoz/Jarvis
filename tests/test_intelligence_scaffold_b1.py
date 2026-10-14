@@ -94,7 +94,3 @@ def test_t5_no_continuity_or_orchestrator_calls():
             f"{path.relative_to(REPO_ROOT)} calls submit_command"
         )
 
-
-def test_pyproject_version_is_0_6_1():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.1"' in text

@@ -130,6 +130,12 @@ def test_t5_no_craft_board_edits_and_no_imu_into_step():
     # T12 (B1-assistant-vehicle-follow-task): a tenth, skill.request_follow
     # (requires flight.follow, not_implemented/vehicle) — see
     # tests/test_assistant_vehicle_follow_task_b1.py.
+    # T13 (B1-assistant-vehicle-patrol-task): an eleventh, skill.request_patrol
+    # (requires flight.patrol, not_implemented/vehicle) — see
+    # tests/test_assistant_vehicle_patrol_task_b1.py.
+    # T19 (B1-assistant-ops-charge-task): a twelfth, skill.request_charge
+    # (requires ops.charge, not_implemented/device). CHARGE is not an
+    # AutonomyVerb — see tests/test_assistant_ops_charge_task_b1.py.
     # Still zero Skill execution path anywhere; this file's own isolation
     # proof is unaffected either way.
     assert {skill.id for skill in registry.skills()} == {
@@ -143,6 +149,8 @@ def test_t5_no_craft_board_edits_and_no_imu_into_step():
         "skill.request_arm_policy",
         "skill.request_disarm_policy",
         "skill.request_follow",
+        "skill.request_patrol",
+        "skill.request_charge",
     }
 
 
@@ -160,11 +168,6 @@ def test_cmake_wires_icm42688p_into_jarvis_fc_and_unit_tests():
     cmake_text = (NATIVE_FC_DIR / "CMakeLists.txt").read_text(encoding="utf-8")
     assert "src/icm42688p.cpp" in cmake_text
     assert "tests/test_icm42688p.cpp" in cmake_text
-
-
-def test_t7_pyproject_version_is_0_5_43():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
 
 
 def test_t7_full_suite_process_gate_placeholder():

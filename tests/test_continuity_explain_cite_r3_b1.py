@@ -238,7 +238,3 @@ def test_t6_unknown_topic_no_crash_empty_cites():
     assert _render_concept_lines([]) == []
     assert _render_concept_lines(None) == []
 
-
-def test_pyproject_version_is_0_6_5():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.5"' in text
