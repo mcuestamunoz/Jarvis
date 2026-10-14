@@ -35,12 +35,24 @@ sanitized text is empty, this function returns immediately without
 invoking any external command — no filler speech, and no config/process
 error either (there is nothing to speak, so a missing `JARVIS_TTS_CMD`
 is not this call's problem).
+
+T56 (`B1-assistant-voice-cancel-mid-tts`, V12): speaking is
+**interruptible**. The external command runs in its own session (its
+own process group), so the terminal's Ctrl-C reaches only Jarvis, never
+the TTS wrapper or the player it spawns (`piper_tts.sh` → `afplay`/
+`aplay`/`paplay`). On `KeyboardInterrupt` this module terminates that
+whole group (SIGTERM, then SIGKILL if it is still alive after a short
+grace) and raises `TtsCancelled` — a `KeyboardInterrupt` subclass, not a
+`TtsError`: an existing `except TtsError` never mislabels a cancel as
+"TTS no disponible", and callers that don't handle it keep plain Ctrl-C
+semantics. `--voice-only` catches it and keeps the session alive.
 """
 
 from __future__ import annotations
 
 import os
 import shlex
+import signal
 import subprocess
 from typing import Callable
 
@@ -62,7 +74,36 @@ class TtsProcessError(TtsError):
     could not be run at all (missing binary)."""
 
 
+class TtsCancelled(KeyboardInterrupt):
+    """Ctrl-C arrived while the external TTS command was speaking; the
+    command's whole process group has been stopped. Deliberately a
+    `KeyboardInterrupt`, not a `TtsError` — see the module docstring."""
+
+
 JARVIS_TTS_CMD_ENV = "JARVIS_TTS_CMD"
+# Grace between SIGTERM and SIGKILL when stopping a cancelled TTS group.
+_TTS_TERMINATE_GRACE_SECONDS = 2.0
+
+
+def _stop_process_group(process: subprocess.Popen) -> None:
+    """SIGTERM the TTS command's process group (started as a new
+    session, so its pgid == its pid); if the direct child outlives the
+    grace period, SIGKILL the group. Either way, finish with one SIGKILL
+    sweep so no straggler (e.g. a player ignoring SIGTERM) keeps
+    talking, and reap the direct child."""
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+    try:
+        process.wait(timeout=_TTS_TERMINATE_GRACE_SECONDS)
+    except subprocess.TimeoutExpired:
+        pass
+    try:
+        os.killpg(process.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    process.wait()
 
 
 def speak_egress(
@@ -76,7 +117,8 @@ def speak_egress(
     `JARVIS_TTS_CMD`), feeding it `text` on stdin. Raises
     `TtsConfigError` when no command is configured, `TtsProcessError`
     on a non-zero exit or when the command cannot be run at all
-    (missing binary). `command_template` is split via `shlex.split`
+    (missing binary), and `TtsCancelled` when Ctrl-C interrupts the
+    speech (the command's process group is stopped first — T56). `command_template` is split via `shlex.split`
     directly — unlike T37's `{audio}` placeholder, there is nothing to
     substitute here: the egress text always travels on stdin, never
     as an argv token.
@@ -97,13 +139,26 @@ def speak_egress(
 
     argv = shlex.split(template)
     try:
-        completed = subprocess.run(argv, input=sanitized, capture_output=True, text=True)
+        process = subprocess.Popen(
+            argv,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            start_new_session=True,
+        )
     except OSError as error:
         raise TtsProcessError(f"could not run external TTS command {argv!r}: {error}") from error
 
-    if completed.returncode != 0:
+    try:
+        _, stderr = process.communicate(input=sanitized)
+    except KeyboardInterrupt as interrupt:
+        _stop_process_group(process)
+        raise TtsCancelled("speech cancelled") from interrupt
+
+    if process.returncode != 0:
         raise TtsProcessError(
-            f"external TTS command exited {completed.returncode}: {completed.stderr.strip()}"
+            f"external TTS command exited {process.returncode}: {stderr.strip()}"
         )
 
 

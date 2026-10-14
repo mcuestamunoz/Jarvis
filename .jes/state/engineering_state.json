@@ -1,15 +1,14 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T56 / V12 cancel mid-TTS (0.8.3): Ctrl-C while Jarvis speaks kills external TTS, prints Habla cancelada., keeps session, reopens mic. T57 settle / T58 key later.",
-  "scope": "V12-DC + T56 IC only this turn. No src/ until Claude paste.",
-  "execution_status": "ic_ready_awaiting_paste",
-  "current_mode": "implementation_contract",
+  "cycle_intent": "T56 / V12 cancel mid-TTS (0.8.3): Ctrl-C while --voice-only speaks stops the TTS process group, prints 'Habla cancelada.' (screen-only), session continues to the mic.",
+  "scope": "external_tts.speak_egress: Popen(start_new_session) + communicate; KeyboardInterrupt → SIGTERM group, SIGKILL after 2 s grace → TtsCancelled (KeyboardInterrupt subclass, not TtsError). main._chat_speak_fn catches it. Record cancel/double exit/silence cut unchanged.",
+  "execution_status": "implemented_awaiting_cursor_review",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "me encaja — open V12-DC + T56 IC"
+    "reason": "T56 IC pasted to Claude"
   },
   "relevant_workflow_phases": [
-    "Design",
     "Implementation"
   ],
   "applicable_rules": [
@@ -24,22 +23,21 @@
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Engineer paste T56 IC to Claude",
-    "T57/T58 after T56 ★"
+    "Cursor review of T56 @ 0.8.3",
+    "Live smoke: Ctrl-C while Piper speaks 'completo'"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_voice_cancel_mid_tts_b1.md",
-    "design_contract": "design_contract_assistant_voice_cancel_mid_tts_b0.md",
     "ids": [
       "T56",
       "V12",
       "B1-assistant-voice-cancel-mid-tts"
     ],
-    "blocked_on": "engineer_paste_to_claude"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "V12-DC + T56 IC written — cancel mid-TTS @ 0.8.3"
+    "T56 implemented @ 0.8.3 — report implementation_report_assistant_voice_cancel_mid_tts_b1.md"
   ],
   "authority_gates": [
     "Cursor does not implement src/ unless Engineer says",
@@ -51,5 +49,5 @@
     "PRIORIDAD points at T56 paste",
     "Map update required in same Buy when Habla cancelada. lands"
   ],
-  "updated_at": "2026-10-14T06:20:00Z"
+  "updated_at": "2026-10-14T16:00:00Z"
 }

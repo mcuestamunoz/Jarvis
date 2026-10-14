@@ -141,7 +141,8 @@ Jarvis > Sesión cerrada.
 - **Se cierra cuando dejas de hablar (T54, `0.8.1`).** Una vez que el grabador te ha oído, ~1 s seguido de silencio (`JARVIS_RECORD_SILENCE_SECONDS`) termina el turno; `JARVIS_RECORD_SECONDS` sigue siendo el máximo. Si no dices nada, espera hasta ese máximo (nunca corta una sala vacía antes de tiempo). Con `JARVIS_RECORD_SILENCE_SECONDS=0` vuelve la ventana fija (`Grabando 7 s…`). La detección la hace el grabador externo (`record_turn.sh`, con el filtro `silencedetect` que ya trae ffmpeg) — nada nuevo que instalar en Jarvis. En una sala ruidosa, sube el umbral: `JARVIS_RECORD_SILENCE_NOISE=-30dB` (por defecto `-35dB`). Con solo `arecord` (Linux sin ffmpeg) no hay corte por silencio: graba la ventana fija y lo avisa.
 - **Teclado solo para elegir proyecto.** Si ya tienes proyectos, el primer turno (`n`, `1`, `2`…) se escribe; a partir de ahí todo entra por el micrófono. Sin proyectos, el micrófono se abre directamente.
 - **Lo que se transcribe se ve** como `User > [voz] {transcripción}` y entra al mismo chat que si lo hubieras tecleado. El audio es efímero: un wav temporal que se borra al terminar el turno (nunca se guarda en `workspace/`).
-- **Para terminar:** di `salir` (o `exit`/`quit`). Ctrl-C mientras graba cancela **ese** turno (`Grabación cancelada.`) y el micrófono vuelve a abrirse; un segundo Ctrl-C seguido cierra la sesión.
+- **Ctrl-C mientras Jarvis habla** corta la voz (`Habla cancelada.`, solo en pantalla) y el micrófono vuelve a abrirse — la sesión sigue (T56, `0.8.3`).
+- **Para terminar:** di `salir` (o `exit`/`quit`). Ctrl-C mientras graba cancela **ese** turno (`Grabación cancelada.`) y el micrófono vuelve a abrirse; un segundo Ctrl-C seguido mientras graba cierra la sesión.
 
 ### 4.1 Lo que ves y lo que oyes
 

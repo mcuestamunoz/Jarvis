@@ -34,6 +34,7 @@ from jarvis.adapters.voice.external_stt import (
 )
 from jarvis.adapters.voice.external_tts import (
     JARVIS_TTS_CMD_ENV,
+    TtsCancelled,
     TtsConfigError,
     TtsError,
     TtsProcessError,
@@ -67,6 +68,7 @@ __all__ = [
     "SttEmptyTranscriptError",
     "SttError",
     "SttProcessError",
+    "TtsCancelled",
     "TtsConfigError",
     "TtsError",
     "TtsProcessError",

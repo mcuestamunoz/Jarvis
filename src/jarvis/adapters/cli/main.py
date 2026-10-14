@@ -942,6 +942,8 @@ def _chat_speak_fn(speak_tts: bool):
     (`speak_egress`/`JARVIS_TTS_CMD`, T38), catching `TtsError` to
     print an honest `TTS no disponible: …` once; the chat loop never
     crashes on a bad turn or a missing/misconfigured TTS command.
+    T56: Ctrl-C mid-speech (`TtsCancelled`) prints `Habla cancelada.`
+    (never spoken) and returns — the session continues to the mic.
     Default (`speak_tts=False`, bare `--chat`) returns a no-op that
     never imports or calls `speak_egress` — only `run_voice_only`
     (T53, `--voice-only`) sets `speak_tts=True`."""
@@ -951,7 +953,7 @@ def _chat_speak_fn(speak_tts: bool):
 
         return noop
 
-    from jarvis.adapters.voice import TtsError, speak_egress
+    from jarvis.adapters.voice import TtsCancelled, TtsError, speak_egress
 
     def speak(text: str) -> None:
         if not text:
@@ -960,6 +962,11 @@ def _chat_speak_fn(speak_tts: bool):
             speak_egress(text)
         except TtsError as error:
             print(f"Jarvis > TTS no disponible: {error}")
+        except TtsCancelled:
+            # T56: Ctrl-C while Jarvis speaks stops the voice (speak_egress
+            # already stopped the TTS process group), never the session —
+            # print-only, then the loop reopens the mic.
+            print("Jarvis > Habla cancelada.")
 
     return speak
 
