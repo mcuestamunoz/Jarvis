@@ -40,7 +40,9 @@ minimal normalize `jarvis.intelligence.assistant_task.
 _normalize_for_continuity_match` uses for `CONTINUITY_DEFER_PHRASES` —
 reimplemented locally here (stdlib only) rather than imported, mirroring
 that module's own documented reason for not importing a sibling
-normalize helper across a DC/IC fence. Per-turn only: callers must never
+normalize helper across a DC/IC fence. Since T55 that normalize also
+strips edge punctuation (`.,;:!?¡¿`), so an STT `Completo.` matches.
+Per-turn only: callers must never
 persist a "always full" choice onto session state (T44-DC lock 6).
 """
 
@@ -101,13 +103,22 @@ _ACTION_SPEAK_MAP: dict[str, str] = {
 }
 
 
+# T55 (`B1-assistant-voice-stt-phrase-punctuation`): STT transcripts
+# arrive as "Completo." / "¿Completo?" — edge punctuation from this
+# finite set (plus whitespace) never blocks a phrase match. Not fuzzy:
+# the phrase itself must still match exactly.
+_EDGE_PUNCTUATION = ".,;:!?¡¿"
+
+
 def _normalize(text: str) -> str:
     """Same minimal normalize as `assistant_task._normalize_for_
-    continuity_match` (strip + casefold + NFKD accent-strip) —
-    reimplemented locally rather than imported; see module docstring."""
+    continuity_match` (strip + casefold + NFKD accent-strip + edge
+    punctuation strip, T55) — reimplemented locally rather than
+    imported; see module docstring."""
     lowered = text.strip().lower()
     decomposed = unicodedata.normalize("NFKD", lowered)
-    return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    accentless = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    return accentless.strip(_EDGE_PUNCTUATION + " \t\r\n")
 
 
 def is_full_continuity_request(raw_text: str) -> bool:

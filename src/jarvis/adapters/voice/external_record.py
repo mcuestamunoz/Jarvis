@@ -18,14 +18,9 @@ that exits `0` but produces no (or an empty) output file are each
 surfaced as a typed `RecordError` subclass — never a silent "recorded
 nothing" success.
 
-This module also carries the push-to-talk **trigger** match
-(`is_ptt_trigger`) — a finite, zero-LLM, exact-match check against the
-locked `hablar`/`habla` phrases, using the same minimal normalize
-`jarvis.adapters.voice.spoken_continuity`/`jarvis.intelligence.
-assistant_task._normalize_for_continuity_match` already use, kept as
-its own local copy here (not imported) for the same DC/IC-fence reason
-those modules already document — PTT trigger matching is deliberately
-**not** added to `CONTINUITY_DEFER_PHRASES`.
+T53 made this seam the default mic input of `--voice-only`; T55 removed
+the retired typed push-to-talk trigger (`is_ptt_trigger` /
+`PTT_TRIGGER_PHRASES`) that used to live here.
 """
 
 from __future__ import annotations
@@ -33,7 +28,6 @@ from __future__ import annotations
 import os
 import shlex
 import subprocess
-import unicodedata
 from pathlib import Path
 
 JARVIS_RECORD_CMD_ENV = "JARVIS_RECORD_CMD"
@@ -44,12 +38,6 @@ DEFAULT_RECORD_SECONDS = 7
 # this same env var); Python only resolves it to print an honest cue.
 JARVIS_RECORD_SILENCE_SECONDS_ENV = "JARVIS_RECORD_SILENCE_SECONDS"
 DEFAULT_RECORD_SILENCE_SECONDS = 1.0
-
-# Locked PTT trigger set (T46-DC lock 3 / T47 IC lock 3) — finite,
-# zero-LLM, exact match only after the normalize below. Deliberately
-# narrow: "háblame", "quiero hablar", "hablar." (with trailing period)
-# do not match.
-PTT_TRIGGER_PHRASES: frozenset[str] = frozenset({"hablar", "habla"})
 
 
 class RecordError(Exception):
@@ -66,25 +54,6 @@ class RecordProcessError(RecordError):
     """The external record command exited with a non-zero status,
     could not be run at all (missing binary), or exited `0` but
     produced no (or an empty) output file."""
-
-
-def _normalize(text: str) -> str:
-    """Same minimal normalize as `spoken_continuity._normalize` /
-    `assistant_task._normalize_for_continuity_match` (strip + casefold
-    + NFKD accent-strip) — reimplemented locally rather than imported;
-    see module docstring."""
-    lowered = text.strip().lower()
-    decomposed = unicodedata.normalize("NFKD", lowered)
-    return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
-
-
-def is_ptt_trigger(raw_text: str) -> bool:
-    """True when `raw_text`, after the normalize above, exactly matches
-    one of the locked `PTT_TRIGGER_PHRASES`. Callers must consume this
-    only at the typed `input()` line — never re-check a transcript
-    against this (a transcript that happens to say "hablar" is ordinary
-    chat text for that turn, not a new recording)."""
-    return _normalize(raw_text) in PTT_TRIGGER_PHRASES
 
 
 def resolve_record_seconds(env_var: str = JARVIS_RECORD_SECONDS_ENV) -> int:

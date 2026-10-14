@@ -6,12 +6,12 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T55 IC ready** — **`B1-assistant-voice-stt-phrase-punctuation`** (V11) @ **`0.8.2`**. Paste to Claude. **T54** reviewed PASS WITH NOTES @ `0.8.1` — ★ ACCEPT / tag **`v0.8.1`** when ready. **T40** Parked.  
+> **PRIORIDAD AHORA:** **T55 Implemented** — **`B1-assistant-voice-stt-phrase-punctuation`** (V11) @ **`0.8.2`**, await Cursor review. **T54** reviewed PASS WITH NOTES @ `0.8.1` — ★ ACCEPT / tag **`v0.8.1`** when ready. **T40** Parked.  
 > **Closed:** T41–T53 ★ @ `v0.7.1`–`v0.8.0` · FN-017 ★.  
 > **SoT:** [T55 IC](../.jes/artifacts/implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md) · [V11-DC](../.jes/artifacts/design_contract_assistant_voice_stt_phrase_punctuation_b0.md) · [T54 review](../.jes/artifacts/implementation_review_assistant_voice_silence_cut_b1.md) · [cola voz](../.jes/artifacts/engineer_note_voice_phase_c_cola.md).  
 > **Policy:** no tip/package version pins in tests. Chat/Continuity egress Buys update the [spoken-continuity map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) in the same Buy ([`CLAUDE.md`](../CLAUDE.md) § Chat / spoken-continuity egress map).  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md).  
-> **Cola voz:** T35–T53 ★ · **T54** reviewed (await ★) · **T55 IC ready** · **T40** Parked.  
+> **Cola voz:** T35–T53 ★ · **T54** reviewed (await ★) · **T55 Implemented** · **T40** Parked.  
 > SoT: [T55 IC](../.jes/artifacts/implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md) · [guía](USER_GUIDE_VOICE.md).  
 
 
@@ -20,7 +20,7 @@
 > **Parked (silicon / lab):** C30 desk DFU · GPIO/DShot *wire* · gyro SPI1 **live** · Path N · HD-* · Board polish · Linux baud.  
 > **Hardware debt:** [HD-005](HARDWARE_DEBT.md#hd-005--craft-op-xing-e--gemfan-51466-3--4s-4d-follow-on).
 
-### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.8.0`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · **T41–T53 ★** · **T54 reviewed** @ `0.8.1` · **T55 IC ready** @ `0.8.2` · **T40** Parked)
+### 📋 COLA — Assistant + ontology retrieve (activa · tip **`v0.8.0`** · T0–T39 ★ CLOSED · SD-GO_TO ★ CLOSED · voz v1 ★ · **T41–T53 ★** · **T54 reviewed** @ `0.8.1` · **T55 Implemented** @ `0.8.2` · **T40** Parked)
 
 SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md) · [DC first-task](../.jes/artifacts/design_contract_assistant_first_task_b0.md) · [DC registry fill](../.jes/artifacts/design_contract_capability_registry_product_fill_b0.md) · [`USER_GUIDE_EXPLAIN.md`](USER_GUIDE_EXPLAIN.md) · [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md) §7
 
@@ -111,7 +111,7 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T54-DC** | **`DC-assistant-voice-silence-cut`** | **DC ready** (consumed by T54 IC) | V10: silence end-of-utterance · max cap stays · external recorder | [DC](../.jes/artifacts/design_contract_assistant_voice_silence_cut_b0.md) |
 | **T54** | **`B1-assistant-voice-silence-cut`** | **Reviewed** · **PASS WITH NOTES** · **`0.8.1`** · await Engineer ★ | Silence cut on `--voice-only` | [review](../.jes/artifacts/implementation_review_assistant_voice_silence_cut_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_voice_silence_cut_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_voice_silence_cut_b1.md) · [DC](../.jes/artifacts/design_contract_assistant_voice_silence_cut_b0.md) |
 | **T55-DC** | **`DC-assistant-voice-stt-phrase-punctuation`** | **DC ready** (consumed by T55 IC) | V11: STT trailing punct on Continuity/FULL match · optional dead PTT cleanup | [DC](../.jes/artifacts/design_contract_assistant_voice_stt_phrase_punctuation_b0.md) |
-| **T55** | **`B1-assistant-voice-stt-phrase-punctuation`** | **IC ready** · **`0.8.2`** · paste to Claude | STT `Completo.` / `Estado.` match; remove dead PTT exports | [IC](../.jes/artifacts/implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md) · [DC](../.jes/artifacts/design_contract_assistant_voice_stt_phrase_punctuation_b0.md) |
+| **T55** | **`B1-assistant-voice-stt-phrase-punctuation`** | **Implemented** · **`0.8.2`** · await Cursor review | STT `Completo.` / `Estado.` match; remove dead PTT exports | [IC](../.jes/artifacts/implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md) · [DC](../.jes/artifacts/design_contract_assistant_voice_stt_phrase_punctuation_b0.md)  · [report](../.jes/artifacts/implementation_report_assistant_voice_stt_phrase_punctuation_b1.md) |
 | **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 · **not** V7–V11 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Voz half ★** · **T41–T53 ★** @ `v0.7.1`–`v0.8.0` · `world/` Parked (T40) | two modes: `--chat` · `--voice-only` | [T53 review ★](../.jes/artifacts/implementation_review_assistant_voice_only_loop_b1.md) · [guía](USER_GUIDE_VOICE.md) |

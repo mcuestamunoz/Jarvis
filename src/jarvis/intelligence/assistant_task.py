@@ -346,15 +346,25 @@ def handle_explain_intent(intent: Intent, *, ontology_root: Path | None = None) 
     return f"Skill explain_concept no disponible ({reason})."
 
 
+# T55 (`B1-assistant-voice-stt-phrase-punctuation`): edge punctuation an
+# STT transcript adds ("Estado.", "¿Armar?") is stripped before the exact
+# phrase-table match. Shared by every Skill-first kind below (Continuity
+# defer, ARM/DISARM, HOLD/LAND, TAKEOFF, RETURN_HOME, FOLLOW, PATROL,
+# CHARGE, GO_TO) — Engineer-confirmed scope. Not fuzzy: tables unchanged.
+_EDGE_PUNCTUATION = ".,;:!?¡¿"
+
+
 def _normalize_for_continuity_match(text: str) -> str:
     """Minimal normalize equivalent to `IntentResolver._normalize_text`'s
-    accent-stripping (strip + casefold + NFKD accent-strip) — reimplemented
+    accent-stripping (strip + casefold + NFKD accent-strip) plus, since
+    T55, stripping `_EDGE_PUNCTUATION` from both ends — reimplemented
     locally with only the stdlib, never imported from `jarvis.core.
     intent_resolver` (T1 DC/IC fence: this module must not import that
     module or `jarvis.core.project_continuity`)."""
     lowered = text.strip().lower()
     decomposed = unicodedata.normalize("NFKD", lowered)
-    return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    accentless = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    return accentless.strip(_EDGE_PUNCTUATION + " \t\r\n")
 
 
 _GO_TO_DESTINATION_PATTERN = re.compile(
