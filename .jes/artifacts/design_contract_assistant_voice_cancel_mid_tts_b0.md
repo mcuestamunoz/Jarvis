@@ -30,8 +30,8 @@ This DC locks the **ordered** Buys so T56 stays small.
 |---|---|---|---|---|
 | **This DC** | **V12-DC** | `DC-assistant-voice-v12-comfort` (file: cancel-mid-tts block) | no bump | Locks below |
 | **First code** | **T56** | `B1-assistant-voice-cancel-mid-tts` | **`0.8.3` / `v0.8.3`** | Ctrl-C (primary) stops TTS → session continues → mic reopens |
-| Later | **T57** | anti-echo settle post-TTS | `0.8.4` (indicative) | Short fixed delay / env before record — **out of T56** |
-| Later | **T58** | in-session key (Space/Esc) | `0.8.5` or merge | Only if Ctrl-C is not enough — **out of T56** |
+| **Code** | **T57** | `B1-assistant-voice-anti-echo-settle` | **`0.8.4` / `v0.8.4`** | Short fixed delay / env before record — [IC](implementation_contract_assistant_voice_anti_echo_settle_b1.md) |
+| Later | **T58** | in-session key (Space/Esc) | `0.8.5` (indicative) | Only if Ctrl-C is not enough |
 | Parked | **T40** | craft/`world` | TBD | **Out** |
 
 ---
