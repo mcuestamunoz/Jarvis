@@ -1,9 +1,9 @@
 # Engineer note — Voice phase C cola (Skill-first channels)
 
-**Date:** 2026-10-03 · **updated:** 2026-10-13 (T54 Implemented — V10 silence cut)  
-**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T53 ★** @ tip **`v0.8.0`**; **T54 Implemented** @ `0.8.1`, await Cursor review; **T40** Parked  
+**Date:** 2026-10-03 · **updated:** 2026-10-14 (T55 IC ready — V11 STT phrase punctuation)  
+**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T53 ★** @ tip **`v0.8.0`**; **T54 reviewed** @ `0.8.1` (await ★); **T55 IC ready** @ `0.8.2`; **T40** Parked  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`v0.8.0`** · next = Cursor review of **T54** · [T54 IC](implementation_contract_assistant_voice_silence_cut_b1.md) · [V10-DC](design_contract_assistant_voice_silence_cut_b0.md) · [T53 review ★](implementation_review_assistant_voice_only_loop_b1.md)
+**Tip parent:** package **`0.8.1`** · next = paste **T55** · ★ ACCEPT **T54** → tag **`v0.8.1`** when ready · [T55 IC](implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md) · [V11-DC](design_contract_assistant_voice_stt_phrase_punctuation_b0.md) · [T54 review](implementation_review_assistant_voice_silence_cut_b1.md)
 
 **Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [V9-DC](design_contract_assistant_voice_two_mode_product_b0.md)
 
@@ -95,10 +95,12 @@ run_chat print  → Layer 1 (unchanged)
 | **T53-DC** | V9 | `DC-assistant-voice-two-mode-product` | — (no bump) | **DC ready** (consumed by IC) | Chat \| Voice-only · kill hybrid · reuse seams · mic default · fixed cut | [DC](design_contract_assistant_voice_two_mode_product_b0.md) |
 | **T53** | V9 | `B1-assistant-voice-only-loop` | **`0.8.0` / `v0.8.0`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.0`** | Voice-only loop + retire hybrid + guide · two product modes | [review ★](implementation_review_assistant_voice_only_loop_b1.md) · [report](implementation_report_assistant_voice_only_loop_b1.md) |
 | **T54-DC** | V10 | `DC-assistant-voice-silence-cut` | — (no bump) | **DC ready** (consumed by IC) | Silence end-of-utterance · max cap · external recorder | [DC](design_contract_assistant_voice_silence_cut_b0.md) |
-| **T54** | V10 | `B1-assistant-voice-silence-cut` | **`0.8.1`** | **Implemented** — await Cursor review | Silence cut on `--voice-only` | [IC](implementation_contract_assistant_voice_silence_cut_b1.md) · [report](implementation_report_assistant_voice_silence_cut_b1.md) |
-| **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7–V10 | [placement A4](design_contract_assistant_placement_b0.md) |
+| **T54** | V10 | `B1-assistant-voice-silence-cut` | **`0.8.1`** | **Reviewed** — PASS WITH NOTES · await Engineer ★ | Silence cut on `--voice-only` | [review](implementation_review_assistant_voice_silence_cut_b1.md) · [IC](implementation_contract_assistant_voice_silence_cut_b1.md) · [report](implementation_report_assistant_voice_silence_cut_b1.md) |
+| **T55-DC** | V11 | `DC-assistant-voice-stt-phrase-punctuation` | — (no bump) | **DC ready** (consumed by IC) | STT trailing punct on Continuity/FULL · optional dead PTT cleanup | [DC](design_contract_assistant_voice_stt_phrase_punctuation_b0.md) |
+| **T55** | V11 | `B1-assistant-voice-stt-phrase-punctuation` | **`0.8.2`** | **IC ready** — paste to Claude | `Completo.`/`Estado.` match; remove dead PTT exports | [IC](implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md) · [DC](design_contract_assistant_voice_stt_phrase_punctuation_b0.md) |
+| **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7–V11 | [placement A4](design_contract_assistant_placement_b0.md) |
 
-**Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**. **T48-inv** docs-only, stays `0.7.5`. **T49** opens **`0.7.6`**. **T50 ★** opens **`0.7.7`**. **T51 ★** opens **`0.7.8` / `v0.7.8`**. **T52 ★** opens **`0.7.9` / `v0.7.9`**. **T53 ★** opens product-surface milestone **`0.8.0` / `v0.8.0`**. **T54 ★** opens polish **`0.8.1` / `v0.8.1`**.
+**Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**. **T48-inv** docs-only, stays `0.7.5`. **T49** opens **`0.7.6`**. **T50 ★** opens **`0.7.7`**. **T51 ★** opens **`0.7.8` / `v0.7.8`**. **T52 ★** opens **`0.7.9` / `v0.7.9`**. **T53 ★** opens product-surface milestone **`0.8.0` / `v0.8.0`**. **T54 ★** opens polish **`0.8.1` / `v0.8.1`**. **T55 ★** opens polish **`0.8.2` / `v0.8.2`**. INV “V11+ anti-echo” deferred → **V12+**.
 
 ---
 

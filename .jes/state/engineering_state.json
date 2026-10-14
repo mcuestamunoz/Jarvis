@@ -1,14 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T54 / V10 silence cut (0.8.1): --voice-only ends a turn ~JARVIS_RECORD_SILENCE_SECONDS (default 1.0) after the user stops speaking; JARVIS_RECORD_SECONDS (7) stays the cap; 0 = fixed window.",
-  "scope": "scripts/voice/record_turn.sh: ffmpeg silencedetect watched from the script, SIGTERM stop after speech+silence, -t cap kept, arecord fixed fallback. Python: resolve_record_silence_seconds (cue/banner honesty only); record_audio_file unchanged. Guide, map, version.",
-  "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "implementation",
+  "cycle_intent": "T55 / V11 STT phrase punctuation (0.8.2): Completo./Estado. match Continuity defer + FULL; optional dead PTT export cleanup (T53 N1). T54 remains reviewed awaiting Engineer ★ @ 0.8.1.",
+  "scope": "spoken_continuity._normalize + assistant_task._normalize_for_continuity_match trailing punct strip; remove is_ptt_trigger/PTT_TRIGGER_PHRASES; guide honesty; package 0.8.2. No silence-cut redo, no anti-echo, no T40.",
+  "execution_status": "ic_ready_awaiting_paste",
+  "current_mode": "implementation_contract",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "T54 IC pasted to Claude"
+    "reason": "siguiente ic after T54 review"
   },
   "relevant_workflow_phases": [
+    "Design",
     "Implementation"
   ],
   "applicable_rules": [
@@ -17,38 +18,40 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/design_contract_assistant_voice_silence_cut_b0.md",
-    ".jes/artifacts/implementation_contract_assistant_voice_silence_cut_b1.md",
+    ".jes/artifacts/design_contract_assistant_voice_stt_phrase_punctuation_b0.md",
+    ".jes/artifacts/implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md",
     ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Cursor review of T54 @ 0.8.1",
-    "Live smoke: short phrase cuts before 7 s; long phrase capped"
+    "Engineer paste T55 IC to Claude",
+    "Engineer ★ ACCEPT T54 → tag v0.8.1 (optional before/after T55)",
+    "INV anti-echo stays V12+"
   ],
   "active_operation": {
-    "type": "implemented",
-    "contract": "implementation_contract_assistant_voice_silence_cut_b1.md",
+    "type": "ic_ready",
+    "contract": "implementation_contract_assistant_voice_stt_phrase_punctuation_b1.md",
+    "design_contract": "design_contract_assistant_voice_stt_phrase_punctuation_b0.md",
     "ids": [
-      "T54",
-      "V10",
-      "B1-assistant-voice-silence-cut"
+      "T55",
+      "V11",
+      "B1-assistant-voice-stt-phrase-punctuation"
     ],
-    "blocked_on": "cursor_review"
+    "blocked_on": "engineer_paste_to_claude"
   },
   "closed_this_turn": [
-    "T54 implemented @ 0.8.1 — report implementation_report_assistant_voice_silence_cut_b1.md"
+    "T55-DC + T55 IC written — STT phrase punctuation @ 0.8.2"
   ],
   "authority_gates": [
     "Cursor does not implement src/ unless Engineer says",
-    "Silence stays external (no pyproject audio DSP)",
     "T40 stays Parked",
-    "Max duration remains"
+    "No anti-echo / barge-in in T55",
+    "No ACCEPT claimed"
   ],
   "coherence_checklist": [
-    "IC §0 locks 1–12 implemented",
-    "No ACCEPT claimed",
-    "PRIORIDAD + cola point at Cursor review"
+    "Closes T53 N2 (and N1 if PTT cleanup lands)",
+    "PRIORIDAD points at T55 paste",
+    "T54 review still valid for ★"
   ],
-  "updated_at": "2026-10-13T15:00:00Z"
+  "updated_at": "2026-10-14T05:45:00Z"
 }
