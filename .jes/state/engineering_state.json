@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T58 / V12 in-session cancel key (0.8.5): in --voice-only, Esc/Space while Jarvis speaks = Ctrl-C (Habla cancelada.), Esc while settling/recording = take cancel. Terminal-only, no global hotkey.",
-  "scope": "New adapters/voice/session_keys.py (SessionKeyWatcher: cbreak + select thread during speak/record windows, sends SIGINT to own foreground group = terminal Ctrl-C). main: speaker + mic reader windows, banner line. external_tts/record paths reused unchanged.",
-  "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "implementation",
+  "cycle_intent": "T58 ★ ACCEPT CLOSED @ v0.8.5 — in-session cancel key. V12 comfort (T56–T58) ★ closed. Next: T40 Parked, or Engineer pick.",
+  "scope": "Board ACCEPT + tag only. No src/ change this turn.",
+  "execution_status": "accept_closed_idle",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "T58 IC pasted to Claude"
+    "reason": "ACCEPT T58"
   },
   "relevant_workflow_phases": [
-    "Implementation"
+    "ACCEPT"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,38 +17,33 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_session_key_b1.md",
-    ".jes/artifacts/design_contract_assistant_voice_cancel_mid_tts_b0.md",
+    ".jes/artifacts/implementation_review_assistant_voice_session_key_b1.md",
     ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Cursor review of T58 @ 0.8.5",
-    "Live smoke: Esc/Space while Piper speaks; Esc while Grabando"
+    "Optional live Esc/Space Piper/mic smoke (N1)",
+    "Engineer next Buy — T40 stays Parked until opened"
   ],
   "active_operation": {
-    "type": "implemented",
-    "contract": "implementation_contract_assistant_voice_session_key_b1.md",
+    "type": "idle",
     "ids": [
-      "T58",
-      "V12",
-      "B1-assistant-voice-session-key"
+      "T58"
     ],
-    "blocked_on": "cursor_review"
+    "closed": [
+      "v0.8.5"
+    ]
   },
   "closed_this_turn": [
-    "T58 implemented @ 0.8.5 — report implementation_report_assistant_voice_session_key_b1.md"
+    "T58 ★ ACCEPT CLOSED @ v0.8.5"
   ],
   "authority_gates": [
-    "Cursor does not implement src/ unless Engineer says",
-    "No global OS hotkey",
-    "Brain-gap cancel out unless free",
     "T40 stays Parked",
-    "No ACCEPT claimed"
+    "No new Buy without Engineer open"
   ],
   "coherence_checklist": [
-    "PRIORIDAD points at T58 paste",
-    "Reuses T56 TtsCancelled / Habla cancelada."
+    "PRIORIDAD points at closed T58 + V12 comfort",
+    "Tag v0.8.5 on ACCEPT commit"
   ],
-  "updated_at": "2026-10-14T22:00:00Z"
+  "updated_at": "2026-10-14T22:45:00Z"
 }

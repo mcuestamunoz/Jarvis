@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.8.5`**
 
-**Status:** **IC ready** — Engineer “procede con redactar ic” after T57 ★ @ `v0.8.4`. Paste to Claude.  
+**Status:** ★ **ACCEPT CLOSED** @ **`v0.8.5`** (2026-10-14).  
 **Parents:** [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) · [T56 ★](implementation_review_assistant_voice_cancel_mid_tts_b1.md) · [T57 ★](implementation_review_assistant_voice_anti_echo_settle_b1.md) · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) · tip **`v0.8.4`**  
 **Type:** In-session **Esc** / **Space** cancel speech (and Esc for take-cancel) on `--voice-only` — no global OS hotkey.  
 **Opens:** **`0.8.5` / `v0.8.5`**. **Cola:** **T58** / **V12**
