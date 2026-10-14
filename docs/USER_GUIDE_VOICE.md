@@ -123,6 +123,7 @@ Una sesión típica:
 
 ```text
 Modo voz: tras cada respuesta el micrófono escucha hasta 7 s y corta tras ~1 s de silencio. Di 'salir' para terminar (o Ctrl-C dos veces seguidas).
+Esc o Espacio cortan el habla; Esc cancela la toma mientras graba.
 Elige proyecto con el teclado; después, todo es por voz.
 User > 1                                   ← único turno de teclado: el selector de proyecto
 Jarvis >
@@ -143,6 +144,7 @@ Jarvis > Sesión cerrada.
 - **Teclado solo para elegir proyecto.** Si ya tienes proyectos, el primer turno (`n`, `1`, `2`…) se escribe; a partir de ahí todo entra por el micrófono. Sin proyectos, el micrófono se abre directamente.
 - **Lo que se transcribe se ve** como `User > [voz] {transcripción}` y entra al mismo chat que si lo hubieras tecleado. El audio es efímero: un wav temporal que se borra al terminar el turno (nunca se guarda en `workspace/`).
 - **Pausa anti-eco antes de grabar (T57, `0.8.4`).** Tras el `Grabando…`, Jarvis espera ~0,35 s antes de abrir el micrófono, para que la cola de su propia voz (o de una que acabas de cortar) no entre en tu turno. Ajusta con `JARVIS_VOICE_SETTLE_SECONDS` (p. ej. `0.6` si tus altavoces resuenan); `0` la quita. Ctrl-C durante esa pausa cuenta como Ctrl-C mientras graba.
+- **Esc o Espacio mientras Jarvis habla** hacen lo mismo que Ctrl-C: corta la voz, `Habla cancelada.`, y vuelve a escucharte (T58, `0.8.5`). **Esc mientras graba** (o durante la pausa anti-eco) cancela esa toma como Ctrl-C — dos seguidas cierran la sesión; Espacio ahí se ignora, para que un toque sin querer no tire tu turno. Solo funcionan con la terminal de Jarvis delante (no son atajos globales del sistema) y no mientras Jarvis está pensando la respuesta.
 - **Ctrl-C mientras Jarvis habla** corta la voz (`Habla cancelada.`, solo en pantalla) y el micrófono vuelve a abrirse — la sesión sigue (T56, `0.8.3`).
 - **Para terminar:** di `salir` (o `exit`/`quit`). Ctrl-C mientras graba cancela **ese** turno (`Grabación cancelada.`) y el micrófono vuelve a abrirse; un segundo Ctrl-C seguido mientras graba cierra la sesión.
 
@@ -315,6 +317,7 @@ python -m jarvis.main --voice-audio /tmp/turno.wav --voice-speak
 - **Falta el `.onnx.json`.** Es el fallo nº 1 al instalar una voz. Piper no lo pide por flag: lo busca al lado del `.onnx`.
 - **La voz por defecto ya es `es_ES` (T49, `0.7.6`).** Los Skills responden en español y, desde T49, la voz de demo por defecto (`es_ES-davefx-medium`) también es española — cierra el desajuste que el brief aceptaba como compromiso de las primeras demos (acento británico leyendo español). Si prefieres ese acento británico, sigue disponible: `en_GB-alan-medium` vía el mismo `JARVIS_PIPER_MODEL`, sin tocar código.
 - **`estado` y la Continuity completa son largos para hablarlos — por eso el oído recibe el extracto breve por defecto (T45, `0.7.4`).** La pantalla sigue mostrando el muro completo; pide `completo`/`dame detalles` ese turno para oír la versión completa narrada, nunca el muro leído tal cual (T52). Fuera del muro de Continuity (Skills, errores, wizards) se oye exactamente lo que se imprime.
+- **Las teclas Esc/Espacio son de la terminal, no globales.** Solo se leen con la ventana de Jarvis delante y solo mientras habla o graba; mientras piensa la respuesta no hacen nada (usa Ctrl-C si hace falta). Las flechas también empiezan por Esc, así que cuentan como Esc.
 - **La pausa anti-eco es fija, no detecta eco.** Son ~0,35 s de espera (`JARVIS_VOICE_SETTLE_SECONDS`) antes de cada grabación — nada de cancelación de eco ni VAD. Con altavoces fuertes o una sala que resuena, súbela; si notas que se pierde el principio de lo que dices, bájala o ponla a `0`.
 - **El corte por silencio es por nivel, no por voz.** El grabador corta tras ~1 s por debajo de `JARVIS_RECORD_SILENCE_NOISE` (`-35dB`) después de haber oído algo: un ruido fuerte cuenta como "hablar", y una pausa larga a mitad de frase cierra el turno. Ajusta `JARVIS_RECORD_SILENCE_SECONDS` (p. ej. `1.5`) o el umbral; con `0` vuelves a la ventana fija. Si hablas más que `JARVIS_RECORD_SECONDS`, se corta en el máximo. Sin doble Enter.
 - **La puntuación que añade whisper no cuenta (T55, `0.8.2`).** `Completo.`, `¿Completo?` o `Estado.` valen igual que `completo`/`estado`: los signos `.,;:!?¡¿` al principio o al final se ignoran al comparar frases de Continuity, `completo`/FULL y los Skills (`Armar.`, `Hold!`, `Go to 1 2.`). Solo eso — no hay coincidencia aproximada ni frases nuevas.

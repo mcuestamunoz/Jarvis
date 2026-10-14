@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T58 / V12 session key (0.8.5): Esc/Space while TTS speaking cancels like Ctrl-C (Habla cancelada.); Esc during settle/record cancels take. No global hotkey.",
-  "scope": "T58 IC only this turn. No src/ until Claude paste.",
-  "execution_status": "ic_ready_awaiting_paste",
-  "current_mode": "implementation_contract",
+  "cycle_intent": "T58 / V12 in-session cancel key (0.8.5): in --voice-only, Esc/Space while Jarvis speaks = Ctrl-C (Habla cancelada.), Esc while settling/recording = take cancel. Terminal-only, no global hotkey.",
+  "scope": "New adapters/voice/session_keys.py (SessionKeyWatcher: cbreak + select thread during speak/record windows, sends SIGINT to own foreground group = terminal Ctrl-C). main: speaker + mic reader windows, banner line. external_tts/record paths reused unchanged.",
+  "execution_status": "implemented_awaiting_cursor_review",
+  "current_mode": "implementation",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "procede con redactar ic — T58"
+    "reason": "T58 IC pasted to Claude"
   },
   "relevant_workflow_phases": [
     "Implementation"
@@ -23,20 +23,21 @@
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Engineer paste T58 IC to Claude"
+    "Cursor review of T58 @ 0.8.5",
+    "Live smoke: Esc/Space while Piper speaks; Esc while Grabando"
   ],
   "active_operation": {
-    "type": "ic_ready",
+    "type": "implemented",
     "contract": "implementation_contract_assistant_voice_session_key_b1.md",
     "ids": [
       "T58",
       "V12",
       "B1-assistant-voice-session-key"
     ],
-    "blocked_on": "engineer_paste_to_claude"
+    "blocked_on": "cursor_review"
   },
   "closed_this_turn": [
-    "T58 IC written — session key @ 0.8.5"
+    "T58 implemented @ 0.8.5 — report implementation_report_assistant_voice_session_key_b1.md"
   ],
   "authority_gates": [
     "Cursor does not implement src/ unless Engineer says",
@@ -49,5 +50,5 @@
     "PRIORIDAD points at T58 paste",
     "Reuses T56 TtsCancelled / Habla cancelada."
   ],
-  "updated_at": "2026-10-14T08:05:00Z"
+  "updated_at": "2026-10-14T22:00:00Z"
 }

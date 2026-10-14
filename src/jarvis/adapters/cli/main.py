@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 import time
+from contextlib import nullcontext
 from pathlib import Path
 
 from jarvis.config import DEFAULT_LLM_LOG_ROOT, OLLAMA_BASE_URL, OLLAMA_MODEL
@@ -933,7 +934,7 @@ def _handle_startup_selection(
     return None
 
 
-def _chat_speak_fn(speak_tts: bool):
+def _chat_speak_fn(speak_tts: bool, keys=None):
     """T43 (`B1-assistant-chat-voice-speak`) — speak-only companion for
     `run_chat`'s own prints, never a second print. `_voice_speak_fn`
     (T38) always prints internally, so reusing it here would double-
@@ -945,6 +946,8 @@ def _chat_speak_fn(speak_tts: bool):
     crashes on a bad turn or a missing/misconfigured TTS command.
     T56: Ctrl-C mid-speech (`TtsCancelled`) prints `Habla cancelada.`
     (never spoken) and returns — the session continues to the mic.
+    T58: with a `SessionKeyWatcher` (`keys`), Esc/Space during the speech
+    act as that same Ctrl-C (same outcome, same string).
     Default (`speak_tts=False`, bare `--chat`) returns a no-op that
     never imports or calls `speak_egress` — only `run_voice_only`
     (T53, `--voice-only`) sets `speak_tts=True`."""
@@ -955,12 +958,15 @@ def _chat_speak_fn(speak_tts: bool):
         return noop
 
     from jarvis.adapters.voice import TtsCancelled, TtsError, speak_egress
+    from jarvis.adapters.voice.session_keys import SPEAK_CANCEL_KEYS
 
     def speak(text: str) -> None:
         if not text:
             return
+        window = None
         try:
-            speak_egress(text)
+            with keys.watching(SPEAK_CANCEL_KEYS) if keys else nullcontext() as window:
+                speak_egress(text)
         except TtsError as error:
             print(f"Jarvis > TTS no disponible: {error}")
         except TtsCancelled:
@@ -968,6 +974,13 @@ def _chat_speak_fn(speak_tts: bool):
             # already stopped the TTS process group), never the session —
             # print-only, then the loop reopens the mic.
             print("Jarvis > Habla cancelada.")
+        except KeyboardInterrupt:
+            # T58: an Esc/Space that landed just as the speech finished on
+            # its own — still the user's "cállate", not a session kill.
+            if window is not None and window.fired:
+                print("Jarvis > Habla cancelada.")
+            else:
+                raise
 
     return speak
 
@@ -976,7 +989,7 @@ _CHAT_EXIT_WORDS = frozenset({"exit", "quit"})
 _VOICE_ONLY_EXIT_WORDS = frozenset({"exit", "quit", "salir"})
 
 
-def _run_chat_session(*, speak_tts: bool, read_line, is_exit) -> None:
+def _run_chat_session(*, speak_tts: bool, read_line, is_exit, keys=None) -> None:
     """The one full chat brain both product modes share (T53 / V9):
     projects, Continuity, craft/LLM fallthrough, Skill-first — every
     `handle_user_text` call stays source-default (`TERMINAL`).
@@ -1002,7 +1015,7 @@ def _run_chat_session(*, speak_tts: bool, read_line, is_exit) -> None:
 
     orchestrator = JarvisOrchestrator()
     llm_interface = JarvisLLMInterface(client=OllamaClient())
-    speak = _chat_speak_fn(speak_tts)
+    speak = _chat_speak_fn(speak_tts, keys)
 
     def _say(message: str) -> None:
         print(f"Jarvis > {message}")
@@ -1015,7 +1028,7 @@ def _run_chat_session(*, speak_tts: bool, read_line, is_exit) -> None:
     existing_projects = _list_existing_projects(orchestrator)
     _print_welcome(existing_projects)
     if speak_tts:
-        _print_voice_only_banner(existing_projects)
+        _print_voice_only_banner(existing_projects, keys_enabled=keys is not None)
 
     startup_done = len(existing_projects) == 0  # si no hay proyectos, no hay selección inicial
 
@@ -1105,7 +1118,7 @@ def run_chat() -> None:
     )
 
 
-def _print_voice_only_banner(projects: list[dict]) -> None:
+def _print_voice_only_banner(projects: list[dict], *, keys_enabled: bool = False) -> None:
     """Print-only (never spoken) operator cue for `--voice-only`."""
     from jarvis.adapters.voice import resolve_record_seconds, resolve_record_silence_seconds
 
@@ -1122,6 +1135,8 @@ def _print_voice_only_banner(projects: list[dict]) -> None:
         f"Modo voz: tras cada respuesta {listening}. "
         "Di 'salir' para terminar (o Ctrl-C dos veces seguidas)."
     )
+    if keys_enabled:
+        print("Esc o Espacio cortan el habla; Esc cancela la toma mientras graba.")
     if projects:
         print("Elige proyecto con el teclado; después, todo es por voz.")
 
@@ -1140,7 +1155,7 @@ def _record_cue(max_seconds: int, silence_seconds: float) -> str:
     return f"Grabando {max_seconds} s…"
 
 
-def _make_mic_line_reader():
+def _make_mic_line_reader(keys=None):
     """`--voice-only` turn source (T53 locks 8–11, 13). Before the
     project picker is done (and only when projects exist), reads the
     keyboard once — lock 9. Afterwards every user turn comes from the
@@ -1176,6 +1191,7 @@ def _make_mic_line_reader():
         resolve_voice_settle_seconds,
         transcribe_audio_file,
     )
+    from jarvis.adapters.voice.session_keys import TAKE_CANCEL_KEYS
 
     cancelled_last_turn = False
 
@@ -1197,11 +1213,14 @@ def _make_mic_line_reader():
             # (or a just-cancelled one) is less likely to land in this take.
             # Inside the try on purpose: Ctrl-C here is the same as Ctrl-C
             # while recording (cancel this take; twice in a row ends).
-            settle = resolve_voice_settle_seconds()
-            if settle > 0:
-                time.sleep(settle)
-            record_audio_file(tmp_path, seconds=seconds)
-            transcript = transcribe_audio_file(tmp_path)
+            # T58: Esc in this window is that same Ctrl-C (Space ignored
+            # here so a bumped space bar never throws away a take).
+            with keys.watching(TAKE_CANCEL_KEYS) if keys else nullcontext():
+                settle = resolve_voice_settle_seconds()
+                if settle > 0:
+                    time.sleep(settle)
+                record_audio_file(tmp_path, seconds=seconds)
+                transcript = transcribe_audio_file(tmp_path)
         except KeyboardInterrupt:
             if cancelled_last_turn:
                 return None
@@ -1243,10 +1262,16 @@ def run_voice_only() -> None:
     (default 1.0) of silence once speech was heard — no in-process VAD,
     no wake-word, no background thread. Not `run_voice_turn`: no
     Skills-only brain."""
+    from jarvis.adapters.voice.session_keys import SessionKeyWatcher
+
+    # T58: in-session Esc/Space cancel keys — only on an interactive
+    # terminal this process owns; None (no keys) otherwise.
+    keys = SessionKeyWatcher.for_terminal()
     _run_chat_session(
         speak_tts=True,
-        read_line=_make_mic_line_reader(),
+        read_line=_make_mic_line_reader(keys),
         is_exit=_is_voice_only_exit,
+        keys=keys,
     )
 
 

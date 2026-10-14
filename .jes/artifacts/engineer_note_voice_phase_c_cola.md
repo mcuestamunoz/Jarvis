@@ -1,9 +1,9 @@
 # Engineer note — Voice phase C cola (Skill-first channels)
 
-**Date:** 2026-10-03 · **updated:** 2026-10-14 (T58 IC ready — session key @ `0.8.5`)  
-**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T57 ★** @ tip **`v0.8.4`**; **T58 IC ready**; **T40** Parked  
+**Date:** 2026-10-03 · **updated:** 2026-10-14 (T58 Implemented — in-session cancel key @ `0.8.5`)  
+**Status:** **OPEN living cola index** — voice v1 ★ @ `v0.7.0`; **T41–T57 ★** @ tip **`v0.8.4`**; **T58 Implemented** @ `0.8.5`, await Cursor review; **T40** Parked  
 **Authority:** Engineer — this note is how the voice phase is **designed and implemented**, not a vendor roadmap. Engineer paste of an IC to Claude = Buy (no separate AUTHORIZED stamp).  
-**Tip parent:** **`v0.8.4`** · next = paste **T58** · [T58 IC](implementation_contract_assistant_voice_session_key_b1.md) · [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) · [T57 review ★](implementation_review_assistant_voice_anti_echo_settle_b1.md)
+**Tip parent:** **`v0.8.4`** · next = Cursor review of **T58** · [T58 IC](implementation_contract_assistant_voice_session_key_b1.md) · [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) · [T57 review ★](implementation_review_assistant_voice_anti_echo_settle_b1.md)
 
 **Parents:** [T34-DC ★](design_contract_assistant_chat_voice_channels_b0.md) · [T34-inv review ★](investigation_review_assistant_voice_e2e_b0.md) · [Skill-first DC ★](design_contract_assistant_chat_skill_first_b0.md) · [connect-plugs map](engineer_note_connect_plugs_real_data_map.md) · [spoken-continuity map](engineer_note_chat_spoken_continuity_map.md) · [T44-DC](design_contract_assistant_chat_spoken_continuity_b0.md) · [V9-DC](design_contract_assistant_voice_two_mode_product_b0.md)
 
@@ -101,7 +101,7 @@ run_chat print  → Layer 1 (unchanged)
 | **T56-DC** | V12 | `DC-assistant-voice-v12-comfort` | — (no bump) | **DC ready** (consumed by T56) | Cancel mid-TTS · T57 settle · T58 key ordered | [DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) |
 | **T56** | V12 | `B1-assistant-voice-cancel-mid-tts` | **`0.8.3` / `v0.8.3`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.3`** | Ctrl-C while speaking → kill TTS → mic again | [review ★](implementation_review_assistant_voice_cancel_mid_tts_b1.md) · [IC](implementation_contract_assistant_voice_cancel_mid_tts_b1.md) · [report](implementation_report_assistant_voice_cancel_mid_tts_b1.md) |
 | **T57** | V12 | `B1-assistant-voice-anti-echo-settle` | **`0.8.4` / `v0.8.4`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.4`** | Fixed settle after speak before mic | [review ★](implementation_review_assistant_voice_anti_echo_settle_b1.md) · [IC](implementation_contract_assistant_voice_anti_echo_settle_b1.md) · [report](implementation_report_assistant_voice_anti_echo_settle_b1.md) |
-| **T58** | V12 | `B1-assistant-voice-session-key` | **`0.8.5`** | **IC ready** — paste to Claude | Esc/Space corta el habla; Esc cancela toma | [IC](implementation_contract_assistant_voice_session_key_b1.md) · [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md) |
+| **T58** | V12 | `B1-assistant-voice-session-key` | **`0.8.5`** | **Implemented** — await Cursor review | Esc/Space corta el habla; Esc cancela toma | [IC](implementation_contract_assistant_voice_session_key_b1.md) · [V12-DC](design_contract_assistant_voice_cancel_mid_tts_b0.md)  · [report](implementation_report_assistant_voice_session_key_b1.md) |
 | **T40** | V6 | craft / `world/` voice | TBD | **Parked** — own DC | Not voice v1 · not V7–V12 | [placement A4](design_contract_assistant_placement_b0.md) |
 
 **Versioning:** T35–T38 = `0.6.43`…`0.6.46` (construcción). **T39 ★** = hito **`0.7.0`**. T41–T43 = use-path patches on `0.7.x`. **T45** opens **`0.7.4`**. **T47** opens **`0.7.5`**. **T48-inv** docs-only, stays `0.7.5`. **T49** opens **`0.7.6`**. **T50 ★** opens **`0.7.7`**. **T51 ★** opens **`0.7.8` / `v0.7.8`**. **T52 ★** opens **`0.7.9` / `v0.7.9`**. **T53 ★** opens product-surface milestone **`0.8.0` / `v0.8.0`**. **T54 ★** = **`0.8.1` / `v0.8.1`**. **T55 ★** = **`0.8.2` / `v0.8.2`**. **T56 ★** = **`0.8.3` / `v0.8.3`**. **T57 ★** = **`0.8.4` / `v0.8.4`**. **T58 ★** opens key **`0.8.5` / `v0.8.5`**.
