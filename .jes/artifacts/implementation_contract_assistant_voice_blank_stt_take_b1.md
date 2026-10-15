@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code**  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.8.6`**
 
-**Status:** **IC ready** — Engineer “hay que corregir ese bucle” after T58 ★ @ `v0.8.5` live smoke. Paste to Claude.  
+**Status:** ★ **ACCEPT CLOSED** @ **`v0.8.6`** (2026-10-15).  
 **Parents:** [T58 ★](implementation_review_assistant_voice_session_key_b1.md) @ `v0.8.5` · [USER_GUIDE_VOICE](../../docs/USER_GUIDE_VOICE.md) §8 · tip **`v0.8.5`**  
 **Type:** When `--voice-only` STT returns a **non-speech marker** (silence / blank take), treat it as an **empty take** — reopen the mic **without** `No se pudo interpretar la intención`.  
 **Opens:** **`0.8.6` / `v0.8.6`**. **Cola:** **T59**

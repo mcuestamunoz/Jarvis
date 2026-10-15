@@ -5,7 +5,7 @@
 **Implementer:** Claude Code (Engineer paste)
 **Contract:** [IC](implementation_contract_assistant_voice_blank_stt_take_b1.md)
 **Parent:** tip `v0.8.5` (T58 ★, live smoke)
-**Status:** **Implemented** — await Cursor review → Engineer ACCEPT → tag `v0.8.6`. No ACCEPT claimed.
+**Status:** ★ **ACCEPT CLOSED** (2026-10-15) @ tip **`v0.8.6`**.
 **Package:** `0.8.5` → **`0.8.6`**.
 
 ---

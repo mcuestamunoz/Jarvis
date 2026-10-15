@@ -1,15 +1,15 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T59 blank STT take (0.8.6): in --voice-only, STT non-speech markers ([BLANK_AUDIO], [Music], [Silence], …) or whitespace-only are an empty take — no [voz] echo, nothing to the brain, mic reopens.",
-  "scope": "external_stt: BLANK_STT_MARKERS + is_blank_stt_transcript (exported); main._make_mic_line_reader checks after transcribe, before echo. whisper_stt.sh, orchestrator, Continuity, record/TTS paths unchanged.",
-  "execution_status": "implemented_awaiting_cursor_review",
-  "current_mode": "implementation",
+  "cycle_intent": "T59 ★ ACCEPT CLOSED @ v0.8.6 — blank STT take. Daily voice path (v1→V12+T59) ★ closed. Next: T40 Parked, or Engineer pick.",
+  "scope": "Board ACCEPT + tag only. No src/ change this turn.",
+  "execution_status": "accept_closed_idle",
+  "current_mode": "idle",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "T59 IC pasted to Claude (from T58 live smoke)"
+    "reason": "ACCEPT T59"
   },
   "relevant_workflow_phases": [
-    "Implementation"
+    "ACCEPT"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,34 +17,33 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_voice_blank_stt_take_b1.md",
+    ".jes/artifacts/implementation_review_assistant_voice_blank_stt_take_b1.md",
     ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Cursor review of T59 @ 0.8.6",
-    "Live smoke: silent take → Grabando again with no intent error"
+    "Optional live quiet-take smoke (T59 N1)",
+    "T40 stays Parked until Engineer opens DC"
   ],
   "active_operation": {
-    "type": "implemented",
-    "contract": "implementation_contract_assistant_voice_blank_stt_take_b1.md",
+    "type": "idle",
     "ids": [
-      "T59",
-      "B1-assistant-voice-blank-stt-take"
+      "T59"
     ],
-    "blocked_on": "cursor_review"
+    "closed": [
+      "v0.8.6"
+    ]
   },
   "closed_this_turn": [
-    "T59 implemented @ 0.8.6 — report implementation_report_assistant_voice_blank_stt_take_b1.md"
+    "T59 ★ ACCEPT CLOSED @ v0.8.6"
   ],
   "authority_gates": [
-    "Cursor does not implement src/ unless Engineer says",
-    "No English-prose NLU in T59",
-    "T40 stays Parked"
+    "T40 stays Parked",
+    "No new Buy without Engineer open"
   ],
   "coherence_checklist": [
-    "PRIORIDAD points at T59 paste",
-    "IC §4 paste block ready"
+    "PRIORIDAD points at closed T59 + daily voice path closed",
+    "Tag v0.8.6 on ACCEPT commit"
   ],
-  "updated_at": "2026-10-15T10:00:00Z"
+  "updated_at": "2026-10-15T09:16:00Z"
 }
