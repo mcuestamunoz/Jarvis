@@ -607,6 +607,11 @@ def render_response(result: dict) -> str:
     if result.get("action") == "global_command":
         return result.get("message") or ""
 
+    if result.get("action") == "situate":
+        # CI-1e: brief re-orientation — print (and, on --voice-only, speak)
+        # only the message; never the Continuity wall nor "Acción ejecutada".
+        return result.get("message") or ""
+
     if result.get("status") == "ok":
         if result.get("action") == "analyze":
             parts = []

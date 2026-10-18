@@ -69,8 +69,12 @@ class TestDetectGoal:
         assert detect_goal("aumentar el empuje") == "mejorar_estabilidad"
         assert detect_goal("mas thrust") == "mejorar_estabilidad"
 
-    def test_bare_margen_maps_to_estabilidad(self):
-        assert detect_goal("el margen es bajo") == "mejorar_estabilidad"
+    def test_bare_margen_no_longer_maps_to_estabilidad(self):
+        """CI-1b (B1-llm-analyze-goal-smoke-hotfix lock 2): bare "margen" was
+        removed — it hijacked explanatory asks. Intention phrases still map."""
+        assert detect_goal("el margen es bajo") is None
+        assert detect_goal("margen bajo") == "mejorar_estabilidad"
+        assert detect_goal("mejorar el margen") == "mejorar_estabilidad"
 
     def test_payload_new_phrase(self):
         assert detect_goal("quiero transportar mas peso") == "aumentar_payload"

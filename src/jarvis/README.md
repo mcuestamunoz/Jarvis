@@ -276,7 +276,7 @@ python -m jarvis.main --chat
 Configuración actual de chat:
 
 - runtime: Ollama local
-- modelo por defecto: `qwen2.5:14b`
+- modelo por defecto: `hf.co/unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL` (Gemma 4 E4B QAT, Unsloth; `ollama pull hf.co/unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL`)
 - endpoint por defecto: `http://localhost:11434/api/chat`
 - formato: `json` para acciones estructuradas, texto natural para `analyze`
 - stream: `false`

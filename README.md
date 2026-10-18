@@ -62,7 +62,7 @@ python -m jarvis.adapters.mcp.server
 ```
 
 Workspace projects live under `workspace/` (override with `JARVIS_WORKSPACE_ROOT`).  
-Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`).
+Ollama defaults: `JARVIS_OLLAMA_BASE_URL`, `JARVIS_OLLAMA_MODEL` (see `src/jarvis/config.py`). Default model: `hf.co/unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL` (`ollama pull hf.co/unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL`); `JARVIS_OLLAMA_MODEL` overrides.
 
 ## What v0.5.30 includes
 

@@ -15,7 +15,10 @@ GRAVITY = 9.81
 PROMPT_VERSION = "v1"
 OLLAMA_BASE_URL = os.getenv("JARVIS_OLLAMA_BASE_URL", "http://localhost:11434")
 OLLAMA_CHAT_PATH = os.getenv("JARVIS_OLLAMA_CHAT_PATH", "/api/chat")
-OLLAMA_MODEL = os.getenv("JARVIS_OLLAMA_MODEL", "qwen2.5:14b")
+# B1-llm-gemma4-default-model (CI-1): locked Gemma 4 E4B QAT tag, exact
+# `ollama list` string. `JARVIS_OLLAMA_MODEL` still overrides.
+DEFAULT_OLLAMA_MODEL = "hf.co/unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL"
+OLLAMA_MODEL = os.getenv("JARVIS_OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
 OLLAMA_FORMAT = os.getenv("JARVIS_OLLAMA_FORMAT", "json")
 OLLAMA_TEMPERATURE = float(os.getenv("JARVIS_OLLAMA_TEMPERATURE", "0"))
 OLLAMA_STREAM = os.getenv("JARVIS_OLLAMA_STREAM", "false").lower() == "true"

@@ -6,13 +6,15 @@
 
 > Fuente única de foco. No leer más allá de esta sección para saber qué hacer hoy.
 
-> **PRIORIDAD AHORA:** **T59 ★ ACCEPT CLOSED** @ **`v0.8.6`**. Tip **`v0.8.6`**. Daily voice path (v1→V12+T59) ★ closed. Next: **T40** Parked (craft/`world/`), or Engineer pick.  
-> **Closed:** T41–T59 ★ @ `v0.7.1`–`v0.8.6` · FN-017 ★ · V12 comfort ★.  
-> **SoT:** [T59 review ★](../.jes/artifacts/implementation_review_assistant_voice_blank_stt_take_b1.md) · [cola voz](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) · [guía](USER_GUIDE_VOICE.md).  
-> **Policy:** no tip/package version pins in tests. Chat/Continuity egress Buys update the [spoken-continuity map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) in the same Buy ([`CLAUDE.md`](../CLAUDE.md) § Chat / spoken-continuity egress map).  
+> **PRIORIDAD AHORA:** **CI-2 DC READY** — [egress DC](../.jes/artifacts/design_contract_continuity_interpreter_egress_b0.md) → Engineer ★ Intent → IC (2a speak opt-in → 2b compose). Tip **`v0.8.7`** ★ (CI-1…CI-1e CLOSED). Open #2 = **B opt-in**.  
+> **Closed (CI-1 pack):** Gemma default · analyze hotfix · unknown guard · brief situate.  
+> **After CI-2:** CI-3 ingress (explain→ontology; smoke `potencia de radio`) · G-03 · CI-4/5. T40 Parked.  
+> **Closed (voz):** T41–T59 ★ @ `v0.7.1`–`v0.8.6` · FN-017 ★ · V12 comfort ★.  
+> **SoT CI:** [DC epoch](../.jes/artifacts/design_contract_continuity_interpreter_epoch_b0.md) · [cola CI](../.jes/artifacts/engineer_note_continuity_interpreter_cola.md) · [INV anchors](../.jes/artifacts/investigation_report_llm_semantic_interpreter_anchors_b0.md) · [audit IC](../.jes/artifacts/investigation_contract_voice_llm_continuity_interpreter_audit_b0.md) · [Gemma lock](../.jes/artifacts/engineer_lock_llm_gemma4_local_model_b0.md).  
+> **SoT voz (histórico):** [T59 review ★](../.jes/artifacts/implementation_review_assistant_voice_blank_stt_take_b1.md) · [cola voz](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) · [guía](USER_GUIDE_VOICE.md).  
+> **Policy:** no tip/package version pins in tests. Chat/Continuity egress Buys update the [spoken-continuity map](../.jes/artifacts/engineer_note_chat_spoken_continuity_map.md) in the same Buy ([`CLAUDE.md`](../CLAUDE.md)).  
 > **Software debt:** **SD-GO_TO** ★ **CLOSED**. Connect-later: [living map](../.jes/artifacts/engineer_note_connect_plugs_real_data_map.md).  
-> **Cola voz:** T35–T59 ★ · **T40** Parked.  
-> SoT: [cola voz](../.jes/artifacts/engineer_note_voice_phase_c_cola.md) · [guía](USER_GUIDE_VOICE.md).  
+> **Parked:** **T40** craft/`world/` · old LLM `interpret` quarantine (CI-5 later).  
 
 
 > Scaffold llano: [`ARCHITECTURE.md` §1a](ARCHITECTURE.md). Platform: [`PLATFORM_CAPABILITY_VISION.md`](PLATFORM_CAPABILITY_VISION.md). Knowledge: [`JARVIS_KNOWLEDGE_VISION.md`](JARVIS_KNOWLEDGE_VISION.md).  
@@ -118,11 +120,22 @@ SoT: [DC placement](../.jes/artifacts/design_contract_assistant_placement_b0.md)
 | **T58** | **`B1-assistant-voice-session-key`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.5`** | Esc/Space corta el habla (sesión); Esc cancela toma | [review ★](../.jes/artifacts/implementation_review_assistant_voice_session_key_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_voice_session_key_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_voice_session_key_b1.md) |
 | **T59** | **`B1-assistant-voice-blank-stt-take`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.6`** | `[BLANK_AUDIO]`/`[Music]` → toma vacía; no bucle “no se pudo interpretar” | [review ★](../.jes/artifacts/implementation_review_assistant_voice_blank_stt_take_b1.md) · [IC](../.jes/artifacts/implementation_contract_assistant_voice_blank_stt_take_b1.md) · [report](../.jes/artifacts/implementation_report_assistant_voice_blank_stt_take_b1.md) |
 | **T40** | craft / `world/` voice (V6) | **Parked** — own DC later | Craft wizards + `world/` location resolve — **not** voice v1 · **not** V7–V12 | [placement A4](../.jes/artifacts/design_contract_assistant_placement_b0.md) |
+| **CI-0** | **`DC-continuity-interpreter-epoch`** | ✅ **DC ready** · Engineer ★ 2026-10-15 | Epoch: LLM = Continuity Interpreter · chat∥voice · Layer 2 compose · quarantine old `interpret` | [DC](../.jes/artifacts/design_contract_continuity_interpreter_epoch_b0.md) · [cola CI](../.jes/artifacts/engineer_note_continuity_interpreter_cola.md) |
+| **CI-1** | `B1-llm-gemma4-default-model` | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.7`** | Default Gemma E4B | [review](../.jes/artifacts/implementation_review_llm_gemma4_default_model_b1.md) |
+| **CI-1b** | **`B1-llm-analyze-goal-smoke-hotfix`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.7`** | Drop bare `margen` · explain-gate · no prefill | [review](../.jes/artifacts/implementation_review_llm_analyze_goal_smoke_hotfix_b1.md) |
+| **CI-INV-0** | `INV-voice-llm-ci-audit` | **PASS WITH NOTES** | Voice+LLM audit | [review](../.jes/artifacts/investigation_review_voice_llm_ci_audit_b0.md) |
+| **CI-1c** | **`B1-llm-interpret-unknown-guard`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.7`** | No create wizard on unknown | [review](../.jes/artifacts/implementation_review_llm_interpret_unknown_guard_b1.md) |
+| **CI-1d** | **`B1-llm-unknown-situate`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.7`** | Claim 0 LLM (egress → CI-1e) | [review](../.jes/artifacts/implementation_review_llm_unknown_situate_b1.md) |
+| **CI-1e** | **`B1-llm-unknown-situate-brief`** | ✅ ★ **ACCEPT CLOSED** @ **`v0.8.7`** | Brief `situate` message | [review](../.jes/artifacts/implementation_review_llm_unknown_situate_brief_b1.md) |
+| **CI-2** | `DC-continuity-interpreter-egress` | **DC READY** · await ★ Intent | Compose Continuity + speak opt-in (**B**) | [DC](../.jes/artifacts/design_contract_continuity_interpreter_egress_b0.md) |
+| **CI-3** | Continuity Interpreter ingress | ☐ pending | Human → Skills/status/explain | after CI-2 shape |
+| **CI-4** | Fold `analyze` into CI | ☐ later | Retire `analyze` as product mode into CI egress | after CI-2 · [cola CI](../.jes/artifacts/engineer_note_continuity_interpreter_cola.md) |
+| **CI-5** | Retire `interpret` | ☐ later | Log evidence first — **blocked**: suite pollutes `llm_logs` (G-03/G-04) | quarantine now |
 | **JES-in-product** | embed JES in `intelligence/` | **Parked** | Engineer: not worth it (2026-09-30) | process stays `.jes/` only |
 | **A4** | Voz / world | **Voz half ★** · **T41–T59 ★** @ `v0.7.1`–`v0.8.6` · `world/` Parked (T40) | two modes: `--chat` · `--voice-only` | [T59 review ★](../.jes/artifacts/implementation_review_assistant_voice_blank_stt_take_b1.md) · [guía](USER_GUIDE_VOICE.md) |
 | **maps expand** | more FS/HD in `explain_maps` | **Candidate** | Demand-driven | ★ pick later |
 | **N1** | `--list`/`--rung` casefold in chat | **Optional polish** | A7 residual | ★ pick later |
-| **R4** | LLM cite | **Later** | Intérprete semántico only | vision §7 (b) |
+| **R4** / **CI-R4** | LLM/ontology cite in CI compose | **Later** | Quote-only · after CI-2 | vision §7 (b) · [CI cola](../.jes/artifacts/engineer_note_continuity_interpreter_cola.md) |
 
 **Demo de valor (A3):** pregunta conceptual → explicación desde nota solid → sin inventar SKU watts/thrust.
 

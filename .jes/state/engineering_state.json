@@ -1,15 +1,16 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T59 ★ ACCEPT CLOSED @ v0.8.6 — blank STT take. Daily voice path (v1→V12+T59) ★ closed. Next: T40 Parked, or Engineer pick.",
-  "scope": "Board ACCEPT + tag only. No src/ change this turn.",
-  "execution_status": "accept_closed_idle",
-  "current_mode": "idle",
+  "cycle_intent": "★ ACCEPT CLOSED CI-1…CI-1e @ v0.8.7. CI-2 DC READY — Continuity Interpreter egress (Open #2 = B). Await Engineer ★ Intent on CI-2 DC then IC 2a/2b.",
+  "scope": "Accept package tagged. Next: CI-2 DC Intent → IC. No src/ until CI-2 IC pasted.",
+  "execution_status": "design_ready",
+  "current_mode": "design",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "ACCEPT T59"
+    "reason": "Engineer ACCEPT CI-1e smoke + authorize next = CI-2 DC"
   },
   "relevant_workflow_phases": [
-    "ACCEPT"
+    "Accept",
+    "Design"
   ],
   "applicable_rules": [
     "R-GOV-1",
@@ -17,33 +18,43 @@
     "R-KNW-1"
   ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_review_assistant_voice_blank_stt_take_b1.md",
-    ".jes/artifacts/engineer_note_voice_phase_c_cola.md",
+    ".jes/artifacts/design_contract_continuity_interpreter_egress_b0.md",
+    ".jes/artifacts/implementation_review_llm_unknown_situate_brief_b1.md",
+    ".jes/artifacts/engineer_note_continuity_interpreter_cola.md",
     "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Optional live quiet-take smoke (T59 N1)",
-    "T40 stays Parked until Engineer opens DC"
+    "Engineer ★ Intent on CI-2 DC",
+    "First IC: CI-2a speak opt-in vs combined 2a+2b"
   ],
   "active_operation": {
-    "type": "idle",
+    "type": "design",
     "ids": [
-      "T59"
+      "CI-2"
     ],
     "closed": [
-      "v0.8.6"
+      "v0.8.7",
+      "CI-0",
+      "CI-1",
+      "CI-1b",
+      "CI-1c",
+      "CI-1d",
+      "CI-1e",
+      "CI-INV-0-review",
+      "CI-0-open-2-B"
     ]
   },
   "closed_this_turn": [
-    "T59 ★ ACCEPT CLOSED @ v0.8.6"
+    "CI-1…CI-1e ★ ACCEPT @ v0.8.7",
+    "CI-2 DC written"
   ],
   "authority_gates": [
-    "T40 stays Parked",
-    "No new Buy without Engineer open"
+    "No CI-2 src/ until IC pasted after DC ★",
+    "CI-3 owns explain→ontology misroute"
   ],
   "coherence_checklist": [
-    "PRIORIDAD points at closed T59 + daily voice path closed",
-    "Tag v0.8.6 on ACCEPT commit"
+    "Open #2 = B in CI-2 DC",
+    "Package 0.8.7 tagged"
   ],
-  "updated_at": "2026-10-15T09:16:00Z"
+  "updated_at": "2026-10-18T17:15:00Z"
 }

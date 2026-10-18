@@ -54,6 +54,7 @@ from jarvis.core.goal_planner import (
     format_goal_plan,
     get_goal_context_for_llm,
     is_engineering_intention,
+    is_explain_ask,
 )
 from jarvis.core.handoff_matching import match_plan_lever
 from jarvis.core.component_writers import (
@@ -2572,6 +2573,20 @@ class JarvisOrchestrator:
             self._track_turn(user_input, result)
             return result
 
+        # CI-1d (B1-llm-unknown-situate): an unclassified, non-explain turn on
+        # an active project ("hablar", "gracias", "hola") situates the user —
+        # 0 LLM, interpret/analyze never called. CI-1e: a brief `situate`
+        # reply, never the full Continuity wall (`estado` keeps that).
+        # Explain-shaped unknowns ("qué es el margen") keep the residual path.
+        if (
+            intent == "unknown"
+            and self._has_active_project()
+            and not is_explain_ask(user_input)
+        ):
+            result = self._handle_situate()
+            self._track_turn(user_input, result)
+            return result
+
         action_request = llm_interface.interpret(user_input, runtime_state)
         if action_request.get("parameters", {}).get("error") == "invalid_llm_output":
             return {
@@ -2582,8 +2597,31 @@ class JarvisOrchestrator:
         # Bug 52: LLM fallback must not open the iterate wizard for inputs the
         # deterministic resolver could not classify (unknown intent). The LLM
         # hallucinates iterate actions for nonsense input, which is wrong.
-        if intent == "unknown" and action_request.get("action") == "iterate":
-            result = self._handle_analyze(user_input, llm_interface)
+        # CI-1c (B1-llm-interpret-unknown-guard, CI-INV-0 G-01): same class for
+        # every ActionPolicy verb — Gemma returns a valid create_project for
+        # "hablar"/"Gracias." and opened the create wizard over the active
+        # project. With an active project, an unknown-intent turn never reaches
+        # self.handle. Without one, only Bug 52's iterate is guarded (Engineer
+        # 2026-10-16: no project to hijack; LLM create stays reachable).
+        _llm_action = action_request.get("action")
+        if intent == "unknown" and (
+            _llm_action == ActionName.ITERATE.value
+            or (
+                _llm_action in (
+                    ActionName.CREATE_PROJECT.value,
+                    ActionName.CALCULATE.value,
+                    ActionName.SIMULATE.value,
+                )
+                and self._has_active_project()
+            )
+        ):
+            # CI-1d lock 4: with an active project a guarded non-explain turn
+            # situates (backstop — the early claim above normally takes it);
+            # explain-shaped unknowns and no-project iterate stay on analyze.
+            if self._has_active_project() and not is_explain_ask(user_input):
+                result = self._handle_situate()
+            else:
+                result = self._handle_analyze(user_input, llm_interface)
             self._track_turn(user_input, result)
             return result
         result = self.handle(action_request)
@@ -6796,6 +6834,31 @@ class JarvisOrchestrator:
                 hint = f"\n\nSiguiente bloque: {label} ({progress})"
         return {**result, "message": (result.get("message") or "") + hint}
 
+    _SITUATE_LEAD = "No capté una orden clara."
+
+    def _handle_situate(self) -> dict[str, Any]:
+        """CI-1e (`B1-llm-unknown-situate-brief`): brief re-orientation for an
+        unclassified turn on an active project — 0 LLM, never the full
+        Continuity wall (`estado` keeps that). Reads only fields
+        `build_startup_context` already computed: objective, situation,
+        next step, readiness overall. `next_useful_why` is left out: it may
+        be a raw warning code whose display map lives in the CLI adapter."""
+        ctx = self.build_startup_context()
+        continuity = ctx.get("continuity") or {}
+        lines = [self._SITUATE_LEAD]
+        project_name = ctx.get("objective") or ctx.get("project_slug")
+        if project_name:
+            lines.append(f"Proyecto: {project_name}.")
+        if continuity.get("situation"):
+            lines.append(continuity["situation"])
+        if continuity.get("next_useful_step"):
+            lines.append(f"Siguiente paso: {continuity['next_useful_step']}")
+        overall = (ctx.get("readiness") or {}).get("overall")
+        if overall:
+            ready = "listo" if overall == "ASSEMBLY_READY" else "no listo"
+            lines.append(f"Estado del proyecto: {ready} para ensamblar.")
+        return {"status": "ok", "action": "situate", "message": "\n".join(lines)}
+
     def _handle_project_status(self) -> dict[str, Any]:
         """Return a project_status result using build_startup_context (no LLM).
 
@@ -7484,7 +7547,9 @@ class JarvisOrchestrator:
             conversation_history=self.state_manager.runtime_state.conversation_history,
             goal_context=goal_context,
         )
-        if goal_key:
+        # CI-1b: an explanatory ask ("explicame ...", "qué es ...") never gets
+        # the strategy plan prepended, even when detect_goal() hits.
+        if goal_key and not is_explain_ask(user_input):
             deterministic_plan = format_goal_plan(goal_key, sim_context=sim_context)
             message = deterministic_plan + "\n\n─── Evaluación contextual ───\n" + message
 
