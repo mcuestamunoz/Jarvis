@@ -151,7 +151,13 @@ _GOAL_KEYWORDS: list[tuple[str, list[str]]] = [
             # (per_motor_max_thrust_n / safety_factor), so "aumentar empuje"
             # style phrases land here rather than creating a fifth goal.
             # Documented in FN-022 report §3.
-            "margen", "poco margen", "margen bajo", "margen justo",
+            # CI-1b: no bare "margen" — it hijacked explanatory asks
+            # ("explicame el margen") into this goal. Only phrases that carry
+            # an intention/direction map here.
+            "poco margen", "margen bajo", "margen justo",
+            "mas margen", "mejorar margen", "mejorar el margen",
+            "aumentar margen", "aumentar el margen",
+            "subir margen", "subir el margen",
             "empuje", "mas empuje", "aumentar empuje", "subir empuje",
             "mas thrust", "aumentar thrust", "thrust",
             "relacion empuje peso", "relacion empuje/peso", "ratio empuje peso",
@@ -267,6 +273,20 @@ _HAS_DIGIT_RE = re.compile(r"\d")
 def looks_like_numeric_mutate(user_input: str) -> bool:
     """True when the input already carries a concrete numeric target."""
     return bool(_HAS_DIGIT_RE.search(user_input))
+
+
+# CI-1b (B1-llm-analyze-goal-smoke-hotfix lock 3): finite explain/status
+# family. An ask shaped like this wants an explanation, not a strategy plan —
+# the analyze path never prepends format_goal_plan for it, even if
+# detect_goal() hits. Matched as whole words on _normalize()d text.
+_EXPLAIN_ASK_RE = re.compile(
+    r"\b(?:explica|explicame|que es|como esta|cuanto es|dime el|hablame del)\b"
+)
+
+
+def is_explain_ask(user_input: str) -> bool:
+    """True when the input is an explanatory/status-shaped ask."""
+    return bool(_EXPLAIN_ASK_RE.search(_normalize(user_input)))
 
 
 def is_engineering_intention(user_input: str) -> Optional[str]:

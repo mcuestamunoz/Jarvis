@@ -1,43 +1,60 @@
 {
   "schema_version": "1.0",
-  "cycle_intent": "T13 PATROL IC ★ AUTHORIZED after T12 close; await implementation to finish vehicle-verb cola",
-  "scope": "Seventh vehicle Task kind request_patrol → flight.patrol via shared ArmedAllowlist. Last C4 AutonomyVerb in chat. Allow-list unwidened. No route parse.",
-  "execution_status": "awaiting_implementation",
-  "current_mode": "implement",
+  "cycle_intent": "★ ACCEPT CLOSED CI-1…CI-1e @ v0.8.7. CI-2 DC READY — Continuity Interpreter egress (Open #2 = B). Await Engineer ★ Intent on CI-2 DC then IC 2a/2b.",
+  "scope": "Accept package tagged. Next: CI-2 DC Intent → IC. No src/ until CI-2 IC pasted.",
+  "execution_status": "design_ready",
+  "current_mode": "design",
   "movement_trigger": {
     "type": "engineer",
-    "reason": "Engineer: vayamos a terminar esta cola de intelligence, procede con patrol"
+    "reason": "Engineer ACCEPT CI-1e smoke + authorize next = CI-2 DC"
   },
-  "relevant_workflow_phases": ["Implement", "Review", "Close"],
-  "applicable_rules": ["R-GOV-1", "R-GOV-2", "R-COL-1", "R-KNW-1"],
+  "relevant_workflow_phases": [
+    "Accept",
+    "Design"
+  ],
+  "applicable_rules": [
+    "R-GOV-1",
+    "R-ENG-1",
+    "R-KNW-1"
+  ],
   "required_artifacts": [
-    ".jes/artifacts/implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    ".jes/artifacts/implementation_report_assistant_vehicle_patrol_task_b1.md"
+    ".jes/artifacts/design_contract_continuity_interpreter_egress_b0.md",
+    ".jes/artifacts/implementation_review_llm_unknown_situate_brief_b1.md",
+    ".jes/artifacts/engineer_note_continuity_interpreter_cola.md",
+    "docs/IMPLEMENTATION_TASKS.md"
   ],
   "open_questions": [
-    "Claude (or Engineer: implementa tú) implements T13?",
-    "After T13 ★: allow-list widen · CHARGE · copper?"
+    "Engineer ★ Intent on CI-2 DC",
+    "First IC: CI-2a speak opt-in vs combined 2a+2b"
   ],
   "active_operation": {
-    "type": "authorized_implementation",
-    "contract": "implementation_contract_assistant_vehicle_patrol_task_b1.md",
-    "ids": ["T13", "B1-assistant-vehicle-patrol-task"],
-    "blocked_on": "implementation"
+    "type": "design",
+    "ids": [
+      "CI-2"
+    ],
+    "closed": [
+      "v0.8.7",
+      "CI-0",
+      "CI-1",
+      "CI-1b",
+      "CI-1c",
+      "CI-1d",
+      "CI-1e",
+      "CI-INV-0-review",
+      "CI-0-open-2-B"
+    ]
   },
   "closed_this_turn": [
-    "DC-assistant-vehicle-patrol-task ★ CLOSED",
-    "IC B1-assistant-vehicle-patrol-task ★ AUTHORIZED @ 0.6.21"
+    "CI-1…CI-1e ★ ACCEPT @ v0.8.7",
+    "CI-2 DC written"
   ],
   "authority_gates": [
-    "Cursor IC/docs only unless Engineer says implementa tú",
-    "No allow-list widen in T13",
-    "No route/waypoint parse; params={}",
-    "Use shared T11 gate — not fresh ArmedAllowlist"
+    "No CI-2 src/ until IC pasted after DC ★",
+    "CI-3 owns explain→ontology misroute"
   ],
   "coherence_checklist": [
-    "AutonomyVerb.PATROL already exists (C4)",
-    "Precedence after FOLLOW",
-    "Package target 0.6.21"
+    "Open #2 = B in CI-2 DC",
+    "Package 0.8.7 tagged"
   ],
-  "updated_at": "2026-10-01T06:35:00Z"
+  "updated_at": "2026-10-18T17:15:00Z"
 }

@@ -67,6 +67,19 @@ separate, non-autonomy request shape (`capability:...`, never
 `autonomy:{verb}:{id}`). Like every gate here, `evaluate(...)` never
 calls an actuator, a Skill's `execute`, or the registry's "run" anything
 — it only reads `CapabilityRecord`/`ProviderRecord` fields.
+
+**T14 (`B1-assistant-vehicle-allowlist-widen`) widens
+`ArmedAllowlistSafetyGate._ALLOWED_VERBS`** a third time — from
+`{HOLD, LAND, GO_TO}` to all seven `AutonomyVerb` values that have a
+chat Task by this point (`TAKEOFF`/`RETURN_HOME`/`FOLLOW`/`PATROL` join
+the three C41 already allowed). Same policy, same `gate_id`, same latch
+API (`arm`/`disarm`/`armed`/`evaluate`) — only the set literal changes.
+`allow` still never means execute: `SimAutonomyExecutor` stays
+HOLD/LAND/GO_TO-only in sim (C40), so this gate's allow-list is now
+deliberately **wider** than what anything in this codebase actually
+executes — a chat `armar` followed by `takeoff`/`rtl`/`follow`/`patrol`
+yields Safety `allow` and `execution="not_implemented"`, never
+`"executed"`. No new Task kind, phrase table, capability, or skill.
 """
 
 from __future__ import annotations
@@ -149,12 +162,17 @@ class ArmedAllowlistSafetyGate:
     """C17 — first real Safety policy: an opt-in armed allow-list.
     Widened in C41 (`B1-fase-c-safety-sim-policy`) to also allow `GO_TO`,
     matching the three verbs `SimAutonomyExecutor` (C40) can drive in sim.
+    Widened again in T14 (`B1-assistant-vehicle-allowlist-widen`) to the
+    **full chat set** — all seven `AutonomyVerb` values that have a chat
+    Task (`TAKEOFF`/`RETURN_HOME`/`FOLLOW`/`PATROL` join `HOLD`/`LAND`/
+    `GO_TO`). `allow` here is still never execution — `SimAutonomyExecutor`
+    (C40) remains HOLD/LAND/GO_TO-only in sim; this gate's allow-list may
+    be (and now is) wider than what anything actually executes.
 
     Starts **disarmed**. While disarmed, `evaluate(...)` always rejects
-    with reason `"disarmed"`. Once `arm()`ed, it allows `HOLD`, `LAND`,
-    and (as of C41) `GO_TO` — parsed from `request.action_id`'s
-    `autonomy:{verb}:{id}` shape; any other verb (`TAKEOFF`/`FOLLOW`/
-    `RETURN_HOME`/`PATROL`), or an `action_id` that does not match that
+    with reason `"disarmed"`. Once `arm()`ed, it allows all seven listed
+    verbs — parsed from `request.action_id`'s `autonomy:{verb}:{id}`
+    shape; any other verb, or an `action_id` that does not match that
     shape, is rejected with reason `"verb_not_allowed"` /
     `"unparseable_action_id"` respectively. `request.authority_signal_id`
     is never read by this gate — Authority stays trace-only and cannot
@@ -169,7 +187,9 @@ class ArmedAllowlistSafetyGate:
     two APIs itself, separately."""
 
     gate_id = "armed_allowlist"
-    _ALLOWED_VERBS: frozenset[str] = frozenset({"HOLD", "LAND", "GO_TO"})
+    _ALLOWED_VERBS: frozenset[str] = frozenset({
+        "HOLD", "LAND", "GO_TO", "TAKEOFF", "RETURN_HOME", "FOLLOW", "PATROL",
+    })
 
     def __init__(self) -> None:
         self._armed = False

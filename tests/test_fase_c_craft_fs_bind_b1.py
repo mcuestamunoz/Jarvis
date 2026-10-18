@@ -128,11 +128,6 @@ def test_t6_bind_module_imports_only_the_craft_read_surface():
     assert "propose_command" not in source
 
 
-def test_t7_pyproject_version_is_0_5_44():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in text
-
-
 def test_t7_full_suite_process_gate_placeholder():
     """The full Python suite being green (and host `ctest` unchanged) is
     verified by running them, not asserted here — see the implementation

@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
+import time
+from contextlib import nullcontext
 from pathlib import Path
 
 from jarvis.config import DEFAULT_LLM_LOG_ROOT, OLLAMA_BASE_URL, OLLAMA_MODEL
@@ -81,6 +84,18 @@ WARNING_SHORT: dict[str, str] = {
     "low_force_to_weight_ratio": "relación empuje/peso baja",
     "autonomy_below_restriction": "autonomía por debajo de restricción",
 }
+# T52-N2 hygiene — Continuity `next_useful_why` also stores parameter-reason
+# tokens and a gap-id fallback that are not warning codes. Same display
+# function as WARNING_SHORT so print "Por qué:" and the brief stay aligned.
+# Unknown / free-prose values still pass through verbatim.
+_CONTINUITY_WHY_SHORT: dict[str, str] = {
+    "missing_propulsion_parameters": "faltan parámetros de propulsión",
+    "missing_energy_parameters": "faltan parámetros de energía",
+    "missing_propeller_parameters": "faltan parámetros de hélice",
+    "missing_transmission_parameters": "faltan parámetros de transmisión",
+    "missing_component_definition": "falta definir el componente",
+    "GAP-SIM-NOT-PASS": "la simulación no está en PASS",
+}
 
 
 # B1-chat-explain-intercept (A7): "jarvis explain <id>" — the exact command
@@ -126,9 +141,14 @@ def _humanize_next_useful_why(code: str) -> str:
     """Claim hygiene under ASSEMBLY READY IC §2.3/N1: Continuity keeps the
     raw warning code in ``next_useful_why`` (core stays free of adapters'
     display maps); the CLI maps known codes through ``WARNING_SHORT``
-    (falling back to ``WARNING_MESSAGES``) when printing 'Por qué:'. Unknown
+    (falling back to ``WARNING_MESSAGES``, then T52-N2
+    ``_CONTINUITY_WHY_SHORT``) when printing 'Por qué:'. Unknown
     codes (e.g. gap-evidence strings) render verbatim, unchanged."""
-    return WARNING_SHORT.get(code) or WARNING_MESSAGES.get(code, code)
+    return (
+        WARNING_SHORT.get(code)
+        or WARNING_MESSAGES.get(code)
+        or _CONTINUITY_WHY_SHORT.get(code, code)
+    )
 
 _STATUS_ICON = {
     "blocking": "⚠ ",
@@ -587,6 +607,11 @@ def render_response(result: dict) -> str:
     if result.get("action") == "global_command":
         return result.get("message") or ""
 
+    if result.get("action") == "situate":
+        # CI-1e: brief re-orientation — print (and, on --voice-only, speak)
+        # only the message; never the Continuity wall nor "Acción ejecutada".
+        return result.get("message") or ""
+
     if result.get("status") == "ok":
         if result.get("action") == "analyze":
             parts = []
@@ -914,9 +939,92 @@ def _handle_startup_selection(
     return None
 
 
-def run_chat() -> None:
+def _chat_speak_fn(speak_tts: bool, keys=None):
+    """T43 (`B1-assistant-chat-voice-speak`) — speak-only companion for
+    `run_chat`'s own prints, never a second print. `_voice_speak_fn`
+    (T38) always prints internally, so reusing it here would double-
+    print every turn — this is a deliberately separate, thin helper.
+    When `speak_tts` is set, the returned callable feeds the exact
+    string `run_chat` already printed to the external TTS seam
+    (`speak_egress`/`JARVIS_TTS_CMD`, T38), catching `TtsError` to
+    print an honest `TTS no disponible: …` once; the chat loop never
+    crashes on a bad turn or a missing/misconfigured TTS command.
+    T56: Ctrl-C mid-speech (`TtsCancelled`) prints `Habla cancelada.`
+    (never spoken) and returns — the session continues to the mic.
+    T58: with a `SessionKeyWatcher` (`keys`), Esc/Space during the speech
+    act as that same Ctrl-C (same outcome, same string).
+    Default (`speak_tts=False`, bare `--chat`) returns a no-op that
+    never imports or calls `speak_egress` — only `run_voice_only`
+    (T53, `--voice-only`) sets `speak_tts=True`."""
+    if not speak_tts:
+        def noop(_text: str) -> None:
+            return None
+
+        return noop
+
+    from jarvis.adapters.voice import TtsCancelled, TtsError, speak_egress
+    from jarvis.adapters.voice.session_keys import SPEAK_CANCEL_KEYS
+
+    def speak(text: str) -> None:
+        if not text:
+            return
+        window = None
+        try:
+            with keys.watching(SPEAK_CANCEL_KEYS) if keys else nullcontext() as window:
+                speak_egress(text)
+        except TtsError as error:
+            print(f"Jarvis > TTS no disponible: {error}")
+        except TtsCancelled:
+            # T56: Ctrl-C while Jarvis speaks stops the voice (speak_egress
+            # already stopped the TTS process group), never the session —
+            # print-only, then the loop reopens the mic.
+            print("Jarvis > Habla cancelada.")
+        except KeyboardInterrupt:
+            # T58: an Esc/Space that landed just as the speech finished on
+            # its own — still the user's "cállate", not a session kill.
+            if window is not None and window.fired:
+                print("Jarvis > Habla cancelada.")
+            else:
+                raise
+
+    return speak
+
+
+_CHAT_EXIT_WORDS = frozenset({"exit", "quit"})
+_VOICE_ONLY_EXIT_WORDS = frozenset({"exit", "quit", "salir"})
+
+
+def _run_chat_session(*, speak_tts: bool, read_line, is_exit, keys=None) -> None:
+    """The one full chat brain both product modes share (T53 / V9):
+    projects, Continuity, craft/LLM fallthrough, Skill-first — every
+    `handle_user_text` call stays source-default (`TERMINAL`).
+
+    `read_line(startup_done)` supplies the next user line (`--chat`:
+    keyboard; `--voice-only`: keyboard for the initial project picker
+    only, then the mic). It returns the line, `""` to skip a turn, or
+    `None` to end the session; `EOFError`/`KeyboardInterrupt` also end
+    it. `is_exit(line)` decides the session-ending words.
+
+    `speak_tts=False` (`--chat`) speaks nothing — `_chat_speak_fn(False)`
+    never imports or calls the TTS seam. `speak_tts=True`
+    (`--voice-only`) speaks every reply already printed as `Jarvis > …`.
+
+    T45/T52: on the two Continuity **wall** turns — project-load
+    `startup_block` and any turn whose result is `action ==
+    "project_status"` (`estado` and siblings) — what gets *printed* is
+    the full wall (Layer 1, untouched); what gets *spoken* is
+    `spoken_text_for_wall`'s brief extract, or the narrated FULL extract
+    when this turn's line is a locked FULL phrase. Every other turn
+    speaks exactly what it prints."""
+    from jarvis.adapters.voice import spoken_text_for_wall
+
     orchestrator = JarvisOrchestrator()
     llm_interface = JarvisLLMInterface(client=OllamaClient())
+    speak = _chat_speak_fn(speak_tts, keys)
+
+    def _say(message: str) -> None:
+        print(f"Jarvis > {message}")
+        speak(message)
 
     print(f"Modelo: {OLLAMA_MODEL}")
     print(f"Ollama: {OLLAMA_BASE_URL}")
@@ -924,23 +1032,29 @@ def run_chat() -> None:
 
     existing_projects = _list_existing_projects(orchestrator)
     _print_welcome(existing_projects)
+    if speak_tts:
+        _print_voice_only_banner(existing_projects, keys_enabled=keys is not None)
 
     startup_done = len(existing_projects) == 0  # si no hay proyectos, no hay selección inicial
 
     while True:
         try:
-            user_input = " ".join(input("User > ").split())
+            user_input = read_line(startup_done)
         except (EOFError, KeyboardInterrupt):
+            user_input = None
+        if user_input is None:
             print("\nJarvis > Sesión cerrada.")
+            speak("Sesión cerrada.")
             break
 
         if not user_input:
             continue
-        if user_input.lower() in {"exit", "quit"}:
-            print("Jarvis > Sesión cerrada.")
+
+        if is_exit(user_input):
+            _say("Sesión cerrada.")
             break
         if user_input.lower() == "help":
-            print("Jarvis > Prueba con frases como 'quiero diseñar un dron', 'reduce peso', 'calcula' o 'simula'.")
+            _say("Prueba con frases como 'quiero diseñar un dron', 'reduce peso', 'calcula' o 'simula'.")
             continue
 
         # Gestionar selección inicial solo en el primer input cuando había proyectos
@@ -949,12 +1063,14 @@ def run_chat() -> None:
             startup_result = _handle_startup_selection(user_input, existing_projects)
             if startup_result is not None:
                 if startup_result.get("status") == "error":
-                    print(f"Jarvis > {startup_result.get('message') or 'No he entendido la instrucción.'}")
+                    _say(startup_result.get("message") or "No he entendido la instrucción.")
                 else:
                     orchestrator.state_manager.clear_conversation_history()
                     startup_ctx = orchestrator.build_startup_context()
                     if startup_ctx.get("has_project"):
-                        print(f"Jarvis >\n{render_startup_context(startup_ctx)}\n")
+                        startup_block = render_startup_context(startup_ctx)
+                        print(f"Jarvis >\n{startup_block}\n")
+                        speak(spoken_text_for_wall(user_input, startup_block, startup_ctx))
                         # FN-001: only open define wizard when there are real pending params
                         if should_auto_start_define_on_load(startup_ctx):
                             missing = startup_ctx.get("missing_params") or []
@@ -964,9 +1080,9 @@ def run_chat() -> None:
                             proactive = orchestrator.start_define_missing_params(
                                 missing, reason=reason
                             )
-                            print(f"Jarvis > {render_response(proactive)}")
+                            _say(render_response(proactive))
                     else:
-                        print(f"Jarvis > {render_response(startup_result)}")
+                        _say(render_response(startup_result))
                 continue
             # Input not recognised as project selection (e.g. "n", "nuevo", free text)
             # → fall through to handle_user_text so the orchestrator processes it
@@ -975,18 +1091,306 @@ def run_chat() -> None:
             result = orchestrator.handle_user_text(user_input, llm_interface)
             result = orchestrator.attach_project_coherence(result)
         except Exception as error:
-            print(f"Jarvis > Error interno: {error}")
+            _say(f"Error interno: {error}")
             continue
 
         if result.get("status") == "error":
-            print(f"Jarvis > {result.get('message') or 'No he entendido la instrucción.'}")
+            _say(result.get("message") or "No he entendido la instrucción.")
         else:
-            print(f"Jarvis > {render_response(result)}")
+            rendered = render_response(result)
+            print(f"Jarvis > {rendered}")
+            if result.get("action") == "project_status":
+                speak(spoken_text_for_wall(user_input, rendered, result.get("startup_context") or {}))
+            else:
+                speak(rendered)
+
+
+def _read_keyboard_line(_startup_done: bool) -> str:
+    return " ".join(input("User > ").split())
+
+
+def run_chat() -> None:
+    """`--chat` — the silent product mode: keyboard in, text out, no mic,
+    no TTS. Same brain as `--voice-only` (`_run_chat_session`).
+
+    T53 (`B1-assistant-voice-only-loop`): the hybrid T43/T47
+    `--chat --voice-speak` speak+`hablar` PTT path is gone from here —
+    voice is its own mode, `run_voice_only`."""
+    _run_chat_session(
+        speak_tts=False,
+        read_line=_read_keyboard_line,
+        is_exit=lambda line: line.lower() in _CHAT_EXIT_WORDS,
+    )
+
+
+def _print_voice_only_banner(projects: list[dict], *, keys_enabled: bool = False) -> None:
+    """Print-only (never spoken) operator cue for `--voice-only`."""
+    from jarvis.adapters.voice import resolve_record_seconds, resolve_record_silence_seconds
+
+    max_seconds = resolve_record_seconds()
+    silence_seconds = resolve_record_silence_seconds()
+    if silence_seconds > 0:
+        listening = (
+            f"el micrófono escucha hasta {max_seconds} s y corta "
+            f"tras ~{silence_seconds:g} s de silencio"
+        )
+    else:
+        listening = f"el micrófono graba {max_seconds} s"
+    print(
+        f"Modo voz: tras cada respuesta {listening}. "
+        "Di 'salir' para terminar (o Ctrl-C dos veces seguidas)."
+    )
+    if keys_enabled:
+        print("Esc o Espacio cortan el habla; Esc cancela la toma mientras graba.")
+    if projects:
+        print("Elige proyecto con el teclado; después, todo es por voz.")
+
+
+def _is_voice_only_exit(line: str) -> bool:
+    # STT commonly returns "Salir." — trailing punctuation never blocks exit.
+    return line.strip().strip(".,;:!?¡¿").lower() in _VOICE_ONLY_EXIT_WORDS
+
+
+def _record_cue(max_seconds: int, silence_seconds: float) -> str:
+    """T54: the print-only (never spoken) record cue. With a silence cut
+    (`silence_seconds > 0`, applied by the external recorder) the max is
+    a cap, not the length; with `0` the capture is fixed (T53)."""
+    if silence_seconds > 0:
+        return f"Grabando (máx {max_seconds} s; corta con ~{silence_seconds:g} s de silencio)…"
+    return f"Grabando {max_seconds} s…"
+
+
+def _make_mic_line_reader(keys=None):
+    """`--voice-only` turn source (T53 locks 8–11, 13). Before the
+    project picker is done (and only when projects exist), reads the
+    keyboard once — lock 9. Afterwards every user turn comes from the
+    mic: print the record cue (`_record_cue`, never spoken), record via
+    `JARVIS_RECORD_CMD` into an ephemeral temp wav, transcribe via
+    `JARVIS_STT_CMD`, unlink the wav in `finally`, echo `User > [voz]
+    {transcript}`. The session loop only calls this after the previous
+    reply's synchronous `speak(...)` returned, so recording never
+    overlaps TTS.
+
+    Before each recording it pauses `JARVIS_VOICE_SETTLE_SECONDS`
+    (default 0.35, T57) so speaker bleed from the reply just spoken — or
+    just cancelled — is less likely to land in the take.
+
+    Honesty: a missing record/STT config can never succeed, so it is
+    printed once and ends the session (no endless retry loop); a failed
+    recording/STT run or an empty transcript is printed and the mic
+    simply reopens. Ctrl-C while recording cancels that turn only; a
+    second consecutive Ctrl-C (no completed turn in between) ends the
+    session — otherwise the always-recording loop would leave no
+    keyboard way out."""
+    import os
+    import tempfile
+
+    from jarvis.adapters.voice import (
+        RecordConfigError,
+        RecordError,
+        SttConfigError,
+        SttError,
+        is_blank_stt_transcript,
+        record_audio_file,
+        resolve_record_seconds,
+        resolve_record_silence_seconds,
+        resolve_voice_settle_seconds,
+        transcribe_audio_file,
+    )
+    from jarvis.adapters.voice.session_keys import TAKE_CANCEL_KEYS
+
+    cancelled_last_turn = False
+
+    def read_line(startup_done: bool) -> str | None:
+        nonlocal cancelled_last_turn
+        if not startup_done:
+            return _read_keyboard_line(startup_done)
+
+        seconds = resolve_record_seconds()
+        print(f"Jarvis > {_record_cue(seconds, resolve_record_silence_seconds())}")
+        # mkstemp returns an open fd — close it before handing the path
+        # to the external recorder (T47 review N1).
+        fd, tmp_name = tempfile.mkstemp(suffix=".wav")
+        os.close(fd)
+        tmp_path = Path(tmp_name)
+        try:
+            # T57 anti-echo settle: a short fixed pause after the cue and
+            # before the recorder starts, so the tail of Jarvis's own voice
+            # (or a just-cancelled one) is less likely to land in this take.
+            # Inside the try on purpose: Ctrl-C here is the same as Ctrl-C
+            # while recording (cancel this take; twice in a row ends).
+            # T58: Esc in this window is that same Ctrl-C (Space ignored
+            # here so a bumped space bar never throws away a take).
+            with keys.watching(TAKE_CANCEL_KEYS) if keys else nullcontext():
+                settle = resolve_voice_settle_seconds()
+                if settle > 0:
+                    time.sleep(settle)
+                record_audio_file(tmp_path, seconds=seconds)
+                transcript = transcribe_audio_file(tmp_path)
+        except KeyboardInterrupt:
+            if cancelled_last_turn:
+                return None
+            cancelled_last_turn = True
+            print("Jarvis > Grabación cancelada. (Ctrl-C otra vez para cerrar la sesión)")
+            return ""
+        except RecordConfigError as error:
+            print(f"Jarvis > Grabación no disponible: {error}")
+            return None
+        except SttConfigError as error:
+            print(f"Jarvis > STT no disponible: {error}")
+            return None
+        except RecordError as error:
+            print(f"Jarvis > Grabación no disponible: {error}")
+            return ""
+        except SttError as error:
+            print(f"Jarvis > STT no disponible: {error}")
+            return ""
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+        cancelled_last_turn = False
+        transcript = " ".join(transcript.split())
+        # T59: an STT non-speech marker ([BLANK_AUDIO], [Music], …) is an
+        # empty take, not a user line — no echo, nothing to the brain,
+        # just listen again (same as an empty Enter).
+        if is_blank_stt_transcript(transcript):
+            return ""
+        print(f"User > [voz] {transcript}")
+        return transcript
+
+    return read_line
+
+
+def run_voice_only() -> None:
+    """T53 (`B1-assistant-voice-only-loop`, V9) — `--voice-only`: the
+    full chat brain (`_run_chat_session`, same as `--chat`) with the mic
+    as the default input and every reply spoken via `JARVIS_TTS_CMD`
+    (`_chat_speak_fn(True)` → `speak_egress` → `sanitize_for_speech`).
+    No typed trigger: the mic opens when the session is ready for a
+    user turn and again after each spoken reply returns. Capture is
+    capped at `JARVIS_RECORD_SECONDS` (default 7); since T54 the
+    external recorder also cuts after `JARVIS_RECORD_SILENCE_SECONDS`
+    (default 1.0) of silence once speech was heard — no in-process VAD,
+    no wake-word, no background thread. Not `run_voice_turn`: no
+    Skills-only brain."""
+    from jarvis.adapters.voice.session_keys import SessionKeyWatcher
+
+    # T58: in-session Esc/Space cancel keys — only on an interactive
+    # terminal this process owns; None (no keys) otherwise.
+    keys = SessionKeyWatcher.for_terminal()
+    _run_chat_session(
+        speak_tts=True,
+        read_line=_make_mic_line_reader(keys),
+        is_exit=_is_voice_only_exit,
+        keys=keys,
+    )
+
+
+def _voice_speak_fn(speak_tts: bool):
+    """T38 (`B1-assistant-voice-tts-external`) — Skill-first phase C
+    V4. When `speak_tts` is set, each turn's egress is both printed
+    *and* fed to the external TTS command configured by
+    `JARVIS_TTS_CMD` (env-configured, no vendor hardcoded here — see
+    `.jes/artifacts/engineer_note_voice_tts_product_brief.md`); a
+    missing/failed TTS config is an honest printed `TtsError`, never a
+    silent no-op. Default (`speak_tts=False`, every existing caller)
+    only prints, byte-identical to before T38."""
+    from jarvis.adapters.voice import TtsError, speak_egress
+
+    def speak(egress: str) -> None:
+        print(f"Jarvis > {egress}")
+        if speak_tts:
+            try:
+                speak_egress(egress)
+            except TtsError as error:
+                print(f"Jarvis > TTS no disponible: {error}")
+
+    return speak
+
+
+def run_voice_fixture(fixture_path: str, *, speak_tts: bool = False) -> None:
+    """T36 (`B1-assistant-voice-fixture-loop`) — Skill-first phase C
+    V2. Fixture-driven voice loop: reads `fixture_path`'s non-blank
+    lines as "what STT produced" (no mic, no real STT) and runs each
+    through the same Skill-first brain as `--chat`, tagged
+    `source=IntentSource.VOICE`, printing each turn's `render_response`
+    egress. `speak_tts=True` (T38's `--voice-speak`) additionally
+    speaks that same egress via the external TTS seam. `--chat`'s own
+    behavior is untouched by this flag."""
+    from jarvis.adapters.voice import FixtureSttSource, run_voice
+
+    orchestrator = JarvisOrchestrator()
+    llm_interface = JarvisLLMInterface(client=OllamaClient())
+    fixture = FixtureSttSource.from_path(Path(fixture_path))
+    run_voice(orchestrator, llm_interface, fixture, speak=_voice_speak_fn(speak_tts))
+
+
+def run_voice_audio(audio_path: str, *, speak_tts: bool = False) -> None:
+    """T37 (`B1-assistant-voice-stt-external`) — Skill-first phase C
+    V3. Single voice turn from an audio file: invokes the external STT
+    command configured by `JARVIS_STT_CMD` (`{audio}` placeholder) on
+    `audio_path`, feeds the resulting transcript through the same
+    `run_voice_turn` seam T36 already proved, and prints the egress
+    (and, with `speak_tts=True`, speaks it via T38's external TTS
+    seam). No vendor SDK, no live mic stream — a missing/failed STT
+    config is an honest typed `SttError`, printed and not silently
+    swallowed. `--chat`/`--voice-fixture` are untouched by this flag."""
+    from jarvis.adapters.voice import SttError, run_voice_turn_from_audio
+
+    orchestrator = JarvisOrchestrator()
+    llm_interface = JarvisLLMInterface(client=OllamaClient())
+    try:
+        _, egress = run_voice_turn_from_audio(orchestrator, llm_interface, audio_path)
+    except SttError as error:
+        print(f"Jarvis > STT no disponible: {error}")
+        return
+    _voice_speak_fn(speak_tts)(egress)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Jarvis engineering assistant")
-    parser.add_argument("--chat", action="store_true", help="Run minimal interactive CLI chat")
+    parser.add_argument(
+        "--chat",
+        action="store_true",
+        help="Product mode 1 — full chat by keyboard, silent (no mic, no TTS).",
+    )
+    parser.add_argument(
+        "--voice-only",
+        action="store_true",
+        help=(
+            "Product mode 2 — the same full chat by voice: the mic records "
+            "JARVIS_RECORD_SECONDS (default 7) after each reply, STT via "
+            "JARVIS_STT_CMD, replies spoken via JARVIS_TTS_CMD. Say 'salir' to end."
+        ),
+    )
+    parser.add_argument("--voice", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--voice-fixture",
+        metavar="PATH",
+        default=None,
+        help=(
+            "Batch/CI, not a daily mode: run a fixture-driven Skills voice loop "
+            "over PATH's text lines ('what STT produced', T36) — no real STT/TTS/mic."
+        ),
+    )
+    parser.add_argument(
+        "--voice-audio",
+        metavar="PATH",
+        default=None,
+        help=(
+            "Batch/CI, not a daily mode: run one Skills voice turn from PATH via "
+            "the external STT command configured by JARVIS_STT_CMD (T37) — no mic."
+        ),
+    )
+    parser.add_argument(
+        "--voice-speak",
+        action="store_true",
+        help=(
+            "Batch/CI only: with --voice-fixture/--voice-audio, also speak each "
+            "egress via JARVIS_TTS_CMD (T38). Not a chat option — for voice "
+            "chat use --voice-only."
+        ),
+    )
     subparsers = parser.add_subparsers(dest="command")
     subparsers.add_parser("board", help="Open the spatial board visor")
     explain_parser = subparsers.add_parser(
@@ -1032,6 +1436,40 @@ def main() -> None:
         if not args.query:
             explain_parser.error("one of query, --list, or --rung is required")
         raise SystemExit(run_explain_cli(args.query))
+
+    # T53 (V9): exactly two product modes — --chat and --voice-only.
+    # Retired voice surfaces get one honest pointer and a non-zero exit,
+    # never a silent fallback into a dead mode.
+    if args.voice:
+        print(
+            "--voice (REPL solo Skills) está retirado: usa --voice-only "
+            "(chat completo por voz) o --chat (texto).",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
+
+    if args.voice_speak and not (args.voice_audio or args.voice_fixture):
+        print(
+            "--voice-speak solo vale con --voice-fixture/--voice-audio (batch/CI). "
+            "Para hablar con Jarvis usa --voice-only.",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
+
+    if args.voice_only:
+        if args.chat:
+            print("Elige un modo: --chat (texto) o --voice-only (voz).", file=sys.stderr)
+            raise SystemExit(2)
+        run_voice_only()
+        return
+
+    if args.voice_audio:
+        run_voice_audio(args.voice_audio, speak_tts=args.voice_speak)
+        return
+
+    if args.voice_fixture:
+        run_voice_fixture(args.voice_fixture, speak_tts=args.voice_speak)
+        return
 
     if args.chat:
         run_chat()

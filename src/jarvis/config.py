@@ -15,7 +15,10 @@ GRAVITY = 9.81
 PROMPT_VERSION = "v1"
 OLLAMA_BASE_URL = os.getenv("JARVIS_OLLAMA_BASE_URL", "http://localhost:11434")
 OLLAMA_CHAT_PATH = os.getenv("JARVIS_OLLAMA_CHAT_PATH", "/api/chat")
-OLLAMA_MODEL = os.getenv("JARVIS_OLLAMA_MODEL", "qwen2.5:14b")
+# B1-llm-gemma4-default-model (CI-1): locked Gemma 4 E4B QAT tag, exact
+# `ollama list` string. `JARVIS_OLLAMA_MODEL` still overrides.
+DEFAULT_OLLAMA_MODEL = "hf.co/unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL"
+OLLAMA_MODEL = os.getenv("JARVIS_OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
 OLLAMA_FORMAT = os.getenv("JARVIS_OLLAMA_FORMAT", "json")
 OLLAMA_TEMPERATURE = float(os.getenv("JARVIS_OLLAMA_TEMPERATURE", "0"))
 OLLAMA_STREAM = os.getenv("JARVIS_OLLAMA_STREAM", "false").lower() == "true"
@@ -98,6 +101,16 @@ CONTINUITY_DEFER_PHRASES: frozenset[str] = frozenset({
     "continua",
     "continuamos",
     "siguiente bloque",
+    # T45 (`B1-assistant-chat-spoken-continuity`): three new entries, not
+    # previously recognized — added so these locked FULL-speak phrases
+    # (jarvis.adapters.voice.spoken_continuity.FULL_CONTINUITY_PHRASES)
+    # also resolve to the same project_status handler every other
+    # Continuity-defer phrase already uses, instead of falling through
+    # to classify/LLM. The other seven FULL phrases were already members
+    # above before T45 — only these three are additions.
+    "completo",
+    "estado completo",
+    "cuentame todo",
 })
 # B1-assistant-vehicle-hold-task (T6): finite, explicit HOLD phrases —
 # same grain as CONTINUITY_DEFER_PHRASES above: exact match on the
@@ -227,6 +240,30 @@ VEHICLE_FOLLOW_PHRASES: frozenset[str] = frozenset({
     "sigueme",
     "seguirme",
     "ven conmigo",
+})
+# B1-assistant-vehicle-patrol-task (T13): seventh and last vehicle Task
+# phrase table — last C4 AutonomyVerb without a chat Task. Exact match
+# only — short words like "patrol"/"patrulla" must not steal craft lines
+# ("patrulla del catalogo", "patrol the board layout").
+VEHICLE_PATROL_PHRASES: frozenset[str] = frozenset({
+    "patrol",
+    "patrulla",
+    "patrullar",
+    "hacer patrulla",
+    "start patrol",
+    "iniciar patrulla",
+})
+# B1-assistant-ops-charge-task (T19): first **ops** Task phrase table —
+# CHARGE is deliberately NOT an AutonomyVerb (DC §0 row 1). Exact match
+# only — short words like "cargar" must not steal mission/payload lines
+# ("carga util", "aumentar la carga", "carga util kg").
+OPS_CHARGE_PHRASES: frozenset[str] = frozenset({
+    "charge",
+    "cargar",
+    "cargar bateria",
+    "cargar la bateria",
+    "charge battery",
+    "iniciar carga",
 })
 # FN-016: navigation-back words, scoped to acquisition wizards only (NOT a
 # global escape — deliberately not merged into ESCAPE_WORDS/checked outside

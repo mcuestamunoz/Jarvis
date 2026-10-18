@@ -163,11 +163,8 @@ def test_p5_motors_propellers_frame_arm_copy_regressions_still_green():
     assert arm_offsets[0]["yawDeg"] == pytest.approx(45.0)
 
 
-def test_p6_library_and_version_untouched():
+def test_p6_library_untouched():
     repo_root = Path(__file__).resolve().parents[1]
     frames_data = json.loads((repo_root / "library" / "frames" / "_datos.json").read_text(encoding="utf-8"))
     for sku, row in frames_data.items():
         assert "prop_adapter_length_mm" not in row, f"{sku} unexpectedly gained prop_adapter_length_mm"
-
-    pyproject_text = (repo_root / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.5.44"' in pyproject_text

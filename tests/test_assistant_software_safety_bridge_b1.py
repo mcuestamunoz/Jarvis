@@ -183,7 +183,11 @@ def test_t5_default_safety_gate_and_armed_allowlist_untouched():
 
     armed_gate = ArmedAllowlistSafetyGate()
     assert armed_gate.armed is False
-    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset({"HOLD", "LAND", "GO_TO"})
+    # T14 (B1-assistant-vehicle-allowlist-widen): widened to the full
+    # seven-verb chat set.
+    assert ArmedAllowlistSafetyGate._ALLOWED_VERBS == frozenset(
+        {"HOLD", "LAND", "GO_TO", "TAKEOFF", "RETURN_HOME", "FOLLOW", "PATROL"}
+    )
     still_rejects = armed_gate.evaluate(SafetyRequest(action_id="autonomy:HOLD:1"))
     assert still_rejects.outcome == "reject"
     assert still_rejects.reason == "disarmed"
@@ -209,7 +213,3 @@ def test_t6_fences_hold_ast():
         for m in safety_imports
     ), "safety.py imports jarvis.intelligence"
 
-
-def test_t7_pyproject_version_is_0_6_12():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.20"' in text

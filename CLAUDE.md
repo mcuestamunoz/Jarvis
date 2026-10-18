@@ -100,6 +100,10 @@ When changing routing, session behavior, or state mutation, test:
 - the intended path;
 - relevant existing paths that could be affected.
 
+## Chat / spoken-continuity egress map
+
+Whenever a Buy adds or changes a `--chat` print surface, a `build_startup_context` / `build_project_continuity` field, or any `render_*` function that produces chat egress, update `.jes/artifacts/engineer_note_chat_spoken_continuity_map.md` **in the same Buy** — add the new surface/field row and classify it (`must-speak-brief` / `speak-on-request` / `screen-only`). Do not leave the map stale. The spoken-continuity layer treats that map as the inventory of what exists to classify. Layer 1 (screen) remains engineering truth; Layer 2 is a deterministic extract — never an LLM rewrite of Continuity.
+
 ---
 
 ## Refactoring rule

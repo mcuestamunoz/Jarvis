@@ -6,7 +6,7 @@
 **Implementer:** **Claude Code** — ★ AUTHORIZED with this delivery  
 **Reviewer:** Cursor on request · Engineer ACCEPT → tag **`v0.6.21`**
 
-**Status:** ★ **AUTHORIZED** — await Claude implementation → Cursor review → Engineer ★ ACCEPT → tag **`v0.6.21`**.  
+**Status:** **★ ACCEPT CLOSED** (Engineer 2026-10-01) — Cursor review **PASS WITH NOTES**. Tag **`v0.6.21`**.  
 **Parents:**
 - [DC ★ CLOSED](design_contract_assistant_vehicle_patrol_task_b0.md)
 - T12 [`B1-assistant-vehicle-follow-task`](implementation_review_assistant_vehicle_follow_task_b1.md) — ★ ACCEPT CLOSED @ **`v0.6.20`**
@@ -78,10 +78,10 @@ Bump stale `0.6.20` checkpoints this Buy owns.
 
 ## 3. Acceptance
 
-- [ ] Classify + membership + fulfill `submit_command(PATROL)` via shared gate  
-- [ ] Allow-list unwidened · honest UX · prior verbs/arm/follow unchanged  
-- [ ] Registry · cascade 10/11 · T1–T9 · docs · `0.6.21`  
-- [ ] Cursor review · Engineer ACCEPT · tag **`v0.6.21`**
+- [x] Classify + membership + fulfill `submit_command(PATROL)` via shared gate  
+- [x] Allow-list unwidened · honest UX · prior verbs/arm/follow unchanged  
+- [x] Registry · cascade 10/11 · T1–T9 · docs · `0.6.21`  
+- [x] Cursor review (**PASS WITH NOTES**) · [x] Engineer ACCEPT · tag **`v0.6.21`**
 
 ---
 

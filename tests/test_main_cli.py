@@ -3,6 +3,7 @@ from urllib import error
 
 import pytest
 
+from jarvis.config import DEFAULT_OLLAMA_MODEL
 from jarvis.llm.ollama_client import OllamaClient
 from jarvis.adapters.cli.main import render_response
 
@@ -32,7 +33,7 @@ def test_ollama_client_extracts_message_content(monkeypatch):
 
     monkeypatch.setattr("jarvis.llm.ollama_client.request.urlopen", fake_urlopen)
 
-    client = OllamaClient(base_url="http://localhost:11434", model="qwen2.5:14b")
+    client = OllamaClient(base_url="http://localhost:11434", model=DEFAULT_OLLAMA_MODEL)
     response = client.complete([{"role": "system", "content": "s"}, {"role": "user", "content": "u"}])
 
     assert '"action":"create_project"' in response
@@ -51,7 +52,7 @@ def test_ollama_client_supports_text_mode_without_json_format(monkeypatch):
 
     monkeypatch.setattr("jarvis.llm.ollama_client.request.urlopen", fake_urlopen)
 
-    client = OllamaClient(base_url="http://localhost:11434", model="qwen2.5:14b")
+    client = OllamaClient(base_url="http://localhost:11434", model=DEFAULT_OLLAMA_MODEL)
     response = client.complete(
         [{"role": "system", "content": "s"}, {"role": "user", "content": "u"}],
         json_mode=False,
@@ -67,7 +68,7 @@ def test_ollama_client_raises_clear_error_on_connection_failure(monkeypatch):
 
     monkeypatch.setattr("jarvis.llm.ollama_client.request.urlopen", fake_urlopen)
 
-    client = OllamaClient(base_url="http://localhost:11434", model="qwen2.5:14b")
+    client = OllamaClient(base_url="http://localhost:11434", model=DEFAULT_OLLAMA_MODEL)
 
     with pytest.raises(RuntimeError, match="No se pudo conectar con Ollama"):
         client.complete([{"role": "system", "content": "s"}, {"role": "user", "content": "u"}])

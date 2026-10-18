@@ -497,13 +497,6 @@ def test_t11_perception_block_still_cameras_only():
 # ── T12 ───────────────────────────────────────────────────────────────────
 
 
-def test_t12_package_checkpoint_version():
-    text = (_REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    match = re.search(r'(?m)^version\s*=\s*"([^"]+)"', text)
-    assert match is not None
-    assert match.group(1) == "0.5.44"
-
-
 # ── Extra: assist list exposes the seed sku ────────────────────────────────
 
 

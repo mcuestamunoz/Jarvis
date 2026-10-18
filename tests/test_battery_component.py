@@ -595,6 +595,9 @@ def test_pure_numeric_in_idle_not_intercepted(tmp_path):
     class _StubLLM:
         def generate(self, *a, **kw): return {}
         def interpret(self, *a, **kw): return {"action": "simulate", "parameters": {}}
+        # CI-1c: an unknown-intent turn on an active project now routes the
+        # residual LLM verb to analyze instead of self.handle.
+        def analyze(self, *a, **kw): return "stub analyze"
 
     orchestrator.handle_user_text("500", _StubLLM())
     assert "500" not in intercepted, "Pure numeric '500' must not enter component intercept"
@@ -617,6 +620,9 @@ def test_low_completeness_in_idle_not_intercepted(tmp_path):
     class _StubLLM:
         def generate(self, *a, **kw): return {}
         def interpret(self, *a, **kw): return {"action": "simulate", "parameters": {}}
+        # CI-1c: an unknown-intent turn on an active project now routes the
+        # residual LLM verb to analyze instead of self.handle.
+        def analyze(self, *a, **kw): return "stub analyze"
 
     orchestrator.handle_user_text("lipo", _StubLLM())
     assert "lipo" not in intercepted, "'lipo' alone (low) must not intercept"

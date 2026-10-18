@@ -145,7 +145,3 @@ def test_cli_argv_smoke_success_and_miss():
     assert miss.returncode == 1
     assert "No solid ontology note" in miss.stderr
 
-
-def test_pyproject_version_is_0_6_3():
-    text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    assert 'version = "0.6.3"' in text
